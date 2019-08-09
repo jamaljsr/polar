@@ -1,0 +1,9 @@
+# testing
+/coverage
+
+# production
+/build
+/dist
+
+# compiled by tsc from /src/electron/
+/public/main.js

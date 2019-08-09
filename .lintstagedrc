@@ -1,0 +1,17 @@
+{
+  "*.{ts,tsx}": [
+    "eslint --ext .ts,.tsx --fix",
+    "prettier --single-quote --write",
+    "git add"
+  ],
+  "{.{babelrc,eslintrc,prettierrc,stylelintrc}}": [
+    "prettier --parser json --write",
+    "git add"
+  ],
+  "*.less": [
+    "stylelint --syntax scss --fix",
+    "prettier --single-quote --write",
+    "git add"
+  ],
+  "*.{yml,md}": ["prettier --single-quote --write", "git add"]
+}

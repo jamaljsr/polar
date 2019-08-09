@@ -1,0 +1,144 @@
+{
+  "name": "lightning-ditto",
+  "version": "0.1.0",
+  "homepage": "https://lightningditto.com",
+  "description": "One-click Bitcoin Lightning networks for local app development & testing",
+  "author": {
+    "name": "jamaljsr",
+    "email": "contact@lightningditto.com",
+    "url": "https://lightningditto.com"
+  },
+  "main": "public/main.js",
+  "scripts": {
+    "build": "cross-env PUBLIC_URL=./ rescripts build",
+    "cm": "git add . && git cz",
+    "dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "eject": "rescripts eject",
+    "extract-langs": "i18next-scanner --config ./.i18next-scanner.js",
+    "lint": "eslint --ext .ts,.tsx --ignore-path .gitignore .",
+    "lint:all": "yarn tsc && yarn lint && yarn lint:styles",
+    "lint:fix": "yarn lint --fix",
+    "lint:styles": "stylelint **/*.*less",
+    "lint:styles:fix": "stylelint **/*.*less --fix",
+    "package": "yarn build && yarn package:electron",
+    "package:ci": "yarn postinstall && yarn build && yarn package:electron --publish onTagOrDraft",
+    "package:electron": "electron-builder build -c.extraMetadata.main=build/main.js --config .electronbuildrc",
+    "postinstall": "electron-builder install-app-deps",
+    "prestart": "tsc -p electron/tsconfig.json",
+    "prebuild": "tsc -p electron/tsconfig.json",
+    "release": "standard-version --no-verify",
+    "start": "rescripts start",
+    "test": "rescripts test --coverage",
+    "test:all": "cross-env CI=true yarn test && yarn test:e2e",
+    "test:codecov": "codecov",
+    "test:e2e": "yarn build && cross-env NODE_ENV=production testcafe electron:./ ./e2e/**/*.e2e.ts",
+    "test:e2e:live": "yarn test:e2e -L",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "electron-debug": "^3.0.1",
+    "electron-is-dev": "^1.1.0",
+    "electron-log": "^3.0.7"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
+    "@hot-loader/react-dom": "^16.8.6",
+    "@rescripts/cli": "^0.0.11",
+    "@rescripts/rescript-use-babel-config": "^0.0.8",
+    "@testing-library/jest-dom": "^4.0.0",
+    "@testing-library/react": "^8.0.9",
+    "@types/jest": "24.0.17",
+    "@types/node": "12.7.1",
+    "@types/react": "16.9.0",
+    "@types/react-dom": "16.8.5",
+    "@types/react-redux": "^7.1.1",
+    "@types/react-router": "^5.0.3",
+    "@types/react-router-dom": "^4.3.4",
+    "@types/redux-logger": "^3.0.7",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
+    "antd": "^3.21.2",
+    "babel-plugin-import": "^1.12.0",
+    "codecov": "^3.5.0",
+    "commitizen": "^4.0.3",
+    "concurrently": "^4.1.1",
+    "connected-react-router": "^6.5.2",
+    "cross-env": "^5.2.0",
+    "easy-peasy": "3.0.1",
+    "electron": "^5.0.9",
+    "electron-builder": "^21.2.0",
+    "electron-devtools-installer": "^2.2.4",
+    "eslint": "5.16.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.3",
+    "history": "^4.9.0",
+    "husky": "^3.0.3",
+    "i18next": "^17.0.9",
+    "i18next-browser-languagedetector": "^3.0.3",
+    "i18next-scanner": "^2.10.2",
+    "less": "^3.9.0",
+    "less-loader": "^5.0.0",
+    "lint-staged": "^9.2.1",
+    "prettier": "^1.18.2",
+    "react": "^16.9.0",
+    "react-async-hook": "^3.4.0",
+    "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.10",
+    "react-i18next": "^10.11.5",
+    "react-redux": "^7.1.0",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "3.0.1",
+    "redux": "^4.0.4",
+    "redux-logger": "^3.0.6",
+    "standard-version": "^7.0.0",
+    "stylelint": "^10.1.0",
+    "stylelint-config-prettier": "^5.2.0",
+    "stylelint-config-standard": "^18.3.0",
+    "testcafe": "^1.4.0",
+    "testcafe-browser-provider-electron": "^0.0.11",
+    "testcafe-react-selectors": "^3.1.0",
+    "typescript": "3.5.3",
+    "wait-on": "^3.3.0",
+    "webpack": "4.29.6"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!<rootDir>/node_modules/",
+      "!<rootDir>/src/i18n/index.ts",
+      "!<rootDir>/src/index.tsx",
+      "!<rootDir>/src/react-app-env.d.ts",
+      "!<rootDir>/src/store/index.ts",
+      "!<rootDir>/src/theme/index.js"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

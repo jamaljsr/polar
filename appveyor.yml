@@ -1,0 +1,46 @@
+image: Visual Studio 2017
+
+platform:
+  - x64
+
+environment:
+  matrix:
+    - nodejs_version: 10
+
+cache:
+  - '%LOCALAPPDATA%/Yarn'
+  - node_modules
+  - '%USERPROFILE%\.electron'
+
+matrix:
+  fast_finish: true
+
+branches:
+  only:
+    - master
+
+build: off
+
+version: '{build}'
+
+shallow_clone: true
+
+clone_depth: 1
+
+skip_branch_with_pr: true
+
+install:
+  - ps: Install-Product node $env:nodejs_version x64
+  - set CI=true
+  - yarn
+
+test_script:
+  - yarn lint
+  - yarn lint:styles
+  - yarn tsc
+  - yarn test
+  - yarn test:e2e
+  - yarn test:codecov
+
+deploy_script:
+  - cmd: powershell if ($env:appveyor_repo_branch -eq 'master') { yarn package:ci }

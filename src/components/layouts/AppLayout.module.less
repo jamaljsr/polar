@@ -1,0 +1,67 @@
+.logo {
+  position: relative;
+  height: 64px;
+  padding-left: 24px;
+  overflow: hidden;
+  line-height: 64px;
+  background: #002140;
+  transition: all 0.3s;
+
+  img {
+    height: 32px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  span {
+    display: inline-block;
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+    vertical-align: middle;
+  }
+}
+
+.layout {
+  min-height: 100vh;
+}
+
+.header {
+  padding: 0;
+
+  .trigger {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .trigger:hover {
+    color: @primary-color;
+  }
+}
+
+.content {
+  margin: 0 16px;
+}
+
+.breadcrumb {
+  margin: 16px 0;
+}
+
+.container {
+  padding: 24;
+  min-height: 360;
+  background-color: @component-background;
+}
+
+.footer {
+  text-align: center;
+}
+
+// Ant overrides
+.ant-layout-header {
+  border-left: 1px solid #000c17;
+}
