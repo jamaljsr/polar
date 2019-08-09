@@ -8,6 +8,33 @@
 
 ## Development
 
+### Dependencies
+
+Ditto requires that you have Docker installed to create the local networks
+
+- On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
+
+### Run the app
+
+`yarn && yarn dev`
+
+### Run Unit Tests
+
+`yarn test`
+
+### Run End-to-end Tests
+
+`yarn test:e2e`
+
+### Run Typescript & Linter
+
+`yarn lint:all`
+
+### Package App for your OS
+
+`yarn package`
+
 ### Tech Stack
 
 - [Electron](https://github.com/electron/electron/): cross platform desktop app framework
