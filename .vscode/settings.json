@@ -1,0 +1,19 @@
+{
+  "files.associations": {
+    ".commitlintrc": "jsonc",
+    ".electronbuildrc": "jsonc",
+    ".eslintrc": "jsonc",
+    ".lintstagedrc": "jsonc",
+    ".prettierrc": "jsonc",
+    ".renovaterc": "jsonc",
+    ".stylelintrc": "json",
+    ".versionrc": "json"
+  },
+  "eslint.autoFixOnSave": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    { "language": "typescript", "autoFix": true },
+    { "language": "typescriptreact", "autoFix": true }
+  ]
+}

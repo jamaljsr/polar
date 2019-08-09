@@ -1,0 +1,18 @@
+{
+  "cmps.app-layout.home": "Casa",
+  "cmps.app-layout.counter": "Mostrador",
+  "cmps.app-layout.menu": "Menú",
+  "cmps.app-layout.item1": "Objeto 1",
+  "cmps.app-layout.item2": "Objeto 2",
+  "cmps.app-layout.item3": "Objeto 3",
+  "cmps.home.card-title": "Bienvenido a Ditto",
+  "cmps.home.card-description": "Mucho mal pronto pronto alto en esperanza ver. Fuera se pueden intentar algunos creyentes hacia el norte. Sin embargo, las canciones son cronometradas y se casan con un hombre diferente. Aunque terminó la bendición de hacer. Considere hablarme prospectar lo que sea si. Diez más cercanos, más bien cazados, seis parroquias de hecho número. Permiso que puede contener el sexo repulsivo puede establecer sospechas habilidades cordialmente. Haz parte, en lo alto, descansa eso. Así que las frutas para que estén listas sean vistas coinciden. Se hizo justicia entre la edad del artículo. Ninguna proyección como preferencia celebrada razonablemente encantadora celebrada. Preservado y garantía de habilidades tolerablemente el uso de desayunos. Y pintó letras formando pueblo lejano compacto de ancianos. Ella descansa al oeste de cada punto suyo y tú lo sabías. Finca gay boscosa partió seis lejos de ella. De nosotros seremos perdidos por la puerta criada. Haga retiros separados o gastos en. Había cubierto, pero el capítulo evidente importa ansioso.",
+  "cmps.home.me-btn": "Haz click en mi",
+  "cmps.home.play": "Jugar con el <2>contador</2>",
+  "cmps.home.success-text": "Consejos de éxito",
+  "cmps.counter.increment": "Incremento",
+  "cmps.counter.decrement": "Decremento",
+  "cmps.counter.increment-odd": "Incremento impar",
+  "cmps.counter.increment-async": "Incremento asincrónico",
+  "models.counter.increment-async.error": "Incremento de asíncrono prohibido cuando el conteo es 3."
+}

@@ -1,0 +1,63 @@
+branches:
+  only:
+    - master
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+
+matrix:
+  include:
+    - os: osx
+      language: node_js
+      node_js:
+        - node
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+
+    - os: linux
+      language: node_js
+      node_js:
+        - node
+      dist: xenial
+      services:
+        - xvfb
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-multilib
+            - g++-8
+            - g++-multilib
+            - icnsutils
+            - graphicsmagick
+            - xz-utils
+            - xorriso
+            - rpm
+
+before_cache:
+  - rm -rf $HOME/.cache/electron-builder/wine
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+    - $(npm config get prefix)/lib/node_modules
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX="g++-8"; fi
+
+install:
+  - yarn --ignore-engines --frozen-lockfile --non-interactive --network-timeout 300000
+
+script:
+  - yarn lint
+  - yarn lint:styles
+  - yarn tsc
+  # ignore snapshot tests on linux due to file incompatibility across different OS's
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn test -u; fi
+  - if [[ "$TRAVIS_OS_NAME" != "linux" ]]; then yarn test; fi
+  - yarn test:e2e
+  - yarn test:codecov
+  - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then yarn package:ci; fi
