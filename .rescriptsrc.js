@@ -21,7 +21,6 @@ const getLessLoader = (test, withModules) => {
           javascriptEnabled: true,
           modifyVars: {
             '@primary-color': '#fa8c16',
-            '@component-background': '#e8e8e8',
           },
           // modifyVars: darkTheme,
         },
