@@ -9,14 +9,18 @@ interface LocalConfig {
   };
 }
 
-interface BitcoinNode {
+interface FogNode {
   id: number;
   name: string;
+  type: 'bitcoin' | 'lightning';
 }
 
-interface LightningNode {
-  id: number;
-  name: string;
+interface BitcoinNode extends FogNode {
+  type: 'bitcoin';
+}
+
+interface LightningNode extends FogNode {
+  type: 'lightning';
   bitcoinNodeId: number;
 }
 

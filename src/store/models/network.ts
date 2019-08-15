@@ -1,6 +1,7 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
+import networkManager from 'lib/docker/NetworkManager';
 
 export interface NetworkModel {
   networks: Network[];
@@ -16,17 +17,20 @@ const basicNetwork: Network = {
       {
         id: 0,
         name: 'bitcoind1',
+        type: 'bitcoin',
       },
     ],
     lightning: [
       {
         id: 0,
         name: 'alice',
+        type: 'lightning',
         bitcoinNodeId: 0,
       },
       {
         id: 0,
         name: 'bob',
+        type: 'lightning',
         bitcoinNodeId: 0,
       },
     ],
@@ -42,8 +46,10 @@ const networkModel: NetworkModel = {
     state.networks.push(network);
     info(`Added new network '${network.name}' to redux sate`);
   }),
-  addNetwork: thunk(async (actions, payload, { dispatch }) => {
+  addNetwork: thunk(async (actions, payload, { dispatch, getState }) => {
     actions.add(payload);
+    const { networks } = getState();
+    networkManager.start(networks[networks.length - 1]);
     dispatch(push('/'));
   }),
 };
