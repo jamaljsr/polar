@@ -1,19 +1,24 @@
 import ComposeFile from './ComposeFile';
+import yaml from 'js-yaml';
+import fs from 'fs';
 
 class NetworkManager {
   start(network: Network) {
-    this._buildComposeFile(network);
+    this.buildComposeFile(network);
   }
 
-  private _buildComposeFile(network: Network) {
+  private buildComposeFile(network: Network) {
     const file = new ComposeFile();
     network.nodes.bitcoin.forEach(node => {
       file.addBitcoind(node.name);
     });
     network.nodes.lightning.forEach(node => {
-      file.addLnd(node.name);
+      file.addLnd(node.name, node.backendName);
     });
-    console.log(JSON.stringify(file.content, null, 2));
+
+    console.log(file.content);
+    const yml = yaml.dump(file.content);
+    fs.writeFileSync('./dc.yml', yml);
   }
 }
 

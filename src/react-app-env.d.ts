@@ -21,7 +21,7 @@ interface BitcoinNode extends FogNode {
 
 interface LightningNode extends FogNode {
   type: 'lightning';
-  bitcoinNodeId: number;
+  backendName: string;
 }
 
 interface Network {

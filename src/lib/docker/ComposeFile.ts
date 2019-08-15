@@ -2,21 +2,21 @@
 import { bitcoind, lnd } from './nodeTemplates';
 
 export interface ComposeService {
-  [key: string]: {
-    image: string;
-    container_name: string;
-    user: string;
-    command: string;
-    volumes: string[];
-    expose: string[];
-    ports: string[];
-    restart?: 'always';
-  };
+  image: string;
+  container_name: string;
+  user: string;
+  command: string;
+  volumes: string[];
+  expose: string[];
+  ports: string[];
+  restart?: 'always';
 }
 
 export interface ComposeContent {
   version: string;
-  services: ComposeService[];
+  services: {
+    [key: string]: ComposeService;
+  };
 }
 
 class ComposeFile {
@@ -25,16 +25,16 @@ class ComposeFile {
   constructor() {
     this.content = {
       version: '3.3',
-      services: [],
+      services: {},
     };
   }
 
   addBitcoind(name: string) {
-    this.content.services.push(bitcoind(name));
+    this.content.services[name] = bitcoind(name);
   }
 
-  addLnd(name: string) {
-    this.content.services.push(lnd(name));
+  addLnd(name: string, backendName: string) {
+    this.content.services[name] = lnd(name, backendName);
   }
 }
 
