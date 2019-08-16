@@ -22,7 +22,7 @@ export const bitcoind = (name: string): ComposeService => ({
       -rpcbind=0.0.0.0
       -rpcallowip=0.0.0.0/0
   `),
-  volumes: ['${PWD}/_data/bitcoind:/home/bitcoin/.bitcoin'],
+  volumes: ['./volumes/bitcoind:/home/bitcoin/.bitcoin'],
   expose: [
     '18443', // RPC
     '18444', // p2p
@@ -30,9 +30,9 @@ export const bitcoind = (name: string): ComposeService => ({
     '28335', // ZMQ txns
   ],
   ports: [
-    '18443:18443', // RPC
-    '28334:28334', // ZMQ blocks
-    '28335:28335', // ZMQ txns
+    // '18443:18443', // RPC
+    // '28334:28334', // ZMQ blocks
+    // '28335:28335', // ZMQ txns
   ],
 });
 
@@ -56,7 +56,8 @@ export const lnd = (name: string, backendName: string): ComposeService => ({
       --bitcoind.zmqpubrawblock=tcp://${backendName}:28334
       --bitcoind.zmqpubrawtx=tcp://${backendName}:28335
   `),
-  volumes: ['${PWD}/_data/lnd/alice:/home/lnd/.lnd'],
+  restart: 'always',
+  volumes: [`./volumes/lnd/${name}:/home/lnd/.lnd`],
   expose: [
     '10000', // gRPC
     '8080', // REST

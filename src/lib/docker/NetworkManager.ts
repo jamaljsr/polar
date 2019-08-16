@@ -1,13 +1,16 @@
 import ComposeFile from './ComposeFile';
 import yaml from 'js-yaml';
-import fs from 'fs';
+import { join } from 'path';
+import { writeDataFile } from 'utils/files';
+import dockerService from './DockerService';
 
 class NetworkManager {
-  start(network: Network) {
-    this.buildComposeFile(network);
+  async start(network: Network) {
+    await this.buildComposeFile(network);
+    dockerService.start(network);
   }
 
-  private buildComposeFile(network: Network) {
+  private async buildComposeFile(network: Network) {
     const file = new ComposeFile();
     network.nodes.bitcoin.forEach(node => {
       file.addBitcoind(node.name);
@@ -16,9 +19,9 @@ class NetworkManager {
       file.addLnd(node.name, node.backendName);
     });
 
-    console.log(file.content);
     const yml = yaml.dump(file.content);
-    fs.writeFileSync('./dc.yml', yml);
+    const path = join(network.id.toString(), 'docker-compose.yml');
+    await writeDataFile(path, yml);
   }
 }
 

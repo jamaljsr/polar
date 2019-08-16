@@ -49,7 +49,7 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(async (actions, payload, { dispatch, getState }) => {
     actions.add(payload);
     const { networks } = getState();
-    networkManager.start(networks[networks.length - 1]);
+    await networkManager.start(networks[networks.length - 1]);
     dispatch(push('/'));
   }),
 };
