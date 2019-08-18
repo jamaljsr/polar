@@ -1,7 +1,7 @@
 module.exports = {
   remote: {
     app: {
-      getPath: p => p,
+      getPath: p => `ELECTRON_PATH[${p}]`,
     },
   },
 };
