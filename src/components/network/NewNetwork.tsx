@@ -5,7 +5,7 @@ import { FormComponentProps } from 'antd/lib/form';
 import { useStoreActions } from 'store';
 
 interface Props extends FormComponentProps {
-  name: string;
+  name?: string;
 }
 
 const NewNetwork: React.SFC<Props> = ({ form }) => {
@@ -17,7 +17,6 @@ const NewNetwork: React.SFC<Props> = ({ form }) => {
     e.preventDefault();
     form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
         addNetwork(values.name).then(() => {
           notification.success({
             message: (
@@ -39,10 +38,10 @@ const NewNetwork: React.SFC<Props> = ({ form }) => {
         <Form.Item label="Network Name">
           {form.getFieldDecorator('name', {
             rules: [{ required: true }],
-          })(<Input placeholder="My Lightning Simnet" />)}
+          })(<Input placeholder="My Lightning Simnet" data-tid="name" />)}
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" data-tid="submit">
             Create
           </Button>
         </Form.Item>
