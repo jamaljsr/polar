@@ -78,7 +78,7 @@
     "i18next": "^17.0.9",
     "i18next-browser-languagedetector": "^3.0.3",
     "i18next-scanner": "^2.10.2",
-    "less": "^3.9.0",
+    "less": "^3.10.1",
     "less-loader": "^5.0.0",
     "lint-staged": "^9.2.1",
     "prettier": "^1.18.2",
