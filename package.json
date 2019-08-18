@@ -99,7 +99,7 @@
     "stylelint-config-standard": "^18.3.0",
     "testcafe": "^1.4.0",
     "testcafe-browser-provider-electron": "^0.0.12",
-    "testcafe-react-selectors": "^3.1.0",
+    "testcafe-react-selectors": "^3.2.0",
     "typescript": "3.5.3",
     "wait-on": "^3.3.0",
     "webpack": "4.29.6"
