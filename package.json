@@ -43,7 +43,7 @@
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
-    "@hot-loader/react-dom": "^16.8.6",
+    "@hot-loader/react-dom": "^16.9.0",
     "@rescripts/cli": "^0.0.11",
     "@rescripts/rescript-use-babel-config": "^0.0.8",
     "@testing-library/jest-dom": "^4.0.0",
