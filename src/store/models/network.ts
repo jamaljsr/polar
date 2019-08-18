@@ -42,14 +42,19 @@ const networkModel: NetworkModel = {
   networks: [],
   // reducer actions (mutations allowed thx to immer)
   add: action((state, name) => {
-    const network = { ...basicNetwork, name };
+    const network = {
+      ...basicNetwork,
+      id: state.networks.length,
+      name,
+    };
     state.networks.push(network);
     info(`Added new network '${network.name}' to redux sate`);
   }),
   addNetwork: thunk(async (actions, payload, { dispatch, getState }) => {
     actions.add(payload);
     const { networks } = getState();
-    await networkManager.start(networks[networks.length - 1]);
+    const newNetwork = networks[networks.length - 1];
+    await networkManager.create(newNetwork);
     dispatch(push('/'));
   }),
 };
