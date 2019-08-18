@@ -52,8 +52,7 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(async (actions, payload, { dispatch, getState, injections }) => {
     actions.add(payload);
     const { networks } = getState();
-    const newNetwork = networks[networks.length - 1];
-    await injections.networkManager.create(newNetwork);
+    await injections.networkManager.create(networks[networks.length - 1]);
     dispatch(push('/'));
   }),
 };
