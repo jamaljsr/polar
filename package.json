@@ -62,7 +62,7 @@
     "babel-plugin-import": "^1.12.0",
     "codecov": "^3.5.0",
     "commitizen": "^4.0.3",
-    "concurrently": "^4.1.1",
+    "concurrently": "^4.1.2",
     "connected-react-router": "^6.5.2",
     "cross-env": "^5.2.0",
     "easy-peasy": "3.0.1",
