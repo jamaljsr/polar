@@ -22,7 +22,7 @@ export const bitcoind = (name: string): ComposeService => ({
       -rpcbind=0.0.0.0
       -rpcallowip=0.0.0.0/0
   `),
-  volumes: ['./volumes/bitcoind:/home/bitcoin/.bitcoin'],
+  volumes: [`./volumes/${name}:/home/bitcoin/.bitcoin`],
   expose: [
     '18443', // RPC
     '18444', // p2p
