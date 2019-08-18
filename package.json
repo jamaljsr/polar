@@ -85,7 +85,7 @@
     "react": "^16.9.0",
     "react-async-hook": "^3.4.0",
     "react-dom": "^16.9.0",
-    "react-hot-loader": "^4.12.10",
+    "react-hot-loader": "^4.12.11",
     "react-i18next": "^10.11.5",
     "react-redux": "^7.1.0",
     "react-router": "^5.0.1",
