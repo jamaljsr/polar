@@ -26,7 +26,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
         <div className={styles.logo}>
           <Link to={HOME} data-tid="logo">
             <img src={logo} alt="logo" />
-            {!collapsed && <span>Ditto</span>}
+            {!collapsed && <span>Polar</span>}
           </Link>
         </div>
         <Menu theme="dark" mode="inline" selectable={false}>
@@ -70,7 +70,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
           <div className={styles.container}>{props.children}</div>
         </Content>
         <Footer className={styles.footer}>
-          React App &copy; 2019 Fomo Bros{' '}
+          Polar &copy; 2019 Fomo Bros{' '}
           <a href="/#" data-tid="english" onClick={setEnglish}>
             EN
           </a>{' '}
