@@ -1,5 +1,6 @@
 import * as files from 'utils/files';
 import networkManager from './networkManager';
+import { getNetwork } from 'utils/tests';
 
 jest.mock('utils/files', () => ({
   writeDataFile: jest.fn(),
@@ -11,33 +12,7 @@ describe('NetworkManager', () => {
   let network: Network;
 
   beforeEach(() => {
-    network = {
-      id: 0,
-      name: 'my-test',
-      nodes: {
-        bitcoin: [
-          {
-            id: 0,
-            name: 'bitcoind1',
-            type: 'bitcoin',
-          },
-        ],
-        lightning: [
-          {
-            id: 0,
-            name: 'alice',
-            type: 'lightning',
-            backendName: 'bitcoind1',
-          },
-          {
-            id: 0,
-            name: 'bob',
-            type: 'lightning',
-            backendName: 'bitcoind1',
-          },
-        ],
-      },
-    };
+    network = getNetwork();
   });
 
   it('should save the docker-compose.yml file', () => {

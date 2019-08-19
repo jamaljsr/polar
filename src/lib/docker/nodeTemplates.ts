@@ -2,6 +2,7 @@
 /* eslint-disable no-template-curly-in-string */
 import { ComposeService } from './composeFile';
 
+// simple function to remove all line-breaks and extra white-space in a string
 const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 export const bitcoind = (name: string): ComposeService => ({
