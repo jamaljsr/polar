@@ -1,4 +1,4 @@
-import ComposeFile from './ComposeFile';
+import ComposeFile from './composeFile';
 import yaml from 'js-yaml';
 import { join } from 'path';
 import { writeDataFile } from 'utils/files';

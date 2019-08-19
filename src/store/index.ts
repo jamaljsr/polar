@@ -3,7 +3,7 @@ import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory } from 'history';
 import { createLogger } from 'redux-logger';
 import { createModel, RootModel } from './models';
-import networkManager from 'lib/docker/NetworkManager';
+import networkManager from 'lib/docker/networkManager';
 
 export const history = createHashHistory();
 
