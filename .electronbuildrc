@@ -1,8 +1,8 @@
 {
-  "appId": "com.lightningditto.app",
-  "productName": "Ditto",
+  "appId": "com.polarlightning.app",
+  "productName": "Polar",
   "copyright": "Copyright © 2019 ${author}",
-  "artifactName": "ditto-${os}-${arch}-v${version}.${ext}",
+  "artifactName": "polar-${os}-${arch}-v${version}.${ext}",
   "files": ["build/**/*", "node_modules/**/*"],
   "directories": {
     "buildResources": "assets"
@@ -49,7 +49,7 @@
   "publish": {
     "provider": "github",
     "owner": "jamaljsr",
-    "repo": "ditto",
+    "repo": "polar",
     "private": false
   },
   "extends": null

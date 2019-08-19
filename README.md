@@ -1,16 +1,16 @@
-# Lightning Ditto
+# Lightning Polar
 
 > One-click Bitcoin Lightning networks for local app development & testing
 
-[![Build Status](https://travis-ci.org/jamaljsr/ditto.svg?branch=master)](https://travis-ci.org/jamaljsr/ditto)
-[![Build status](https://ci.appveyor.com/api/projects/status/l5637xbes42316k6?svg=true)](https://ci.appveyor.com/project/jamaljsr/ditto)
-[![codecov](https://codecov.io/gh/jamaljsr/ditto/branch/master/graph/badge.svg)](https://codecov.io/gh/jamaljsr/ditto)
+[![Build Status](https://travis-ci.org/jamaljsr/polar.svg?branch=master)](https://travis-ci.org/jamaljsr/polar)
+[![Build status](https://ci.appveyor.com/api/projects/status/5tgo5lpede1vj0g5?svg=true)](https://ci.appveyor.com/project/jamaljsr/polar)
+[![codecov](https://codecov.io/gh/jamaljsr/polar/branch/master/graph/badge.svg)](https://codecov.io/gh/jamaljsr/polar)
 
 ## Development
 
 ### Dependencies
 
-Ditto requires that you have Docker installed to create the local networks
+Polar requires that you have Docker installed to create the local networks
 
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
