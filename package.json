@@ -65,7 +65,7 @@
     "concurrently": "^4.1.2",
     "connected-react-router": "^6.5.2",
     "cross-env": "^5.2.0",
-    "easy-peasy": "3.0.1",
+    "easy-peasy": "3.0.2",
     "electron": "^5.0.9",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.4",
