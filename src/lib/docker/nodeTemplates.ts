@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable no-template-curly-in-string */
-import { ComposeService } from './ComposeFile';
+import { ComposeService } from './composeFile';
 
 const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
