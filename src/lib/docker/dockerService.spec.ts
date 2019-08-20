@@ -1,6 +1,8 @@
 import * as compose from 'docker-compose';
 import dockerService from './dockerService';
 import { getNetwork } from 'utils/tests';
+import { dataPath } from 'utils/config';
+import { join } from 'path';
 
 jest.mock('docker-compose', () => ({
   upAll: jest.fn(),
@@ -17,6 +19,7 @@ describe('DockerService', () => {
 
   it('should call compose.upAll', () => {
     dockerService.start(network);
-    expect(composeMock.upAll).toBeCalledWith({ cwd: 'ELECTRON_PATH[userData]\\data\\0' });
+    const networkPath = join(dataPath, network.id.toString());
+    expect(composeMock.upAll).toBeCalledWith({ cwd: networkPath });
   });
 });
