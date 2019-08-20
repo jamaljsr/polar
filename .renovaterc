@@ -4,5 +4,15 @@
   "automerge": true,
   "major": {
     "automerge": false
-  }
+  },
+  "ignoreDeps": [
+    // see https://github.com/facebook/create-react-app/pull/3771
+    "babel-eslint",
+    "babel-jest",
+    "babel-loader",
+    "eslint",
+    "jest",
+    "webpack",
+    "webpack-dev-server"
+  ]
 }
