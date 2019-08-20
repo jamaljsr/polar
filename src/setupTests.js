@@ -8,12 +8,18 @@ import { configure } from '@testing-library/react';
 
 configure({ testIdAttribute: 'data-tid' });
 
-// FIXME Remove when we upgrade to React >= 16.9
-// see https://github.com/testing-library/react-testing-library/issues/281#issuecomment-507584839
-const originalConsoleError = console.error;
-console.error = (...args) => {
-  if (/Warning.*not wrapped in act/.test(args[0])) {
+// Prevent displaying some unfixable warnings in tests
+const originalConsoleWarning = console.warn;
+console.warn = (...args) => {
+  if (
+    // renamed componentWillReceiveProps in dependencies
+    /Warning.*componentWillReceiveProps has been renamed/.test(args[0]) ||
+    // router history inconsistencies
+    /Warning: Hash history cannot PUSH the same path/.test(args[0]) ||
+    // antd form validation warnings
+    /async-validator:/.test(args[0])
+  ) {
     return;
   }
-  originalConsoleError(...args);
+  originalConsoleWarning(...args);
 };

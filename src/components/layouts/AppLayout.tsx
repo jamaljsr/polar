@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu, Icon, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { HOME, COUNTER } from 'components/Routes';
+import { HOME, COUNTER, NETWORK } from 'components/Routes';
 import logo from 'resources/logo.png';
 import styles from './AppLayout.module.less';
 
@@ -65,19 +65,34 @@ const AppLayout: React.FC<Props> = (props: Props) => {
             onClick={toggle}
             data-tid="trigger"
           />
+          <Link to={NETWORK}>
+            <Button type="primary" icon="plus" data-tid="new-network">
+              {t('cmps.app-layout.new-network', 'Network')}
+            </Button>
+          </Link>
         </Header>
         <Content className={styles.content}>
           <div className={styles.container}>{props.children}</div>
         </Content>
         <Footer className={styles.footer}>
           Polar &copy; 2019 Fomo Bros{' '}
-          <a href="/#" data-tid="english" onClick={setEnglish}>
+          <Button
+            type="link"
+            className={styles.btn}
+            onClick={setEnglish}
+            data-tid="english"
+          >
             EN
-          </a>{' '}
-          |{' '}
-          <a href="/#" data-tid="spanish" onClick={setSpanish}>
+          </Button>
+          |
+          <Button
+            type="link"
+            className={styles.btn}
+            onClick={setSpanish}
+            data-tid="spanish"
+          >
             ES
-          </a>
+          </Button>
         </Footer>
       </Layout>
     </Layout>

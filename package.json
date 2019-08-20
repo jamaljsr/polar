@@ -36,9 +36,14 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/dockerode": "^2.5.20",
+    "@types/js-yaml": "^3.12.1",
+    "docker-compose": "^0.21.0",
+    "dockerode": "^2.5.8",
     "electron-debug": "^3.0.1",
     "electron-is-dev": "^1.1.0",
-    "electron-log": "^3.0.7"
+    "electron-log": "^3.0.7",
+    "js-yaml": "^3.13.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
