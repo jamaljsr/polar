@@ -1556,10 +1556,10 @@
     pretty-format "^24.8.0"
     wait-for-expect "^1.2.0"
 
-"@testing-library/jest-dom@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-4.0.0.tgz#56eee8dd183fe14a682fda7aca6413ec4e5303d2"
-  integrity sha512-YQA/LnRRfqHV5YRauawOGgMDgq43XfyqCz3whmxIPyrfvTdjLCNyY/BseGaa48y54yb3oiRo/NZT0oXNMQdkTA==
+"@testing-library/jest-dom@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-4.0.1.tgz#edc4901d309b82fe6149dff3f817c6ea247bc22f"
+  integrity sha512-UHai1O5zN6UIqZ0SR35BsAEM0FED4xXoOQnE6tzdeIPa8FaAor5zaM30qK49Ynjd/rcC3DbA9jqR+0C5WD2Xng==
   dependencies:
     "@babel/runtime" "^7.5.1"
     chalk "^2.4.1"
@@ -1736,10 +1736,10 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.2.tgz#690a1475b84f2a884fd07cd797c00f5f31356ea8"
   integrity sha512-ce5d3q03Ex0sy4R14722Rmt6MT07Ua+k4FwDfdcToYJcMKNtRVQvJ6JCAPdAmAnbRb6CsX6aYb9m96NGod9uTw==
 
-"@types/react-dom@16.8.5":
-  version "16.8.5"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.8.5.tgz#3e3f4d99199391a7fb40aa3a155c8dd99b899cbd"
-  integrity sha512-idCEjROZ2cqh29+trmTmZhsBAUNQuYrF92JHKzZ5+aiFM1mlSk3bb23CK7HhYuOY75Apgap5y2jTyHzaM2AJGA==
+"@types/react-dom@16.9.0":
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.0.tgz#ba6ddb00bf5de700b0eb91daa452081ffccbfdea"
+  integrity sha512-OL2lk7LYGjxn4b0efW3Pvf2KBVP0y1v3wip1Bp7nA79NkOpElH98q3WdCEdDj93b2b0zaeBG9DvriuKjIK5xDA==
   dependencies:
     "@types/react" "*"
 
@@ -6025,10 +6025,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-easy-peasy@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.0.1.tgz#7f42f580838a4a848e64d3570e5f345926a96f08"
-  integrity sha512-AvlIUki2RAjQRb264k6VX+eoP8FT5aLU3ocmCT2No8pbDtEA4cHB2wgue/zfmZT4n5viUm/AI9yBMhwAgbQ5OA==
+easy-peasy@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.0.2.tgz#1bd9cd589cb6fd930528243b950e13d4f41958a5"
+  integrity sha512-qcsr81F6rZN5hEZ1lYRDUHtatxn5Qb4cF5uj5cNXKEXLXmATCxktNC53B2XvccA7K8zSCwUeoFckrCOvLeINWA==
   dependencies:
     immer-peasy "3.1.3"
     memoizerific "^1.11.3"
@@ -6036,7 +6036,7 @@ easy-peasy@3.0.1:
     redux "^4.0.4"
     redux-thunk "^2.3.0"
     shallowequal "^1.1.0"
-    ts-toolbelt "^3.1.3"
+    ts-toolbelt "^3.8.0"
 
 easy-stack@^1.0.0:
   version "1.0.0"
@@ -6402,10 +6402,10 @@ escodegen@^1.11.0, escodegen@^1.9.1:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-prettier@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.0.0.tgz#f429a53bde9fc7660e6353910fd996d6284d3c25"
-  integrity sha512-vDrcCFE3+2ixNT5H83g28bO/uYAwibJxerXPj+E7op4qzBCsAV36QfvdAyVOoNxKAH2Os/e01T/2x++V0LPukA==
+eslint-config-prettier@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.1.0.tgz#e6f678ba367fbd1273998d5510f76f004e9dce7b"
+  integrity sha512-k9fny9sPjIBQ2ftFTesJV21Rg4R/7a7t7LCtZVrYQiHEp8Nnuk3EGaDmsKSAnsPj0BYcgB2zxzHa2NTkIxcOLg==
   dependencies:
     get-stdin "^6.0.0"
 
@@ -13717,10 +13717,10 @@ react-hot-loader@^4.12.11:
     shallowequal "^1.1.0"
     source-map "^0.7.3"
 
-react-i18next@^10.11.5:
-  version "10.11.5"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-10.11.5.tgz#10d0726a6c63c2d928078a7e7ec3db708246be04"
-  integrity sha512-+LXYehLGWbOzM4on9pgeCMTmo7J24Pm2rio4S8OSVdYudUKxLSYzoMDgJect0SQbTlIiK6b6+OTgTGY4YKPECw==
+react-i18next@^10.12.2:
+  version "10.12.2"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-10.12.2.tgz#2f2d79b84c1f3e3844d110e4c9d5c73a48f99418"
+  integrity sha512-tZCBhUz8rJtgmTi1z2pWEoQBvFHjwOS2+TQ7L4RfJq1LDirXi2m+3Pwg6gUECVCGenWomLufWNiTwRF9fmBrUQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
     html-parse-stringify2 "2.0.1"
@@ -15842,10 +15842,10 @@ test-exclude@^5.2.3:
     read-pkg-up "^4.0.0"
     require-main-filename "^2.0.0"
 
-testcafe-browser-provider-electron@^0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.11.tgz#f6ee1e611075aba2f6466c4bae96f9a1f4d5c3ff"
-  integrity sha512-mqblrMQLLL4TLxl5dg30lsJxDx3EjHx5cIqQTDVdhC2ZBUndJpQpjuirjuXOPBrNhmdmxIX886OitoAGCJZJ1w==
+testcafe-browser-provider-electron@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.12.tgz#f737efb207f0cb24aa2b439bd1a5bc733424a3cf"
+  integrity sha512-xvbOIzTCSkPPg/gkPJkFQ08GWLcQEqTkH5iFT752iDMkfKoVZbWEPv8+1YBznG63GPUouplatHhmzWw3pzhiWQ==
   dependencies:
     babel-runtime "^6.25.0"
     chrome-remote-interface "^0.27.0"
@@ -15877,10 +15877,10 @@ testcafe-browser-tools@1.6.8:
     read-file-relative "^1.2.0"
     which-promise "^1.0.0"
 
-testcafe-hammerhead@14.7.3:
-  version "14.7.3"
-  resolved "https://registry.yarnpkg.com/testcafe-hammerhead/-/testcafe-hammerhead-14.7.3.tgz#1a64d246238a60c929551c97fb5d9ae81f4e2a90"
-  integrity sha512-R630XXtwKjMVvvOHNW7sB4ZhUgkMnvG/BNHbpkZCrT2PuFA6JMzEv70Af3NR5dUVZ2Ep/e5pERWgrzRJlcCCYQ==
+testcafe-hammerhead@14.7.4:
+  version "14.7.4"
+  resolved "https://registry.yarnpkg.com/testcafe-hammerhead/-/testcafe-hammerhead-14.7.4.tgz#74f45e8610f2d530a6aebbc17b16f07544cd892b"
+  integrity sha512-uvBdC/np9qmB6NXZ1xxqIrGvx6fU77a/7wgXcQGZdo4GX/rRZv7cOZEzigjJsn9XHLMBbuVFZEUmGMZBB26/IA==
   dependencies:
     acorn-hammerhead "^0.2.0"
     asar "^2.0.1"
@@ -15926,10 +15926,10 @@ testcafe-legacy-api@3.1.11:
     pinkie "^2.0.1"
     strip-bom "^2.0.0"
 
-testcafe-react-selectors@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/testcafe-react-selectors/-/testcafe-react-selectors-3.1.0.tgz#c531d6d6a856935971dd3331f5416df420b65aa9"
-  integrity sha512-o2APYvtIqWdi7wkCFoQLbC5SjboqCA3iW1k9PvfbxxerjQuvUfZMv4QAwVi4SNQ8veK/NSiuSNRP7na0YqNDyQ==
+testcafe-react-selectors@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/testcafe-react-selectors/-/testcafe-react-selectors-3.2.0.tgz#e01fc858edb30b6f286d41a0e638c0f27f59b93c"
+  integrity sha512-QOy1f2Dn3GLNUEWm5W9nviRgUYiFEis0MYSeQkgpcBbASLku3rc/X+4gtCx+rytUUqlRlu0njJQU3J5amJZsTg==
 
 testcafe-reporter-json@^2.1.0:
   version "2.2.0"
@@ -15956,10 +15956,10 @@ testcafe-reporter-xunit@^2.1.0:
   resolved "https://registry.yarnpkg.com/testcafe-reporter-xunit/-/testcafe-reporter-xunit-2.1.0.tgz#e6d66c572ce15af266706af0fd610b2a841dd443"
   integrity sha1-5tZsVyzhWvJmcGrw/WELKoQd1EM=
 
-testcafe@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/testcafe/-/testcafe-1.4.0.tgz#f8807056799ceb6ad491858e2b412c8fb2f2b085"
-  integrity sha512-cZsbLCSwMrFeMUicy06DLft3Q9DG2GJfAR+uXBDAQ8wjmLw15A9c2sif3aL+dAHZrWyroKBXEFGMNIcqTsOdPQ==
+testcafe@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/testcafe/-/testcafe-1.4.1.tgz#251834c2811105d67b97daed8d062a67a9663fb6"
+  integrity sha512-j5dwM7jDSFutjhqaj8cDhU32m/cooZQr4dqUpBnpByJMTFheNQLyAkIcgz3NYeHNMf9a9xCPa+epqYLm/aD9QA==
   dependencies:
     "@types/node" "^10.12.19"
     async-exit-hook "^1.1.2"
@@ -16021,7 +16021,7 @@ testcafe@^1.4.0:
     source-map-support "^0.5.5"
     strip-bom "^2.0.0"
     testcafe-browser-tools "1.6.8"
-    testcafe-hammerhead "14.7.3"
+    testcafe-hammerhead "14.7.4"
     testcafe-legacy-api "3.1.11"
     testcafe-reporter-json "^2.1.0"
     testcafe-reporter-list "^2.1.0"
@@ -16328,10 +16328,10 @@ ts-pnp@1.1.2, ts-pnp@^1.1.2:
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.1.2.tgz#be8e4bfce5d00f0f58e0666a82260c34a57af552"
   integrity sha512-f5Knjh7XCyRIzoC/z1Su1yLLRrPrFCgtUAh/9fCSP6NKbATwpOL1+idQVXQokK9GRFURn/jYPGPfegIctwunoA==
 
-ts-toolbelt@^3.1.3:
-  version "3.2.12"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.2.12.tgz#a6c0f60973aad486d29e7d106c8a28bc39f5a5c5"
-  integrity sha512-u1tjEs72akUVuAX7CBANSBwlMZRW89W3ploaxqKRmDgADFDOahYZryH1Rt3Xl3dbVV341kYunaE9zeQap/OzpA==
+ts-toolbelt@^3.8.0:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.8.1.tgz#2f37d367e2d9755180faa743c0dc69bd7cab02f5"
+  integrity sha512-XDAWEHVscqto6pG0gPSbYaEfEBcl9V0JK5pQIQJ3M+6sYnxK5ZOPyyRA/aq78WxKlLvBSXCPJ1fPX+7qCCg2Zg==
 
 tslib@^1.8.1:
   version "1.10.0"
