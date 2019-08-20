@@ -66,7 +66,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
             data-tid="trigger"
           />
           <Link to={NETWORK}>
-            <Button type="primary" icon="plus">
+            <Button type="primary" icon="plus" data-tid="new-network">
               {t('cmps.app-layout.new-network', 'Network')}
             </Button>
           </Link>

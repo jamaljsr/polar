@@ -24,8 +24,9 @@ const NewNetwork: React.SFC<Props> = ({ form }) => {
       addNetwork(values.name).then(() => {
         notification.success({
           message:
-            t('cmps.new-network.success-msg', 'Created network') + ' ' + values.name,
-          top: 48,
+            t('cmps.new-network.success-msg', 'Created network') + ': ' + values.name,
+          placement: 'bottomRight',
+          bottom: 50,
         });
       });
     });
