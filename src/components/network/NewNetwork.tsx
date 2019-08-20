@@ -1,4 +1,5 @@
 import React, { useEffect, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { info } from 'electron-log';
 import { Form, Input, Button, notification } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
@@ -11,38 +12,42 @@ interface Props extends FormComponentProps {
 const NewNetwork: React.SFC<Props> = ({ form }) => {
   useEffect(() => info('Rendering NewNetwork component'), []);
 
+  const { t } = useTranslation();
   const { addNetwork } = useStoreActions(s => s.network);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     form.validateFields((err, values) => {
-      if (!err) {
-        addNetwork(values.name).then(() => {
-          notification.success({
-            message: (
-              <>
-                Created <b>{values.name}</b> network successfuly
-              </>
-            ),
-            top: 48,
-          });
-        });
+      if (err) {
+        return;
       }
+      addNetwork(values.name).then(() => {
+        notification.success({
+          message:
+            t('cmps.new-network.success-msg', 'Created network') + ' ' + values.name,
+          top: 48,
+        });
+      });
     });
   };
 
   return (
     <div>
-      <h1>Create a new Lightning Network</h1>
+      <h1>{t('cmps.new-network.title', 'Create a new Lightning Network')}</h1>
       <Form onSubmit={handleSubmit}>
-        <Form.Item label="Network Name">
+        <Form.Item label={t('cmps.new-network.name-label', 'Network Name')}>
           {form.getFieldDecorator('name', {
             rules: [{ required: true }],
-          })(<Input placeholder="My Lightning Simnet" data-tid="name" />)}
+          })(
+            <Input
+              placeholder={t('cmps.new-network.name-phldr', 'My Lightning Simnet')}
+              data-tid="name"
+            />,
+          )}
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" data-tid="submit">
-            Create
+            {t('cmps.new-network.btn-create', 'Create')}
           </Button>
         </Form.Item>
       </Form>

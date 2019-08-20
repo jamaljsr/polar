@@ -14,5 +14,11 @@
   "cmps.counter.decrement": "Decremento",
   "cmps.counter.increment-odd": "Incremento impar",
   "cmps.counter.increment-async": "Incremento asincrónico",
-  "models.counter.increment-async.error": "Incremento de asíncrono prohibido cuando el conteo es 3."
+  "models.counter.increment-async.error": "Incremento de asíncrono prohibido cuando el conteo es 3.",
+  "cmps.app-layout.new-network": "Red",
+  "cmps.new-network.title": "Crear una nueva red Lightning",
+  "cmps.new-network.name-label": "Nombre de red",
+  "cmps.new-network.name-phldr": "My Lightning Simnet",
+  "cmps.new-network.btn-create": "Crear",
+  "cmps.new-network.success-msg": "Red creada"
 }

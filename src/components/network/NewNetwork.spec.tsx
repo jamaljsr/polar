@@ -39,9 +39,9 @@ describe('NewNetwork component', () => {
     expect(getByTestId('name')).toHaveValue('');
   });
 
-  it('should have a Create button', () => {
+  it('should have a submit button', () => {
     const { getByTestId } = renderComponent();
-    expect(getByTestId('submit')).toHaveTextContent('Create');
+    expect(getByTestId('submit')).toHaveTextContent('cmps.new-network.btn-create');
   });
 
   it('should display an error if empty name is submitted', () => {

@@ -14,5 +14,11 @@
   "cmps.counter.decrement": "Decrement",
   "cmps.counter.increment-odd": "Increment Odd",
   "cmps.counter.increment-async": "Increment Async",
-  "models.counter.increment-async.error": "Increment Async prohibited when count is 3."
+  "models.counter.increment-async.error": "Increment Async prohibited when count is 3.",
+  "cmps.app-layout.new-network": "Network",
+  "cmps.new-network.title": "Create a new Lightning Network",
+  "cmps.new-network.name-label": "Network Name",
+  "cmps.new-network.name-phldr": "My Lightning Simnet",
+  "cmps.new-network.btn-create": "Create",
+  "cmps.new-network.success-msg": "Created network"
 }

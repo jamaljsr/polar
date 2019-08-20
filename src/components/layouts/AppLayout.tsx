@@ -67,7 +67,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
           />
           <Link to={NETWORK}>
             <Button type="primary" icon="plus">
-              Network
+              {t('cmps.app-layout.new-network', 'Network')}
             </Button>
           </Link>
         </Header>
