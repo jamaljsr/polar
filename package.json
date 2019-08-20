@@ -61,8 +61,8 @@
     "@types/react-router": "^5.0.3",
     "@types/react-router-dom": "^4.3.4",
     "@types/redux-logger": "^3.0.7",
-    "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
     "antd": "^3.22.0",
     "babel-plugin-import": "^1.12.0",
     "codecov": "^3.5.0",
@@ -74,7 +74,7 @@
     "electron": "^5.0.9",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.4",
-    "eslint": "5.16.0",
+    "eslint": "^6.2.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
@@ -95,7 +95,7 @@
     "react-redux": "^7.1.0",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.0.1",
+    "react-scripts": "3.1.1",
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "standard-version": "^7.0.0",
@@ -107,7 +107,7 @@
     "testcafe-react-selectors": "^3.2.0",
     "typescript": "3.5.3",
     "wait-on": "^3.3.0",
-    "webpack": "4.29.6"
+    "webpack": "4.39.1"
   },
   "husky": {
     "hooks": {

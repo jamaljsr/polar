@@ -49,7 +49,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX="g++-8"; fi
 
 install:
-  - yarn --ignore-engines --frozen-lockfile --non-interactive --network-timeout 300000
+  - yarn
 
 script:
   - yarn lint
