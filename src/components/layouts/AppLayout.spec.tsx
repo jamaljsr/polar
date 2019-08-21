@@ -1,32 +1,17 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { StoreProvider } from 'easy-peasy';
-import { ConnectedRouter } from 'connected-react-router';
-import { Provider } from 'react-redux';
-import { createMemoryHistory, MemoryHistory } from 'history';
-import { createReduxStore } from 'store';
+import { fireEvent } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
+import { renderWithProviders } from 'utils/tests';
 import AppLayout from './AppLayout';
 
 describe('AppLayout component', () => {
-  let history: MemoryHistory;
-  const renderComponent = (path?: string) => {
-    history = createMemoryHistory();
-    if (path) history.push(path);
-    const store = createReduxStore();
-    const app = (
-      <StoreProvider store={store}>
-        <Provider store={store as any}>
-          <ConnectedRouter history={history}>
-            <AppLayout>
-              <p data-tid="hello">Hello World!</p>
-            </AppLayout>
-          </ConnectedRouter>
-        </Provider>
-      </StoreProvider>
+  const renderComponent = (route?: string) => {
+    return renderWithProviders(
+      <AppLayout>
+        <p data-tid="hello">Hello World!</p>
+      </AppLayout>,
+      { route },
     );
-
-    return render(app);
   };
 
   const changeLanguageMock = () => {
@@ -78,13 +63,13 @@ describe('AppLayout component', () => {
   });
 
   it('should navigate to counter page when Counter link clicked', () => {
-    const { getByTestId } = renderComponent();
+    const { getByTestId, history } = renderComponent();
     fireEvent.click(getByTestId('nav-counter'));
     expect(history.location.pathname).toEqual('/counter');
   });
 
   it('should navigate to home page when logo clicked', () => {
-    const { getByTestId } = renderComponent('/counter');
+    const { getByTestId, history } = renderComponent('/counter');
     fireEvent.click(getByTestId('logo'));
     expect(history.location.pathname).toEqual('/');
   });
