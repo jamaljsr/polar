@@ -1,32 +1,16 @@
 import React from 'react';
 import {
-  render,
   fireEvent,
   waitForElement,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { StoreProvider } from 'easy-peasy';
-import { ConnectedRouter } from 'connected-react-router';
-import { Provider } from 'react-redux';
-import { createMemoryHistory } from 'history';
 
-import { createReduxStore } from 'store';
+import { renderWithProviders } from 'utils/tests';
 import Counter from './Counter';
 
 describe('Counter component', () => {
   const renderComponent = () => {
-    const store = createReduxStore();
-    const app = (
-      <StoreProvider store={store}>
-        <Provider store={store as any}>
-          <ConnectedRouter history={createMemoryHistory()}>
-            <Counter />
-          </ConnectedRouter>
-        </Provider>
-      </StoreProvider>
-    );
-
-    return render(app);
+    return renderWithProviders(<Counter />);
   };
 
   it('should contain default counter value of zero', () => {
