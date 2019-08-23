@@ -1,27 +1,10 @@
 import React from 'react';
-import { StoreProvider } from 'easy-peasy';
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
-import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import '@testing-library/react/cleanup-after-each';
-import { createReduxStore } from 'store';
-import Routes, { HOME, COUNTER } from './Routes';
+import { renderWithProviders } from 'utils/tests';
+import Routes, { HOME, COUNTER, NETWORK } from './Routes';
 
 describe('App container', () => {
   const renderComponent = (route: string) => {
-    const store = createReduxStore();
-    const routes = (
-      <StoreProvider store={store}>
-        <Provider store={store as any}>
-          <MemoryRouter initialEntries={[route]}>
-            <Routes />
-          </MemoryRouter>
-        </Provider>
-      </StoreProvider>
-    );
-
-    return render(routes);
+    return renderWithProviders(<Routes />, { route });
   };
 
   it('should render the home page', () => {
@@ -32,5 +15,10 @@ describe('App container', () => {
   it('should render the counter page', () => {
     const { getByTestId } = renderComponent(COUNTER);
     expect(getByTestId('counter')).toHaveTextContent('0');
+  });
+
+  it('should render the new network page', () => {
+    const { getByTestId } = renderComponent(NETWORK);
+    expect(getByTestId('submit')).toHaveTextContent('cmps.new-network.btn-create');
   });
 });
