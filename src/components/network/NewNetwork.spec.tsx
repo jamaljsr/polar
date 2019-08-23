@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
+import { HOME } from 'components/Routes';
 import NewNetwork from './NewNetwork';
 
 describe('NewNetwork component', () => {
@@ -38,7 +39,7 @@ describe('NewNetwork component', () => {
       const nameInput = getByTestId('name');
       fireEvent.change(nameInput, { target: { value: 'test' } });
       fireEvent.click(getByTestId('submit'));
-      expect(history.location.pathname).toEqual('/');
+      expect(history.location.pathname).toEqual(HOME);
     });
 
     it('should call networkManager.create', () => {

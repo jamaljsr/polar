@@ -1,13 +1,14 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
 import { renderWithProviders, getNetwork } from 'utils/tests';
+import { NETWORK } from 'components/Routes';
 import NetworkList from './NetworkList';
 
 describe('NetworkList Component', () => {
-  const renderComponent = () => {
+  const renderComponent = (initialNetworks?: Network[]) => {
     const initialState = {
       network: {
-        networks: [
+        networks: initialNetworks || [
           getNetwork(0, 'my network 1'),
           getNetwork(1, 'my network 2'),
           getNetwork(2, 'my network 3'),
@@ -22,11 +23,37 @@ describe('NetworkList Component', () => {
     expect(getByTestId('header')).toHaveTextContent('cmps.network-list.title');
   });
 
-  it('should show a big add button if no networks exist', () => {});
+  it('should display a big create button if no networks exist', () => {
+    const { getByText } = renderComponent([]);
+    expect(getByText('cmps.network-list.create-button')).toBeTruthy();
+  });
 
-  it('should display an Add Network icon if other networks exist', () => {});
+  it('should not display a create button if one or more networks exist', () => {
+    const { queryByText } = renderComponent();
+    expect(queryByText('cmps.network-list.create-button')).toBeNull();
+  });
 
-  it('should go to the new network screen when the add button is clicked', () => {});
+  it('should go to the new network screen when the create button is clicked', () => {
+    const { getByText, history } = renderComponent([]);
+    fireEvent.click(getByText('cmps.network-list.create-button'));
+    expect(history.location.pathname).toEqual(NETWORK);
+  });
+
+  it('should display a create icon if one or more networks exist', () => {
+    const { getByTestId } = renderComponent();
+    expect(getByTestId('create-icon')).toBeTruthy();
+  });
+
+  it('should not display a create icon if no networks exist', () => {
+    const { queryByTestId } = renderComponent([]);
+    expect(queryByTestId('create-icon')).toBeNull();
+  });
+
+  it('should go to the new network screen when the create icon is clicked', () => {
+    const { getByTestId, history } = renderComponent();
+    fireEvent.click(getByTestId('create-icon'));
+    expect(history.location.pathname).toEqual(NETWORK);
+  });
 
   it('should display a list of network names', async () => {
     const { getByText } = renderComponent();
