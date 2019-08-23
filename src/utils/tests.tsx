@@ -6,9 +6,9 @@ import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
 
-export const getNetwork = (): Network => ({
-  id: 0,
-  name: 'my-test',
+export const getNetwork = (networkId?: number, name?: string): Network => ({
+  id: networkId || 0,
+  name: name || 'my-test',
   nodes: {
     bitcoin: [
       {
@@ -43,18 +43,21 @@ export const getNetwork = (): Network => ({
  */
 export const renderWithProviders = (
   component: React.ReactElement,
-  options?: { route?: string },
+  config?: { route?: string; initialState?: any },
 ) => {
+  const options = config || {};
   const history = createMemoryHistory();
-  if (options && options.route) {
+  if (options.route) {
     history.push(options.route);
   }
+  const initialState = options.initialState || {};
+  // injections allow you to mock the dependencies of actions in the store
   const injections = {
     networkManager: {
       create: jest.fn(),
     },
   };
-  const store = createReduxStore({}, injections);
+  const store = createReduxStore(initialState, injections);
   const app = (
     <StoreProvider store={store}>
       <Provider store={store as any}>

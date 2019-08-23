@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HOME, COUNTER, NETWORK } from 'components/Routes';
 import logo from 'resources/logo.png';
+import NetworkList from '../network/NetworkList';
 import styles from './AppLayout.module.less';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -29,6 +30,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
             {!collapsed && <span>Polar</span>}
           </Link>
         </div>
+        <NetworkList />
         <Menu theme="dark" mode="inline" selectable={false}>
           <Menu.Item key="1">
             <Link to={HOME} data-tid="nav-home">
