@@ -46,10 +46,12 @@ export const renderWithProviders = (
   config?: { route?: string; initialState?: any },
 ) => {
   const options = config || {};
+  // use in-memory history for testing
   const history = createMemoryHistory();
   if (options.route) {
     history.push(options.route);
   }
+  // provide initial state if any
   const initialState = options.initialState || {};
   // injections allow you to mock the dependencies of actions in the store
   const injections = {
@@ -57,13 +59,14 @@ export const renderWithProviders = (
       create: jest.fn(),
     },
   };
-  const store = createReduxStore(initialState, injections);
-  const app = (
+  const store = createReduxStore({ initialState, injections, history });
+  const result = render(
     <StoreProvider store={store}>
       <Provider store={store as any}>
         <ConnectedRouter history={history}>{component}</ConnectedRouter>
       </Provider>
-    </StoreProvider>
+    </StoreProvider>,
   );
-  return { ...render(app), history, injections };
+
+  return { ...result, history, injections };
 };
