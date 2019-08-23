@@ -20,5 +20,12 @@
   "cmps.new-network.name-label": "Nombre de red",
   "cmps.new-network.name-phldr": "My Lightning Simnet",
   "cmps.new-network.btn-create": "Crear",
-  "cmps.new-network.success-msg": "Red creada"
+  "cmps.new-network.success-msg": "Red creada",
+  "cmps.network-list.start": "Comienzo",
+  "cmps.network-list.edit": "Editar",
+  "cmps.network-list.delete": "Borrar",
+  "cmps.network-list.title": "Redes",
+  "cmps.network-list.create-icon-tooltip": "Crea una nueva red",
+  "cmps.network-list.empty-desc": "No has creado ninguna red local.",
+  "cmps.network-list.create-button": "Nueva red"
 }
