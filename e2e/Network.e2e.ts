@@ -19,3 +19,11 @@ test('should add a new network', async t => {
     .expect(NewNetwork.getNotificationText())
     .eql('Created network: test network');
 });
+
+test('should display new network in the network list', async t => {
+  await t
+    .typeText(NewNetwork.nameInput, 'test network')
+    .click(NewNetwork.submitBtn)
+    .expect(App.getFirstNetworkText())
+    .eql('test network');
+});

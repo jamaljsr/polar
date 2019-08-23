@@ -1,12 +1,10 @@
 import { Selector } from 'testcafe';
 
 class App {
-  navHomeLink: Selector = Selector('[data-tid=nav-home]');
-  navCounterLink: Selector = Selector('[data-tid=nav-counter]');
-  newNetworkBtn: Selector = Selector('[data-tid=new-network]');
+  newNetworkBtn = Selector('[data-tid=create-btn]');
+  firstNetworkMenu = Selector('[data-tid=network-0]');
 
-  clickHomeLink = async (t: TestController) => t.click(this.navHomeLink);
-  clickCounterLink = async (t: TestController) => t.click(this.navCounterLink);
+  getFirstNetworkText = () => this.firstNetworkMenu.innerText;
   clickNewNetworkBtn = async (t: TestController) => t.click(this.newNetworkBtn);
 }
 
