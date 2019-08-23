@@ -1,9 +1,9 @@
-import { App, Counter } from './pages';
+import { Counter, Home } from './pages';
 import { assertNoConsoleErrors, pageUrl, getPageUrl } from './helpers';
 
 fixture`Counter`
   .page(pageUrl)
-  .beforeEach(App.clickCounterLink)
+  .beforeEach(Home.clickCounterLink)
   .afterEach(assertNoConsoleErrors);
 
 test('should be on the route /counter', async t => {

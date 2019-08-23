@@ -85,7 +85,7 @@ const List: React.FC = () => {
           )}
         >
           <Link to={NETWORK}>
-            <Button type="primary" icon="plus">
+            <Button type="primary" icon="plus" data-tid="create-btn">
               {t('cmps.network-list.create-button', 'New Network')}
             </Button>
           </Link>
