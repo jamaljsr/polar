@@ -5,3 +5,4 @@
 - POC for styled-components (https://www.styled-components.com) (https://emotion.sh)
 - better UI design (https://material.io/design/color/dark-theme.html)
 - add network designer (https://github.com/projectstorm/react-diagrams)
+- POC testing-library for testcafe (https://testing-library.com/docs/testcafe-testing-library/intro)

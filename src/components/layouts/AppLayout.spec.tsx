@@ -28,22 +28,6 @@ describe('AppLayout component', () => {
     expect(getByTestId('hello')).toHaveTextContent('Hello World!');
   });
 
-  it('should contain a collapse trigger', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('trigger')).toBeTruthy();
-  });
-
-  it('should be colappsed by default', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('sider')).toHaveClass('ant-layout-sider-collapsed');
-  });
-
-  it('should expand menu when trigger clicked', () => {
-    const { getByTestId } = renderComponent();
-    fireEvent.click(getByTestId('trigger'));
-    expect(getByTestId('sider')).not.toHaveClass('ant-layout-sider-collapsed');
-  });
-
   it('should set language to English', () => {
     const { getByTestId } = renderComponent();
     const changeLanguage = changeLanguageMock();
@@ -60,12 +44,6 @@ describe('AppLayout component', () => {
     expect(changeLanguage.mock.calls.length).toBe(1);
     expect(changeLanguage.mock.calls[0][0]).toBe('es');
     changeLanguage.mockClear();
-  });
-
-  it('should navigate to counter page when Counter link clicked', () => {
-    const { getByTestId, history } = renderComponent();
-    fireEvent.click(getByTestId('nav-counter'));
-    expect(history.location.pathname).toEqual('/counter');
   });
 
   it('should navigate to home page when logo clicked', () => {
