@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Menu, Icon } from 'antd';
+import { Menu, Icon, Tooltip, Empty, Button } from 'antd';
+import { NETWORK } from 'components/Routes';
 import { useStoreState } from 'store';
 import styles from './NetworkList.module.less';
 
@@ -55,6 +57,15 @@ const List: React.FC = () => {
     <div className={styles.networkList}>
       <header className={styles.header} data-tid="header">
         {t('cmps.network-list.title', 'Networks')}
+        {networks.length > 0 && (
+          <Link to={NETWORK} className={styles.create}>
+            <Tooltip
+              title={t('cmps.network-list.create-icon-tooltip', 'Create a new Network')}
+            >
+              <Icon type="plus-circle" data-tid="create-icon" />
+            </Tooltip>
+          </Link>
+        )}
       </header>
       <Menu
         theme="dark"
@@ -64,6 +75,22 @@ const List: React.FC = () => {
       >
         {networks.map(network => getNetworkItem(network))}
       </Menu>
+      {networks.length === 0 && (
+        <Empty
+          className={styles.empty}
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={t(
+            'cmps.network-list.empty-desc',
+            'You have not created any local networks',
+          )}
+        >
+          <Link to={NETWORK}>
+            <Button type="primary" icon="plus">
+              {t('cmps.network-list.create-button', 'New Network')}
+            </Button>
+          </Link>
+        </Empty>
+      )}
     </div>
   );
 };
