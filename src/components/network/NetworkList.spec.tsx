@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, wait } from '@testing-library/react';
 import { renderWithProviders, getNetwork } from 'utils/tests';
 import { NETWORK } from 'components/Routes';
 import NetworkList from './NetworkList';
@@ -82,5 +82,17 @@ describe('NetworkList Component', () => {
     expect(queryByText('cmps.network-list.start')).toBeTruthy();
     expect(queryByText('cmps.network-list.edit')).toBeTruthy();
     expect(queryByText('cmps.network-list.delete')).toBeTruthy();
+  });
+
+  it('should toggle a selected network closed when clicked again', () => {
+    const { queryByText, getByText } = renderComponent();
+    expect(queryByText('cmps.network-list.start')).toBeNull();
+    fireEvent.click(getByText('my network 1'));
+    expect(queryByText('cmps.network-list.start')).toBeVisible();
+    fireEvent.click(getByText('my network 1'));
+    wait(() => {
+      // wait for the menu animation to complete
+      expect(queryByText('cmps.network-list.start')).not.toBeVisible();
+    });
   });
 });
