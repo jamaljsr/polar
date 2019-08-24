@@ -2,10 +2,10 @@ import { Selector } from 'testcafe';
 
 class Home {
   successAlert: Selector = Selector('[data-tid=success]');
-  counterLink: Selector = Selector('[data-tid=counter-link]');
+  networkLink: Selector = Selector('[data-tid=network-link]');
   clickMeButton: Selector = Selector('[data-tid=me-btn]');
 
-  clickCounterLink = async (t: TestController) => t.click(this.counterLink);
+  clickNetworkLink = async (t: TestController) => t.click(this.networkLink);
 }
 
 export default new Home();

@@ -15,7 +15,7 @@ describe('Home component', () => {
 
   it('should contain a link to Counter page', () => {
     const { getByTestId } = renderComponent();
-    expect(getByTestId('counter-link')).toHaveTextContent('Counter');
+    expect(getByTestId('network-link')).toHaveTextContent('Network');
   });
 
   it('should not show alert message', () => {

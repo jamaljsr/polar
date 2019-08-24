@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Alert } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation, Trans } from 'react-i18next';
-import { COUNTER } from 'components/Routes';
 import { info } from 'electron-log';
+import { NETWORK } from 'components/Routes';
 
 const Home = () => {
   useEffect(() => info('Rendering Home component'), []);
@@ -27,8 +27,8 @@ const Home = () => {
         <p>
           <Trans i18nKey="cmps.home.play">
             Play with the{' '}
-            <Link to={COUNTER} data-tid="counter-link">
-              Counter
+            <Link to={NETWORK} data-tid="network-link">
+              Network
             </Link>{' '}
             thing
           </Trans>
