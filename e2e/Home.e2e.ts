@@ -14,9 +14,9 @@ test('should show success alert when "Click Me" button clicked', async t => {
     .ok();
 });
 
-test('should navgiate to /counter', async t => {
+test('should navgiate to /network', async t => {
   await t
-    .click(Home.counterLink)
+    .click(Home.networkLink)
     .expect(getPageUrl())
-    .contains('/counter');
+    .contains('/network');
 });
