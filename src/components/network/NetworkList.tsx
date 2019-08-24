@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, Icon, Tooltip, Empty, Button } from 'antd';
-import { NETWORK } from 'components/Routes';
+import { NETWORK, NETWORK_VIEW } from 'components/Routes';
 import { useStoreState } from 'store';
 import styles from './NetworkList.module.less';
 
@@ -22,10 +22,10 @@ const List: React.FC = () => {
 
   const getNetworkItem = (network: Network) => {
     const title = (
-      <>
+      <Link to={NETWORK_VIEW(network.id)}>
         <Icon type="deployment-unit" />
         <span>{network.name}</span>
-      </>
+      </Link>
     );
     const activeClass =
       styles.network + (network.id === activeId ? ' ' + styles.active : '');
