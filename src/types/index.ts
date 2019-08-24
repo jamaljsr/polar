@@ -10,6 +10,7 @@ export enum Status {
   Started,
   Stopping,
   Stopped,
+  Error,
 }
 
 export interface NetworkNode {

@@ -3,7 +3,6 @@ import { RouteComponentProps } from 'react-router';
 import { useStoreState } from 'store';
 import {
   PageHeader,
-  Tag,
   Menu,
   Icon,
   Dropdown,
@@ -12,12 +11,12 @@ import {
   Card,
   Divider,
   Avatar,
-  Badge,
+  Button,
 } from 'antd';
 import lnd from 'resources/lnd.png';
 import btc from 'resources/bitcoin.svg';
 import styles from './NetworkView.module.less';
-import { DetailsList } from 'components/common';
+import { DetailsList, StatusTag, StatusBadge } from 'components/common';
 
 interface MatchParams {
   id?: string;
@@ -39,7 +38,7 @@ const btcDetails = [
   { label: 'Version', value: 'v0.18.1' },
 ];
 
-const NetworkView: React.SFC<RouteComponentProps<MatchParams>> = ({ match }) => {
+const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const network = useStoreState(s => s.network.networkById(match.params.id));
   if (!network) {
     return null;
@@ -64,27 +63,22 @@ const NetworkView: React.SFC<RouteComponentProps<MatchParams>> = ({ match }) => 
         subTitle="1 bitcoind, 2 LND"
         onBack={() => {}}
         className={styles.header}
-        tags={<Tag color="#3e3e3e">Stopped</Tag>}
-        extra={
-          <Dropdown.Button overlay={menu} type="primary">
-            <Icon type="play-circle" />
+        tags={<StatusTag status={network.status} />}
+        extra={[
+          <Button key="start" type="primary" icon="play-circle">
             Start
-          </Dropdown.Button>
-        }
+          </Button>,
+          <Dropdown key="options" overlay={menu}>
+            <Button icon="down" />
+          </Dropdown>,
+        ]}
       />
-      <Row gutter={16}>
-        <Divider>Lightning Nodes</Divider>
-      </Row>
+      <Divider>Lightning Nodes</Divider>
       <Row gutter={16}>
         {lightning.map(node => (
           <Col key={node.id} span={8}>
             <Card
-              title={
-                <>
-                  <Badge status="success" />
-                  {node.name}
-                </>
-              }
+              title={<StatusBadge status={node.status} text={node.name} />}
               extra={<Avatar src={lnd} shape="square" size="small" />}
               actions={[
                 <Icon type="code" key="code" />,
@@ -97,19 +91,12 @@ const NetworkView: React.SFC<RouteComponentProps<MatchParams>> = ({ match }) => 
           </Col>
         ))}
       </Row>
-      <Row gutter={16}>
-        <Divider>Bitcoin Nodes</Divider>
-      </Row>
+      <Divider>Bitcoin Nodes</Divider>
       <Row gutter={16}>
         {bitcoin.map(node => (
           <Col key={node.id} span={8}>
             <Card
-              title={
-                <>
-                  <Badge status="success" />
-                  {node.name}
-                </>
-              }
+              title={<StatusBadge status={node.status} text={node.name} />}
               extra={<Avatar src={btc} shape="square" size="small" />}
               actions={[
                 <Icon type="code" key="code" />,
