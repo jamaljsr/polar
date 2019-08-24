@@ -3,8 +3,8 @@ import { Layout, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HOME } from 'components/Routes';
+import { NetworkList } from 'components/network';
 import logo from 'resources/logo.png';
-import NetworkList from '../network/NetworkList';
 import styles from './AppLayout.module.less';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -20,7 +20,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
 
   return (
     <Layout className={styles.layout}>
-      <Sider collapsible={false} data-tid="sider">
+      <Sider data-tid="sider">
         <div className={styles.logo}>
           <Link to={HOME} data-tid="logo">
             <img src={logo} alt="logo" />

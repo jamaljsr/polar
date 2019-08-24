@@ -1,11 +1,13 @@
-import { Action, action, Thunk, thunk } from 'easy-peasy';
+import { Action, action, Thunk, thunk, Computed, computed, memo } from 'easy-peasy';
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
+import { NETWORK_VIEW } from 'components/Routes';
 
 export interface NetworkModel {
   networks: Network[];
   add: Action<NetworkModel, string>;
   addNetwork: Thunk<NetworkModel, string>;
+  networkById: Computed<NetworkModel, (id?: string) => Network | undefined>;
 }
 
 const basicNetwork: Network = {
@@ -27,7 +29,7 @@ const basicNetwork: Network = {
         backendName: 'bitcoind1',
       },
       {
-        id: 0,
+        id: 1,
         name: 'bob',
         type: 'lightning',
         backendName: 'bitcoind1',
@@ -52,9 +54,16 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(async (actions, payload, { dispatch, getState, injections }) => {
     actions.add(payload);
     const { networks } = getState();
-    await injections.networkManager.create(networks[networks.length - 1]);
-    dispatch(push('/'));
+    const newNetwork = networks[networks.length - 1];
+    await injections.networkManager.create(newNetwork);
+    dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
+  networkById: computed(state =>
+    memo((id?: string) => {
+      const networkId: number = parseInt(id || '');
+      return state.networks.find(n => n.id === networkId);
+    }, 10),
+  ),
 };
 
 export default networkModel;
