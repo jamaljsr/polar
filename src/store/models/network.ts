@@ -1,6 +1,7 @@
 import { Action, action, Thunk, thunk, Computed, computed, memo } from 'easy-peasy';
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
+import { Network, Status } from 'types';
 import { NETWORK_VIEW } from 'components/Routes';
 
 export interface NetworkModel {
@@ -13,12 +14,14 @@ export interface NetworkModel {
 const basicNetwork: Network = {
   id: 0,
   name: '',
+  status: Status.Stopped,
   nodes: {
     bitcoin: [
       {
         id: 0,
         name: 'bitcoind1',
         type: 'bitcoin',
+        status: Status.Stopped,
       },
     ],
     lightning: [
@@ -26,12 +29,14 @@ const basicNetwork: Network = {
         id: 0,
         name: 'alice',
         type: 'lightning',
+        status: Status.Stopped,
         backendName: 'bitcoind1',
       },
       {
         id: 1,
         name: 'bob',
         type: 'lightning',
+        status: Status.Stopped,
         backendName: 'bitcoind1',
       },
     ],

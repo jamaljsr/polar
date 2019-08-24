@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { app, remote } from 'electron';
 import { initReactI18next } from 'react-i18next';
+import { LocalConfig } from 'types';
 
 const detectedLang = (app || remote.app).getLocale();
 

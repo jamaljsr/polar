@@ -1,6 +1,7 @@
 import * as files from 'utils/files';
 import networkManager from './networkManager';
 import { getNetwork } from 'utils/tests';
+import { Network } from 'types';
 
 jest.mock('utils/files', () => ({
   writeDataFile: jest.fn(),

@@ -2,6 +2,7 @@ import * as compose from 'docker-compose';
 import { join } from 'path';
 import { info } from 'electron-log';
 import { dataPath } from 'utils/config';
+import { Network } from 'types';
 
 class DockerService {
   async start(network: Network) {

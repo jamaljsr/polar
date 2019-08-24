@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
 import { renderWithProviders, getNetwork } from 'utils/tests';
 import { NETWORK } from 'components/Routes';
+import { Network } from 'types';
 import NetworkList from './NetworkList';
 
 describe('NetworkList Component', () => {
