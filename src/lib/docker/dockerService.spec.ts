@@ -3,6 +3,7 @@ import dockerService from './dockerService';
 import { getNetwork } from 'utils/tests';
 import { dataPath } from 'utils/config';
 import { join } from 'path';
+import { Network } from 'types';
 
 jest.mock('docker-compose', () => ({
   upAll: jest.fn(),

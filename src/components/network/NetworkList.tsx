@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Menu, Icon, Tooltip, Empty, Button } from 'antd';
 import { NETWORK, NETWORK_VIEW } from 'components/Routes';
 import { useStoreState } from 'store';
+import { Network } from 'types';
 import styles from './NetworkList.module.less';
 
 const List: React.FC = () => {

@@ -5,16 +5,19 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
+import { Network, Status } from 'types';
 
 export const getNetwork = (networkId?: number, name?: string): Network => ({
   id: networkId || 0,
   name: name || 'my-test',
+  status: Status.Stopped,
   nodes: {
     bitcoin: [
       {
         id: 0,
         name: 'bitcoind1',
         type: 'bitcoin',
+        status: Status.Stopped,
       },
     ],
     lightning: [
@@ -22,12 +25,14 @@ export const getNetwork = (networkId?: number, name?: string): Network => ({
         id: 0,
         name: 'alice',
         type: 'lightning',
+        status: Status.Stopped,
         backendName: 'bitcoind1',
       },
       {
         id: 0,
         name: 'bob',
         type: 'lightning',
+        status: Status.Stopped,
         backendName: 'bitcoind1',
       },
     ],

@@ -3,6 +3,7 @@ import yaml from 'js-yaml';
 import { join } from 'path';
 import { writeDataFile } from 'utils/files';
 import { info } from 'electron-log';
+import { Network } from 'types';
 
 class NetworkManager {
   public async create(network: Network) {
