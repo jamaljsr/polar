@@ -13,19 +13,21 @@ export enum Status {
   Error,
 }
 
-export interface NetworkNode {
+export interface CommonNode {
   id: number;
   name: string;
   type: 'bitcoin' | 'lightning';
   status: Status;
 }
 
-export interface BitcoinNode extends NetworkNode {
+export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
+  implementation: 'bitcoind' | 'btcd';
 }
 
-export interface LightningNode extends NetworkNode {
+export interface LightningNode extends CommonNode {
   type: 'lightning';
+  implementation: 'LND' | 'c-lightning' | 'eclair';
   backendName: string;
 }
 

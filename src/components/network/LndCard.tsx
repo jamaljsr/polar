@@ -6,6 +6,7 @@ import lnd from 'resources/lnd.png';
 
 interface Props {
   node: LightningNode;
+  className?: string;
 }
 
 const lndDetails = [
@@ -17,10 +18,11 @@ const lndDetails = [
   { label: 'Version', value: 'v0.7.1' },
 ];
 
-const LndCard: React.FC<Props> = ({ node }) => {
+const LndCard: React.FC<Props> = ({ node, className }) => {
   return (
     <Card
       title={<StatusBadge status={node.status} text={node.name} />}
+      className={className}
       extra={<Avatar src={lnd} shape="square" size="small" />}
       actions={[
         <Icon type="code" key="code" />,

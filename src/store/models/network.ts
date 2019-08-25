@@ -3,56 +3,54 @@ import { info } from 'electron-log';
 import { push } from 'connected-react-router';
 import { Network, Status } from 'types';
 import { NETWORK_VIEW } from 'components/Routes';
+import { range } from 'utils/numbers';
+
+interface AddNetworkArgs {
+  name: string;
+  lndNodes: number;
+  bitcoindNodes: number;
+}
 
 export interface NetworkModel {
   networks: Network[];
-  add: Action<NetworkModel, string>;
-  addNetwork: Thunk<NetworkModel, string>;
+  add: Action<NetworkModel, AddNetworkArgs>;
+  addNetwork: Thunk<NetworkModel, AddNetworkArgs>;
   networkById: Computed<NetworkModel, (id?: string) => Network | undefined>;
 }
-
-const basicNetwork: Network = {
-  id: 0,
-  name: '',
-  status: Status.Stopped,
-  nodes: {
-    bitcoin: [
-      {
-        id: 0,
-        name: 'bitcoind1',
-        type: 'bitcoin',
-        status: Status.Stopped,
-      },
-    ],
-    lightning: [
-      {
-        id: 0,
-        name: 'alice',
-        type: 'lightning',
-        status: Status.Stopped,
-        backendName: 'bitcoind1',
-      },
-      {
-        id: 1,
-        name: 'bob',
-        type: 'lightning',
-        status: Status.Stopped,
-        backendName: 'bitcoind1',
-      },
-    ],
-  },
-};
 
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
   // reducer actions (mutations allowed thx to immer)
-  add: action((state, name) => {
-    const network = {
-      ...basicNetwork,
-      id: state.networks.length,
+  add: action((state, { name, lndNodes, bitcoindNodes }) => {
+    const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
+    const network: Network = {
+      id: nextId,
       name,
+      status: Status.Stopped,
+      nodes: {
+        bitcoin: [],
+        lightning: [],
+      },
     };
+
+    network.nodes.bitcoin = range(bitcoindNodes).map((v, i) => ({
+      id: i,
+      name: `bitcoind-${i + 1}`,
+      type: 'bitcoin',
+      implementation: 'bitcoind',
+      status: Status.Stopped,
+    }));
+
+    network.nodes.lightning = range(lndNodes).map((v, i) => ({
+      id: i,
+      name: `lnd-${i + 1}`,
+      type: 'lightning',
+      implementation: 'LND',
+      status: Status.Stopped,
+      backendName: network.nodes.bitcoin[0].name,
+    }));
+
     state.networks.push(network);
     info(`Added new network '${network.name}' to redux sate`);
   }),
