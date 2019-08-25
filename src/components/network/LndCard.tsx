@@ -23,7 +23,7 @@ const LndCard: React.FC<Props> = ({ node, className }) => {
     <Card
       title={<StatusBadge status={node.status} text={node.name} />}
       className={className}
-      extra={<Avatar src={lnd} shape="square" size="small" />}
+      extra={<Avatar src={lnd} shape="square" />}
       actions={[
         <Icon type="code" key="code" />,
         <Icon type="file-text" key="logs" />,

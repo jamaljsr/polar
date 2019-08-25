@@ -30,7 +30,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         extra={<NetworkActions status={network.status} />}
       />
       <Divider>Lightning Nodes</Divider>
-      <Row gutter={16}>
+      <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (
           <Col key={node.id} span={8}>
             <LndCard node={node} className={styles.card} />
@@ -38,7 +38,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         ))}
       </Row>
       <Divider>Bitcoin Nodes</Divider>
-      <Row gutter={16}>
+      <Row gutter={16} data-tid="btc-nodes">
         {bitcoin.map(node => (
           <Col key={node.id} span={8}>
             <BitcoindCard node={node} className={styles.card} />
