@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useStoreState } from 'store';
+import { useTranslation } from 'react-i18next';
+import { info } from 'electron-log';
 import { PageHeader, Row, Col, Divider } from 'antd';
+import { useStoreState } from 'store';
 import { StatusTag } from 'components/common';
 import NetworkActions from './NetworkActions';
 import LndCard from './LndCard';
@@ -29,6 +31,9 @@ const lndDetails = [
 ];
 
 const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
+  useEffect(() => info('Rendering NetworkView component'), []);
+
+  const { t } = useTranslation();
   const network = useStoreState(s => s.network.networkById(match.params.id));
   if (!network) {
     return null;
@@ -45,7 +50,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         tags={<StatusTag status={network.status} />}
         extra={<NetworkActions status={network.status} />}
       />
-      <Divider>Lightning Nodes</Divider>
+      <Divider>{t('cmps.network-view.lightning-divider', 'Lightning Nodes')}</Divider>
       <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (
           <Col key={node.id} span={12}>
@@ -53,7 +58,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
           </Col>
         ))}
       </Row>
-      <Divider>Bitcoin Nodes</Divider>
+      <Divider>{t('cmps.network-view.bitcoin-divider', 'Bitcoin Nodes')}</Divider>
       <Row gutter={16} data-tid="btc-nodes">
         {bitcoin.map(node => (
           <Col key={node.id} span={12}>

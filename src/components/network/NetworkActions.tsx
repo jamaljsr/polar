@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Status } from 'types';
 import { Menu, Icon, Button, Dropdown } from 'antd';
 import { ButtonType } from 'antd/lib/button';
@@ -42,17 +43,19 @@ const config: {
 };
 
 const NetworkActions: React.FC<Props> = ({ status }) => {
+  const { t } = useTranslation();
   const loading = status === Status.Starting || status === Status.Stopping;
   const { label, type, icon } = config[status];
+
   const menu = (
     <Menu theme="dark">
       <Menu.Item key="1">
         <Icon type="form" />
-        Edit
+        {t('cmps.network-actions.menu-edit', 'Edit')}
       </Menu.Item>
       <Menu.Item key="2">
         <Icon type="close" />
-        Delete
+        {t('cmps.network-actions.menu-delete', 'Delete')}
       </Menu.Item>
     </Menu>
   );
@@ -60,7 +63,7 @@ const NetworkActions: React.FC<Props> = ({ status }) => {
   return (
     <>
       <Button key="start" type={type} icon={icon} loading={loading}>
-        {label}
+        {t(`cmps.network-actions.primary-btn-${label.toLocaleLowerCase()}`, label)}
       </Button>
       <Dropdown key="options" overlay={menu}>
         <Button icon="down" />
