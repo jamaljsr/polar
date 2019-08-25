@@ -7,7 +7,7 @@ import { NetworkList } from 'components/network';
 import logo from 'resources/logo.png';
 import styles from './AppLayout.module.less';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 interface Props {
   children: React.ReactNode;
@@ -30,7 +30,6 @@ const AppLayout: React.FC<Props> = (props: Props) => {
         <NetworkList />
       </Sider>
       <Layout>
-        <Header className={styles.header}></Header>
         <Content className={styles.content}>
           <div className={styles.container}>{props.children}</div>
         </Content>

@@ -6,6 +6,7 @@ import logo from 'resources/bitcoin.svg';
 
 interface Props {
   node: BitcoinNode;
+  className?: string;
 }
 
 const btcDetails = [
@@ -15,10 +16,11 @@ const btcDetails = [
   { label: 'Version', value: 'v0.18.1' },
 ];
 
-const BitcoindCard: React.FC<Props> = ({ node }) => {
+const BitcoindCard: React.FC<Props> = ({ node, className }) => {
   return (
     <Card
       title={<StatusBadge status={node.status} text={node.name} />}
+      className={className}
       extra={<Avatar src={logo} shape="square" size="small" />}
       actions={[
         <Icon type="code" key="code" />,
