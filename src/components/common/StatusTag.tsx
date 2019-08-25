@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Tag } from 'antd';
 import { Status } from 'types';
 
@@ -14,10 +15,14 @@ const statusColors = {
   [Status.Error]: 'red',
 };
 
-const StatusTag: React.FC<StatusTagProps> = ({ status }) => (
-  <Tag color={statusColors[status]} data-tid="tag">
-    {Status[status]}
-  </Tag>
-);
+const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
+  const { t } = useTranslation();
+
+  return (
+    <Tag color={statusColors[status]} data-tid="tag">
+      {t(`cmps.status-tag.status-${Status[status].toLowerCase()}`)}
+    </Tag>
+  );
+};
 
 export default StatusTag;

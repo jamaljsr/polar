@@ -30,6 +30,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
           placement: 'bottomRight',
           bottom: 50,
         });
+        info(`created new network: ${JSON.stringify(values)}`);
       });
     });
   };
@@ -64,7 +65,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
                 'cmps.new-network.bitcoind-nodes-label',
                 'How many bitcoind nodes?',
               )}
-              help="Coming soon..."
+              help={t('cmps.new-network.bitcoind-nodes-soon', 'Coming Soon') + '...'}
             >
               {form.getFieldDecorator('bitcoindNodes', {
                 rules: [{ required: true, message: 'required' }],
