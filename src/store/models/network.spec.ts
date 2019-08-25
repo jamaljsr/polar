@@ -1,6 +1,6 @@
 import networkModel from './network';
 import { createStore } from 'easy-peasy';
-import { Status } from 'types';
+import { Status, Network } from 'types';
 
 describe('counter model', () => {
   const injections = {
@@ -71,5 +71,25 @@ describe('counter model', () => {
     lightning.forEach(node => {
       expect(node.status).toBe(Status.Stopped);
     });
+  });
+
+  it('should be able to add multiple networks', () => {
+    store.getActions().add(addNetworkArgs);
+    store.getActions().add({
+      ...addNetworkArgs,
+      name: 'test2',
+    });
+    const { networks } = store.getState();
+    expect(networks.length).toBe(2);
+    expect(networks[0].name).toBe('test');
+    expect(networks[1].name).toBe('test2');
+  });
+
+  it('should be able to fetch a node by id', () => {
+    store.getActions().add(addNetworkArgs);
+    const network = store.getState().networkById('1') as Network;
+    expect(network).not.toBeNull();
+    expect(network.id).toBe(1);
+    expect(network.name).toBe('test');
   });
 });

@@ -19,13 +19,11 @@ const badgeStatuses: BadgeStatus = {
   [Status.Error]: 'error',
 };
 
-const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => {
-  return (
-    <>
-      <Badge status={badgeStatuses[status]} />
-      {text}
-    </>
-  );
-};
+const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => (
+  <>
+    <Badge status={badgeStatuses[status]} data-tid="badge" />
+    {text}
+  </>
+);
 
 export default StatusBadge;
