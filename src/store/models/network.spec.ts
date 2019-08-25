@@ -92,4 +92,11 @@ describe('counter model', () => {
     expect(network.id).toBe(1);
     expect(network.name).toBe('test');
   });
+
+  it('should fail to fetch a node with invalid id', () => {
+    store.getActions().add(addNetworkArgs);
+    expect(store.getState().networkById((null as unknown) as string)).toBeUndefined();
+    expect(store.getState().networkById('asdf')).toBeUndefined();
+    expect(store.getState().networkById('99')).toBeUndefined();
+  });
 });

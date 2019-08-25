@@ -7,30 +7,22 @@ import logo from 'resources/bitcoin.svg';
 interface Props {
   node: BitcoinNode;
   className?: string;
+  details: { label: string; value: string }[];
 }
 
-const btcDetails = [
-  { label: 'Block Height', value: '432' },
-  { label: 'Wallet Balance', value: '54.00000000' },
-  { label: 'Host', value: '159.65.239.204:8443' },
-  { label: 'Version', value: 'v0.18.1' },
-];
-
-const BitcoindCard: React.FC<Props> = ({ node, className }) => {
-  return (
-    <Card
-      title={<StatusBadge status={node.status} text={node.name} />}
-      className={className}
-      extra={<Avatar src={logo} shape="square" />}
-      actions={[
-        <Icon type="code" key="code" />,
-        <Icon type="file-text" key="logs" />,
-        <Icon type="ellipsis" key="ellipsis" />,
-      ]}
-    >
-      <DetailsList details={btcDetails} />
-    </Card>
-  );
-};
+const BitcoindCard: React.FC<Props> = ({ node, className, details }) => (
+  <Card
+    title={<StatusBadge status={node.status} text={node.name} />}
+    className={className}
+    extra={<Avatar src={logo} shape="square" />}
+    actions={[
+      <Icon type="code" key="code" />,
+      <Icon type="file-text" key="logs" />,
+      <Icon type="ellipsis" key="ellipsis" />,
+    ]}
+  >
+    <DetailsList details={details} />
+  </Card>
+);
 
 export default BitcoindCard;

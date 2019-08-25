@@ -14,8 +14,8 @@ export const getNetwork = (networkId?: number, name?: string): Network => ({
   nodes: {
     bitcoin: [
       {
-        id: 0,
-        name: 'bitcoind1',
+        id: 1,
+        name: 'bitcoind-1',
         type: 'bitcoin',
         implementation: 'bitcoind',
         status: Status.Stopped,
@@ -23,16 +23,16 @@ export const getNetwork = (networkId?: number, name?: string): Network => ({
     ],
     lightning: [
       {
-        id: 0,
-        name: 'alice',
+        id: 1,
+        name: 'lnd-1',
         type: 'lightning',
         implementation: 'LND',
         status: Status.Stopped,
         backendName: 'bitcoind1',
       },
       {
-        id: 0,
-        name: 'bob',
+        id: 2,
+        name: 'lnd-2',
         type: 'lightning',
         implementation: 'LND',
         status: Status.Stopped,
