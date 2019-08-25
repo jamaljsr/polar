@@ -14,8 +14,10 @@ const statusColors = {
   [Status.Error]: 'red',
 };
 
-const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
-  return <Tag color={statusColors[status]}>{Status[status]}</Tag>;
-};
+const StatusTag: React.FC<StatusTagProps> = ({ status }) => (
+  <Tag color={statusColors[status]} data-tid="tag">
+    {Status[status]}
+  </Tag>
+);
 
 export default StatusTag;
