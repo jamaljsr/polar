@@ -21,7 +21,7 @@ const BitcoindCard: React.FC<Props> = ({ node, className }) => {
     <Card
       title={<StatusBadge status={node.status} text={node.name} />}
       className={className}
-      extra={<Avatar src={logo} shape="square" size="small" />}
+      extra={<Avatar src={logo} shape="square" />}
       actions={[
         <Icon type="code" key="code" />,
         <Icon type="file-text" key="logs" />,
