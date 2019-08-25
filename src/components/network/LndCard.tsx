@@ -14,6 +14,7 @@ const LndCard: React.FC<Props> = ({ node, details, className }) => (
   <Card
     title={<StatusBadge status={node.status} text={node.name} />}
     className={className}
+    size="small"
     extra={<Avatar src={lnd} shape="square" />}
     actions={[
       <Icon type="code" key="code" />,

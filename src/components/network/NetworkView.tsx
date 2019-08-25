@@ -53,7 +53,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       <Divider>{t('cmps.network-view.lightning-divider', 'Lightning Nodes')}</Divider>
       <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (
-          <Col key={node.id} span={12}>
+          <Col key={node.id} sm={24} md={12} lg={8} xl={6} xxl={4}>
             <LndCard node={node} details={lndDetails} className={styles.card} />
           </Col>
         ))}
@@ -61,7 +61,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       <Divider>{t('cmps.network-view.bitcoin-divider', 'Bitcoin Nodes')}</Divider>
       <Row gutter={16} data-tid="btc-nodes">
         {bitcoin.map(node => (
-          <Col key={node.id} span={12}>
+          <Col key={node.id} sm={24} md={12} lg={8} xl={6} xxl={4}>
             <BitcoindCard node={node} details={btcDetails} className={styles.card} />
           </Col>
         ))}
