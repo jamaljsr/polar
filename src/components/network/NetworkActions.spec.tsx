@@ -10,36 +10,36 @@ describe('NetworkActions Component', () => {
 
   it('should render the Starting status', () => {
     const { getByText } = renderComponent(Status.Starting);
-    expect(getByText('Starting')).toBeTruthy();
-    // button should be loading
-    expect(getByText('Starting').parentElement).toHaveClass('ant-btn-loading');
+    const primaryBtn = getByText('cmps.network-actions.primary-btn-starting');
+    expect(primaryBtn).toBeTruthy();
+    expect(primaryBtn.parentElement).toHaveClass('ant-btn-loading');
   });
 
   it('should render the Started status', () => {
     const { getByText } = renderComponent(Status.Started);
-    expect(getByText('Stop')).toBeTruthy();
-    // button should not be loading
-    expect(getByText('Stop').parentElement).not.toHaveClass('ant-btn-loading');
+    const primaryBtn = getByText('cmps.network-actions.primary-btn-stop');
+    expect(primaryBtn).toBeTruthy();
+    expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
   });
 
   it('should render the Stopping status', () => {
     const { getByText } = renderComponent(Status.Stopping);
-    expect(getByText('Stopping')).toBeTruthy();
-    // button should be loading
-    expect(getByText('Stopping').parentElement).toHaveClass('ant-btn-loading');
+    const primaryBtn = getByText('cmps.network-actions.primary-btn-stopping');
+    expect(primaryBtn).toBeTruthy();
+    expect(primaryBtn.parentElement).toHaveClass('ant-btn-loading');
   });
 
   it('should render the Stopped status', () => {
     const { getByText } = renderComponent(Status.Stopped);
-    expect(getByText('Start')).toBeTruthy();
-    // button should be loading
-    expect(getByText('Start').parentElement).not.toHaveClass('ant-btn-loading');
+    const primaryBtn = getByText('cmps.network-actions.primary-btn-start');
+    expect(primaryBtn).toBeTruthy();
+    expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
   });
 
   it('should render the Error status', () => {
     const { getByText } = renderComponent(Status.Error);
-    expect(getByText('Restart')).toBeTruthy();
-    // button should be loading
-    expect(getByText('Restart').parentElement).not.toHaveClass('ant-btn-loading');
+    const primaryBtn = getByText('cmps.network-actions.primary-btn-restart');
+    expect(primaryBtn).toBeTruthy();
+    expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
   });
 });
