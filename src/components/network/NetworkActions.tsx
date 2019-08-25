@@ -35,7 +35,7 @@ const config: {
     icon: 'play-circle',
   },
   [Status.Error]: {
-    label: 'Stop',
+    label: 'Restart',
     type: 'danger',
     icon: 'warning',
   },
