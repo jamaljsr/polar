@@ -3,7 +3,7 @@ import { Card, Button, Alert } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import { info } from 'electron-log';
-import { NETWORK } from 'components/Routes';
+import { NETWORK } from 'components/routing';
 
 const Home = () => {
   useEffect(() => info('Rendering Home component'), []);

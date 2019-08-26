@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, Icon, Tooltip, Empty, Button } from 'antd';
-import { NETWORK, NETWORK_VIEW } from 'components/Routes';
+import { NETWORK, NETWORK_VIEW } from 'components/routing';
 import { useStoreState } from 'store';
 import { Network } from 'types';
 import styles from './NetworkList.module.less';
