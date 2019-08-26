@@ -3,12 +3,12 @@ import { hot } from 'react-hot-loader/root';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
+import { info } from 'electron-log';
+import { Routes } from 'components/routing';
 import store, { hashHistory } from 'store';
-import Routes from './Routes';
-import { warn } from 'electron-log';
 
 const App: React.FC = () => {
-  useEffect(() => warn('Rendering App component'), []);
+  useEffect(() => info('Rendering App component'), []);
   return (
     // store provider for easy-peasy hooks
     <StoreProvider store={store}>

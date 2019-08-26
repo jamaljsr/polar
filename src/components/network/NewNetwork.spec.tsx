@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
-import { HOME } from 'components/Routes';
+import { HOME } from 'components/routing';
 import NewNetwork from './NewNetwork';
 
 describe('NewNetwork component', () => {

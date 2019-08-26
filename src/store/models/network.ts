@@ -2,7 +2,7 @@ import { Action, action, Thunk, thunk, Computed, computed, memo } from 'easy-pea
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
 import { Network, Status } from 'types';
-import { NETWORK_VIEW } from 'components/Routes';
+import { NETWORK_VIEW } from 'components/routing';
 import { range } from 'utils/numbers';
 
 interface AddNetworkArgs {

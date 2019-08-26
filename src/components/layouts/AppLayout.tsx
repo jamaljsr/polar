@@ -2,7 +2,7 @@ import React from 'react';
 import { Layout, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { HOME } from 'components/Routes';
+import { HOME } from 'components/routing';
 import { NetworkList } from 'components/network';
 import logo from 'resources/logo.png';
 import styles from './AppLayout.module.less';
