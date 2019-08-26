@@ -120,11 +120,9 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!<rootDir>/node_modules/",
-      "!<rootDir>/src/i18n/index.ts",
+      "!<rootDir>/src/**/index.{ts,js}",
       "!<rootDir>/src/index.tsx",
-      "!<rootDir>/src/react-app-env.d.ts",
-      "!<rootDir>/src/store/index.ts",
-      "!<rootDir>/src/theme/index.js"
+      "!<rootDir>/src/react-app-env.d.ts"
     ]
   },
   "eslintConfig": {

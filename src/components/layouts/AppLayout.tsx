@@ -1,10 +1,10 @@
 import React from 'react';
-import { Layout, Button } from 'antd';
+import { Layout } from 'antd';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { HOME } from 'components/routing';
 import { NetworkList } from 'components/network';
 import logo from 'resources/logo.png';
+import LocaleSwitch from './LocaleSwitch';
 import styles from './AppLayout.module.less';
 
 const { Content, Footer, Sider } = Layout;
@@ -14,10 +14,6 @@ interface Props {
 }
 
 const AppLayout: React.FC<Props> = (props: Props) => {
-  const { i18n } = useTranslation();
-  const setEnglish = () => i18n.changeLanguage('en-US');
-  const setSpanish = () => i18n.changeLanguage('es');
-
   return (
     <Layout className={styles.layout}>
       <Sider data-tid="sider">
@@ -34,24 +30,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
           <div className={styles.container}>{props.children}</div>
         </Content>
         <Footer className={styles.footer}>
-          Polar &copy; 2019 Fomo Bros{' '}
-          <Button
-            type="link"
-            className={styles.btn}
-            onClick={setEnglish}
-            data-tid="english"
-          >
-            EN
-          </Button>
-          |
-          <Button
-            type="link"
-            className={styles.btn}
-            onClick={setSpanish}
-            data-tid="spanish"
-          >
-            ES
-          </Button>
+          Polar &copy; 2019 Fomo Bros <LocaleSwitch />
         </Footer>
       </Layout>
     </Layout>
