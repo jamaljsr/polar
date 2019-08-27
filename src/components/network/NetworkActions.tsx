@@ -6,6 +6,7 @@ import { ButtonType } from 'antd/lib/button';
 
 interface Props {
   status: Status;
+  onClick: () => void;
 }
 
 const config: {
@@ -42,7 +43,7 @@ const config: {
   },
 };
 
-const NetworkActions: React.FC<Props> = ({ status }) => {
+const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
   const { t } = useTranslation();
   const loading = status === Status.Starting || status === Status.Stopping;
   const { label, type, icon } = config[status];
@@ -62,7 +63,7 @@ const NetworkActions: React.FC<Props> = ({ status }) => {
 
   return (
     <>
-      <Button key="start" type={type} icon={icon} loading={loading}>
+      <Button key="start" type={type} icon={icon} loading={loading} onClick={onClick}>
         {t(`cmps.network-actions.primary-btn-${label.toLocaleLowerCase()}`, label)}
       </Button>
       <Dropdown key="options" overlay={menu}>

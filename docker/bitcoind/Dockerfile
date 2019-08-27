@@ -13,7 +13,9 @@ RUN curl -SLO https://bitcoin.org/bin/bitcoin-core-${BITCOIN_VERSION}/bitcoin-${
   && tar -xzf *.tar.gz -C /opt \
   && rm *.tar.gz
 
-COPY docker-entrypoint.sh /entrypoint.sh
+COPY --chown=bitcoin docker-entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
 
 VOLUME ["/home/bitcoin/.bitcoin"]
 

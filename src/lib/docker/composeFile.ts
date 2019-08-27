@@ -4,7 +4,6 @@ import { bitcoind, lnd } from './nodeTemplates';
 export interface ComposeService {
   image: string;
   container_name: string;
-  user: string;
   command: string;
   volumes: string[];
   expose: string[];

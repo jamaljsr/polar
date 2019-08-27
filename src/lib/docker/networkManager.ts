@@ -13,11 +13,12 @@ class NetworkManager implements NetworkLibrary {
 
   private async createComposeFile(network: Network) {
     const file = new ComposeFile();
+    const prefix = (name: string) => `polar-n${network.id}-${name}`;
     network.nodes.bitcoin.forEach(node => {
-      file.addBitcoind(node.name);
+      file.addBitcoind(prefix(node.name));
     });
     network.nodes.lightning.forEach(node => {
-      file.addLnd(node.name, node.backendName);
+      file.addLnd(prefix(node.name), prefix(node.backendName));
     });
 
     const yml = yaml.dump(file.content);

@@ -6,11 +6,12 @@ import { Network, DockerLibrary } from 'types';
 
 class DockerService implements DockerLibrary {
   async start(network: Network) {
-    const networkPath = join(dataPath, network.id.toString());
+    const networkPath = join(dataPath, 'networks', network.id.toString());
     info(`Starting docker containers for ${network.name}`);
+    info(` - path: ${networkPath}`);
     const result = await compose.upAll({ cwd: networkPath });
     info(`Network started:`);
-    info(result);
+    info(result.out || result.err);
   }
 }
 

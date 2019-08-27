@@ -1,9 +1,12 @@
 version: '3.3'
 services:
   bitcoind:
-    image: bitcoind:0.18.0
-    container_name: bitcoind
-    user: bitcoin
+    image: polar/bitcoind:0.18.0
+    container_name: builder-bitcoind
+    build:
+      context: ./bitcoind
+      args:
+        - BITCOIN_VERSION=0.18.0
     # Note: need to escape the dollar sign ($$) in rpcauth. there is only one in the actual password
     command: bitcoind
       -server=1
@@ -30,9 +33,12 @@ services:
       - '28335:28335' # ZMQ txns
 
   alice:
-    image: lnd:0.7.1-beta
-    container_name: lnd_alice
-    user: lnd
+    image: polar/lnd:0.7.1-beta
+    container_name: builder-lnd
+    build:
+      context: ./lnd
+      args:
+        - LND_VERSION=0.7.1-beta
     command: wait-for-it bitcoind:18443 -- lnd
       --noseedbackup
       --tlsextradomain=lnd
@@ -58,33 +64,3 @@ services:
       - '11001:10000' # gRPC
       - '8001:8080' # REST
       - '9001:9735' # p2p
-
-  bob:
-    image: lnd:0.7.1-beta
-    container_name: lnd_bob
-    user: lnd
-    command: wait-for-it bitcoind:18443 -- lnd
-      --noseedbackup
-      --tlsextradomain=lnd
-      --listen=0.0.0.0:9735
-      --rpclisten=0.0.0.0:10009
-      --restlisten=0.0.0.0:8080
-      --bitcoin.active
-      --bitcoin.regtest
-      --bitcoin.node=bitcoind
-      --bitcoind.rpchost=bitcoind
-      --bitcoind.rpcuser=kiteuser
-      --bitcoind.rpcpass=kitepass
-      --bitcoind.zmqpubrawblock=tcp://bitcoind:28334
-      --bitcoind.zmqpubrawtx=tcp://bitcoind:28335
-    restart: always
-    volumes:
-      - ${PWD}/_data/lnd/bob:/home/lnd/.lnd
-    expose:
-      - '10000' # gRPC
-      - '8080' # REST
-      - '9735' # p2p
-    ports:
-      - '11002:10000' # gRPC
-      - '8002:8080' # REST
-      - '9002:9735' # p2p

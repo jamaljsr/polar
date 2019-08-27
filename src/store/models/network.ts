@@ -19,6 +19,7 @@ export interface NetworkModel {
   setNetworkStarting: Action<NetworkModel, number>;
   setNetworkStarted: Action<NetworkModel, number>;
   start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
+  setNetworkError: Action<NetworkModel, number>;
 }
 
 const networkModel: NetworkModel = {
@@ -84,8 +85,17 @@ const networkModel: NetworkModel = {
   start: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networkById(networkId);
     actions.setNetworkStarting(network.id);
-    await injections.dockerService.start(network);
-    actions.setNetworkStarted(network.id);
+    try {
+      await injections.dockerService.start(network);
+      actions.setNetworkStarted(network.id);
+    } catch (e) {
+      actions.setNetworkError(network.id);
+      info(`unable to start containers for '${network.name}'`, JSON.stringify(e));
+      throw e;
+    }
+  }),
+  setNetworkError: action((state, networkId) => {
+    state.networkById(networkId).status = Status.Error;
   }),
 };
 

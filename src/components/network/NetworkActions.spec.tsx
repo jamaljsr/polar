@@ -2,10 +2,13 @@ import React from 'react';
 import { renderWithProviders } from 'utils/tests';
 import { Status } from 'types';
 import NetworkActions from './NetworkActions';
+import { fireEvent } from '@testing-library/dom';
 
 describe('NetworkActions Component', () => {
+  const handleClick = jest.fn();
+
   const renderComponent = (status: Status) => {
-    return renderWithProviders(<NetworkActions status={status} />);
+    return renderWithProviders(<NetworkActions status={status} onClick={handleClick} />);
   };
 
   it('should render the Starting status', () => {
@@ -41,5 +44,12 @@ describe('NetworkActions Component', () => {
     const primaryBtn = getByText('cmps.network-actions.primary-btn-restart');
     expect(primaryBtn).toBeTruthy();
     expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
+  });
+
+  it('should call onClick when primary button pressed', () => {
+    const { getByText } = renderComponent(Status.Stopped);
+    const primaryBtn = getByText('cmps.network-actions.primary-btn-start');
+    fireEvent.click(primaryBtn);
+    expect(handleClick).toBeCalled();
   });
 });
