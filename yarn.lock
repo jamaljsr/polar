@@ -2431,10 +2431,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-antd@^3.22.1:
-  version "3.22.1"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-3.22.1.tgz#fae8080bc12418e49a6a9ab047f5cd0a0864a710"
-  integrity sha512-gzjlbYUsrRR2SNF+pLelI1E547slNpFzyLVnkc8GQKQWS+JZDR2fkJ45sWu8XTIshW50KsDzNwFnTdksDnK/Bg==
+antd@^3.22.2:
+  version "3.22.2"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-3.22.2.tgz#ae8279d940decf062a0708880bc4340783b7b270"
+  integrity sha512-IZz8yMUfi3qvVj0Y/zFMc759yOxzR0ihuCdrCh+3f/MgPVBrKR+u02/eJrDJBiSczrm4Qzb46NaNGQUR0GkxbA==
   dependencies:
     "@ant-design/create-react-context" "^0.2.4"
     "@ant-design/icons" "~2.1.1"
