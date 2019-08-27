@@ -85,7 +85,7 @@
     "i18next-scanner": "^2.10.2",
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
-    "lint-staged": "^9.2.4",
+    "lint-staged": "^9.2.5",
     "prettier": "^1.18.2",
     "react": "^16.9.0",
     "react-async-hook": "^3.4.0",
