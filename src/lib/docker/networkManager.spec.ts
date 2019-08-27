@@ -1,7 +1,7 @@
 import * as files from 'utils/files';
-import networkManager from './networkManager';
 import { getNetwork } from 'utils/tests';
 import { Network } from 'types';
+import networkManager from './networkManager';
 
 jest.mock('utils/files', () => ({
   writeDataFile: jest.fn(),
@@ -13,7 +13,7 @@ describe('NetworkManager', () => {
   let network: Network;
 
   beforeEach(() => {
-    network = getNetwork();
+    network = getNetwork(1);
   });
 
   it('should save the docker-compose.yml file', () => {
@@ -34,7 +34,9 @@ describe('NetworkManager', () => {
     networkManager.create(network);
     expect(filesMock.writeDataFile).toBeCalledWith(
       expect.stringContaining('docker-compose.yml'),
-      expect.stringContaining(`container_name: ${network.nodes.bitcoin[0].name}`),
+      expect.stringContaining(
+        `container_name: polar-n1-${network.nodes.bitcoin[0].name}`,
+      ),
     );
   });
 
@@ -42,7 +44,9 @@ describe('NetworkManager', () => {
     networkManager.create(network);
     expect(filesMock.writeDataFile).toBeCalledWith(
       expect.stringContaining('docker-compose.yml'),
-      expect.stringContaining(`container_name: ${network.nodes.lightning[0].name}`),
+      expect.stringContaining(
+        `container_name: polar-n1-${network.nodes.lightning[0].name}`,
+      ),
     );
   });
 });

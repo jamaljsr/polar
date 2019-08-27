@@ -16,10 +16,9 @@ export interface NetworkModel {
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   add: Action<NetworkModel, AddNetworkArgs>;
   addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
-  setNetworkStarting: Action<NetworkModel, number>;
-  setNetworkStarted: Action<NetworkModel, number>;
+  setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
   start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
-  setNetworkError: Action<NetworkModel, number>;
+  stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
 }
 
 const networkModel: NetworkModel = {
@@ -76,26 +75,35 @@ const networkModel: NetworkModel = {
     await injections.networkManager.create(newNetwork);
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
-  setNetworkStarting: action((state, networkId) => {
-    state.networkById(networkId).status = Status.Starting;
-  }),
-  setNetworkStarted: action((state, networkId) => {
-    state.networkById(networkId).status = Status.Started;
+  setNetworkStatus: action((state, { id, status }) => {
+    const network = state.networkById(id);
+    network.status = status;
+    network.nodes.bitcoin.forEach(n => (n.status = status));
+    network.nodes.lightning.forEach(n => (n.status = status));
   }),
   start: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networkById(networkId);
-    actions.setNetworkStarting(network.id);
+    actions.setNetworkStatus({ id: network.id, status: Status.Starting });
     try {
       await injections.dockerService.start(network);
-      actions.setNetworkStarted(network.id);
+      actions.setNetworkStatus({ id: network.id, status: Status.Started });
     } catch (e) {
-      actions.setNetworkError(network.id);
+      actions.setNetworkStatus({ id: network.id, status: Status.Error });
       info(`unable to start containers for '${network.name}'`, JSON.stringify(e));
       throw e;
     }
   }),
-  setNetworkError: action((state, networkId) => {
-    state.networkById(networkId).status = Status.Error;
+  stop: thunk(async (actions, networkId, { getState, injections }) => {
+    const network = getState().networkById(networkId);
+    actions.setNetworkStatus({ id: network.id, status: Status.Stopping });
+    try {
+      await injections.dockerService.stop(network);
+      actions.setNetworkStatus({ id: network.id, status: Status.Stopped });
+    } catch (e) {
+      actions.setNetworkStatus({ id: network.id, status: Status.Error });
+      info(`unable to stop containers for '${network.name}'`, JSON.stringify(e));
+      throw e;
+    }
   }),
 };
 

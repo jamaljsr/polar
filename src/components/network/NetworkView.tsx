@@ -10,7 +10,7 @@ import NetworkActions from './NetworkActions';
 import LndCard from './LndCard';
 import BitcoindCard from './BitcoindCard';
 import styles from './NetworkView.module.less';
-import { Network } from 'types';
+import { Network, Status } from 'types';
 
 interface MatchParams {
   id?: string;
@@ -37,12 +37,17 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
 
   const { t } = useTranslation();
   const { networkById } = useStoreState(s => s.network);
-  const { start } = useStoreActions(s => s.network);
+  const { start, stop } = useStoreActions(s => s.network);
 
   let network: Network;
-  const { execute: startCallback, error } = useAsyncCallback(
-    async () => await start(network.id),
-  );
+  const clickAsync = useAsyncCallback(async () => {
+    if (network.status === Status.Stopped || network.status === Status.Error) {
+      await start(network.id);
+    } else if (network.status === Status.Started) {
+      await stop(network.id);
+    }
+  });
+
   try {
     network = networkById(match.params.id);
   } catch {
@@ -55,12 +60,12 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     <>
       <PageHeader
         title={network.name}
-        onBack={() => {}}
+        // onBack={() => {}}
         className={styles.header}
         tags={<StatusTag status={network.status} />}
-        extra={<NetworkActions status={network.status} onClick={startCallback} />}
+        extra={<NetworkActions status={network.status} onClick={clickAsync.execute} />}
       />
-      {error && <Alert type="error" message={error.message} />}
+      {clickAsync.error && <Alert type="error" message={clickAsync.error.message} />}
       <Divider>{t('cmps.network-view.lightning-divider', 'Lightning Nodes')}</Divider>
       <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (

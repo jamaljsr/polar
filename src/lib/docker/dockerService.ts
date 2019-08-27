@@ -13,6 +13,15 @@ class DockerService implements DockerLibrary {
     info(`Network started:`);
     info(result.out || result.err);
   }
+
+  async stop(network: Network) {
+    const networkPath = join(dataPath, 'networks', network.id.toString());
+    info(`Stopping docker containers for ${network.name}`);
+    info(` - path: ${networkPath}`);
+    const result = await compose.stop({ cwd: networkPath });
+    info(`Network started:`);
+    info(result.out || result.err);
+  }
 }
 
 export default new DockerService();

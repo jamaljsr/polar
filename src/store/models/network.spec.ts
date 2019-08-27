@@ -1,16 +1,9 @@
-import networkModel from './network';
 import { createStore } from 'easy-peasy';
-import { Status, Network, StoreInjections } from 'types';
+import { Status, Network } from 'types';
+import { injections } from 'utils/tests';
+import networkModel from './network';
 
-describe('counter model', () => {
-  const injections: StoreInjections = {
-    networkManager: {
-      create: jest.fn(),
-    },
-    dockerService: {
-      start: jest.fn(),
-    },
-  };
+describe('Network model', () => {
   // initialize store for type inference
   let store = createStore(networkModel, { injections });
 
@@ -30,96 +23,172 @@ describe('counter model', () => {
     expect(store.getState().networks).toEqual([]);
   });
 
-  it('should add a new network', () => {
-    store.getActions().add(addNetworkArgs);
-    const { networks } = store.getState();
-    expect(networks.length).toBe(1);
-    expect(networks[0].name).toBe('test');
-  });
+  describe('Fetching', () => {
+    it('should be able to fetch a node by id', () => {
+      store.getActions().add(addNetworkArgs);
+      const network = store.getState().networkById('1') as Network;
+      expect(network).not.toBeNull();
+      expect(network.id).toBe(1);
+      expect(network.name).toBe('test');
+    });
 
-  it('should call the network manager', async () => {
-    await store.getActions().addNetwork(addNetworkArgs);
-    expect(store.getState().networks.length).toBe(1);
-    expect(injections.networkManager.create).toBeCalled();
-  });
-
-  it('should add a network with the correct LND nodes', () => {
-    store.getActions().add(addNetworkArgs);
-    const { networks } = store.getState();
-    const { lightning } = networks[0].nodes;
-    expect(lightning.length).toBe(2);
-    lightning.forEach(node => {
-      expect(node.type).toBe('lightning');
+    it('should fail to fetch a node with invalid id', () => {
+      store.getActions().add(addNetworkArgs);
+      [99, '99', 'asdf', undefined, (null as unknown) as string].forEach(v => {
+        expect(() => store.getState().networkById(v)).toThrow();
+      });
     });
   });
 
-  it('should add a network with the correct bitcoind nodes', () => {
-    store.getActions().add(addNetworkArgs);
-    const { networks } = store.getState();
-    const { bitcoin } = networks[0].nodes;
-    expect(bitcoin.length).toBe(1);
-    bitcoin.forEach(node => {
-      expect(node.type).toBe('bitcoin');
+  describe('Adding', () => {
+    it('should add a new network', () => {
+      store.getActions().add(addNetworkArgs);
+      const { networks } = store.getState();
+      expect(networks.length).toBe(1);
+      expect(networks[0].name).toBe('test');
+    });
+
+    it('should call the network manager when adding a new network', async () => {
+      await store.getActions().addNetwork(addNetworkArgs);
+      expect(store.getState().networks.length).toBe(1);
+      expect(injections.networkManager.create).toBeCalled();
+    });
+
+    it('should add a network with the correct LND nodes', () => {
+      store.getActions().add(addNetworkArgs);
+      const { networks } = store.getState();
+      const { lightning } = networks[0].nodes;
+      expect(lightning.length).toBe(2);
+      lightning.forEach(node => {
+        expect(node.type).toBe('lightning');
+      });
+    });
+
+    it('should add a network with the correct bitcoind nodes', () => {
+      store.getActions().add(addNetworkArgs);
+      const { networks } = store.getState();
+      const { bitcoin } = networks[0].nodes;
+      expect(bitcoin.length).toBe(1);
+      bitcoin.forEach(node => {
+        expect(node.type).toBe('bitcoin');
+      });
+    });
+
+    it('should set all nodes to Stopped by default', () => {
+      store.getActions().add(addNetworkArgs);
+      const { networks } = store.getState();
+      const { bitcoin, lightning } = networks[0].nodes;
+      expect(networks[0].status).toBe(Status.Stopped);
+      bitcoin.forEach(node => expect(node.status).toBe(Status.Stopped));
+      lightning.forEach(node => expect(node.status).toBe(Status.Stopped));
+    });
+
+    it('should be able to add multiple networks', () => {
+      store.getActions().add(addNetworkArgs);
+      store.getActions().add({
+        ...addNetworkArgs,
+        name: 'test2',
+      });
+      const { networks } = store.getState();
+      expect(networks.length).toBe(2);
+      expect(networks[0].name).toBe('test');
+      expect(networks[1].name).toBe('test2');
     });
   });
 
-  it('should set all nodes to Stopped by default', () => {
-    store.getActions().add(addNetworkArgs);
-    const { networks } = store.getState();
-    const { bitcoin, lightning } = networks[0].nodes;
-    expect(networks[0].status).toBe(Status.Stopped);
-    bitcoin.forEach(node => {
-      expect(node.status).toBe(Status.Stopped);
+  describe('Starting', () => {
+    it('should start a network by id', async () => {
+      const { add, start } = store.getActions();
+      add(addNetworkArgs);
+      await start(store.getState().networks[0].id);
+      expect(store.getState().networks[0].status).toBe(Status.Started);
     });
-    lightning.forEach(node => {
-      expect(node.status).toBe(Status.Stopped);
+
+    it('should update all node statuses when a network is started', async () => {
+      const { add, start } = store.getActions();
+      add(addNetworkArgs);
+      await start(store.getState().networks[0].id);
+      const { bitcoin, lightning } = store.getState().networks[0].nodes;
+      bitcoin.forEach(node => expect(node.status).toBe(Status.Started));
+      lightning.forEach(node => expect(node.status).toBe(Status.Started));
+    });
+
+    it('should fail to start a network with an invalid id', async () => {
+      const { add, start } = store.getActions();
+      add(addNetworkArgs);
+      await expect(start(10)).rejects.toThrow();
+    });
+
+    it('should update all node statuses when a network fails to start', async () => {
+      const { add, start } = store.getActions();
+      add(addNetworkArgs);
+      // mock dockerService.start to throw an error
+      const mockDockerStart = injections.dockerService.start as jest.Mock;
+      mockDockerStart.mockRejectedValueOnce(new Error('start failed'));
+      // call start
+      await expect(start(store.getState().networks[0].id)).rejects.toThrow(
+        'start failed',
+      );
+      // verify error statuses
+      const network = store.getState().networks[0];
+      const { bitcoin, lightning } = network.nodes;
+      expect(network.status).toBe(Status.Error);
+      bitcoin.forEach(node => expect(node.status).toBe(Status.Error));
+      lightning.forEach(node => expect(node.status).toBe(Status.Error));
+    });
+
+    it('should call the dockerService when starting a network', async () => {
+      const { add, start } = store.getActions();
+      add(addNetworkArgs);
+      await start(store.getState().networks[0].id);
+      expect(injections.dockerService.start).toBeCalledWith(store.getState().networks[0]);
     });
   });
 
-  it('should be able to add multiple networks', () => {
-    store.getActions().add(addNetworkArgs);
-    store.getActions().add({
-      ...addNetworkArgs,
-      name: 'test2',
+  describe('Stopping', () => {
+    it('should stop a network by id', async () => {
+      const { add, stop } = store.getActions();
+      add(addNetworkArgs);
+      await stop(store.getState().networks[0].id);
+      expect(store.getState().networks[0].status).toBe(Status.Stopped);
     });
-    const { networks } = store.getState();
-    expect(networks.length).toBe(2);
-    expect(networks[0].name).toBe('test');
-    expect(networks[1].name).toBe('test2');
-  });
 
-  it('should be able to fetch a node by id', () => {
-    store.getActions().add(addNetworkArgs);
-    const network = store.getState().networkById('1') as Network;
-    expect(network).not.toBeNull();
-    expect(network.id).toBe(1);
-    expect(network.name).toBe('test');
-  });
-
-  it('should fail to fetch a node with invalid id', () => {
-    store.getActions().add(addNetworkArgs);
-    [99, '99', 'asdf', undefined, (null as unknown) as string].forEach(v => {
-      expect(() => store.getState().networkById(v)).toThrow();
+    it('should update all node statuses when a network is stopped', async () => {
+      const { add, stop } = store.getActions();
+      add(addNetworkArgs);
+      await stop(store.getState().networks[0].id);
+      const { bitcoin, lightning } = store.getState().networks[0].nodes;
+      bitcoin.forEach(node => expect(node.status).toBe(Status.Stopped));
+      lightning.forEach(node => expect(node.status).toBe(Status.Stopped));
     });
-  });
 
-  it('should start a network by id', async () => {
-    const { add, start } = store.getActions();
-    add(addNetworkArgs);
-    await start(store.getState().networks[0].id);
-    expect(store.getState().networks[0].status).toBe(Status.Started);
-  });
+    it('should fail to stop a network with an invalid id', async () => {
+      const { add, stop } = store.getActions();
+      add(addNetworkArgs);
+      await expect(stop(10)).rejects.toThrow();
+    });
 
-  it('should fail to start a network with an invalid id', async () => {
-    const { add, start } = store.getActions();
-    add(addNetworkArgs);
-    await expect(start(10)).rejects.toThrow();
-  });
+    it('should update all node statuses when a network fails to stop', async () => {
+      const { add, stop } = store.getActions();
+      add(addNetworkArgs);
+      // mock dockerService.stop to throw an error
+      const mockDockerStart = injections.dockerService.stop as jest.Mock;
+      mockDockerStart.mockRejectedValueOnce(new Error('stop failed'));
+      // call stop
+      await expect(stop(store.getState().networks[0].id)).rejects.toThrow('stop failed');
+      // verify error statuses
+      const network = store.getState().networks[0];
+      const { bitcoin, lightning } = network.nodes;
+      expect(network.status).toBe(Status.Error);
+      bitcoin.forEach(node => expect(node.status).toBe(Status.Error));
+      lightning.forEach(node => expect(node.status).toBe(Status.Error));
+    });
 
-  it('should call the dockerService when starting a network', async () => {
-    const { add, start } = store.getActions();
-    add(addNetworkArgs);
-    await start(store.getState().networks[0].id);
-    expect(injections.dockerService.start).toBeCalledWith(store.getState().networks[0]);
+    it('should call the dockerService when stopping a network', async () => {
+      const { add, stop } = store.getActions();
+      add(addNetworkArgs);
+      await stop(store.getState().networks[0].id);
+      expect(injections.dockerService.stop).toBeCalledWith(store.getState().networks[0]);
+    });
   });
 });
