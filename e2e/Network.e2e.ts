@@ -1,7 +1,7 @@
 import { App, NewNetwork, NetworkView } from './pages';
 import { assertNoConsoleErrors, pageUrl, getPageUrl } from './helpers';
 
-fixture`NewNetwork`
+fixture`Network`
   .page(pageUrl)
   .beforeEach(App.clickNewNetworkBtn)
   .afterEach(assertNoConsoleErrors);

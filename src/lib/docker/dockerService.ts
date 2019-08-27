@@ -2,9 +2,9 @@ import * as compose from 'docker-compose';
 import { join } from 'path';
 import { info } from 'electron-log';
 import { dataPath } from 'utils/config';
-import { Network } from 'types';
+import { Network, DockerLibrary } from 'types';
 
-class DockerService {
+class DockerService implements DockerLibrary {
   async start(network: Network) {
     const networkPath = join(dataPath, network.id.toString());
     info(`Starting docker containers for ${network.name}`);

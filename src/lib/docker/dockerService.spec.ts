@@ -1,5 +1,5 @@
 import * as compose from 'docker-compose';
-import dockerService from './dockerService';
+import { dockerService } from 'lib/docker';
 import { getNetwork } from 'utils/tests';
 import { dataPath } from 'utils/config';
 import { join } from 'path';

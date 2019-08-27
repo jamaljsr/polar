@@ -40,3 +40,16 @@ export interface Network {
     lightning: LightningNode[];
   };
 }
+
+export interface NetworkLibrary {
+  create: (network: Network) => Promise<void>;
+}
+
+export interface DockerLibrary {
+  start: (network: Network) => Promise<void>;
+}
+
+export interface StoreInjections {
+  networkManager: NetworkLibrary;
+  dockerService: DockerLibrary;
+}

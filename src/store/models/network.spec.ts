@@ -1,11 +1,14 @@
 import networkModel from './network';
 import { createStore } from 'easy-peasy';
-import { Status, Network } from 'types';
+import { Status, Network, StoreInjections } from 'types';
 
 describe('counter model', () => {
-  const injections = {
+  const injections: StoreInjections = {
     networkManager: {
       create: jest.fn(),
+    },
+    dockerService: {
+      start: jest.fn(),
     },
   };
   // initialize store for type inference
@@ -95,8 +98,28 @@ describe('counter model', () => {
 
   it('should fail to fetch a node with invalid id', () => {
     store.getActions().add(addNetworkArgs);
-    expect(store.getState().networkById((null as unknown) as string)).toBeUndefined();
-    expect(store.getState().networkById('asdf')).toBeUndefined();
-    expect(store.getState().networkById('99')).toBeUndefined();
+    [99, '99', 'asdf', undefined, (null as unknown) as string].forEach(v => {
+      expect(() => store.getState().networkById(v)).toThrow();
+    });
+  });
+
+  it('should start a network by id', async () => {
+    const { add, start } = store.getActions();
+    add(addNetworkArgs);
+    await start(store.getState().networks[0].id);
+    expect(store.getState().networks[0].status).toBe(Status.Started);
+  });
+
+  it('should fail to start a network with an invalid id', async () => {
+    const { add, start } = store.getActions();
+    add(addNetworkArgs);
+    await expect(start(10)).rejects.toThrow();
+  });
+
+  it('should call the dockerService when starting a network', async () => {
+    const { add, start } = store.getActions();
+    add(addNetworkArgs);
+    await start(store.getState().networks[0].id);
+    expect(injections.dockerService.start).toBeCalledWith(store.getState().networks[0]);
   });
 });

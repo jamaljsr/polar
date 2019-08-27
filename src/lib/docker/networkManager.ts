@@ -3,9 +3,9 @@ import yaml from 'js-yaml';
 import { join } from 'path';
 import { writeDataFile } from 'utils/files';
 import { info } from 'electron-log';
-import { Network } from 'types';
+import { Network, NetworkLibrary } from 'types';
 
-class NetworkManager {
+class NetworkManager implements NetworkLibrary {
   public async create(network: Network) {
     info(`adding network '${network.name}' to the NetworkManager`);
     await this.createComposeFile(network);

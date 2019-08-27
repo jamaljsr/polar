@@ -1,7 +1,7 @@
 import { Action, action, Thunk, thunk, Computed, computed, memo } from 'easy-peasy';
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
-import { Network, Status } from 'types';
+import { Network, Status, StoreInjections } from 'types';
 import { NETWORK_VIEW } from 'components/routing';
 import { range } from 'utils/numbers';
 
@@ -13,14 +13,28 @@ interface AddNetworkArgs {
 
 export interface NetworkModel {
   networks: Network[];
+  networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   add: Action<NetworkModel, AddNetworkArgs>;
-  addNetwork: Thunk<NetworkModel, AddNetworkArgs>;
-  networkById: Computed<NetworkModel, (id?: string) => Network | undefined>;
+  addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
+  setNetworkStarting: Action<NetworkModel, number>;
+  setNetworkStarted: Action<NetworkModel, number>;
+  start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
 }
 
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
+  // computed properties/functions
+  networkById: computed(state =>
+    memo((id?: string | number) => {
+      const networkId = typeof id === 'number' ? id : parseInt(id || '');
+      const network = state.networks.find(n => n.id === networkId);
+      if (!network) {
+        throw new Error(`Network with the id '${networkId}' was not found.`);
+      }
+      return network;
+    }, 10),
+  ),
   // reducer actions (mutations allowed thx to immer)
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
@@ -61,12 +75,18 @@ const networkModel: NetworkModel = {
     await injections.networkManager.create(newNetwork);
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
-  networkById: computed(state =>
-    memo((id?: string) => {
-      const networkId: number = parseInt(id || '');
-      return state.networks.find(n => n.id === networkId);
-    }, 10),
-  ),
+  setNetworkStarting: action((state, networkId) => {
+    state.networkById(networkId).status = Status.Starting;
+  }),
+  setNetworkStarted: action((state, networkId) => {
+    state.networkById(networkId).status = Status.Started;
+  }),
+  start: thunk(async (actions, networkId, { getState, injections }) => {
+    const network = getState().networkById(networkId);
+    actions.setNetworkStarting(network.id);
+    await injections.dockerService.start(network);
+    actions.setNetworkStarted(network.id);
+  }),
 };
 
 export default networkModel;

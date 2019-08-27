@@ -5,7 +5,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
-import { Network, Status } from 'types';
+import { Network, Status, StoreInjections } from 'types';
 
 export const getNetwork = (networkId?: number, name?: string): Network => ({
   id: networkId || 0,
@@ -62,9 +62,12 @@ export const renderWithProviders = (
   // provide initial state if any
   const initialState = options.initialState || {};
   // injections allow you to mock the dependencies of actions in the store
-  const injections = {
+  const injections: StoreInjections = {
     networkManager: {
       create: jest.fn(),
+    },
+    dockerService: {
+      start: jest.fn(),
     },
   };
   const store = createReduxStore({ initialState, injections, history });

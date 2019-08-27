@@ -9,6 +9,7 @@ import NetworkActions from './NetworkActions';
 import LndCard from './LndCard';
 import BitcoindCard from './BitcoindCard';
 import styles from './NetworkView.module.less';
+import { Network } from 'types';
 
 interface MatchParams {
   id?: string;
@@ -34,8 +35,12 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
 
   const { t } = useTranslation();
-  const network = useStoreState(s => s.network.networkById(match.params.id));
-  if (!network) {
+  const { networkById } = useStoreState(s => s.network);
+
+  let network: Network;
+  try {
+    network = networkById(match.params.id);
+  } catch {
     return null;
   }
 
