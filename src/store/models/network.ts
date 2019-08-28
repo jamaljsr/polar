@@ -19,6 +19,7 @@ export interface NetworkModel {
   setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
   start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
+  toggle: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
 }
 
 const networkModel: NetworkModel = {
@@ -103,6 +104,14 @@ const networkModel: NetworkModel = {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });
       info(`unable to stop containers for '${network.name}'`, JSON.stringify(e));
       throw e;
+    }
+  }),
+  toggle: thunk(async (actions, networkId, { getState }) => {
+    const network = getState().networkById(networkId);
+    if (network.status === Status.Stopped || network.status === Status.Error) {
+      await actions.start(network.id);
+    } else if (network.status === Status.Started) {
+      await actions.stop(network.id);
     }
   }),
 };

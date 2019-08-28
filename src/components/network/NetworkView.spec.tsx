@@ -45,30 +45,30 @@ describe('NetworkView Component', () => {
     mockDockerStart.mockRejectedValueOnce(new Error(errorMsg));
     const { getByText, findByText } = renderComponent('/network/1');
     fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
-    expect(findByText(errorMsg)).toBeTruthy();
+    expect(await findByText(errorMsg)).toBeTruthy();
   });
 
-  it('should change UI when network is started', () => {
+  it('should change UI when network is started', async () => {
     const { getByText, findByText } = renderComponent();
     expect(getByText('cmps.status-tag.status-stopped')).toBeTruthy();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
     // should switch to starting immediately
     expect(getByText('cmps.status-tag.status-starting')).toBeTruthy();
     // should change to started after some time (findBy* will wait)
-    expect(findByText('cmps.status-tag.status-started')).toBeTruthy();
+    expect(await findByText('cmps.status-tag.status-started')).toBeTruthy();
   });
 
-  it('should change UI when network is stopped', () => {
+  it('should change UI when network is stopped', async () => {
     const { getByText, findByText } = renderComponent('/network/1', Status.Started);
     expect(getByText('cmps.status-tag.status-started')).toBeTruthy();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-stop'));
     // should switch to stopping immediately
     expect(getByText('cmps.status-tag.status-stopping')).toBeTruthy();
     // should change to stopped after some time (findBy* will wait)
-    expect(findByText('cmps.status-tag.status-stopped')).toBeTruthy();
+    expect(await findByText('cmps.status-tag.status-stopped')).toBeTruthy();
   });
 
-  it('should do nothing when network is starting', () => {
+  it('should do nothing when network is starting', async () => {
     const { getByText } = renderComponent('/network/1', Status.Starting);
     expect(getByText('cmps.status-tag.status-starting')).toBeTruthy();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-starting'));
