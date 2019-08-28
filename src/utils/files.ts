@@ -1,4 +1,4 @@
-import { join, dirname } from 'path';
+import { join, dirname, isAbsolute } from 'path';
 import { promises as fs } from 'fs';
 import { dataPath } from './config';
 
@@ -8,7 +8,7 @@ import { dataPath } from './config';
  * @param content the contents of the file
  */
 export const writeDataFile = async (filePath: string, content: string) => {
-  const absPath = join(dataPath, filePath);
+  const absPath = isAbsolute(filePath) ? filePath : join(dataPath, filePath);
   const dirPath = dirname(absPath);
   await fs.mkdir(dirPath, { recursive: true });
   await fs.writeFile(absPath, content);

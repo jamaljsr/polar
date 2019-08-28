@@ -22,7 +22,7 @@ class NetworkManager implements NetworkLibrary {
     });
 
     const yml = yaml.dump(file.content);
-    const path = join('networks', network.id.toString(), 'docker-compose.yml');
+    const path = join(network.path, 'docker-compose.yml');
     await writeDataFile(path, yml);
     info(`created compose file for '${network.name}' at '${path}'`);
   }

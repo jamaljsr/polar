@@ -124,7 +124,8 @@
       "!<rootDir>/src/**/index.{ts,js}",
       "!<rootDir>/src/index.tsx",
       "!<rootDir>/src/react-app-env.d.ts"
-    ]
+    ],
+    "resetMocks": true
   },
   "eslintConfig": {
     "extends": "react-app"

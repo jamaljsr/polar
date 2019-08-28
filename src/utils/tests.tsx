@@ -1,11 +1,13 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { join } from 'path';
 import { StoreProvider } from 'easy-peasy';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
 import { Network, Status, StoreInjections } from 'types';
+import { dataPath } from './config';
 
 export const getNetwork = (
   networkId?: number,
@@ -15,6 +17,7 @@ export const getNetwork = (
   id: networkId || 0,
   name: name || 'my-test',
   status: status !== undefined ? status : Status.Stopped,
+  path: join(dataPath, 'networks', (networkId || 0).toString()),
   nodes: {
     bitcoin: [
       {

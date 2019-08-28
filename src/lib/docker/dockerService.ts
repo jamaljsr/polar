@@ -1,7 +1,5 @@
 import * as compose from 'docker-compose';
-import { join } from 'path';
 import { info } from 'electron-log';
-import { dataPath } from 'utils/config';
 import { Network, DockerLibrary } from 'types';
 
 class DockerService implements DockerLibrary {
@@ -10,10 +8,9 @@ class DockerService implements DockerLibrary {
    * @param network the network to start
    */
   async start(network: Network) {
-    const networkPath = join(dataPath, 'networks', network.id.toString());
     info(`Starting docker containers for ${network.name}`);
-    info(` - path: ${networkPath}`);
-    const result = await this.execute(compose.upAll, { cwd: networkPath });
+    info(` - path: ${network.path}`);
+    const result = await this.execute(compose.upAll, { cwd: network.path });
     info(`Network started:\n ${result.out || result.err}`);
   }
 
@@ -22,10 +19,9 @@ class DockerService implements DockerLibrary {
    * @param network the network to stop
    */
   async stop(network: Network) {
-    const networkPath = join(dataPath, 'networks', network.id.toString());
     info(`Stopping docker containers for ${network.name}`);
-    info(` - path: ${networkPath}`);
-    const result = await this.execute(compose.stop, { cwd: networkPath });
+    info(` - path: ${network.path}`);
+    const result = await this.execute(compose.stop, { cwd: network.path });
     info(`Network started:\n ${result.out || result.err}`);
   }
 

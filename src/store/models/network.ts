@@ -4,6 +4,8 @@ import { push } from 'connected-react-router';
 import { Network, Status, StoreInjections } from 'types';
 import { NETWORK_VIEW } from 'components/routing';
 import { range } from 'utils/numbers';
+import { join } from 'path';
+import { dataPath } from 'utils/config';
 
 interface AddNetworkArgs {
   name: string;
@@ -43,6 +45,7 @@ const networkModel: NetworkModel = {
       id: nextId,
       name,
       status: Status.Stopped,
+      path: join(dataPath, 'networks', nextId.toString()),
       nodes: {
         bitcoin: [],
         lightning: [],

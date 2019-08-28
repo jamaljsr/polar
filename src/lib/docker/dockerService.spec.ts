@@ -1,38 +1,34 @@
 import * as compose from 'docker-compose';
 import { getNetwork } from 'utils/tests';
-import { dataPath } from 'utils/config';
-import { join } from 'path';
 import { Network } from 'types';
 import { dockerService } from 'lib/docker';
-
-jest.mock('docker-compose', () => ({
-  upAll: jest.fn(() => ({})),
-  stop: jest.fn(() => ({})),
-}));
 
 const composeMock = compose as jest.Mocked<typeof compose>;
 
 describe('DockerService', () => {
   let network: Network;
+  // default response of docker calls for mocks
+  const result = { err: '', out: '', exitCode: 0 };
 
   beforeEach(() => {
     network = getNetwork();
   });
 
   it('should call compose.upAll', async () => {
+    composeMock.upAll.mockResolvedValue(result);
     await dockerService.start(network);
-    const networkPath = join(dataPath, 'networks', network.id.toString());
-    expect(composeMock.upAll).toBeCalledWith({ cwd: networkPath });
+    expect(composeMock.upAll).toBeCalledWith({ cwd: network.path });
   });
 
   it('should call compose.stop', async () => {
+    composeMock.stop.mockResolvedValue(result);
     await dockerService.stop(network);
-    const networkPath = join(dataPath, 'networks', network.id.toString());
-    expect(composeMock.stop).toBeCalledWith({ cwd: networkPath });
+    expect(composeMock.stop).toBeCalledWith({ cwd: network.path });
   });
 
   it('should reformat thrown exceptions', async () => {
-    composeMock.upAll.mockRejectedValueOnce({ err: 'didnt work' });
-    await expect(dockerService.start(network)).rejects.toEqual(new Error('didnt work'));
+    const err = 'oops, didnt work';
+    composeMock.upAll.mockRejectedValueOnce({ err });
+    await expect(dockerService.start(network)).rejects.toEqual(new Error(err));
   });
 });

@@ -2,10 +2,13 @@
 
 Small Stuff
 
-- build images if they don't exist
 - store dir path in the network object
+- rename networkManager to networkService
+- save network state to disk
+- move "docker-compose.yml" string into a constants file
+- build images if they don't exist
 - update app icon
-- update scrollbars (https://github.com/xobotyi/react-scrollbars-custom) (https://github.com/souhe/reactScrollbar)
+- consistent scrollbars for all OS's (https://github.com/xobotyi/react-scrollbars-custom) (https://github.com/souhe/reactScrollbar)
 
 Bigger things
 

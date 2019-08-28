@@ -35,6 +35,7 @@ export interface Network {
   id: number;
   name: string;
   status: Status;
+  path: string;
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];
