@@ -90,7 +90,7 @@ const networkModel: NetworkModel = {
       actions.setNetworkStatus({ id: network.id, status: Status.Started });
     } catch (e) {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });
-      info(`unable to start containers for '${network.name}'`, JSON.stringify(e));
+      info(`unable to start containers for '${network.name}'`, e.message);
       throw e;
     }
   }),
@@ -102,7 +102,7 @@ const networkModel: NetworkModel = {
       actions.setNetworkStatus({ id: network.id, status: Status.Stopped });
     } catch (e) {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });
-      info(`unable to stop containers for '${network.name}'`, JSON.stringify(e));
+      info(`unable to stop containers for '${network.name}'`, e.message);
       throw e;
     }
   }),
