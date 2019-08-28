@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderWithProviders } from 'utils/tests';
+import { render } from '@testing-library/react';
 import { BitcoinNode, Status } from 'types';
 import BitcoindCard from './BitcoindCard';
 
@@ -20,28 +20,28 @@ describe('StatusTag Component', () => {
       type: 'bitcoin',
     };
 
-    return renderWithProviders(<BitcoindCard node={node} details={details} />);
+    return render(<BitcoindCard node={node} details={details} />);
   };
 
   it('should render the name', () => {
     const { getByText } = renderComponent(Status.Stopped);
-    expect(getByText('test btc')).toBeTruthy();
+    expect(getByText('test btc')).toBeInTheDocument();
   });
 
   it('should display Stopped when node is stopped', () => {
     const { getByText } = renderComponent(Status.Stopped);
-    expect(getByText('Stopped')).toBeTruthy();
+    expect(getByText('Stopped')).toBeInTheDocument();
   });
 
   it('should render the details when node is started', () => {
     const { getByText } = renderComponent(Status.Started);
-    expect(getByText(details[0].label)).toBeTruthy();
-    expect(getByText(details[0].value)).toBeTruthy();
-    expect(getByText(details[1].label)).toBeTruthy();
-    expect(getByText(details[1].value)).toBeTruthy();
-    expect(getByText(details[2].label)).toBeTruthy();
-    expect(getByText(details[2].value)).toBeTruthy();
-    expect(getByText(details[3].label)).toBeTruthy();
-    expect(getByText(details[3].value)).toBeTruthy();
+    expect(getByText(details[0].label)).toBeInTheDocument();
+    expect(getByText(details[0].value)).toBeInTheDocument();
+    expect(getByText(details[1].label)).toBeInTheDocument();
+    expect(getByText(details[1].value)).toBeInTheDocument();
+    expect(getByText(details[2].label)).toBeInTheDocument();
+    expect(getByText(details[2].value)).toBeInTheDocument();
+    expect(getByText(details[3].label)).toBeInTheDocument();
+    expect(getByText(details[3].value)).toBeInTheDocument();
   });
 });

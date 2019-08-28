@@ -25,7 +25,7 @@ describe('NetworkView Component', () => {
 
   it('should render the name', () => {
     const { getByText } = renderComponent();
-    expect(getByText('test network')).toBeTruthy();
+    expect(getByText('test network')).toBeInTheDocument();
   });
 
   it('should render correct # of LND nodes', () => {
@@ -45,34 +45,34 @@ describe('NetworkView Component', () => {
     mockDockerStart.mockRejectedValueOnce(new Error(errorMsg));
     const { getByText, findByText } = renderComponent('/network/1');
     fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
-    expect(await findByText(errorMsg)).toBeTruthy();
+    expect(await findByText(errorMsg)).toBeInTheDocument();
   });
 
   it('should change UI when network is started', async () => {
     const { getByText, findByText } = renderComponent();
-    expect(getByText('cmps.status-tag.status-stopped')).toBeTruthy();
+    expect(getByText('cmps.status-tag.status-stopped')).toBeInTheDocument();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
     // should switch to starting immediately
-    expect(getByText('cmps.status-tag.status-starting')).toBeTruthy();
+    expect(getByText('cmps.status-tag.status-starting')).toBeInTheDocument();
     // should change to started after some time (findBy* will wait)
-    expect(await findByText('cmps.status-tag.status-started')).toBeTruthy();
+    expect(await findByText('cmps.status-tag.status-started')).toBeInTheDocument();
   });
 
   it('should change UI when network is stopped', async () => {
     const { getByText, findByText } = renderComponent('/network/1', Status.Started);
-    expect(getByText('cmps.status-tag.status-started')).toBeTruthy();
+    expect(getByText('cmps.status-tag.status-started')).toBeInTheDocument();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-stop'));
     // should switch to stopping immediately
-    expect(getByText('cmps.status-tag.status-stopping')).toBeTruthy();
+    expect(getByText('cmps.status-tag.status-stopping')).toBeInTheDocument();
     // should change to stopped after some time (findBy* will wait)
-    expect(await findByText('cmps.status-tag.status-stopped')).toBeTruthy();
+    expect(await findByText('cmps.status-tag.status-stopped')).toBeInTheDocument();
   });
 
   it('should do nothing when network is starting', async () => {
     const { getByText } = renderComponent('/network/1', Status.Starting);
-    expect(getByText('cmps.status-tag.status-starting')).toBeTruthy();
+    expect(getByText('cmps.status-tag.status-starting')).toBeInTheDocument();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-starting'));
     // should switch to stopping immediately
-    expect(getByText('cmps.status-tag.status-starting')).toBeTruthy();
+    expect(getByText('cmps.status-tag.status-starting')).toBeInTheDocument();
   });
 });

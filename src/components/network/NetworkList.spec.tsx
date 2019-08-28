@@ -26,7 +26,7 @@ describe('NetworkList Component', () => {
 
   it('should display a big create button if no networks exist', () => {
     const { getByText } = renderComponent([]);
-    expect(getByText('cmps.network-list.create-button')).toBeTruthy();
+    expect(getByText('cmps.network-list.create-button')).toBeInTheDocument();
   });
 
   it('should not display a create button if one or more networks exist', () => {
@@ -42,7 +42,7 @@ describe('NetworkList Component', () => {
 
   it('should display a create icon if one or more networks exist', () => {
     const { getByTestId } = renderComponent();
-    expect(getByTestId('create-icon')).toBeTruthy();
+    expect(getByTestId('create-icon')).toBeInTheDocument();
   });
 
   it('should not display a create icon if no networks exist', () => {
@@ -58,9 +58,9 @@ describe('NetworkList Component', () => {
 
   it('should display a list of network names', async () => {
     const { getByText } = renderComponent();
-    expect(getByText('my network 1')).toBeTruthy();
-    expect(getByText('my network 2')).toBeTruthy();
-    expect(getByText('my network 3')).toBeTruthy();
+    expect(getByText('my network 1')).toBeInTheDocument();
+    expect(getByText('my network 2')).toBeInTheDocument();
+    expect(getByText('my network 3')).toBeInTheDocument();
   });
 
   it('should show all networks collapsed by default', () => {
@@ -74,15 +74,15 @@ describe('NetworkList Component', () => {
     const { queryByText, getByText } = renderComponent();
     expect(queryByText('cmps.network-list.start')).toBeNull();
     fireEvent.click(getByText('my network 1'));
-    expect(queryByText('cmps.network-list.start')).toBeTruthy();
+    expect(queryByText('cmps.network-list.start')).toBeInTheDocument();
   });
 
   it('should display start/edit/delete links for selected network', () => {
     const { queryByText, getByText } = renderComponent();
     fireEvent.click(getByText('my network 1'));
-    expect(queryByText('cmps.network-list.start')).toBeTruthy();
-    expect(queryByText('cmps.network-list.edit')).toBeTruthy();
-    expect(queryByText('cmps.network-list.delete')).toBeTruthy();
+    expect(queryByText('cmps.network-list.start')).toBeInTheDocument();
+    expect(queryByText('cmps.network-list.edit')).toBeInTheDocument();
+    expect(queryByText('cmps.network-list.delete')).toBeInTheDocument();
   });
 
   it('should toggle a selected network closed when clicked again', () => {

@@ -1,16 +1,16 @@
 import React from 'react';
-import { renderWithProviders } from 'utils/tests';
+import { render } from '@testing-library/react';
 import { Status } from 'types';
 import StatusBadge from './StatusBadge';
 
 describe('StatusBadge Component', () => {
   const renderComponent = (status: Status, text?: string) => {
-    return renderWithProviders(<StatusBadge status={status} text={text} />);
+    return render(<StatusBadge status={status} text={text} />);
   };
 
   it('should render the text', () => {
     const { getByText } = renderComponent(Status.Starting, 'test text');
-    expect(getByText('test text')).toBeTruthy();
+    expect(getByText('test text')).toBeInTheDocument();
   });
 
   it('should render the Starting status', () => {
