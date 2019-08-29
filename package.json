@@ -12,9 +12,11 @@
   "scripts": {
     "build": "cross-env PUBLIC_URL=./ rescripts build",
     "cm": "git add . && git cz",
-    "dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev": "concurrently --kill-others \"yarn:dev:*\"",
+    "dev:start": "cross-env BROWSER=none yarn start",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
     "eject": "rescripts eject",
-    "extract-langs": "i18next-scanner --config ./.i18next-scanner.js",
+    "langs": "i18next-scanner --config ./.i18next-scanner.js",
     "lint": "eslint --ext .ts,.tsx --ignore-path .gitignore .",
     "lint:all": "yarn tsc && yarn lint && yarn lint:styles",
     "lint:fix": "yarn lint --fix",
