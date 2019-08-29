@@ -76,7 +76,7 @@ const networkModel: NetworkModel = {
     actions.add(payload);
     const { networks } = getState();
     const newNetwork = networks[networks.length - 1];
-    await injections.networkManager.create(newNetwork);
+    await injections.dockerService.create(newNetwork);
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
   setNetworkStatus: action((state, { id, status }) => {

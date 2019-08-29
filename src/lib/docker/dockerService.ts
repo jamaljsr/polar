@@ -1,8 +1,33 @@
 import * as compose from 'docker-compose';
+import yaml from 'js-yaml';
+import { join } from 'path';
 import { info } from 'electron-log';
 import { Network, DockerLibrary } from 'types';
+import { writeDataFile } from 'utils/files';
+import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
+  /**
+   * Create a docker-compose.yml file for the given network
+   * @param network the network to create a compose file for
+   */
+  async create(network: Network) {
+    const file = new ComposeFile();
+
+    const prefix = (name: string) => `polar-n${network.id}-${name}`;
+    network.nodes.bitcoin.forEach(node => {
+      file.addBitcoind(prefix(node.name));
+    });
+    network.nodes.lightning.forEach(node => {
+      file.addLnd(prefix(node.name), prefix(node.backendName));
+    });
+
+    const yml = yaml.dump(file.content);
+    const path = join(network.path, 'docker-compose.yml');
+    await writeDataFile(path, yml);
+    info(`created compose file for '${network.name}' at '${path}'`);
+  }
+
   /**
    * Start a network using docper-compose
    * @param network the network to start

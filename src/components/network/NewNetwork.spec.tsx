@@ -49,7 +49,7 @@ describe('NewNetwork component', () => {
       fireEvent.change(nameInput, { target: { value: 'test' } });
       fireEvent.click(getByTestId('submit'));
       await waitForDomChange();
-      expect(injections.networkManager.create).toBeCalled();
+      expect(injections.dockerService.create).toBeCalled();
     });
   });
 });

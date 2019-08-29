@@ -10,9 +10,9 @@ describe('NetworkList Component', () => {
     const initialState = {
       network: {
         networks: initialNetworks || [
-          getNetwork(0, 'my network 1'),
-          getNetwork(1, 'my network 2'),
-          getNetwork(2, 'my network 3'),
+          getNetwork(1, 'my network 1'),
+          getNetwork(2, 'my network 2'),
+          getNetwork(3, 'my network 3'),
         ],
       },
     };

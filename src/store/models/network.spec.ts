@@ -53,7 +53,7 @@ describe('Network model', () => {
     it('should call the network manager when adding a new network', async () => {
       await store.getActions().addNetwork(addNetworkArgs);
       expect(store.getState().networks.length).toBe(1);
-      expect(injections.networkManager.create).toBeCalled();
+      expect(injections.dockerService.create).toBeCalled();
     });
 
     it('should add a network with the correct LND nodes', () => {

@@ -9,15 +9,11 @@ import { createReduxStore } from 'store';
 import { Network, Status, StoreInjections } from 'types';
 import { dataPath } from './config';
 
-export const getNetwork = (
-  networkId?: number,
-  name?: string,
-  status?: Status,
-): Network => ({
-  id: networkId || 0,
+export const getNetwork = (networkId = 1, name?: string, status?: Status): Network => ({
+  id: networkId,
   name: name || 'my-test',
   status: status !== undefined ? status : Status.Stopped,
-  path: join(dataPath, 'networks', (networkId || 0).toString()),
+  path: join(dataPath, 'networks', networkId.toString()),
   nodes: {
     bitcoin: [
       {
@@ -51,10 +47,8 @@ export const getNetwork = (
 
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
-  networkManager: {
-    create: jest.fn(),
-  },
   dockerService: {
+    create: jest.fn(),
     start: jest.fn(),
     stop: jest.fn(),
   },

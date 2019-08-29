@@ -42,16 +42,12 @@ export interface Network {
   };
 }
 
-export interface NetworkLibrary {
-  create: (network: Network) => Promise<void>;
-}
-
 export interface DockerLibrary {
+  create: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
 }
 
 export interface StoreInjections {
-  networkManager: NetworkLibrary;
   dockerService: DockerLibrary;
 }

@@ -3,7 +3,7 @@ import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
 import { StoreInjections } from 'types';
-import { networkManager, dockerService } from 'lib/docker';
+import { dockerService } from 'lib/docker';
 import { createModel, RootModel } from 'store/models';
 
 export const hashHistory = createHashHistory();
@@ -46,7 +46,6 @@ export const createReduxStore = (options?: {
 // using injections allows for more easily mocking of dependencies in store actions
 // see https://easy-peasy.now.sh/docs/testing/testing-components.html#mocking-calls-to-services
 const injections: StoreInjections = {
-  networkManager,
   dockerService,
 };
 

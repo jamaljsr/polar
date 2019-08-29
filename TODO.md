@@ -2,8 +2,6 @@
 
 Small Stuff
 
-- store dir path in the network object
-- rename networkManager to networkService
 - save network state to disk
 - move "docker-compose.yml" string into a constants file
 - build images if they don't exist
