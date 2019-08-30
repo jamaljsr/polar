@@ -3,6 +3,7 @@ import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
 import { DockerLibrary, Network } from 'types';
+import { networksPath } from 'utils/config';
 import { writeDataFile } from 'utils/files';
 import ComposeFile from './composeFile';
 
@@ -62,6 +63,17 @@ class DockerService implements DockerLibrary {
       info(`docker cmd failed: ${JSON.stringify(e)}`);
       throw new Error(e.err);
     }
+  }
+
+  /**
+   * Saves the given networks to disk
+   * @param networks the list of networks to save
+   */
+  async save(networks: Network[]) {
+    const json = JSON.stringify(networks, null, 2);
+    const path = join(networksPath, 'networks.json');
+    await writeDataFile(path, json);
+    info(`saved networks to '${path}'`);
   }
 }
 

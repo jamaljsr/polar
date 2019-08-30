@@ -3,6 +3,7 @@
 Small Stuff
 
 - save network state to disk
+- refactor networks.add into a util func
 - move "docker-compose.yml" string into a constants file
 - build images if they don't exist
 - update app icon

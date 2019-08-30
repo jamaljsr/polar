@@ -1,3 +1,4 @@
+import { join } from 'path';
 import * as compose from 'docker-compose';
 import { dockerService } from 'lib/docker';
 import { Network } from 'types';
@@ -54,13 +55,21 @@ describe('DockerService', () => {
     );
   });
 
-  it('should call compose.upAll', async () => {
+  it('should save a list of networks to disk', () => {
+    dockerService.save([network]);
+    expect(filesMock.writeDataFile).toBeCalledWith(
+      expect.stringContaining(join('networks', 'networks.json')),
+      expect.stringContaining(`"name": "${network.name}"`),
+    );
+  });
+
+  it('should call compose.upAll when a network is started', async () => {
     composeMock.upAll.mockResolvedValue(result);
     await dockerService.start(network);
     expect(composeMock.upAll).toBeCalledWith({ cwd: network.path });
   });
 
-  it('should call compose.stop', async () => {
+  it('should call compose.stop when a network is stopped', async () => {
     composeMock.stop.mockResolvedValue(result);
     await dockerService.stop(network);
     expect(composeMock.stop).toBeCalledWith({ cwd: network.path });

@@ -3,7 +3,7 @@ import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, memo, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
-import { dataPath } from 'utils/config';
+import { networksPath } from 'utils/config';
 import { range } from 'utils/numbers';
 import { NETWORK_VIEW } from 'components/routing';
 
@@ -45,7 +45,7 @@ const networkModel: NetworkModel = {
       id: nextId,
       name,
       status: Status.Stopped,
-      path: join(dataPath, 'networks', nextId.toString()),
+      path: join(networksPath, nextId.toString()),
       nodes: {
         bitcoin: [],
         lightning: [],
@@ -77,6 +77,7 @@ const networkModel: NetworkModel = {
     const { networks } = getState();
     const newNetwork = networks[networks.length - 1];
     await injections.dockerService.create(newNetwork);
+    await injections.dockerService.save(networks);
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
   setNetworkStatus: action((state, { id, status }) => {
