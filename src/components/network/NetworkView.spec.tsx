@@ -1,8 +1,8 @@
 import React from 'react';
 import { Route } from 'react-router';
 import { fireEvent } from '@testing-library/dom';
-import { renderWithProviders, getNetwork, injections } from 'utils/tests';
 import { Status } from 'types';
+import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkView from './NetworkView';
 
 describe('NetworkView Component', () => {

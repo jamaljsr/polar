@@ -1,8 +1,8 @@
 import React from 'react';
+import { fireEvent } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { Status } from 'types';
 import NetworkActions from './NetworkActions';
-import { fireEvent } from '@testing-library/dom';
 
 describe('NetworkActions Component', () => {
   const handleClick = jest.fn();

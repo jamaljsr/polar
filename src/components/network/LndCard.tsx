@@ -1,7 +1,7 @@
 import React from 'react';
+import { Avatar, Card, Icon } from 'antd';
 import { LightningNode, Status } from 'types';
-import { Card, Avatar, Icon } from 'antd';
-import { StatusBadge, DetailsList, Loader } from 'components/common';
+import { DetailsList, Loader, StatusBadge } from 'components/common';
 import lnd from 'resources/lnd.png';
 
 interface Props {

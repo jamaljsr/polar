@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
-import { RouteComponentProps } from 'react-router';
-import { useTranslation } from 'react-i18next';
 import { useAsyncCallback } from 'react-async-hook';
+import { useTranslation } from 'react-i18next';
+import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
-import { PageHeader, Row, Col, Divider, Alert } from 'antd';
-import { useStoreState, useStoreActions } from 'store';
-import { StatusTag } from 'components/common';
-import NetworkActions from './NetworkActions';
-import LndCard from './LndCard';
-import BitcoindCard from './BitcoindCard';
-import styles from './NetworkView.module.less';
+import { Alert, Col, Divider, PageHeader, Row } from 'antd';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
+import { StatusTag } from 'components/common';
+import BitcoindCard from './BitcoindCard';
+import LndCard from './LndCard';
+import NetworkActions from './NetworkActions';
+import styles from './NetworkView.module.less';
 
 interface MatchParams {
   id?: string;

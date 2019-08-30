@@ -1,11 +1,11 @@
-import { Action, action, Thunk, thunk, Computed, computed, memo } from 'easy-peasy';
 import { info } from 'electron-log';
-import { push } from 'connected-react-router';
-import { Network, Status, StoreInjections } from 'types';
-import { NETWORK_VIEW } from 'components/routing';
-import { range } from 'utils/numbers';
 import { join } from 'path';
+import { push } from 'connected-react-router';
+import { Action, action, Computed, computed, memo, Thunk, thunk } from 'easy-peasy';
+import { Network, Status, StoreInjections } from 'types';
 import { dataPath } from 'utils/config';
+import { range } from 'utils/numbers';
+import { NETWORK_VIEW } from 'components/routing';
 
 interface AddNetworkArgs {
   name: string;

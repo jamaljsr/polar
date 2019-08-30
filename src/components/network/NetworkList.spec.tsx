@@ -1,8 +1,8 @@
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
-import { renderWithProviders, getNetwork } from 'utils/tests';
-import { NETWORK } from 'components/routing';
 import { Network } from 'types';
+import { getNetwork, renderWithProviders } from 'utils/tests';
+import { NETWORK } from 'components/routing';
 import NetworkList from './NetworkList';
 
 describe('NetworkList Component', () => {

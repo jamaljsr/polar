@@ -2,9 +2,9 @@ import { routerMiddleware } from 'connected-react-router';
 import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
-import { StoreInjections } from 'types';
 import { dockerService } from 'lib/docker';
 import { createModel, RootModel } from 'store/models';
+import { StoreInjections } from 'types';
 
 export const hashHistory = createHashHistory();
 

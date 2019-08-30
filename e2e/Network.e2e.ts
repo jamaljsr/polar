@@ -1,5 +1,5 @@
-import { App, NewNetwork, NetworkView } from './pages';
-import { assertNoConsoleErrors, pageUrl, getPageUrl } from './helpers';
+import { assertNoConsoleErrors, getPageUrl, pageUrl } from './helpers';
+import { App, NetworkView, NewNetwork } from './pages';
 
 fixture`Network`
   .page(pageUrl)

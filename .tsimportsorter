@@ -2,7 +2,7 @@
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
   "importSorter.importStringConfiguration.tabSize": 2,
   "importSorter.sortConfiguration.removeUnusedDefaultImports": true,
-  "importSorter.sortConfiguration.customOrderingRules.defaultNumberOfEmptyLinesAfterGroup": 1,
+  "importSorter.sortConfiguration.customOrderingRules.defaultNumberOfEmptyLinesAfterGroup": 0,
   "importSorter.sortConfiguration.customOrderingRules.defaultOrderLevel": 50,
   "importSorter.sortConfiguration.customOrderingRules.rules": [
     {

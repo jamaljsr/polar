@@ -1,9 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { join } from 'path';
-import { StoreProvider } from 'easy-peasy';
-import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { join } from 'path';
+import { render } from '@testing-library/react';
+import { ConnectedRouter } from 'connected-react-router';
+import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
 import { Network, Status, StoreInjections } from 'types';

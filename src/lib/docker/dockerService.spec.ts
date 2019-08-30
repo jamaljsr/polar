@@ -1,8 +1,8 @@
 import * as compose from 'docker-compose';
+import { dockerService } from 'lib/docker';
+import { Network } from 'types';
 import * as files from 'utils/files';
 import { getNetwork } from 'utils/tests';
-import { Network } from 'types';
-import { dockerService } from 'lib/docker';
 
 jest.mock('utils/files', () => ({
   writeDataFile: jest.fn(),

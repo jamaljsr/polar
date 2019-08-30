@@ -1,8 +1,8 @@
-import path from 'path';
 import { app, BrowserWindow } from 'electron';
 import debug from 'electron-debug';
 import isNotPackaged from 'electron-is-dev';
 import { warn } from 'electron-log';
+import path from 'path';
 
 const isDev = isNotPackaged && process.env.NODE_ENV !== 'production';
 warn(`Starting Electron main process`);

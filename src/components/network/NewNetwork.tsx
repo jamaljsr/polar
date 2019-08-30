@@ -1,7 +1,7 @@
-import React, { useEffect, FormEvent } from 'react';
+import React, { FormEvent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { info } from 'electron-log';
-import { Form, Input, Button, notification, InputNumber, Card, Row, Col } from 'antd';
+import { Button, Card, Col, Form, Input, InputNumber, notification, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { useStoreActions } from 'store';
 

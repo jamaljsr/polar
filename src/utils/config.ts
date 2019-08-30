@@ -1,5 +1,5 @@
-import { join } from 'path';
 import { remote } from 'electron';
+import { join } from 'path';
 
 /**
  * root path where application data is stored

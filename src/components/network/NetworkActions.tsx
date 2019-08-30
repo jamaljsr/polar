@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Status } from 'types';
-import { Menu, Icon, Button, Dropdown } from 'antd';
+import { Button, Dropdown, Icon, Menu } from 'antd';
 import { ButtonType } from 'antd/lib/button';
+import { Status } from 'types';
 
 interface Props {
   status: Status;

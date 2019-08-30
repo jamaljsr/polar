@@ -15,25 +15,21 @@ Polar requires that you have Docker installed to create the local networks
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
 
-### Run the app
+### Commands
 
-`yarn && yarn dev`
+| Command         | Description                               |
+| --------------- | ----------------------------------------- |
+| `yarn`          | install dependencies                      |
+| `yarn dev`      | run the app with react hot reloading      |
+| `yarn test`     | run unit tests in watch mode              |
+| `yarn test:e2e` | run e2e tests                             |
+| `yarn lint:all` | run typescript and eslint syntax checking |
+| `yarn langs`    | extract i18n language keys from code      |
+| `yarn pacakge`  | package the app for your OS               |
 
-### Run Unit Tests
+### Tips
 
-`yarn test`
-
-### Run End-to-end Tests
-
-`yarn test:e2e`
-
-### Run Typescript & Linter
-
-`yarn lint:all`
-
-### Package App for your OS
-
-`yarn package`
+- install the [import-sorter](https://github.com/SoominHan/import-sorter) Visual Studio Code extension for automatic import statement sorting
 
 ### Tech Stack
 

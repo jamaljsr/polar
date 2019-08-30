@@ -1,6 +1,6 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
+import { fireEvent } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
 import AppLayout from './AppLayout';
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Route } from 'react-router';
-import { AppLayout } from 'components/layouts';
 import { Home } from 'components/home';
-import { NewNetwork, NetworkView } from 'components/network';
-import { Switch, HOME, NETWORK } from 'components/routing';
+import { AppLayout } from 'components/layouts';
+import { NetworkView, NewNetwork } from 'components/network';
+import { HOME, NETWORK, Switch } from 'components/routing';
 
 const Routes: React.FC = () => (
   <AppLayout>

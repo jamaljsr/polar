@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import { writeDataFile } from './files';
 import { join } from 'path';
 import { dataPath } from './config';
+import { writeDataFile } from './files';
 
 jest.mock('fs', () => ({
   promises: {

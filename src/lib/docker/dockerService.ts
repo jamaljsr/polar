@@ -1,8 +1,8 @@
+import { info } from 'electron-log';
+import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
-import { join } from 'path';
-import { info } from 'electron-log';
-import { Network, DockerLibrary } from 'types';
+import { DockerLibrary, Network } from 'types';
 import { writeDataFile } from 'utils/files';
 import ComposeFile from './composeFile';
 

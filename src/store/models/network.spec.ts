@@ -1,5 +1,5 @@
 import { createStore } from 'easy-peasy';
-import { Status, Network } from 'types';
+import { Network, Status } from 'types';
 import { injections } from 'utils/tests';
 import networkModel from './network';
 

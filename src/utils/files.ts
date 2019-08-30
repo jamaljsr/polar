@@ -1,5 +1,5 @@
-import { join, dirname, isAbsolute } from 'path';
 import { promises as fs } from 'fs';
+import { dirname, isAbsolute, join } from 'path';
 import { dataPath } from './config';
 
 /**

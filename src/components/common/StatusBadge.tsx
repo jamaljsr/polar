@@ -1,6 +1,6 @@
 import React from 'react';
-import { Status } from 'types';
 import { Badge } from 'antd';
+import { Status } from 'types';
 
 export interface StatusBadgeProps {
   status: Status;
