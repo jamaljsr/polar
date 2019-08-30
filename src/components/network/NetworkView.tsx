@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
-import { RouteComponentProps } from 'react-router';
+import { useAsyncCallback } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
+import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
-import { PageHeader, Row, Col, Divider } from 'antd';
-import { useStoreState } from 'store';
+import { Alert, Col, Divider, PageHeader, Row } from 'antd';
+import { useStoreActions, useStoreState } from 'store';
+import { Network } from 'types';
 import { StatusTag } from 'components/common';
-import NetworkActions from './NetworkActions';
-import LndCard from './LndCard';
 import BitcoindCard from './BitcoindCard';
+import LndCard from './LndCard';
+import NetworkActions from './NetworkActions';
 import styles from './NetworkView.module.less';
 
 interface MatchParams {
@@ -34,8 +36,15 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
 
   const { t } = useTranslation();
-  const network = useStoreState(s => s.network.networkById(match.params.id));
-  if (!network) {
+  const { networkById } = useStoreState(s => s.network);
+  const { toggle } = useStoreActions(s => s.network);
+
+  let network: Network;
+  const toggleAsync = useAsyncCallback(async () => toggle(network.id));
+
+  try {
+    network = networkById(match.params.id);
+  } catch {
     return null;
   }
 
@@ -45,11 +54,12 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     <>
       <PageHeader
         title={network.name}
-        onBack={() => {}}
+        // onBack={() => {}}
         className={styles.header}
         tags={<StatusTag status={network.status} />}
-        extra={<NetworkActions status={network.status} />}
+        extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
       />
+      {toggleAsync.error && <Alert type="error" message={toggleAsync.error.message} />}
       <Divider>{t('cmps.network-view.lightning-divider', 'Lightning Nodes')}</Divider>
       <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (

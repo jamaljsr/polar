@@ -1,7 +1,7 @@
-import { AnyAction } from 'redux';
 import { connectRouter, RouterState } from 'connected-react-router';
-import { History } from 'history';
 import { reducer, Reducer } from 'easy-peasy';
+import { History } from 'history';
+import { AnyAction } from 'redux';
 import networkModel, { NetworkModel } from './network';
 
 export interface RootModel {

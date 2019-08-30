@@ -14,11 +14,11 @@ describe('DetailsList Component', () => {
 
   it('should render all the details', () => {
     const { getByText } = renderComponent();
-    expect(getByText('d1')).toBeTruthy();
-    expect(getByText('d2')).toBeTruthy();
-    expect(getByText('d3')).toBeTruthy();
-    expect(getByText('v1')).toBeTruthy();
-    expect(getByText('v2')).toBeTruthy();
-    expect(getByText('v3')).toBeTruthy();
+    expect(getByText('d1')).toBeInTheDocument();
+    expect(getByText('d2')).toBeInTheDocument();
+    expect(getByText('d3')).toBeInTheDocument();
+    expect(getByText('v1')).toBeInTheDocument();
+    expect(getByText('v2')).toBeInTheDocument();
+    expect(getByText('v3')).toBeInTheDocument();
   });
 });

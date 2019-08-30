@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { Provider } from 'react-redux';
+import { info } from 'electron-log';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
-import { info } from 'electron-log';
-import { Routes } from 'components/routing';
 import store, { hashHistory } from 'store';
+import { Routes } from 'components/routing';
 
 const App: React.FC = () => {
   useEffect(() => info('Rendering App component'), []);

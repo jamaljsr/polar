@@ -13,7 +13,9 @@ RUN curl -SLO https://github.com/lightningnetwork/lnd/releases/download/v${LND_V
   && tar -xzf *.tar.gz -C /opt \
   && rm *.tar.gz
 
-COPY docker-entrypoint.sh /entrypoint.sh
+COPY --chown=lnd docker-entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
 
 VOLUME ["/home/lnd/.lnd"]
 

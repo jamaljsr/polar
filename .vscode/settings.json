@@ -7,7 +7,8 @@
     ".prettierrc": "jsonc",
     ".renovaterc": "jsonc",
     ".stylelintrc": "json",
-    ".versionrc": "json"
+    ".versionrc": "json",
+    ".tsimportsorter": "json"
   },
   "eslint.autoFixOnSave": true,
   "eslint.validate": [
@@ -15,5 +16,6 @@
     "javascriptreact",
     { "language": "typescript", "autoFix": true },
     { "language": "typescriptreact", "autoFix": true }
-  ]
+  ],
+  "importSorter.generalConfiguration.configurationFilePath": "./.tsimportsorter"
 }

@@ -1,6 +1,6 @@
 import React from 'react';
-import { renderWithProviders } from 'utils/tests';
 import { Status } from 'types';
+import { renderWithProviders } from 'utils/tests';
 import StatusTag from './StatusTag';
 
 describe('StatusTag Component', () => {

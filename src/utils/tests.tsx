@@ -1,16 +1,19 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { StoreProvider } from 'easy-peasy';
-import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { join } from 'path';
+import { render } from '@testing-library/react';
+import { ConnectedRouter } from 'connected-react-router';
+import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
-import { Network, Status } from 'types';
+import { Network, Status, StoreInjections } from 'types';
+import { dataPath } from './config';
 
-export const getNetwork = (networkId?: number, name?: string): Network => ({
-  id: networkId || 0,
+export const getNetwork = (networkId = 1, name?: string, status?: Status): Network => ({
+  id: networkId,
   name: name || 'my-test',
-  status: Status.Stopped,
+  status: status !== undefined ? status : Status.Stopped,
+  path: join(dataPath, 'networks', networkId.toString()),
   nodes: {
     bitcoin: [
       {
@@ -18,7 +21,7 @@ export const getNetwork = (networkId?: number, name?: string): Network => ({
         name: 'bitcoind-1',
         type: 'bitcoin',
         implementation: 'bitcoind',
-        status: Status.Stopped,
+        status: status !== undefined ? status : Status.Stopped,
       },
     ],
     lightning: [
@@ -27,7 +30,7 @@ export const getNetwork = (networkId?: number, name?: string): Network => ({
         name: 'lnd-1',
         type: 'lightning',
         implementation: 'LND',
-        status: Status.Stopped,
+        status: status !== undefined ? status : Status.Stopped,
         backendName: 'bitcoind1',
       },
       {
@@ -35,12 +38,21 @@ export const getNetwork = (networkId?: number, name?: string): Network => ({
         name: 'lnd-2',
         type: 'lightning',
         implementation: 'LND',
-        status: Status.Stopped,
+        status: status !== undefined ? status : Status.Stopped,
         backendName: 'bitcoind1',
       },
     ],
   },
 });
+
+// injections allow you to mock the dependencies of redux store actions
+export const injections: StoreInjections = {
+  dockerService: {
+    create: jest.fn(),
+    start: jest.fn(),
+    stop: jest.fn(),
+  },
+};
 
 /**
  * Renders a component inside of the redux provider for state and
@@ -61,12 +73,6 @@ export const renderWithProviders = (
   }
   // provide initial state if any
   const initialState = options.initialState || {};
-  // injections allow you to mock the dependencies of actions in the store
-  const injections = {
-    networkManager: {
-      create: jest.fn(),
-    },
-  };
   const store = createReduxStore({ initialState, injections, history });
   const result = render(
     <StoreProvider store={store}>
@@ -76,5 +82,5 @@ export const renderWithProviders = (
     </StoreProvider>,
   );
 
-  return { ...result, history, injections };
+  return { ...result, history, injections, store };
 };

@@ -1,4 +1,6 @@
 import * as fs from 'fs';
+import { join } from 'path';
+import { dataPath } from './config';
 import { writeDataFile } from './files';
 
 jest.mock('fs', () => ({
@@ -15,5 +17,24 @@ describe('Files util', () => {
     await writeDataFile('networks/test.txt', 'test data');
     expect(mockFs.promises.mkdir).toBeCalledTimes(1);
     expect(mockFs.promises.writeFile).toBeCalledTimes(1);
+  });
+
+  it('should handle relative paths', async () => {
+    const relPath = join('networks', 'test.txt');
+    const absPath = join(dataPath, relPath);
+    const data = 'test data';
+    await writeDataFile(relPath, data);
+    expect(mockFs.promises.mkdir).toBeCalledTimes(1);
+    expect(mockFs.promises.writeFile).toBeCalledTimes(1);
+    expect(mockFs.promises.writeFile).toBeCalledWith(absPath, data);
+  });
+
+  it('should handle absolute paths', async () => {
+    const absPath = join(__dirname, 'networks', 'test.txt');
+    const data = 'test data';
+    await writeDataFile(absPath, data);
+    expect(mockFs.promises.mkdir).toBeCalledTimes(1);
+    expect(mockFs.promises.writeFile).toBeCalledTimes(1);
+    expect(mockFs.promises.writeFile).toBeCalledWith(absPath, data);
   });
 });

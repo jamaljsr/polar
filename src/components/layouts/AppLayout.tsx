@@ -1,8 +1,8 @@
 import React from 'react';
-import { Layout } from 'antd';
 import { Link } from 'react-router-dom';
-import { HOME } from 'components/routing';
+import { Layout } from 'antd';
 import { NetworkList } from 'components/network';
+import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
 import LocaleSwitch from './LocaleSwitch';
 import styles from './AppLayout.module.less';

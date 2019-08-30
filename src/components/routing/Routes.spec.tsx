@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderWithProviders } from 'utils/tests';
-import { Routes, HOME, NETWORK } from 'components/routing';
+import { HOME, NETWORK, Routes } from 'components/routing';
 
 describe('App container', () => {
   const renderComponent = (route: string) => {

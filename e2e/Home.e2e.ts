@@ -1,5 +1,5 @@
+import { assertNoConsoleErrors, getPageUrl, pageUrl } from './helpers';
 import { Home } from './pages';
-import { getPageUrl, assertNoConsoleErrors, pageUrl } from './helpers';
 
 fixture`Home`.page(pageUrl).afterEach(assertNoConsoleErrors);
 

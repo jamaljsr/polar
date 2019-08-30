@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, Alert } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useTranslation, Trans } from 'react-i18next';
 import { info } from 'electron-log';
+import { Alert, Button, Card } from 'antd';
 import { NETWORK } from 'components/routing';
 
 const Home = () => {

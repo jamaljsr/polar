@@ -1,4 +1,4 @@
-import { getPageTitle, assertNoConsoleErrors, pageUrl } from './helpers';
+import { assertNoConsoleErrors, getPageTitle, pageUrl } from './helpers';
 
 fixture`App`.page(pageUrl).afterEach(assertNoConsoleErrors);
 

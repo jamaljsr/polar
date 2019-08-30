@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { Button } from 'antd';
 import styles from './LocaleSwitch.module.less';
 
 const LocaleSwitch: React.FC = () => {

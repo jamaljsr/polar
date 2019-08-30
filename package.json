@@ -12,9 +12,11 @@
   "scripts": {
     "build": "cross-env PUBLIC_URL=./ rescripts build",
     "cm": "git add . && git cz",
-    "dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev": "concurrently --kill-others \"yarn:dev:*\"",
+    "dev:start": "cross-env BROWSER=none yarn start",
+    "dev:electron": "wait-on http://localhost:3000 && electron .",
     "eject": "rescripts eject",
-    "extract-langs": "i18next-scanner --config ./.i18next-scanner.js",
+    "langs": "i18next-scanner --config ./.i18next-scanner.js",
     "lint": "eslint --ext .ts,.tsx --ignore-path .gitignore .",
     "lint:all": "yarn tsc && yarn lint && yarn lint:styles",
     "lint:fix": "yarn lint --fix",
@@ -28,8 +30,9 @@
     "prebuild": "tsc -p electron/tsconfig.json",
     "release": "standard-version --no-verify",
     "start": "rescripts start",
-    "test": "rescripts test --coverage",
-    "test:all": "cross-env CI=true yarn test && yarn test:e2e",
+    "test": "cross-env DEBUG_PRINT_LIMIT=15000 rescripts test --coverage",
+    "test:ci": "cross-env CI=true yarn test",
+    "test:all": "yarn test:ci && yarn test:e2e",
     "test:codecov": "codecov",
     "test:e2e": "yarn build && cross-env NODE_ENV=production testcafe electron:./ ./e2e/**/*.e2e.ts",
     "test:e2e:live": "yarn test:e2e -L",
@@ -123,7 +126,8 @@
       "!<rootDir>/src/**/index.{ts,js}",
       "!<rootDir>/src/index.tsx",
       "!<rootDir>/src/react-app-env.d.ts"
-    ]
+    ],
+    "resetMocks": true
   },
   "eslintConfig": {
     "extends": "react-app"

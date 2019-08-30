@@ -1,0 +1,47 @@
+{
+  "importSorter.generalConfiguration.sortOnBeforeSave": true,
+  "importSorter.importStringConfiguration.tabSize": 2,
+  "importSorter.sortConfiguration.removeUnusedDefaultImports": true,
+  "importSorter.sortConfiguration.customOrderingRules.defaultNumberOfEmptyLinesAfterGroup": 0,
+  "importSorter.sortConfiguration.customOrderingRules.defaultOrderLevel": 50,
+  "importSorter.sortConfiguration.customOrderingRules.rules": [
+    {
+      "regex": "^(first entry ignored by the plugin. idk why)",
+      "orderLevel": 0
+    },
+    {
+      "regex": "^(react)",
+      "orderLevel": 10
+    },
+    {
+      "regex": "^(electron|path|fs)",
+      "orderLevel": 20
+    },
+    {
+      "regex": "^[@]",
+      "orderLevel": 30
+    },
+    {
+      "type": "importMember",
+      "regex": "^$",
+      "orderLevel": 40,
+      "disableSort": true
+    },
+    {
+      "regex": "^(i18n|lib|store|theme|types|util)",
+      "orderLevel": 60
+    },
+    {
+      "regex": "^(components|resources)",
+      "orderLevel": 70
+    },
+    {
+      "regex": "\\.less$",
+      "orderLevel": 90
+    },
+    {
+      "regex": "^[.]",
+      "orderLevel": 80
+    }
+  ]
+}

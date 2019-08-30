@@ -6,9 +6,8 @@ import { ComposeService } from './composeFile';
 const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 export const bitcoind = (name: string): ComposeService => ({
-  image: 'bitcoind:0.18.0',
+  image: 'polar/bitcoind:0.18.0',
   container_name: name,
-  user: 'bitcoin',
   command: trimInside(`
     bitcoind
       -server=1
@@ -38,11 +37,10 @@ export const bitcoind = (name: string): ComposeService => ({
 });
 
 export const lnd = (name: string, backendName: string): ComposeService => ({
-  image: 'lnd:0.7.1-beta',
+  image: 'polar/lnd:0.7.1-beta',
   container_name: name,
-  user: 'lnd',
   command: trimInside(`
-    wait-for-it ${backendName}:18443 -- lnd
+    lnd
       --noseedbackup
       --tlsextradomain=lnd
       --listen=0.0.0.0:9735
