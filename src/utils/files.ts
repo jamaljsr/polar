@@ -22,3 +22,17 @@ export const readDataFile = async (filePath: string): Promise<string> => {
   const absPath = isAbsolute(filePath) ? filePath : join(dataPath, filePath);
   return (await fs.readFile(absPath)).toString();
 };
+
+/**
+ * Checkes to see if a file exists
+ * @param filePath the path to the file. either absolute or relative to the app's data dir
+ */
+export const dataFileExists = async (filePath: string): Promise<boolean> => {
+  try {
+    const absPath = isAbsolute(filePath) ? filePath : join(dataPath, filePath);
+    await fs.access(absPath);
+    return true;
+  } catch {
+    return false;
+  }
+};

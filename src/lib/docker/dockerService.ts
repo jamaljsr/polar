@@ -4,7 +4,7 @@ import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
 import { DockerLibrary, Network } from 'types';
 import { networksPath } from 'utils/config';
-import { readDataFile, writeDataFile } from 'utils/files';
+import { dataFileExists, readDataFile, writeDataFile } from 'utils/files';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
@@ -81,10 +81,15 @@ class DockerService implements DockerLibrary {
    */
   async load(): Promise<Network[]> {
     const path = join(networksPath, 'networks.json');
-    const json = await readDataFile(path);
-    const networks = JSON.parse(json);
-    info(`loaded ${networks.length} networks from '${path}'`);
-    return networks;
+    if (await dataFileExists(path)) {
+      const json = await readDataFile(path);
+      const networks = JSON.parse(json);
+      info(`loaded ${networks.length} networks from '${path}'`);
+      return networks;
+    } else {
+      info(`skipped loading networks because the file '${path}' doesn't exist`);
+      return [];
+    }
   }
 }
 

@@ -8,6 +8,7 @@ import { getNetwork } from 'utils/tests';
 jest.mock('utils/files', () => ({
   writeDataFile: jest.fn(),
   readDataFile: jest.fn(),
+  dataFileExists: jest.fn(),
 }));
 
 const filesMock = files as jest.Mocked<typeof files>;
@@ -22,72 +23,86 @@ describe('DockerService', () => {
     network = getNetwork();
   });
 
-  it('should save the docker-compose.yml file', () => {
-    dockerService.create(network);
+  describe('saving data', () => {
+    it('should save the docker-compose.yml file', () => {
+      dockerService.create(network);
 
-    expect(filesMock.writeDataFile).toBeCalledWith(
-      expect.stringContaining('docker-compose.yml'),
-      expect.stringContaining('version:'),
-    );
+      expect(filesMock.writeDataFile).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining('version:'),
+      );
 
-    expect(filesMock.writeDataFile).toBeCalledWith(
-      expect.stringContaining('docker-compose.yml'),
-      expect.stringContaining('services:'),
-    );
+      expect(filesMock.writeDataFile).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining('services:'),
+      );
+    });
+
+    it('should save with the bitcoin node in the compose file', () => {
+      dockerService.create(network);
+      expect(filesMock.writeDataFile).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(
+          `container_name: polar-n1-${network.nodes.bitcoin[0].name}`,
+        ),
+      );
+    });
+
+    it('should save with the lnd node in the compose file', () => {
+      dockerService.create(network);
+      expect(filesMock.writeDataFile).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(
+          `container_name: polar-n1-${network.nodes.lightning[0].name}`,
+        ),
+      );
+    });
+
+    it('should save a list of networks to disk', () => {
+      dockerService.save([network]);
+      expect(filesMock.writeDataFile).toBeCalledWith(
+        expect.stringContaining(join('networks', 'networks.json')),
+        expect.stringContaining(`"name": "${network.name}"`),
+      );
+    });
   });
 
-  it('should save with the bitcoin node in the compose file', () => {
-    dockerService.create(network);
-    expect(filesMock.writeDataFile).toBeCalledWith(
-      expect.stringContaining('docker-compose.yml'),
-      expect.stringContaining(
-        `container_name: polar-n1-${network.nodes.bitcoin[0].name}`,
-      ),
-    );
+  describe('loading data', () => {
+    it('should load the list of networks from disk', async () => {
+      filesMock.dataFileExists.mockResolvedValue(true);
+      filesMock.readDataFile.mockResolvedValue('[]');
+      const networks = await dockerService.load();
+      expect(networks.length).toBe(0);
+      expect(filesMock.readDataFile).toBeCalledWith(
+        expect.stringContaining(join('networks', 'networks.json')),
+      );
+    });
+
+    it('should return an empty list if no networks are saved', async () => {
+      filesMock.dataFileExists.mockResolvedValue(false);
+      const networks = await dockerService.load();
+      expect(Array.isArray(networks)).toBe(true);
+      expect(networks.length).toBe(0);
+    });
   });
 
-  it('should save with the lnd node in the compose file', () => {
-    dockerService.create(network);
-    expect(filesMock.writeDataFile).toBeCalledWith(
-      expect.stringContaining('docker-compose.yml'),
-      expect.stringContaining(
-        `container_name: polar-n1-${network.nodes.lightning[0].name}`,
-      ),
-    );
-  });
+  describe('executing commands', () => {
+    it('should call compose.upAll when a network is started', async () => {
+      composeMock.upAll.mockResolvedValue(result);
+      await dockerService.start(network);
+      expect(composeMock.upAll).toBeCalledWith({ cwd: network.path });
+    });
 
-  it('should save a list of networks to disk', () => {
-    dockerService.save([network]);
-    expect(filesMock.writeDataFile).toBeCalledWith(
-      expect.stringContaining(join('networks', 'networks.json')),
-      expect.stringContaining(`"name": "${network.name}"`),
-    );
-  });
+    it('should call compose.stop when a network is stopped', async () => {
+      composeMock.stop.mockResolvedValue(result);
+      await dockerService.stop(network);
+      expect(composeMock.stop).toBeCalledWith({ cwd: network.path });
+    });
 
-  it('should load the list of networks from disk', async () => {
-    filesMock.readDataFile.mockResolvedValue('[]');
-    const networks = await dockerService.load();
-    expect(networks.length).toBe(0);
-    expect(filesMock.readDataFile).toBeCalledWith(
-      expect.stringContaining(join('networks', 'networks.json')),
-    );
-  });
-
-  it('should call compose.upAll when a network is started', async () => {
-    composeMock.upAll.mockResolvedValue(result);
-    await dockerService.start(network);
-    expect(composeMock.upAll).toBeCalledWith({ cwd: network.path });
-  });
-
-  it('should call compose.stop when a network is stopped', async () => {
-    composeMock.stop.mockResolvedValue(result);
-    await dockerService.stop(network);
-    expect(composeMock.stop).toBeCalledWith({ cwd: network.path });
-  });
-
-  it('should reformat thrown exceptions', async () => {
-    const err = 'oops, didnt work';
-    composeMock.upAll.mockRejectedValueOnce({ err });
-    await expect(dockerService.start(network)).rejects.toEqual(new Error(err));
+    it('should reformat thrown exceptions', async () => {
+      const err = 'oops, didnt work';
+      composeMock.upAll.mockRejectedValueOnce({ err });
+      await expect(dockerService.start(network)).rejects.toEqual(new Error(err));
+    });
   });
 });
