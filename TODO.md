@@ -2,8 +2,9 @@
 
 Small Stuff
 
-- save network state to disk
+- refactor func names in files module
 - refactor networks.add into a util func
+- refactor to use fs-extra instead of fs
 - move "docker-compose.yml" string into a constants file
 - build images if they don't exist
 - update app icon

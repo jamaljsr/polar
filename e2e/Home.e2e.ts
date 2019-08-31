@@ -1,7 +1,10 @@
-import { assertNoConsoleErrors, getPageUrl, pageUrl } from './helpers';
+import { assertNoConsoleErrors, cleanup, getPageUrl, pageUrl } from './helpers';
 import { Home } from './pages';
 
-fixture`Home`.page(pageUrl).afterEach(assertNoConsoleErrors);
+fixture`Home`
+  .page(pageUrl)
+  .afterEach(assertNoConsoleErrors)
+  .afterEach(cleanup);
 
 test('should be on the route /', async t => {
   await t.expect(getPageUrl()).match(/.*#\/$/);

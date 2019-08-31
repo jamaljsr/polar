@@ -1,10 +1,11 @@
-import { assertNoConsoleErrors, getPageUrl, pageUrl } from './helpers';
+import { assertNoConsoleErrors, cleanup, getPageUrl, pageUrl } from './helpers';
 import { App, NetworkView, NewNetwork } from './pages';
 
 fixture`Network`
   .page(pageUrl)
   .beforeEach(App.clickNewNetworkBtn)
-  .afterEach(assertNoConsoleErrors);
+  .afterEach(assertNoConsoleErrors)
+  .afterEach(cleanup);
 
 test('should be on the route /network', async t => {
   await t.expect(getPageUrl()).match(/.*#\/network$/);
