@@ -6,9 +6,9 @@ import * as files from 'utils/files';
 import { getNetwork } from 'utils/tests';
 
 jest.mock('utils/files', () => ({
-  writeDataFile: jest.fn(),
-  readDataFile: jest.fn(),
-  dataFileExists: jest.fn(),
+  write: jest.fn(),
+  read: jest.fn(),
+  exists: jest.fn(),
 }));
 
 const filesMock = files as jest.Mocked<typeof files>;
@@ -27,12 +27,12 @@ describe('DockerService', () => {
     it('should save the docker-compose.yml file', () => {
       dockerService.create(network);
 
-      expect(filesMock.writeDataFile).toBeCalledWith(
+      expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining('version:'),
       );
 
-      expect(filesMock.writeDataFile).toBeCalledWith(
+      expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining('services:'),
       );
@@ -40,7 +40,7 @@ describe('DockerService', () => {
 
     it('should save with the bitcoin node in the compose file', () => {
       dockerService.create(network);
-      expect(filesMock.writeDataFile).toBeCalledWith(
+      expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.bitcoin[0].name}`,
@@ -50,7 +50,7 @@ describe('DockerService', () => {
 
     it('should save with the lnd node in the compose file', () => {
       dockerService.create(network);
-      expect(filesMock.writeDataFile).toBeCalledWith(
+      expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
@@ -60,7 +60,7 @@ describe('DockerService', () => {
 
     it('should save a list of networks to disk', () => {
       dockerService.save([network]);
-      expect(filesMock.writeDataFile).toBeCalledWith(
+      expect(filesMock.write).toBeCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
         expect.stringContaining(`"name": "${network.name}"`),
       );
@@ -69,17 +69,17 @@ describe('DockerService', () => {
 
   describe('loading data', () => {
     it('should load the list of networks from disk', async () => {
-      filesMock.dataFileExists.mockResolvedValue(true);
-      filesMock.readDataFile.mockResolvedValue('[]');
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue('[]');
       const networks = await dockerService.load();
       expect(networks.length).toBe(0);
-      expect(filesMock.readDataFile).toBeCalledWith(
+      expect(filesMock.read).toBeCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
       );
     });
 
     it('should return an empty list if no networks are saved', async () => {
-      filesMock.dataFileExists.mockResolvedValue(false);
+      filesMock.exists.mockResolvedValue(false);
       const networks = await dockerService.load();
       expect(Array.isArray(networks)).toBe(true);
       expect(networks.length).toBe(0);

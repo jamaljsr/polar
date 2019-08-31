@@ -7,7 +7,7 @@ import { dataPath } from './config';
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  * @param content the contents of the file
  */
-export const writeDataFile = async (filePath: string, content: string) => {
+export const write = async (filePath: string, content: string) => {
   const absPath = isAbsolute(filePath) ? filePath : join(dataPath, filePath);
   const dirPath = dirname(absPath);
   await fs.mkdir(dirPath, { recursive: true });
@@ -18,7 +18,7 @@ export const writeDataFile = async (filePath: string, content: string) => {
  * Reads data from a file located in the app's data directory
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  */
-export const readDataFile = async (filePath: string): Promise<string> => {
+export const read = async (filePath: string): Promise<string> => {
   const absPath = isAbsolute(filePath) ? filePath : join(dataPath, filePath);
   return (await fs.readFile(absPath)).toString();
 };
@@ -27,7 +27,7 @@ export const readDataFile = async (filePath: string): Promise<string> => {
  * Checkes to see if a file exists
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  */
-export const dataFileExists = async (filePath: string): Promise<boolean> => {
+export const exists = async (filePath: string): Promise<boolean> => {
   try {
     const absPath = isAbsolute(filePath) ? filePath : join(dataPath, filePath);
     await fs.access(absPath);
