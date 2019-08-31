@@ -7,6 +7,7 @@ import { getNetwork } from 'utils/tests';
 
 jest.mock('utils/files', () => ({
   writeDataFile: jest.fn(),
+  readDataFile: jest.fn(),
 }));
 
 const filesMock = files as jest.Mocked<typeof files>;
@@ -60,6 +61,15 @@ describe('DockerService', () => {
     expect(filesMock.writeDataFile).toBeCalledWith(
       expect.stringContaining(join('networks', 'networks.json')),
       expect.stringContaining(`"name": "${network.name}"`),
+    );
+  });
+
+  it('should load the list of networks from disk', async () => {
+    filesMock.readDataFile.mockResolvedValue('[]');
+    const networks = await dockerService.load();
+    expect(networks.length).toBe(0);
+    expect(filesMock.readDataFile).toBeCalledWith(
+      expect.stringContaining(join('networks', 'networks.json')),
     );
   });
 

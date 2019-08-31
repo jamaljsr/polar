@@ -47,6 +47,7 @@ export interface DockerLibrary {
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
   save: (networks: Network[]) => Promise<void>;
+  load: () => Promise<Network[]>;
 }
 
 export interface StoreInjections {

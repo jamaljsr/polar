@@ -4,7 +4,7 @@ import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
 import { DockerLibrary, Network } from 'types';
 import { networksPath } from 'utils/config';
-import { writeDataFile } from 'utils/files';
+import { readDataFile, writeDataFile } from 'utils/files';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
@@ -74,6 +74,17 @@ class DockerService implements DockerLibrary {
     const path = join(networksPath, 'networks.json');
     await writeDataFile(path, json);
     info(`saved networks to '${path}'`);
+  }
+
+  /**
+   * Loads a list of networks from the file system
+   */
+  async load(): Promise<Network[]> {
+    const path = join(networksPath, 'networks.json');
+    const json = await readDataFile(path);
+    const networks = JSON.parse(json);
+    info(`loaded ${networks.length} networks from '${path}'`);
+    return networks;
   }
 }
 

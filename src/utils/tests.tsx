@@ -52,6 +52,7 @@ export const injections: StoreInjections = {
     start: jest.fn(),
     stop: jest.fn(),
     save: jest.fn(),
+    load: jest.fn(),
   },
 };
 
