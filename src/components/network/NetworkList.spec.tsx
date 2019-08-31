@@ -28,9 +28,7 @@ describe('NetworkList Component', () => {
     const loadMock = injections.dockerService.load as jest.Mock;
     loadMock.mockRejectedValue(new Error('error reading file'));
     const { findByText } = renderComponent([]);
-    expect(
-      await findByText('Unable to load previously save networks'),
-    ).toBeInTheDocument();
+    expect(await findByText('cmps.network-list.load-error-msg')).toBeInTheDocument();
   });
 
   it('should display a big create button if no networks exist', () => {

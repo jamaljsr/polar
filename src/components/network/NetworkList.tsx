@@ -15,13 +15,16 @@ const List: React.FC = () => {
   useEffect(() => {
     load().catch((e: Error) =>
       notification.error({
-        message: 'Unable to load previously save networks',
+        message: t(
+          'cmps.network-list.load-error-msg',
+          'Unable to load previously save networks',
+        ),
         description: e.message,
         placement: 'bottomRight',
         bottom: 50,
       }),
     );
-  }, [load]);
+  }, [load, t]);
 
   const handleOpenChange = (openKeys: string[]) => {
     const newKey = openKeys.filter(x => x !== activeId.toString())[0];
