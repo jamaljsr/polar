@@ -16,7 +16,7 @@ interface Props {
 const AppLayout: React.FC<Props> = (props: Props) => {
   return (
     <Layout className={styles.layout}>
-      <Sider data-tid="sider">
+      <Sider data-tid="sider" collapsible>
         <div className={styles.logo}>
           <Link to={HOME} data-tid="logo">
             <img src={logo} alt="logo" />

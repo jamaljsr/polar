@@ -69,38 +69,4 @@ describe('NetworkList Component', () => {
     expect(getByText('my network 2')).toBeInTheDocument();
     expect(getByText('my network 3')).toBeInTheDocument();
   });
-
-  it('should show all networks collapsed by default', () => {
-    const { queryByText } = renderComponent();
-    expect(queryByText('cmps.network-list.start')).toBeNull();
-    expect(queryByText('cmps.network-list.edit')).toBeNull();
-    expect(queryByText('cmps.network-list.delete')).toBeNull();
-  });
-
-  it('should toggle open a selected network', () => {
-    const { queryByText, getByText } = renderComponent();
-    expect(queryByText('cmps.network-list.start')).toBeNull();
-    fireEvent.click(getByText('my network 1'));
-    expect(queryByText('cmps.network-list.start')).toBeInTheDocument();
-  });
-
-  it('should display start/edit/delete links for selected network', () => {
-    const { queryByText, getByText } = renderComponent();
-    fireEvent.click(getByText('my network 1'));
-    expect(queryByText('cmps.network-list.start')).toBeInTheDocument();
-    expect(queryByText('cmps.network-list.edit')).toBeInTheDocument();
-    expect(queryByText('cmps.network-list.delete')).toBeInTheDocument();
-  });
-
-  it('should toggle a selected network closed when clicked again', () => {
-    const { queryByText, getByText } = renderComponent();
-    expect(queryByText('cmps.network-list.start')).toBeNull();
-    fireEvent.click(getByText('my network 1'));
-    expect(queryByText('cmps.network-list.start')).toBeVisible();
-    fireEvent.click(getByText('my network 1'));
-    wait(() => {
-      // wait for the menu animation to complete
-      expect(queryByText('cmps.network-list.start')).not.toBeVisible();
-    });
-  });
 });
