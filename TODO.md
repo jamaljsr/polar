@@ -3,8 +3,6 @@
 Small Stuff
 
 - refactor networks.add into a util func
-- refactor to use fs-extra instead of fs
-- move "docker-compose.yml" string into a constants file
 - build images if they don't exist
 - update app icon
 - consistent scrollbars for all OS's (https://github.com/xobotyi/react-scrollbars-custom) (https://github.com/souhe/reactScrollbar)
