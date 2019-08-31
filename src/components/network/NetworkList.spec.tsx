@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
 import { Network } from 'types';
-import { getNetwork, renderWithProviders } from 'utils/tests';
+import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import { NETWORK } from 'components/routing';
 import NetworkList from './NetworkList';
 
@@ -19,9 +19,18 @@ describe('NetworkList Component', () => {
     return renderWithProviders(<NetworkList />, { initialState });
   };
 
-  it('should display a title', () => {
+  it('should display a title', async () => {
     const { getByTestId } = renderComponent();
     expect(getByTestId('header')).toHaveTextContent('cmps.network-list.title');
+  });
+
+  it('should display a notification if it fails to load networks from disk', async () => {
+    const loadMock = injections.dockerService.load as jest.Mock;
+    loadMock.mockRejectedValue(new Error('error reading file'));
+    const { findByText } = renderComponent([]);
+    expect(
+      await findByText('Unable to load previously save networks'),
+    ).toBeInTheDocument();
   });
 
   it('should display a big create button if no networks exist', () => {

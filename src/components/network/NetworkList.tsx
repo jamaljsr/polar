@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Button, Empty, Icon, Menu, Tooltip } from 'antd';
-import { useStoreState } from 'store';
+import { Button, Empty, Icon, Menu, notification, Tooltip } from 'antd';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { NETWORK, NETWORK_VIEW } from 'components/routing';
 import styles from './NetworkList.module.less';
 
 const List: React.FC = () => {
   const { t } = useTranslation();
-  const { networks } = useStoreState(s => s.network);
   const [activeId, setActiveId] = useState<number>(-1);
+  const { networks } = useStoreState(s => s.network);
+  const { load } = useStoreActions(s => s.network);
+  useEffect(() => {
+    load().catch((e: Error) =>
+      notification.error({
+        message: 'Unable to load previously save networks',
+        description: e.message,
+        placement: 'bottomRight',
+        bottom: 50,
+      }),
+    );
+  }, [load]);
 
   const handleOpenChange = (openKeys: string[]) => {
     const newKey = openKeys.filter(x => x !== activeId.toString())[0];
