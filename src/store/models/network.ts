@@ -16,6 +16,8 @@ interface AddNetworkArgs {
 export interface NetworkModel {
   networks: Network[];
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
+  setNetworks: Action<NetworkModel, Network[]>;
+  load: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
   addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
   setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
@@ -39,6 +41,15 @@ const networkModel: NetworkModel = {
     }, 10),
   ),
   // reducer actions (mutations allowed thx to immer)
+  setNetworks: action((state, networks) => {
+    state.networks = networks;
+  }),
+  load: thunk(async (actions, payload, { injections }) => {
+    const networks = await injections.dockerService.load();
+    if (networks && networks.length) {
+      actions.setNetworks(networks);
+    }
+  }),
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
     const network: Network = {

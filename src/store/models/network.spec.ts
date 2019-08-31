@@ -1,6 +1,6 @@
 import { createStore } from 'easy-peasy';
 import { Network, Status } from 'types';
-import { injections } from 'utils/tests';
+import { getNetwork, injections } from 'utils/tests';
 import networkModel from './network';
 
 describe('Network model', () => {
@@ -23,6 +23,16 @@ describe('Network model', () => {
 
   it('should have a valid initial state', () => {
     expect(store.getState().networks).toEqual([]);
+  });
+
+  it('should load a list of networks', async () => {
+    const mockNetworks = [getNetwork(1, 'test 1'), getNetwork(2, 'test 2')];
+    const mockedLoad = injections.dockerService.load as jest.Mock;
+    mockedLoad.mockResolvedValue(mockNetworks);
+    await store.getActions().load();
+    const [net1, net2] = store.getState().networks;
+    expect(net1.name).toBe('test 1');
+    expect(net2.name).toBe('test 2');
   });
 
   describe('Fetching', () => {
