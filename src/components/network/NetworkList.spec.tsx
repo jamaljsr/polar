@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import { Network } from 'types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import { NETWORK } from 'components/routing';
@@ -34,19 +34,9 @@ describe('NetworkList Component', () => {
     expect(await findByText('cmps.network-list.load-error-msg')).toBeInTheDocument();
   });
 
-  it('should display a big create button if no networks exist', () => {
-    const { getByText } = renderComponent([]);
-    expect(getByText('cmps.network-list.create-button')).toBeInTheDocument();
-  });
-
-  it('should not display a create button if one or more networks exist', () => {
-    const { queryByText } = renderComponent();
-    expect(queryByText('cmps.network-list.create-button')).toBeNull();
-  });
-
   it('should go to the new network screen when the create button is clicked', () => {
-    const { getByText, history } = renderComponent([]);
-    fireEvent.click(getByText('cmps.network-list.create-button'));
+    const { getByTestId, history } = renderComponent([]);
+    fireEvent.click(getByTestId('create-icon'));
     expect(history.location.pathname).toEqual(NETWORK);
   });
 
@@ -55,9 +45,9 @@ describe('NetworkList Component', () => {
     expect(getByTestId('create-icon')).toBeInTheDocument();
   });
 
-  it('should not display a create icon if no networks exist', () => {
-    const { queryByTestId } = renderComponent([]);
-    expect(queryByTestId('create-icon')).toBeNull();
+  it('should display a create icon if no networks exist', () => {
+    const { getByTestId } = renderComponent([]);
+    expect(getByTestId('create-icon')).toBeInTheDocument();
   });
 
   it('should go to the new network screen when the create icon is clicked', () => {

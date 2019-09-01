@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Button, Empty, Icon, Menu, notification, Tooltip } from 'antd';
+import { Icon, Menu, notification, Tooltip } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { NETWORK, NETWORK_VIEW } from 'components/routing';
@@ -47,36 +47,18 @@ const List: React.FC = () => {
         {!sidebarCollapsed && (
           <span className={styles.title}>{t('cmps.network-list.title', 'Networks')}</span>
         )}
-        {networks.length > 0 && (
-          <Tooltip
-            title={t('cmps.network-list.create-icon-tooltip', 'Create a new Network')}
-            placement="right"
-          >
-            <Link to={NETWORK} className={styles.create}>
-              <Icon type="plus-circle" data-tid="create-icon" />
-            </Link>
-          </Tooltip>
-        )}
+        <Tooltip
+          title={t('cmps.network-list.create-icon-tooltip', 'Create a new Network')}
+          placement="right"
+        >
+          <Link to={NETWORK} className={styles.create}>
+            <Icon type="plus-circle" data-tid="create-icon" />
+          </Link>
+        </Tooltip>
       </header>
-      <Menu theme="dark" mode="inline">
+      <Menu theme="dark" mode="inline" selectable={false}>
         {networks.map(network => getNetworkItem(network))}
       </Menu>
-      {networks.length === 0 && (
-        <Empty
-          className={styles.empty}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={t(
-            'cmps.network-list.empty-desc',
-            'You have not created any local networks',
-          )}
-        >
-          <Link to={NETWORK}>
-            <Button type="primary" icon="plus" data-tid="create-btn">
-              {t('cmps.network-list.create-button', 'New Network')}
-            </Button>
-          </Link>
-        </Empty>
-      )}
     </div>
   );
 };
