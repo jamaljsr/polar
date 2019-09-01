@@ -26,6 +26,7 @@
   "cmps.network-list.create-icon-tooltip": "Create a new Network",
   "cmps.network-list.empty-desc": "You have not created any local networks",
   "cmps.network-list.create-button": "New Network",
+  "cmps.network-list.load-error-msg": "Unable to load previously save networks",
   "cmps.network-view.lightning-divider": "Lightning Nodes",
   "cmps.network-view.bitcoin-divider": "Bitcoin Nodes",
   "cmps.status-tag.status-starting": "Starting",

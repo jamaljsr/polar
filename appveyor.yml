@@ -38,7 +38,7 @@ test_script:
   - yarn lint
   - yarn lint:styles
   - yarn tsc
-  - yarn test
+  - yarn test:ci
   - yarn test:e2e
   - yarn test:codecov
 

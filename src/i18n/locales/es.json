@@ -26,6 +26,7 @@
   "cmps.network-list.create-icon-tooltip": "Crea una nueva red",
   "cmps.network-list.empty-desc": "No has creado ninguna red local.",
   "cmps.network-list.create-button": "Nueva red",
+  "cmps.network-list.load-error-msg": "No se pueden cargar las redes guardadas previamente",
   "cmps.network-view.lightning-divider": "Lightning Nodos",
   "cmps.network-view.bitcoin-divider": "Bitcoin Nodos",
   "cmps.status-tag.status-starting": "Comenzando",

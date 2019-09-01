@@ -3,7 +3,7 @@ import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, memo, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
-import { dataPath } from 'utils/config';
+import { networksPath } from 'utils/config';
 import { range } from 'utils/numbers';
 import { NETWORK_VIEW } from 'components/routing';
 
@@ -16,6 +16,8 @@ interface AddNetworkArgs {
 export interface NetworkModel {
   networks: Network[];
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
+  setNetworks: Action<NetworkModel, Network[]>;
+  load: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
   addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
   setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
@@ -39,13 +41,22 @@ const networkModel: NetworkModel = {
     }, 10),
   ),
   // reducer actions (mutations allowed thx to immer)
+  setNetworks: action((state, networks) => {
+    state.networks = networks;
+  }),
+  load: thunk(async (actions, payload, { injections }) => {
+    const networks = await injections.dockerService.load();
+    if (networks && networks.length) {
+      actions.setNetworks(networks);
+    }
+  }),
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
     const network: Network = {
       id: nextId,
       name,
       status: Status.Stopped,
-      path: join(dataPath, 'networks', nextId.toString()),
+      path: join(networksPath, nextId.toString()),
       nodes: {
         bitcoin: [],
         lightning: [],
@@ -77,6 +88,7 @@ const networkModel: NetworkModel = {
     const { networks } = getState();
     const newNetwork = networks[networks.length - 1];
     await injections.dockerService.create(newNetwork);
+    await injections.dockerService.save(networks);
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
   setNetworkStatus: action((state, { id, status }) => {

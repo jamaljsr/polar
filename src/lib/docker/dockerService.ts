@@ -3,7 +3,8 @@ import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
 import { DockerLibrary, Network } from 'types';
-import { writeDataFile } from 'utils/files';
+import { networksPath } from 'utils/config';
+import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
@@ -24,7 +25,7 @@ class DockerService implements DockerLibrary {
 
     const yml = yaml.dump(file.content);
     const path = join(network.path, 'docker-compose.yml');
-    await writeDataFile(path, yml);
+    await write(path, yml);
     info(`created compose file for '${network.name}' at '${path}'`);
   }
 
@@ -61,6 +62,33 @@ class DockerService implements DockerLibrary {
     } catch (e) {
       info(`docker cmd failed: ${JSON.stringify(e)}`);
       throw new Error(e.err);
+    }
+  }
+
+  /**
+   * Saves the given networks to disk
+   * @param networks the list of networks to save
+   */
+  async save(networks: Network[]) {
+    const json = JSON.stringify(networks, null, 2);
+    const path = join(networksPath, 'networks.json');
+    await write(path, json);
+    info(`saved networks to '${path}'`);
+  }
+
+  /**
+   * Loads a list of networks from the file system
+   */
+  async load(): Promise<Network[]> {
+    const path = join(networksPath, 'networks.json');
+    if (await exists(path)) {
+      const json = await read(path);
+      const networks = JSON.parse(json);
+      info(`loaded ${networks.length} networks from '${path}'`);
+      return networks;
+    } else {
+      info(`skipped loading networks because the file '${path}' doesn't exist`);
+      return [];
     }
   }
 }

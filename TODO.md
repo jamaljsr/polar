@@ -2,9 +2,8 @@
 
 Small Stuff
 
-- save network state to disk
-- move "docker-compose.yml" string into a constants file
 - build images if they don't exist
+- mock docker for e2e tests
 - update app icon
 - consistent scrollbars for all OS's (https://github.com/xobotyi/react-scrollbars-custom) (https://github.com/souhe/reactScrollbar)
 
