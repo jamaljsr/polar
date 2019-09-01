@@ -3,11 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Icon, Menu, notification, Tooltip } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
-import { Network } from 'types';
+import { Network, Status } from 'types';
 import { NETWORK, NETWORK_VIEW } from 'components/routing';
 import styles from './NetworkList.module.less';
 
-const List: React.FC = () => {
+const statusColors = {
+  [Status.Starting]: 'lightblue',
+  [Status.Started]: 'green',
+  [Status.Stopping]: 'lightblue',
+  [Status.Stopped]: 'transparent',
+  [Status.Error]: 'red',
+};
+
+const NetworkList: React.FC = () => {
   const { t } = useTranslation();
   const { networks } = useStoreState(s => s.network);
   const { sidebarCollapsed } = useStoreState(s => s.app);
@@ -28,7 +36,11 @@ const List: React.FC = () => {
 
   const getNetworkItem = (network: Network) => {
     return (
-      <Menu.Item key={network.id} data-tid={`network-${network.id}`}>
+      <Menu.Item
+        key={network.id}
+        style={{ borderLeft: `3px solid ${statusColors[network.status]}` }}
+        data-tid={`network-${network.id}`}
+      >
         <Link to={NETWORK_VIEW(network.id)}>
           <Icon type="deployment-unit" />
           <span>{network.name}</span>
@@ -63,4 +75,4 @@ const List: React.FC = () => {
   );
 };
 
-export default List;
+export default NetworkList;

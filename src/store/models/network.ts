@@ -1,7 +1,7 @@
 import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
-import { Action, action, Computed, computed, memo, Thunk, thunk } from 'easy-peasy';
+import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
 import { networksPath } from 'utils/config';
 import { range } from 'utils/numbers';
@@ -25,21 +25,18 @@ export interface NetworkModel {
   stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
 }
-
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
   // computed properties/functions
-  networkById: computed(state =>
-    memo((id?: string | number) => {
-      const networkId = typeof id === 'number' ? id : parseInt(id || '');
-      const network = state.networks.find(n => n.id === networkId);
-      if (!network) {
-        throw new Error(`Network with the id '${networkId}' was not found.`);
-      }
-      return network;
-    }, 10),
-  ),
+  networkById: computed(state => (id?: string | number) => {
+    const networkId = typeof id === 'number' ? id : parseInt(id || '');
+    const network = state.networks.find(n => n.id === networkId);
+    if (!network) {
+      throw new Error(`Network with the id '${networkId}' was not found.`);
+    }
+    return network;
+  }),
   // reducer actions (mutations allowed thx to immer)
   setNetworks: action((state, networks) => {
     state.networks = networks;
@@ -81,7 +78,7 @@ const networkModel: NetworkModel = {
     }));
 
     state.networks.push(network);
-    info(`Added new network '${network.name}' to redux sate`);
+    info(`Added new network '${network.name}' to redux state`);
   }),
   addNetwork: thunk(async (actions, payload, { dispatch, getState, injections }) => {
     actions.add(payload);
@@ -92,37 +89,41 @@ const networkModel: NetworkModel = {
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
   setNetworkStatus: action((state, { id, status }) => {
-    const network = state.networkById(id);
+    const network = state.networks.find(n => n.id === id);
+    if (!network) throw new Error(`Network with the id '${id}' was not found.`);
     network.status = status;
     network.nodes.bitcoin.forEach(n => (n.status = status));
     network.nodes.lightning.forEach(n => (n.status = status));
   }),
   start: thunk(async (actions, networkId, { getState, injections }) => {
-    const network = getState().networkById(networkId);
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     actions.setNetworkStatus({ id: network.id, status: Status.Starting });
     try {
       await injections.dockerService.start(network);
       actions.setNetworkStatus({ id: network.id, status: Status.Started });
     } catch (e) {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });
-      info(`unable to start containers for '${network.name}'`, e.message);
+      info(`unable to start network '${network.name}'`, e.message);
       throw e;
     }
   }),
   stop: thunk(async (actions, networkId, { getState, injections }) => {
-    const network = getState().networkById(networkId);
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     actions.setNetworkStatus({ id: network.id, status: Status.Stopping });
     try {
       await injections.dockerService.stop(network);
       actions.setNetworkStatus({ id: network.id, status: Status.Stopped });
     } catch (e) {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });
-      info(`unable to stop containers for '${network.name}'`, e.message);
+      info(`unable to stop network '${network.name}'`, e.message);
       throw e;
     }
   }),
   toggle: thunk(async (actions, networkId, { getState }) => {
-    const network = getState().networkById(networkId);
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     if (network.status === Status.Stopped || network.status === Status.Error) {
       await actions.start(network.id);
     } else if (network.status === Status.Started) {
