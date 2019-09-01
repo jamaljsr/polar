@@ -6,8 +6,11 @@ import { NETWORK } from 'components/routing';
 import NetworkList from './NetworkList';
 
 describe('NetworkList Component', () => {
-  const renderComponent = (initialNetworks?: Network[]) => {
+  const renderComponent = (initialNetworks?: Network[], collapse?: boolean) => {
     const initialState = {
+      app: {
+        sidebarCollapsed: collapse || false,
+      },
       network: {
         networks: initialNetworks || [
           getNetwork(1, 'my network 1'),
@@ -68,5 +71,15 @@ describe('NetworkList Component', () => {
     expect(getByText('my network 1')).toBeInTheDocument();
     expect(getByText('my network 2')).toBeInTheDocument();
     expect(getByText('my network 3')).toBeInTheDocument();
+  });
+
+  it('should display the sidebar expanded', () => {
+    const { queryByText } = renderComponent();
+    expect(queryByText('cmps.network-list.title')).toBeInTheDocument();
+  });
+
+  it('should display the sidebar collapsed', () => {
+    const { queryByText } = renderComponent(undefined, true);
+    expect(queryByText('cmps.network-list.title')).not.toBeInTheDocument();
   });
 });

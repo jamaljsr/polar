@@ -15,7 +15,7 @@ describe('App model', () => {
     expect(store.getState().sidebarCollapsed).toEqual(false);
   });
 
-  it('should toggle collapsed value', () => {
+  it('should toggle sidebarCollapsed value', () => {
     expect(store.getState().sidebarCollapsed).toEqual(false);
     store.getActions().collapseSidebar(true);
     expect(store.getState().sidebarCollapsed).toEqual(true);

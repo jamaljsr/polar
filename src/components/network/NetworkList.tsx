@@ -10,6 +10,7 @@ import styles from './NetworkList.module.less';
 const List: React.FC = () => {
   const { t } = useTranslation();
   const { networks } = useStoreState(s => s.network);
+  const { sidebarCollapsed } = useStoreState(s => s.app);
   const { load } = useStoreActions(s => s.network);
   useEffect(() => {
     load().catch((e: Error) =>
@@ -36,19 +37,25 @@ const List: React.FC = () => {
     );
   };
 
+  const headerClass = sidebarCollapsed
+    ? `${styles.header} ${styles.collapsed}`
+    : styles.header;
+
   return (
     <div className={styles.networkList}>
-      <header className={styles.header} data-tid="header">
-        <span className={styles.title}>{t('cmps.network-list.title', 'Networks')}</span>
+      <header className={headerClass} data-tid="header">
+        {!sidebarCollapsed && (
+          <span className={styles.title}>{t('cmps.network-list.title', 'Networks')}</span>
+        )}
         {networks.length > 0 && (
-          <Link to={NETWORK} className={styles.create}>
-            <Tooltip
-              title={t('cmps.network-list.create-icon-tooltip', 'Create a new Network')}
-              placement="right"
-            >
+          <Tooltip
+            title={t('cmps.network-list.create-icon-tooltip', 'Create a new Network')}
+            placement="right"
+          >
+            <Link to={NETWORK} className={styles.create}>
               <Icon type="plus-circle" data-tid="create-icon" />
-            </Tooltip>
-          </Link>
+            </Link>
+          </Tooltip>
         )}
       </header>
       <Menu theme="dark" mode="inline">
