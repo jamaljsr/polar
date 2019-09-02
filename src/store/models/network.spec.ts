@@ -154,8 +154,9 @@ describe('Network model', () => {
 
     it('should call the dockerService when starting a network', async () => {
       const { start } = store.getActions();
-      await start(firstNetwork().id);
-      expect(injections.dockerService.start).toBeCalledWith(firstNetwork());
+      const network = firstNetwork();
+      await start(network.id);
+      expect(injections.dockerService.start).toBeCalledWith(network);
     });
   });
 

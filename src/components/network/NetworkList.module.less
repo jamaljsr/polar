@@ -5,10 +5,23 @@
     height: 50px;
     width: 100%;
     line-height: 50px;
-    color: #fff;
+
+    .title {
+      color: #fff;
+    }
 
     .create {
       float: right;
+    }
+
+    &.collapsed {
+      padding: 0;
+
+      .create {
+        padding: 0 32px;
+        width: 100%;
+        float: none;
+      }
     }
   }
 

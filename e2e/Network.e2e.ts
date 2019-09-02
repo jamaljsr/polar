@@ -3,7 +3,7 @@ import { App, NetworkView, NewNetwork } from './pages';
 
 fixture`Network`
   .page(pageUrl)
-  .beforeEach(App.clickNewNetworkBtn)
+  .beforeEach(App.clickNewNetworkIcon)
   .afterEach(assertNoConsoleErrors)
   .afterEach(cleanup);
 
