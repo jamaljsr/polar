@@ -143,7 +143,7 @@ const networkModel: NetworkModel = {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     info(`pulling docker images for network '${network.name}'`);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     info(`successfully pulled docker images for network '${network.name}'`);
   }),
 };
