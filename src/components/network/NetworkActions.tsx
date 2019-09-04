@@ -6,6 +6,7 @@ import { Status } from 'types';
 
 interface Props {
   status: Status;
+  disabled?: boolean;
   onClick: () => void;
 }
 
@@ -43,7 +44,7 @@ const config: {
   },
 };
 
-const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
+const NetworkActions: React.FC<Props> = ({ status, disabled, onClick }) => {
   const { t } = useTranslation();
   const loading = status === Status.Starting || status === Status.Stopping;
   const { label, type, icon } = config[status];
@@ -63,7 +64,14 @@ const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
 
   return (
     <>
-      <Button key="start" type={type} icon={icon} loading={loading} onClick={onClick}>
+      <Button
+        key="start"
+        type={type}
+        icon={icon}
+        loading={loading}
+        disabled={disabled}
+        onClick={onClick}
+      >
         {t(`cmps.network-actions.primary-btn-${label.toLocaleLowerCase()}`, label)}
       </Button>
       <Dropdown key="options" overlay={menu}>
