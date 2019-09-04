@@ -137,6 +137,13 @@ describe('Network model', () => {
       await expect(start(10)).rejects.toThrow();
     });
 
+    it("should fail to update a network's status with an invalid id", () => {
+      const { setNetworkStatus } = store.getActions();
+      expect(() => setNetworkStatus({ id: 10, status: Status.Starting })).toThrow(
+        "Network with the id '10' was not found.",
+      );
+    });
+
     it('should update all node statuses when a network fails to start', async () => {
       const { start } = store.getActions();
       // mock dockerService.start to throw an error
@@ -249,6 +256,20 @@ describe('Network model', () => {
       setNetworkStatus({ id, status: Status.Stopping });
       await toggle(id);
       expect(firstNetwork().status).toBe(Status.Stopping);
+    });
+
+    it('should fail to toggle a network with an invalid id', async () => {
+      const { add, toggle } = store.getActions();
+      add(addNetworkArgs);
+      await expect(toggle(10)).rejects.toThrow();
+    });
+  });
+
+  describe('Images', () => {
+    it('should fail to pull images for a network with an invalid id', async () => {
+      const { add, pullImages } = store.getActions();
+      add(addNetworkArgs);
+      await expect(pullImages(10)).rejects.toThrow();
     });
   });
 });

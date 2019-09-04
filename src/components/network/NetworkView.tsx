@@ -3,7 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
 import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
-import { Alert, Col, Divider, Icon, message, PageHeader, Row } from 'antd';
+import { Alert, Col, Divider, Icon, PageHeader, Row } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { StatusTag } from 'components/common';
@@ -59,6 +59,7 @@ const NetworkView: React.FC<{ network: Network }> = ({ network }) => {
 
   useEffect(() => {
     pullImagesAsync.execute();
+    // eslint-disable-next-line
   }, [network.id]);
 
   const { lightning, bitcoin } = network.nodes;

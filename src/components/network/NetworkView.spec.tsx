@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router';
-import { fireEvent } from '@testing-library/dom';
+import { fireEvent, waitForElementToBeRemoved } from '@testing-library/dom';
 import { Status } from 'types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkView from './NetworkView';
@@ -44,12 +44,18 @@ describe('NetworkView Component', () => {
     const mockDockerStart = injections.dockerService.start as jest.Mock;
     mockDockerStart.mockRejectedValueOnce(new Error(errorMsg));
     const { getByText, findByText } = renderComponent('/network/1');
+    await waitForElementToBeRemoved(() =>
+      getByText('cmps.network-view.downloading-text'),
+    );
     fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
     expect(await findByText(errorMsg)).toBeInTheDocument();
   });
 
-  it('should change UI when network is started', async () => {
+  it('should update UI when network is started', async () => {
     const { getByText, findByText } = renderComponent();
+    await waitForElementToBeRemoved(() =>
+      getByText('cmps.network-view.downloading-text'),
+    );
     expect(getByText('cmps.status-tag.status-stopped')).toBeInTheDocument();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
     // should switch to starting immediately
@@ -58,8 +64,11 @@ describe('NetworkView Component', () => {
     expect(await findByText('cmps.status-tag.status-started')).toBeInTheDocument();
   });
 
-  it('should change UI when network is stopped', async () => {
+  it('should update UI when network is stopped', async () => {
     const { getByText, findByText } = renderComponent('/network/1', Status.Started);
+    await waitForElementToBeRemoved(() =>
+      getByText('cmps.network-view.downloading-text'),
+    );
     expect(getByText('cmps.status-tag.status-started')).toBeInTheDocument();
     fireEvent.click(getByText('cmps.network-actions.primary-btn-stop'));
     // should switch to stopping immediately
