@@ -17,6 +17,7 @@ export interface CommonNode {
   id: number;
   name: string;
   type: 'bitcoin' | 'lightning';
+  version: string;
   status: Status;
 }
 
@@ -27,7 +28,7 @@ export interface BitcoinNode extends CommonNode {
 
 export interface LightningNode extends CommonNode {
   type: 'lightning';
-  implementation: 'LND' | 'c-lightning' | 'eclair';
+  implementation: 'lnd' | 'clightning' | 'eclair';
   backendName: string;
 }
 

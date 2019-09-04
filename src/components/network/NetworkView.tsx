@@ -3,7 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
 import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
-import { Alert, Col, Divider, PageHeader, Row } from 'antd';
+import { Alert, Col, Divider, Icon, message, PageHeader, Row } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { StatusTag } from 'components/common';
@@ -32,21 +32,34 @@ const lndDetails = [
   { label: 'Version', value: 'v0.7.1' },
 ];
 
-const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
-  useEffect(() => info('Rendering NetworkView component'), []);
-
-  const { t } = useTranslation();
+/**
+ * A wwrapper component around the NetworkView to detect an invalid network id.
+ * Putting this in the main component causes issues with hooks and conditional flow
+ */
+const NetworkScreen: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const { networkById } = useStoreState(s => s.network);
-  const { toggle } = useStoreActions(s => s.network);
-
   let network: Network;
-  const toggleAsync = useAsyncCallback(async () => toggle(network.id));
-
   try {
     network = networkById(match.params.id);
   } catch {
+    // TODO redirect to the home screen
     return null;
   }
+  return <NetworkView network={network} />;
+};
+
+const NetworkView: React.FC<{ network: Network }> = ({ network }) => {
+  useEffect(() => info('Rendering NetworkView component'), []);
+
+  const { t } = useTranslation();
+  const { toggle, pullImages } = useStoreActions(s => s.network);
+
+  const toggleAsync = useAsyncCallback(async () => toggle(network.id));
+  const pullImagesAsync = useAsyncCallback(async () => pullImages(network.id));
+
+  useEffect(() => {
+    pullImagesAsync.execute();
+  }, [network.id]);
 
   const { lightning, bitcoin } = network.nodes;
 
@@ -54,12 +67,29 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     <>
       <PageHeader
         title={network.name}
-        // onBack={() => {}}
         className={styles.header}
         tags={<StatusTag status={network.status} />}
-        extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
+        extra={
+          <NetworkActions
+            status={network.status}
+            disabled={pullImagesAsync.loading}
+            onClick={toggleAsync.execute}
+          />
+        }
       />
       {toggleAsync.error && <Alert type="error" message={toggleAsync.error.message} />}
+      {pullImagesAsync.loading && (
+        <Alert
+          type="info"
+          icon={<Icon type="loading" />}
+          showIcon
+          style={{ marginTop: '10px' }}
+          message={t(
+            'cmps.network-view.downloading-text',
+            'Downloading docker images needed for this network to start',
+          )}
+        />
+      )}
       <Divider>{t('cmps.network-view.lightning-divider', 'Lightning Nodes')}</Divider>
       <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (
@@ -80,4 +110,4 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   );
 };
 
-export default NetworkView;
+export default NetworkScreen;

@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { info } from 'electron-log';
 import { Button, Card, Col, Form, Input, InputNumber, notification, Row } from 'antd';
@@ -15,23 +15,24 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
   useEffect(() => info('Rendering NewNetwork component'), []);
 
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
   const { addNetwork } = useStoreActions(s => s.network);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    form.validateFields((err, values: FormProps) => {
+    form.validateFields(async (err, values: FormProps) => {
       if (err) {
         return;
       }
-      addNetwork(values).then(() => {
-        notification.success({
-          message:
-            t('cmps.new-network.success-msg', 'Created network') + ': ' + values.name,
-          placement: 'bottomRight',
-          bottom: 50,
-        });
-        info(`created new network: ${JSON.stringify(values)}`);
+      setLoading(true);
+      await addNetwork(values);
+      notification.success({
+        message:
+          t('cmps.new-network.success-msg', 'Created network') + ': ' + values.name,
+        placement: 'bottomRight',
+        bottom: 50,
       });
+      info(`created new network: ${JSON.stringify(values)}`);
     });
   };
 
@@ -75,7 +76,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
           </Col>
         </Row>
         <Form.Item>
-          <Button type="primary" htmlType="submit" data-tid="submit">
+          <Button type="primary" htmlType="submit" loading={loading} data-tid="submit">
             {t('cmps.new-network.btn-create', 'Create')}
           </Button>
         </Form.Item>

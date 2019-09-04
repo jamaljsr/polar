@@ -24,11 +24,17 @@ export interface NetworkModel {
   start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
+  pullImages: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
 }
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
+
   // computed properties/functions
+  /**
+   * returns a function to fetch a network by id. Do not use this inside of
+   * other actions/thunks because immer will not detect mutations correctly
+   */
   networkById: computed(state => (id?: string | number) => {
     const networkId = typeof id === 'number' ? id : parseInt(id || '');
     const network = state.networks.find(n => n.id === networkId);
@@ -37,6 +43,7 @@ const networkModel: NetworkModel = {
     }
     return network;
   }),
+
   // reducer actions (mutations allowed thx to immer)
   setNetworks: action((state, networks) => {
     state.networks = networks;
@@ -65,6 +72,7 @@ const networkModel: NetworkModel = {
       name: `bitcoind-${i + 1}`,
       type: 'bitcoin',
       implementation: 'bitcoind',
+      version: '0.18.1',
       status: Status.Stopped,
     }));
 
@@ -72,7 +80,8 @@ const networkModel: NetworkModel = {
       id: i,
       name: `lnd-${i + 1}`,
       type: 'lightning',
-      implementation: 'LND',
+      implementation: 'lnd',
+      version: '0.7.1-beta',
       status: Status.Stopped,
       backendName: network.nodes.bitcoin[0].name,
     }));
@@ -129,6 +138,13 @@ const networkModel: NetworkModel = {
     } else if (network.status === Status.Started) {
       await actions.stop(network.id);
     }
+  }),
+  pullImages: thunk(async (actions, networkId, { getState }) => {
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
+    info(`pulling docker images for network '${network.name}'`);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    info(`successfully pulled docker images for network '${network.name}'`);
   }),
 };
 
