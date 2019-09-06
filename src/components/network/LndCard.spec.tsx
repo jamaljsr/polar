@@ -16,7 +16,8 @@ describe('LND Card Component', () => {
     const node: LightningNode = {
       id: 1,
       name: 'test lnd',
-      implementation: 'LND',
+      implementation: 'lnd',
+      version: '0.7.1-beta',
       status,
       type: 'lightning',
       backendName: 'bitcoind-1',

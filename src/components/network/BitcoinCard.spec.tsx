@@ -16,6 +16,7 @@ describe('StatusTag Component', () => {
       id: 1,
       name: 'test btc',
       implementation: 'bitcoind',
+      version: '0.18.1',
       status,
       type: 'bitcoin',
     };
