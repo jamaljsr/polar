@@ -2,8 +2,7 @@
 
 > One-click Bitcoin Lightning networks for local app development & testing
 
-[![Build Status](https://travis-ci.org/jamaljsr/polar.svg?branch=master)](https://travis-ci.org/jamaljsr/polar)
-[![Build status](https://ci.appveyor.com/api/projects/status/5tgo5lpede1vj0g5?svg=true)](https://ci.appveyor.com/project/jamaljsr/polar)
+[![Actions Status](https://action-badges.now.sh/jamaljsr/polar)](https://github.com/jamaljsr/polar/actions)
 [![codecov](https://codecov.io/gh/jamaljsr/polar/branch/master/graph/badge.svg)](https://codecov.io/gh/jamaljsr/polar)
 
 ## Development
