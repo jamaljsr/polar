@@ -6,13 +6,14 @@ import { ComposeService } from './composeFile';
 const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 export const bitcoind = (name: string): ComposeService => ({
-  image: 'polar/bitcoind:0.18.0',
+  image: 'polarlightning/bitcoind:0.18.1',
   container_name: name,
+  // Note: escape ($) rpcauth with ($$)
   command: trimInside(`
     bitcoind
       -server=1
       -regtest=1
-      -rpcauth=kiteuser:d81315a082bcf36bcdcd640e816566f3$$a7a42c95772b9e7461f016a8c797f5729b494ad569555aea28f5c42ee2b3fcda
+      -rpcauth=polaruser:5e5e98c21f5c814568f8b55d83b23c1c$$066b03f92df30b11de8e4b1b1cd5b1b4281aa25205bd57df9be82caf97a05526
       -debug=0
       -zmqpubrawblock=tcp://0.0.0.0:28334
       -zmqpubrawtx=tcp://0.0.0.0:28335
@@ -37,7 +38,7 @@ export const bitcoind = (name: string): ComposeService => ({
 });
 
 export const lnd = (name: string, backendName: string): ComposeService => ({
-  image: 'polar/lnd:0.7.1-beta',
+  image: 'polarlightning/lnd:0.7.1-beta',
   container_name: name,
   command: trimInside(`
     lnd
@@ -50,8 +51,8 @@ export const lnd = (name: string, backendName: string): ComposeService => ({
       --bitcoin.regtest
       --bitcoin.node=bitcoind
       --bitcoind.rpchost=${backendName}
-      --bitcoind.rpcuser=kiteuser
-      --bitcoind.rpcpass=kitepass
+      --bitcoind.rpcuser=polaruser
+      --bitcoind.rpcpass=polarpass
       --bitcoind.zmqpubrawblock=tcp://${backendName}:28334
       --bitcoind.zmqpubrawtx=tcp://${backendName}:28335
   `),
