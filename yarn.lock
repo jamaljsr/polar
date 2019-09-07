@@ -1395,10 +1395,10 @@
     "@nodelib/fs.scandir" "2.1.1"
     fastq "^1.6.0"
 
-"@rescripts/cli@^0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.11.tgz#e6f178643ecab0c1cee889c05c5bf080854ffcb0"
-  integrity sha512-G7LmKaP8lcts/Gd6o7SNOtHthOdtcb238cy80v+dUeTLfHPcHE8xQCcf3JG4fjGSf82VlZLtApFTBQLq4qF+5w==
+"@rescripts/cli@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.12.tgz#c78581624e8d568efa03943aa858e2add88a1102"
+  integrity sha512-SbW1a+7jCJqWhv7L7poP+N0E8yqC1CBmVCS0yLc1Hyf7n5cp6gjKHnPuWPnLL5QjTWlhpzbYxKRSh3IQcqVNMA==
   dependencies:
     "@rescripts/utilities" "^0.0.5"
     ramda "^0.26.0"
