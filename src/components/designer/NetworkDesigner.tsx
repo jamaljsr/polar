@@ -5,6 +5,9 @@ import {
   INodeInnerDefaultProps,
 } from '@mrblenny/react-flow-chart';
 import { Network } from 'types';
+import { StatusBadge } from 'components/common';
+import btclogo from 'resources/bitcoin.svg';
+import lndlogo from 'resources/lnd.png';
 
 interface Props {
   network: Network;
@@ -12,8 +15,20 @@ interface Props {
 
 const NodeInnerCustom = ({ node, config }: INodeInnerDefaultProps) => {
   return (
-    <div style={{ padding: '20px 10px', textAlign: 'center', fontWeight: 'bold' }}>
-      {node.id}
+    <div
+      style={{
+        padding: '20px',
+        textAlign: 'center',
+        fontWeight: 'bold',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <span>
+        <StatusBadge text={node.id} status={node.properties.status} />
+      </span>
+      <img src={node.properties.icon} style={{ width: 24, height: 24 }} alt="" />
     </div>
   );
 };
@@ -35,6 +50,10 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
       ports: {
         backend: { id: 'backend', type: 'input' },
       },
+      properties: {
+        status: n.status,
+        icon: btclogo,
+      },
     };
   });
 
@@ -44,8 +63,13 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
       type: 'input-output',
       position: { x: 100, y: 200 },
       ports: {
-        port1: { id: 'port1', type: 'input' },
+        port1: { id: 'port1', type: 'left' },
+        port2: { id: 'port2', type: 'right' },
         backend: { id: 'backend', type: 'output' },
+      },
+      properties: {
+        status: n.status,
+        icon: lndlogo,
       },
     };
 
