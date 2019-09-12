@@ -7,6 +7,7 @@ import { Alert, Col, Divider, PageHeader, Row } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { StatusTag } from 'components/common';
+import NetworkDesigner from 'components/designer/NetworkDesigner';
 import BitcoindCard from './BitcoindCard';
 import LndCard from './LndCard';
 import NetworkActions from './NetworkActions';
@@ -60,6 +61,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
       />
       {toggleAsync.error && <Alert type="error" message={toggleAsync.error.message} />}
+      <NetworkDesigner network={network} />
       <Divider>{t('cmps.network-view.lightning-divider', 'Lightning Nodes')}</Divider>
       <Row gutter={16} data-tid="ln-nodes">
         {lightning.map(node => (
