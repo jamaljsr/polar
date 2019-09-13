@@ -17,6 +17,10 @@ interface MatchParams {
   id?: string;
 }
 
+interface Props {
+  network: Network;
+}
+
 const btcDetails = [
   { label: 'Block Height', value: '432' },
   { label: 'Wallet Balance', value: '54.00000000' },
@@ -33,22 +37,25 @@ const lndDetails = [
   { label: 'Version', value: 'v0.7.1' },
 ];
 
-const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
+const NetworkViewWrap: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
+  const { networks } = useStoreState(s => s.network);
+  if (match.params.id) {
+    const networkId = parseInt(match.params.id);
+    const network = networks.find(n => n.id === networkId);
+    if (network) {
+      // set the key to force React to mount a new instance when the route changes
+      return <NetworkView network={network} key={match.params.id} />;
+    }
+  }
+  return null;
+};
+
+const NetworkView: React.FC<Props> = ({ network }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
 
   const { t } = useTranslation();
-  const { networkById } = useStoreState(s => s.network);
-  const { toggle, setActive } = useStoreActions(s => s.network);
-
-  let network: Network;
+  const { toggle } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(async () => toggle(network.id));
-
-  try {
-    network = networkById(match.params.id);
-    setActive(network);
-  } catch {
-    return null;
-  }
 
   const { lightning, bitcoin } = network.nodes;
 
@@ -83,4 +90,4 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   );
 };
 
-export default NetworkView;
+export default NetworkViewWrap;

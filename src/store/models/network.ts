@@ -2,21 +2,11 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { push } from 'connected-react-router';
-import {
-  Action,
-  action,
-  Computed,
-  computed,
-  Thunk,
-  thunk,
-  ThunkOn,
-  thunkOn,
-} from 'easy-peasy';
+import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
 import { networksPath } from 'utils/config';
 import { range } from 'utils/numbers';
 import { NETWORK_VIEW } from 'components/routing';
-import { RootModel } from './';
 
 interface AddNetworkArgs {
   name: string;
@@ -26,11 +16,10 @@ interface AddNetworkArgs {
 
 export interface NetworkModel {
   networks: Network[];
-  activeNetworkId: number;
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   setNetworks: Action<NetworkModel, Network[]>;
-  setActive: Action<NetworkModel, Network>;
   load: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
+  save: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
   addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
   setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
@@ -38,12 +27,10 @@ export interface NetworkModel {
   stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   setNetworkDesign: Action<NetworkModel, { id: number; chart: IChart }>;
-  onDesignChanged: ThunkOn<NetworkModel, StoreInjections, RootModel>;
 }
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
-  activeNetworkId: 0,
   // computed properties/functions
   networkById: computed(state => (id?: string | number) => {
     const networkId = typeof id === 'number' ? id : parseInt(id || '');
@@ -57,14 +44,14 @@ const networkModel: NetworkModel = {
   setNetworks: action((state, networks) => {
     state.networks = networks;
   }),
-  setActive: action((state, network) => {
-    state.activeNetworkId = network.id;
-  }),
   load: thunk(async (actions, payload, { injections }) => {
     const networks = await injections.dockerService.load();
     if (networks && networks.length) {
       actions.setNetworks(networks);
     }
+  }),
+  save: thunk(async (actions, payload, { getState, injections }) => {
+    await injections.dockerService.save(getState().networks);
   }),
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
@@ -152,38 +139,8 @@ const networkModel: NetworkModel = {
   setNetworkDesign: action((state, { id, chart }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(`Network with the id '${id}' was not found.`);
-    network.design = chart;
+    network.design = { ...chart };
   }),
-  // listen for actions being fired on the designer model
-  onDesignChanged: thunkOn(
-    (actions, storeActions) => [
-      storeActions.designer.onDragNode,
-      storeActions.designer.onDragCanvas,
-      storeActions.designer.onCanvasDrop,
-      storeActions.designer.onCanvasClick,
-      storeActions.designer.onLinkStart,
-      storeActions.designer.onLinkMove,
-      storeActions.designer.onLinkClick,
-      storeActions.designer.onLinkComplete,
-      storeActions.designer.onLinkCancel,
-      storeActions.designer.onLinkMouseEnter,
-      storeActions.designer.onLinkMouseLeave,
-      storeActions.designer.onPortPositionChange,
-      storeActions.designer.onDeleteKey,
-      storeActions.designer.onNodeClick,
-      storeActions.designer.onNodeSizeChange,
-    ],
-    async (actions, payload, { getStoreState, injections }) => {
-      const {
-        network: { activeNetworkId },
-        designer: { chart },
-      } = getStoreState();
-      if (!activeNetworkId) return;
-      actions.setNetworkDesign({ id: activeNetworkId, chart });
-      const { networks } = getStoreState().network;
-      await injections.dockerService.save(networks);
-    },
-  ),
 };
 
 export default networkModel;

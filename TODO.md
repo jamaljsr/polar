@@ -3,6 +3,7 @@
 Small Stuff
 
 - build images if they don't exist
+- replace sidebar with app header bar
 - generate alice/bob/carol names for lnd nodes
 - mock docker for e2e tests
 - update app icon

@@ -1,50 +1,70 @@
-import React, { useEffect } from 'react';
-import { FlowChart, INodeInnerDefaultProps } from '@mrblenny/react-flow-chart';
-import { useStoreActions, useStoreState } from 'store';
+import React, { useEffect, useState } from 'react';
+import { FlowChart } from '@mrblenny/react-flow-chart';
+import useDebounce from 'hooks/useDebounce';
+import { useStoreActions } from 'store';
 import { Network } from 'types';
-import { StatusBadge } from 'components/common';
+import { initChartFromNetwork } from 'utils/chart';
+import * as actions from './chartActions';
+import CustomNodeInner from './CustomNodeInner';
 
 interface Props {
   network: Network;
 }
 
-const NodeInnerCustom = ({ node }: INodeInnerDefaultProps) => {
-  return (
-    <div
-      style={{
-        padding: '20px',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
-      <span>
-        <StatusBadge text={node.id} status={node.properties.status} />
-      </span>
-      <img src={node.properties.icon} style={{ width: 24, height: 24 }} alt="" />
-    </div>
-  );
-};
-
 const NetworkDesigner: React.FC<Props> = ({ network }) => {
-  const { chart } = useStoreState(s => s.designer);
-  const { initialize, setChart, ...callbacks } = useStoreActions(s => s.designer);
-  useEffect(() => {
-    if (network.design) {
-      setChart(network.design);
-    } else {
-      initialize(network);
-    }
-  }, [network]);
+  const initialChart = network.design || initChartFromNetwork(network);
+  const [chart, setChart] = useState(initialChart);
+  const { setNetworkDesign, save } = useStoreActions(s => s.network);
 
-  return (
+  // update chart in state when the network status changes
+  useEffect(() => {
+    setChart(c => {
+      Object.keys(c.nodes).forEach(n => {
+        c.nodes[n].properties.status = network.status;
+      });
+      return { ...c };
+    });
+  }, [network.status]);
+
+  // prevent updating redux state with the new chart on every callback
+  // which can be many, ex: onDragNode, onLinkMouseEnter
+  const debouncedChart = useDebounce(chart, 3000);
+  useEffect(() => {
+    // store the updated chart in the redux store
+    setNetworkDesign({ id: network.id, chart: debouncedChart });
+    // eslint-disable-next-line
+  }, [debouncedChart]); // missing deps are intentional
+
+  // save network with chart to disk if this component is unmounted
+  useEffect(() => {
+    const saveAsync = async () => await save();
+    return () => {
+      setNetworkDesign({ id: network.id, chart });
+      saveAsync();
+    };
+    // eslint-disable-next-line
+  }, []); // this effect should only fun the cleanup func once when unmounted
+
+  // wacky code to intercept the callbacks and store the resulting chart in state
+  const callbacks = Object.entries(actions).reduce(
+    (allActions: { [key: string]: any }, [key, action]: [string, any]) => {
+      allActions[key] = (...args: any) => {
+        // call the action with the args from FlowChart and the current chart object
+        const newChart = action(...args)(chart);
+        // need to pass a new object to the hook to trigger a rerender
+        setChart({ ...newChart });
+      };
+      return allActions;
+    },
+    {},
+  ) as typeof actions;
+
+  return !chart ? null : (
     <div>
       <FlowChart
         chart={chart}
         config={{ snapToGrid: true }}
-        Components={{ NodeInner: NodeInnerCustom }}
+        Components={{ NodeInner: CustomNodeInner }}
         callbacks={callbacks}
       />
     </div>
