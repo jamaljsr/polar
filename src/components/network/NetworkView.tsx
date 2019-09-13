@@ -38,13 +38,14 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
 
   const { t } = useTranslation();
   const { networkById } = useStoreState(s => s.network);
-  const { toggle } = useStoreActions(s => s.network);
+  const { toggle, setActive } = useStoreActions(s => s.network);
 
   let network: Network;
   const toggleAsync = useAsyncCallback(async () => toggle(network.id));
 
   try {
     network = networkById(match.params.id);
+    setActive(network);
   } catch {
     return null;
   }

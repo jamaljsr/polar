@@ -1,19 +1,14 @@
-import React from 'react';
-import {
-  FlowChartWithState,
-  IChart,
-  INodeInnerDefaultProps,
-} from '@mrblenny/react-flow-chart';
+import React, { useEffect } from 'react';
+import { FlowChart, INodeInnerDefaultProps } from '@mrblenny/react-flow-chart';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { StatusBadge } from 'components/common';
-import btclogo from 'resources/bitcoin.svg';
-import lndlogo from 'resources/lnd.png';
 
 interface Props {
   network: Network;
 }
 
-const NodeInnerCustom = ({ node, config }: INodeInnerDefaultProps) => {
+const NodeInnerCustom = ({ node }: INodeInnerDefaultProps) => {
   return (
     <div
       style={{
@@ -34,59 +29,23 @@ const NodeInnerCustom = ({ node, config }: INodeInnerDefaultProps) => {
 };
 
 const NetworkDesigner: React.FC<Props> = ({ network }) => {
-  const chart: IChart = {
-    offset: { x: 0, y: 0 },
-    nodes: {},
-    links: {},
-    selected: {},
-    hovered: {},
-  };
-
-  network.nodes.bitcoin.forEach(n => {
-    chart.nodes[n.name] = {
-      id: n.name,
-      type: 'output-only',
-      position: { x: 100, y: 200 },
-      ports: {
-        backend: { id: 'backend', type: 'input' },
-      },
-      properties: {
-        status: n.status,
-        icon: btclogo,
-      },
-    };
-  });
-
-  network.nodes.lightning.forEach(n => {
-    chart.nodes[n.name] = {
-      id: n.name,
-      type: 'input-output',
-      position: { x: 100, y: 200 },
-      ports: {
-        port1: { id: 'port1', type: 'left' },
-        port2: { id: 'port2', type: 'right' },
-        backend: { id: 'backend', type: 'output' },
-      },
-      properties: {
-        status: n.status,
-        icon: lndlogo,
-      },
-    };
-
-    const linkName = `${n.name}-${n.backendName}`;
-    chart.links[linkName] = {
-      id: linkName,
-      from: { nodeId: n.name, portId: 'backend' },
-      to: { nodeId: n.backendName, portId: 'backend' },
-    };
-  });
+  const { chart } = useStoreState(s => s.designer);
+  const { initialize, setChart, ...callbacks } = useStoreActions(s => s.designer);
+  useEffect(() => {
+    if (network.design) {
+      setChart(network.design);
+    } else {
+      initialize(network);
+    }
+  }, [network]);
 
   return (
     <div>
-      <FlowChartWithState
-        initialValue={chart}
+      <FlowChart
+        chart={chart}
         config={{ snapToGrid: true }}
         Components={{ NodeInner: NodeInnerCustom }}
+        callbacks={callbacks}
       />
     </div>
   );
