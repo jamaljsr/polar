@@ -5,6 +5,7 @@ import { StatusBadge } from 'components/common';
 const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
   return (
     <div
+      data-tid={node.id}
       style={{
         padding: '20px',
         textAlign: 'center',

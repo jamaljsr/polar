@@ -1,8 +1,8 @@
 import { Selector } from 'testcafe';
 
 class NetworkView {
-  lndNodes = Selector('[data-tid=ln-nodes] .ant-card');
-  bitcoindNodes = Selector('[data-tid=btc-nodes] .ant-card');
+  lndNodes = Selector('[data-tid^=lnd-]');
+  bitcoindNodes = Selector('[data-tid^=bitcoind]');
 
   getLndNodeCount = () => this.lndNodes.count;
   getBitcoindNodeCount = () => this.bitcoindNodes.count;
