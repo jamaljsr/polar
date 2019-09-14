@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { FlowChart } from '@mrblenny/react-flow-chart';
+import * as chartCallbacks from '@mrblenny/react-flow-chart/src/container/actions';
 import useDebounce from 'hooks/useDebounce';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import * as chartCallbacks from './chartCallbacks';
+// import * as chartCallbacks from './chartCallbacks';
 import CustomNodeInner from './CustomNodeInner';
 
 interface Props {
@@ -12,8 +13,10 @@ interface Props {
 }
 
 const NetworkDesigner: React.FC<Props> = ({ network }) => {
-  const initialChart = network.design || initChartFromNetwork(network);
-  const [chart, setChart] = useState(initialChart);
+  const [chart, setChart] = useState(
+    // use function to avoid calling init on every rerender
+    () => network.design || initChartFromNetwork(network),
+  );
   const { setNetworkDesign, save } = useStoreActions(s => s.network);
 
   // update chart in state when the network status changes
@@ -49,10 +52,14 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
   // this wacky code intercepts the callbacks, giving them the current chart
   // from component state then storing the returned chart back in state
   const callbacks = Object.entries(chartCallbacks).reduce(
-    (allActions: { [key: string]: any }, [key, action]: [string, any]) => {
+    (allActions: Record<string, any>, entry: [string, any]) => {
+      // key is the property name of the chartCallbacks object
+      // func is the callback function
+      const [key, func] = entry;
       allActions[key] = (...args: any) => {
-        // call the action with the args from FlowChart and the current chart object
-        const newChart = action(...args)(chart);
+        // invoke the curried function with the args from the FlowChart
+        // component and the current chart object from state
+        const newChart = func(...args)(chart);
         // need to pass a new object to the hook to trigger a rerender
         setChart({ ...newChart });
       };
@@ -61,8 +68,8 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
     {},
   ) as typeof chartCallbacks;
 
-  return !chart ? null : (
-    <div>
+  return (
+    <div data-tid="designer">
       <FlowChart
         chart={chart}
         config={{ snapToGrid: true }}

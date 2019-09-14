@@ -28,16 +28,6 @@ describe('NetworkView Component', () => {
     expect(getByText('test network')).toBeInTheDocument();
   });
 
-  it('should render correct # of LND nodes', () => {
-    const { queryAllByText } = renderComponent();
-    expect(queryAllByText(/lnd-\d/)).toHaveLength(2);
-  });
-
-  it('should render correct # of bitcoind nodes', () => {
-    const { queryAllByText } = renderComponent();
-    expect(queryAllByText(/bitcoind-\d/)).toHaveLength(1);
-  });
-
   it('should render an error if necessary', async () => {
     const errorMsg = 'failed to start';
     // mock dockerService.start to throw an error

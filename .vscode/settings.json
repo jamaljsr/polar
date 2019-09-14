@@ -19,7 +19,6 @@
   ],
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
   "importSorter.sortConfiguration.removeUnusedImports": true,
-  "importSorter.sortConfiguration.removeUnusedDefaultImports": true,
   "importSorter.importStringConfiguration.tabSize": 2,
   "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 90,
   "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.type": "newLineEachExpressionAfterCountLimit",
