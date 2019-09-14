@@ -1,5 +1,6 @@
 import { createStore } from 'easy-peasy';
 import { Network, Status } from 'types';
+import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, injections } from 'utils/tests';
 import networkModel from './network';
 
@@ -249,6 +250,35 @@ describe('Network model', () => {
       setNetworkStatus({ id, status: Status.Stopping });
       await toggle(id);
       expect(firstNetwork().status).toBe(Status.Stopping);
+    });
+
+    it('should fail to toggle a network with an invalid id', async () => {
+      const { toggle } = store.getActions();
+      await expect(toggle(10)).rejects.toThrow();
+    });
+  });
+
+  describe('Other actions', () => {
+    it('should fail to set the status with an invalid id', () => {
+      const { setNetworkStatus } = store.getActions();
+      expect(() => setNetworkStatus({ id: 10, status: Status.Starting })).toThrow();
+    });
+
+    it('should set the network design correctly', () => {
+      const { add, setNetworkDesign } = store.getActions();
+      add(addNetworkArgs);
+      const network = firstNetwork();
+      const chart = initChartFromNetwork(network);
+      setNetworkDesign({ id: network.id, chart });
+      expect(firstNetwork().design).toEqual(chart);
+    });
+
+    it('should fail to set the network design with an invalid id', () => {
+      const { add, setNetworkDesign } = store.getActions();
+      add(addNetworkArgs);
+      const network = firstNetwork();
+      const chart = initChartFromNetwork(network);
+      expect(() => setNetworkDesign({ id: 10, chart })).toThrow();
     });
   });
 });
