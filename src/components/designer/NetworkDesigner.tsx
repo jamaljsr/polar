@@ -10,9 +10,10 @@ import CustomNodeInner from './CustomNodeInner';
 
 interface Props {
   network: Network;
+  updateStateDelay?: number;
 }
 
-const NetworkDesigner: React.FC<Props> = ({ network }) => {
+const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const [chart, setChart] = useState(
     // use function to avoid calling init on every rerender
     () => network.design || initChartFromNetwork(network),
@@ -31,7 +32,7 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
 
   // prevent updating redux state with the new chart on every callback
   // which can be many, ex: onDragNode, onLinkMouseEnter
-  const debouncedChart = useDebounce(chart, 3000);
+  const debouncedChart = useDebounce(chart, updateStateDelay);
   useEffect(() => {
     // store the updated chart in the redux store
     setNetworkDesign({ id: network.id, chart: debouncedChart });
