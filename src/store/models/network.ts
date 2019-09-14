@@ -1,5 +1,6 @@
 import { info } from 'electron-log';
 import { join } from 'path';
+import { IChart } from '@mrblenny/react-flow-chart';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
@@ -18,12 +19,14 @@ export interface NetworkModel {
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   setNetworks: Action<NetworkModel, Network[]>;
   load: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
+  save: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
   addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
   setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
   start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
+  setNetworkDesign: Action<NetworkModel, { id: number; chart: IChart }>;
 }
 const networkModel: NetworkModel = {
   // state properties
@@ -46,6 +49,9 @@ const networkModel: NetworkModel = {
     if (networks && networks.length) {
       actions.setNetworks(networks);
     }
+  }),
+  save: thunk(async (actions, payload, { getState, injections }) => {
+    await injections.dockerService.save(getState().networks);
   }),
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
@@ -129,6 +135,11 @@ const networkModel: NetworkModel = {
     } else if (network.status === Status.Started) {
       await actions.stop(network.id);
     }
+  }),
+  setNetworkDesign: action((state, { id, chart }) => {
+    const network = state.networks.find(n => n.id === id);
+    if (!network) throw new Error(`Network with the id '${id}' was not found.`);
+    network.design = { ...chart };
   }),
 };
 

@@ -1,3 +1,5 @@
+import { IChart } from '@mrblenny/react-flow-chart';
+
 export interface LocalConfig {
   fallbackLng: string;
   languages: {
@@ -36,6 +38,7 @@ export interface Network {
   name: string;
   status: Status;
   path: string;
+  design?: IChart;
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];

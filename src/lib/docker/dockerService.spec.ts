@@ -17,7 +17,7 @@ const composeMock = compose as jest.Mocked<typeof compose>;
 describe('DockerService', () => {
   let network: Network;
   // default response of docker calls for mocks
-  const result = { err: '', out: '', exitCode: 0 };
+  const mockResult = { err: '', out: '', exitCode: 0 };
 
   beforeEach(() => {
     network = getNetwork();
@@ -88,15 +88,15 @@ describe('DockerService', () => {
 
   describe('executing commands', () => {
     it('should call compose.upAll when a network is started', async () => {
-      composeMock.upAll.mockResolvedValue(result);
+      composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
       expect(composeMock.upAll).toBeCalledWith({ cwd: network.path });
     });
 
-    it('should call compose.stop when a network is stopped', async () => {
-      composeMock.stop.mockResolvedValue(result);
+    it('should call compose.down when a network is stopped', async () => {
+      composeMock.down.mockResolvedValue(mockResult);
       await dockerService.stop(network);
-      expect(composeMock.stop).toBeCalledWith({ cwd: network.path });
+      expect(composeMock.down).toBeCalledWith({ cwd: network.path });
     });
 
     it('should reformat thrown exceptions', async () => {

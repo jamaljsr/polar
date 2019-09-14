@@ -18,7 +18,10 @@
     { "language": "typescriptreact", "autoFix": true }
   ],
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
+  "importSorter.sortConfiguration.removeUnusedImports": true,
   "importSorter.importStringConfiguration.tabSize": 2,
+  "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 90,
+  "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.type": "newLineEachExpressionAfterCountLimit",
   "importSorter.sortConfiguration.customOrderingRules.defaultNumberOfEmptyLinesAfterGroup": 0,
   "importSorter.sortConfiguration.customOrderingRules.defaultOrderLevel": 50,
   "importSorter.sortConfiguration.customOrderingRules.rules": [
