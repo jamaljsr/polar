@@ -4,7 +4,7 @@ import useDebounce from 'hooks/useDebounce';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import * as actions from './chartActions';
+import * as chartCallbacks from './chartCallbacks';
 import CustomNodeInner from './CustomNodeInner';
 
 interface Props {
@@ -45,8 +45,10 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
     // eslint-disable-next-line
   }, []); // this effect should only fun the cleanup func once when unmounted
 
-  // wacky code to intercept the callbacks and store the resulting chart in state
-  const callbacks = Object.entries(actions).reduce(
+  // use custom callbacks to update the chart based on user interactions.
+  // this wacky code intercepts the callbacks, giving them the current chart
+  // from component state then storing the returned chart back in state
+  const callbacks = Object.entries(chartCallbacks).reduce(
     (allActions: { [key: string]: any }, [key, action]: [string, any]) => {
       allActions[key] = (...args: any) => {
         // call the action with the args from FlowChart and the current chart object
@@ -57,7 +59,7 @@ const NetworkDesigner: React.FC<Props> = ({ network }) => {
       return allActions;
     },
     {},
-  ) as typeof actions;
+  ) as typeof chartCallbacks;
 
   return !chart ? null : (
     <div>
