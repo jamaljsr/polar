@@ -3,33 +3,33 @@ import { Status } from 'types';
 import { renderWithProviders } from 'utils/tests';
 import StatusTag from './StatusTag';
 
-describe('StatusTag Component', () => {
+describe('StatusBadge Component', () => {
   const renderComponent = (status: Status) => {
     return renderWithProviders(<StatusTag status={status} />);
   };
 
   it('should render the Starting status', () => {
-    const { getByTestId } = renderComponent(Status.Starting);
-    expect(getByTestId('tag')).toHaveTextContent('cmps.status-tag.status-starting');
+    const { getByText } = renderComponent(Status.Starting);
+    expect(getByText('Starting')).toBeInTheDocument();
   });
 
   it('should render the Started status', () => {
-    const { getByTestId } = renderComponent(Status.Started);
-    expect(getByTestId('tag')).toHaveTextContent('cmps.status-tag.status-started');
+    const { getByText } = renderComponent(Status.Started);
+    expect(getByText('Started')).toBeInTheDocument();
   });
 
   it('should render the Stopping status', () => {
-    const { getByTestId } = renderComponent(Status.Stopping);
-    expect(getByTestId('tag')).toHaveTextContent('cmps.status-tag.status-stopping');
+    const { getByText } = renderComponent(Status.Stopping);
+    expect(getByText('Stopping')).toBeInTheDocument();
   });
 
   it('should render the Stopped status', () => {
-    const { getByTestId } = renderComponent(Status.Stopped);
-    expect(getByTestId('tag')).toHaveTextContent('cmps.status-tag.status-stopped');
+    const { getByText } = renderComponent(Status.Stopped);
+    expect(getByText('Stopped')).toBeInTheDocument();
   });
 
   it('should render the Error status', () => {
-    const { getByTestId } = renderComponent(Status.Error);
-    expect(getByTestId('tag')).toHaveTextContent('cmps.status-tag.status-error');
+    const { getByText } = renderComponent(Status.Error);
+    expect(getByText('Error')).toBeInTheDocument();
   });
 });

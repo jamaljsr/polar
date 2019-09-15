@@ -28,26 +28,17 @@ const Home = () => {
   return (
     <div>
       {showAlert && (
-        <Alert
-          message={t('cmps.home.success-text')}
-          type="success"
-          showIcon
-          data-tid="success"
-        />
+        <Alert message={t('cmps.home.success-text')} type="success" showIcon />
       )}
       <Card title={t('cmps.home.card-title')}>
         <p>{t('cmps.home.card-description')}</p>
         <p>
           <Trans i18nKey="cmps.home.play">
-            Play with the{' '}
-            <Link to={NETWORK} data-tid="network-link">
-              Network
-            </Link>{' '}
-            thing
+            Play with the <Link to={NETWORK}>Network</Link> thing
           </Trans>
         </p>
         <p>
-          <Button type="primary" data-tid="me-btn" onClick={handleClickMe}>
+          <Button type="primary" onClick={handleClickMe}>
             {t('cmps.home.me-btn')}
           </Button>
         </p>

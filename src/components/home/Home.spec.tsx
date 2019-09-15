@@ -21,7 +21,7 @@ describe('Home component', () => {
     const loadMock = injections.dockerService.load as jest.Mock;
     loadMock.mockRejectedValue(new Error('error reading file'));
     const { findByText } = renderComponent();
-    expect(await findByText('cmps.home.load-error-msg')).toBeInTheDocument();
+    expect(await findByText('error reading file')).toBeInTheDocument();
   });
 
   it('should display a list of networks', () => {
@@ -32,13 +32,13 @@ describe('Home component', () => {
   });
 
   it('should contain a "Click Me!" button', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('me-btn')).toHaveTextContent('cmps.home.me-btn');
+    const { getByText } = renderComponent();
+    expect(getByText('Click Me!')).toBeInTheDocument();
   });
 
   it('should contain a link to Counter page', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('network-link')).toHaveTextContent('Network');
+    const { getByText } = renderComponent();
+    expect(getByText('Network')).toBeInTheDocument();
   });
 
   it('should not show alert message', () => {
@@ -47,9 +47,9 @@ describe('Home component', () => {
   });
 
   it('should show alert after button is clicked', () => {
-    const { getByTestId } = renderComponent();
-    const btn = getByTestId('me-btn');
+    const { getByText } = renderComponent();
+    const btn = getByText('Click Me!');
     fireEvent.click(btn);
-    expect(getByTestId('success')).toHaveTextContent('cmps.home.success-text');
+    expect(getByText('Success Tips')).toBeInTheDocument();
   });
 });

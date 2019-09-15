@@ -6,48 +6,50 @@ import NewNetwork from './NewNetwork';
 
 describe('NewNetwork component', () => {
   const renderComponent = () => {
-    return renderWithProviders(<NewNetwork />);
+    const result = renderWithProviders(<NewNetwork />);
+    return {
+      ...result,
+      createBtn: result.getByText('Create').parentElement as Element,
+      nameInput: result.getByLabelText('Network Name'),
+    };
   };
 
   it('should contain a input field for name', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('name')).toHaveValue('');
+    const { nameInput } = renderComponent();
+    expect(nameInput).toHaveValue('');
   });
 
   it('should have a submit button', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('submit')).toHaveTextContent('cmps.new-network.btn-create');
+    const { createBtn } = renderComponent();
+    expect(createBtn).toBeInTheDocument();
   });
 
   it('should display an error if empty name is submitted', () => {
-    const { getByTestId, getByText } = renderComponent();
-    fireEvent.click(getByTestId('submit'));
+    const { getByText, createBtn } = renderComponent();
+    fireEvent.click(createBtn);
     expect(getByText('name is required')).toBeInTheDocument();
   });
 
   describe('with valid submission', () => {
     it('should display a notification', async () => {
-      const { getByTestId, findByText } = renderComponent();
-      const nameInput = getByTestId('name');
+      const { findByText, nameInput, createBtn } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
-      fireEvent.click(getByTestId('submit'));
-      expect(await findByText('cmps.new-network.success-msg: test')).toBeInTheDocument();
+      fireEvent.click(createBtn);
+      expect(await findByText('Created network: test')).toBeInTheDocument();
     });
 
     it('should navigate to home page', async () => {
-      const { getByTestId, history } = renderComponent();
-      const nameInput = getByTestId('name');
+      const { createBtn, nameInput, history } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
-      fireEvent.click(getByTestId('submit'));
+      fireEvent.click(createBtn);
       await waitForDomChange();
       expect(history.location.pathname).toEqual(NETWORK_VIEW(1));
     });
 
     it('should call networkManager.create', async () => {
-      const { getByTestId, injections } = renderComponent();
-      const nameInput = getByTestId('name');
+      const { createBtn, nameInput, injections } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
-      fireEvent.click(getByTestId('submit'));
+      fireEvent.click(createBtn);
       await waitForDomChange();
       expect(injections.dockerService.create).toBeCalled();
     });
