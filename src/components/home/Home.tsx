@@ -46,19 +46,19 @@ const Home = () => {
             thing
           </Trans>
         </p>
-        <h3>Networks</h3>
-        <ul>
-          {networks.map(network => (
-            <Link to={NETWORK_VIEW(network.id)} key={network.id}>
-              {network.name}
-            </Link>
-          ))}
-        </ul>
         <p>
           <Button type="primary" data-tid="me-btn" onClick={handleClickMe}>
             {t('cmps.home.me-btn')}
           </Button>
         </p>
+        <h3>Networks</h3>
+        <ul>
+          {networks.map(network => (
+            <li key={network.id}>
+              <Link to={NETWORK_VIEW(network.id)}>{network.name}</Link>
+            </li>
+          ))}
+        </ul>
       </Card>
     </div>
   );
