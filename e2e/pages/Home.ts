@@ -1,9 +1,9 @@
 import { Selector } from 'testcafe';
 
 class Home {
-  successAlert: Selector = Selector('[data-tid=success]');
-  networkLink: Selector = Selector('[data-tid=network-link]');
-  clickMeButton: Selector = Selector('[data-tid=me-btn]');
+  successAlert = Selector('.ant-alert-message').withExactText('Success Tips');
+  networkLink = Selector('a').withExactText('Network');
+  clickMeButton = Selector('button').withExactText('Click Me!');
 
   clickNetworkLink = async (t: TestController) => t.click(this.networkLink);
 }
