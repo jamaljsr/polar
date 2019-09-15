@@ -8,12 +8,12 @@ describe('App container', () => {
   };
 
   it('should render the home page', () => {
-    const { getByTestId } = renderComponent(HOME);
-    expect(getByTestId('me-btn')).toHaveTextContent('home.me-btn');
+    const { getByText } = renderComponent(HOME);
+    expect(getByText('Click Me!')).toBeInTheDocument();
   });
 
   it('should render the new network page', () => {
-    const { getByTestId } = renderComponent(NETWORK);
-    expect(getByTestId('submit')).toHaveTextContent('cmps.new-network.btn-create');
+    const { getByText } = renderComponent(NETWORK);
+    expect(getByText('Create')).toBeInTheDocument();
   });
 });

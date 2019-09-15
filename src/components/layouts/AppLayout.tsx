@@ -18,7 +18,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
     <Layout className={styles.layout}>
       <Header className={styles.header}>
         <div className={styles.logo}>
-          <Link to={HOME} data-tid="logo">
+          <Link to={HOME}>
             <img src={logo} alt="logo" />
             <span>Polar</span>
           </Link>

@@ -6,49 +6,47 @@ import AppLayout from './AppLayout';
 
 describe('AppLayout component', () => {
   const renderComponent = (route?: string) => {
-    return renderWithProviders(
-      <AppLayout>
-        <p data-tid="hello">Hello World!</p>
-      </AppLayout>,
-      { route },
-    );
-  };
-
-  const changeLanguageMock = () => {
-    // get access to the mocked 'changeLanguage' function
-    const { i18n } = useTranslation();
-    const changeLanguage = (i18n.changeLanguage as unknown) as jest.Mock<
-      typeof i18n.changeLanguage
-    >;
-    return changeLanguage;
+    const LangWrapper: React.FC = () => {
+      const { t } = useTranslation();
+      return (
+        <AppLayout>
+          <p>Hello World!</p>
+          <p>{t('cmps.app-layout.new-network')}</p>
+        </AppLayout>
+      );
+    };
+    return renderWithProviders(<LangWrapper />, { route });
   };
 
   it('should contain a "Hello World!" text', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('hello')).toHaveTextContent('Hello World!');
+    const { getByText } = renderComponent();
+    expect(getByText('Hello World!')).toBeInTheDocument();
+  });
+
+  it('should have language set to English by default', () => {
+    const { getByText } = renderComponent();
+    expect(getByText('Network')).toBeInTheDocument();
   });
 
   it('should set language to English', () => {
-    const { getByTestId } = renderComponent();
-    const changeLanguage = changeLanguageMock();
-    fireEvent.click(getByTestId('english'));
-    expect(changeLanguage.mock.calls.length).toBe(1);
-    expect(changeLanguage.mock.calls[0][0]).toBe('en-US');
-    changeLanguage.mockClear();
+    const { getByText } = renderComponent();
+    expect(getByText('Network')).toBeInTheDocument();
+    fireEvent.click(getByText('ES'));
+    expect(getByText('Red')).toBeInTheDocument();
+    fireEvent.click(getByText('EN'));
+    expect(getByText('Network')).toBeInTheDocument();
   });
 
   it('should set language to Spanish', async () => {
-    const { getByTestId } = renderComponent();
-    const changeLanguage = changeLanguageMock();
-    fireEvent.click(getByTestId('spanish'));
-    expect(changeLanguage.mock.calls.length).toBe(1);
-    expect(changeLanguage.mock.calls[0][0]).toBe('es');
-    changeLanguage.mockClear();
+    const { getByText } = renderComponent();
+    expect(getByText('Network')).toBeInTheDocument();
+    fireEvent.click(getByText('ES'));
+    expect(getByText('Red')).toBeInTheDocument();
   });
 
   it('should navigate to home page when logo clicked', () => {
-    const { getByTestId, history } = renderComponent('/counter');
-    fireEvent.click(getByTestId('logo'));
+    const { getByAltText, history } = renderComponent('/network');
+    fireEvent.click(getByAltText('logo'));
     expect(history.location.pathname).toEqual('/');
   });
 });

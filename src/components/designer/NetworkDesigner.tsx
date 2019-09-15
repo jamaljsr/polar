@@ -70,14 +70,12 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   ) as typeof chartCallbacks;
 
   return (
-    <div data-tid="designer">
-      <FlowChart
-        chart={chart}
-        config={{ snapToGrid: true }}
-        Components={{ NodeInner: CustomNodeInner }}
-        callbacks={callbacks}
-      />
-    </div>
+    <FlowChart
+      chart={chart}
+      config={{ snapToGrid: true }}
+      Components={{ NodeInner: CustomNodeInner }}
+      callbacks={callbacks}
+    />
   );
 };
 

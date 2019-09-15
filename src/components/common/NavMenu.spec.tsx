@@ -4,11 +4,6 @@ import { renderWithProviders } from 'utils/tests';
 import { NETWORK } from 'components/routing';
 import NavMenu from './NavMenu';
 
-const i18nKeys = {
-  create: 'cmps.nav-menu.create-network',
-  settings: 'cmps.nav-menu.settings',
-};
-
 describe('DetailsList Component', () => {
   const renderComponent = () => {
     const rendered = renderWithProviders(<NavMenu />);
@@ -27,13 +22,13 @@ describe('DetailsList Component', () => {
   it('should display the dropdown when clcked', () => {
     const { icon, getByText } = renderComponent();
     fireEvent.click(icon);
-    expect(getByText(i18nKeys.create)).toBeInTheDocument();
+    expect(getByText('Create Network')).toBeInTheDocument();
   });
 
   it('should navigate to /network when create menu item clicked', () => {
     const { icon, getByText, history } = renderComponent();
     fireEvent.click(icon);
-    fireEvent.click(getByText(i18nKeys.create));
+    fireEvent.click(getByText('Create Network'));
     expect(history.location.pathname).toEqual(NETWORK);
   });
 });

@@ -10,11 +10,11 @@ const LocaleSwitch: React.FC = () => {
 
   return (
     <>
-      <Button type="link" className={styles.btn} onClick={setEnglish} data-tid="english">
+      <Button type="link" className={styles.btn} onClick={setEnglish}>
         EN
       </Button>
       |
-      <Button type="link" className={styles.btn} onClick={setSpanish} data-tid="spanish">
+      <Button type="link" className={styles.btn} onClick={setSpanish}>
         ES
       </Button>
     </>
