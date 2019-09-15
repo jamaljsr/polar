@@ -35,6 +35,14 @@ describe('NetworkView Component', () => {
     expect(getByText('test network')).toBeInTheDocument();
   });
 
+  it('should navigate home when back button clicked', () => {
+    const { getByLabelText, history } = renderComponent('1');
+    const backBtn = getByLabelText('Back');
+    expect(backBtn).toBeInTheDocument();
+    fireEvent.click(backBtn);
+    expect(history.location.pathname).toEqual('/');
+  });
+
   it('should render an error if necessary', async () => {
     const errorMsg = 'failed to start';
     // mock dockerService.start to throw an error
