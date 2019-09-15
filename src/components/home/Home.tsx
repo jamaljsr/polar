@@ -2,12 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { info } from 'electron-log';
-import { Alert, Button, Card } from 'antd';
-import { NETWORK } from 'components/routing';
+import { Alert, Button, Card, notification } from 'antd';
+import { useStoreActions, useStoreState } from 'store';
+import { NETWORK, NETWORK_VIEW } from 'components/routing';
 
 const Home = () => {
   useEffect(() => info('Rendering Home component'), []);
   const { t } = useTranslation();
+  const { networks } = useStoreState(s => s.network);
+  const { load } = useStoreActions(s => s.network);
+  useEffect(() => {
+    load().catch((e: Error) =>
+      notification.error({
+        message: t('cmps.home.load-error-msg', 'Unable to load previously save networks'),
+        description: e.message,
+        placement: 'bottomRight',
+        bottom: 50,
+      }),
+    );
+  }, [load, t]);
 
   const [showAlert, setShowAlert] = useState(false);
   const handleClickMe = () => setShowAlert(true);
@@ -33,6 +46,14 @@ const Home = () => {
             thing
           </Trans>
         </p>
+        <h3>Networks</h3>
+        <ul>
+          {networks.map(network => (
+            <Link to={NETWORK_VIEW(network.id)} key={network.id}>
+              {network.name}
+            </Link>
+          ))}
+        </ul>
         <p>
           <Button type="primary" data-tid="me-btn" onClick={handleClickMe}>
             {t('cmps.home.me-btn')}
