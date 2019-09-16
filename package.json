@@ -48,8 +48,8 @@
     "js-yaml": "^3.13.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.1.0",
-    "@commitlint/config-conventional": "^8.1.0",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
     "@hot-loader/react-dom": "^16.9.0",
     "@mrblenny/react-flow-chart": "^0.0.7",
     "@rescripts/cli": "^0.0.12",
