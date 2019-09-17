@@ -52,7 +52,7 @@ const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
     <Menu theme="dark">
       <Menu.Item key="1">
         <Icon type="form" />
-        {t('cmps.network-actions.menu-edit', 'Edit')}
+        {t('cmps.network-actions.menu-rename', 'Rename')}
       </Menu.Item>
       <Menu.Item key="2">
         <Icon type="close" />
