@@ -1,11 +1,13 @@
 import { Selector } from 'testcafe';
 
 class Home {
-  successAlert = Selector('.ant-alert-message').withExactText('Success Tips');
-  networkLink = Selector('a').withExactText('Network');
-  clickMeButton = Selector('button').withExactText('Click Me!');
+  getStarted = Selector('.ant-card-head-title');
+  createButton = Selector('button').withExactText('Create your first Network');
+  cardTitles = Selector('.ant-card-head-title');
 
-  clickNetworkLink = async (t: TestController) => t.click(this.networkLink);
+  getStartedText = () => this.getStarted.innerText;
+  clickCreateButton = async (t: TestController) => t.click(this.createButton);
+  getCardTitleWithText = (text: string) => this.cardTitles.withExactText(text);
 }
 
 export default new Home();
