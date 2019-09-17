@@ -7,7 +7,7 @@ fixture`Network`
   .afterEach(assertNoConsoleErrors)
   .afterEach(cleanup);
 
-test('should be on the route /network', async t => {
+test('should be on the New Network route', async t => {
   await t.expect(getPageUrl()).match(/.*#\/network$/);
 });
 

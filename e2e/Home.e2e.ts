@@ -1,25 +1,29 @@
 import { assertNoConsoleErrors, cleanup, getPageUrl, pageUrl } from './helpers';
-import { Home } from './pages';
+import { App, Home, NewNetwork } from './pages';
 
 fixture`Home`
   .page(pageUrl)
   .afterEach(assertNoConsoleErrors)
   .afterEach(cleanup);
 
-test('should be on the route /', async t => {
+test('should be on the home screen route', async t => {
   await t.expect(getPageUrl()).match(/.*#\/$/);
 });
 
-test('should show success alert when "Click Me" button clicked', async t => {
+test('should navgiate to New Network screen when create button clicked', async t => {
   await t
-    .click(Home.clickMeButton)
-    .expect(Home.successAlert.exists)
-    .ok();
-});
-
-test('should navgiate to /network', async t => {
-  await t
-    .click(Home.networkLink)
+    .click(Home.createButton)
     .expect(getPageUrl())
     .contains('/network');
+});
+
+test('should navigate to network view when a card is clicked', async t => {
+  await t
+    .click(Home.createButton)
+    .typeText(NewNetwork.nameInput, 'test network')
+    .click(NewNetwork.submitBtn)
+    .click(App.logoLink)
+    .click(Home.getCardTitleWithText('test network'))
+    .expect(getPageUrl())
+    .contains('/network/1');
 });
