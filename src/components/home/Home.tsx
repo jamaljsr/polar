@@ -1,32 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Trans, useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { info } from 'electron-log';
-import { Alert, Button, Card } from 'antd';
+import { Alert, Col, Row } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Loader } from 'components/common';
-import { NETWORK, NETWORK_VIEW } from 'components/routing';
+import { GetStarted, NetworkCard } from './';
 
-const Home = () => {
+const Home: React.FC = () => {
   useEffect(() => info('Rendering Home component'), []);
+
   const { t } = useTranslation();
   const { networks, loaded } = useStoreState(s => s.network);
   const { load } = useStoreActions(s => s.network);
   const loadAsync = useAsync(() => load(), [], { executeOnMount: !loaded });
-
-  const [showAlert, setShowAlert] = useState(false);
-  const handleClickMe = () => setShowAlert(true);
 
   if (loadAsync.loading) {
     return <Loader />;
   }
 
   return (
-    <div>
-      {showAlert && (
-        <Alert message={t('cmps.home.success-text')} type="success" showIcon />
-      )}
+    <>
       {loadAsync.error && (
         <Alert
           type="error"
@@ -39,28 +33,15 @@ const Home = () => {
           description={loadAsync.error.message}
         />
       )}
-      <Card title={t('cmps.home.card-title')}>
-        <p>{t('cmps.home.card-description')}</p>
-        <p>
-          <Trans i18nKey="cmps.home.play">
-            Play with the <Link to={NETWORK}>Network</Link> thing
-          </Trans>
-        </p>
-        <p>
-          <Button type="primary" onClick={handleClickMe}>
-            {t('cmps.home.me-btn')}
-          </Button>
-        </p>
-        <h3>Networks</h3>
-        <ul>
-          {networks.map(network => (
-            <li key={network.id}>
-              <Link to={NETWORK_VIEW(network.id)}>{network.name}</Link>
-            </li>
-          ))}
-        </ul>
-      </Card>
-    </div>
+      {networks.length === 0 && <GetStarted />}
+      <Row gutter={16}>
+        {networks.map(n => (
+          <Col key={n.id} sm={24} md={12} lg={8} xl={6} xxl={4}>
+            <NetworkCard network={n} />
+          </Col>
+        ))}
+      </Row>
+    </>
   );
 };
 

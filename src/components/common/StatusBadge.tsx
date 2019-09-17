@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge } from 'antd';
+import { Badge, Tooltip } from 'antd';
 import { Status } from 'types';
 
 export interface StatusBadgeProps {
@@ -21,7 +21,9 @@ const badgeStatuses: BadgeStatus = {
 
 const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => (
   <>
-    <Badge status={badgeStatuses[status]} />
+    <Tooltip overlay={Status[status]}>
+      <Badge status={badgeStatuses[status]} />
+    </Tooltip>
     {text}
   </>
 );

@@ -5,7 +5,6 @@ import useDebounce from 'hooks/useDebounce';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-// import * as chartCallbacks from './chartCallbacks';
 import CustomNodeInner from './CustomNodeInner';
 
 interface Props {
