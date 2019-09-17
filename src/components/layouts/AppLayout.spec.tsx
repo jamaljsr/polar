@@ -12,7 +12,7 @@ describe('AppLayout component', () => {
       return (
         <AppLayout>
           <p>Hello World!</p>
-          <p>{t('cmps.home.card-title')}</p>
+          <p>{t('cmps.get-started.title')}</p>
         </AppLayout>
       );
     };
@@ -26,23 +26,23 @@ describe('AppLayout component', () => {
 
   it('should have language set to English by default', () => {
     const { getByText } = renderComponent();
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
+    expect(getByText("Let's get started")).toBeInTheDocument();
   });
 
   it('should set language to English', () => {
     const { getByText } = renderComponent();
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
+    expect(getByText("Let's get started")).toBeInTheDocument();
     fireEvent.click(getByText('ES'));
-    expect(getByText('Bienvenido a Polar')).toBeInTheDocument();
+    expect(getByText('Empecemos')).toBeInTheDocument();
     fireEvent.click(getByText('EN'));
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
+    expect(getByText("Let's get started")).toBeInTheDocument();
   });
 
   it('should set language to Spanish', async () => {
     const { getByText } = renderComponent();
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
+    expect(getByText("Let's get started")).toBeInTheDocument();
     fireEvent.click(getByText('ES'));
-    expect(getByText('Bienvenido a Polar')).toBeInTheDocument();
+    expect(getByText('Empecemos')).toBeInTheDocument();
   });
 
   it('should navigate to home page when logo clicked', () => {
