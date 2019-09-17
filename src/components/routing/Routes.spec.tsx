@@ -1,5 +1,4 @@
 import React from 'react';
-import { waitForElement } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
 import { HOME, NETWORK, Routes } from 'components/routing';
 
@@ -9,9 +8,8 @@ describe('App container', () => {
   };
 
   it('should render the home page', async () => {
-    const { getByText } = renderComponent(HOME);
-    await waitForElement(() => getByText('Click Me!'));
-    expect(getByText('Click Me!')).toBeInTheDocument();
+    const { findByText } = renderComponent(HOME);
+    expect(await findByText("Let's get started")).toBeInTheDocument();
   });
 
   it('should render the new network page', () => {
