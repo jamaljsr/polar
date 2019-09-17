@@ -1,4 +1,5 @@
 import React from 'react';
+import { waitForElement } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
 import { HOME, NETWORK, Routes } from 'components/routing';
 
@@ -7,13 +8,14 @@ describe('App container', () => {
     return renderWithProviders(<Routes />, { route });
   };
 
-  it('should render the home page', () => {
-    const { getByTestId } = renderComponent(HOME);
-    expect(getByTestId('me-btn')).toHaveTextContent('home.me-btn');
+  it('should render the home page', async () => {
+    const { getByText } = renderComponent(HOME);
+    await waitForElement(() => getByText('Click Me!'));
+    expect(getByText('Click Me!')).toBeInTheDocument();
   });
 
   it('should render the new network page', () => {
-    const { getByTestId } = renderComponent(NETWORK);
-    expect(getByTestId('submit')).toHaveTextContent('cmps.new-network.btn-create');
+    const { getByText } = renderComponent(NETWORK);
+    expect(getByText('Create')).toBeInTheDocument();
   });
 });

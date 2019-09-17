@@ -2,7 +2,6 @@
 
 Small Stuff
 
-- replace sidebar with app header bar
 - switch renovatebot to dependabot and use automatic security fixes
 - build images if they don't exist
 - generate alice/bob/carol names for lnd nodes

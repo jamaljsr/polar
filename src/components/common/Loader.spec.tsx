@@ -4,28 +4,32 @@ import Loader from './Loader';
 
 describe('Loader Component', () => {
   const renderComponent = (inline?: boolean, size?: string) => {
-    return render(<Loader inline={inline} size={size} />);
+    const result = render(<Loader inline={inline} size={size} />);
+    return {
+      ...result,
+      loader: result.getByLabelText('icon: loading'),
+    };
   };
 
   it('should have default styles', () => {
-    const { getByTestId } = renderComponent();
-    expect(getByTestId('loader')).toHaveStyle(`font-size: 2rem;`);
-    expect(getByTestId('loader')).toHaveStyle(`position: absolute;`);
-    expect(getByTestId('loader')).toHaveStyle(`top: 50%;`);
-    expect(getByTestId('loader')).toHaveStyle(`left: 50%;`);
-    expect(getByTestId('loader')).toHaveStyle(`transform: translate(-50%, -50%);`);
+    const { loader } = renderComponent();
+    expect(loader).toHaveStyle(`font-size: 2rem;`);
+    expect(loader).toHaveStyle(`position: absolute;`);
+    expect(loader).toHaveStyle(`top: 50%;`);
+    expect(loader).toHaveStyle(`left: 50%;`);
+    expect(loader).toHaveStyle(`transform: translate(-50%, -50%);`);
   });
 
   it('should render inline', () => {
-    const { getByTestId } = renderComponent(true);
-    expect(getByTestId('loader')).not.toHaveStyle(`position: absolute;`);
-    expect(getByTestId('loader')).not.toHaveStyle(`top: 50%;`);
-    expect(getByTestId('loader')).not.toHaveStyle(`left: 50%;`);
-    expect(getByTestId('loader')).not.toHaveStyle(`transform: translate(-50%, -50%);`);
+    const { loader } = renderComponent(true);
+    expect(loader).not.toHaveStyle(`position: absolute;`);
+    expect(loader).not.toHaveStyle(`top: 50%;`);
+    expect(loader).not.toHaveStyle(`left: 50%;`);
+    expect(loader).not.toHaveStyle(`transform: translate(-50%, -50%);`);
   });
 
   it('should use the correct size', () => {
-    const { getByTestId } = renderComponent(false, '3rem');
-    expect(getByTestId('loader')).toHaveStyle(`font-size: 3rem;`);
+    const { loader } = renderComponent(false, '3rem');
+    expect(loader).toHaveStyle(`font-size: 3rem;`);
   });
 });

@@ -7,6 +7,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
+import { HOME } from 'components/routing';
 import NetworkActions from './NetworkActions';
 import styles from './NetworkView.module.less';
 
@@ -35,13 +36,14 @@ const NetworkView: React.FC<Props> = ({ network }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
 
   const { toggle } = useStoreActions(s => s.network);
+  const { navigateTo } = useStoreActions(s => s.app);
   const toggleAsync = useAsyncCallback(async () => toggle(network.id));
 
   return (
     <>
       <PageHeader
         title={network.name}
-        // onBack={() => {}}
+        onBack={() => navigateTo(HOME)}
         className={styles.header}
         tags={<StatusTag status={network.status} />}
         extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}

@@ -38,7 +38,6 @@ i18n.use(initReactI18next).init({
   resources,
   whitelist,
   fallbackLng: config.fallbackLng,
-  debug: process.env.NODE_ENV !== 'production',
   keySeparator: false,
   interpolation: {
     escapeValue: false,
