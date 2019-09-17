@@ -41,10 +41,8 @@ describe('NetworkDesigner Component', () => {
   };
 
   it('should render the designer component', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('lnd-1')).toBeInTheDocument();
-    expect(getByText('lnd-2')).toBeInTheDocument();
-    expect(getByText('bitcoind-1')).toBeInTheDocument();
+    const { getByTestId } = renderComponent();
+    expect(getByTestId('designer')).toBeInTheDocument();
   });
 
   it('should execute onNodeClick callback', () => {

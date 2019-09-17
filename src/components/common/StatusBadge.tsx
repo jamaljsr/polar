@@ -21,7 +21,7 @@ const badgeStatuses: BadgeStatus = {
 
 const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => (
   <>
-    <Badge status={badgeStatuses[status]} />
+    <Badge status={badgeStatuses[status]} data-tid="badge" />
     {text}
   </>
 );

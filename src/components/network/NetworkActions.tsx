@@ -67,7 +67,7 @@ const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
         {t(`cmps.network-actions.primary-btn-${label.toLocaleLowerCase()}`, label)}
       </Button>
       <Dropdown key="options" overlay={menu}>
-        <Button icon="more" />
+        <Button icon="down" />
       </Dropdown>
     </>
   );

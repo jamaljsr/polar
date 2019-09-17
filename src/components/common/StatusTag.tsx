@@ -19,7 +19,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
   const { t } = useTranslation();
 
   return (
-    <Tag color={statusColors[status]}>
+    <Tag color={statusColors[status]} data-tid="tag">
       {t(`cmps.status-tag.status-${Status[status].toLowerCase()}`)}
     </Tag>
   );

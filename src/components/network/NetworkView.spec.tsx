@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent } from '@testing-library/dom';
 import { createMemoryHistory } from 'history';
 import { Status } from 'types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
@@ -17,13 +17,7 @@ describe('NetworkView Component', () => {
     const location = { pathname: route, search: '', hash: '', state: undefined };
     const match = { params: { id }, isExact: true, path: '', url: route };
     const cmp = <NetworkView history={history} location={location} match={match} />;
-    const result = renderWithProviders(cmp, { initialState, route });
-    return {
-      ...result,
-      primaryBtn: result.container.querySelector(
-        '.ant-page-header-heading-extra .ant-btn',
-      ) as Element,
-    };
+    return renderWithProviders(cmp, { initialState, route });
   };
 
   it('should not render if the network is not found', () => {
@@ -41,53 +35,41 @@ describe('NetworkView Component', () => {
     expect(getByText('test network')).toBeInTheDocument();
   });
 
-  it('should navigate home when back button clicked', () => {
-    const { getByLabelText, history } = renderComponent('1');
-    const backBtn = getByLabelText('Back');
-    expect(backBtn).toBeInTheDocument();
-    fireEvent.click(backBtn);
-    expect(history.location.pathname).toEqual('/');
-  });
-
   it('should render an error if necessary', async () => {
     const errorMsg = 'failed to start';
     // mock dockerService.start to throw an error
     const mockDockerStart = injections.dockerService.start as jest.Mock;
     mockDockerStart.mockRejectedValueOnce(new Error(errorMsg));
     const { getByText, findByText } = renderComponent('1');
-    fireEvent.click(getByText('Start'));
+    fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
     expect(await findByText(errorMsg)).toBeInTheDocument();
   });
 
   it('should change UI when network is started', async () => {
-    const { primaryBtn } = renderComponent('1');
-    expect(primaryBtn).toHaveTextContent('Start');
-    fireEvent.click(primaryBtn);
-    // should switch to stopping immediately
-    expect(primaryBtn).toHaveTextContent('Starting');
-    // should change to stopped after some time
-    await wait(() => {
-      expect(primaryBtn).toHaveTextContent('Stop');
-    });
+    const { getByText, findByText } = renderComponent('1');
+    expect(getByText('cmps.status-tag.status-stopped')).toBeInTheDocument();
+    fireEvent.click(getByText('cmps.network-actions.primary-btn-start'));
+    // should switch to starting immediately
+    expect(getByText('cmps.status-tag.status-starting')).toBeInTheDocument();
+    // should change to started after some time (findBy* will wait)
+    expect(await findByText('cmps.status-tag.status-started')).toBeInTheDocument();
   });
 
   it('should change UI when network is stopped', async () => {
-    const { primaryBtn } = renderComponent('1', Status.Started);
-    expect(primaryBtn).toHaveTextContent('Stop');
-    fireEvent.click(primaryBtn);
+    const { getByText, findByText } = renderComponent('1', Status.Started);
+    expect(getByText('cmps.status-tag.status-started')).toBeInTheDocument();
+    fireEvent.click(getByText('cmps.network-actions.primary-btn-stop'));
     // should switch to stopping immediately
-    expect(primaryBtn).toHaveTextContent('Stopping');
-    // should change to stopped after some time
-    await wait(() => {
-      expect(primaryBtn).toHaveTextContent('Start');
-    });
+    expect(getByText('cmps.status-tag.status-stopping')).toBeInTheDocument();
+    // should change to stopped after some time (findBy* will wait)
+    expect(await findByText('cmps.status-tag.status-stopped')).toBeInTheDocument();
   });
 
   it('should do nothing when network is starting', async () => {
-    const { primaryBtn } = renderComponent('1', Status.Starting);
-    expect(primaryBtn).toHaveTextContent('Starting');
-    fireEvent.click(primaryBtn);
-    // should remain the same since button should be disabled
-    expect(primaryBtn).toHaveTextContent('Starting');
+    const { getByText } = renderComponent('1', Status.Starting);
+    expect(getByText('cmps.status-tag.status-starting')).toBeInTheDocument();
+    fireEvent.click(getByText('cmps.network-actions.primary-btn-starting'));
+    // should switch to stopping immediately
+    expect(getByText('cmps.status-tag.status-starting')).toBeInTheDocument();
   });
 });

@@ -1,34 +1,46 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from 'antd';
-import { NavMenu } from 'components/common';
+import { useStoreActions, useStoreState } from 'store';
+import { NetworkList } from 'components/network';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
 import LocaleSwitch from './LocaleSwitch';
 import styles from './AppLayout.module.less';
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 interface Props {
   children: React.ReactNode;
 }
 
 const AppLayout: React.FC<Props> = (props: Props) => {
+  const { sidebarCollapsed } = useStoreState(s => s.app);
+  const { collapseSidebar } = useStoreActions(s => s.app);
   return (
     <Layout className={styles.layout}>
-      <Header className={styles.header}>
+      <Sider
+        data-tid="sider"
+        collapsible
+        collapsed={sidebarCollapsed}
+        onCollapse={collapseSidebar}
+      >
         <div className={styles.logo}>
-          <Link to={HOME}>
+          <Link to={HOME} data-tid="logo">
             <img src={logo} alt="logo" />
             <span>Polar</span>
           </Link>
         </div>
-        <NavMenu />
-      </Header>
-      <Content className={styles.content}>{props.children}</Content>
-      <Footer className={styles.footer}>
-        Polar &copy; 2019 Fomo Bros <LocaleSwitch />
-      </Footer>
+        <NetworkList />
+      </Sider>
+      <Layout>
+        <Content className={styles.content}>
+          <div className={styles.container}>{props.children}</div>
+        </Content>
+        <Footer className={styles.footer}>
+          Polar &copy; 2019 Fomo Bros <LocaleSwitch />
+        </Footer>
+      </Layout>
     </Layout>
   );
 };

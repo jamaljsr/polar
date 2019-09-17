@@ -3,7 +3,7 @@ import { App, NetworkView, NewNetwork } from './pages';
 
 fixture`Network`
   .page(pageUrl)
-  .beforeEach(App.clickNCreateNetwork)
+  .beforeEach(App.clickNewNetworkIcon)
   .afterEach(assertNoConsoleErrors)
   .afterEach(cleanup);
 
@@ -25,6 +25,14 @@ test('should should view new network after adding', async t => {
     .click(NewNetwork.submitBtn)
     .expect(getPageUrl())
     .match(/.*#\/network\/1$/);
+});
+
+test('should display new network in the network list', async t => {
+  await t
+    .typeText(NewNetwork.nameInput, 'test network')
+    .click(NewNetwork.submitBtn)
+    .expect(App.getFirstNetworkText())
+    .eql('test network');
 });
 
 test('should display correct # of LND nodes after adding', async t => {

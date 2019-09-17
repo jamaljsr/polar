@@ -3,13 +3,9 @@ import { render } from '@testing-library/react';
 import { Status } from 'types';
 import StatusBadge from './StatusBadge';
 
-describe('StatusTag Component', () => {
+describe('StatusBadge Component', () => {
   const renderComponent = (status: Status, text?: string) => {
-    const result = render(<StatusBadge status={status} text={text} />);
-    return {
-      ...result,
-      dot: result.container.querySelector('.ant-badge span:first-child'),
-    };
+    return render(<StatusBadge status={status} text={text} />);
   };
 
   it('should render the text', () => {
@@ -18,27 +14,27 @@ describe('StatusTag Component', () => {
   });
 
   it('should render the Starting status', () => {
-    const { dot } = renderComponent(Status.Starting);
-    expect(dot).toHaveClass('ant-badge-status-processing');
+    const { getByTestId } = renderComponent(Status.Starting);
+    expect(getByTestId('badge').firstChild).toHaveClass('ant-badge-status-processing');
   });
 
   it('should render the Started status', () => {
-    const { dot } = renderComponent(Status.Started);
-    expect(dot).toHaveClass('ant-badge-status-success');
+    const { getByTestId } = renderComponent(Status.Started);
+    expect(getByTestId('badge').firstChild).toHaveClass('ant-badge-status-success');
   });
 
   it('should render the Stopping status', () => {
-    const { dot } = renderComponent(Status.Stopping);
-    expect(dot).toHaveClass('ant-badge-status-processing');
+    const { getByTestId } = renderComponent(Status.Stopping);
+    expect(getByTestId('badge').firstChild).toHaveClass('ant-badge-status-processing');
   });
 
   it('should render the Stopped status', () => {
-    const { dot } = renderComponent(Status.Stopped);
-    expect(dot).toHaveClass('ant-badge-status-default');
+    const { getByTestId } = renderComponent(Status.Stopped);
+    expect(getByTestId('badge').firstChild).toHaveClass('ant-badge-status-default');
   });
 
   it('should render the Error status', () => {
-    const { dot } = renderComponent(Status.Error);
-    expect(dot).toHaveClass('ant-badge-status-error');
+    const { getByTestId } = renderComponent(Status.Error);
+    expect(getByTestId('badge').firstChild).toHaveClass('ant-badge-status-error');
   });
 });

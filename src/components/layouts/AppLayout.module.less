@@ -1,7 +1,11 @@
 .logo {
+  position: relative;
   height: 64px;
-  width: 120px;
-  float: left;
+  padding-left: 24px;
+  overflow: hidden;
+  line-height: 64px;
+  background: #002140;
+  transition: all 0.3s;
 
   img {
     height: 32px;
@@ -18,16 +22,12 @@
   }
 }
 
-.header {
-  padding: 0 16px;
-}
-
 .layout {
   min-height: 100vh;
 }
 
-.content {
-  display: flex;
+.container {
+  height: 100%;
 }
 
 .footer {

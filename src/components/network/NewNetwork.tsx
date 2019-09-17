@@ -44,6 +44,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
           })(
             <Input
               placeholder={t('cmps.new-network.name-phldr', 'My Lightning Simnet')}
+              data-tid="name"
             />,
           )}
         </Form.Item>
@@ -55,7 +56,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
               {form.getFieldDecorator('lndNodes', {
                 rules: [{ required: true, message: 'required' }],
                 initialValue: 2,
-              })(<InputNumber min={1} max={10} />)}
+              })(<InputNumber data-tid="lndNodes" min={1} max={10} />)}
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -69,12 +70,12 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
               {form.getFieldDecorator('bitcoindNodes', {
                 rules: [{ required: true, message: 'required' }],
                 initialValue: 1,
-              })(<InputNumber min={1} max={10} disabled />)}
+              })(<InputNumber data-tid="bitcoindNodes" min={1} max={10} disabled />)}
             </Form.Item>
           </Col>
         </Row>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" data-tid="submit">
             {t('cmps.new-network.btn-create', 'Create')}
           </Button>
         </Form.Item>

@@ -6,48 +6,49 @@ import AppLayout from './AppLayout';
 
 describe('AppLayout component', () => {
   const renderComponent = (route?: string) => {
-    // create a wrapper component to test language switching
-    const LangWrapper: React.FC = () => {
-      const { t } = useTranslation();
-      return (
-        <AppLayout>
-          <p>Hello World!</p>
-          <p>{t('cmps.home.card-title')}</p>
-        </AppLayout>
-      );
-    };
-    return renderWithProviders(<LangWrapper />, { route });
+    return renderWithProviders(
+      <AppLayout>
+        <p data-tid="hello">Hello World!</p>
+      </AppLayout>,
+      { route },
+    );
   };
 
-  it('should contain the text of child components', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('Hello World!')).toBeInTheDocument();
-  });
+  const changeLanguageMock = () => {
+    // get access to the mocked 'changeLanguage' function
+    const { i18n } = useTranslation();
+    const changeLanguage = (i18n.changeLanguage as unknown) as jest.Mock<
+      typeof i18n.changeLanguage
+    >;
+    return changeLanguage;
+  };
 
-  it('should have language set to English by default', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
+  it('should contain a "Hello World!" text', () => {
+    const { getByTestId } = renderComponent();
+    expect(getByTestId('hello')).toHaveTextContent('Hello World!');
   });
 
   it('should set language to English', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
-    fireEvent.click(getByText('ES'));
-    expect(getByText('Bienvenido a Polar')).toBeInTheDocument();
-    fireEvent.click(getByText('EN'));
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
+    const { getByTestId } = renderComponent();
+    const changeLanguage = changeLanguageMock();
+    fireEvent.click(getByTestId('english'));
+    expect(changeLanguage.mock.calls.length).toBe(1);
+    expect(changeLanguage.mock.calls[0][0]).toBe('en-US');
+    changeLanguage.mockClear();
   });
 
   it('should set language to Spanish', async () => {
-    const { getByText } = renderComponent();
-    expect(getByText('Welcome to Polar')).toBeInTheDocument();
-    fireEvent.click(getByText('ES'));
-    expect(getByText('Bienvenido a Polar')).toBeInTheDocument();
+    const { getByTestId } = renderComponent();
+    const changeLanguage = changeLanguageMock();
+    fireEvent.click(getByTestId('spanish'));
+    expect(changeLanguage.mock.calls.length).toBe(1);
+    expect(changeLanguage.mock.calls[0][0]).toBe('es');
+    changeLanguage.mockClear();
   });
 
   it('should navigate to home page when logo clicked', () => {
-    const { getByAltText, history } = renderComponent('/network');
-    fireEvent.click(getByAltText('logo'));
+    const { getByTestId, history } = renderComponent('/counter');
+    fireEvent.click(getByTestId('logo'));
     expect(history.location.pathname).toEqual('/');
   });
 });

@@ -1,6 +1,9 @@
-import './i18n';
 // this adds jest-dom's custom assertions
 import '@testing-library/jest-dom/extend-expect';
+
+import { configure } from '@testing-library/react';
+
+configure({ testIdAttribute: 'data-tid' });
 
 // Prevent displaying some unfixable warnings in tests
 const originalConsoleWarning = console.warn;
