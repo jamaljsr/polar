@@ -7,7 +7,11 @@ class App {
 
   clickHamburgerMenu = async (t: TestController) => t.click(this.hamburgerMenu);
   clickCreateNetwork = async (t: TestController) =>
-    t.click(this.hamburgerMenu).click(this.createNetworkItem);
+    t
+      .click(this.hamburgerMenu)
+      .expect(this.createNetworkItem)
+      .ok()
+      .click(this.createNetworkItem);
 }
 
 export default new App();
