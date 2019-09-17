@@ -1,9 +1,9 @@
 import { Selector } from 'testcafe';
 
 class NewNetwork {
-  nameInput = Selector('[data-tid=name]');
-  lndNodesInput = Selector('[data-tid=lndNodes]');
-  submitBtn = Selector('[data-tid=submit]');
+  nameInput = Selector('input[id=name]');
+  lndNodesInput = Selector('input[id=lndNodes]');
+  submitBtn = Selector('button[type=submit]').withExactText('Create');
   notification = Selector('.ant-notification-notice-message');
 
   getNotificationText = () => this.notification.innerText;

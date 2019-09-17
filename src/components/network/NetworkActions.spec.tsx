@@ -13,42 +13,42 @@ describe('NetworkActions Component', () => {
 
   it('should render the Starting status', () => {
     const { getByText } = renderComponent(Status.Starting);
-    const primaryBtn = getByText('cmps.network-actions.primary-btn-starting');
+    const primaryBtn = getByText('Starting');
     expect(primaryBtn).toBeInTheDocument();
     expect(primaryBtn.parentElement).toHaveClass('ant-btn-loading');
   });
 
   it('should render the Started status', () => {
     const { getByText } = renderComponent(Status.Started);
-    const primaryBtn = getByText('cmps.network-actions.primary-btn-stop');
+    const primaryBtn = getByText('Stop');
     expect(primaryBtn).toBeInTheDocument();
     expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
   });
 
   it('should render the Stopping status', () => {
     const { getByText } = renderComponent(Status.Stopping);
-    const primaryBtn = getByText('cmps.network-actions.primary-btn-stopping');
+    const primaryBtn = getByText('Stopping');
     expect(primaryBtn).toBeInTheDocument();
     expect(primaryBtn.parentElement).toHaveClass('ant-btn-loading');
   });
 
   it('should render the Stopped status', () => {
     const { getByText } = renderComponent(Status.Stopped);
-    const primaryBtn = getByText('cmps.network-actions.primary-btn-start');
+    const primaryBtn = getByText('Start');
     expect(primaryBtn).toBeInTheDocument();
     expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
   });
 
   it('should render the Error status', () => {
     const { getByText } = renderComponent(Status.Error);
-    const primaryBtn = getByText('cmps.network-actions.primary-btn-restart');
+    const primaryBtn = getByText('Restart');
     expect(primaryBtn).toBeInTheDocument();
     expect(primaryBtn.parentElement).not.toHaveClass('ant-btn-loading');
   });
 
   it('should call onClick when primary button pressed', () => {
     const { getByText } = renderComponent(Status.Stopped);
-    const primaryBtn = getByText('cmps.network-actions.primary-btn-start');
+    const primaryBtn = getByText('Start');
     fireEvent.click(primaryBtn);
     expect(handleClick).toBeCalled();
   });

@@ -1,20 +1,11 @@
 import React from 'react';
 import { INodeInnerDefaultProps } from '@mrblenny/react-flow-chart';
 import { StatusBadge } from 'components/common';
+import styles from './CustomNodeInner.module.less';
 
 const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
   return (
-    <div
-      data-tid={node.id}
-      style={{
-        padding: '20px',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}
-    >
+    <div className={styles.node}>
       <span>
         <StatusBadge text={node.id} status={node.properties.status} />
       </span>

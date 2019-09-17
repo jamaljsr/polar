@@ -9,7 +9,6 @@ interface Props {
 const Loader: React.FC<Props> = ({ inline, size }) => (
   <Icon
     type="loading"
-    data-tid="loader"
     theme="outlined"
     style={{
       color: '#ffa940',

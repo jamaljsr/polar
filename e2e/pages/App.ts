@@ -1,11 +1,12 @@
 import { Selector } from 'testcafe';
 
 class App {
-  newNetworkIcon = Selector('[data-tid=create-icon]');
-  firstNetworkMenu = Selector('[data-tid=network-1]');
+  hamburgerMenu = Selector('[data-icon=menu]');
+  createNetworkItem = Selector('.ant-dropdown-menu-item').withExactText('Create Network');
 
-  getFirstNetworkText = () => this.firstNetworkMenu.innerText;
-  clickNewNetworkIcon = async (t: TestController) => t.click(this.newNetworkIcon);
+  clickHamburgerMenu = async (t: TestController) => t.click(this.hamburgerMenu);
+  clickCreateNetwork = async (t: TestController) =>
+    t.click(this.hamburgerMenu).click(this.createNetworkItem);
 }
 
 export default new App();
