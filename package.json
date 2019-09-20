@@ -71,7 +71,7 @@
     "@typescript-eslint/parser": "^2.3.0",
     "antd": "^3.23.3",
     "babel-plugin-import": "^1.12.1",
-    "codecov": "^3.5.0",
+    "codecov": "^3.6.0",
     "commitizen": "^4.0.3",
     "concurrently": "^4.1.2",
     "connected-react-router": "^6.5.2",
