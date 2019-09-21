@@ -1,9 +1,18 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import styled from '@emotion/styled';
 import { Dropdown, Icon, Menu } from 'antd';
 import { useStoreActions } from 'store';
 import { NETWORK } from 'components/routing';
-import styles from './NavMenu.module.less';
+
+const StyledMenu = styled.div`
+  float: right;
+`;
+
+const StyledIcon = styled(Icon)`
+  font-size: 1.2rem;
+  color: #fff;
+`;
 
 const NavMenu: React.FC = () => {
   const { t } = useTranslation();
@@ -22,11 +31,11 @@ const NavMenu: React.FC = () => {
   );
 
   return (
-    <div className={styles.menu}>
+    <StyledMenu>
       <Dropdown overlay={menu} trigger={['click']}>
-        <Icon type="menu" className={styles.menuIcon} />
+        <StyledIcon type="menu" />
       </Dropdown>
-    </div>
+    </StyledMenu>
   );
 };
 
