@@ -11,6 +11,14 @@ import NetworkDesigner from 'components/designer/NetworkDesigner';
 import { HOME } from 'components/routing';
 import NetworkActions from './NetworkActions';
 
+const Styled = {
+  PageHeader: styled(PageHeader)`
+    border: 1px solid rgb(235, 237, 240);
+    background-color: #fff;
+    margin-bottom: 10px;
+  `,
+};
+
 interface MatchParams {
   id?: string;
 }
@@ -18,12 +26,6 @@ interface MatchParams {
 interface Props {
   network: Network;
 }
-
-const StyledPageHeader = styled(PageHeader)`
-  border: 1px solid rgb(235, 237, 240);
-  background-color: #fff;
-  margin-bottom: 10px;
-`;
 
 const NetworkViewWrap: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const { networks } = useStoreState(s => s.network);
@@ -47,7 +49,7 @@ const NetworkView: React.FC<Props> = ({ network }) => {
 
   return (
     <>
-      <StyledPageHeader
+      <Styled.PageHeader
         title={network.name}
         onBack={() => navigateTo(HOME)}
         tags={<StatusTag status={network.status} />}

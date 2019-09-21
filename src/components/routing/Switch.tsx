@@ -2,6 +2,24 @@ import React from 'react';
 import { AnimatedSwitch, spring } from 'react-router-transition';
 import styled from '@emotion/styled';
 
+const Styled = {
+  AnimatedSwitch: styled(AnimatedSwitch)`
+    position: relative;
+    flex: 1;
+    display: flex;
+
+    & > div {
+      flex: 1;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  `,
+};
+
 const mapStyles = (styles: any) => {
   return {
     opacity: styles.opacity,
@@ -31,27 +49,11 @@ const pageTransitions = {
   },
 };
 
-const StyledSwitch = styled(AnimatedSwitch)`
-  position: relative;
-  flex: 1;
-  display: flex;
-
-  & > div {
-    flex: 1;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    padding: 16px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-`;
-
 const Switch: React.FC = ({ children }) => {
   return (
-    <StyledSwitch {...pageTransitions} mapStyles={mapStyles}>
+    <Styled.AnimatedSwitch {...pageTransitions} mapStyles={mapStyles}>
       {children}
-    </StyledSwitch>
+    </Styled.AnimatedSwitch>
   );
 };
 
