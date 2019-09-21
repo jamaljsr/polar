@@ -1,4 +1,5 @@
 import { IChart } from '@mrblenny/react-flow-chart';
+import { ChainInfo } from 'bitcoin-core';
 
 export interface LocalConfig {
   fallbackLng: string;
@@ -51,6 +52,11 @@ export interface DockerLibrary {
   stop: (network: Network) => Promise<void>;
   save: (networks: Network[]) => Promise<void>;
   load: () => Promise<Network[]>;
+}
+
+export interface BitcoindLibrary {
+  getBlockchainInfo: () => Promise<ChainInfo>;
+  mine: (numBlocks: number) => Promise<string[]>;
 }
 
 export interface StoreInjections {

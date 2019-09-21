@@ -2,6 +2,10 @@
 
 Small Stuff
 
+- pull info from bitcoind
+- pull info from LND
+- add new LND node
+- open/close channel
 - switch renovatebot to dependabot and use automatic security fixes
 - build images if they don't exist
 - generate alice/bob/carol names for lnd nodes
@@ -10,6 +14,7 @@ Small Stuff
 
 Bigger things
 
+- add support for c-lightning, eclair, btcd
 - live theme changer (https://medium.com/@mzohaib.qc/ant-design-dynamic-runtime-theme-1f9a1a030ba0)
 - POC for styled-components (https://www.styled-components.com) (https://emotion.sh)
 - dark theme UI (https://material.io/design/color/dark-theme.html)
