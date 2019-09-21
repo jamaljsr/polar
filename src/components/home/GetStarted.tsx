@@ -1,24 +1,33 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import styled from '@emotion/styled';
 import { Button, Card } from 'antd';
 import { NETWORK } from 'components/routing';
-import styles from './GetStarted.module.less';
+
+const Welcome = styled.p`
+  text-align: center;
+`;
+
+const Create = styled.p`
+  padding: 16px;
+  text-align: center;
+`;
 
 const GetStarted: React.FC = () => {
   const { t } = useTranslation();
 
   return (
     <Card title={t('cmps.get-started.title')}>
-      <p className={styles.welcome}>{t('cmps.get-started.welcome-1')}</p>
-      <p className={styles.welcome}>{t('cmps.get-started.welcome-2')}</p>
-      <p className={styles.create}>
+      <Welcome>{t('cmps.get-started.welcome-1')}</Welcome>
+      <Welcome>{t('cmps.get-started.welcome-2')}</Welcome>
+      <Create>
         <Link to={NETWORK}>
           <Button type="primary" size="large">
             {t('cmps.get-started.create-btn', 'Create your first Network')}
           </Button>
         </Link>
-      </p>
+      </Create>
     </Card>
   );
 };
