@@ -51,6 +51,17 @@ module.exports = [
             style: true,
           },
         ],
+        // babel optimizations for emotion styles
+        [
+          'emotion',
+          {
+            // sourceMap is on by default but source maps are dead code eliminated in production
+            sourceMap: true,
+            autoLabel: true,
+            labelFormat: 'x-[local]',
+            cssPropOptimization: true,
+          },
+        ],
         // adds support for live hot reload
         'react-hot-loader/babel',
       ],
