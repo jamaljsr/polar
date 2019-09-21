@@ -31,7 +31,7 @@ export const bitcoind = (name: string): ComposeService => ({
     '28335', // ZMQ txns
   ],
   ports: [
-    // '18443:18443', // RPC
+    '18443:18443', // RPC
     // '28334:28334', // ZMQ blocks
     // '28335:28335', // ZMQ txns
   ],
