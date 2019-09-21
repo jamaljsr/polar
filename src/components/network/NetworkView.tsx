@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
+import styled from '@emotion/styled';
 import { Alert, PageHeader } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
@@ -9,7 +10,6 @@ import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
 import { HOME } from 'components/routing';
 import NetworkActions from './NetworkActions';
-import styles from './NetworkView.module.less';
 
 interface MatchParams {
   id?: string;
@@ -18,6 +18,12 @@ interface MatchParams {
 interface Props {
   network: Network;
 }
+
+const StyledPageHeader = styled(PageHeader)`
+  border: 1px solid rgb(235, 237, 240);
+  background-color: #fff;
+  margin-bottom: 10px;
+`;
 
 const NetworkViewWrap: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const { networks } = useStoreState(s => s.network);
@@ -41,10 +47,9 @@ const NetworkView: React.FC<Props> = ({ network }) => {
 
   return (
     <>
-      <PageHeader
+      <StyledPageHeader
         title={network.name}
         onBack={() => navigateTo(HOME)}
-        className={styles.header}
         tags={<StatusTag status={network.status} />}
         extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
       />
