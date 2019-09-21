@@ -159,7 +159,7 @@ declare module 'bitcoin-core' {
     chain: string;
     blocks: number;
     headers: number;
-    bestblockchash: number;
+    bestblockhash: string;
     difficulty: number;
     mediantime: number;
     verificationprogress: number;
