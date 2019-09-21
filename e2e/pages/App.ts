@@ -1,7 +1,7 @@
 import { Selector } from 'testcafe';
 
 class App {
-  logoLink = Selector('[class^=logo__] a');
+  logoLink = Selector('[class*="x-Header "] [class*="x-Logo "] a');
   hamburgerMenu = Selector('[data-icon=menu]');
   createNetworkItem = Selector('.ant-dropdown-menu-item').withExactText('Create Network');
 
