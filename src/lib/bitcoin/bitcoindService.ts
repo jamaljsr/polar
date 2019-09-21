@@ -16,6 +16,10 @@ class BitcoindService implements BitcoindLibrary {
     return await this.client.getBlockchainInfo();
   }
 
+  async getWalletInfo() {
+    return await this.client.getWalletInfo();
+  }
+
   async mine(numBlocks: number) {
     const addr = await this.client.getNewAddress();
     return await this.client.generateToAddress(numBlocks, addr);
