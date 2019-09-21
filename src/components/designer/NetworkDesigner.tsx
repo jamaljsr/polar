@@ -6,6 +6,7 @@ import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import CustomNodeInner from './CustomNodeInner';
+import Sidebar from './Sidebar';
 
 interface Props {
   network: Network;
@@ -69,12 +70,19 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   ) as typeof chartCallbacks;
 
   return (
-    <FlowChart
-      chart={chart}
-      config={{ snapToGrid: true }}
-      Components={{ NodeInner: CustomNodeInner }}
-      callbacks={callbacks}
-    />
+    <>
+      <FlowChart
+        chart={chart}
+        config={{ snapToGrid: true }}
+        Components={{ NodeInner: CustomNodeInner }}
+        callbacks={callbacks}
+      />
+      <Sidebar
+        network={network}
+        chart={chart}
+        onClose={() => callbacks.onCanvasClick({})}
+      />
+    </>
   );
 };
 
