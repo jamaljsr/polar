@@ -1,18 +1,21 @@
 import React from 'react';
+import styled from '@emotion/styled';
 import { Card, Col, Icon, Row, Statistic } from 'antd';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { StatusBadge } from 'components/common';
 import { NETWORK_VIEW } from 'components/routing';
-import styles from './NetworkCard.module.less';
+
+const StyledCard = styled(Card)`
+  margin-top: 16px;
+`;
 
 const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
   const { navigateTo } = useStoreActions(s => s.app);
 
   return (
-    <Card
+    <StyledCard
       title={network.name}
-      className={styles.network}
       hoverable
       extra={<StatusBadge status={network.status} />}
       onClick={() => navigateTo(NETWORK_VIEW(network.id))}
@@ -33,7 +36,7 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
           />
         </Col>
       </Row>
-    </Card>
+    </StyledCard>
   );
 };
 

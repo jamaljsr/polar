@@ -33,7 +33,7 @@ const Home: React.FC = () => {
           description={loadAsync.error.message}
         />
       )}
-      {networks.length === 0 && <GetStarted />}
+      {networks.length === 2 && <GetStarted />}
       <Row gutter={16}>
         {networks.map(n => (
           <Col key={n.id} sm={24} md={12} lg={8} xl={6} xxl={4}>
