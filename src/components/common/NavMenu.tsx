@@ -5,14 +5,15 @@ import { Dropdown, Icon, Menu } from 'antd';
 import { useStoreActions } from 'store';
 import { NETWORK } from 'components/routing';
 
-const StyledMenu = styled.div`
-  float: right;
-`;
-
-const StyledIcon = styled(Icon)`
-  font-size: 1.2rem;
-  color: #fff;
-`;
+const Styled = {
+  Menu: styled.div`
+    float: right;
+  `,
+  Icon: styled(Icon)`
+    font-size: 1.2rem;
+    color: #fff;
+  `,
+};
 
 const NavMenu: React.FC = () => {
   const { t } = useTranslation();
@@ -31,11 +32,11 @@ const NavMenu: React.FC = () => {
   );
 
   return (
-    <StyledMenu>
+    <Styled.Menu>
       <Dropdown overlay={menu} trigger={['click']}>
-        <StyledIcon type="menu" />
+        <Styled.Icon type="menu" />
       </Dropdown>
-    </StyledMenu>
+    </Styled.Menu>
   );
 };
 
