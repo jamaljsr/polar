@@ -31,8 +31,6 @@ jobs:
         run: yarn
       - name: lint code
         run: yarn lint
-      - name: lint styles
-        run: yarn lint:styles
       - name: typescript compile
         run: yarn tsc
       - name: unit tests
