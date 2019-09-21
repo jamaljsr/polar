@@ -1,7 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import styled from '@emotion/styled';
 import { Button } from 'antd';
-import styles from './LocaleSwitch.module.less';
+
+const StyledButton = styled(Button)`
+  padding: 0 5px;
+`;
 
 const LocaleSwitch: React.FC = () => {
   const { i18n } = useTranslation();
@@ -10,13 +14,13 @@ const LocaleSwitch: React.FC = () => {
 
   return (
     <>
-      <Button type="link" className={styles.btn} onClick={setEnglish}>
+      <StyledButton type="link" onClick={setEnglish}>
         EN
-      </Button>
+      </StyledButton>
       |
-      <Button type="link" className={styles.btn} onClick={setSpanish}>
+      <StyledButton type="link" onClick={setSpanish}>
         ES
-      </Button>
+      </StyledButton>
     </>
   );
 };
