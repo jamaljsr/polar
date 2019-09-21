@@ -9,7 +9,7 @@ import { DetailValues } from 'components/common/DetailsList';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { getInfo } = useStoreActions(s => s.bitcoind);
-  const { chainInfo } = useStoreState(s => s.bitcoind);
+  const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
   const getInfoAsync = useAsyncCallback(async () => await getInfo(node));
 
   if (getInfoAsync.status === 'not-requested' && node.status === Status.Started) {
@@ -31,10 +31,9 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     { label: 'RPC Host', value: '127.0.0.1:18443' }, // TODO: get RPC port from state
   ];
 
-  if (getInfoAsync.status === 'success') {
+  if (getInfoAsync.status === 'success' && chainInfo && walletInfo) {
     details.push(
-      { label: 'Wallet Address', value: 'TODO' },
-      { label: 'Wallet Balance', value: 'TODO' },
+      { label: 'Wallet Balance', value: `${walletInfo.balance} BTC` },
       { label: 'Block Height', value: chainInfo.blocks },
       { label: 'Block Hash', value: ellipseInner(chainInfo.bestblockhash) },
     );
