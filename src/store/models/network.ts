@@ -78,7 +78,9 @@ const networkModel: NetworkModel = {
       name: `bitcoind-${i + 1}`,
       type: 'bitcoin',
       implementation: 'bitcoind',
+      version: '0.18.1',
       status: Status.Stopped,
+      ports: { rpc: 18443 },
     }));
 
     network.nodes.lightning = range(lndNodes).map((v, i) => ({
@@ -86,8 +88,13 @@ const networkModel: NetworkModel = {
       name: `lnd-${i + 1}`,
       type: 'lightning',
       implementation: 'LND',
+      version: '0.7.1-beta',
       status: Status.Stopped,
       backendName: network.nodes.bitcoin[0].name,
+      ports: {
+        rest: 8081 + i,
+        grpc: 10001 + i,
+      },
     }));
 
     state.networks.push(network);

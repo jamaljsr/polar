@@ -28,11 +28,11 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
       label: 'Status',
       value: <StatusBadge status={node.status} text={Status[node.status]} />,
     },
-    { label: 'RPC Host', value: '127.0.0.1:18443' }, // TODO: get RPC port from state
   ];
 
   if (getInfoAsync.status === 'success' && chainInfo && walletInfo) {
     details.push(
+      { label: 'RPC Host', value: `127.0.0.1:${node.ports.rpc}` },
       { label: 'Wallet Balance', value: `${walletInfo.balance} BTC` },
       { label: 'Block Height', value: chainInfo.blocks },
       { label: 'Block Hash', value: ellipseInner(chainInfo.bestblockhash) },

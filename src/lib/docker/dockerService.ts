@@ -2,7 +2,7 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
-import { DockerLibrary, Network } from 'types';
+import { DockerLibrary, LNDNode, Network } from 'types';
 import { networksPath } from 'utils/config';
 import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
@@ -17,10 +17,19 @@ class DockerService implements DockerLibrary {
 
     const prefix = (name: string) => `polar-n${network.id}-${name}`;
     network.nodes.bitcoin.forEach(node => {
-      file.addBitcoind(prefix(node.name));
+      file.addBitcoind(prefix(node.name), node.version, node.ports.rpc);
     });
     network.nodes.lightning.forEach(node => {
-      file.addLnd(prefix(node.name), prefix(node.backendName));
+      if (node.implementation === 'LND') {
+        const lnd = node as LNDNode;
+        file.addLnd(
+          prefix(lnd.name),
+          lnd.version,
+          prefix(lnd.backendName),
+          lnd.ports.rest,
+          lnd.ports.grpc,
+        );
+      }
     });
 
     const yml = yaml.dump(file.content);

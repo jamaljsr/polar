@@ -20,18 +20,29 @@ export interface CommonNode {
   id: number;
   name: string;
   type: 'bitcoin' | 'lightning';
+  version: string;
   status: Status;
 }
 
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
   implementation: 'bitcoind' | 'btcd';
+  ports: {
+    rpc: number;
+  };
 }
 
 export interface LightningNode extends CommonNode {
   type: 'lightning';
   implementation: 'LND' | 'c-lightning' | 'eclair';
   backendName: string;
+}
+
+export interface LNDNode extends LightningNode {
+  ports: {
+    rest: number;
+    grpc: number;
+  };
 }
 
 export interface Network {
@@ -42,7 +53,7 @@ export interface Network {
   design?: IChart;
   nodes: {
     bitcoin: BitcoinNode[];
-    lightning: LightningNode[];
+    lightning: LNDNode[];
   };
 }
 
