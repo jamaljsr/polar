@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { Drawer } from 'antd';
 import { BitcoinNode, LightningNode, Network } from 'types';
@@ -19,21 +19,24 @@ const findNode = (
 };
 
 const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
-  const cmp = useMemo(() => {
+  const [title, cmp] = useMemo(() => {
     const { id, type } = chart.selected || {};
+    let cmp: ReactElement | undefined;
+    let title: string | undefined;
 
     if (type === 'node') {
       const node = findNode(network, id);
       if (node && node.implementation === 'bitcoind') {
-        return <BitcoindDetails node={node} />;
+        title = node.name;
+        cmp = <BitcoindDetails node={node} />;
       }
     }
 
-    return null;
+    return [title, cmp];
   }, [network, chart.selected]);
 
   return (
-    <Drawer visible={!!cmp} onClose={onClose} width={300}>
+    <Drawer visible={!!cmp} onClose={onClose} width={300} title={title}>
       {cmp}
     </Drawer>
   );

@@ -2,6 +2,7 @@ import { routerMiddleware } from 'connected-react-router';
 import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
+import { bitcoindService } from 'lib/bitcoin';
 import { dockerService } from 'lib/docker';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
@@ -47,6 +48,7 @@ export const createReduxStore = (options?: {
 // see https://easy-peasy.now.sh/docs/testing/testing-components.html#mocking-calls-to-services
 const injections: StoreInjections = {
   dockerService,
+  bitcoindService,
 };
 
 const store = createReduxStore({ injections });

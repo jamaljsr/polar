@@ -54,6 +54,10 @@ export const injections: StoreInjections = {
     save: jest.fn(),
     load: jest.fn(),
   },
+  bitcoindService: {
+    getBlockchainInfo: jest.fn(),
+    mine: jest.fn(),
+  },
 };
 
 /**

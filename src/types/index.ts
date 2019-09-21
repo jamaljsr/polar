@@ -61,4 +61,5 @@ export interface BitcoindLibrary {
 
 export interface StoreInjections {
   dockerService: DockerLibrary;
+  bitcoindService: BitcoindLibrary;
 }

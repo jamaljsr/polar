@@ -33,19 +33,21 @@ const Styled = {
   `,
 };
 
+export type DetailValues = {
+  label: React.ReactNode;
+  value: React.ReactNode;
+}[];
+
 interface Props {
-  details: {
-    label: string;
-    value: React.ReactNode;
-  }[];
+  details: DetailValues;
 }
 
 const DetailsList: React.SFC<Props> = ({ details }) => {
   return (
     <Styled.Details>
       <tbody>
-        {details.map(d => (
-          <Styled.Row key={d.label}>
+        {details.map((d, i) => (
+          <Styled.Row key={i}>
             <Styled.LabelCell>{d.label}</Styled.LabelCell>
             <Styled.ValueCell>{d.value}</Styled.ValueCell>
           </Styled.Row>
