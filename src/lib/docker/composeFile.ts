@@ -28,12 +28,18 @@ class ComposeFile {
     };
   }
 
-  addBitcoind(name: string) {
-    this.content.services[name] = bitcoind(name);
+  addBitcoind(name: string, version: string, rpcPort: number) {
+    this.content.services[name] = bitcoind(name, version, rpcPort);
   }
 
-  addLnd(name: string, backendName: string) {
-    this.content.services[name] = lnd(name, backendName);
+  addLnd(
+    name: string,
+    version: string,
+    backendName: string,
+    restPort: number,
+    grpcPort: number,
+  ) {
+    this.content.services[name] = lnd(name, version, backendName, restPort, grpcPort);
   }
 }
 

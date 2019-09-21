@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/camelcase */
-/* eslint-disable no-template-curly-in-string */
 import { ComposeService } from './composeFile';
 
-// simple function to remove all line-breaks and extra white-space in a string
+// simple function to remove all line-breaks and extra white-space inside of a string
 const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
-export const bitcoind = (name: string): ComposeService => ({
-  image: 'polarlightning/bitcoind:0.18.1',
+export const bitcoind = (
+  name: string,
+  version: string,
+  rpcPort: number,
+): ComposeService => ({
+  image: `polarlightning/bitcoind:${version}`,
   container_name: name,
   // Note: escape ($) rpcauth with ($$)
   command: trimInside(`
@@ -22,6 +25,7 @@ export const bitcoind = (name: string): ComposeService => ({
       -upnp=0
       -rpcbind=0.0.0.0
       -rpcallowip=0.0.0.0/0
+      -rpcport=18443
   `),
   volumes: [`./volumes/${name}:/home/bitcoin/.bitcoin`],
   expose: [
@@ -31,14 +35,18 @@ export const bitcoind = (name: string): ComposeService => ({
     '28335', // ZMQ txns
   ],
   ports: [
-    '18443:18443', // RPC
-    // '28334:28334', // ZMQ blocks
-    // '28335:28335', // ZMQ txns
+    `${rpcPort}:18443`, // RPC
   ],
 });
 
-export const lnd = (name: string, backendName: string): ComposeService => ({
-  image: 'polarlightning/lnd:0.7.1-beta',
+export const lnd = (
+  name: string,
+  version: string,
+  backendName: string,
+  restPort: number,
+  grpcPort: number,
+): ComposeService => ({
+  image: `polarlightning/lnd:${version}`,
   container_name: name,
   command: trimInside(`
     lnd
@@ -59,13 +67,12 @@ export const lnd = (name: string, backendName: string): ComposeService => ({
   restart: 'always',
   volumes: [`./volumes/lnd/${name}:/home/lnd/.lnd`],
   expose: [
-    '10000', // gRPC
     '8080', // REST
+    '10009', // gRPC
     '9735', // p2p
   ],
   ports: [
-    // '11001:10000', // gRPC
-    // '8001:8080', // REST
-    // '9001:9735', // p2p
+    `${restPort}:8080`, // REST
+    `${grpcPort}:10009`, // gRPC
   ],
 });
