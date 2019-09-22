@@ -2,10 +2,8 @@ import BitcoinCore from 'bitcoin-core';
 import { BitcoindLibrary } from 'types';
 
 class BitcoindService implements BitcoindLibrary {
-  private client: BitcoinCore;
-
-  constructor() {
-    this.client = new BitcoinCore({
+  creatClient() {
+    return new BitcoinCore({
       port: '18443',
       username: 'polaruser',
       password: 'polarpass',
@@ -13,16 +11,17 @@ class BitcoindService implements BitcoindLibrary {
   }
 
   async getBlockchainInfo() {
-    return await this.client.getBlockchainInfo();
+    return await this.creatClient().getBlockchainInfo();
   }
 
   async getWalletInfo() {
-    return await this.client.getWalletInfo();
+    return await this.creatClient().getWalletInfo();
   }
 
   async mine(numBlocks: number) {
-    const addr = await this.client.getNewAddress();
-    return await this.client.generateToAddress(numBlocks, addr);
+    const client = this.creatClient();
+    const addr = await client.getNewAddress();
+    return await client.generateToAddress(numBlocks, addr);
   }
 }
 

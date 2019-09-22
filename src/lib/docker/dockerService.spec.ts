@@ -58,6 +58,17 @@ describe('DockerService', () => {
       );
     });
 
+    it('should not save unknown lightning implementation', () => {
+      network.nodes.lightning[0].implementation = 'c-lightning';
+      dockerService.create(network);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.not.stringContaining(
+          `container_name: polar-n1-${network.nodes.lightning[0].name}`,
+        ),
+      );
+    });
+
     it('should save a list of networks to disk', () => {
       dockerService.save([network]);
       expect(filesMock.write).toBeCalledWith(

@@ -81,4 +81,37 @@ describe('NetworkDesigner Component', () => {
       expect(design.selected.id).not.toBeUndefined();
     });
   });
+
+  it('should open the sidebar when a node is selected', async () => {
+    const { onNodeClick } = jest.requireActual(
+      '@mrblenny/react-flow-chart/src/container/actions',
+    );
+    mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
+    const { getByText } = renderComponent();
+    expect(getByText('bitcoind-1')).toBeInTheDocument();
+    // click the bitcoind node in the chart
+    fireEvent.click(getByText('bitcoind-1'));
+    // ensure text from the sidebar is visible
+    expect(getByText('Node Type')).toBeInTheDocument();
+  });
+
+  it('should deselect the node when the sidebar is closed', async () => {
+    const { onNodeClick } = jest.requireActual(
+      '@mrblenny/react-flow-chart/src/container/actions',
+    );
+    mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
+    const { getByText, getByLabelText, queryByText, store } = renderComponent();
+    expect(getByText('bitcoind-1')).toBeInTheDocument();
+    // click the bitcoind node in the chart
+    fireEvent.click(getByText('bitcoind-1'));
+    // ensure the sidebar is visible
+    expect(getByLabelText('Close')).toBeInTheDocument();
+    // close the sidebar
+    fireEvent.click(getByLabelText('Close'));
+    // ensure the sidebar is no longer visible
+    expect(queryByText('Node Type')).toBeNull();
+    // ensure there is no selected node in the redux state
+    const design = store.getState().network.networks[0].design as IChart;
+    expect(design.selected.id).toBeUndefined();
+  });
 });
