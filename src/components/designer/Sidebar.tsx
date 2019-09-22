@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { Drawer } from 'antd';
 import { BitcoinNode, LightningNode, Network } from 'types';
-import BitcoindDetails from './BitcoindDetails';
+import BitcoindDetails from './bitcoind/BitcoindDetails';
 
 interface Props {
   network: Network;

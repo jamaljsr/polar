@@ -6,6 +6,7 @@ import { BitcoinNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { DetailsList, Loader, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
+import MineBlocksInput from './MineBlocksInput';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { getInfo } = useStoreActions(s => s.bitcoind);
@@ -50,6 +51,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           description={getInfoAsync.error.message}
         />
       )}
+      {getInfoAsync.status === 'success' && <MineBlocksInput node={node} />}
     </>
   );
 };
