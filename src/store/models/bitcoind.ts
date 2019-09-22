@@ -25,6 +25,9 @@ const bitcoindModel: BitcoindModel = {
     actions.setWalletinfo(await injections.bitcoindService.getWalletInfo());
   }),
   mine: thunk(async (actions, { blocks, node }, { injections }) => {
+    if (blocks < 0) {
+      throw new Error('The number of blocks to mine must be a positve number');
+    }
     await injections.bitcoindService.mine(blocks);
     await actions.getInfo(node);
   }),
