@@ -33,6 +33,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
             onClick={() => mineAsync.execute({ blocks: value, node })}
             loading={mineAsync.loading}
             style={{ width: '35%' }}
+            icon="tool"
           >
             Mine
           </Button>
