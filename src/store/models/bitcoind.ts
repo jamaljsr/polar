@@ -21,14 +21,16 @@ const bitcoindModel: BitcoindModel = {
     state.walletInfo = walletInfo;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
-    actions.setChainInfo(await injections.bitcoindService.getBlockchainInfo());
-    actions.setWalletinfo(await injections.bitcoindService.getWalletInfo());
+    actions.setChainInfo(
+      await injections.bitcoindService.getBlockchainInfo(node.ports.rpc),
+    );
+    actions.setWalletinfo(await injections.bitcoindService.getWalletInfo(node.ports.rpc));
   }),
   mine: thunk(async (actions, { blocks, node }, { injections }) => {
     if (blocks < 0) {
       throw new Error('The number of blocks to mine must be a positve number');
     }
-    await injections.bitcoindService.mine(blocks);
+    await injections.bitcoindService.mine(blocks, node.ports.rpc);
     await actions.getInfo(node);
   }),
 };
