@@ -5,6 +5,7 @@ Small Stuff
 - pull info from LND
 - add new LND node
 - open/close channel
+- use dynamic ports for nodes to avoid conflicts
 - switch renovatebot to dependabot and use automatic security fixes
 - build images if they don't exist
 - generate alice/bob/carol names for lnd nodes

@@ -45,11 +45,12 @@ describe('MineBlocksInput', () => {
   it('should mine a block when the button is clicked', () => {
     const mineMock = injections.bitcoindService.mine as jest.Mock;
     mineMock.mockResolvedValue(true);
-    const { input, btn } = renderComponent();
+    const { input, btn, store } = renderComponent();
     const numBlocks = 5;
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
-    expect(mineMock).toBeCalledWith(numBlocks);
+    const port = store.getState().network.networks[0].nodes.bitcoin[0].ports.rpc;
+    expect(mineMock).toBeCalledWith(numBlocks, port);
   });
 
   it('should display an error if mining fails', async () => {

@@ -66,9 +66,9 @@ export interface DockerLibrary {
 }
 
 export interface BitcoindLibrary {
-  getBlockchainInfo: () => Promise<ChainInfo>;
-  getWalletInfo: () => Promise<WalletInfo>;
-  mine: (numBlocks: number) => Promise<string[]>;
+  getBlockchainInfo: (port?: number) => Promise<ChainInfo>;
+  getWalletInfo: (port?: number) => Promise<WalletInfo>;
+  mine: (numBlocks: number, port?: number) => Promise<string[]>;
 }
 
 export interface StoreInjections {
