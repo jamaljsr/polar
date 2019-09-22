@@ -20,7 +20,7 @@ const findNode = (
 
 const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
   const [title, cmp] = useMemo(() => {
-    const { id, type } = chart.selected || {};
+    const { id, type } = chart.selected;
     let cmp: ReactElement | undefined;
     let title: string | undefined;
 
