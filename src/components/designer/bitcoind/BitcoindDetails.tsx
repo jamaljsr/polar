@@ -24,7 +24,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const details: DetailValues = [
     { label: 'Node Type', value: node.type },
     { label: 'Implementation', value: node.implementation },
-    { label: 'Version', value: 'v0.18.1' },
+    { label: 'Version', value: `v${node.version}` },
     {
       label: 'Status',
       value: <StatusBadge status={node.status} text={Status[node.status]} />,
