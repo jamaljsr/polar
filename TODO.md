@@ -2,7 +2,6 @@
 
 Small Stuff
 
-- pull info from bitcoind
 - pull info from LND
 - add new LND node
 - open/close channel
