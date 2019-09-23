@@ -3383,10 +3383,10 @@ babel-plugin-emotion@^10.0.14, babel-plugin-emotion@^10.0.17, babel-plugin-emoti
     find-root "^1.1.0"
     source-map "^0.5.7"
 
-babel-plugin-import@^1.12.1:
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/babel-plugin-import/-/babel-plugin-import-1.12.1.tgz#a63b0a6f8f7484db660c59665185aa3b0c2f9f3f"
-  integrity sha512-3BwVJFEByTUyqZWOxizr/YwYcqqre2EebmgSUtXyToJbHzJv6rTxA0LApDntvwERlmIvcM6lUktUN0snMTjOsA==
+babel-plugin-import@^1.12.2:
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/babel-plugin-import/-/babel-plugin-import-1.12.2.tgz#bb8e11dabae68fbff4484c8e2bc2db1e086286a8"
+  integrity sha512-Vz9s+I6vAnsY8sYczU/cdtkKAHSorapa/2St6K+OzowplKizpWxul4HLi3kj1eRmHMFjhbROSMGXP+mFna2nUw==
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
     "@babel/runtime" "^7.0.0"
