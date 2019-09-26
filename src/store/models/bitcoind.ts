@@ -1,6 +1,6 @@
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { BitcoinNode, StoreInjections } from 'types';
+import { BitcoinNode, LNDNode, Status, StoreInjections } from 'types';
 
 export interface BitcoindModel {
   chainInfo: ChainInfo | undefined;
@@ -25,6 +25,22 @@ const bitcoindModel: BitcoindModel = {
       await injections.bitcoindService.getBlockchainInfo(node.ports.rpc),
     );
     actions.setWalletinfo(await injections.bitcoindService.getWalletInfo(node.ports.rpc));
+
+    const lnd: LNDNode = {
+      id: 1,
+      name: 'polar-n1-lnd-1',
+      type: 'lightning',
+      implementation: 'LND',
+      version: '0.7.1-beta',
+      status: Status.Stopped,
+      backendName: 'bitcoind1',
+      ports: {
+        rest: 8081,
+        grpc: 10001,
+      },
+    };
+    await injections.lndService.connect(lnd);
+    await injections.lndService.getInfo(lnd);
   }),
   mine: thunk(async (actions, { blocks, node }, { injections }) => {
     if (blocks < 0) {

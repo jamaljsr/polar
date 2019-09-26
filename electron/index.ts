@@ -1,11 +1,12 @@
-import { app, BrowserWindow } from 'electron';
-import debug from 'electron-debug';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import electronDebug from 'electron-debug';
 import isNotPackaged from 'electron-is-dev';
-import { warn } from 'electron-log';
+import { debug } from 'electron-log';
 import path from 'path';
+import { initLndProxy } from './lnd/lndProxy';
 
 const isDev = isNotPackaged && process.env.NODE_ENV !== 'production';
-warn(`Starting Electron main process`);
+debug(`Starting Electron main process`);
 
 let mainWindow: BrowserWindow | null;
 
@@ -23,7 +24,7 @@ const installExtensions = async () => {
 
   return Promise.all(
     extensions.map(name => installer.default(installer[name], forceDownload)),
-  ).catch(console.log);
+  ).catch(debug);
 };
 
 const createWindow = async () => {
@@ -39,7 +40,7 @@ const createWindow = async () => {
   mainWindow.loadURL(url);
 
   if (isDev) {
-    debug();
+    electronDebug();
     await installExtensions();
     mainWindow.webContents.openDevTools();
     mainWindow.maximize();
@@ -61,3 +62,5 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+initLndProxy(ipcMain);

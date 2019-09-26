@@ -71,6 +71,10 @@ export const injections: StoreInjections = {
     getWalletInfo: jest.fn(),
     mine: jest.fn(),
   },
+  lndService: {
+    connect: jest.fn(),
+    getInfo: jest.fn(),
+  },
 };
 
 /**

@@ -4,6 +4,7 @@ import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
 import { bitcoindService } from 'lib/bitcoin';
 import { dockerService } from 'lib/docker';
+import { lndService } from 'lib/lnd';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
 
@@ -49,6 +50,7 @@ export const createReduxStore = (options?: {
 const injections: StoreInjections = {
   dockerService,
   bitcoindService,
+  lndService,
 };
 
 const store = createReduxStore({ injections });
