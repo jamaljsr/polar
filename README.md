@@ -16,15 +16,19 @@ Polar requires that you have Docker installed to create the local networks
 
 ### Commands
 
-| Command         | Description                               |
-| --------------- | ----------------------------------------- |
-| `yarn`          | install dependencies                      |
-| `yarn dev`      | run the app with react hot reloading      |
-| `yarn test`     | run unit tests in watch mode              |
-| `yarn test:e2e` | run e2e tests                             |
-| `yarn lint:all` | run typescript and eslint syntax checking |
-| `yarn langs`    | extract i18n language keys from code      |
-| `yarn pacakge`  | package the app for your OS               |
+| Command         | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| `yarn`          | install dependencies                                              |
+| `yarn dev`      | run the app with react hot reloading and electron live restarting |
+| `yarn test`     | run unit tests in watch mode                                      |
+| `yarn test:e2e` | run e2e tests                                                     |
+| `yarn lint:all` | run typescript and eslint syntax checking                         |
+| `yarn langs`    | extract i18n language keys from code                              |
+| `yarn pacakge`  | package the app for your OS                                       |
+
+> Note: there is currently a bug in electron v6 on Windows with Dark Mode enabled.
+> Use `yarn win` instead of `yarn dev` to automatically disabled dark mode during
+> development. See [win-light.cmd](tools/win-light.cmd) for more details.
 
 ### Tips
 

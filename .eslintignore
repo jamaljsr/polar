@@ -6,4 +6,4 @@
 /dist
 
 # compiled by tsc from /src/electron/
-/public/main.js
+/public
