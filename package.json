@@ -97,7 +97,7 @@
     "lint-staged": "^9.4.0",
     "prettier": "^1.18.2",
     "react": "^16.9.0",
-    "react-async-hook": "^3.5.3",
+    "react-async-hook": "^3.6.1",
     "react-dom": "^16.9.0",
     "react-hot-loader": "^4.12.14",
     "react-i18next": "^10.13.0",
