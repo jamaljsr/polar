@@ -8,7 +8,7 @@
     "email": "contact@lightningpolar.com",
     "url": "https://lightningpolar.com"
   },
-  "main": "public/main.js",
+  "main": "public/main/index.js",
   "scripts": {
     "build": "cross-env PUBLIC_URL=./ rescripts build",
     "cm": "git add . && git cz",
@@ -38,6 +38,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
+    "@radar/lnrpc": "^0.7.1-beta",
     "docker-compose": "^0.22.2",
     "dockerode": "^3.0.1",
     "electron-debug": "^3.0.1",

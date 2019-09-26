@@ -8,9 +8,8 @@
     "strict": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "../public/",
-    "pretty": true,
-    "sourceMap": true
+    "outDir": "../public/main",
+    "pretty": true
   },
   "include": ["."]
 }

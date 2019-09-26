@@ -71,7 +71,13 @@ export interface BitcoindLibrary {
   mine: (numBlocks: number, port?: number) => Promise<string[]>;
 }
 
+export interface LndLibrary {
+  connect: (node: LNDNode) => Promise<void>;
+  getInfo: (node: LNDNode) => Promise<void>;
+}
+
 export interface StoreInjections {
   dockerService: DockerLibrary;
   bitcoindService: BitcoindLibrary;
+  lndService: LndLibrary;
 }
