@@ -12,9 +12,10 @@
   "scripts": {
     "build": "cross-env PUBLIC_URL=./ rescripts build",
     "cm": "git add . && git cz",
-    "dev": "concurrently --kill-others \"yarn:dev:*\"",
+    "dev": "concurrently --kill-others --success first \"yarn:dev:*\"",
     "dev:start": "cross-env BROWSER=none yarn start",
     "dev:electron": "wait-on http://localhost:3000 && electron .",
+    "win": "tools/win-light.cmd 1 & yarn dev & tools/win-light.cmd 0",
     "eject": "rescripts eject",
     "langs": "i18next-scanner --config ./.i18next-scanner.js",
     "lint": "eslint --ext .ts,.tsx --ignore-path .gitignore .",
