@@ -36,7 +36,7 @@ const listeners: {
  * @param ipc the IPC onject of the main process
  */
 export const initLndProxy = (ipc: IpcMain) => {
-  debug('LndProxy: init');
+  debug('LndProxy: initialize');
   Object.entries(listeners).forEach(([channel, func]) => {
     const reqChan = `lnd-${channel}-request`;
     const resChan = `lnd-${channel}-response`;
