@@ -2100,10 +2100,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-redux@^7.1.3":
-  version "7.1.3"
-  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.3.tgz#7efc1e36267e9bf8b24ec89ac30a27a65c94cd25"
-  integrity sha512-coaQFfn6XrHF/4CSF8eBM9rUbi5TX6qVhS+KF89Z2nC9YdTKTckOpJLJyQocYLrXF0IFX+/ZUJwMvbZ0nNmkDg==
+"@types/react-redux@^7.1.4":
+  version "7.1.4"
+  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.4.tgz#e0d02a073e730b8b58a6341bddca2ea692ff0bce"
+  integrity sha512-SUV/7d+4L7C1Db/D4pqASgN1V1U2HnDEhEol9lYpPSguS76xFboZzf5ha2hTz6v31cUewyC7WksMh1q8JxhebQ==
   dependencies:
     "@types/hoist-non-react-statics" "^3.3.0"
     "@types/react" "*"
