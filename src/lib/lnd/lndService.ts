@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { createIpcSender, IcpSender } from 'lib/ipc/ipcService';
 import { LndLibrary, LNDNode } from 'types';
+import { dataPath } from 'utils/config';
 
 class LndService implements LndLibrary {
   ipc: IcpSender;
@@ -10,8 +11,8 @@ class LndService implements LndLibrary {
   }
 
   async connect(node: LNDNode): Promise<void> {
-    const macAppPath = join('/', 'Users', 'jamal', 'Library', 'Application Support');
-    const dataPath = join(process.env['APPDATA'] || macAppPath, 'polar', 'data');
+    // const macAppPath = join('/', 'Users', 'jamal', 'Library', 'Application Support');
+    // const dataPath = join(process.env['APPDATA'] || macAppPath, 'polar', 'data');
     const adminMacaroonPath = join(
       'data',
       'chain',
