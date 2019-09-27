@@ -1,22 +1,15 @@
 import React, { ReactElement, useMemo } from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { Drawer } from 'antd';
-import { BitcoinNode, LightningNode, Network } from 'types';
+import { Network } from 'types';
 import BitcoindDetails from './bitcoind/BitcoindDetails';
+import LndDetails from './lnd/LndDetails';
 
 interface Props {
   network: Network;
   chart: IChart;
   onClose: () => void;
 }
-
-const findNode = (
-  network: Network,
-  id?: string,
-): BitcoinNode | LightningNode | undefined => {
-  const { bitcoin, lightning } = network.nodes;
-  return bitcoin.find(n => n.name === id) || lightning.find(n => n.name === id);
-};
 
 const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
   const [title, cmp] = useMemo(() => {
@@ -25,10 +18,14 @@ const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
     let title: string | undefined;
 
     if (type === 'node') {
-      const node = findNode(network, id);
+      const { bitcoin, lightning } = network.nodes;
+      const node = bitcoin.find(n => n.name === id) || lightning.find(n => n.name === id);
       if (node && node.implementation === 'bitcoind') {
         title = node.name;
         cmp = <BitcoindDetails node={node} />;
+      } else if (node && node.implementation === 'LND') {
+        title = node.name;
+        cmp = <LndDetails node={node} />;
       }
     }
 
@@ -36,7 +33,7 @@ const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
   }, [network, chart.selected]);
 
   return (
-    <Drawer visible={!!cmp} onClose={onClose} width={300} title={title}>
+    <Drawer visible={!!cmp} onClose={onClose} width={400} title={title}>
       {cmp}
     </Drawer>
   );

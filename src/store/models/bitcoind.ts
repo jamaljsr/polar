@@ -13,8 +13,10 @@ export interface BitcoindModel {
 }
 
 const bitcoindModel: BitcoindModel = {
+  // computed properties/functions
   chainInfo: undefined,
   walletInfo: undefined,
+  // reducer actions (mutations allowed thx to immer)
   setChainInfo: action((state, chainInfo) => {
     state.chainInfo = chainInfo;
   }),
