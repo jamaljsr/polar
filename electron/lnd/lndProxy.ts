@@ -1,6 +1,6 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import createLndRpc, { LnRpc } from '@radar/lnrpc';
+import createLndRpc, { GetInfoResponse, LnRpc } from '@radar/lnrpc';
 import { LNDNode } from '../types';
 
 // mapping of name <-> node to talk to multiple nodes
@@ -27,7 +27,7 @@ const connect = async (args: { node: LNDNode }): Promise<any> => {
  * Calls the LND `getinfo` RPC command
  * @param args the name of the LND node
  */
-const getInfo = async (args: { name: string }): Promise<any> => {
+const getInfo = async (args: { name: string }): Promise<GetInfoResponse> => {
   return await nodes[args.name].getInfo();
 };
 
