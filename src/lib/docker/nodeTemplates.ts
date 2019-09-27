@@ -27,7 +27,7 @@ export const bitcoind = (
       -rpcallowip=0.0.0.0/0
       -rpcport=18443
   `),
-  volumes: [`./volumes/${name}:/home/bitcoin/.bitcoin`],
+  volumes: [`./volumes/bitcoind/${name}:/home/bitcoin/.bitcoin`],
   expose: [
     '18443', // RPC
     '18444', // p2p

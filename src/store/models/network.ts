@@ -1,11 +1,9 @@
 import { info } from 'electron-log';
-import { join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
-import { networksPath } from 'utils/config';
-import { range } from 'utils/numbers';
+import { createNetwork } from 'utils/network';
 import { NETWORK_VIEW } from 'components/routing';
 
 interface AddNetworkArgs {
@@ -62,41 +60,7 @@ const networkModel: NetworkModel = {
   }),
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
-    const network: Network = {
-      id: nextId,
-      name,
-      status: Status.Stopped,
-      path: join(networksPath, nextId.toString()),
-      nodes: {
-        bitcoin: [],
-        lightning: [],
-      },
-    };
-
-    network.nodes.bitcoin = range(bitcoindNodes).map((v, i) => ({
-      id: i,
-      name: `bitcoind-${i + 1}`,
-      type: 'bitcoin',
-      implementation: 'bitcoind',
-      version: '0.18.1',
-      status: Status.Stopped,
-      ports: { rpc: 18443 },
-    }));
-
-    network.nodes.lightning = range(lndNodes).map((v, i) => ({
-      id: i,
-      name: `lnd-${i + 1}`,
-      type: 'lightning',
-      implementation: 'LND',
-      version: '0.7.1-beta',
-      status: Status.Stopped,
-      backendName: network.nodes.bitcoin[0].name,
-      ports: {
-        rest: 8081 + i,
-        grpc: 10001 + i,
-      },
-    }));
-
+    const network = createNetwork({ id: nextId, name, lndNodes, bitcoindNodes });
     state.networks.push(network);
     info(`Added new network '${network.name}' to redux state`);
   }),
