@@ -4053,10 +4053,10 @@ binary-extensions@^1.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.12.0.tgz#c2d780f53d45bba8317a8902d4ceeaf3a6385b14"
   integrity sha512-DYWGk01lDcxeS/K9IHPGWfT8PsJmbXRtRd2Sx72Tnb8pcYZQFF1oSDb8hJtS1vhp212q1Rzi5dUf9+nq0o9UIg==
 
-bitcoin-core@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/bitcoin-core/-/bitcoin-core-2.2.1.tgz#be146ae902184e79a592b0d9cb98340dddfd6d3f"
-  integrity sha512-uyTCXTB/E0DBES+1djf4FKb4e2qykKPNVPftsEYxZROLp0qvDjXtE3d8cdPdCUJZK6n96yt6aHlv7RHryzAMaw==
+bitcoin-core@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/bitcoin-core/-/bitcoin-core-2.3.0.tgz#ad63de13e163f3dc05d0287eb191cb4578563cb1"
+  integrity sha512-SMbw2kFu09iBajicODSE4pn/K0tOibWyqct71TlzR8cYUBk+u7rkhqGY7US2iYz0HmP851IW7F7eXfXvz09yXA==
   dependencies:
     "@uphold/request-logger" "^2.0.0"
     bluebird "^3.4.1"
