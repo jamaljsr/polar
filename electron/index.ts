@@ -7,6 +7,7 @@ import path from 'path';
 import { initLndProxy } from './lnd/lndProxy';
 
 const isDev = isNotPackaged && process.env.NODE_ENV !== 'production';
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = `${isDev}`;
 debug(`Starting Electron main process`);
 
 let mainWindow: BrowserWindow | null;
