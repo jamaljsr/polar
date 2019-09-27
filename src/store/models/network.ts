@@ -5,6 +5,7 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
 import { createNetwork } from 'utils/network';
 import { NETWORK_VIEW } from 'components/routing';
+import { RootModel } from './';
 
 interface AddNetworkArgs {
   name: string;
@@ -18,14 +19,20 @@ export interface NetworkModel {
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   setNetworks: Action<NetworkModel, Network[]>;
   setLoaded: Action<NetworkModel, boolean>;
-  load: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
-  save: Thunk<NetworkModel, any, StoreInjections, {}, Promise<void>>;
+  load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
+  save: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
-  addNetwork: Thunk<NetworkModel, AddNetworkArgs, StoreInjections, {}, Promise<void>>;
+  addNetwork: Thunk<
+    NetworkModel,
+    AddNetworkArgs,
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
   setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
-  start: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
-  stop: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
-  toggle: Thunk<NetworkModel, number, StoreInjections, {}, Promise<void>>;
+  start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  toggle: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   setNetworkDesign: Action<NetworkModel, { id: number; chart: IChart }>;
 }
 const networkModel: NetworkModel = {
@@ -79,7 +86,7 @@ const networkModel: NetworkModel = {
     network.nodes.bitcoin.forEach(n => (n.status = status));
     network.nodes.lightning.forEach(n => (n.status = status));
   }),
-  start: thunk(async (actions, networkId, { getState, injections }) => {
+  start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     actions.setNetworkStatus({ id: network.id, status: Status.Starting });
@@ -87,7 +94,7 @@ const networkModel: NetworkModel = {
       await injections.dockerService.start(network);
       actions.setNetworkStatus({ id: network.id, status: Status.Started });
       for (const lnd of network.nodes.lightning) {
-        await injections.lndService.connect(lnd);
+        await getStoreActions().lnd.connect(lnd);
       }
     } catch (e) {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });

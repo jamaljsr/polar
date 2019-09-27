@@ -3,6 +3,7 @@ import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LNDNode, StoreInjections } from 'types';
 
 interface LndNodeModel {
+  initialized: boolean;
   info?: GetInfoResponse | undefined;
 }
 
@@ -15,9 +16,11 @@ export interface LndModel {
 }
 
 const lndModel: LndModel = {
+  // state properties
   nodes: {},
+  // reducer actions (mutations allowed thx to immer)
   create: action((state, node) => {
-    if (!state.nodes[node.name]) state.nodes[node.name] = {};
+    if (!state.nodes[node.name]) state.nodes[node.name] = { initialized: true };
   }),
   connect: thunk(async (actions, node, { injections }) => {
     await injections.lndService.connect(node);
