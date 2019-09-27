@@ -2,7 +2,6 @@
 
 Small Stuff
 
-- pull info from LND
 - add new LND node
 - open/close channel
 - use dynamic ports for nodes to avoid conflicts
