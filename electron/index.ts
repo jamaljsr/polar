@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import electronDebug from 'electron-debug';
 import isNotPackaged from 'electron-is-dev';
 import { debug } from 'electron-log';
+import windowState from 'electron-window-state';
 import path from 'path';
 import { initLndProxy } from './lnd/lndProxy';
 
@@ -28,14 +29,23 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
+  const mainState = windowState({
+    defaultWidth: 900,
+    defaultHeight: 600,
+  });
+
   mainWindow = new BrowserWindow({
-    width: isDev ? 1536 : 900,
-    height: 680,
+    x: mainState.x,
+    y: mainState.y,
+    width: mainState.width,
+    height: mainState.height,
     minWidth: 781,
     webPreferences: {
       nodeIntegration: true,
     },
   });
+
+  mainState.manage(mainWindow);
 
   mainWindow.loadURL(url);
 
