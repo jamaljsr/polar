@@ -2127,10 +2127,10 @@
     "@types/history" "*"
     "@types/react" "*"
 
-"@types/react-router@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-5.1.0.tgz#ebb47bb7fdc75741286b5fb5a82ba5b4d62518c8"
-  integrity sha512-XqxaIqG+LJTh9wsGpZCVQNOAQyEjXcfYRqoIXEFqxc49BKnmvJ5FLylsNUUCTckSffD468cOn4NJvxcWuLwiDw==
+"@types/react-router@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-5.1.1.tgz#e0b827556abc70da3473d05daf074c839d6852aa"
+  integrity sha512-S7SlFAPb7ZKr6HHMW0kLHGcz8pyJSL0UdM+JtlWthDqKUWwr7E6oPXuHgkofDI8dKCm16slg8K8VCf5pZJquaA==
   dependencies:
     "@types/history" "*"
     "@types/react" "*"
