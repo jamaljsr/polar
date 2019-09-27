@@ -80,6 +80,7 @@
     "concurrently": "^4.1.2",
     "connected-react-router": "^6.5.2",
     "cross-env": "^6.0.0",
+    "devtron": "^1.4.0",
     "easy-peasy": "3.0.2",
     "electron": "^6.0.10",
     "electron-builder": "^21.2.0",
