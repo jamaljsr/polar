@@ -1,6 +1,7 @@
 import { GetInfoResponse } from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LNDNode, StoreInjections } from 'types';
+import { waitForFile } from 'utils/files';
 
 interface LndNodeModel {
   initialized: boolean;
@@ -23,6 +24,13 @@ const lndModel: LndModel = {
     if (!state.nodes[node.name]) state.nodes[node.name] = { initialized: true };
   }),
   initialize: thunk(async (actions, node, { injections }) => {
+    // wait for the macaroon to be created on disk
+    // on first boot, it can take a few seconds
+    if (!(await waitForFile(node.macaroonPath))) {
+      throw new Error(
+        `The node '${node.name}' did not start properly (admin.macaroon not found)`,
+      );
+    }
     await injections.lndService.initialize(node);
     actions.setInitialized(node);
   }),
