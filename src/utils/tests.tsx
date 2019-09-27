@@ -1,61 +1,21 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { join } from 'path';
 import { render } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
 import { Network, Status, StoreInjections } from 'types';
-import { dataPath } from './config';
+import { createNetwork } from './network';
 
-export const getNetwork = (networkId = 1, name?: string, status?: Status): Network => ({
-  id: networkId,
-  name: name || 'my-test',
-  status: status !== undefined ? status : Status.Stopped,
-  path: join(dataPath, 'networks', networkId.toString()),
-  nodes: {
-    bitcoin: [
-      {
-        id: 1,
-        name: 'bitcoind-1',
-        type: 'bitcoin',
-        implementation: 'bitcoind',
-        version: '0.18.1',
-        status: status !== undefined ? status : Status.Stopped,
-        ports: { rpc: 18443 },
-      },
-    ],
-    lightning: [
-      {
-        id: 1,
-        name: 'lnd-1',
-        type: 'lightning',
-        implementation: 'LND',
-        version: '0.7.1-beta',
-        status: status !== undefined ? status : Status.Stopped,
-        backendName: 'bitcoind1',
-        ports: {
-          rest: 8081,
-          grpc: 10001,
-        },
-      },
-      {
-        id: 2,
-        name: 'lnd-2',
-        type: 'lightning',
-        implementation: 'LND',
-        version: '0.7.1-beta',
-        status: status !== undefined ? status : Status.Stopped,
-        backendName: 'bitcoind1',
-        ports: {
-          rest: 8082,
-          grpc: 10002,
-        },
-      },
-    ],
-  },
-});
+export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
+  createNetwork({
+    id: networkId,
+    name: name || 'my-test',
+    lndNodes: 2,
+    bitcoindNodes: 1,
+    status,
+  });
 
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {

@@ -1,6 +1,7 @@
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { BitcoinNode, LNDNode, Status, StoreInjections } from 'types';
+import { BitcoinNode, StoreInjections } from 'types';
+import { createNetwork } from 'utils/network';
 
 export interface BitcoindModel {
   chainInfo: ChainInfo | undefined;
@@ -26,19 +27,13 @@ const bitcoindModel: BitcoindModel = {
     );
     actions.setWalletinfo(await injections.bitcoindService.getWalletInfo(node.ports.rpc));
 
-    const lnd: LNDNode = {
+    const lnd = createNetwork({
       id: 1,
-      name: 'polar-n1-lnd-1',
-      type: 'lightning',
-      implementation: 'LND',
-      version: '0.7.1-beta',
-      status: Status.Stopped,
-      backendName: 'bitcoind1',
-      ports: {
-        rest: 8081,
-        grpc: 10001,
-      },
-    };
+      name: 'my-test',
+      lndNodes: 2,
+      bitcoindNodes: 1,
+    }).nodes.lightning[0];
+
     await injections.lndService.connect(lnd);
     await injections.lndService.getInfo(lnd);
   }),
