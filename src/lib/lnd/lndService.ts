@@ -9,8 +9,8 @@ class LndService implements LndLibrary {
     this.ipc = createIpcSender('LndService', 'lnd');
   }
 
-  async connect(node: LNDNode): Promise<void> {
-    await this.ipc('connect', { node });
+  async initialize(node: LNDNode): Promise<void> {
+    await this.ipc('initialize', { node });
   }
 
   async getInfo(node: LNDNode): Promise<GetInfoResponse> {

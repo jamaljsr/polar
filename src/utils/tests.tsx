@@ -32,7 +32,7 @@ export const injections: StoreInjections = {
     mine: jest.fn(),
   },
   lndService: {
-    connect: jest.fn(),
+    initialize: jest.fn(),
     getInfo: jest.fn(),
   },
 };

@@ -9,8 +9,8 @@ interface LndNodeModel {
 
 export interface LndModel {
   nodes: { [key: string]: LndNodeModel };
-  create: Action<LndModel, LNDNode>;
-  connect: Thunk<LndModel, LNDNode, StoreInjections>;
+  setInitialized: Action<LndModel, LNDNode>;
+  initialize: Thunk<LndModel, LNDNode, StoreInjections>;
   setInfo: Action<LndModel, { node: LNDNode; info: GetInfoResponse }>;
   getInfo: Thunk<LndModel, LNDNode, StoreInjections>;
 }
@@ -19,12 +19,12 @@ const lndModel: LndModel = {
   // state properties
   nodes: {},
   // reducer actions (mutations allowed thx to immer)
-  create: action((state, node) => {
+  setInitialized: action((state, node) => {
     if (!state.nodes[node.name]) state.nodes[node.name] = { initialized: true };
   }),
-  connect: thunk(async (actions, node, { injections }) => {
-    await injections.lndService.connect(node);
-    actions.create(node);
+  initialize: thunk(async (actions, node, { injections }) => {
+    await injections.lndService.initialize(node);
+    actions.setInitialized(node);
   }),
   setInfo: action((state, { node, info }) => {
     if (!state.nodes[node.name])

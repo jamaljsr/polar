@@ -1,7 +1,6 @@
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, StoreInjections } from 'types';
-import { createNetwork } from 'utils/network';
 
 export interface BitcoindModel {
   chainInfo: ChainInfo | undefined;
@@ -28,16 +27,6 @@ const bitcoindModel: BitcoindModel = {
       await injections.bitcoindService.getBlockchainInfo(node.ports.rpc),
     );
     actions.setWalletinfo(await injections.bitcoindService.getWalletInfo(node.ports.rpc));
-
-    const lnd = createNetwork({
-      id: 1,
-      name: 'my-test',
-      lndNodes: 2,
-      bitcoindNodes: 1,
-    }).nodes.lightning[0];
-
-    await injections.lndService.connect(lnd);
-    await injections.lndService.getInfo(lnd);
   }),
   mine: thunk(async (actions, { blocks, node }, { injections }) => {
     if (blocks < 0) {
