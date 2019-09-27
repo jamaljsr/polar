@@ -12,7 +12,7 @@ const nodes: {
  * Stores the connection info of a LND node to use for future commands
  * @param args the LNDNode to connect to
  */
-const connect = async (args: { node: LNDNode }): Promise<any> => {
+const initialize = async (args: { node: LNDNode }): Promise<any> => {
   const { ports, tlsPath, macaroonPath } = args.node;
   const config = {
     server: `127.0.0.1:${ports.grpc}`,
@@ -38,7 +38,7 @@ const getInfo = async (args: { name: string }): Promise<GetInfoResponse> => {
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
-  connect,
+  initialize,
   'get-info': getInfo,
 };
 

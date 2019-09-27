@@ -94,7 +94,7 @@ const networkModel: NetworkModel = {
       await injections.dockerService.start(network);
       actions.setNetworkStatus({ id: network.id, status: Status.Started });
       for (const lnd of network.nodes.lightning) {
-        await getStoreActions().lnd.connect(lnd);
+        await getStoreActions().lnd.initialize(lnd);
       }
     } catch (e) {
       actions.setNetworkStatus({ id: network.id, status: Status.Error });

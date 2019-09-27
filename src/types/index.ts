@@ -75,7 +75,7 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  connect: (node: LNDNode) => Promise<void>;
+  initialize: (node: LNDNode) => Promise<void>;
   getInfo: (node: LNDNode) => Promise<GetInfoResponse>;
 }
 
