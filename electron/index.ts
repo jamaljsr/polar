@@ -10,7 +10,7 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = `${isDev}`;
 debug(`Starting Electron main process`);
 
 // add keyboard shortcuts and auto open dev tools for all windows
-electronDebug();
+electronDebug({ isEnabled: isDev });
 
 const windowManager = new WindowManager(isDev);
 windowManager.start();

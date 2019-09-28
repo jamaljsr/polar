@@ -4,7 +4,7 @@ import { join } from 'path';
 import { initLndProxy } from './lnd/lndProxy';
 
 const devUrl = 'http://localhost:3000';
-const prodUrl = `file://${join(__dirname, '../build/index.html')}`;
+const prodUrl = `file://${join(__dirname, '../../build/index.html')}`;
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
