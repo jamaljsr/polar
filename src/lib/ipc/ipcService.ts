@@ -1,7 +1,7 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { debug } from 'electron-log';
 
-export type IcpSender = <T>(channel: string, payload?: any) => Promise<T>;
+export type IpcSender = <T>(channel: string, payload?: any) => Promise<T>;
 
 /**
  * A wrapper function to create an async function which sends messages over IPC and
@@ -10,7 +10,7 @@ export type IcpSender = <T>(channel: string, payload?: any) => Promise<T>;
  * @param prefix the prefix to use in the ipc messages
  */
 export const createIpcSender = (serviceName: string, prefix: string) => {
-  const send: IcpSender = (channel, payload) => {
+  const send: IpcSender = (channel, payload) => {
     const reqChan = `${prefix}-${channel}-request`;
     const resChan = `${prefix}-${channel}-response`;
 

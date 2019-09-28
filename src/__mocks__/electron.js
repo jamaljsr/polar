@@ -5,4 +5,8 @@ module.exports = {
       getLocale: () => 'en-US',
     },
   },
+  ipcRenderer: {
+    once: jest.fn(),
+    send: jest.fn(),
+  },
 };

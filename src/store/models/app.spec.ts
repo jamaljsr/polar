@@ -4,22 +4,21 @@ import appModel from './app';
 
 describe('App model', () => {
   // initialize store for type inference
-  let store = createStore(appModel, { injections });
+  let store = createStore(appModel, { injections, mockActions: true });
 
   beforeEach(() => {
     // reset the store before each test run
-    store = createStore(appModel, { injections });
+    store = createStore(appModel, { injections, mockActions: true });
   });
 
-  it('should have a valid initial state', () => {
-    expect(store.getState().sidebarCollapsed).toEqual(false);
-  });
-
-  it('should toggle sidebarCollapsed value', () => {
-    expect(store.getState().sidebarCollapsed).toEqual(false);
-    store.getActions().collapseSidebar(true);
-    expect(store.getState().sidebarCollapsed).toEqual(true);
-    store.getActions().collapseSidebar(false);
-    expect(store.getState().sidebarCollapsed).toEqual(false);
+  it('should dispatch a push action in navigateTo', () => {
+    store.getActions().navigateTo('/test');
+    expect(store.getMockedActions()).toContainEqual({
+      payload: {
+        args: ['/test'],
+        method: 'push',
+      },
+      type: '@@router/CALL_HISTORY_METHOD',
+    });
   });
 });
