@@ -2,6 +2,7 @@ import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import createLndRpc, { GetInfoResponse, LnRpc } from '@radar/lnrpc';
 import { LNDNode } from '../types';
+import { DefaultsKey, withDefaults } from './responses';
 
 // mapping of name <-> node to talk to multiple nodes
 const nodes: {
@@ -9,17 +10,26 @@ const nodes: {
 } = {};
 
 /**
+ * Helper function to lookup a node by name and throw an error if it doesn't exist
+ * @param name the name of the node
+ */
+const getNode = (name: keyof typeof nodes): LnRpc => {
+  if (!nodes[name]) throw new Error('Node not initialized. Try restarting the network.');
+  return nodes[name];
+};
+
+/**
  * Stores the connection info of a LND node to use for future commands
  * @param args the LNDNode to connect to
  */
 const initialize = async (args: { node: LNDNode }): Promise<any> => {
-  const { ports, tlsPath, macaroonPath } = args.node;
+  const { name, ports, tlsPath, macaroonPath } = args.node;
   const config = {
     server: `127.0.0.1:${ports.grpc}`,
     tls: tlsPath,
     macaroonPath: macaroonPath,
   };
-  nodes[args.node.name] = await createLndRpc(config);
+  nodes[name] = await createLndRpc(config);
   return { success: true };
 };
 
@@ -28,11 +38,11 @@ const initialize = async (args: { node: LNDNode }): Promise<any> => {
  * @param args the name of the LND node
  */
 const getInfo = async (args: { name: string }): Promise<GetInfoResponse> => {
-  return await nodes[args.name].getInfo();
+  return await getNode(args.name).getInfo();
 };
 
 /**
- * A mapping of IPC channel names to the functions to execute when
+ * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
  */
 const listeners: {
@@ -57,9 +67,10 @@ export const initLndProxy = (ipc: IpcMain) => {
     ipc.on(reqChan, async (event, ...args) => {
       debug(`LndProxy: received request "${reqChan}"`, ...args);
       try {
-        const result = await func(...args);
+        let result = await func(...args);
         if (result) {
           debug(`LndProxy: send response "${resChan}"`, result);
+          result = withDefaults(result, channel as DefaultsKey);
           event.reply(resChan, result);
         }
       } catch (err) {
