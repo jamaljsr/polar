@@ -67,3 +67,23 @@ export const renderWithProviders = (
 
   return { ...result, history, injections, store };
 };
+
+export const mockLndResponses = {
+  getInfo: {
+    identityPubkey: '',
+    alias: '',
+    numPendingChannels: 0,
+    numActiveChannels: 0,
+    numPeers: 0,
+    blockHeight: 0,
+    blockHash: '',
+    syncedToChain: false,
+    testnet: false,
+    chains: [],
+    uris: [],
+    bestHeaderTimestamp: '',
+    version: '',
+    numInactiveChannels: 0,
+    color: '',
+  },
+};

@@ -113,7 +113,7 @@ describe('DockerService', () => {
     it('should reformat thrown exceptions', async () => {
       const err = 'oops, didnt work';
       composeMock.upAll.mockRejectedValueOnce({ err });
-      await expect(dockerService.start(network)).rejects.toEqual(new Error(err));
+      await expect(dockerService.start(network)).rejects.toThrow(err);
     });
   });
 });
