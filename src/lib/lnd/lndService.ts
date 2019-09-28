@@ -1,9 +1,9 @@
 import { GetInfoResponse } from '@radar/lnrpc';
-import { createIpcSender, IcpSender } from 'lib/ipc/ipcService';
+import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 import { LndLibrary, LNDNode } from 'types';
 
 class LndService implements LndLibrary {
-  ipc: IcpSender;
+  ipc: IpcSender;
 
   constructor() {
     this.ipc = createIpcSender('LndService', 'lnd');

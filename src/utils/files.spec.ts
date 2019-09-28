@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { join } from 'path';
 import { dataPath } from './config';
-import { exists, read, write } from './files';
+import { exists, read, waitForFile, write } from './files';
 
 jest.mock('fs-extra', () => ({
   mkdirs: jest.fn(),
@@ -91,6 +91,35 @@ describe('Files util', () => {
       const fileExists = await exists(absPath);
       expect(fileExists).toBe(true);
       expect(mockFs.pathExists).toBeCalledWith(absPath);
+    });
+  });
+
+  describe('wait for files', () => {
+    it('should resolve immediately if the file already exists', async () => {
+      mockFs.pathExists.mockResolvedValue(true as never);
+      const result = await waitForFile('test.txt');
+      expect(result).toBe(true);
+    });
+
+    it('should timeout if the file never exists', async () => {
+      mockFs.pathExists.mockResolvedValue(false as never);
+      await expect(waitForFile('test.txt', 10, 30)).resolves.toBe(false);
+    });
+
+    it('should resolve once the file exists', async () => {
+      // return false initially
+      mockFs.pathExists.mockResolvedValue(false as never);
+      // chain the spy onto the promise so we can inspect if its been called
+      const spy = jest.fn(x => x);
+      const promise = waitForFile('test.txt', 10, 100).then(spy);
+      // confirm it isn't called immediately
+      expect(spy).not.toBeCalled();
+      // make pathExists return true
+      mockFs.pathExists.mockResolvedValue(true as never);
+      // wait for the promise to be resolved
+      await expect(promise).resolves.toBe(true);
+      // confirm the spy was called
+      expect(spy).toBeCalled();
     });
   });
 });
