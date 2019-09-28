@@ -39,6 +39,7 @@ class WindowManager {
         nodeIntegration: true,
       },
     });
+    this.mainWindow.removeMenu();
 
     if (this.isDev) {
       this.setupDevEnv();
