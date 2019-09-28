@@ -22,6 +22,6 @@ describe('IpcService', () => {
     const err = 'Something went wrong';
     ipcRenderer.once = jest.fn().mockImplementation((chan, cb) => cb(null, { err }));
     const ipc = createIpcSender('Test Name', 'pre1');
-    await expect(ipc('chan1', 123)).rejects.toEqual(new Error(err));
+    await expect(ipc('chan1', 123)).rejects.toThrow(err);
   });
 });
