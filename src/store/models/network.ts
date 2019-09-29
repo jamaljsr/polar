@@ -2,7 +2,7 @@ import { info } from 'electron-log';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { Network, Status, StoreInjections } from 'types';
+import { CommonNode, Network, Status, StoreInjections } from 'types';
 import { createNetwork } from 'utils/network';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
@@ -17,6 +17,7 @@ export interface NetworkModel {
   networks: Network[];
   loaded: boolean;
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
+  allStatuses: Computed<NetworkModel, (id?: number) => Status[]>;
   setNetworks: Action<NetworkModel, Network[]>;
   setLoaded: Action<NetworkModel, boolean>;
   load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
@@ -29,7 +30,10 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
-  setNetworkStatus: Action<NetworkModel, { id: number; status: Status }>;
+  setStatus: Action<
+    NetworkModel,
+    { id: number; status: Status; only?: string; all?: boolean }
+  >;
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
@@ -47,6 +51,16 @@ const networkModel: NetworkModel = {
       throw new Error(`Network with the id '${networkId}' was not found.`);
     }
     return network;
+  }),
+  allStatuses: computed(state => (id?: string | number) => {
+    const network = state.networks.find(n => n.id === id);
+    if (!network) {
+      throw new Error(`Network with the id '${id}' was not found.`);
+    }
+    return [network.status].concat(
+      network.nodes.bitcoin.map(n => n.status),
+      network.nodes.lightning.map(n => n.status),
+    );
   }),
   // reducer actions (mutations allowed thx to immer)
   setNetworks: action((state, networks) => {
@@ -79,25 +93,47 @@ const networkModel: NetworkModel = {
     await injections.dockerService.save(networks);
     dispatch(push(NETWORK_VIEW(newNetwork.id)));
   }),
-  setNetworkStatus: action((state, { id, status }) => {
+  setStatus: action((state, { id, status, only, all = true }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(`Network with the id '${id}' was not found.`);
-    network.status = status;
-    network.nodes.bitcoin.forEach(n => (n.status = status));
-    network.nodes.lightning.forEach(n => (n.status = status));
+    if (all) {
+      // update all node statuses
+      network.status = status;
+      network.nodes.bitcoin.forEach(n => (n.status = status));
+      network.nodes.lightning.forEach(n => (n.status = status));
+    } else if (only) {
+      // if
+      const setNodeStatus = (n: CommonNode) => {
+        if (n.name === only) n.status = status;
+      };
+      network.nodes.lightning.forEach(setNodeStatus);
+      network.nodes.bitcoin.forEach(setNodeStatus);
+    } else {
+      // if no specific node name provided, just update the network status
+      network.status = status;
+      network.nodes.bitcoin.forEach(n => (n.status = status));
+    }
   }),
   start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
-    actions.setNetworkStatus({ id: network.id, status: Status.Starting });
+    actions.setStatus({ id: network.id, status: Status.Starting });
     try {
       await injections.dockerService.start(network);
-      actions.setNetworkStatus({ id: network.id, status: Status.Started });
+      actions.setStatus({ id: network.id, status: Status.Started, all: false });
       for (const lnd of network.nodes.lightning) {
         await getStoreActions().lnd.initialize(lnd);
+        // don't set the status of each LND node until it can respond to getInfo
+        injections.lndService.waitUntilOnline(lnd).then(online =>
+          actions.setStatus({
+            id: network.id,
+            status: online ? Status.Started : Status.Error,
+            only: lnd.name,
+          }),
+        );
       }
     } catch (e) {
-      actions.setNetworkStatus({ id: network.id, status: Status.Error });
+      actions.setStatus({ id: network.id, status: Status.Error });
       info(`unable to start network '${network.name}'`, e.message);
       throw e;
     }
@@ -105,12 +141,12 @@ const networkModel: NetworkModel = {
   stop: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
-    actions.setNetworkStatus({ id: network.id, status: Status.Stopping });
+    actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
       await injections.dockerService.stop(network);
-      actions.setNetworkStatus({ id: network.id, status: Status.Stopped });
+      actions.setStatus({ id: network.id, status: Status.Stopped });
     } catch (e) {
-      actions.setNetworkStatus({ id: network.id, status: Status.Error });
+      actions.setStatus({ id: network.id, status: Status.Error });
       info(`unable to stop network '${network.name}'`, e.message);
       throw e;
     }

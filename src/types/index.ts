@@ -77,6 +77,7 @@ export interface BitcoindLibrary {
 export interface LndLibrary {
   initialize: (node: LndNode) => Promise<any>;
   getInfo: (node: LndNode) => Promise<GetInfoResponse>;
+  waitUntilOnline(node: LndNode): Promise<boolean>;
 }
 
 export interface StoreInjections {
