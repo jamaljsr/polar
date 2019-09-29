@@ -1,6 +1,6 @@
 import { GetInfoResponse } from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { LNDNode, StoreInjections } from 'types';
+import { LndNode, StoreInjections } from 'types';
 import { waitForFile } from 'utils/files';
 
 interface LndNodeModel {
@@ -10,10 +10,10 @@ interface LndNodeModel {
 
 export interface LndModel {
   nodes: { [key: string]: LndNodeModel };
-  setInitialized: Action<LndModel, LNDNode>;
-  initialize: Thunk<LndModel, LNDNode, StoreInjections>;
-  setInfo: Action<LndModel, { node: LNDNode; info: GetInfoResponse }>;
-  getInfo: Thunk<LndModel, LNDNode, StoreInjections>;
+  setInitialized: Action<LndModel, LndNode>;
+  initialize: Thunk<LndModel, LndNode, StoreInjections>;
+  setInfo: Action<LndModel, { node: LndNode; info: GetInfoResponse }>;
+  getInfo: Thunk<LndModel, LndNode, StoreInjections>;
 }
 
 const lndModel: LndModel = {

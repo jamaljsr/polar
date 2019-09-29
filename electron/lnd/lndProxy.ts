@@ -1,7 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import createLndRpc, { GetInfoResponse, LnRpc } from '@radar/lnrpc';
-import { LNDNode } from '../types';
+import { LndNode } from '../types';
 import { DefaultsKey, withDefaults } from './responses';
 
 // mapping of name <-> node to talk to multiple nodes
@@ -22,7 +22,7 @@ const getNode = (name: keyof typeof nodes): LnRpc => {
  * Stores the connection info of a LND node to use for future commands
  * @param args the LNDNode to connect to
  */
-const initialize = async (args: { node: LNDNode }): Promise<any> => {
+const initialize = async (args: { node: LndNode }): Promise<any> => {
   const { name, ports, tlsPath, macaroonPath } = args.node;
   const config = {
     server: `127.0.0.1:${ports.grpc}`,

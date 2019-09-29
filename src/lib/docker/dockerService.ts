@@ -2,7 +2,7 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
-import { DockerLibrary, LNDNode, Network } from 'types';
+import { DockerLibrary, LndNode, Network } from 'types';
 import { networksPath } from 'utils/config';
 import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
@@ -21,7 +21,7 @@ class DockerService implements DockerLibrary {
     });
     network.nodes.lightning.forEach(node => {
       if (node.implementation === 'LND') {
-        const lnd = node as LNDNode;
+        const lnd = node as LndNode;
         file.addLnd(
           prefix(lnd.name),
           lnd.version,
