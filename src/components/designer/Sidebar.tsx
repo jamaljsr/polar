@@ -1,9 +1,23 @@
 import React, { ReactElement, useMemo } from 'react';
+import styled from '@emotion/styled';
 import { IChart } from '@mrblenny/react-flow-chart';
-import { Drawer } from 'antd';
+import { Card } from 'antd';
 import { Network } from 'types';
 import BitcoindDetails from './bitcoind/BitcoindDetails';
 import LndDetails from './lnd/LndDetails';
+
+const Styled = {
+  Sidebar: styled(Card)`
+    position: absolute;
+    top: 16px;
+    bottom: 16px;
+    right: 16px;
+    width: 300px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  `,
+};
 
 interface Props {
   network: Network;
@@ -29,14 +43,15 @@ const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
       }
     }
 
+    if (!cmp) {
+      title = 'Network Designer';
+      cmp = <div>Click on an element in the designer to see details</div>;
+    }
+
     return [title, cmp];
   }, [network, chart.selected]);
 
-  return (
-    <Drawer visible={!!cmp} onClose={onClose} width={400} title={title}>
-      {cmp}
-    </Drawer>
-  );
+  return <Styled.Sidebar title={title}>{cmp}</Styled.Sidebar>;
 };
 
 export default Sidebar;

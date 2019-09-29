@@ -12,10 +12,18 @@ import { HOME } from 'components/routing';
 import NetworkActions from './NetworkActions';
 
 const Styled = {
+  NetworkView: styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  `,
   PageHeader: styled(PageHeader)`
     border: 1px solid rgb(235, 237, 240);
     background-color: #fff;
     margin-bottom: 10px;
+  `,
+  NetworkDesigner: styled(NetworkDesigner)`
+    flex: 1;
   `,
 };
 
@@ -48,7 +56,7 @@ const NetworkView: React.FC<Props> = ({ network }) => {
   const toggleAsync = useAsyncCallback(async () => toggle(network.id));
 
   return (
-    <>
+    <Styled.NetworkView>
       <Styled.PageHeader
         title={network.name}
         onBack={() => navigateTo(HOME)}
@@ -56,8 +64,8 @@ const NetworkView: React.FC<Props> = ({ network }) => {
         extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
       />
       {toggleAsync.error && <Alert type="error" message={toggleAsync.error.message} />}
-      <NetworkDesigner network={network} />
-    </>
+      <Styled.NetworkDesigner network={network} />
+    </Styled.NetworkView>
   );
 };
 

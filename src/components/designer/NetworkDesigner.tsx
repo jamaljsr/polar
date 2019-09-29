@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import styled from '@emotion/styled';
 import { FlowChart } from '@mrblenny/react-flow-chart';
 import * as chartCallbacks from '@mrblenny/react-flow-chart/src/container/actions';
 import useDebounce from 'hooks/useDebounce';
@@ -8,6 +9,12 @@ import { initChartFromNetwork } from 'utils/chart';
 import CustomNodeInner from './CustomNodeInner';
 import Sidebar from './Sidebar';
 
+const Styled = {
+  Designer: styled.div`
+    position: relative;
+    height: 100%;
+  `,
+};
 interface Props {
   network: Network;
   updateStateDelay?: number;
@@ -70,7 +77,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   ) as typeof chartCallbacks;
 
   return (
-    <>
+    <Styled.Designer>
       <FlowChart
         chart={chart}
         config={{ snapToGrid: true }}
@@ -82,7 +89,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         chart={chart}
         onClose={() => callbacks.onCanvasClick({})}
       />
-    </>
+    </Styled.Designer>
   );
 };
 
