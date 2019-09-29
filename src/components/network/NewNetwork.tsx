@@ -1,7 +1,7 @@
 import React, { FormEvent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { info } from 'electron-log';
-import { Button, Card, Col, Form, Input, InputNumber, notification, Row } from 'antd';
+import { Button, Card, Col, Form, Input, InputNumber, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { useStoreActions } from 'store';
 
@@ -23,15 +23,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
       if (err) {
         return;
       }
-      addNetwork(values).then(() => {
-        notification.success({
-          message:
-            t('cmps.new-network.success-msg', 'Created network') + ': ' + values.name,
-          placement: 'bottomRight',
-          bottom: 50,
-        });
-        info(`created new network: ${JSON.stringify(values)}`);
-      });
+      addNetwork(values);
     });
   };
 

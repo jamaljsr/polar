@@ -1,5 +1,6 @@
 import { outputFile, pathExists, readFile } from 'fs-extra';
 import { isAbsolute, join } from 'path';
+import { waitFor } from './async';
 import { dataPath } from './config';
 
 const abs = (path: string): string => (isAbsolute(path) ? path : join(dataPath, path));
@@ -38,26 +39,5 @@ export const waitForFile = async (
   timeout = 5000,
 ): Promise<boolean> => {
   const path = abs(filePath);
-  // if the file already exists, then return immediately
-  if (await exists(path)) {
-    return Promise.resolve(true);
-  }
-  // return a promise that will resolve when the file exists
-  return new Promise(resolve => {
-    // keep a countdown of the number of times to check
-    // so it can abort after a the timeout expires
-    let timesToCheck = timeout / interval;
-    const timer = setInterval(async () => {
-      if (await exists(path)) {
-        clearInterval(timer);
-        return resolve(true);
-      }
-      if (timesToCheck < 0) {
-        clearInterval(timer);
-        return resolve(false);
-      }
-      // decrement the number of times to check in each iteration
-      timesToCheck -= 1;
-    }, interval);
-  });
+  return waitFor(() => exists(path), interval, timeout);
 };

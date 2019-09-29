@@ -31,13 +31,6 @@ describe('NewNetwork component', () => {
   });
 
   describe('with valid submission', () => {
-    it('should display a notification', async () => {
-      const { findByText, nameInput, createBtn } = renderComponent();
-      fireEvent.change(nameInput, { target: { value: 'test' } });
-      fireEvent.click(createBtn);
-      expect(await findByText('Created network: test')).toBeInTheDocument();
-    });
-
     it('should navigate to home page', async () => {
       const { createBtn, nameInput, history } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });

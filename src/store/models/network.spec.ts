@@ -10,6 +10,7 @@ jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
 }));
 const filesMock = files as jest.Mocked<typeof files>;
+const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
 
 describe('Network model', () => {
   const rootModel = {
@@ -32,7 +33,8 @@ describe('Network model', () => {
     // reset the store before each test run
     store = createStore(rootModel, { injections });
     // always return true immediately
-    filesMock.waitForFile.mockReturnValue(Promise.resolve(true));
+    filesMock.waitForFile.mockResolvedValue(true);
+    lndServiceMock.waitUntilOnline.mockResolvedValue(true);
   });
 
   it('should have a valid initial state', () => {
@@ -230,7 +232,7 @@ describe('Network model', () => {
     });
 
     it('should restart if its currently error', async () => {
-      const { add, setNetworkStatus, toggle } = store.getActions().network;
+      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
       add(addNetworkArgs);
       const id = firstNetwork().id;
       setNetworkStatus({ id, status: Status.Error });
@@ -239,7 +241,7 @@ describe('Network model', () => {
     });
 
     it('should stop if its currently started', async () => {
-      const { add, setNetworkStatus, toggle } = store.getActions().network;
+      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
       add(addNetworkArgs);
       const id = firstNetwork().id;
       setNetworkStatus({ id, status: Status.Started });
@@ -248,7 +250,7 @@ describe('Network model', () => {
     });
 
     it('should do nothing if its currently starting', async () => {
-      const { add, setNetworkStatus, toggle } = store.getActions().network;
+      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
       add(addNetworkArgs);
       const id = firstNetwork().id;
       setNetworkStatus({ id, status: Status.Starting });
@@ -257,7 +259,7 @@ describe('Network model', () => {
     });
 
     it('should do nothing if its currently stopping', async () => {
-      const { add, setNetworkStatus, toggle } = store.getActions().network;
+      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
       add(addNetworkArgs);
       const id = firstNetwork().id;
       setNetworkStatus({ id, status: Status.Stopping });
@@ -273,7 +275,7 @@ describe('Network model', () => {
 
   describe('Other actions', () => {
     it('should fail to set the status with an invalid id', () => {
-      const { setNetworkStatus } = store.getActions().network;
+      const { setStatus: setNetworkStatus } = store.getActions().network;
       expect(() => setNetworkStatus({ id: 10, status: Status.Starting })).toThrow();
     });
 
