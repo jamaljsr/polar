@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { BitcoinNode, LNDNode, Network, Status } from 'types';
+import { BitcoinNode, LndNode, Network, Status } from 'types';
 import { networksPath } from './config';
 import { range } from './numbers';
 
@@ -45,7 +45,7 @@ export const createNetwork = (config: {
 
   network.nodes.lightning = range(lndNodes)
     .map((v, i) => `lnd-${i + 1}`)
-    .map<LNDNode>((name, i) => ({
+    .map<LndNode>((name, i) => ({
       id: i,
       name: name,
       type: 'lightning',

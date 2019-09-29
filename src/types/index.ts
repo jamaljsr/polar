@@ -39,7 +39,7 @@ export interface LightningNode extends CommonNode {
   backendName: string;
 }
 
-export interface LNDNode extends LightningNode {
+export interface LndNode extends LightningNode {
   tlsPath: string;
   macaroonPath: string;
   ports: {
@@ -56,7 +56,7 @@ export interface Network {
   design?: IChart;
   nodes: {
     bitcoin: BitcoinNode[];
-    lightning: LNDNode[];
+    lightning: LndNode[];
   };
 }
 
@@ -75,8 +75,8 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  initialize: (node: LNDNode) => Promise<any>;
-  getInfo: (node: LNDNode) => Promise<GetInfoResponse>;
+  initialize: (node: LndNode) => Promise<any>;
+  getInfo: (node: LndNode) => Promise<GetInfoResponse>;
 }
 
 export interface StoreInjections {

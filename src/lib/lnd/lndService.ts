@@ -1,6 +1,6 @@
 import { GetInfoResponse } from '@radar/lnrpc';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
-import { LndLibrary, LNDNode } from 'types';
+import { LndLibrary, LndNode } from 'types';
 
 class LndService implements LndLibrary {
   ipc: IpcSender;
@@ -9,11 +9,11 @@ class LndService implements LndLibrary {
     this.ipc = createIpcSender('LndService', 'lnd');
   }
 
-  async initialize(node: LNDNode): Promise<void> {
+  async initialize(node: LndNode): Promise<void> {
     await this.ipc('initialize', { node });
   }
 
-  async getInfo(node: LNDNode): Promise<GetInfoResponse> {
+  async getInfo(node: LndNode): Promise<GetInfoResponse> {
     return await this.ipc('get-info', { name: node.name });
   }
 }

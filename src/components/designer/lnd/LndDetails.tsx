@@ -2,19 +2,19 @@ import React from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
-import { LNDNode, Status } from 'types';
+import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { Loader, StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 interface Props {
-  node: LNDNode;
+  node: LndNode;
 }
 
 const LndDetails: React.FC<Props> = ({ node }) => {
   const { getInfo } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
-    async (node: LNDNode) => {
+    async (node: LndNode) => {
       if (node.status === Status.Started) {
         return await getInfo(node);
       }

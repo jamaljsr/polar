@@ -20,7 +20,7 @@ export interface LightningNode extends CommonNode {
   backendName: string;
 }
 
-export interface LNDNode extends LightningNode {
+export interface LndNode extends LightningNode {
   tlsPath: string;
   macaroonPath: string;
   ports: {
