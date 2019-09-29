@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAsyncCallback } from 'react-async-hook';
+import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { BitcoinNode, Status } from 'types';
@@ -11,11 +11,14 @@ import MineBlocksInput from './MineBlocksInput';
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { getInfo } = useStoreActions(s => s.bitcoind);
   const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
-  const getInfoAsync = useAsyncCallback(async () => await getInfo(node));
-
-  if (getInfoAsync.status === 'not-requested' && node.status === Status.Started) {
-    getInfoAsync.execute();
-  }
+  const getInfoAsync = useAsync(
+    async (node: BitcoinNode) => {
+      if (node.status === Status.Started) {
+        return await getInfo(node);
+      }
+    },
+    [node],
+  );
 
   if (getInfoAsync.loading) {
     return <Loader />;
@@ -31,7 +34,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     },
   ];
 
-  if (getInfoAsync.status === 'success' && chainInfo && walletInfo) {
+  if (node.status === Status.Started && chainInfo && walletInfo) {
     details.push(
       { label: 'RPC Host', value: `127.0.0.1:${node.ports.rpc}` },
       { label: 'Wallet Balance', value: `${walletInfo.balance} BTC` },
@@ -51,7 +54,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           description={getInfoAsync.error.message}
         />
       )}
-      {getInfoAsync.status === 'success' && <MineBlocksInput node={node} />}
+      {node.status === Status.Started && <MineBlocksInput node={node} />}
     </>
   );
 };

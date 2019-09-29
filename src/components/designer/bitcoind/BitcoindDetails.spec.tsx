@@ -1,4 +1,5 @@
 import React from 'react';
+import { waitForElement } from '@testing-library/dom';
 import { Status } from 'types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import BitcoindDetails from './BitcoindDetails';
@@ -21,32 +22,35 @@ describe('BitcoindDetails', () => {
   };
 
   describe('with node Stopped', () => {
-    it('should display Node Type', () => {
-      const { getByText, node } = renderComponent();
-      expect(getByText('Node Type')).toBeInTheDocument();
-      expect(getByText(node.type)).toBeInTheDocument();
+    it('should display Node Type', async () => {
+      const { findByText, node } = renderComponent();
+      expect(await findByText('Node Type')).toBeInTheDocument();
+      expect(await findByText(node.type)).toBeInTheDocument();
     });
 
-    it('should display Implementation', () => {
-      const { getByText, node } = renderComponent();
-      expect(getByText('Implementation')).toBeInTheDocument();
-      expect(getByText(node.implementation)).toBeInTheDocument();
+    it('should display Implementation', async () => {
+      const { findByText, node } = renderComponent();
+      expect(await findByText('Implementation')).toBeInTheDocument();
+      expect(await findByText(node.implementation)).toBeInTheDocument();
     });
 
-    it('should display Version', () => {
-      const { getByText, node } = renderComponent();
-      expect(getByText('Version')).toBeInTheDocument();
-      expect(getByText(`v${node.version}`)).toBeInTheDocument();
+    it('should display Version', async () => {
+      const { findByText, node } = renderComponent();
+      expect(await findByText('Version')).toBeInTheDocument();
+      expect(await findByText(`v${node.version}`)).toBeInTheDocument();
     });
 
-    it('should display Status', () => {
-      const { getByText, node } = renderComponent();
-      expect(getByText('Status')).toBeInTheDocument();
-      expect(getByText(Status[node.status])).toBeInTheDocument();
+    it('should display Status', async () => {
+      const { findByText, node } = renderComponent();
+      expect(await findByText('Status')).toBeInTheDocument();
+      expect(await findByText(Status[node.status])).toBeInTheDocument();
     });
 
-    it('should not display Block Height', () => {
-      const { queryByText } = renderComponent();
+    it('should not display Block Height', async () => {
+      const { queryByText, getByText } = renderComponent();
+      // first wait for the loader to go away
+      await waitForElement(() => getByText('Status'));
+      // then confirm GRPC Host isn't there
       expect(queryByText('Block Height')).toBeNull();
     });
   });

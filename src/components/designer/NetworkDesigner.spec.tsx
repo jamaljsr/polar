@@ -67,6 +67,11 @@ describe('NetworkDesigner Component', () => {
     expect(queryAllByText(/bitcoind-\d/)).toHaveLength(1);
   });
 
+  it('should display the default message in the sidebar', () => {
+    const { getByText } = renderComponent();
+    expect(getByText('Network Designer')).toBeInTheDocument();
+  });
+
   it('should update the redux state after a delay', async () => {
     const { onNodeClick } = jest.requireActual(
       '@mrblenny/react-flow-chart/src/container/actions',
@@ -82,36 +87,16 @@ describe('NetworkDesigner Component', () => {
     });
   });
 
-  it('should open the sidebar when a node is selected', async () => {
+  it('should display node details in the sidebar when a node is selected', async () => {
     const { onNodeClick } = jest.requireActual(
       '@mrblenny/react-flow-chart/src/container/actions',
     );
     mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
-    const { getByText } = renderComponent();
+    const { getByText, findByText } = renderComponent();
     expect(getByText('bitcoind-1')).toBeInTheDocument();
     // click the bitcoind node in the chart
     fireEvent.click(getByText('bitcoind-1'));
     // ensure text from the sidebar is visible
-    expect(getByText('Node Type')).toBeInTheDocument();
-  });
-
-  it('should deselect the node when the sidebar is closed', async () => {
-    const { onNodeClick } = jest.requireActual(
-      '@mrblenny/react-flow-chart/src/container/actions',
-    );
-    mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
-    const { getByText, getByLabelText, queryByText, store } = renderComponent();
-    expect(getByText('bitcoind-1')).toBeInTheDocument();
-    // click the bitcoind node in the chart
-    fireEvent.click(getByText('bitcoind-1'));
-    // ensure the sidebar is visible
-    expect(getByLabelText('Close')).toBeInTheDocument();
-    // close the sidebar
-    fireEvent.click(getByLabelText('Close'));
-    // ensure the sidebar is no longer visible
-    expect(queryByText('Node Type')).toBeNull();
-    // ensure there is no selected node in the redux state
-    const design = store.getState().network.networks[0].design as IChart;
-    expect(design.selected.id).toBeUndefined();
+    expect(await findByText('Node Type')).toBeInTheDocument();
   });
 });
