@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAsyncCallback } from 'react-async-hook';
+import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { LNDNode, Status } from 'types';
@@ -13,12 +13,15 @@ interface Props {
 
 const LndDetails: React.FC<Props> = ({ node }) => {
   const { getInfo } = useStoreActions(s => s.lnd);
-  const getInfoAsync = useAsyncCallback(async () => await getInfo(node));
+  const getInfoAsync = useAsync(
+    async (node: LNDNode) => {
+      if (node.status === Status.Started) {
+        return await getInfo(node);
+      }
+    },
+    [node],
+  );
   const { nodes } = useStoreState(s => s.lnd);
-
-  if (getInfoAsync.status === 'not-requested' && node.status === Status.Started) {
-    getInfoAsync.execute();
-  }
 
   if (getInfoAsync.loading) {
     return <Loader />;
@@ -35,7 +38,7 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   ];
 
   const nodeState = nodes[node.name];
-  if (getInfoAsync.status === 'success' && nodeState && nodeState.info) {
+  if (node.status === Status.Started && nodeState && nodeState.info) {
     const { identityPubkey, alias, syncedToChain } = nodeState.info;
     details.push(
       { label: 'GRPC Host', value: `127.0.0.1:${node.ports.grpc}` },
@@ -49,7 +52,7 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   return (
     <>
       <DetailsList details={details} />
-      {getInfoAsync.error && (
+      {getInfoAsync.error && node.status === Status.Started && (
         <Alert
           type="error"
           closable={false}
