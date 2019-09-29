@@ -22,10 +22,9 @@ const Styled = {
 interface Props {
   network: Network;
   chart: IChart;
-  onClose: () => void;
 }
 
-const Sidebar: React.FC<Props> = ({ network, chart, onClose }) => {
+const Sidebar: React.FC<Props> = ({ network, chart }) => {
   const [title, cmp] = useMemo(() => {
     const { id, type } = chart.selected;
     let cmp: ReactElement | undefined;

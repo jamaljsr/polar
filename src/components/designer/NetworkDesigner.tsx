@@ -84,11 +84,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         Components={{ NodeInner: CustomNodeInner }}
         callbacks={callbacks}
       />
-      <Sidebar
-        network={network}
-        chart={chart}
-        onClose={() => callbacks.onCanvasClick({})}
-      />
+      <Sidebar network={network} chart={chart} />
     </Styled.Designer>
   );
 };
