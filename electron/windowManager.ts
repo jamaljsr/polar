@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
 import { initLndProxy } from './lnd/lndProxy';
@@ -15,8 +16,8 @@ class WindowManager {
   }
 
   start() {
-    app.on('ready', () => {
-      this.createWindow();
+    app.on('ready', async () => {
+      await this.createWindow();
       initLndProxy(ipcMain);
     });
     app.on('window-all-closed', this.onAllClosed);
@@ -42,7 +43,7 @@ class WindowManager {
     this.mainWindow.removeMenu();
 
     if (this.isDev) {
-      this.setupDevEnv();
+      await this.setupDevEnv();
     }
 
     this.mainWindow.on('closed', this.onMainClosed);
@@ -55,11 +56,17 @@ class WindowManager {
 
   async setupDevEnv() {
     // install react & redux chrome dev tools
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const installer = require('electron-devtools-installer');
-
-    await installer.default('REACT_DEVELOPER_TOOLS');
-    await installer.default('REDUX_DEVTOOLS');
+    const {
+      default: install,
+      REACT_DEVELOPER_TOOLS,
+      REDUX_DEVTOOLS,
+    } = require('electron-devtools-installer'); // eslint-disable-line @typescript-eslint/no-var-requires
+    try {
+      await install(REACT_DEVELOPER_TOOLS);
+      await install(REDUX_DEVTOOLS);
+    } catch (e) {
+      warn('unable to install devtools', e);
+    }
   }
 
   onMainClosed() {
