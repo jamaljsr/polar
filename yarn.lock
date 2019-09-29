@@ -2783,10 +2783,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-antd@^3.23.4:
-  version "3.23.4"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-3.23.4.tgz#78110e06652697abfdff979683a118d39d66c6a2"
-  integrity sha512-WmumOVZ7GSbLkiQyL54edRBDW4AVhFROlNJbd0lajonP2i2uzgC/2B1pZbnY9EE2yjv9tY7MiqlkBT7HLu75cw==
+antd@^3.23.5:
+  version "3.23.5"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-3.23.5.tgz#ee87cd742c9ac99c95e728aa948615108629af59"
+  integrity sha512-D4N10iocjLxpLBQB+9hNcTeWKsh+eM3uYcC/I2JQcmFcSPRyO9FJvORaN7LK8Vxo7McGhpxPObdygpXSaIlKQw==
   dependencies:
     "@ant-design/create-react-context" "^0.2.4"
     "@ant-design/icons" "~2.1.1"
@@ -2821,6 +2821,7 @@ antd@^3.23.4:
     rc-pagination "~1.20.5"
     rc-progress "~2.5.0"
     rc-rate "~2.5.0"
+    rc-resize-observer "^0.1.0"
     rc-select "~9.2.0"
     rc-slider "~8.6.11"
     rc-steps "~3.5.0"
@@ -13964,6 +13965,15 @@ rc-rate@~2.5.0:
     rc-util "^4.3.0"
     react-lifecycles-compat "^3.0.4"
 
+rc-resize-observer@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/rc-resize-observer/-/rc-resize-observer-0.1.0.tgz#e3aeebc9dd743b6b97271ba7238a9a7a37a66b39"
+  integrity sha512-yV6m7hexq5jFyJgn99N1oQNI3wLB04RB4WFaFdTuht8KTSYqpXZnlb9+teY0Bo+dcyM4KY0HhPBH+LrzKMP4RA==
+  dependencies:
+    classnames "^2.2.1"
+    rc-util "^4.11.1"
+    resize-observer-polyfill "^1.5.1"
+
 rc-select@~9.2.0:
   version "9.2.0"
   resolved "https://registry.yarnpkg.com/rc-select/-/rc-select-9.2.0.tgz#b5dacccf3ce3fcdd27e0a0f598133d6284ca5292"
@@ -14167,6 +14177,17 @@ rc-util@^4.10.0:
     react-lifecycles-compat "^3.0.4"
     shallowequal "^0.2.2"
     warning "^4.0.3"
+
+rc-util@^4.11.1:
+  version "4.11.1"
+  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-4.11.1.tgz#07a6df593fc98a1350a6541990e1f8d90f4df603"
+  integrity sha512-CPs6l7tRBc1G7OIW5BzGwqsqLvciVMEeSyzjfuqOXNGlwYJ35BjH+Sxj7pNv5sZz7yeKXoZH72orTsLaIYeMow==
+  dependencies:
+    add-dom-event-listener "^1.1.0"
+    babel-runtime "6.x"
+    prop-types "^15.5.10"
+    react-lifecycles-compat "^3.0.4"
+    shallowequal "^0.2.2"
 
 rc@^1.1.6, rc@^1.2.1, rc@^1.2.7, rc@^1.2.8:
   version "1.2.8"
