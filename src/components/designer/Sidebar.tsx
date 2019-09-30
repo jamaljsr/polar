@@ -7,7 +7,7 @@ import BitcoindDetails from './bitcoind/BitcoindDetails';
 import LndDetails from './lnd/LndDetails';
 
 const Styled = {
-  Sidebar: styled(Card)`
+  Card: styled(Card)`
     position: absolute;
     top: 16px;
     bottom: 16px;
@@ -50,7 +50,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
     return [title, cmp];
   }, [network, chart.selected]);
 
-  return <Styled.Sidebar title={title}>{cmp}</Styled.Sidebar>;
+  return <Styled.Card title={title}>{cmp}</Styled.Card>;
 };
 
 export default Sidebar;

@@ -7,11 +7,7 @@ import { ellipseInner } from 'utils/strings';
 import { Loader, StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
-interface Props {
-  node: LndNode;
-}
-
-const LndDetails: React.FC<Props> = ({ node }) => {
+const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
   const { getInfo } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
@@ -51,7 +47,14 @@ const LndDetails: React.FC<Props> = ({ node }) => {
 
   return (
     <>
-      <DetailsList details={details} />
+      {node.status === Status.Starting && (
+        <Alert
+          type="info"
+          showIcon
+          closable={false}
+          message="Waiting for LND to come online"
+        />
+      )}
       {getInfoAsync.error && node.status === Status.Started && (
         <Alert
           type="error"
@@ -60,6 +63,7 @@ const LndDetails: React.FC<Props> = ({ node }) => {
           description={getInfoAsync.error.message}
         />
       )}
+      <DetailsList details={details} />
     </>
   );
 };

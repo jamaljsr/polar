@@ -66,6 +66,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   // which can be many, ex: onDragNode, onLinkMouseEnter
   const debouncedChart = useDebounce(chart, updateStateDelay);
   useEffect(() => {
+    // TODO: save changes here instead of on unmount
     // store the updated chart in the redux store
     setNetworkDesign({ id: network.id, chart: debouncedChart });
     // eslint-disable-next-line
