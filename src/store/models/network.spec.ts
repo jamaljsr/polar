@@ -11,6 +11,9 @@ jest.mock('utils/files', () => ({
 }));
 const filesMock = files as jest.Mocked<typeof files>;
 const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
+const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
+  typeof injections.bitcoindService
+>;
 
 describe('Network model', () => {
   const rootModel = {
@@ -35,6 +38,7 @@ describe('Network model', () => {
     // always return true immediately
     filesMock.waitForFile.mockResolvedValue(true);
     lndServiceMock.waitUntilOnline.mockResolvedValue(true);
+    bitcoindServiceMock.waitUntilOnline.mockResolvedValue(true);
   });
 
   it('should have a valid initial state', () => {

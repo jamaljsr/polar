@@ -15,7 +15,7 @@ jest.mock('utils/files', () => ({
 }));
 
 describe('LndDetails', () => {
-  const renderComponent = (status?: Status, initialNodes?: any[]) => {
+  const renderComponent = (status?: Status, initialNodes?: any) => {
     const network = getNetwork(1, 'test network', status);
     const nodes =
       initialNodes ||
@@ -81,7 +81,6 @@ describe('LndDetails', () => {
     const filesMock = files as jest.Mocked<typeof files>;
 
     beforeEach(() => {
-      lndServiceMock.initialize.mockResolvedValue({ success: true });
       lndServiceMock.getInfo.mockResolvedValue({
         ...mockLndResponses.getInfo,
         alias: 'my-node',
@@ -131,12 +130,6 @@ describe('LndDetails', () => {
       lndServiceMock.getInfo.mockRejectedValue(new Error('connection failed'));
       const { findByText } = renderComponent(Status.Started);
       expect(await findByText('connection failed')).toBeInTheDocument();
-    });
-
-    it("should display an error if the macaroon doesn't exist", async () => {
-      const { findByText, node } = renderComponent(Status.Started, []);
-      const errMsg = `Node '${node.name}' has not been started.`;
-      expect(await findByText(errMsg)).toBeInTheDocument();
     });
   });
 });

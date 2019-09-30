@@ -5,6 +5,11 @@ import { Status } from 'types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkView from './NetworkView';
 
+const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
+const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
+  typeof injections.bitcoindService
+>;
+
 describe('NetworkView Component', () => {
   const renderComponent = (id: string | undefined, status?: Status) => {
     const initialState = {
@@ -25,6 +30,11 @@ describe('NetworkView Component', () => {
       ) as Element,
     };
   };
+
+  beforeEach(() => {
+    lndServiceMock.waitUntilOnline.mockResolvedValue(true);
+    bitcoindServiceMock.waitUntilOnline.mockResolvedValue(true);
+  });
 
   it('should not render if the network is not found', () => {
     const { queryByText } = renderComponent('99');
