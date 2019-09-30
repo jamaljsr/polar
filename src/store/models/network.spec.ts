@@ -178,6 +178,24 @@ describe('Network model', () => {
       await start(network.id);
       expect(injections.dockerService.start).toBeCalledWith(network);
     });
+
+    it('should set LND node status to error if the node startup fails', async () => {
+      lndServiceMock.waitUntilOnline.mockResolvedValue(false);
+      const { start } = store.getActions().network;
+      const network = firstNetwork();
+      await start(network.id);
+      const { lightning } = firstNetwork().nodes;
+      lightning.forEach(node => expect(node.status).toBe(Status.Error));
+    });
+
+    it('should set bitcoind node status to error if the node startup fails', async () => {
+      bitcoindServiceMock.waitUntilOnline.mockResolvedValue(false);
+      const { start } = store.getActions().network;
+      const network = firstNetwork();
+      await start(network.id);
+      const { bitcoin } = firstNetwork().nodes;
+      bitcoin.forEach(node => expect(node.status).toBe(Status.Error));
+    });
   });
 
   describe('Stopping', () => {

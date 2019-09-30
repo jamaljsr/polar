@@ -14,7 +14,11 @@ class LndService implements LndLibrary {
     return await this.ipc('get-info', { node });
   }
 
-  async waitUntilOnline(node: LndNode): Promise<boolean> {
+  async waitUntilOnline(
+    node: LndNode,
+    interval = 3 * 1000, // check every 3 seconds
+    timeout = 30 * 1000, // timeout after 30 seconds
+  ): Promise<boolean> {
     return waitFor(
       async () => {
         try {
@@ -24,8 +28,8 @@ class LndService implements LndLibrary {
           return false;
         }
       },
-      3 * 1000, // check every 3 seconds
-      30 * 1000, // timeout after 30 seconds
+      interval,
+      timeout,
     );
   }
 }

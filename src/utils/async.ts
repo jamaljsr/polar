@@ -9,11 +9,11 @@ export const waitFor = async (
   interval = 500,
   timeout = 5000,
 ): Promise<boolean> => {
-  // if the file already exists, then return immediately
+  // if the condition is true, then return immediately
   if (await conditionFunc()) {
     return Promise.resolve(true);
   }
-  // return a promise that will resolve when the file exists
+  // return a promise that will resolve when the condition is true
   return new Promise(resolve => {
     // keep a countdown of the number of times to check
     // so it can abort after a the timeout expires

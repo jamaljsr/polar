@@ -19,7 +19,11 @@ class BitcoindService implements BitcoindLibrary {
     return await this.creatClient(port).getWalletInfo();
   }
 
-  async waitUntilOnline(port?: number) {
+  async waitUntilOnline(
+    port?: number,
+    interval = 3 * 1000, // check every 3 seconds
+    timeout = 30 * 1000, // timeout after 30 seconds
+  ) {
     return waitFor(
       async () => {
         try {
@@ -29,8 +33,8 @@ class BitcoindService implements BitcoindLibrary {
           return false;
         }
       },
-      2 * 1000, // check every 3 seconds
-      30 * 1000, // timeout after 30 seconds
+      interval,
+      timeout,
     );
   }
 
