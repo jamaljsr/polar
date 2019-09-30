@@ -55,6 +55,19 @@ describe('BitcoindDetails', () => {
     });
   });
 
+  describe('with node Starting', () => {
+    it('should display correct Status', async () => {
+      const { findByText, node } = renderComponent(Status.Starting);
+      expect(await findByText('Status')).toBeInTheDocument();
+      expect(await findByText(Status[node.status])).toBeInTheDocument();
+    });
+
+    it('should display info alert', async () => {
+      const { findByText } = renderComponent(Status.Starting);
+      expect(await findByText('Waiting for bitcoind to come online')).toBeInTheDocument();
+    });
+  });
+
   describe('with node Started', () => {
     const chainMock = injections.bitcoindService.getBlockchainInfo as jest.Mock;
     const walletMock = injections.bitcoindService.getWalletInfo as jest.Mock;

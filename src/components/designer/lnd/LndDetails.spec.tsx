@@ -76,6 +76,19 @@ describe('LndDetails', () => {
     });
   });
 
+  describe('with node Starting', () => {
+    it('should display correct Status', async () => {
+      const { findByText, node } = renderComponent(Status.Starting);
+      expect(await findByText('Status')).toBeInTheDocument();
+      expect(await findByText(Status[node.status])).toBeInTheDocument();
+    });
+
+    it('should display info alert', async () => {
+      const { findByText } = renderComponent(Status.Starting);
+      expect(await findByText('Waiting for LND to come online')).toBeInTheDocument();
+    });
+  });
+
   describe('with node Started', () => {
     const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
     const filesMock = files as jest.Mocked<typeof files>;

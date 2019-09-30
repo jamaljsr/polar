@@ -54,8 +54,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
           {},
         );
         // update the node status in the chart
-        const status = nodes[n] !== undefined ? nodes[n] : network.status;
-        c.nodes[n].properties.status = status;
+        c.nodes[n].properties.status = nodes[n];
       });
       return { ...c };
     });
