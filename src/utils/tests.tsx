@@ -33,7 +33,6 @@ export const injections: StoreInjections = {
     mine: jest.fn(),
   },
   lndService: {
-    initialize: jest.fn(),
     getInfo: jest.fn(),
     waitUntilOnline: jest.fn(),
   },

@@ -10,13 +10,8 @@ class LndService implements LndLibrary {
     this.ipc = createIpcSender('LndService', 'lnd');
   }
 
-  // TODO: remove initialize
-  async initialize(node: LndNode): Promise<void> {
-    await this.ipc('initialize', { node });
-  }
-
   async getInfo(node: LndNode): Promise<GetInfoResponse> {
-    return await this.ipc('get-info', { name: node.name });
+    return await this.ipc('get-info', { node });
   }
 
   async waitUntilOnline(node: LndNode): Promise<boolean> {

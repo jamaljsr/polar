@@ -57,7 +57,7 @@ class DockerService implements DockerLibrary {
     info(`Stopping docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.down, { cwd: network.path });
-    info(`Network started:\n ${result.out || result.err}`);
+    info(`Network stopped:\n ${result.out || result.err}`);
   }
 
   /**

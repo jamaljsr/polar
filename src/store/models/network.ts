@@ -111,7 +111,7 @@ const networkModel: NetworkModel = {
       network.status = status;
     }
   }),
-  start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
+  start: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     actions.setStatus({ id: network.id, status: Status.Starting });
@@ -122,7 +122,7 @@ const networkModel: NetworkModel = {
       actions.setStatus({ id: network.id, status: Status.Started, all: false });
       // wait for lnd nodes to come online before updating their status
       for (const lnd of network.nodes.lightning) {
-        await getStoreActions().lnd.initialize(lnd);
+        // use .then() to continue execution while the promises are waiting to complete
         injections.lndService.waitUntilOnline(lnd).then(isOnline => {
           actions.setStatus({
             id: network.id,
@@ -133,6 +133,7 @@ const networkModel: NetworkModel = {
       }
       // wait for bitcoind nodes to come online before updating their status
       for (const bitcoind of network.nodes.bitcoin) {
+        // use .then() to continue execution while the promises are waiting to complete
         injections.bitcoindService.waitUntilOnline(bitcoind.ports.rpc).then(isOnline => {
           actions.setStatus({
             id: network.id,

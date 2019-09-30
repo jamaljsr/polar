@@ -48,6 +48,7 @@ export const lnd = (
 ): ComposeService => ({
   image: `polarlightning/lnd:${version}`,
   container_name: name,
+  // TODO: store the rpc user/pass in a constants file
   command: trimInside(`
     lnd
       --noseedbackup
@@ -66,6 +67,7 @@ export const lnd = (
       --bitcoind.zmqpubrawtx=tcp://${backendName}:28335
   `),
   restart: 'always',
+  // TODO: don't use the "polar" prefix in the path name
   volumes: [`./volumes/lnd/${name}:/home/lnd/.lnd`],
   expose: [
     '8080', // REST
