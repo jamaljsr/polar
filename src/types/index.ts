@@ -71,6 +71,7 @@ export interface DockerLibrary {
 export interface BitcoindLibrary {
   getBlockchainInfo: (port?: number) => Promise<ChainInfo>;
   getWalletInfo: (port?: number) => Promise<WalletInfo>;
+  waitUntilOnline: (port?: number) => Promise<boolean>;
   mine: (numBlocks: number, port?: number) => Promise<string[]>;
 }
 

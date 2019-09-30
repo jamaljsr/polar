@@ -1,4 +1,3 @@
-import { warn } from 'electron-log';
 import { GetInfoResponse } from '@radar/lnrpc';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 import { LndLibrary, LndNode } from 'types';
@@ -23,12 +22,9 @@ class LndService implements LndLibrary {
     return waitFor(
       async () => {
         try {
-          warn('waitUntilOnline start', node.name);
           await this.getInfo(node);
-          warn('waitUntilOnline success', node.name);
           return Promise.resolve(true);
         } catch {
-          warn('waitUntilOnline failed', node.name);
           return Promise.resolve(false);
         }
       },
