@@ -29,4 +29,22 @@ describe('BitcoindService', () => {
     expect(BitcoinCore.prototype.generateToAddress).toBeCalledWith(2, 'abcdef');
     expect(result[0]).toEqual('blockhash1');
   });
+
+  describe('waitUntilOnline', () => {
+    it('should return true when successful', async () => {
+      BitcoinCore.prototype.getBlockchainInfo = jest
+        .fn()
+        .mockReturnValue({ blocks: 123 });
+      const result = await bitcoindService.waitUntilOnline();
+      expect(result).toBe(true);
+      expect(BitcoinCore.prototype.getBlockchainInfo).toBeCalledTimes(1);
+    });
+
+    it('should return false on failure', async () => {
+      BitcoinCore.prototype.getBlockchainInfo = jest.fn().mockRejectedValue(new Error());
+      const result = await bitcoindService.waitUntilOnline(18443, 0.5, 1);
+      expect(result).toBe(false);
+      expect(BitcoinCore.prototype.getBlockchainInfo).toBeCalledTimes(5);
+    });
+  });
 });

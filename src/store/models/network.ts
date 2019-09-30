@@ -17,7 +17,6 @@ export interface NetworkModel {
   networks: Network[];
   loaded: boolean;
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
-  allStatuses: Computed<NetworkModel, (id?: number) => Status[]>;
   setNetworks: Action<NetworkModel, Network[]>;
   setLoaded: Action<NetworkModel, boolean>;
   load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
@@ -51,16 +50,6 @@ const networkModel: NetworkModel = {
       throw new Error(`Network with the id '${networkId}' was not found.`);
     }
     return network;
-  }),
-  allStatuses: computed(state => (id?: string | number) => {
-    const network = state.networks.find(n => n.id === id);
-    if (!network) {
-      throw new Error(`Network with the id '${id}' was not found.`);
-    }
-    return [network.status].concat(
-      network.nodes.bitcoin.map(n => n.status),
-      network.nodes.lightning.map(n => n.status),
-    );
   }),
   // reducer actions (mutations allowed thx to immer)
   setNetworks: action((state, networks) => {
