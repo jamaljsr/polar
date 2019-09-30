@@ -29,6 +29,7 @@ export const injections: StoreInjections = {
   bitcoindService: {
     getBlockchainInfo: jest.fn(),
     getWalletInfo: jest.fn(),
+    waitUntilOnline: jest.fn(),
     mine: jest.fn(),
   },
   lndService: {
