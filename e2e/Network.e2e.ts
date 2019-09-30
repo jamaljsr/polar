@@ -15,8 +15,8 @@ test('should add a new network', async t => {
   await t
     .typeText(NewNetwork.nameInput, 'test network')
     .click(NewNetwork.submitBtn)
-    .expect(NewNetwork.getNotificationText())
-    .eql('Created network: test network');
+    .expect(NetworkView.getHeadingTitleText())
+    .eql('test network');
 });
 
 test('should should view new network after adding', async t => {
