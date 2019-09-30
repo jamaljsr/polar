@@ -4,41 +4,38 @@ import createLndRpc, { GetInfoResponse, LnRpc } from '@radar/lnrpc';
 import { LndNode } from '../types';
 import { DefaultsKey, withDefaults } from './responses';
 
-// mapping of name <-> node to talk to multiple nodes
-const nodes: {
+/**
+ * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
+ * reads from disk, so this gives us a small bit of performance improvement
+ */
+const rpcCache: {
   [key: string]: LnRpc;
 } = {};
 
 /**
- * Helper function to lookup a node by name and throw an error if it doesn't exist
- * @param name the name of the node
+ * Helper function to lookup a node by name in the cache or create it if
+ * it doesn't exist
  */
-const getNode = (name: keyof typeof nodes): LnRpc => {
-  if (!nodes[name]) throw new Error('Node not initialized. Try restarting the network.');
-  return nodes[name];
-};
-
-/**
- * Stores the connection info of a LND node to use for future commands
- * @param args the LNDNode to connect to
- */
-const initialize = async (args: { node: LndNode }): Promise<any> => {
-  const { name, ports, tlsPath, macaroonPath } = args.node;
-  const config = {
-    server: `127.0.0.1:${ports.grpc}`,
-    tls: tlsPath,
-    macaroonPath: macaroonPath,
-  };
-  nodes[name] = await createLndRpc(config);
-  return { success: true };
+const getRpc = async (node: LndNode): Promise<LnRpc> => {
+  const { name, ports, tlsPath, macaroonPath } = node;
+  // TODO: use node unique id for caching since is an application level global variable
+  if (!rpcCache[name]) {
+    const config = {
+      server: `127.0.0.1:${ports.grpc}`,
+      tls: tlsPath,
+      macaroonPath: macaroonPath,
+    };
+    rpcCache[name] = await createLndRpc(config);
+  }
+  return rpcCache[name];
 };
 
 /**
  * Calls the LND `getinfo` RPC command
- * @param args the name of the LND node
+ * @param args an object containing the LNDNode to connect to
  */
-const getInfo = async (args: { name: string }): Promise<GetInfoResponse> => {
-  return await getNode(args.name).getInfo();
+const getInfo = async (args: { node: LndNode }): Promise<GetInfoResponse> => {
+  return await (await getRpc(args.node)).getInfo();
 };
 
 /**
@@ -48,7 +45,6 @@ const getInfo = async (args: { name: string }): Promise<GetInfoResponse> => {
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
-  initialize,
   'get-info': getInfo,
 };
 
@@ -65,15 +61,20 @@ export const initLndProxy = (ipc: IpcMain) => {
 
     debug(`listening for ipc command "${channel}"`);
     ipc.on(reqChan, async (event, ...args) => {
+      // when a message is received by the main process...
       debug(`LndProxy: received request "${reqChan}"`, ...args);
       try {
+        // attempt to execute the associated function
         let result = await func(...args);
         if (result) {
+          // merge the result with default values since LND omits falsey values
           debug(`LndProxy: send response "${resChan}"`, result);
           result = withDefaults(result, channel as DefaultsKey);
+          // response to the calling process with a reply
           event.reply(resChan, result);
         }
       } catch (err) {
+        // reply with an error message if the execution fails
         debug(`LndProxy: send error "${resChan}"`, err);
         event.reply(resChan, { err: err.message });
       }

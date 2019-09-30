@@ -18,6 +18,7 @@ export enum Status {
 }
 
 export interface CommonNode {
+  // TODO: change id to a uuid
   id: number;
   name: string;
   type: 'bitcoin' | 'lightning';
@@ -76,7 +77,6 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  initialize: (node: LndNode) => Promise<any>;
   getInfo: (node: LndNode) => Promise<GetInfoResponse>;
   waitUntilOnline(node: LndNode): Promise<boolean>;
 }
