@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { RouteComponentProps } from 'react-router';
+import { Link } from 'react-router-dom';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Alert, PageHeader } from 'antd';
+import { Alert, Button, Empty, PageHeader } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { StatusTag } from 'components/common';
@@ -12,6 +13,12 @@ import { HOME } from 'components/routing';
 import NetworkActions from './NetworkActions';
 
 const Styled = {
+  Empty: styled(Empty)`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  `,
   NetworkView: styled.div`
     display: flex;
     flex-direction: column;
@@ -21,6 +28,7 @@ const Styled = {
     border: 1px solid rgb(235, 237, 240);
     background-color: #fff;
     margin-bottom: 10px;
+    flex: 0;
   `,
   NetworkDesigner: styled(NetworkDesigner)`
     flex: 1;
@@ -45,15 +53,26 @@ const NetworkViewWrap: React.FC<RouteComponentProps<MatchParams>> = ({ match }) 
       return <NetworkView network={network} key={match.params.id} />;
     }
   }
-  return null;
+  return (
+    <Styled.Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE}
+      description={`Could not find a network with the id '${match.params.id}'`}
+    >
+      <Link to={HOME}>
+        <Button type="primary" size="large">
+          View Networks
+        </Button>
+      </Link>
+    </Styled.Empty>
+  );
 };
 
 const NetworkView: React.FC<Props> = ({ network }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
 
   const { toggle } = useStoreActions(s => s.network);
-  const { navigateTo } = useStoreActions(s => s.app);
   const toggleAsync = useAsyncCallback(async () => toggle(network.id));
+  const { navigateTo } = useStoreActions(s => s.app);
 
   return (
     <Styled.NetworkView>
