@@ -96,22 +96,19 @@ const networkModel: NetworkModel = {
   setStatus: action((state, { id, status, only, all = true }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(`Network with the id '${id}' was not found.`);
-    if (all) {
+    const setNodeStatus = (n: CommonNode) => (n.status = status);
+    if (only) {
+      // only update a specific node's status
+      network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
+      network.nodes.bitcoin.filter(n => n.name === only).forEach(setNodeStatus);
+    } else if (all) {
       // update all node statuses
       network.status = status;
-      network.nodes.bitcoin.forEach(n => (n.status = status));
-      network.nodes.lightning.forEach(n => (n.status = status));
-    } else if (only) {
-      // if
-      const setNodeStatus = (n: CommonNode) => {
-        if (n.name === only) n.status = status;
-      };
-      network.nodes.lightning.forEach(setNodeStatus);
       network.nodes.bitcoin.forEach(setNodeStatus);
+      network.nodes.lightning.forEach(setNodeStatus);
     } else {
       // if no specific node name provided, just update the network status
       network.status = status;
-      network.nodes.bitcoin.forEach(n => (n.status = status));
     }
   }),
   start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
@@ -119,18 +116,30 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     actions.setStatus({ id: network.id, status: Status.Starting });
     try {
+      // start the docker containers
       await injections.dockerService.start(network);
+      // set the status of only the network to Started
       actions.setStatus({ id: network.id, status: Status.Started, all: false });
+      // wait for lnd nodes to come online before updating their status
       for (const lnd of network.nodes.lightning) {
         await getStoreActions().lnd.initialize(lnd);
-        // don't set the status of each LND node until it can respond to getInfo
-        injections.lndService.waitUntilOnline(lnd).then(online =>
+        injections.lndService.waitUntilOnline(lnd).then(isOnline => {
           actions.setStatus({
             id: network.id,
-            status: online ? Status.Started : Status.Error,
+            status: isOnline ? Status.Started : Status.Error,
             only: lnd.name,
-          }),
-        );
+          });
+        });
+      }
+      // wait for bitcoind nodes to come online before updating their status
+      for (const bitcoind of network.nodes.bitcoin) {
+        injections.bitcoindService.waitUntilOnline(bitcoind.ports.rpc).then(isOnline => {
+          actions.setStatus({
+            id: network.id,
+            status: isOnline ? Status.Started : Status.Error,
+            only: bitcoind.name,
+          });
+        });
       }
     } catch (e) {
       actions.setStatus({ id: network.id, status: Status.Error });

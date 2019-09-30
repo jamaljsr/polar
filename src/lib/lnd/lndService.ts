@@ -10,6 +10,7 @@ class LndService implements LndLibrary {
     this.ipc = createIpcSender('LndService', 'lnd');
   }
 
+  // TODO: remove initialize
   async initialize(node: LndNode): Promise<void> {
     await this.ipc('initialize', { node });
   }
@@ -23,9 +24,9 @@ class LndService implements LndLibrary {
       async () => {
         try {
           await this.getInfo(node);
-          return Promise.resolve(true);
+          return true;
         } catch {
-          return Promise.resolve(false);
+          return false;
         }
       },
       3 * 1000, // check every 3 seconds

@@ -45,7 +45,14 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
 
   return (
     <>
-      <DetailsList details={details} />
+      {node.status === Status.Starting && (
+        <Alert
+          type="info"
+          showIcon
+          closable={false}
+          message="Waiting for bitcoind to come online"
+        />
+      )}
       {getInfoAsync.error && (
         <Alert
           type="error"
@@ -54,6 +61,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           description={getInfoAsync.error.message}
         />
       )}
+      <DetailsList details={details} />
       {node.status === Status.Started && <MineBlocksInput node={node} />}
     </>
   );
