@@ -17,13 +17,8 @@ describe('LndService', () => {
     lndService.ipc = actualIpc;
   });
 
-  it('should call the initialize ipc', () => {
-    lndService.initialize(node);
-    expect(lndService.ipc).toBeCalledWith('initialize', { node });
-  });
-
   it('should call the getInfo ipc', () => {
     lndService.getInfo(node);
-    expect(lndService.ipc).toBeCalledWith('get-info', { name: node.name });
+    expect(lndService.ipc).toBeCalledWith('get-info', { node });
   });
 });
