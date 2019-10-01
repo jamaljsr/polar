@@ -82,6 +82,7 @@ const NetworkView: React.FC<Props> = ({ network }) => {
         tags={<StatusTag status={network.status} />}
         extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
       />
+      {/* TODO: display an info alert that the first startup may be slow */}
       {/* TODO: improve error messages from docker */}
       {toggleAsync.error && <Alert type="error" message={toggleAsync.error.message} />}
       <Styled.NetworkDesigner network={network} />

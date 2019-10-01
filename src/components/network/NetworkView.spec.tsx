@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, wait } from '@testing-library/dom';
 import { createMemoryHistory } from 'history';
 import { Status } from 'types';
+import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkView from './NetworkView';
 
@@ -12,9 +13,15 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 
 describe('NetworkView Component', () => {
   const renderComponent = (id: string | undefined, status?: Status) => {
+    const network = getNetwork(1, 'test network', status);
     const initialState = {
       network: {
-        networks: [getNetwork(1, 'test network', status)],
+        networks: [network],
+      },
+      designer: {
+        allCharts: {
+          1: initChartFromNetwork(network),
+        },
       },
     };
     const route = `/network/${id}`;
