@@ -79,6 +79,9 @@ const designerModel: DesignerModel = {
       }
     },
   ),
+  // This file is excluded from test coverage analysis because
+  // these actions were copied with a little modification from
+  // https://github.com/MrBlenny/react-flow-chart/blob/master/src/container/actions.ts
   onDragNode: action((state, { config, data, id }) => {
     const chart = state.allCharts[state.activeId];
     if (chart.nodes[id]) {
