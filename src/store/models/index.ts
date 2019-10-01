@@ -4,6 +4,7 @@ import { History } from 'history';
 import { AnyAction } from 'redux';
 import appModel, { AppModel } from './app';
 import bitcoindModel, { BitcoindModel } from './bitcoind';
+import designerModel, { DesignerModel } from './designer';
 import lndModel, { LndModel } from './lnd';
 import networkModel, { NetworkModel } from './network';
 
@@ -13,6 +14,7 @@ export interface RootModel {
   network: NetworkModel;
   bitcoind: BitcoindModel;
   lnd: LndModel;
+  designer: DesignerModel;
 }
 
 export const createModel = (history: History<any>): RootModel => {
@@ -22,6 +24,7 @@ export const createModel = (history: History<any>): RootModel => {
     network: networkModel,
     bitcoind: bitcoindModel,
     lnd: lndModel,
+    designer: designerModel,
   };
   return rootModel;
 };
