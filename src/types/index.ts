@@ -54,7 +54,6 @@ export interface Network {
   name: string;
   status: Status;
   path: string;
-  design?: IChart;
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LndNode[];
@@ -65,8 +64,8 @@ export interface DockerLibrary {
   create: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
-  save: (networks: Network[]) => Promise<void>;
-  load: () => Promise<Network[]>;
+  save: (networks: NetworksFile) => Promise<void>;
+  load: () => Promise<NetworksFile>;
 }
 
 export interface BitcoindLibrary {
@@ -85,4 +84,9 @@ export interface StoreInjections {
   dockerService: DockerLibrary;
   bitcoindService: BitcoindLibrary;
   lndService: LndLibrary;
+}
+
+export interface NetworksFile {
+  networks: Network[];
+  charts: Record<number, IChart>;
 }

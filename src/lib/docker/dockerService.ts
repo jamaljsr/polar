@@ -2,7 +2,7 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
-import { DockerLibrary, LndNode, Network } from 'types';
+import { DockerLibrary, LndNode, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
 import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
@@ -78,8 +78,8 @@ class DockerService implements DockerLibrary {
    * Saves the given networks to disk
    * @param networks the list of networks to save
    */
-  async save(networks: Network[]) {
-    const json = JSON.stringify(networks, null, 2);
+  async save(data: NetworksFile) {
+    const json = JSON.stringify(data, null, 2);
     const path = join(networksPath, 'networks.json');
     await write(path, json);
     info(`saved networks to '${path}'`);
@@ -88,7 +88,7 @@ class DockerService implements DockerLibrary {
   /**
    * Loads a list of networks from the file system
    */
-  async load(): Promise<Network[]> {
+  async load(): Promise<NetworksFile> {
     const path = join(networksPath, 'networks.json');
     if (await exists(path)) {
       const json = await read(path);
@@ -97,7 +97,7 @@ class DockerService implements DockerLibrary {
       return networks;
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
-      return [];
+      return { networks: [], charts: {} };
     }
   }
 }
