@@ -81,7 +81,7 @@
     "connected-react-router": "^6.5.2",
     "cross-env": "^6.0.2",
     "devtron": "^1.4.0",
-    "easy-peasy": "3.0.2",
+    "easy-peasy": "3.1.0",
     "electron": "^6.0.10",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.4",
