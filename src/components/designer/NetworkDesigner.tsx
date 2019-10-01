@@ -22,7 +22,6 @@ interface Props {
   network: Network;
   updateStateDelay?: number;
 }
-
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
   // update the redux store with the current network's chart
@@ -36,8 +35,10 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   // which can be many, ex: onDragNode, onDragCanvas, etc
   const debouncedChart = useDebounce(chart, updateStateDelay);
   useEffect(() => {
-    // save to disk when the design is changed (debounced)
-    save();
+    if (debouncedChart) {
+      // save to disk when the chart is changed (debounced)
+      save();
+    }
   }, [debouncedChart, save]);
 
   if (!chart) return <Loader />;

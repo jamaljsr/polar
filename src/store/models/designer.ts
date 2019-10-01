@@ -1,5 +1,6 @@
 import RFC, { IChart, IConfig, IPosition } from '@mrblenny/react-flow-chart';
-import { Action, action, Computed, computed } from 'easy-peasy';
+import { Action, action, ActionOn, actionOn, Computed, computed } from 'easy-peasy';
+import { RootModel } from './';
 
 export const rotate = (
   center: IPosition,
@@ -26,6 +27,7 @@ export interface DesignerModel {
   setActiveId: Action<DesignerModel, number>;
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
   addChart: Action<DesignerModel, { id: number; chart: IChart }>;
+  onSetStatus: ActionOn<DesignerModel, RootModel>;
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
   onDragCanvas: Action<DesignerModel, Parameters<RFC.IOnDragCanvas>[0]>;
   onLinkStart: Action<DesignerModel, Parameters<RFC.IOnLinkStart>[0]>;
@@ -44,9 +46,12 @@ export interface DesignerModel {
 }
 
 const designerModel: DesignerModel = {
-  activeId: 0,
+  // state properties
+  activeId: -1,
   allCharts: {},
+  // computed properties/functions
   activeChart: computed(state => state.allCharts[state.activeId]),
+  // reducer actions (mutations allowed thx to immer)
   setActiveId: action((state, networkId) => {
     if (!state.allCharts[networkId])
       throw new Error(`Chart not found for network with id ${networkId}`);
@@ -58,6 +63,22 @@ const designerModel: DesignerModel = {
   addChart: action((state, { id, chart }) => {
     state.allCharts[id] = chart;
   }),
+  onSetStatus: actionOn(
+    (actions, storeActions) => storeActions.network.setStatus,
+    (state, { payload }) => {
+      const { id, status, only, all = true } = payload;
+      const chart = state.allCharts[id];
+      if (only) {
+        // only update a specific node's status
+        chart.nodes[only].properties.status = status;
+      } else if (all) {
+        // update all node statuses
+        Object.keys(chart.nodes).forEach(
+          name => (chart.nodes[name].properties.status = status),
+        );
+      }
+    },
+  ),
   onDragNode: action((state, { config, data, id }) => {
     const chart = state.allCharts[state.activeId];
     if (chart.nodes[id]) {
@@ -175,9 +196,8 @@ const designerModel: DesignerModel = {
   }),
   onNodeSizeChange: action((state, { nodeId, size }) => {
     const chart = state.allCharts[state.activeId];
-    chart.nodes[nodeId] = {
-      ...chart.nodes[nodeId],
-      size,
+    chart.nodes[nodeId].size = {
+      ...size,
     };
   }),
   onPortPositionChange: action((state, { node: nodeToUpdate, port, el, nodesEl }) => {
