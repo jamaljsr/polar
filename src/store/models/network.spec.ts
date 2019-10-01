@@ -3,6 +3,7 @@ import { Network, Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
 import { getNetwork, injections } from 'utils/tests';
+import designerModel from './designer';
 import lndModel from './lnd';
 import networkModel from './network';
 
@@ -19,6 +20,7 @@ describe('Network model', () => {
   const rootModel = {
     network: networkModel,
     lnd: lndModel,
+    designer: designerModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -47,8 +49,9 @@ describe('Network model', () => {
 
   it('should load a list of networks', async () => {
     const mockNetworks = [getNetwork(1, 'test 1'), getNetwork(2, 'test 2')];
+    const mockCharts = mockNetworks.map(initChartFromNetwork);
     const mockedLoad = injections.dockerService.load as jest.Mock;
-    mockedLoad.mockResolvedValue(mockNetworks);
+    mockedLoad.mockResolvedValue({ networks: mockNetworks, charts: mockCharts });
     await store.getActions().network.load();
     const [net1, net2] = store.getState().network.networks;
     expect(net1.name).toBe('test 1');
@@ -199,16 +202,19 @@ describe('Network model', () => {
   });
 
   describe('Stopping', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
     it('should stop a network by id', async () => {
-      const { add, stop } = store.getActions().network;
-      add(addNetworkArgs);
+      const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
       expect(firstNetwork().status).toBe(Status.Stopped);
     });
 
     it('should update all node statuses when a network is stopped', async () => {
-      const { add, stop } = store.getActions().network;
-      add(addNetworkArgs);
+      const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
       const { bitcoin, lightning } = firstNetwork().nodes;
       bitcoin.forEach(node => expect(node.status).toBe(Status.Stopped));
@@ -216,14 +222,12 @@ describe('Network model', () => {
     });
 
     it('should fail to stop a network with an invalid id', async () => {
-      const { add, stop } = store.getActions().network;
-      add(addNetworkArgs);
+      const { stop } = store.getActions().network;
       await expect(stop(10)).rejects.toThrow();
     });
 
     it('should update all node statuses when a network fails to stop', async () => {
-      const { add, stop } = store.getActions().network;
-      add(addNetworkArgs);
+      const { stop } = store.getActions().network;
       // mock dockerService.stop to throw an error
       const mockDockerStart = injections.dockerService.stop as jest.Mock;
       mockDockerStart.mockRejectedValueOnce(new Error('stop failed'));
@@ -238,53 +242,52 @@ describe('Network model', () => {
     });
 
     it('should call the dockerService when stopping a network', async () => {
-      const { add, stop } = store.getActions().network;
-      add(addNetworkArgs);
+      const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
       expect(injections.dockerService.stop).toBeCalledWith(firstNetwork());
     });
   });
 
   describe('Toggle', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
     it('should start if its currently stopped', async () => {
-      const { add, toggle } = store.getActions().network;
-      add(addNetworkArgs);
+      const { toggle } = store.getActions().network;
       await toggle(firstNetwork().id);
       expect(firstNetwork().status).toBe(Status.Started);
     });
 
     it('should restart if its currently error', async () => {
-      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
-      add(addNetworkArgs);
+      const { setStatus, toggle } = store.getActions().network;
       const id = firstNetwork().id;
-      setNetworkStatus({ id, status: Status.Error });
+      setStatus({ id, status: Status.Error });
       await toggle(id);
       expect(firstNetwork().status).toBe(Status.Started);
     });
 
     it('should stop if its currently started', async () => {
-      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
-      add(addNetworkArgs);
+      const { setStatus, toggle } = store.getActions().network;
       const id = firstNetwork().id;
-      setNetworkStatus({ id, status: Status.Started });
+      setStatus({ id, status: Status.Started });
       await toggle(id);
       expect(firstNetwork().status).toBe(Status.Stopped);
     });
 
     it('should do nothing if its currently starting', async () => {
-      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
-      add(addNetworkArgs);
+      const { setStatus, toggle } = store.getActions().network;
       const id = firstNetwork().id;
-      setNetworkStatus({ id, status: Status.Starting });
+      setStatus({ id, status: Status.Starting });
       await toggle(id);
       expect(firstNetwork().status).toBe(Status.Starting);
     });
 
     it('should do nothing if its currently stopping', async () => {
-      const { add, setStatus: setNetworkStatus, toggle } = store.getActions().network;
-      add(addNetworkArgs);
+      const { setStatus, toggle } = store.getActions().network;
       const id = firstNetwork().id;
-      setNetworkStatus({ id, status: Status.Stopping });
+      setStatus({ id, status: Status.Stopping });
       await toggle(id);
       expect(firstNetwork().status).toBe(Status.Stopping);
     });
@@ -299,23 +302,6 @@ describe('Network model', () => {
     it('should fail to set the status with an invalid id', () => {
       const { setStatus: setNetworkStatus } = store.getActions().network;
       expect(() => setNetworkStatus({ id: 10, status: Status.Starting })).toThrow();
-    });
-
-    it('should set the network design correctly', () => {
-      const { add, setNetworkDesign } = store.getActions().network;
-      add(addNetworkArgs);
-      const network = firstNetwork();
-      const chart = initChartFromNetwork(network);
-      setNetworkDesign({ id: network.id, chart });
-      expect(firstNetwork().design).toEqual(chart);
-    });
-
-    it('should fail to set the network design with an invalid id', () => {
-      const { add, setNetworkDesign } = store.getActions().network;
-      add(addNetworkArgs);
-      const network = firstNetwork();
-      const chart = initChartFromNetwork(network);
-      expect(() => setNetworkDesign({ id: 10, chart })).toThrow();
     });
   });
 });

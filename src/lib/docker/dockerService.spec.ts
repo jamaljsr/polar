@@ -70,7 +70,7 @@ describe('DockerService', () => {
     });
 
     it('should save a list of networks to disk', () => {
-      dockerService.save([network]);
+      dockerService.save({ networks: [network], charts: {} });
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
         expect.stringContaining(`"name": "${network.name}"`),
@@ -81,8 +81,8 @@ describe('DockerService', () => {
   describe('loading data', () => {
     it('should load the list of networks from disk', async () => {
       filesMock.exists.mockResolvedValue(true);
-      filesMock.read.mockResolvedValue('[]');
-      const networks = await dockerService.load();
+      filesMock.read.mockResolvedValue('{ "networks": [], "charts": {} }');
+      const { networks } = await dockerService.load();
       expect(networks.length).toBe(0);
       expect(filesMock.read).toBeCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
@@ -91,7 +91,7 @@ describe('DockerService', () => {
 
     it('should return an empty list if no networks are saved', async () => {
       filesMock.exists.mockResolvedValue(false);
-      const networks = await dockerService.load();
+      const { networks } = await dockerService.load();
       expect(Array.isArray(networks)).toBe(true);
       expect(networks.length).toBe(0);
     });

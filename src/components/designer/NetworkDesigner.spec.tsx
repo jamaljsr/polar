@@ -1,22 +1,8 @@
 import React from 'react';
-import { IChart } from '@mrblenny/react-flow-chart';
-import * as chartCallbacks from '@mrblenny/react-flow-chart/src/container/actions';
 import { fireEvent, wait } from '@testing-library/dom';
+import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import NetworkDesigner from './NetworkDesigner';
-
-// mock the chart actions so that we can track when they are called
-jest.mock('@mrblenny/react-flow-chart/src/container/actions', () => {
-  const actualCallbacks = jest.requireActual(
-    '@mrblenny/react-flow-chart/src/container/actions',
-  );
-  return {
-    ...actualCallbacks,
-    onNodeClick: jest.fn(),
-  };
-});
-
-const mockChartCallbacks = chartCallbacks as jest.Mocked<typeof chartCallbacks>;
 
 describe('NetworkDesigner Component', () => {
   beforeAll(() => {
@@ -35,6 +21,11 @@ describe('NetworkDesigner Component', () => {
       network: {
         networks: [network],
       },
+      designer: {
+        allCharts: {
+          1: initChartFromNetwork(network),
+        },
+      },
     };
     const cmp = <NetworkDesigner network={network} updateStateDelay={0} />;
     return renderWithProviders(cmp, { initialState });
@@ -45,16 +36,6 @@ describe('NetworkDesigner Component', () => {
     expect(getByText('lnd-1')).toBeInTheDocument();
     expect(getByText('lnd-2')).toBeInTheDocument();
     expect(getByText('bitcoind-1')).toBeInTheDocument();
-  });
-
-  it('should execute onNodeClick callback', () => {
-    const { onNodeClick } = jest.requireActual(
-      '@mrblenny/react-flow-chart/src/container/actions',
-    );
-    mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
-    const { getByText } = renderComponent();
-    fireEvent.click(getByText('lnd-1'));
-    expect(mockChartCallbacks.onNodeClick).toBeCalledTimes(1);
   });
 
   it('should render correct # of LND nodes', () => {
@@ -73,27 +54,19 @@ describe('NetworkDesigner Component', () => {
   });
 
   it('should update the redux state after a delay', async () => {
-    const { onNodeClick } = jest.requireActual(
-      '@mrblenny/react-flow-chart/src/container/actions',
-    );
-    mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
     const { getByText, store } = renderComponent();
-    expect(store.getState().network.networks[0].design).not.toBeNull();
+    expect(store.getState().designer.activeChart.selected.id).toBeFalsy();
     fireEvent.click(getByText('lnd-1'));
 
     await wait(() => {
-      const design = store.getState().network.networks[0].design as IChart;
-      expect(design.selected.id).not.toBeUndefined();
+      expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
     });
   });
 
   it('should display node details in the sidebar when a node is selected', async () => {
-    const { onNodeClick } = jest.requireActual(
-      '@mrblenny/react-flow-chart/src/container/actions',
-    );
-    mockChartCallbacks.onNodeClick.mockImplementation(onNodeClick);
-    const { getByText, findByText } = renderComponent();
+    const { getByText, queryByText, findByText } = renderComponent();
     expect(getByText('bitcoind-1')).toBeInTheDocument();
+    expect(queryByText('Node Type')).not.toBeInTheDocument();
     // click the bitcoind node in the chart
     fireEvent.click(getByText('bitcoind-1'));
     // ensure text from the sidebar is visible
