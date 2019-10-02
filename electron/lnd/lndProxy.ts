@@ -1,6 +1,10 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import createLndRpc, { GetInfoResponse, LnRpc } from '@radar/lnrpc';
+import createLndRpc, {
+  GetInfoResponse,
+  LnRpc,
+  WalletBalanceResponse,
+} from '@radar/lnrpc';
 import { LndNode } from '../types';
 import { DefaultsKey, withDefaults } from './responses';
 
@@ -39,6 +43,14 @@ const getInfo = async (args: { node: LndNode }): Promise<GetInfoResponse> => {
 };
 
 /**
+ * Calls the LND `walletBalance` RPC command
+ * @param args an object containing the LNDNode to connect to
+ */
+const walletBalance = async (args: { node: LndNode }): Promise<WalletBalanceResponse> => {
+  return await (await getRpc(args.node)).walletBalance();
+};
+
+/**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
  */
@@ -46,6 +58,7 @@ const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
   'get-info': getInfo,
+  'wallet-balance': walletBalance,
 };
 
 /**
