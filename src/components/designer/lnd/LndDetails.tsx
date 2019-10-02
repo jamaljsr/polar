@@ -8,11 +8,12 @@ import { Loader, StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
-  const { getInfo } = useStoreActions(s => s.lnd);
+  const { getInfo, getWalletBalance } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
       if (node.status === Status.Started) {
-        return await getInfo(node);
+        await getInfo(node);
+        await getWalletBalance(node);
       }
     },
     [node],
@@ -34,15 +35,21 @@ const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
   ];
 
   const nodeState = nodes[node.name];
-  if (node.status === Status.Started && nodeState && nodeState.info) {
-    const { identityPubkey, alias, syncedToChain } = nodeState.info;
-    details.push(
-      { label: 'GRPC Host', value: `127.0.0.1:${node.ports.grpc}` },
-      { label: 'REST Host', value: `127.0.0.1:${node.ports.rest}` },
-      { label: 'Alias', value: alias },
-      { label: 'Pubkey', value: ellipseInner(identityPubkey) },
-      { label: 'Synced to Chain', value: `${syncedToChain}` },
-    );
+  if (node.status === Status.Started && nodeState) {
+    if (nodeState.walletBalance) {
+      const { totalBalance } = nodeState.walletBalance;
+      details.push({ label: 'Wallet Balance', value: `${totalBalance} BTC` });
+    }
+    if (nodeState.info) {
+      const { identityPubkey, alias, syncedToChain } = nodeState.info;
+      details.push(
+        { label: 'GRPC Host', value: `127.0.0.1:${node.ports.grpc}` },
+        { label: 'REST Host', value: `127.0.0.1:${node.ports.rest}` },
+        { label: 'Alias', value: alias },
+        { label: 'Pubkey', value: ellipseInner(identityPubkey) },
+        { label: 'Synced to Chain', value: `${syncedToChain}` },
+      );
+    }
   }
 
   return (

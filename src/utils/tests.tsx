@@ -34,6 +34,7 @@ export const injections: StoreInjections = {
   },
   lndService: {
     getInfo: jest.fn(),
+    getWalletBalance: jest.fn(),
     waitUntilOnline: jest.fn(),
   },
 };

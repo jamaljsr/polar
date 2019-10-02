@@ -1,5 +1,5 @@
 import { IChart } from '@mrblenny/react-flow-chart';
-import { GetInfoResponse } from '@radar/lnrpc';
+import { GetInfoResponse, WalletBalanceResponse } from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 
 export interface LocalConfig {
@@ -77,6 +77,7 @@ export interface BitcoindLibrary {
 
 export interface LndLibrary {
   getInfo: (node: LndNode) => Promise<GetInfoResponse>;
+  getWalletBalance(node: LndNode): Promise<WalletBalanceResponse>;
   waitUntilOnline(node: LndNode): Promise<boolean>;
 }
 
