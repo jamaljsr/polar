@@ -1,6 +1,6 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import createLndRpc, * as RPC from '@radar/lnrpc';
+import createLndRpc, * as LND from '@radar/lnrpc';
 import { LndNode } from '../types';
 import { DefaultsKey, withDefaults } from './responses';
 
@@ -9,14 +9,14 @@ import { DefaultsKey, withDefaults } from './responses';
  * reads from disk, so this gives us a small bit of performance improvement
  */
 const rpcCache: {
-  [key: string]: RPC.LnRpc;
+  [key: string]: LND.LnRpc;
 } = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: LndNode): Promise<RPC.LnRpc> => {
+const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
   const { name, ports, tlsPath, macaroonPath } = node;
   // TODO: use node unique id for caching since is an application level global variable
   if (!rpcCache[name]) {
@@ -34,7 +34,7 @@ const getRpc = async (node: LndNode): Promise<RPC.LnRpc> => {
  * Calls the LND `getinfo` RPC command
  * @param args an object containing the LNDNode to connect to
  */
-const getInfo = async (args: { node: LndNode }): Promise<RPC.GetInfoResponse> => {
+const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.getInfo();
 };
@@ -45,7 +45,7 @@ const getInfo = async (args: { node: LndNode }): Promise<RPC.GetInfoResponse> =>
  */
 const walletBalance = async (args: {
   node: LndNode;
-}): Promise<RPC.WalletBalanceResponse> => {
+}): Promise<LND.WalletBalanceResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.walletBalance();
 };
@@ -54,7 +54,7 @@ const walletBalance = async (args: {
  * Calls the LND `newAddress` RPC command
  * @param args an object containing the LNDNode to connect to
  */
-const newAddress = async (args: { node: LndNode }): Promise<RPC.NewAddressResponse> => {
+const newAddress = async (args: { node: LndNode }): Promise<LND.NewAddressResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.newAddress();
 };

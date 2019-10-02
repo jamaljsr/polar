@@ -1,10 +1,6 @@
 import { IpcSender } from 'lib/ipc/ipcService';
 import { getNetwork } from 'utils/tests';
-// import * as asyncUtil from 'utils/async';
 import lndService from './lndService';
-
-// jest.mock('utils/async');
-// const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
 
 describe('LndService', () => {
   const node = getNetwork().nodes.lightning[0];
@@ -24,6 +20,16 @@ describe('LndService', () => {
   it('should call the getInfo ipc', () => {
     lndService.getInfo(node);
     expect(lndService.ipc).toBeCalledWith('get-info', { node });
+  });
+
+  it('should call the getWalletBalance ipc', () => {
+    lndService.getWalletBalance(node);
+    expect(lndService.ipc).toBeCalledWith('wallet-balance', { node });
+  });
+
+  it('should call the getNewAddress ipc', () => {
+    lndService.getNewAddress(node);
+    expect(lndService.ipc).toBeCalledWith('new-address', { node });
   });
 
   describe('waitUntilOnline', () => {
