@@ -1,10 +1,6 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import createLndRpc, {
-  GetInfoResponse,
-  LnRpc,
-  WalletBalanceResponse,
-} from '@radar/lnrpc';
+import createLndRpc, * as RPC from '@radar/lnrpc';
 import { LndNode } from '../types';
 import { DefaultsKey, withDefaults } from './responses';
 
@@ -13,14 +9,14 @@ import { DefaultsKey, withDefaults } from './responses';
  * reads from disk, so this gives us a small bit of performance improvement
  */
 const rpcCache: {
-  [key: string]: LnRpc;
+  [key: string]: RPC.LnRpc;
 } = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: LndNode): Promise<LnRpc> => {
+const getRpc = async (node: LndNode): Promise<RPC.LnRpc> => {
   const { name, ports, tlsPath, macaroonPath } = node;
   // TODO: use node unique id for caching since is an application level global variable
   if (!rpcCache[name]) {
@@ -38,16 +34,29 @@ const getRpc = async (node: LndNode): Promise<LnRpc> => {
  * Calls the LND `getinfo` RPC command
  * @param args an object containing the LNDNode to connect to
  */
-const getInfo = async (args: { node: LndNode }): Promise<GetInfoResponse> => {
-  return await (await getRpc(args.node)).getInfo();
+const getInfo = async (args: { node: LndNode }): Promise<RPC.GetInfoResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.getInfo();
 };
 
 /**
  * Calls the LND `walletBalance` RPC command
  * @param args an object containing the LNDNode to connect to
  */
-const walletBalance = async (args: { node: LndNode }): Promise<WalletBalanceResponse> => {
-  return await (await getRpc(args.node)).walletBalance();
+const walletBalance = async (args: {
+  node: LndNode;
+}): Promise<RPC.WalletBalanceResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.walletBalance();
+};
+
+/**
+ * Calls the LND `newAddress` RPC command
+ * @param args an object containing the LNDNode to connect to
+ */
+const newAddress = async (args: { node: LndNode }): Promise<RPC.NewAddressResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.newAddress();
 };
 
 /**
@@ -59,6 +68,7 @@ const listeners: {
 } = {
   'get-info': getInfo,
   'wallet-balance': walletBalance,
+  'new-address': newAddress,
 };
 
 /**

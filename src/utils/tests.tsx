@@ -27,15 +27,17 @@ export const injections: StoreInjections = {
     load: jest.fn(),
   },
   bitcoindService: {
+    waitUntilOnline: jest.fn(),
     getBlockchainInfo: jest.fn(),
     getWalletInfo: jest.fn(),
-    waitUntilOnline: jest.fn(),
+    sendFunds: jest.fn(),
     mine: jest.fn(),
   },
   lndService: {
     getInfo: jest.fn(),
     getWalletBalance: jest.fn(),
     waitUntilOnline: jest.fn(),
+    getNewAddress: jest.fn(),
   },
 };
 

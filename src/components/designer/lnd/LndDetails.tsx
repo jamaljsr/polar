@@ -6,6 +6,7 @@ import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { Loader, StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
+import LndDeposit from './LndDeposit';
 
 const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
   const { getInfo, getWalletBalance } = useStoreActions(s => s.lnd);
@@ -37,8 +38,9 @@ const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
-      const { totalBalance } = nodeState.walletBalance;
-      details.push({ label: 'Wallet Balance', value: `${totalBalance} BTC` });
+      const { confirmedBalance, unconfirmedBalance } = nodeState.walletBalance;
+      details.push({ label: 'Confirmed Balance', value: `${confirmedBalance} sats` });
+      details.push({ label: 'Unconfirmed Balance', value: `${unconfirmedBalance} sats` });
     }
     if (nodeState.info) {
       const { identityPubkey, alias, syncedToChain } = nodeState.info;
@@ -71,6 +73,7 @@ const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
         />
       )}
       <DetailsList details={details} />
+      {node.status === Status.Started && <LndDeposit node={node} />}
     </>
   );
 };

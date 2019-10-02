@@ -1,4 +1,11 @@
 /**
+ * Returns a promise that will be reolved after the specified timeout
+ * @param timeout the amount of ms to wait
+ */
+export const delay = async (timeout: number) =>
+  new Promise(resolve => setTimeout(resolve, timeout));
+
+/**
  * Returns a promise that will ressolve when the return value of the conditionFunc is true
  * @param conditionFunc the function to execute which determines when the call succeeds. Must return a Promise
  * @param interval the number of ms between each execution of the conditionFunc

@@ -1,6 +1,8 @@
 import BitcoinCore from 'bitcoin-core';
-import { BitcoindLibrary } from 'types';
+import { BitcoindLibrary, BitcoinNode } from 'types';
 import { waitFor } from 'utils/async';
+
+const BLOCKS_TIL_COMFIRMED = 6; // TODO: move to constants file
 
 class BitcoindService implements BitcoindLibrary {
   creatClient(port = 18433) {
@@ -17,6 +19,27 @@ class BitcoindService implements BitcoindLibrary {
 
   async getWalletInfo(port?: number) {
     return await this.creatClient(port).getWalletInfo();
+  }
+
+  async sendFunds(node: BitcoinNode, address: string, amount: number) {
+    const port = node.ports.rpc;
+    const client = this.creatClient(port);
+    const { balance } = await client.getWalletInfo();
+    if (balance <= amount) {
+      // if the bitcoin node doesn't have enough coins them mine more
+      await this.mineUntilMaturity(port);
+      await this.mine(this.getBlocksToMine(amount - balance), port);
+    }
+    const txid = await client.sendToAddress(address, amount);
+    // mine more blocks to confirm the txn
+    await this.mine(BLOCKS_TIL_COMFIRMED, port);
+    return txid;
+  }
+
+  async mine(numBlocks: number, port?: number) {
+    const client = this.creatClient(port);
+    const addr = await client.getNewAddress();
+    return await client.generateToAddress(numBlocks, addr);
   }
 
   async waitUntilOnline(
@@ -38,10 +61,29 @@ class BitcoindService implements BitcoindLibrary {
     );
   }
 
-  async mine(numBlocks: number, port?: number) {
-    const client = this.creatClient(port);
-    const addr = await client.getNewAddress();
-    return await client.generateToAddress(numBlocks, addr);
+  /**
+   * will mine up to block #100 if necessary in order for
+   * fresh coins to be spendable
+   */
+  private async mineUntilMaturity(port?: number) {
+    const { blocks } = await this.getBlockchainInfo(port);
+    if (blocks < 100) {
+      const blocksLeft = 100 - blocks;
+      await this.mine(blocksLeft, port);
+    }
+  }
+
+  /**
+   * Returns the number of blocks to mine in order to generate the desired
+   * number of coins
+   * @param desiredCoins the amount of coins to increase the balance by
+   */
+  private getBlocksToMine(desiredCoins: number): number {
+    // TODO: factor in the halvings
+    const COINS_PER_BLOCK = 50;
+    const numBlocks = desiredCoins / COINS_PER_BLOCK;
+    // round the number up 1
+    return Math.round(numBlocks) + 1;
   }
 }
 

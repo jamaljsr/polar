@@ -27,6 +27,7 @@ export const createNetwork = (config: {
 
   network.nodes.bitcoin = range(bitcoindNodes).map<BitcoinNode>((v, i) => ({
     id: i,
+    networkId: id,
     name: `bitcoind-${i + 1}`,
     type: 'bitcoin',
     implementation: 'bitcoind',
@@ -47,6 +48,7 @@ export const createNetwork = (config: {
     .map((v, i) => `lnd-${i + 1}`)
     .map<LndNode>((name, i) => ({
       id: i,
+      networkId: id,
       name: name,
       type: 'lightning',
       implementation: 'LND',

@@ -1,4 +1,4 @@
-import { GetInfoResponse, WalletBalanceResponse } from '@radar/lnrpc';
+import * as RPC from '@radar/lnrpc';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 import { LndLibrary, LndNode } from 'types';
 import { waitFor } from 'utils/async';
@@ -10,12 +10,16 @@ class LndService implements LndLibrary {
     this.ipc = createIpcSender('LndService', 'lnd');
   }
 
-  async getInfo(node: LndNode): Promise<GetInfoResponse> {
+  async getInfo(node: LndNode): Promise<RPC.GetInfoResponse> {
     return await this.ipc('get-info', { node });
   }
 
-  async getWalletBalance(node: LndNode): Promise<WalletBalanceResponse> {
+  async getWalletBalance(node: LndNode): Promise<RPC.WalletBalanceResponse> {
     return await this.ipc('wallet-balance', { node });
+  }
+
+  async getNewAddress(node: LndNode): Promise<RPC.NewAddressResponse> {
+    return await this.ipc('new-address', { node });
   }
 
   async waitUntilOnline(
