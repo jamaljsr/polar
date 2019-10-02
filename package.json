@@ -82,7 +82,7 @@
     "cross-env": "^6.0.2",
     "devtron": "^1.4.0",
     "easy-peasy": "3.1.0",
-    "electron": "^6.0.10",
+    "electron": "^6.0.11",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.4",
     "eslint": "^6.2.0",
