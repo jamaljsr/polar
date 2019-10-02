@@ -79,7 +79,7 @@
     "commitizen": "^4.0.3",
     "concurrently": "^4.1.2",
     "connected-react-router": "^6.5.2",
-    "cross-env": "^6.0.2",
+    "cross-env": "^6.0.3",
     "devtron": "^1.4.0",
     "easy-peasy": "3.1.0",
     "electron": "^6.0.11",
