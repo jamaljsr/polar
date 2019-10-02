@@ -1,5 +1,5 @@
 {
-  "extends": ["config:base"],
+  "extends": ["config:js-app", "schedule:weekly"],
   "rangeStrategy": "bump",
   "automerge": true,
   "major": {
