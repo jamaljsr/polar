@@ -1,5 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import * as LND from '@radar/lnrpc';
 import { render } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
@@ -89,5 +90,10 @@ export const mockLndResponses = {
     version: '',
     numInactiveChannels: 0,
     color: '',
-  },
+  } as LND.GetInfoResponse,
+  getWalletBalance: {
+    confirmedBalance: '0',
+    unconfirmedBalance: '0',
+    totalBalance: '0',
+  } as LND.WalletBalanceResponse,
 };

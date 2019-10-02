@@ -1,51 +1,97 @@
-import { GetInfoResponse } from '@radar/lnrpc';
+import * as LND from '@radar/lnrpc';
 import { createStore } from 'easy-peasy';
-import { LndLibrary } from 'types';
-import * as files from 'utils/files';
+import { BitcoindLibrary, LndLibrary } from 'types';
+import * as asyncUtil from 'utils/async';
 import { getNetwork, injections, mockLndResponses } from 'utils/tests';
 import lndModel from './lnd';
+import networkModel from './network';
 
-jest.mock('utils/files', () => ({
-  waitForFile: jest.fn(),
-}));
-
-const filesMock = files as jest.Mocked<typeof files>;
+jest.mock('utils/async');
+const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
+const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('LND Model', () => {
+  const rootModel = {
+    network: networkModel,
+    lnd: lndModel,
+  };
+  const initialState = {
+    network: {
+      networks: [getNetwork()],
+    },
+  };
   // initialize store for type inference
-  let store = createStore({ lnd: lndModel }, { injections });
-  const node = getNetwork().nodes.lightning[0];
+  let store = createStore(rootModel, { injections, initialState });
+  const node = initialState.network.networks[0].nodes.lightning[0];
 
   beforeEach(() => {
     // reset the store before each test run
-    store = createStore({ lnd: lndModel }, { injections });
+    store = createStore(rootModel, { injections, initialState });
+
+    asyncUtilMock.delay.mockResolvedValue(true);
+    bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
+    lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+    lndServiceMock.getInfo.mockResolvedValue({
+      ...mockLndResponses.getInfo,
+      alias: 'my-node',
+      identityPubkey: 'abcdef',
+      syncedToChain: true,
+    });
+    lndServiceMock.getWalletBalance.mockResolvedValue({
+      ...mockLndResponses.getWalletBalance,
+      confirmedBalance: '100',
+      unconfirmedBalance: '200',
+      totalBalance: '300',
+    });
   });
 
   it('should have a valid initial state', () => {
     expect(store.getState().lnd.nodes).toEqual({});
   });
 
-  describe('getInfo', () => {
-    beforeEach(async () => {
-      lndServiceMock.getInfo.mockResolvedValue({
-        ...mockLndResponses.getInfo,
-        alias: 'my-node',
-        identityPubkey: 'abcdef',
-        syncedToChain: true,
-      });
-    });
+  it('should update state with getInfo response', async () => {
+    const { getInfo } = store.getActions().lnd;
+    await getInfo(node);
+    const nodeState = store.getState().lnd.nodes[node.name];
+    expect(nodeState.info).toBeTruthy();
+    const info = nodeState.info as LND.GetInfoResponse;
+    expect(info.alias).toEqual('my-node');
+    expect(info.identityPubkey).toEqual('abcdef');
+    expect(info.syncedToChain).toEqual(true);
+  });
 
-    it('should update state if successful', async () => {
-      filesMock.waitForFile.mockReturnValue(Promise.resolve(true));
-      const { getInfo } = store.getActions().lnd;
-      await getInfo(node);
-      const nodeState = store.getState().lnd.nodes[node.name];
-      expect(nodeState.info).toBeTruthy();
-      const info = nodeState.info as GetInfoResponse;
-      expect(info.alias).toEqual('my-node');
-      expect(info.identityPubkey).toEqual('abcdef');
-      expect(info.syncedToChain).toEqual(true);
-    });
+  it('should update state with getBalance response', async () => {
+    const { getWalletBalance } = store.getActions().lnd;
+    await getWalletBalance(node);
+    const nodeState = store.getState().lnd.nodes[node.name];
+    expect(nodeState.walletBalance).toBeTruthy();
+    const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
+    expect(balances.confirmedBalance).toEqual('100');
+    expect(balances.unconfirmedBalance).toEqual('200');
+    expect(balances.totalBalance).toEqual('300');
+  });
+
+  it('should be able to deposit funds using the backend bitcoin node', async () => {
+    const { depositFunds } = store.getActions().lnd;
+    await depositFunds({ node, amount: 1 });
+    const nodeState = store.getState().lnd.nodes[node.name];
+    expect(nodeState.walletBalance).toBeTruthy();
+    const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
+    expect(balances.confirmedBalance).toEqual('100');
+    expect(balances.unconfirmedBalance).toEqual('200');
+    expect(balances.totalBalance).toEqual('300');
+  });
+
+  it('should be able to deposit funds using the first bitcoin node', async () => {
+    const { depositFunds } = store.getActions().lnd;
+    const modifiednode = { ...node, backendName: 'not-valid' };
+    await depositFunds({ node: modifiednode, amount: 1 });
+    const nodeState = store.getState().lnd.nodes[node.name];
+    expect(nodeState.walletBalance).toBeTruthy();
+    const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
+    expect(balances.confirmedBalance).toEqual('100');
+    expect(balances.unconfirmedBalance).toEqual('200');
+    expect(balances.totalBalance).toEqual('300');
   });
 });

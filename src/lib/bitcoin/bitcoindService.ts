@@ -3,6 +3,7 @@ import { BitcoindLibrary, BitcoinNode } from 'types';
 import { waitFor } from 'utils/async';
 
 const BLOCKS_TIL_COMFIRMED = 6; // TODO: move to constants file
+const COINBASE_MATURITY_HEIGHT = 100;
 
 class BitcoindService implements BitcoindLibrary {
   creatClient(port = 18433) {
@@ -67,8 +68,8 @@ class BitcoindService implements BitcoindLibrary {
    */
   private async mineUntilMaturity(port?: number) {
     const { blocks } = await this.getBlockchainInfo(port);
-    if (blocks < 100) {
-      const blocksLeft = 100 - blocks;
+    if (blocks < COINBASE_MATURITY_HEIGHT) {
+      const blocksLeft = COINBASE_MATURITY_HEIGHT - blocks;
       await this.mine(blocksLeft, port);
     }
   }

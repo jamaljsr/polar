@@ -45,6 +45,9 @@ const lndModel: LndModel = {
   }),
   depositFunds: thunk(
     async (actions, { node, amount }, { injections, getStoreState }) => {
+      if (amount < 0) {
+        throw new Error('The amount must be a positve number');
+      }
       const { nodes } = getStoreState().network.networkById(node.networkId);
       const bitcoin =
         nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];

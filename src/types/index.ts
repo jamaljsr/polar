@@ -1,5 +1,5 @@
 import { IChart } from '@mrblenny/react-flow-chart';
-import * as RPC from '@radar/lnrpc';
+import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 
 export interface LocalConfig {
@@ -79,9 +79,9 @@ export interface BitcoindLibrary {
 
 export interface LndLibrary {
   waitUntilOnline(node: LndNode): Promise<boolean>;
-  getInfo: (node: LndNode) => Promise<RPC.GetInfoResponse>;
-  getWalletBalance: (node: LndNode) => Promise<RPC.WalletBalanceResponse>;
-  getNewAddress: (node: LndNode) => Promise<RPC.NewAddressResponse>;
+  getInfo: (node: LndNode) => Promise<LND.GetInfoResponse>;
+  getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
+  getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;
 }
 
 export interface StoreInjections {

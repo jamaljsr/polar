@@ -29,6 +29,9 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
           description={depositAsync.error.message}
         />
       )}
+      {depositAsync.status === 'success' && (
+        <Alert type="success" showIcon closable message={`Deposit successful`} />
+      )}
       <Form.Item label="Deposit BTC">
         <InputGroup compact>
           <InputNumber

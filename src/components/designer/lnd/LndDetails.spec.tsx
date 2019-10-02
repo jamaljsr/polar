@@ -1,7 +1,6 @@
 import React from 'react';
 import { waitForElement } from '@testing-library/dom';
 import { LndLibrary, Status } from 'types';
-import * as files from 'utils/files';
 import {
   getNetwork,
   injections,
@@ -10,27 +9,17 @@ import {
 } from 'utils/tests';
 import LndDetails from './LndDetails';
 
-jest.mock('utils/files', () => ({
-  waitForFile: jest.fn(),
-}));
-
 describe('LndDetails', () => {
-  const renderComponent = (status?: Status, initialNodes?: any) => {
+  const renderComponent = (status?: Status) => {
     const network = getNetwork(1, 'test network', status);
-    const nodes =
-      initialNodes ||
-      network.nodes.lightning.reduce((acc: Record<string, any>, n) => {
-        return {
-          ...acc,
-          [n.name]: { initialized: true },
-        };
-      }, {});
     const initialState = {
       network: {
         networks: [network],
       },
       lnd: {
-        nodes,
+        nodes: {
+          'lnd-1': {},
+        },
       },
     };
     const node = network.nodes.lightning[0];
@@ -91,7 +80,6 @@ describe('LndDetails', () => {
 
   describe('with node Started', () => {
     const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
-    const filesMock = files as jest.Mocked<typeof files>;
 
     beforeEach(() => {
       lndServiceMock.getInfo.mockResolvedValue({
@@ -100,13 +88,30 @@ describe('LndDetails', () => {
         identityPubkey: 'abcdef',
         syncedToChain: true,
       });
-      filesMock.waitForFile.mockResolvedValue(true);
+      lndServiceMock.getWalletBalance.mockResolvedValue({
+        ...mockLndResponses.getWalletBalance,
+        confirmedBalance: '10',
+        unconfirmedBalance: '20',
+        totalBalance: '30',
+      });
     });
 
     it('should display correct Status', async () => {
       const { findByText, node } = renderComponent(Status.Started);
       expect(await findByText('Status')).toBeInTheDocument();
       expect(await findByText(Status[node.status])).toBeInTheDocument();
+    });
+
+    it('should display Confirmed Balance', async () => {
+      const { findByText } = renderComponent(Status.Started);
+      expect(await findByText('Confirmed Balance')).toBeInTheDocument();
+      expect(await findByText('10 sats')).toBeInTheDocument();
+    });
+
+    it('should display Unconfirmed Balance', async () => {
+      const { findByText } = renderComponent(Status.Started);
+      expect(await findByText('Unconfirmed Balance')).toBeInTheDocument();
+      expect(await findByText('20 sats')).toBeInTheDocument();
     });
 
     it('should display GRPC Host', async () => {
