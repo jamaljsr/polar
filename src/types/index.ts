@@ -1,5 +1,5 @@
 import { IChart } from '@mrblenny/react-flow-chart';
-import { GetInfoResponse, WalletBalanceResponse } from '@radar/lnrpc';
+import * as RPC from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 
 export interface LocalConfig {
@@ -20,6 +20,7 @@ export enum Status {
 export interface CommonNode {
   // TODO: change id to a uuid
   id: number;
+  networkId: number;
   name: string;
   type: 'bitcoin' | 'lightning';
   version: string;
@@ -69,16 +70,18 @@ export interface DockerLibrary {
 }
 
 export interface BitcoindLibrary {
+  waitUntilOnline: (port?: number) => Promise<boolean>;
   getBlockchainInfo: (port?: number) => Promise<ChainInfo>;
   getWalletInfo: (port?: number) => Promise<WalletInfo>;
-  waitUntilOnline: (port?: number) => Promise<boolean>;
   mine: (numBlocks: number, port?: number) => Promise<string[]>;
+  sendFunds: (node: BitcoinNode, addr: string, amount: number) => Promise<string>;
 }
 
 export interface LndLibrary {
-  getInfo: (node: LndNode) => Promise<GetInfoResponse>;
-  getWalletBalance(node: LndNode): Promise<WalletBalanceResponse>;
   waitUntilOnline(node: LndNode): Promise<boolean>;
+  getInfo: (node: LndNode) => Promise<RPC.GetInfoResponse>;
+  getWalletBalance: (node: LndNode) => Promise<RPC.WalletBalanceResponse>;
+  getNewAddress: (node: LndNode) => Promise<RPC.NewAddressResponse>;
 }
 
 export interface StoreInjections {
