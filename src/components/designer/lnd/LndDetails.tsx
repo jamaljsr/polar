@@ -86,7 +86,7 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
               <Button
                 type="primary"
                 style={{ width: '50%' }}
-                onClick={() => onOpenChannel({ to: node.name })}
+                onClick={() => onOpenChannel({ to: node.id.toString() })}
               >
                 <Icon type="download" />
                 Incoming
@@ -94,7 +94,7 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
               <Button
                 type="primary"
                 style={{ width: '50%' }}
-                onClick={() => onOpenChannel({ from: node.name })}
+                onClick={() => onOpenChannel({ from: node.id.toString() })}
               >
                 <Icon type="upload" />
                 Outgoing
