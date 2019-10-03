@@ -22,9 +22,10 @@ const Styled = {
 interface Props {
   network: Network;
   chart: IChart;
+  onOpenChannel: (args: { to?: string; from?: string }) => void;
 }
 
-const Sidebar: React.FC<Props> = ({ network, chart }) => {
+const Sidebar: React.FC<Props> = ({ network, chart, onOpenChannel }) => {
   const [title, cmp] = useMemo(() => {
     const { id, type } = chart.selected;
     let cmp: ReactElement | undefined;
@@ -38,7 +39,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
         cmp = <BitcoindDetails node={node} />;
       } else if (node && node.implementation === 'LND') {
         title = node.name;
-        cmp = <LndDetails node={node} />;
+        cmp = <LndDetails node={node} onOpenChannel={onOpenChannel} />;
       }
     }
 
@@ -48,7 +49,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
     }
 
     return [title, cmp];
-  }, [network, chart.selected]);
+  }, [network, chart.selected, onOpenChannel]);
 
   return <Styled.Card title={title}>{cmp}</Styled.Card>;
 };
