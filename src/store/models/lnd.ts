@@ -4,12 +4,12 @@ import { LndNode, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { RootModel } from './';
 
-interface LndNodeModel {
+export interface LndNodeModel {
   info?: GetInfoResponse | undefined;
   walletBalance?: WalletBalanceResponse | undefined;
 }
 
-interface DepositFundsPayload {
+export interface DepositFundsPayload {
   node: LndNode;
   amount: number;
 }

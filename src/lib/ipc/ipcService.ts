@@ -11,6 +11,8 @@ export type IpcSender = <T>(channel: string, payload?: any) => Promise<T>;
 export const createIpcSender = (serviceName: string, prefix: string) => {
   const send: IpcSender = (channel, payload) => {
     const reqChan = `${prefix}-${channel}-request`;
+    // TODO: set the response channel dynamically to avoid race conditions
+    // when multiple requests are in flight
     const resChan = `${prefix}-${channel}-response`;
 
     return new Promise((resolve, reject) => {

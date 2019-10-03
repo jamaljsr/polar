@@ -1,13 +1,12 @@
 import React, { useCallback, useState } from 'react';
+import { useAsync } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
-import styled from '@emotion/styled';
-import { Col, Form, Input, Modal, Row, Select } from 'antd';
+import { Alert, Col, Form, Input, Modal, Row } from 'antd';
 import { FormComponentProps, FormProps } from 'antd/lib/form';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-
-const Styled = {
-  OpenChannelModal: styled.div``,
-};
+import { Loader } from 'components/common';
+import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 interface Props extends FormComponentProps {
   network: Network;
@@ -26,6 +25,15 @@ const OpenChannelModal: React.FC<Props> = ({
   form,
 }) => {
   const { t } = useTranslation();
+  const { nodes } = useStoreState(s => s.lnd);
+  const { getWalletBalance } = useStoreActions(s => s.lnd);
+  const getBalancesAsync = useAsync(async () => {
+    if (!visible) return;
+    const { lightning } = network.nodes;
+    for (const name in lightning) {
+      await getWalletBalance(lightning[name]);
+    }
+  }, [network.nodes, visible]);
 
   const handleSubmit = () => {
     form.validateFields((err, values: FormProps) => {
@@ -36,9 +44,58 @@ const OpenChannelModal: React.FC<Props> = ({
     });
   };
 
-  const { lightning } = network.nodes;
+  let cmp = (
+    <Form hideRequiredMark colon={false}>
+      <Row type="flex" gutter={16}>
+        <Col span={12}>
+          <LightningNodeSelect
+            network={network}
+            id="from"
+            form={form}
+            label={t('cmps.open-channel-modal.source', 'Source')}
+            initialValue={from}
+            nodes={nodes}
+          />
+        </Col>
+        <Col span={12}>
+          <LightningNodeSelect
+            network={network}
+            id="to"
+            form={form}
+            label={t('cmps.open-channel-modal.dest', 'Destination')}
+            initialValue={to}
+            nodes={nodes}
+          />
+        </Col>
+      </Row>
+      <Form.Item label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}>
+        {form.getFieldDecorator('capacity', {
+          rules: [{ required: true, message: 'required' }],
+        })(
+          <Input
+            placeholder={t('cmps.open-channel-modal.capacity-phldr', '10.12345678')}
+            addonAfter="BTC"
+          />,
+        )}
+      </Form.Item>
+    </Form>
+  );
+
+  if (getBalancesAsync.loading) {
+    cmp = <Loader />;
+  } else if (getBalancesAsync.error) {
+    cmp = (
+      <Alert
+        type="error"
+        closable={false}
+        message="Unable to connect to node"
+        description={getBalancesAsync.error.message}
+      />
+    );
+  }
+
   return (
-    <Styled.OpenChannelModal>
+    <>
       <Modal
         title="Open Channel"
         visible={visible}
@@ -47,54 +104,9 @@ const OpenChannelModal: React.FC<Props> = ({
         okText={t('cmps.open-channel-modal.on-text', 'Open Channel')}
         onOk={handleSubmit}
       >
-        <Form hideRequiredMark colon={false}>
-          <Row type="flex" gutter={16}>
-            <Col span={12}>
-              <Form.Item label={t('cmps.open-channel-modal.source', 'Source')}>
-                {form.getFieldDecorator('from', {
-                  initialValue: from,
-                  rules: [{ required: true, message: 'required' }],
-                })(
-                  <Select>
-                    {lightning.map(node => (
-                      <Select.Option key={node.id} value={node.id}>
-                        {node.name}
-                      </Select.Option>
-                    ))}
-                  </Select>,
-                )}
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label={t('cmps.open-channel-modal.dest', 'Destination')}>
-                {form.getFieldDecorator('to', {
-                  initialValue: to,
-                  rules: [{ required: true, message: 'required' }],
-                })(
-                  <Select>
-                    {lightning.map(node => (
-                      <Select.Option key={node.id} value={node.id}>
-                        {node.name}
-                      </Select.Option>
-                    ))}
-                  </Select>,
-                )}
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}>
-            {form.getFieldDecorator('amount', {
-              rules: [{ required: true, message: 'amount is required' }],
-            })(
-              <Input
-                placeholder={t('cmps.open-channel-modal.amount-phldr', '10.12345678')}
-                addonAfter="BTC"
-              />,
-            )}
-          </Form.Item>
-        </Form>
+        {cmp}
       </Modal>
-    </Styled.OpenChannelModal>
+    </>
   );
 };
 
