@@ -6,6 +6,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import CustomNodeInner from './CustomNodeInner';
+import OpenChannelModal, { useOpenChannelModal } from './lnd/OpenChannelModal';
 import Sidebar from './Sidebar';
 
 const Styled = {
@@ -22,8 +23,10 @@ interface Props {
   network: Network;
   updateStateDelay?: number;
 }
+
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
+  const openChan = useOpenChannelModal(network);
   // update the redux store with the current network's chart
   useEffect(() => {
     setActiveId(network.id);
@@ -51,7 +54,8 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         Components={{ NodeInner: CustomNodeInner }}
         callbacks={callbacks}
       />
-      <Sidebar network={network} chart={chart} />
+      <Sidebar network={network} chart={chart} onOpenChannel={openChan.show} />
+      <OpenChannelModal {...openChan} />
     </Styled.Designer>
   );
 };

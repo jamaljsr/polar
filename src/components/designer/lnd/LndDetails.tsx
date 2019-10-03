@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert } from 'antd';
+import { Alert, Button, Form, Icon } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
@@ -8,7 +8,12 @@ import { Loader, StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import LndDeposit from './LndDeposit';
 
-const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
+interface Props {
+  node: LndNode;
+  onOpenChannel: (args: { to?: string; from?: string }) => void;
+}
+
+const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
   const { getInfo, getWalletBalance } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
@@ -73,7 +78,31 @@ const LndDetails: React.FC<{ node: LndNode }> = ({ node }) => {
         />
       )}
       <DetailsList details={details} />
-      {node.status === Status.Started && <LndDeposit node={node} />}
+      {node.status === Status.Started && (
+        <>
+          <LndDeposit node={node} />
+          <Form.Item label="Open Channel">
+            <Button.Group style={{ width: '100%' }}>
+              <Button
+                type="primary"
+                style={{ width: '50%' }}
+                onClick={() => onOpenChannel({ to: node.name })}
+              >
+                <Icon type="download" />
+                Incoming
+              </Button>
+              <Button
+                type="primary"
+                style={{ width: '50%' }}
+                onClick={() => onOpenChannel({ from: node.name })}
+              >
+                <Icon type="upload" />
+                Outgoing
+              </Button>
+            </Button.Group>
+          </Form.Item>
+        </>
+      )}
     </>
   );
 };
