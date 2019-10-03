@@ -20,9 +20,8 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     form.validateFields((err, values: FormProps) => {
-      if (err) {
-        return;
-      }
+      if (err) return;
+
       addNetwork(values);
     });
   };
