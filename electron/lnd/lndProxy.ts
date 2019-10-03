@@ -60,6 +60,19 @@ const newAddress = async (args: { node: LndNode }): Promise<LND.NewAddressRespon
 };
 
 /**
+ * Calls the LND `openChannelSync` RPC command
+ * @param args an object containing the LNDNode to connect to
+ */
+const openChannel = async (args: {
+  node: LndNode;
+  params: LND.OpenChannelRequest;
+}): Promise<LND.ChannelPoint> => {
+  const { node, params } = args;
+  const rpc = await getRpc(node);
+  return await rpc.openChannelSync(params);
+};
+
+/**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
  */
@@ -69,6 +82,7 @@ const listeners: {
   'get-info': getInfo,
   'wallet-balance': walletBalance,
   'new-address': newAddress,
+  'open-channel': openChannel,
 };
 
 /**

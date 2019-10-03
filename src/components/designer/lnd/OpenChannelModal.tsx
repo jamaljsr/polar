@@ -71,12 +71,7 @@ const OpenChannelModal: React.FC<Props> = ({
       <Form.Item label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}>
         {form.getFieldDecorator('capacity', {
           rules: [{ required: true, message: 'required' }],
-        })(
-          <Input
-            placeholder={t('cmps.open-channel-modal.capacity-phldr', '10.12345678')}
-            addonAfter="BTC"
-          />,
-        )}
+        })(<Input placeholder="10.12345678" addonAfter="BTC" />)}
       </Form.Item>
     </Form>
   );

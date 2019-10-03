@@ -22,6 +22,21 @@ class LndService implements LndLibrary {
     return await this.ipc('new-address', { node });
   }
 
+  async openChannel(
+    from: LndNode,
+    to: LndNode,
+    amount: string,
+  ): Promise<LND.ChannelPoint> {
+    // get peers
+
+    // add peer if not already
+
+    // get pubkey of dest node
+
+    // open channel
+    return await this.ipc('open-channel', { node: from, toPubKey: '', amount });
+  }
+
   async waitUntilOnline(
     node: LndNode,
     interval = 3 * 1000, // check every 3 seconds

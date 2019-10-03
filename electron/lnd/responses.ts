@@ -1,4 +1,4 @@
-import { GetInfoResponse, WalletBalanceResponse } from '@radar/lnrpc';
+import * as LND from '@radar/lnrpc';
 
 const defaults = {
   'get-info': {
@@ -17,12 +17,17 @@ const defaults = {
     version: '',
     numInactiveChannels: 0,
     color: '',
-  } as GetInfoResponse,
+  } as LND.GetInfoResponse,
   'wallet-balance': {
     confirmedBalance: '0',
     totalBalance: '0',
     unconfirmedBalance: '0',
-  } as WalletBalanceResponse,
+  } as LND.WalletBalanceResponse,
+  'open-channel': {
+    fundingTxidBytes: '',
+    fundingTxidStr: '',
+    outputIndex: 0,
+  } as LND.ChannelPoint,
 };
 
 export type DefaultsKey = keyof typeof defaults;
