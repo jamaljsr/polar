@@ -1,9 +1,7 @@
 import BitcoinCore from 'bitcoin-core';
 import { BitcoindLibrary, BitcoinNode } from 'types';
 import { waitFor } from 'utils/async';
-
-const BLOCKS_TIL_COMFIRMED = 6; // TODO: move to constants file
-const COINBASE_MATURITY_HEIGHT = 100;
+import { BLOCKS_TIL_COMFIRMED, COINBASE_MATURITY_HEIGHT } from 'utils/constants';
 
 class BitcoindService implements BitcoindLibrary {
   creatClient(port = 18433) {

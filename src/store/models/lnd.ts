@@ -2,6 +2,7 @@ import { GetInfoResponse, WalletBalanceResponse } from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LndNode, StoreInjections } from 'types';
 import { delay } from 'utils/async';
+import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
 export interface LndNodeModel {
@@ -14,6 +15,12 @@ export interface DepositFundsPayload {
   amount: number;
 }
 
+export interface OpenChannelPayload {
+  from: LndNode;
+  to: LndNode;
+  sats: string;
+}
+
 export interface LndModel {
   nodes: { [key: string]: LndNodeModel };
   setInfo: Action<LndModel, { node: LndNode; info: GetInfoResponse }>;
@@ -21,6 +28,7 @@ export interface LndModel {
   setWalletBalance: Action<LndModel, { node: LndNode; balance: WalletBalanceResponse }>;
   getWalletBalance: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   depositFunds: Thunk<LndModel, DepositFundsPayload, StoreInjections, RootModel>;
+  openChannel: Thunk<LndModel, OpenChannelPayload, StoreInjections, RootModel>;
 }
 
 const lndModel: LndModel = {
@@ -58,6 +66,14 @@ const lndModel: LndModel = {
       await actions.getWalletBalance(node);
     },
   ),
+  openChannel: thunk(async (actions, { from, to, sats }, { injections }) => {
+    await injections.lndService.openChannel(from, to, sats);
+    await injections.bitcoindService.mine(BLOCKS_TIL_COMFIRMED);
+    // add a small delay to allow LND to process the mined blocks
+    await delay(250);
+    await actions.getInfo(to);
+    await actions.getInfo(from);
+  }),
 };
 
 export default lndModel;

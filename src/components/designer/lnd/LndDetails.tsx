@@ -17,10 +17,9 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
   const { getInfo, getWalletBalance } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
-      if (node.status === Status.Started) {
-        await getInfo(node);
-        await getWalletBalance(node);
-      }
+      if (node.status !== Status.Started) return;
+      await getInfo(node);
+      await getWalletBalance(node);
     },
     [node],
   );

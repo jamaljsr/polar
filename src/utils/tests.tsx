@@ -39,6 +39,7 @@ export const injections: StoreInjections = {
     getWalletBalance: jest.fn(),
     waitUntilOnline: jest.fn(),
     getNewAddress: jest.fn(),
+    openChannel: jest.fn(),
   },
 };
 
