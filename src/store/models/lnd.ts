@@ -3,6 +3,7 @@ import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LndNode, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
+import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
 export interface LndNodeModel {
@@ -12,7 +13,7 @@ export interface LndNodeModel {
 
 export interface DepositFundsPayload {
   node: LndNode;
-  amount: number;
+  sats: string;
 }
 
 export interface OpenChannelPayload {
@@ -51,21 +52,17 @@ const lndModel: LndModel = {
     const balance = await injections.lndService.getWalletBalance(node);
     actions.setWalletBalance({ node, balance });
   }),
-  depositFunds: thunk(
-    async (actions, { node, amount }, { injections, getStoreState }) => {
-      if (amount < 0) {
-        throw new Error('The amount must be a positve number');
-      }
-      const { nodes } = getStoreState().network.networkById(node.networkId);
-      const bitcoin =
-        nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];
-      const { address } = await injections.lndService.getNewAddress(node);
-      await injections.bitcoindService.sendFunds(bitcoin, address, amount);
-      // add a small delay to allow LND to process the mined blocks
-      await delay(250);
-      await actions.getWalletBalance(node);
-    },
-  ),
+  depositFunds: thunk(async (actions, { node, sats }, { injections, getStoreState }) => {
+    const { nodes } = getStoreState().network.networkById(node.networkId);
+    const bitcoin =
+      nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];
+    const { address } = await injections.lndService.getNewAddress(node);
+    const coins = fromSatsNumeric(sats);
+    await injections.bitcoindService.sendFunds(bitcoin, address, coins);
+    // add a small delay to allow LND to process the mined blocks
+    await delay(250);
+    await actions.getWalletBalance(node);
+  }),
   openChannel: thunk(
     async (actions, { from, to, sats }, { injections, getStoreState }) => {
       await injections.lndService.openChannel(from, to, sats);
