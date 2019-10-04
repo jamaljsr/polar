@@ -14,9 +14,11 @@ const Styled = {
 };
 
 const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
-  const [amount, setAmount] = useState(1);
+  const [amount, setAmount] = useState(100000);
   const { depositFunds } = useStoreActions(s => s.lnd);
-  const depositAsync = useAsyncCallback(async () => await depositFunds({ node, amount }));
+  const depositAsync = useAsyncCallback(
+    async () => await depositFunds({ node, sats: amount.toString() }),
+  );
 
   return (
     <Styled.LndDeposit>
@@ -32,12 +34,12 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
       {depositAsync.status === 'success' && (
         <Alert type="success" showIcon closable message={`Deposit successful`} />
       )}
-      <Form.Item label="Deposit BTC">
+      <Form.Item label="Deposit Funds (satoshis)">
         <InputGroup compact>
           <InputNumber
             value={amount}
             min={1}
-            max={1000}
+            max={100 * 100000000}
             onChange={v => v && setAmount(v)}
             style={{ width: '65%' }}
           />
@@ -47,7 +49,7 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
             style={{ width: '35%' }}
             icon="download"
           >
-            Send
+            Deposit
           </Button>
         </InputGroup>
       </Form.Item>

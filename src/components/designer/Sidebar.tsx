@@ -12,7 +12,7 @@ const Styled = {
     top: 16px;
     bottom: 16px;
     right: 16px;
-    width: 300px;
+    width: 350px;
     background-color: #fff;
     border-radius: 4px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);

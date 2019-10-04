@@ -20,7 +20,13 @@ class BitcoindService implements BitcoindLibrary {
     return await this.creatClient(port).getWalletInfo();
   }
 
-  async sendFunds(node: BitcoinNode, address: string, amount: number) {
+  /**
+   * Send an amount of bitcoin to an address
+   * @param node the bitcoin node to communicate with
+   * @param toAddress the destination wallet address to send funds to
+   * @param amount the amount denominated in bitcoin
+   */
+  async sendFunds(node: BitcoinNode, toAddress: string, amount: number) {
     const port = node.ports.rpc;
     const client = this.creatClient(port);
     const { balance } = await client.getWalletInfo();
@@ -29,7 +35,7 @@ class BitcoindService implements BitcoindLibrary {
       await this.mineUntilMaturity(port);
       await this.mine(this.getBlocksToMine(amount - balance), port);
     }
-    const txid = await client.sendToAddress(address, amount);
+    const txid = await client.sendToAddress(toAddress, amount);
     // mine more blocks to confirm the txn
     await this.mine(BLOCKS_TIL_COMFIRMED, port);
     return txid;

@@ -85,11 +85,11 @@ const OpenChannelModal: React.FC<Props> = ({
       </Row>
       <Form.Item
         label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}
-        help="Minimum: 20 000 sats - Maximum 16 777 216 sats"
+        help="Minimum: 20,000 sats - Maximum 16,777,216 sats"
       >
         {form.getFieldDecorator('sats', {
           rules: [{ required: true, message: 'required' }],
-        })(<Input placeholder="10000" addonAfter="sats" />)}
+        })(<Input placeholder="100000" addonAfter="sats" />)}
       </Form.Item>
     </Form>
   );
