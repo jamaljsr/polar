@@ -1,4 +1,5 @@
 import * as LND from '@radar/lnrpc';
+import { ipcChannels } from 'shared';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 import { LndNode } from 'types';
 
@@ -10,22 +11,30 @@ class LndProxyClient {
   }
 
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
-    return await this.ipc('get-info', { node });
+    return await this.ipc(ipcChannels.getInfo, { node });
   }
 
   async getWalletBalance(node: LndNode): Promise<LND.WalletBalanceResponse> {
-    return await this.ipc('wallet-balance', { node });
+    return await this.ipc(ipcChannels.walletBalance, { node });
   }
 
   async getNewAddress(node: LndNode): Promise<LND.NewAddressResponse> {
-    return await this.ipc('new-address', { node });
+    return await this.ipc(ipcChannels.newAddress, { node });
+  }
+
+  async listPeers(node: LndNode): Promise<LND.ListPeersResponse> {
+    return await this.ipc(ipcChannels.listPeers, { node });
+  }
+
+  async connectPeer(node: LndNode, req: LND.ConnectPeerRequest): Promise<void> {
+    await this.ipc(ipcChannels.connectPeer, { node, req });
   }
 
   async openChannel(
     node: LndNode,
     req: LND.OpenChannelRequest,
   ): Promise<LND.ChannelPoint> {
-    return await this.ipc('open-channel', { node, req });
+    return await this.ipc(ipcChannels.openChannel, { node, req });
   }
 }
 

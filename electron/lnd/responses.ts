@@ -1,7 +1,8 @@
 import * as LND from '@radar/lnrpc';
+import { ipcChannels } from '../../src/shared';
 
 const defaults = {
-  'get-info': {
+  [ipcChannels.getInfo]: {
     identityPubkey: '',
     alias: '',
     numPendingChannels: 0,
@@ -18,12 +19,15 @@ const defaults = {
     numInactiveChannels: 0,
     color: '',
   } as LND.GetInfoResponse,
-  'wallet-balance': {
+  [ipcChannels.walletBalance]: {
     confirmedBalance: '0',
     totalBalance: '0',
     unconfirmedBalance: '0',
   } as LND.WalletBalanceResponse,
-  'open-channel': {
+  [ipcChannels.listPeers]: {
+    peers: [],
+  } as LND.ListPeersResponse,
+  [ipcChannels.openChannel]: {
     fundingTxidBytes: '',
     fundingTxidStr: '',
     outputIndex: 0,

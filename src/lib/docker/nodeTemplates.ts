@@ -53,6 +53,7 @@ export const lnd = (
     lnd
       --noseedbackup
       --alias=${name}
+      --externalip=${name}
       --tlsextradomain=${name}
       --listen=0.0.0.0:9735
       --rpclisten=0.0.0.0:10009

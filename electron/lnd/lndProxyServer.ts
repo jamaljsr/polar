@@ -1,6 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import createLndRpc, * as LND from '@radar/lnrpc';
+import { ipcChannels } from '../../src/shared';
 import { LndNode } from '../types';
 import { DefaultsKey, withDefaults } from './responses';
 
@@ -30,19 +31,11 @@ const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
   return rpcCache[name];
 };
 
-/**
- * Calls the LND `getinfo` RPC command
- * @param args an object containing the LNDNode to connect to
- */
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.getInfo();
 };
 
-/**
- * Calls the LND `walletBalance` RPC command
- * @param args an object containing the LNDNode to connect to
- */
 const walletBalance = async (args: {
   node: LndNode;
 }): Promise<LND.WalletBalanceResponse> => {
@@ -50,26 +43,30 @@ const walletBalance = async (args: {
   return await rpc.walletBalance();
 };
 
-/**
- * Calls the LND `newAddress` RPC command
- * @param args an object containing the LNDNode to connect to
- */
 const newAddress = async (args: { node: LndNode }): Promise<LND.NewAddressResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.newAddress();
 };
 
-/**
- * Calls the LND `openChannelSync` RPC command
- * @param args an object containing the LNDNode to connect to
- */
+const listPeers = async (args: { node: LndNode }): Promise<LND.ListPeersResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.listPeers();
+};
+
+const connectPeer = async (args: {
+  node: LndNode;
+  req: LND.ConnectPeerRequest;
+}): Promise<{}> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.connectPeer(args.req);
+};
+
 const openChannel = async (args: {
   node: LndNode;
   req: LND.OpenChannelRequest;
 }): Promise<LND.ChannelPoint> => {
-  const { node, req } = args;
-  const rpc = await getRpc(node);
-  return await rpc.openChannelSync(req);
+  const rpc = await getRpc(args.node);
+  return await rpc.openChannelSync(args.req);
 };
 
 /**
@@ -79,10 +76,12 @@ const openChannel = async (args: {
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
-  'get-info': getInfo,
-  'wallet-balance': walletBalance,
-  'new-address': newAddress,
-  'open-channel': openChannel,
+  [ipcChannels.getInfo]: getInfo,
+  [ipcChannels.walletBalance]: walletBalance,
+  [ipcChannels.newAddress]: newAddress,
+  [ipcChannels.listPeers]: listPeers,
+  [ipcChannels.connectPeer]: connectPeer,
+  [ipcChannels.openChannel]: openChannel,
 };
 
 /**
@@ -91,7 +90,7 @@ const listeners: {
  * @param ipc the IPC onject of the main process
  */
 export const initLndProxy = (ipc: IpcMain) => {
-  debug('LndProxy: initialize');
+  debug('LndProxyServer: initialize');
   Object.entries(listeners).forEach(([channel, func]) => {
     const reqChan = `lnd-${channel}-request`;
     const resChan = `lnd-${channel}-response`;
@@ -99,20 +98,18 @@ export const initLndProxy = (ipc: IpcMain) => {
     debug(`listening for ipc command "${channel}"`);
     ipc.on(reqChan, async (event, ...args) => {
       // when a message is received by the main process...
-      debug(`LndProxy: received request "${reqChan}"`, ...args);
+      debug(`LndProxyServer: received request "${reqChan}"`, ...args);
       try {
         // attempt to execute the associated function
         let result = await func(...args);
-        if (result) {
-          // merge the result with default values since LND omits falsey values
-          debug(`LndProxy: send response "${resChan}"`, result);
-          result = withDefaults(result, channel as DefaultsKey);
-          // response to the calling process with a reply
-          event.reply(resChan, result);
-        }
+        // merge the result with default values since LND omits falsey values
+        debug(`LndProxyServer: send response "${resChan}"`, result);
+        result = withDefaults(result, channel as DefaultsKey);
+        // response to the calling process with a reply
+        event.reply(resChan, result);
       } catch (err) {
         // reply with an error message if the execution fails
-        debug(`LndProxy: send error "${resChan}"`, err);
+        debug(`LndProxyServer: send error "${resChan}"`, err);
         event.reply(resChan, { err: err.message });
       }
     });

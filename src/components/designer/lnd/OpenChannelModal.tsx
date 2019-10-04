@@ -1,12 +1,19 @@
 import React, { useCallback, useState } from 'react';
-import { useAsync } from 'react-async-hook';
+import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
 import { Alert, Col, Form, Input, Modal, Row } from 'antd';
-import { FormComponentProps, FormProps } from 'antd/lib/form';
+import { FormComponentProps } from 'antd/lib/form';
 import { useStoreActions, useStoreState } from 'store';
+import { OpenChannelPayload } from 'store/models/lnd';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
+
+interface FormFields {
+  from: string;
+  to: string;
+  sats: string;
+}
 
 interface Props extends FormComponentProps {
   network: Network;
@@ -26,7 +33,7 @@ const OpenChannelModal: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const { nodes } = useStoreState(s => s.lnd);
-  const { getWalletBalance } = useStoreActions(s => s.lnd);
+  const { getWalletBalance, openChannel } = useStoreActions(s => s.lnd);
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
     const { lightning } = network.nodes;
@@ -34,13 +41,21 @@ const OpenChannelModal: React.FC<Props> = ({
       await getWalletBalance(lightning[name]);
     }
   }, [network.nodes, visible]);
+  const openChanAsync = useAsyncCallback(async (payload: OpenChannelPayload) => {
+    await openChannel(payload);
+    if (onClose) onClose();
+  });
 
   const handleSubmit = () => {
-    form.validateFields((err, values: FormProps) => {
+    form.validateFields((err, values: FormFields) => {
       if (err) return;
 
       console.warn('form submitted', values);
-      if (onClose) onClose();
+      const { lightning } = network.nodes;
+      const fromNode = lightning.find(n => n.name === values.from);
+      const toNode = lightning.find(n => n.name === values.to);
+      if (!fromNode || !toNode) return;
+      openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats });
     });
   };
 
@@ -68,10 +83,13 @@ const OpenChannelModal: React.FC<Props> = ({
           />
         </Col>
       </Row>
-      <Form.Item label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}>
-        {form.getFieldDecorator('capacity', {
+      <Form.Item
+        label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}
+        help="Minimum: 20 000 sats - Maximum 16 777 216 sats"
+      >
+        {form.getFieldDecorator('sats', {
           rules: [{ required: true, message: 'required' }],
-        })(<Input placeholder="10.12345678" addonAfter="BTC" />)}
+        })(<Input placeholder="10000" addonAfter="sats" />)}
       </Form.Item>
     </Form>
   );
@@ -97,8 +115,16 @@ const OpenChannelModal: React.FC<Props> = ({
         onCancel={onClose}
         destroyOnClose
         okText={t('cmps.open-channel-modal.on-text', 'Open Channel')}
+        okButtonProps={{ loading: openChanAsync.loading }}
         onOk={handleSubmit}
       >
+        {openChanAsync.error && (
+          <Alert
+            type="error"
+            message="Unable to open the channel"
+            description={openChanAsync.error.message}
+          />
+        )}
         {cmp}
       </Modal>
     </>
