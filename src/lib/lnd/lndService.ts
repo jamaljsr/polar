@@ -1,25 +1,19 @@
 import * as LND from '@radar/lnrpc';
-import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 import { LndLibrary, LndNode } from 'types';
 import { waitFor } from 'utils/async';
+import { lndProxyClient } from './';
 
 class LndService implements LndLibrary {
-  ipc: IpcSender;
-
-  constructor() {
-    this.ipc = createIpcSender('LndService', 'lnd');
-  }
-
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
-    return await this.ipc('get-info', { node });
+    return await lndProxyClient.getInfo(node);
   }
 
   async getWalletBalance(node: LndNode): Promise<LND.WalletBalanceResponse> {
-    return await this.ipc('wallet-balance', { node });
+    return await lndProxyClient.getWalletBalance(node);
   }
 
   async getNewAddress(node: LndNode): Promise<LND.NewAddressResponse> {
-    return await this.ipc('new-address', { node });
+    return await lndProxyClient.getNewAddress(node);
   }
 
   async openChannel(
@@ -34,7 +28,11 @@ class LndService implements LndLibrary {
     // get pubkey of dest node
 
     // open channel
-    return await this.ipc('open-channel', { node: from, toPubKey: '', amount });
+    const req: LND.OpenChannelRequest = {
+      nodePubkeyString: '',
+      localFundingAmount: amount,
+    };
+    return await lndProxyClient.openChannel(from, req);
   }
 
   async waitUntilOnline(

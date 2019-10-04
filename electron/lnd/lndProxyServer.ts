@@ -65,11 +65,11 @@ const newAddress = async (args: { node: LndNode }): Promise<LND.NewAddressRespon
  */
 const openChannel = async (args: {
   node: LndNode;
-  params: LND.OpenChannelRequest;
+  req: LND.OpenChannelRequest;
 }): Promise<LND.ChannelPoint> => {
-  const { node, params } = args;
+  const { node, req } = args;
   const rpc = await getRpc(node);
-  return await rpc.openChannelSync(params);
+  return await rpc.openChannelSync(req);
 };
 
 /**
