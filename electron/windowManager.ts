@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
-import { initLndProxy } from './lnd/lndProxy';
+import { initLndProxy } from './lnd/lndProxyServer';
 
 const devUrl = 'http://localhost:3000';
 const prodUrl = `file://${join(__dirname, '../../build/index.html')}`;
