@@ -11,5 +11,5 @@
     "outDir": "../public/main",
     "pretty": true
   },
-  "include": ["."]
+  "include": [".", "../src/shared"]
 }

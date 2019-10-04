@@ -66,14 +66,17 @@ const lndModel: LndModel = {
       await actions.getWalletBalance(node);
     },
   ),
-  openChannel: thunk(async (actions, { from, to, sats }, { injections }) => {
-    await injections.lndService.openChannel(from, to, sats);
-    await injections.bitcoindService.mine(BLOCKS_TIL_COMFIRMED);
-    // add a small delay to allow LND to process the mined blocks
-    await delay(250);
-    await actions.getInfo(to);
-    await actions.getInfo(from);
-  }),
+  openChannel: thunk(
+    async (actions, { from, to, sats }, { injections, getStoreState }) => {
+      await injections.lndService.openChannel(from, to, sats);
+      // mine some blocks to confirm the txn
+      const node = getStoreState().network.networkById(from.networkId).nodes.bitcoin[0];
+      await injections.bitcoindService.mine(BLOCKS_TIL_COMFIRMED, node.ports.rpc);
+      // update balances for both nodes in state
+      await actions.getWalletBalance(to);
+      await actions.getWalletBalance(from);
+    },
+  ),
 };
 
 export default lndModel;
