@@ -6,6 +6,7 @@ import appModel, { AppModel } from './app';
 import bitcoindModel, { BitcoindModel } from './bitcoind';
 import designerModel, { DesignerModel } from './designer';
 import lndModel, { LndModel } from './lnd';
+import modalsModel, { ModalsModel } from './modals';
 import networkModel, { NetworkModel } from './network';
 
 export interface RootModel {
@@ -15,6 +16,7 @@ export interface RootModel {
   bitcoind: BitcoindModel;
   lnd: LndModel;
   designer: DesignerModel;
+  modals: ModalsModel;
 }
 
 export const createModel = (history: History<any>): RootModel => {
@@ -25,6 +27,7 @@ export const createModel = (history: History<any>): RootModel => {
     bitcoind: bitcoindModel,
     lnd: lndModel,
     designer: designerModel,
+    modals: modalsModel,
   };
   return rootModel;
 };

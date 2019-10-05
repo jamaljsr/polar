@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
 import { Alert, Col, Form, Input, Modal, Row } from 'antd';
@@ -15,24 +15,15 @@ interface FormFields {
   sats: string;
 }
 
-interface Props extends FormComponentProps {
+interface Props extends FormComponentProps<FormFields> {
   network: Network;
-  from?: string;
-  to?: string;
-  visible?: boolean;
-  onClose?: () => void;
 }
 
-const OpenChannelModal: React.FC<Props> = ({
-  network,
-  to,
-  from,
-  visible,
-  onClose,
-  form,
-}) => {
+const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   const { t } = useTranslation();
   const { nodes } = useStoreState(s => s.lnd);
+  const { visible, to, from } = useStoreState(s => s.modals.openChannel);
+  const { hideOpenChannel } = useStoreActions(s => s.modals);
   const { getWalletBalance, openChannel } = useStoreActions(s => s.lnd);
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
@@ -43,7 +34,7 @@ const OpenChannelModal: React.FC<Props> = ({
   }, [network.nodes, visible]);
   const openChanAsync = useAsyncCallback(async (payload: OpenChannelPayload) => {
     await openChannel(payload);
-    if (onClose) onClose();
+    hideOpenChannel();
   });
 
   const handleSubmit = () => {
@@ -112,7 +103,7 @@ const OpenChannelModal: React.FC<Props> = ({
       <Modal
         title="Open Channel"
         visible={visible}
-        onCancel={onClose}
+        onCancel={() => hideOpenChannel()}
         destroyOnClose
         okText={t('cmps.open-channel-modal.on-text', 'Open Channel')}
         okButtonProps={{ loading: openChanAsync.loading }}
@@ -132,24 +123,3 @@ const OpenChannelModal: React.FC<Props> = ({
 };
 
 export default Form.create<Props>()(OpenChannelModal);
-
-export const useOpenChannelModal = (network: Network) => {
-  const [visible, setVisible] = useState(false);
-  const [from, setFrom] = useState<string>();
-  const [to, setTo] = useState<string>();
-  const show = useCallback((args: { to?: string; from?: string }) => {
-    setTo(args.to);
-    setFrom(args.from);
-    setVisible(true);
-  }, []);
-  const onClose = useCallback(() => setVisible(false), []);
-
-  return {
-    network,
-    show,
-    visible,
-    to,
-    from,
-    onClose,
-  };
-};
