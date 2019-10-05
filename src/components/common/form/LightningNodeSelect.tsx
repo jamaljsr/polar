@@ -4,6 +4,7 @@ import { Form, Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { LndNodeModel } from 'store/models/lnd';
 import { Network } from 'types';
+import { format } from 'utils/units';
 
 interface Props {
   network: Network;
@@ -28,7 +29,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   const getBalance = (name: string): string | undefined => {
     if (nodes && nodes[name] && nodes[name].walletBalance) {
       const balances = nodes[name].walletBalance as WalletBalanceResponse;
-      return `Balance: ${balances.confirmedBalance} sats`;
+      return `Balance: ${format(balances.confirmedBalance)} sats`;
     }
   };
   if (initialValue && help !== getBalance(initialValue))

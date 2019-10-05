@@ -34,7 +34,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   }, [network.nodes, visible]);
   const openChanAsync = useAsyncCallback(async (payload: OpenChannelPayload) => {
     await openChannel(payload);
-    hideOpenChannel();
+    hideOpenChannel(true);
   });
 
   const handleSubmit = () => {
@@ -103,7 +103,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
       <Modal
         title="Open Channel"
         visible={visible}
-        onCancel={() => hideOpenChannel()}
+        onCancel={() => hideOpenChannel(false)}
         destroyOnClose
         okText={t('cmps.open-channel-modal.on-text', 'Open Channel')}
         okButtonProps={{ loading: openChanAsync.loading }}
