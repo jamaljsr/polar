@@ -28,6 +28,7 @@ export interface DesignerModel {
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
   addChart: Action<DesignerModel, { id: number; chart: IChart }>;
   onSetStatus: ActionOn<DesignerModel, RootModel>;
+  // Flowchart component callbacks
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
   onDragCanvas: Action<DesignerModel, Parameters<RFC.IOnDragCanvas>[0]>;
   onLinkStart: Action<DesignerModel, Parameters<RFC.IOnLinkStart>[0]>;
@@ -115,10 +116,8 @@ const designerModel: DesignerModel = {
   onLinkComplete: action((state, args) => {
     const chart = state.allCharts[state.activeId];
     const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
-    if (
-      (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
-      [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
-    ) {
+    const diffNode = fromNodeId !== toNodeId;
+    if (diffNode) {
       chart.links[linkId].to = {
         nodeId: toNodeId,
         portId: toPortId,

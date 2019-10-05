@@ -48,6 +48,15 @@ export const fromSatsNumeric = (sats: string): number => {
 export const toSats = (bitcoins: string | number): string => {
   const coins = typeof bitcoins === 'string' ? bitcoins : bitcoins.toString();
   const [integerPart, fractionPart = ''] = coins.split('.');
-  const paddedFraction = fractionPart.padEnd(decimals[Denomination.SATOSHIS], '0');
+  const paddedFraction = fractionPart.padEnd(decimals[Denomination.BITCOIN], '0');
   return stripLeftZeros(`${integerPart}${paddedFraction}`);
+};
+
+/**
+ * Adds comma's when necessary to large numbers
+ * @param value the value to format
+ */
+export const format = (value: string | number): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return num.toLocaleString();
 };

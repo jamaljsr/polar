@@ -1,8 +1,10 @@
-import React, { ReactElement, useMemo } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { Card } from 'antd';
+import { useStoreState } from 'store';
 import { Network } from 'types';
+import { format, toSats } from 'utils/units';
 import BitcoindDetails from './bitcoind/BitcoindDetails';
 import LndDetails from './lnd/LndDetails';
 
@@ -26,10 +28,13 @@ interface Props {
 }
 
 const Sidebar: React.FC<Props> = ({ network, chart, onOpenChannel }) => {
-  const [title, cmp] = useMemo(() => {
+  const { walletInfo } = useStoreState(s => s.bitcoind);
+  const { nodes } = useStoreState(s => s.lnd);
+  const [title, cmp, extra] = useMemo(() => {
     const { id, type } = chart.selected;
     let cmp: ReactElement | undefined;
     let title: string | undefined;
+    let extra: ReactNode | undefined;
 
     if (type === 'node') {
       const { bitcoin, lightning } = network.nodes;
@@ -37,21 +42,33 @@ const Sidebar: React.FC<Props> = ({ network, chart, onOpenChannel }) => {
       if (node && node.implementation === 'bitcoind') {
         title = node.name;
         cmp = <BitcoindDetails node={node} />;
+        if (walletInfo) {
+          extra = <strong>{format(toSats(walletInfo.balance))} sats</strong>;
+        }
       } else if (node && node.implementation === 'LND') {
         title = node.name;
         cmp = <LndDetails node={node} onOpenChannel={onOpenChannel} />;
+        const lnd = nodes[node.name];
+        if (lnd && lnd.walletBalance !== undefined) {
+          extra = <strong>{format(lnd.walletBalance.confirmedBalance)} sats</strong>;
+        }
       }
     }
 
     if (!cmp) {
       title = 'Network Designer';
       cmp = <div>Click on an element in the designer to see details</div>;
+      extra = undefined;
     }
 
-    return [title, cmp];
-  }, [network, chart.selected, onOpenChannel]);
+    return [title, cmp, extra];
+  }, [network, chart.selected, onOpenChannel, walletInfo, nodes]);
 
-  return <Styled.Card title={title}>{cmp}</Styled.Card>;
+  return (
+    <Styled.Card title={title} extra={extra}>
+      {cmp}
+    </Styled.Card>
+  );
 };
 
 export default Sidebar;
