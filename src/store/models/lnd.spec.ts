@@ -74,7 +74,7 @@ describe('LND Model', () => {
 
   it('should be able to deposit funds using the backend bitcoin node', async () => {
     const { depositFunds } = store.getActions().lnd;
-    await depositFunds({ node, amount: 1 });
+    await depositFunds({ node, sats: '50000' });
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.walletBalance).toBeTruthy();
     const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
@@ -86,7 +86,7 @@ describe('LND Model', () => {
   it('should be able to deposit funds using the first bitcoin node', async () => {
     const { depositFunds } = store.getActions().lnd;
     const modifiednode = { ...node, backendName: 'not-valid' };
-    await depositFunds({ node: modifiednode, amount: 1 });
+    await depositFunds({ node: modifiednode, sats: '50000' });
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.walletBalance).toBeTruthy();
     const balances = nodeState.walletBalance as LND.WalletBalanceResponse;

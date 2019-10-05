@@ -31,7 +31,7 @@ describe('NetworkDesigner Component', () => {
     return renderWithProviders(cmp, { initialState });
   };
 
-  it('should render the designer component', () => {
+  it('should render the designer component', async () => {
     const { getByText } = renderComponent();
     expect(getByText('lnd-1')).toBeInTheDocument();
     expect(getByText('lnd-2')).toBeInTheDocument();
