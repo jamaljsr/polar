@@ -1,5 +1,15 @@
 import RFC, { IChart, IConfig, IPosition } from '@mrblenny/react-flow-chart';
-import { Action, action, ActionOn, actionOn, Computed, computed } from 'easy-peasy';
+import {
+  Action,
+  action,
+  ActionOn,
+  actionOn,
+  Computed,
+  computed,
+  ThunkOn,
+  thunkOn,
+} from 'easy-peasy';
+import { StoreInjections } from 'types';
 import { RootModel } from './';
 
 export const rotate = (
@@ -27,7 +37,9 @@ export interface DesignerModel {
   setActiveId: Action<DesignerModel, number>;
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
   addChart: Action<DesignerModel, { id: number; chart: IChart }>;
-  onSetStatus: ActionOn<DesignerModel, RootModel>;
+  onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
+  removeLink: Action<DesignerModel, string>;
+  onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   // Flowchart component callbacks
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
   onDragCanvas: Action<DesignerModel, Parameters<RFC.IOnDragCanvas>[0]>;
@@ -64,7 +76,7 @@ const designerModel: DesignerModel = {
   addChart: action((state, { id, chart }) => {
     state.allCharts[id] = chart;
   }),
-  onSetStatus: actionOn(
+  onNetworkSetStatus: actionOn(
     (actions, storeActions) => storeActions.network.setStatus,
     (state, { payload }) => {
       const { id, status, only, all = true } = payload;
@@ -80,6 +92,24 @@ const designerModel: DesignerModel = {
       }
     },
   ),
+  removeLink: action((state, linkId) => {
+    const chart = state.allCharts[state.activeId];
+    delete chart.links[linkId];
+  }),
+  onLinkCompleteListener: thunkOn(
+    actions => actions.onLinkComplete,
+    (actions, { payload }, { getState, getStoreActions }) => {
+      // show the OpenChannel modal if a link is created
+      if (getState().activeChart.links[payload.linkId]) {
+        getStoreActions().modals.showOpenChannel({
+          to: payload.toNodeId,
+          from: payload.fromNodeId,
+          linkId: payload.linkId,
+        });
+      }
+    },
+  ),
+  // TODO: add unit tests for the actions below
   // This file is excluded from test coverage analysis because
   // these actions were copied with a little modification from
   // https://github.com/MrBlenny/react-flow-chart/blob/master/src/container/actions.ts
@@ -116,8 +146,11 @@ const designerModel: DesignerModel = {
   onLinkComplete: action((state, args) => {
     const chart = state.allCharts[state.activeId];
     const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
-    const diffNode = fromNodeId !== toNodeId;
-    if (diffNode) {
+    if (
+      (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
+      fromNodeId !== toNodeId &&
+      [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
+    ) {
       chart.links[linkId].to = {
         nodeId: toNodeId,
         portId: toPortId,
