@@ -1,5 +1,5 @@
 import React from 'react';
-import { waitForElement } from '@testing-library/dom';
+import { fireEvent, waitForElement } from '@testing-library/dom';
 import { LndLibrary, Status } from 'types';
 import {
   getNetwork,
@@ -10,6 +10,7 @@ import {
 import LndDetails from './LndDetails';
 
 describe('LndDetails', () => {
+  const openChannel = jest.fn();
   const renderComponent = (status?: Status) => {
     const network = getNetwork(1, 'test network', status);
     const initialState = {
@@ -23,7 +24,7 @@ describe('LndDetails', () => {
       },
     };
     const node = network.nodes.lightning[0];
-    const cmp = <LndDetails node={node} />;
+    const cmp = <LndDetails node={node} onOpenChannel={openChannel} />;
     const result = renderWithProviders(cmp, { initialState });
     return {
       ...result,
@@ -148,6 +149,20 @@ describe('LndDetails', () => {
       lndServiceMock.getInfo.mockRejectedValue(new Error('connection failed'));
       const { findByText } = renderComponent(Status.Started);
       expect(await findByText('connection failed')).toBeInTheDocument();
+    });
+
+    it('should handle incoming open channel button click', async () => {
+      const { findByText, node } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Incoming'));
+      expect(openChannel).toBeCalledTimes(1);
+      expect(openChannel).toBeCalledWith({ to: node.name });
+    });
+
+    it('should handle incoming open channel button click', async () => {
+      const { findByText, node } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Outgoing'));
+      expect(openChannel).toBeCalledTimes(1);
+      expect(openChannel).toBeCalledWith({ from: node.name });
     });
   });
 });

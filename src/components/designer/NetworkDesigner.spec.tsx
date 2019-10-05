@@ -72,4 +72,12 @@ describe('NetworkDesigner Component', () => {
     // ensure text from the sidebar is visible
     expect(await findByText('Node Type')).toBeInTheDocument();
   });
+
+  it('should display the OpenChannel modal', async () => {
+    const { getByText, store } = renderComponent();
+    await wait(() => {
+      store.getActions().modals.showOpenChannel({});
+      expect(getByText('Capacity')).toBeInTheDocument();
+    });
+  });
 });
