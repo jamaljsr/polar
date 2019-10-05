@@ -25,10 +25,6 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
   );
   const { nodes } = useStoreState(s => s.lnd);
 
-  if (getInfoAsync.loading) {
-    return <Loader />;
-  }
-
   const details: DetailValues = [
     { label: 'Node Type', value: node.type },
     { label: 'Implementation', value: node.implementation },
@@ -56,6 +52,8 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
         { label: 'Synced to Chain', value: `${syncedToChain}` },
       );
     }
+  } else if (getInfoAsync.loading) {
+    return <Loader />;
   }
 
   return (

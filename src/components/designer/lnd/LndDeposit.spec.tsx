@@ -25,7 +25,7 @@ describe('LndDeposit', () => {
     return {
       ...result,
       input: result.container.querySelector('input') as HTMLInputElement,
-      btn: result.getByText('Send').parentElement as HTMLElement,
+      btn: result.getByText('Deposit').parentElement as HTMLElement,
     };
   };
 
@@ -48,7 +48,7 @@ describe('LndDeposit', () => {
 
   it('should render label', () => {
     const { getByText } = renderComponent();
-    expect(getByText('Deposit BTC')).toBeInTheDocument();
+    expect(getByText('Deposit Funds (satoshis)')).toBeInTheDocument();
   });
 
   it('should render button', () => {
@@ -63,14 +63,14 @@ describe('LndDeposit', () => {
     expect(input).toBeInstanceOf(HTMLInputElement);
   });
 
-  it('should use a default value of 1 for the input', () => {
+  it('should use a default value of 100000 for the input', () => {
     const { input } = renderComponent();
-    expect(input.value).toEqual('1');
+    expect(input.value).toEqual('100000');
   });
 
   it('should deposit funds when the button is clicked', async () => {
     const { input, btn, getByText } = renderComponent();
-    const amount = 5;
+    const amount = '250000';
     fireEvent.change(input, { target: { value: amount } });
     fireEvent.click(btn);
     await waitForElement(() => getByText('Deposit successful'));
@@ -78,7 +78,7 @@ describe('LndDeposit', () => {
     expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
       expect.anything(),
       'bc1aaaa',
-      amount,
+      0.0025,
     );
   });
 
@@ -89,13 +89,5 @@ describe('LndDeposit', () => {
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
     expect(await findByText(/connection failed/)).toBeInTheDocument();
-  });
-
-  it('should display an error if blocks is below 1', async () => {
-    const { input, btn, findByText } = renderComponent();
-    const numBlocks = -5;
-    fireEvent.change(input, { target: { value: numBlocks } });
-    fireEvent.click(btn);
-    expect(await findByText(/must be a positve number/)).toBeInTheDocument();
   });
 });
