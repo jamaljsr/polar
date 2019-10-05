@@ -8,6 +8,8 @@ console.warn = (...args) => {
   if (
     // renamed componentWillReceiveProps in dependencies
     /Warning.*componentWillReceiveProps has been renamed/.test(args[0]) ||
+    // renamed componentWillReceiveProps in dependencies
+    /Warning.*componentWillMount has been renamed/.test(args[0]) ||
     // router history inconsistencies
     /Warning: Hash history cannot PUSH the same path/.test(args[0]) ||
     // antd form validation warnings

@@ -19,6 +19,15 @@ function stripLeftZeros(str: string) {
 }
 
 /**
+ * Adds comma's when necessary to large numbers
+ * @param value the value to format
+ */
+export const format = (value: string | number): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return num.toLocaleString();
+};
+
+/**
  * Convert from a value of satoshis to bitcoin
  * @param sats the value denominated in satoshis
  */
@@ -35,28 +44,17 @@ export const fromSats = (sats: string): string => {
  * @param sats the value denominated in sats
  */
 export const fromSatsNumeric = (sats: string): number => {
-  const coins = parseFloat(fromSats(sats));
-  if (isNaN(coins))
-    throw new Error(`Unable to convert '${sats} sats into a numeric value`);
-  return coins;
+  return parseFloat(fromSats(sats));
 };
 
 /**
  * Convert from a value of Bitcoin to satoshis
  * @param bitcoins the value denominated in whole bitcoins
  */
-export const toSats = (bitcoins: string | number): string => {
-  const coins = typeof bitcoins === 'string' ? bitcoins : bitcoins.toString();
+export const toSats = (bitcoins: string | number, formatted?: boolean): string => {
+  const coins = typeof bitcoins === 'string' ? bitcoins : bitcoins.toFixed(8);
   const [integerPart, fractionPart = ''] = coins.split('.');
   const paddedFraction = fractionPart.padEnd(decimals[Denomination.BITCOIN], '0');
-  return stripLeftZeros(`${integerPart}${paddedFraction}`);
-};
-
-/**
- * Adds comma's when necessary to large numbers
- * @param value the value to format
- */
-export const format = (value: string | number): string => {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
-  return num.toLocaleString();
+  const sats = stripLeftZeros(`${integerPart}${paddedFraction}`);
+  return formatted ? format(sats) : sats;
 };

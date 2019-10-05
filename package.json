@@ -8,7 +8,7 @@
     "email": "contact@lightningpolar.com",
     "url": "https://lightningpolar.com"
   },
-  "main": "public/main/index.js",
+  "main": "public/main/electron/index.js",
   "scripts": {
     "build": "cross-env PUBLIC_URL=./ rescripts build",
     "cm": "git add . && git cz",
@@ -135,6 +135,7 @@
       "src/**/*.{js,jsx,ts,tsx}",
       "!<rootDir>/node_modules/",
       "!<rootDir>/src/types/**/*.ts",
+      "!<rootDir>/src/shared/**/*.ts",
       "!<rootDir>/src/**/index.{ts,js}",
       "!<rootDir>/src/index.tsx",
       "!<rootDir>/src/react-app-env.d.ts",

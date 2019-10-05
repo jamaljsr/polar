@@ -6,7 +6,7 @@ import { LndNodeModel } from 'store/models/lnd';
 import { Network } from 'types';
 import { format } from 'utils/units';
 
-interface Props {
+export interface Props {
   network: Network;
   id: string;
   form: WrappedFormUtils<any>;
@@ -26,14 +26,17 @@ const LightningNodeSelect: React.FC<Props> = ({
   nodes,
 }) => {
   const [help, setHelp] = useState<string>();
+  const [initialized, setInitialized] = useState(false);
   const getBalance = (name: string): string | undefined => {
     if (nodes && nodes[name] && nodes[name].walletBalance) {
       const balances = nodes[name].walletBalance as WalletBalanceResponse;
       return `Balance: ${format(balances.confirmedBalance)} sats`;
     }
   };
-  if (initialValue && help !== getBalance(initialValue))
+  if (initialValue && !initialized) {
     setHelp(getBalance(initialValue));
+    setInitialized(true);
+  }
 
   const { lightning } = network.nodes;
   return (

@@ -41,7 +41,6 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
     form.validateFields((err, values: FormFields) => {
       if (err) return;
 
-      console.warn('form submitted', values);
       const { lightning } = network.nodes;
       const fromNode = lightning.find(n => n.name === values.from);
       const toNode = lightning.find(n => n.name === values.to);
@@ -92,7 +91,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
       <Alert
         type="error"
         closable={false}
-        message="Unable to connect to node"
+        message="Unable to fetch node balances"
         description={getBalancesAsync.error.message}
       />
     );
@@ -101,7 +100,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   return (
     <>
       <Modal
-        title="Open Channel"
+        title="Open New Channel"
         visible={visible}
         onCancel={() => hideOpenChannel(false)}
         destroyOnClose
