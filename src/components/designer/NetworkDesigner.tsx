@@ -6,7 +6,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import CustomNodeInner from './CustomNodeInner';
-import OpenChannelModal, { useOpenChannelModal } from './lnd/OpenChannelModal';
+import OpenChannelModal from './lnd/OpenChannelModal';
 import Sidebar from './Sidebar';
 
 const Styled = {
@@ -26,7 +26,7 @@ interface Props {
 
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
-  const openChan = useOpenChannelModal(network);
+  const { showOpenChannel } = useStoreActions(s => s.modals);
   // update the redux store with the current network's chart
   useEffect(() => {
     setActiveId(network.id);
@@ -38,10 +38,8 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   // which can be many, ex: onDragNode, onDragCanvas, etc
   const debouncedChart = useDebounce(chart, updateStateDelay);
   useEffect(() => {
-    if (debouncedChart) {
-      // save to disk when the chart is changed (debounced)
-      save();
-    }
+    // save to disk when the chart is changed (debounced)
+    if (debouncedChart) save();
   }, [debouncedChart, save]);
 
   if (!chart) return <Loader />;
@@ -54,8 +52,8 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         Components={{ NodeInner: CustomNodeInner }}
         callbacks={callbacks}
       />
-      <Sidebar network={network} chart={chart} onOpenChannel={openChan.show} />
-      <OpenChannelModal {...openChan} />
+      <Sidebar network={network} chart={chart} onOpenChannel={showOpenChannel} />
+      <OpenChannelModal network={network} />
     </Styled.Designer>
   );
 };
