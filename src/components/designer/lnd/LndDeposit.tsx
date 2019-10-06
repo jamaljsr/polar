@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import styled from '@emotion/styled';
 import { Alert, Button, Form, Input, InputNumber } from 'antd';
 import { useStoreActions } from 'store';
 import { LndNode } from 'types';
 
 const InputGroup = Input.Group;
-
-const Styled = {
-  LndDeposit: styled.div`
-    margin-top: 30px;
-  `,
-};
 
 const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
   const [amount, setAmount] = useState(100000);
@@ -21,7 +14,7 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
   );
 
   return (
-    <Styled.LndDeposit>
+    <>
       {depositAsync.error && (
         <Alert
           type="error"
@@ -53,7 +46,7 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
           </Button>
         </InputGroup>
       </Form.Item>
-    </Styled.LndDeposit>
+    </>
   );
 };
 

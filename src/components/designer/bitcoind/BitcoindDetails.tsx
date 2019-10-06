@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { BitcoinNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
+import { toSats } from 'utils/units';
 import { DetailsList, Loader, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
+import SidebarCard from '../SidebarCard';
 import MineBlocksInput from './MineBlocksInput';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
@@ -20,10 +22,6 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     [node],
   );
 
-  if (getInfoAsync.loading) {
-    return <Loader />;
-  }
-
   const details: DetailValues = [
     { label: 'Node Type', value: node.type },
     { label: 'Implementation', value: node.implementation },
@@ -34,6 +32,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     },
   ];
 
+  let extra: ReactNode | undefined;
   if (node.status === Status.Started && chainInfo && walletInfo) {
     details.push(
       { label: 'RPC Host', value: `127.0.0.1:${node.ports.rpc}` },
@@ -41,10 +40,12 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
       { label: 'Block Height', value: chainInfo.blocks },
       { label: 'Block Hash', value: ellipseInner(chainInfo.bestblockhash) },
     );
+    extra = <strong>{toSats(walletInfo.balance, true)} sats</strong>;
   }
 
   return (
-    <>
+    <SidebarCard title={node.name} extra={extra}>
+      {getInfoAsync.loading && <Loader />}
       {node.status === Status.Starting && (
         <Alert
           type="info"
@@ -63,7 +64,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
       )}
       <DetailsList details={details} />
       {node.status === Status.Started && <MineBlocksInput node={node} />}
-    </>
+    </SidebarCard>
   );
 };
 
