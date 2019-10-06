@@ -31,8 +31,6 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     if (nodeState.info) {
       const { identityPubkey, alias, syncedToChain } = nodeState.info;
       details.push(
-        { label: 'GRPC Host', value: `127.0.0.1:${node.ports.grpc}` },
-        { label: 'REST Host', value: `127.0.0.1:${node.ports.rest}` },
         { label: 'Alias', value: alias },
         { label: 'Pubkey', value: ellipseInner(identityPubkey) },
         { label: 'Synced to Chain', value: `${syncedToChain}` },

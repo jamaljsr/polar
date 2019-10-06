@@ -47,21 +47,21 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         <Form.Item label="TLS Cert">
           <Input
             readOnly
-            value={node.tlsPath}
+            value={node.paths.tlsCert}
             addonAfter={<Icon type="copy" onClick={() => {}} />}
           />
         </Form.Item>
         <Form.Item label="Admin Macaroon">
           <Input
             readOnly
-            value={node.macaroonPath}
+            value={node.paths.adminMacaroon}
             addonAfter={<Icon type="copy" onClick={() => {}} />}
           />
         </Form.Item>
         <Form.Item label="Read-only Macaroon">
           <Input
             readOnly
-            value={node.macaroonPath}
+            value={node.paths.readonlyMacaroon}
             addonAfter={<Icon type="copy" onClick={() => {}} />}
           />
         </Form.Item>

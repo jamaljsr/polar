@@ -42,8 +42,11 @@ export interface LightningNode extends CommonNode {
 }
 
 export interface LndNode extends LightningNode {
-  tlsPath: string;
-  macaroonPath: string;
+  paths: {
+    tlsCert: string;
+    adminMacaroon: string;
+    readonlyMacaroon: string;
+  };
   ports: {
     rest: number;
     grpc: number;

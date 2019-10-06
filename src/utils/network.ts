@@ -41,8 +41,9 @@ export const createNetwork = (config: {
   const lndDataPath = (name: string) =>
     join(network.path, 'volumes', 'lnd', prefix(name));
   const lndCertPath = (name: string) => join(lndDataPath(name), 'tls.cert');
-  const macaroonPath = join('data', 'chain', 'bitcoin', 'regtest', 'admin.macaroon');
-  const lndMacaroonPath = (name: string) => join(lndDataPath(name), macaroonPath);
+  const macaroonPath = join('data', 'chain', 'bitcoin', 'regtest');
+  const lndMacaroonPath = (name: string, macaroon: string) =>
+    join(lndDataPath(name), macaroonPath, `${macaroon}.macaroon`);
 
   network.nodes.lightning = range(lndNodes)
     .map((v, i) => `lnd-${i + 1}`)
@@ -55,8 +56,11 @@ export const createNetwork = (config: {
       version: '0.7.1-beta',
       status,
       backendName: network.nodes.bitcoin[0].name,
-      tlsPath: lndCertPath(name),
-      macaroonPath: lndMacaroonPath(name),
+      paths: {
+        tlsCert: lndCertPath(name),
+        adminMacaroon: lndMacaroonPath(name, 'admin'),
+        readonlyMacaroon: lndMacaroonPath(name, 'readonly'),
+      },
       ports: {
         rest: 8081 + i,
         grpc: 10001 + i,

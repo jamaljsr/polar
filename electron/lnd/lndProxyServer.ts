@@ -18,13 +18,13 @@ const rpcCache: {
  * it doesn't exist
  */
 const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
-  const { name, ports, tlsPath, macaroonPath } = node;
+  const { name, ports, paths } = node;
   // TODO: use node unique id for caching since is an application level global variable
   if (!rpcCache[name]) {
     const config = {
       server: `127.0.0.1:${ports.grpc}`,
-      tls: tlsPath,
-      macaroonPath: macaroonPath,
+      tls: paths.tlsCert,
+      macaroonPath: paths.adminMacaroon,
     };
     rpcCache[name] = await createLndRpc(config);
   }
