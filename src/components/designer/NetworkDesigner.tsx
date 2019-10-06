@@ -26,7 +26,6 @@ interface Props {
 
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
-  const { showOpenChannel } = useStoreActions(s => s.modals);
   const { openChannel } = useStoreState(s => s.modals);
   // update the redux store with the current network's chart
   useEffect(() => {
@@ -53,7 +52,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         Components={{ NodeInner: CustomNodeInner }}
         callbacks={callbacks}
       />
-      <Sidebar network={network} chart={chart} onOpenChannel={showOpenChannel} />
+      <Sidebar network={network} chart={chart} />
       {openChannel.visible && <OpenChannelModal network={network} />}
     </Styled.Designer>
   );

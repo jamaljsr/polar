@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert, Button, Form, Icon } from 'antd';
+import { Alert } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'types';
-import { ellipseInner } from 'utils/strings';
-import { Loader, StatusBadge } from 'components/common';
-import DetailsList, { DetailValues } from 'components/common/DetailsList';
-import LndDeposit from './LndDeposit';
+import { format } from 'utils/units';
+import { Loader } from 'components/common';
+import DetailsList from 'components/common/DetailsList';
+import SidebarCard from '../SidebarCard';
+import ActionsTab from './ActionsTab';
+import ConnectTab from './ConnectTab';
+import InfoTab from './InfoTab';
 
 interface Props {
   node: LndNode;
-  onOpenChannel: (args: { to?: string; from?: string }) => void;
 }
 
-const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
+const LndDetails: React.FC<Props> = ({ node }) => {
+  const [activeTab, setActiveTab] = useState(
+    node.status === Status.Started ? 'connect' : 'info',
+  );
   const { getInfo, getWalletBalance } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
@@ -23,41 +28,37 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
     },
     [node],
   );
+
+  let extra: ReactNode | undefined;
   const { nodes } = useStoreState(s => s.lnd);
-
-  const details: DetailValues = [
-    { label: 'Node Type', value: node.type },
-    { label: 'Implementation', value: node.implementation },
-    { label: 'Version', value: `v${node.version}` },
-    {
-      label: 'Status',
-      value: <StatusBadge status={node.status} text={Status[node.status]} />,
-    },
-  ];
-
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
-      const { confirmedBalance, unconfirmedBalance } = nodeState.walletBalance;
-      details.push({ label: 'Confirmed Balance', value: `${confirmedBalance} sats` });
-      details.push({ label: 'Unconfirmed Balance', value: `${unconfirmedBalance} sats` });
-    }
-    if (nodeState.info) {
-      const { identityPubkey, alias, syncedToChain } = nodeState.info;
-      details.push(
-        { label: 'GRPC Host', value: `127.0.0.1:${node.ports.grpc}` },
-        { label: 'REST Host', value: `127.0.0.1:${node.ports.rest}` },
-        { label: 'Alias', value: alias },
-        { label: 'Pubkey', value: ellipseInner(identityPubkey) },
-        { label: 'Synced to Chain', value: `${syncedToChain}` },
-      );
+      const { confirmedBalance } = nodeState.walletBalance;
+      extra = <strong>{format(confirmedBalance)} sats</strong>;
     }
   } else if (getInfoAsync.loading) {
     return <Loader />;
   }
 
+  const tabHeaders = [
+    { key: 'connect', tab: 'Connect' },
+    { key: 'info', tab: 'Info' },
+    { key: 'actions', tab: 'Actions' },
+  ];
+  const tabContents: Record<string, ReactNode> = {
+    connect: <ConnectTab node={node} />,
+    info: <InfoTab node={node} />,
+    actions: <ActionsTab node={node} />,
+  };
   return (
-    <>
+    <SidebarCard
+      title={node.name}
+      extra={extra}
+      tabList={tabHeaders}
+      activeTabKey={activeTab}
+      onTabChange={setActiveTab}
+    >
       {node.status === Status.Starting && (
         <Alert
           type="info"
@@ -74,33 +75,8 @@ const LndDetails: React.FC<Props> = ({ node, onOpenChannel }) => {
           description={getInfoAsync.error.message}
         />
       )}
-      <DetailsList details={details} />
-      {node.status === Status.Started && (
-        <>
-          <LndDeposit node={node} />
-          <Form.Item label="Open Channel">
-            <Button.Group style={{ width: '100%' }}>
-              <Button
-                type="primary"
-                style={{ width: '50%' }}
-                onClick={() => onOpenChannel({ to: node.name })}
-              >
-                <Icon type="download" />
-                Incoming
-              </Button>
-              <Button
-                type="primary"
-                style={{ width: '50%' }}
-                onClick={() => onOpenChannel({ from: node.name })}
-              >
-                <Icon type="upload" />
-                Outgoing
-              </Button>
-            </Button.Group>
-          </Form.Item>
-        </>
-      )}
-    </>
+      {tabContents[activeTab]}
+    </SidebarCard>
   );
 };
 
