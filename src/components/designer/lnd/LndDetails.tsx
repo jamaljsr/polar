@@ -5,7 +5,6 @@ import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { format } from 'utils/units';
 import { Loader } from 'components/common';
-import DetailsList from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
 import ActionsTab from './ActionsTab';
 import ConnectTab from './ConnectTab';
@@ -42,13 +41,13 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   }
 
   const tabHeaders = [
-    { key: 'connect', tab: 'Connect' },
     { key: 'info', tab: 'Info' },
+    { key: 'connect', tab: 'Connect' },
     { key: 'actions', tab: 'Actions' },
   ];
   const tabContents: Record<string, ReactNode> = {
-    connect: <ConnectTab node={node} />,
     info: <InfoTab node={node} />,
+    connect: <ConnectTab node={node} />,
     actions: <ActionsTab node={node} />,
   };
   return (
