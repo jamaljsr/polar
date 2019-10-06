@@ -3,6 +3,7 @@ import { useStoreState } from 'easy-peasy';
 import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { StatusBadge } from 'components/common';
+import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 interface Props {
@@ -30,9 +31,15 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     }
     if (nodeState.info) {
       const { identityPubkey, alias, syncedToChain } = nodeState.info;
+      const pubkey = (
+        <>
+          {ellipseInner(identityPubkey)}
+          <CopyIcon value={identityPubkey} name="PubKey" />
+        </>
+      );
       details.push(
         { label: 'Alias', value: alias },
-        { label: 'Pubkey', value: ellipseInner(identityPubkey) },
+        { label: 'Pubkey', value: pubkey },
         { label: 'Synced to Chain', value: `${syncedToChain}` },
       );
     }
