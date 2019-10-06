@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Alert, Form, Icon, Input, Radio } from 'antd';
+import { Alert, Form, Radio } from 'antd';
 import { LndNode, Status } from 'types';
 import { readHex } from 'utils/files';
+import CopyableInput from 'components/common/form/CopyableInput';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -29,7 +30,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   }, [node.paths]);
 
   if (node.status !== Status.Started) {
-    return <>Start the network to view connection information</>;
+    return <>Start the network to view connection info</>;
   }
 
   const values = fileType === 'paths' ? node.paths : hexValues;
@@ -38,18 +39,10 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     <>
       <Form labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} labelAlign="left">
         <Form.Item label="GRPC Host">
-          <Input
-            readOnly
-            value={`127.0.0.1:${node.ports.grpc}`}
-            addonAfter={<Icon type="copy" onClick={() => {}} />}
-          />
+          <CopyableInput value={`127.0.0.1:${node.ports.grpc}`} name="GRPC Host" />
         </Form.Item>
         <Form.Item label="REST Host">
-          <Input
-            readOnly
-            value={`127.0.0.1:${node.ports.rest}`}
-            addonAfter={<Icon type="copy" onClick={() => {}} />}
-          />
+          <CopyableInput value={`127.0.0.1:${node.ports.rest}`} name="REST Host" />
         </Form.Item>
       </Form>
       <Form.Item>
@@ -71,25 +64,13 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       )}
       <Form labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} labelAlign="left">
         <Form.Item label="TLS Cert">
-          <Input
-            readOnly
-            value={values.tlsCert}
-            addonAfter={<Icon type="copy" onClick={() => {}} />}
-          />
+          <CopyableInput value={values.tlsCert} name="TLS Cert" />
         </Form.Item>
         <Form.Item label="Admin Macaroon">
-          <Input
-            readOnly
-            value={values.adminMacaroon}
-            addonAfter={<Icon type="copy" onClick={() => {}} />}
-          />
+          <CopyableInput value={values.adminMacaroon} name="Admin Macaroon" />
         </Form.Item>
         <Form.Item label="Read-only Macaroon">
-          <Input
-            readOnly
-            value={values.readonlyMacaroon}
-            addonAfter={<Icon type="copy" onClick={() => {}} />}
-          />
+          <CopyableInput value={values.readonlyMacaroon} name="Read-only Macaroon" />
         </Form.Item>
       </Form>
     </>
