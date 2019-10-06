@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAsync } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Form, Icon, Input, Radio } from 'antd';
+import { Alert, Form, Icon, Input, Radio } from 'antd';
 import { LndNode, Status } from 'types';
+import { readHex } from 'utils/files';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -15,9 +17,22 @@ interface Props {
 }
 
 const ConnectTab: React.FC<Props> = ({ node }) => {
+  const [fileType, setFileType] = useState<string>('paths');
+  const [hexValues, setHexValues] = useState<Record<string, string>>({});
+  const hexFilesAsync = useAsync(async () => {
+    const { tlsCert, adminMacaroon, readonlyMacaroon } = node.paths;
+    setHexValues({
+      tlsCert: await readHex(tlsCert),
+      adminMacaroon: await readHex(adminMacaroon),
+      readonlyMacaroon: await readHex(readonlyMacaroon),
+    });
+  }, [node.paths]);
+
   if (node.status !== Status.Started) {
     return <>Start the network to view connection information</>;
   }
+
+  const values = fileType === 'paths' ? node.paths : hexValues;
 
   return (
     <>
@@ -38,30 +53,41 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         </Form.Item>
       </Form>
       <Form.Item>
-        <Styled.RadioGroup defaultValue="paths" style={{ margin: 'auto' }}>
+        <Styled.RadioGroup
+          defaultValue={fileType}
+          onChange={e => setFileType(e.target.value)}
+        >
           <Radio.Button value="paths">File Paths</Radio.Button>
           <Radio.Button value="hex">HEX Strings</Radio.Button>
         </Styled.RadioGroup>
       </Form.Item>
+      {hexFilesAsync.error && (
+        <Alert
+          type="error"
+          closable={false}
+          message="Unable to hex encode file contents"
+          description={hexFilesAsync.error.message}
+        />
+      )}
       <Form labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} labelAlign="left">
         <Form.Item label="TLS Cert">
           <Input
             readOnly
-            value={node.paths.tlsCert}
+            value={values.tlsCert}
             addonAfter={<Icon type="copy" onClick={() => {}} />}
           />
         </Form.Item>
         <Form.Item label="Admin Macaroon">
           <Input
             readOnly
-            value={node.paths.adminMacaroon}
+            value={values.adminMacaroon}
             addonAfter={<Icon type="copy" onClick={() => {}} />}
           />
         </Form.Item>
         <Form.Item label="Read-only Macaroon">
           <Input
             readOnly
-            value={node.paths.readonlyMacaroon}
+            value={values.readonlyMacaroon}
             addonAfter={<Icon type="copy" onClick={() => {}} />}
           />
         </Form.Item>
