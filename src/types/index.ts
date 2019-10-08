@@ -86,6 +86,8 @@ export interface LndLibrary {
   getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
   getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;
   openChannel: (from: LndNode, to: LndNode, amount: string) => Promise<LND.ChannelPoint>;
+  listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
+  pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
 }
 
 export interface StoreInjections {

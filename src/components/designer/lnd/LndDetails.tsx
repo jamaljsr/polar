@@ -18,12 +18,13 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   const [activeTab, setActiveTab] = useState(
     node.status === Status.Started ? 'connect' : 'info',
   );
-  const { getInfo, getWalletBalance } = useStoreActions(s => s.lnd);
+  const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
       if (node.status !== Status.Started) return;
       await getInfo(node);
       await getWalletBalance(node);
+      await getChannels(node);
     },
     [node],
   );

@@ -69,6 +69,21 @@ const openChannel = async (args: {
   return await rpc.openChannelSync(args.req);
 };
 
+const listChannels = async (args: {
+  node: LndNode;
+  req: LND.ListChannelsRequest;
+}): Promise<LND.ListChannelsResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.listChannels(args.req);
+};
+
+const pendingChannels = async (args: {
+  node: LndNode;
+}): Promise<LND.PendingChannelsResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.pendingChannels();
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
@@ -82,6 +97,8 @@ const listeners: {
   [ipcChannels.listPeers]: listPeers,
   [ipcChannels.connectPeer]: connectPeer,
   [ipcChannels.openChannel]: openChannel,
+  [ipcChannels.listChannels]: listChannels,
+  [ipcChannels.pendingChannels]: pendingChannels,
 };
 
 /**
