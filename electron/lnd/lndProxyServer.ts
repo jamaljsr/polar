@@ -93,12 +93,16 @@ export const initLndProxy = (ipc: IpcMain) => {
   debug('LndProxyServer: initialize');
   Object.entries(listeners).forEach(([channel, func]) => {
     const reqChan = `lnd-${channel}-request`;
-    const resChan = `lnd-${channel}-response`;
+    let resChan = `lnd-${channel}-response`;
 
     debug(`listening for ipc command "${channel}"`);
     ipc.on(reqChan, async (event, ...args) => {
-      // when a message is received by the main process...
+      // the a message is received by the main process...
       debug(`LndProxyServer: received request "${reqChan}"`, ...args);
+      // inspect the first arg to see if it has a specific channel to reply to
+      if (args && args[0] && args[0].replyTo) {
+        resChan = args[0].replyTo;
+      }
       try {
         // attempt to execute the associated function
         let result = await func(...args);
