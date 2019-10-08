@@ -112,5 +112,10 @@ describe('BitcoindDetails', () => {
       const { findByText } = renderComponent(Status.Started);
       expect(await findByText('connection failed')).toBeInTheDocument();
     });
+
+    it('should display the wallet balance of a selected bitcoin node', async () => {
+      const { findByText } = renderComponent(Status.Started);
+      expect(await findByText('1,000,000,000 sats')).toBeInTheDocument();
+    });
   });
 });

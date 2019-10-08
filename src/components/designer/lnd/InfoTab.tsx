@@ -34,7 +34,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
       const pubkey = (
         <>
           {ellipseInner(identityPubkey)}
-          <CopyIcon value={identityPubkey} name="PubKey" />
+          <CopyIcon value={identityPubkey} label="PubKey" />
         </>
       );
       details.push(

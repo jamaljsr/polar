@@ -39,14 +39,15 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     <>
       <Form labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} labelAlign="left">
         <Form.Item label="GRPC Host">
-          <CopyableInput value={`127.0.0.1:${node.ports.grpc}`} name="GRPC Host" />
+          <CopyableInput value={`127.0.0.1:${node.ports.grpc}`} label="GRPC Host" />
         </Form.Item>
         <Form.Item label="REST Host">
-          <CopyableInput value={`127.0.0.1:${node.ports.rest}`} name="REST Host" />
+          <CopyableInput value={`127.0.0.1:${node.ports.rest}`} label="REST Host" />
         </Form.Item>
       </Form>
       <Form.Item>
         <Styled.RadioGroup
+          name="fileType"
           defaultValue={fileType}
           onChange={e => setFileType(e.target.value)}
         >
@@ -62,15 +63,15 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           description={hexFilesAsync.error.message}
         />
       )}
-      <Form labelCol={{ span: 12 }} wrapperCol={{ span: 12 }} labelAlign="left">
+      <Form>
         <Form.Item label="TLS Cert">
-          <CopyableInput value={values.tlsCert} name="TLS Cert" />
+          <CopyableInput value={values.tlsCert} label="TLS Cert" />
         </Form.Item>
         <Form.Item label="Admin Macaroon">
-          <CopyableInput value={values.adminMacaroon} name="Admin Macaroon" />
+          <CopyableInput value={values.adminMacaroon} label="Admin Macaroon" />
         </Form.Item>
         <Form.Item label="Read-only Macaroon">
-          <CopyableInput value={values.readonlyMacaroon} name="Read-only Macaroon" />
+          <CopyableInput value={values.readonlyMacaroon} label="Read-only Macaroon" />
         </Form.Item>
       </Form>
     </>
