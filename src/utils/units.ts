@@ -23,6 +23,7 @@ function stripLeftZeros(str: string) {
  * @param value the value to format
  */
 export const format = (value: string | number): string => {
+  if (!value) return value as string;
   const num = typeof value === 'string' ? parseFloat(value) : value;
   return num.toLocaleString();
 };

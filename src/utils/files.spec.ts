@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { join } from 'path';
 import { dataPath } from './config';
-import { exists, read, waitForFile, write } from './files';
+import { exists, read, readHex, waitForFile, write } from './files';
 
 jest.mock('fs-extra', () => ({
   mkdirs: jest.fn(),
@@ -91,6 +91,13 @@ describe('Files util', () => {
       const fileExists = await exists(absPath);
       expect(fileExists).toBe(true);
       expect(mockFs.pathExists).toBeCalledWith(absPath);
+    });
+  });
+
+  describe('read hex', () => {
+    it('should convert data from disk to hex formar', async () => {
+      mockFs.readFile.mockResolvedValue(Buffer.from('test data'));
+      expect(await readHex(join('networks', 'test.txt'))).toEqual('746573742064617461');
     });
   });
 
