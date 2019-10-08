@@ -47,6 +47,14 @@ class LndService implements LndLibrary {
     return await proxy.openChannel(from, req);
   }
 
+  async listChannels(node: LndNode): Promise<LND.ListChannelsResponse> {
+    return await proxy.listChannels(node, {});
+  }
+
+  async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
+    return await proxy.pendingChannels(node);
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out

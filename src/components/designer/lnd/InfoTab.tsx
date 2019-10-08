@@ -1,5 +1,6 @@
 import React from 'react';
-import { useStoreState } from 'easy-peasy';
+import { Tooltip } from 'antd';
+import { useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { StatusBadge } from 'components/common';
@@ -30,17 +31,30 @@ const InfoTab: React.FC<Props> = ({ node }) => {
       details.push({ label: 'Unconfirmed Balance', value: `${unconfirmedBalance} sats` });
     }
     if (nodeState.info) {
-      const { identityPubkey, alias, syncedToChain } = nodeState.info;
+      const {
+        identityPubkey,
+        alias,
+        syncedToChain,
+        numPendingChannels,
+        numActiveChannels,
+        numInactiveChannels,
+      } = nodeState.info;
       const pubkey = (
         <>
           {ellipseInner(identityPubkey)}
           <CopyIcon value={identityPubkey} label="PubKey" />
         </>
       );
+      const channels = (
+        <Tooltip title="Active / Pending / Inactive">
+          {`${numActiveChannels} / ${numPendingChannels} / ${numInactiveChannels}`}
+        </Tooltip>
+      );
       details.push(
         { label: 'Alias', value: alias },
         { label: 'Pubkey', value: pubkey },
         { label: 'Synced to Chain', value: `${syncedToChain}` },
+        { label: 'Channels', value: channels },
       );
     }
   }

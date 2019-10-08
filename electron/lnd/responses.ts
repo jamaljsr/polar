@@ -1,6 +1,82 @@
 import * as LND from '@radar/lnrpc';
 import { ipcChannels } from '../../src/shared';
 
+const defaultChannel = (value: LND.Channel): LND.Channel => ({
+  active: false,
+  remotePubkey: '',
+  channelPoint: '',
+  chanId: '',
+  capacity: '',
+  localBalance: '',
+  remoteBalance: '',
+  commitFee: '',
+  commitWeight: '',
+  feePerKw: '',
+  unsettledBalance: '',
+  totalSatoshisSent: '',
+  totalSatoshisReceived: '',
+  numUpdates: '',
+  pendingHtlcs: [],
+  csvDelay: 0,
+  private: false,
+  initiator: false,
+  chanStatusFlags: '',
+  localChanReserveSat: '',
+  remoteChanReserveSat: '',
+  ...value,
+});
+
+const defaultPendingChannel = (value: LND.PendingChannel): LND.PendingChannel => ({
+  remoteNodePub: '',
+  channelPoint: '',
+  capacity: '',
+  localBalance: '',
+  remoteBalance: '',
+  localChanReserveSat: '',
+  remoteChanReserveSat: '',
+  ...value,
+});
+
+const defaultPendingOpenChannel = (
+  value: LND.PendingOpenChannel,
+): LND.PendingOpenChannel => ({
+  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
+  confirmationHeight: 0,
+  commitFee: '',
+  commitWeight: '',
+  feePerKw: '',
+  ...value,
+});
+
+const defaultClosedChannel = (value: LND.ClosedChannel): LND.ClosedChannel => ({
+  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
+  closingTxid: '',
+  ...value,
+});
+
+const defaultForceClosedChannel = (
+  value: LND.ForceClosedChannel,
+): LND.ForceClosedChannel => ({
+  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
+  closingTxid: '',
+  limboBalance: '',
+  maturityHeight: 0,
+  blocksTilMaturity: 0,
+  recoveredBalance: '',
+  pendingHtlcs: [],
+  ...value,
+});
+
+const defaultWaitingCloseChannel = (
+  value: LND.WaitingCloseChannel,
+): LND.WaitingCloseChannel => ({
+  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
+  limboBalance: '',
+  ...value,
+});
+
+const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
+
 const defaults = {
   [ipcChannels.getInfo]: {
     identityPubkey: '',
@@ -32,6 +108,26 @@ const defaults = {
     fundingTxidStr: '',
     outputIndex: 0,
   } as LND.ChannelPoint,
+  [ipcChannels.listChannels]: (
+    values: LND.ListChannelsResponse,
+  ): LND.ListChannelsResponse => ({
+    channels: mapArray(values.channels, defaultChannel),
+  }),
+  [ipcChannels.pendingChannels]: (
+    values: LND.PendingChannelsResponse,
+  ): LND.PendingChannelsResponse => ({
+    totalLimboBalance: '',
+    pendingOpenChannels: mapArray(values.pendingOpenChannels, defaultPendingOpenChannel),
+    pendingClosingChannels: mapArray(values.pendingClosingChannels, defaultClosedChannel),
+    pendingForceClosingChannels: mapArray(
+      values.pendingForceClosingChannels,
+      defaultForceClosedChannel,
+    ),
+    waitingCloseChannels: mapArray(
+      values.waitingCloseChannels,
+      defaultWaitingCloseChannel,
+    ),
+  }),
 };
 
 export type DefaultsKey = keyof typeof defaults;

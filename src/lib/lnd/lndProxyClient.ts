@@ -36,6 +36,17 @@ class LndProxyClient {
   ): Promise<LND.ChannelPoint> {
     return await this.ipc(ipcChannels.openChannel, { node, req });
   }
+
+  async listChannels(
+    node: LndNode,
+    req: LND.ListChannelsRequest,
+  ): Promise<LND.ListChannelsResponse> {
+    return await this.ipc(ipcChannels.listChannels, { node, req });
+  }
+
+  async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
+    return await this.ipc(ipcChannels.pendingChannels, { node });
+  }
 }
 
 export default new LndProxyClient();
