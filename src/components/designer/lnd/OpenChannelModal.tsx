@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { useTranslation } from 'react-i18next';
-import { Alert, Col, Form, Input, Modal, Row } from 'antd';
+import { Alert, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { useStoreActions, useStoreState } from 'store';
 import { OpenChannelPayload } from 'store/models/lnd';
@@ -34,7 +34,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   }, [network.nodes, visible]);
   const openChanAsync = useAsyncCallback(async (payload: OpenChannelPayload) => {
     await openChannel(payload);
-    hideOpenChannel(true);
+    hideOpenChannel();
   });
 
   const handleSubmit = () => {
@@ -74,12 +74,20 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         </Col>
       </Row>
       <Form.Item
-        label={t('cmps.open-channel-modal.capacity-label', 'Capacity')}
+        label={t('cmps.open-channel-modal.capacity-label', 'Capacity (sats)')}
         help="Minimum: 20,000 sats - Maximum 16,777,216 sats"
       >
         {form.getFieldDecorator('sats', {
+          initialValue: 20000,
           rules: [{ required: true, message: 'required' }],
-        })(<Input placeholder="100000" addonAfter="sats" />)}
+        })(
+          <InputNumber
+            min={20000}
+            formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={v => (v ? v.replace(/(,*)/g, '') : '')}
+            style={{ width: '100%' }}
+          />,
+        )}
       </Form.Item>
     </Form>
   );
@@ -102,7 +110,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
       <Modal
         title="Open New Channel"
         visible={visible}
-        onCancel={() => hideOpenChannel(false)}
+        onCancel={() => hideOpenChannel()}
         destroyOnClose
         okText={t('cmps.open-channel-modal.on-text', 'Open Channel')}
         okButtonProps={{ loading: openChanAsync.loading }}

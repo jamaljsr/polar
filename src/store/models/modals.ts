@@ -13,7 +13,7 @@ export interface ModalsModel {
   openChannel: OpenChannelModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
-  hideOpenChannel: Thunk<ModalsModel, boolean, StoreInjections, RootModel>;
+  hideOpenChannel: Thunk<ModalsModel, any, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -32,9 +32,9 @@ const modalsModel: ModalsModel = {
   showOpenChannel: thunk((actions, { to, from, linkId }) => {
     actions.setOpenChannel({ visible: true, to, from, linkId });
   }),
-  hideOpenChannel: thunk((actions, success, { getStoreActions, getState }) => {
+  hideOpenChannel: thunk((actions, payload, { getStoreActions, getState }) => {
     const { linkId } = getState().openChannel;
-    if (!success && linkId) {
+    if (linkId) {
       // remove the link on the chart it the channel was not opened
       getStoreActions().designer.removeLink(linkId);
     }

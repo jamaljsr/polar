@@ -1,3 +1,4 @@
+// TODO: Move shared types into the src/shared folder
 export enum Status {
   Starting,
   Started,
@@ -7,7 +8,9 @@ export enum Status {
 }
 
 export interface CommonNode {
+  // TODO: change id to a uuid
   id: number;
+  networkId: number;
   name: string;
   type: 'bitcoin' | 'lightning';
   version: string;

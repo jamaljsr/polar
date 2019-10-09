@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
-import { initLndProxy } from './lnd/lndProxyServer';
+import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
 
 const devUrl = 'http://localhost:3000';
 const prodUrl = `file://${join(__dirname, '../../../build/index.html')}`;
@@ -50,6 +50,9 @@ class WindowManager {
 
     // use dev server for hot reload or file in production
     this.mainWindow.loadURL(this.isDev ? devUrl : prodUrl);
+
+    // clear the proxy cached data if the window is reloaded
+    this.mainWindow.webContents.on('did-finish-load', clearProxyCache);
 
     mainState.manage(this.mainWindow);
   }

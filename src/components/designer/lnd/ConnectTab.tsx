@@ -37,12 +37,15 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   return (
     <>
-      <Form labelCol={{ span: 10 }} wrapperCol={{ span: 14 }} labelAlign="left">
+      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign="left">
         <Form.Item label="GRPC Host">
           <CopyableInput value={`127.0.0.1:${node.ports.grpc}`} label="GRPC Host" />
         </Form.Item>
         <Form.Item label="REST Host">
-          <CopyableInput value={`127.0.0.1:${node.ports.rest}`} label="REST Host" />
+          <CopyableInput
+            value={`https://127.0.0.1:${node.ports.rest}`}
+            label="REST Host"
+          />
         </Form.Item>
       </Form>
       <Form.Item>
