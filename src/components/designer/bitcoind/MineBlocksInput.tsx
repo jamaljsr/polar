@@ -14,7 +14,7 @@ const Styled = {
 };
 
 const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
-  const [value, setValue] = useState(3);
+  const [value, setValue] = useState(6);
   const { mine } = useStoreActions(s => s.bitcoind);
   const mineAsync = useAsyncCallback(mine);
 

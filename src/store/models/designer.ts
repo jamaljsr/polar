@@ -6,10 +6,13 @@ import {
   actionOn,
   Computed,
   computed,
+  Thunk,
+  thunk,
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { StoreInjections } from 'types';
+import { Network, StoreInjections } from 'types';
+import { updateChartFromNetwork } from 'utils/chart';
 import { RootModel } from './';
 
 export const rotate = (
@@ -33,10 +36,13 @@ const snap = (position: IPosition, config?: IConfig) =>
 export interface DesignerModel {
   activeId: number;
   allCharts: Record<number, IChart>;
+  redraw: boolean;
   activeChart: Computed<DesignerModel, IChart>;
   setActiveId: Action<DesignerModel, number>;
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
   addChart: Action<DesignerModel, { id: number; chart: IChart }>;
+  redrawChart: Action<DesignerModel>;
+  syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
@@ -62,6 +68,7 @@ const designerModel: DesignerModel = {
   // state properties
   activeId: -1,
   allCharts: {},
+  redraw: false,
   // computed properties/functions
   activeChart: computed(state => state.allCharts[state.activeId]),
   // reducer actions (mutations allowed thx to immer)
@@ -76,6 +83,37 @@ const designerModel: DesignerModel = {
   addChart: action((state, { id, chart }) => {
     state.allCharts[id] = chart;
   }),
+  redrawChart: action(state => {
+    // This is a bit of a hack to make a minor tweak to the chart because
+    // sometimes when updating the state, the chart links do not position
+    // themselves correctly
+    state.redraw = !state.redraw;
+    const { nodes } = state.allCharts[state.activeId];
+    Object.values(nodes).forEach(node => {
+      if (node.size) {
+        node.size = {
+          ...node.size,
+          height: node.size.height + (state.redraw ? 1 : -1),
+        };
+      }
+    });
+  }),
+  syncChart: thunk(
+    async (actions, network, { getState, getStoreState, getStoreActions }) => {
+      // fetch data from all of the nodes
+      const lndNodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
+      await Promise.all(lndNodes.map(getStoreActions().lnd.getAllInfo));
+
+      const nodesData = getStoreState().lnd.nodes;
+      const { allCharts } = getState();
+      // sync the chart with data from all of the nodes
+      const chart = updateChartFromNetwork(allCharts[network.id], nodesData);
+      actions.setAllCharts({
+        ...allCharts,
+        [network.id]: chart,
+      });
+    },
+  ),
   onNetworkSetStatus: actionOn(
     (actions, storeActions) => storeActions.network.setStatus,
     (state, { payload }) => {
@@ -93,6 +131,9 @@ const designerModel: DesignerModel = {
     },
   ),
   removeLink: action((state, linkId) => {
+    // this action is used when the OpenChannel modal is closed.
+    // remove the link created in the chart since a new one will
+    // be created when the channels are fetched
     const chart = state.allCharts[state.activeId];
     delete chart.links[linkId];
   }),

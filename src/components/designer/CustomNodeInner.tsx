@@ -1,22 +1,23 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { INodeInnerDefaultProps } from '@mrblenny/react-flow-chart';
+import { INodeInnerDefaultProps, ISize } from '@mrblenny/react-flow-chart';
 import { StatusBadge } from 'components/common';
 
 const Styled = {
-  Node: styled.div`
+  Node: styled.div<{ size?: ISize }>`
     padding: 20px;
-    text-align: center;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: ${({ size }) => (size ? `${size.height}px` : 'auto')};
+    width: ${({ size }) => (size ? `${size.width}px` : 'auto')};
   `,
 };
 
 const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
   return (
-    <Styled.Node>
+    <Styled.Node size={node.size}>
       <span>
         <StatusBadge text={node.id} status={node.properties.status} />
       </span>

@@ -6,34 +6,34 @@ const defaultChannel = (value: LND.Channel): LND.Channel => ({
   remotePubkey: '',
   channelPoint: '',
   chanId: '',
-  capacity: '',
-  localBalance: '',
-  remoteBalance: '',
-  commitFee: '',
-  commitWeight: '',
-  feePerKw: '',
+  capacity: '0',
+  localBalance: '0',
+  remoteBalance: '0',
+  commitFee: '0',
+  commitWeight: '0',
+  feePerKw: '0',
   unsettledBalance: '',
-  totalSatoshisSent: '',
-  totalSatoshisReceived: '',
-  numUpdates: '',
+  totalSatoshisSent: '0',
+  totalSatoshisReceived: '0',
+  numUpdates: '0',
   pendingHtlcs: [],
   csvDelay: 0,
   private: false,
   initiator: false,
   chanStatusFlags: '',
-  localChanReserveSat: '',
-  remoteChanReserveSat: '',
+  localChanReserveSat: '0',
+  remoteChanReserveSat: '0',
   ...value,
 });
 
 const defaultPendingChannel = (value: LND.PendingChannel): LND.PendingChannel => ({
   remoteNodePub: '',
   channelPoint: '',
-  capacity: '',
-  localBalance: '',
-  remoteBalance: '',
-  localChanReserveSat: '',
-  remoteChanReserveSat: '',
+  capacity: '0',
+  localBalance: '0',
+  remoteBalance: '0',
+  localChanReserveSat: '0',
+  remoteChanReserveSat: '0',
   ...value,
 });
 
@@ -42,9 +42,9 @@ const defaultPendingOpenChannel = (
 ): LND.PendingOpenChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
   confirmationHeight: 0,
-  commitFee: '',
-  commitWeight: '',
-  feePerKw: '',
+  commitFee: '0',
+  commitWeight: '0',
+  feePerKw: '0',
   ...value,
 });
 
@@ -59,10 +59,10 @@ const defaultForceClosedChannel = (
 ): LND.ForceClosedChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
   closingTxid: '',
-  limboBalance: '',
+  limboBalance: '0',
   maturityHeight: 0,
   blocksTilMaturity: 0,
-  recoveredBalance: '',
+  recoveredBalance: '0',
   pendingHtlcs: [],
   ...value,
 });
@@ -71,7 +71,7 @@ const defaultWaitingCloseChannel = (
   value: LND.WaitingCloseChannel,
 ): LND.WaitingCloseChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
-  limboBalance: '',
+  limboBalance: '0',
   ...value,
 });
 
@@ -138,9 +138,11 @@ export type DefaultsKey = keyof typeof defaults;
  * @param values the actual values received from the LND API
  * @param key the key of the defaults object containing the default values for the response
  */
-export const withDefaults = <T>(values: T, key: DefaultsKey): T => {
+export const withDefaults = (values: any, key: DefaultsKey): any => {
+  const def = defaults[key] || {};
+  if (typeof def === 'function') return def(values);
   return {
-    ...(defaults[key] || {}),
+    ...def,
     ...values,
   };
 };

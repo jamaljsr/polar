@@ -7,10 +7,11 @@ import { LndNode } from 'types';
 const InputGroup = Input.Group;
 
 const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
-  const [amount, setAmount] = useState(100000);
+  const [amount, setAmount] = useState(1000000);
   const { depositFunds } = useStoreActions(s => s.lnd);
   const depositAsync = useAsyncCallback(
     async () => await depositFunds({ node, sats: amount.toString() }),
+    // TODO: display as notification instead of the Alert below
   );
 
   return (
@@ -33,6 +34,8 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
             value={amount}
             min={1}
             max={100 * 100000000}
+            formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={v => (v ? v.replace(/(,*)/g, '') : '')}
             onChange={v => v && setAmount(v)}
             style={{ width: '65%' }}
           />

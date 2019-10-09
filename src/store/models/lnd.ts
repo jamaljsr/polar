@@ -6,15 +6,19 @@ import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
+export interface LndNodeMapping {
+  [key: string]: LndNodeModel;
+}
+
 export interface LndNodeModel {
   info?: LND.GetInfoResponse | undefined;
   walletBalance?: LND.WalletBalanceResponse | undefined;
   channels?: {
-    open?: LND.Channel[] | undefined;
-    opening?: LND.PendingOpenChannel[] | undefined;
-    closing?: LND.ClosedChannel[] | undefined;
-    forceClosing?: LND.ForceClosedChannel[] | undefined;
-    waitingClose?: LND.WaitingCloseChannel[] | undefined;
+    open: LND.Channel[];
+    opening: LND.PendingOpenChannel[];
+    closing: LND.ClosedChannel[];
+    forceClosing: LND.ForceClosedChannel[];
+    waitingClose: LND.WaitingCloseChannel[];
   };
 }
 
@@ -30,7 +34,7 @@ export interface OpenChannelPayload {
 }
 
 export interface LndModel {
-  nodes: { [key: string]: LndNodeModel };
+  nodes: LndNodeMapping;
   setInfo: Action<LndModel, { node: LndNode; info: LND.GetInfoResponse }>;
   getInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   setWalletBalance: Action<
@@ -98,14 +102,20 @@ const lndModel: LndModel = {
     await actions.getWalletBalance(node);
   }),
   openChannel: thunk(
-    async (actions, { from, to, sats }, { injections, getStoreState }) => {
+    async (
+      actions,
+      { from, to, sats },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      // open the channel via LND
       await injections.lndService.openChannel(from, to, sats);
       // mine some blocks to confirm the txn
-      const node = getStoreState().network.networkById(from.networkId).nodes.bitcoin[0];
+      const network = getStoreState().network.networkById(from.networkId);
+      const node = network.nodes.bitcoin[0];
       await injections.bitcoindService.mine(BLOCKS_TIL_COMFIRMED, node.ports.rpc);
-      // update balances for both nodes in state
-      await actions.getAllInfo(to);
-      await actions.getAllInfo(from);
+      // synchonize the chart with the new channel
+      await getStoreActions().designer.syncChart(network);
+      await getStoreActions().designer.redrawChart();
     },
   ),
 };

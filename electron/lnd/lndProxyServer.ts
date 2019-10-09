@@ -9,7 +9,7 @@ import { DefaultsKey, withDefaults } from './responses';
  * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
-const rpcCache: {
+let rpcCache: {
   [key: string]: LND.LnRpc;
 } = {};
 
@@ -18,17 +18,18 @@ const rpcCache: {
  * it doesn't exist
  */
 const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
-  const { name, ports, paths } = node;
+  const { name, ports, paths, networkId } = node;
   // TODO: use node unique id for caching since is an application level global variable
-  if (!rpcCache[name]) {
+  const id = `n${networkId}-${name}`;
+  if (!rpcCache[id]) {
     const config = {
       server: `127.0.0.1:${ports.grpc}`,
       tls: paths.tlsCert,
       macaroonPath: paths.adminMacaroon,
     };
-    rpcCache[name] = await createLndRpc(config);
+    rpcCache[id] = await createLndRpc(config);
   }
-  return rpcCache[name];
+  return rpcCache[id];
 };
 
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
@@ -109,30 +110,38 @@ const listeners: {
 export const initLndProxy = (ipc: IpcMain) => {
   debug('LndProxyServer: initialize');
   Object.entries(listeners).forEach(([channel, func]) => {
-    const reqChan = `lnd-${channel}-request`;
-    let resChan = `lnd-${channel}-response`;
+    const requestChan = `lnd-${channel}-request`;
+    const responseChan = `lnd-${channel}-response`;
 
     debug(`listening for ipc command "${channel}"`);
-    ipc.on(reqChan, async (event, ...args) => {
+    ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
-      debug(`LndProxyServer: received request "${reqChan}"`, ...args);
+      debug(`LndProxyServer: received request "${requestChan}"`, ...args);
       // inspect the first arg to see if it has a specific channel to reply to
+      let uniqueChan = responseChan;
       if (args && args[0] && args[0].replyTo) {
-        resChan = args[0].replyTo;
+        uniqueChan = args[0].replyTo;
       }
       try {
         // attempt to execute the associated function
         let result = await func(...args);
         // merge the result with default values since LND omits falsey values
-        debug(`LndProxyServer: send response "${resChan}"`, result);
+        debug(`LndProxyServer: send response "${uniqueChan}"`, result);
         result = withDefaults(result, channel as DefaultsKey);
         // response to the calling process with a reply
-        event.reply(resChan, result);
+        event.reply(uniqueChan, result);
       } catch (err) {
         // reply with an error message if the execution fails
-        debug(`LndProxyServer: send error "${resChan}"`, err);
-        event.reply(resChan, { err: err.message });
+        debug(`LndProxyServer: send error "${uniqueChan}"`, err);
+        event.reply(uniqueChan, { err: err.message });
       }
     });
   });
+};
+
+/**
+ * Clears the cached rpc instances
+ */
+export const clearProxyCache = () => {
+  rpcCache = {};
 };
