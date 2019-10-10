@@ -3,6 +3,7 @@ import { Tooltip } from 'antd';
 import { useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
+import { format } from 'utils/units';
 import { StatusBadge } from 'components/common';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -27,8 +28,14 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
       const { confirmedBalance, unconfirmedBalance } = nodeState.walletBalance;
-      details.push({ label: 'Confirmed Balance', value: `${confirmedBalance} sats` });
-      details.push({ label: 'Unconfirmed Balance', value: `${unconfirmedBalance} sats` });
+      details.push({
+        label: 'Confirmed Balance',
+        value: `${format(confirmedBalance)} sats`,
+      });
+      details.push({
+        label: 'Unconfirmed Balance',
+        value: `${format(unconfirmedBalance)} sats`,
+      });
     }
     if (nodeState.info) {
       const {
