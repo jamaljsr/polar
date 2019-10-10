@@ -7,10 +7,11 @@ import lndlogo from 'resources/lnd.png';
 
 export interface LinkProperties {
   type: 'backend' | 'pending-channel' | 'open-channel';
-  capacity: 'string';
-  fromBalance: 'string';
-  toBalance: 'string';
+  capacity: string;
+  fromBalance: string;
+  toBalance: string;
   direction: 'ltr' | 'rtl';
+  status: string;
 }
 
 export const initChartFromNetwork = (network: Network): IChart => {
@@ -87,6 +88,7 @@ interface ChannelInfo {
   capacity: string;
   localBalance: string;
   remoteBalance: string;
+  status: string;
 }
 
 const mapOpenChannel = (chan: Channel): ChannelInfo => ({
@@ -96,27 +98,29 @@ const mapOpenChannel = (chan: Channel): ChannelInfo => ({
   capacity: chan.capacity,
   localBalance: chan.localBalance,
   remoteBalance: chan.remoteBalance,
+  status: 'Open',
 });
 
-const mapPendingChannel = (chan: PendingChannel): ChannelInfo => ({
+const mapPendingChannel = (status: string) => (chan: PendingChannel): ChannelInfo => ({
   pending: true,
   uniqueId: chan.channelPoint.slice(-12),
   pubkey: chan.remoteNodePub,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
   remoteBalance: chan.remoteBalance,
+  status,
 });
 
 const updateLinksAndPorts = (
-  channel: ChannelInfo,
+  info: ChannelInfo,
   pubkeys: Record<string, string>,
   nodes: { [x: string]: INode },
   fromNode: INode,
   links: { [x: string]: ILink },
 ) => {
   // use the channel point as a unique id since pending channels do not have a channel id yet
-  const chanId = channel.uniqueId;
-  const toName = pubkeys[channel.pubkey];
+  const chanId = info.uniqueId;
+  const toName = pubkeys[info.pubkey];
   const toNode = nodes[toName];
   const fromOnLeftSide = fromNode.position.x < toNode.position.x;
 
@@ -141,11 +145,12 @@ const updateLinksAndPorts = (
     from: { nodeId: fromNode.id, portId: chanId },
     to: { nodeId: toName, portId: chanId },
     properties: {
-      type: channel.pending ? 'pending-channel' : 'open-channel',
-      capacity: channel.capacity,
-      fromBalance: channel.localBalance,
-      toBalance: channel.remoteBalance,
+      type: info.pending ? 'pending-channel' : 'open-channel',
+      capacity: info.capacity,
+      fromBalance: info.localBalance,
+      toBalance: info.remoteBalance,
       direction: fromOnLeftSide ? 'ltr' : 'rtl',
+      status: info.status,
     },
   };
 };
@@ -174,12 +179,13 @@ export const updateChartFromNetwork = (
       const { open, opening, closing, forceClosing, waitingClose } = data.channels;
 
       // merge all of the channel types into one array
+      const mapPending = (c: any) => c.channel as PendingChannel;
       const allChannels = [
         ...open.filter(c => c.initiator).map(mapOpenChannel),
-        ...opening.map(c => c.channel as PendingChannel).map(mapPendingChannel),
-        ...closing.map(c => c.channel as PendingChannel).map(mapPendingChannel),
-        ...forceClosing.map(c => c.channel as PendingChannel).map(mapPendingChannel),
-        ...waitingClose.map(c => c.channel as PendingChannel).map(mapPendingChannel),
+        ...opening.map(mapPending).map(mapPendingChannel('Opening')),
+        ...closing.map(mapPending).map(mapPendingChannel('Closing')),
+        ...forceClosing.map(mapPending).map(mapPendingChannel('Force Closing')),
+        ...waitingClose.map(mapPending).map(mapPendingChannel('Waiting to Close')),
       ];
 
       allChannels.forEach(channel => {

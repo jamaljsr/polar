@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 const Styled = {
   Details: styled.table`
     width: 100%;
-    margin: 0;
+    margin: 0 0 30px 0;
   `,
   Row: styled.tr`
     border-bottom: 1px solid rgba(#000, 0.05);
@@ -40,20 +40,24 @@ export type DetailValues = {
 
 interface Props {
   details: DetailValues;
+  title?: string;
 }
 
-const DetailsList: React.SFC<Props> = ({ details }) => {
+const DetailsList: React.SFC<Props> = ({ details, title }) => {
   return (
-    <Styled.Details>
-      <tbody>
-        {details.map((d, i) => (
-          <Styled.Row key={i}>
-            <Styled.LabelCell>{d.label}</Styled.LabelCell>
-            <Styled.ValueCell>{d.value}</Styled.ValueCell>
-          </Styled.Row>
-        ))}
-      </tbody>
-    </Styled.Details>
+    <>
+      {title && <h3>{title}</h3>}
+      <Styled.Details>
+        <tbody>
+          {details.map((d, i) => (
+            <Styled.Row key={i}>
+              <Styled.LabelCell>{d.label}</Styled.LabelCell>
+              <Styled.ValueCell>{d.value}</Styled.ValueCell>
+            </Styled.Row>
+          ))}
+        </tbody>
+      </Styled.Details>
+    </>
   );
 };
 
