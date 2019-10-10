@@ -5,6 +5,14 @@ import { Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
 import lndlogo from 'resources/lnd.png';
 
+export interface LinkProperties {
+  type: 'backend' | 'pending-channel' | 'open-channel';
+  capacity: 'string';
+  fromBalance: 'string';
+  toBalance: 'string';
+  direction: 'ltr' | 'rtl';
+}
+
 export const initChartFromNetwork = (network: Network): IChart => {
   const chart: IChart = {
     offset: { x: 0, y: 0 },
@@ -87,7 +95,7 @@ const mapOpenChannel = (chan: Channel): ChannelInfo => ({
   pubkey: chan.remotePubkey,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
-  remoteBalance: chan.remotePubkey,
+  remoteBalance: chan.remoteBalance,
 });
 
 const mapPendingChannel = (chan: PendingChannel): ChannelInfo => ({
@@ -137,6 +145,7 @@ const updateLinksAndPorts = (
       capacity: channel.capacity,
       fromBalance: channel.localBalance,
       toBalance: channel.remoteBalance,
+      direction: fromOnLeftSide ? 'ltr' : 'rtl',
     },
   };
 };
@@ -166,7 +175,7 @@ export const updateChartFromNetwork = (
 
       // merge all of the channel types into one array
       const allChannels = [
-        ...open.map(mapOpenChannel),
+        ...open.filter(c => c.initiator).map(mapOpenChannel),
         ...opening.map(c => c.channel as PendingChannel).map(mapPendingChannel),
         ...closing.map(c => c.channel as PendingChannel).map(mapPendingChannel),
         ...forceClosing.map(c => c.channel as PendingChannel).map(mapPendingChannel),
