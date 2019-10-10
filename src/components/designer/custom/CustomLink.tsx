@@ -35,14 +35,14 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
           // show green from the right initiator node to left
           leftColor = blue;
           rightColor = green;
-          leftStop = Math.max(split - 5, 0);
-          rightStop = Math.min(split + 5, 100);
+          leftStop = Math.max(split - 3, 0);
+          rightStop = Math.min(split + 3, 100);
         } else {
           // show green from the left initiator node to right
           leftColor = green;
           rightColor = blue;
-          leftStop = Math.max(100 - split - 5, 0);
-          rightStop = Math.min(100 - split + 5, 100);
+          leftStop = Math.max(100 - split - 3, 0);
+          rightStop = Math.min(100 - split + 3, 100);
         }
       } else if (type === 'pending-channel') {
         leftColor = orange;

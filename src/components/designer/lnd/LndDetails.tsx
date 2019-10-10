@@ -37,8 +37,6 @@ const LndDetails: React.FC<Props> = ({ node }) => {
       const { confirmedBalance } = nodeState.walletBalance;
       extra = <strong>{format(confirmedBalance)} sats</strong>;
     }
-  } else if (getInfoAsync.loading) {
-    return <Loader />;
   }
 
   const tabHeaders = [
@@ -67,6 +65,7 @@ const LndDetails: React.FC<Props> = ({ node }) => {
           message="Waiting for LND to come online"
         />
       )}
+      {node.status !== Status.Started && !nodeState && getInfoAsync.loading && <Loader />}
       {getInfoAsync.error && node.status === Status.Started && (
         <Alert
           type="error"
