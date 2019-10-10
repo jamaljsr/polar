@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import styled from '@emotion/styled';
 import { Alert, Form, Radio } from 'antd';
+import { useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { readHex } from 'utils/files';
 import CopyableInput from 'components/common/form/CopyableInput';
@@ -29,8 +30,14 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     });
   }, [node.paths]);
 
+  let lnUrl = '';
+  const nodeState = useStoreState(s => s.lnd.nodes[node.name]);
+  if (nodeState && nodeState.info) {
+    lnUrl = nodeState.info.uris[0];
+  }
+
   if (node.status !== Status.Started) {
-    return <>Start the network to view connection info</>;
+    return <>Node needs to be started to view connection info</>;
   }
 
   const values = fileType === 'paths' ? node.paths : hexValues;
@@ -38,6 +45,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   return (
     <>
       <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign="left">
+        <Form.Item label="LN Url">
+          <CopyableInput value={lnUrl} label="LN Url" />
+        </Form.Item>
         <Form.Item label="GRPC Host">
           <CopyableInput value={`127.0.0.1:${node.ports.grpc}`} label="GRPC Host" />
         </Form.Item>

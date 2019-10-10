@@ -5,6 +5,7 @@ import { Button, Tooltip } from 'antd';
 import { useStoreActions } from 'store';
 import { Network, Status } from 'types';
 import BitcoindDetails from './bitcoind/BitcoindDetails';
+import LinkDetails from './link/LinkDetails';
 import LndDetails from './lnd/LndDetails';
 import SidebarCard from './SidebarCard';
 
@@ -20,7 +21,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
     try {
       await syncChart(network);
       redrawChart();
-      notify({ message: 'The network design has been synced with the Lightning nodes' });
+      notify({ message: 'The designer has been synced with the Lightning nodes' });
     } catch (error) {
       notify({ message: 'Failed to sync the network', error });
     }
@@ -37,6 +38,9 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       } else if (node && node.implementation === 'LND') {
         return <LndDetails node={node} />;
       }
+    } else if (type === 'link' && id) {
+      const link = chart.links[id];
+      return <LinkDetails link={link} network={network} />;
     }
 
     return (

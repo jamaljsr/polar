@@ -12,7 +12,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
   const { showOpenChannel } = useStoreActions(s => s.modals);
 
   if (node.status !== Status.Started) {
-    return <>Start the network to interact with this node</>;
+    return <>Node needs to be started to interact with this node</>;
   }
 
   return (
