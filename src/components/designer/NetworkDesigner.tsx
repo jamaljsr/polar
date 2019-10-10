@@ -5,7 +5,7 @@ import useDebounce from 'hooks/useDebounce';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
-import CustomNodeInner from './CustomNodeInner';
+import { CustomLink, CustomNodeInner } from './custom';
 import OpenChannelModal from './lnd/OpenChannelModal';
 import Sidebar from './Sidebar';
 
@@ -49,7 +49,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       <Styled.FlowChart
         chart={chart}
         config={{ snapToGrid: true }}
-        Components={{ NodeInner: CustomNodeInner }}
+        Components={{ NodeInner: CustomNodeInner, Link: CustomLink }}
         callbacks={callbacks}
       />
       <Sidebar network={network} chart={chart} />
