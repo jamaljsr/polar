@@ -26,7 +26,7 @@ export const initChartFromNetwork = (network: Network): IChart => {
   network.nodes.bitcoin.forEach(n => {
     chart.nodes[n.name] = {
       id: n.name,
-      type: 'output-only',
+      type: 'bitcoin',
       position: { x: n.id * 250 + 200, y: 400 },
       ports: {
         backend: { id: 'backend', type: 'input' },
@@ -41,7 +41,7 @@ export const initChartFromNetwork = (network: Network): IChart => {
   network.nodes.lightning.forEach(n => {
     chart.nodes[n.name] = {
       id: n.name,
-      type: 'input-output',
+      type: 'lightning',
       position: { x: n.id * 250 + 50, y: n.id % 2 === 0 ? 100 : 200 },
       ports: {
         'empty-left': { id: 'empty-left', type: 'left' },
@@ -76,7 +76,7 @@ const updateNodeSize = (node: INode) => {
     const numPorts = Math.max(leftPorts, rightPorts, 1);
     node.size = {
       ...(size || {}),
-      height: numPorts * 30 + 12,
+      height: numPorts * 24 + 12,
     };
   }
 };
@@ -129,6 +129,7 @@ const updateLinksAndPorts = (
     ...(fromNode.ports[chanId] || {}),
     id: chanId,
     type: fromOnLeftSide ? 'right' : 'left',
+    properties: { nodeId: fromNode.id, initiator: true },
   };
 
   // create or update the port on the to node
@@ -136,6 +137,7 @@ const updateLinksAndPorts = (
     ...(toNode.ports[chanId] || {}),
     id: chanId,
     type: fromOnLeftSide ? 'left' : 'right',
+    properties: { nodeId: toNode.id },
   };
 
   // create or update the link
@@ -199,14 +201,26 @@ export const updateChartFromNetwork = (
     }
   });
 
-  // remove links for channels that that no longer exist
+  // remove links for channels that no longer exist
   Object.keys(links).forEach(linkId => {
     // don't remove links for existing channels
     if (linkIds.includes(linkId)) return;
     // don't remove links to bitcoin nodes
     if (linkId.endsWith('-backend')) return;
-    // delete any other links
+    // delete all other links
     delete links[linkId];
+  });
+
+  // remove ports for channels that no longer exist
+  Object.values(nodes).forEach(node => {
+    Object.keys(node.ports).forEach(portId => {
+      // don't remove special ports
+      if (['empty-left', 'empty-right', 'backend'].includes(portId)) return;
+      // don't remove ports for existing channels
+      if (linkIds.includes(portId)) return;
+      // delete all other ports
+      delete node.ports[portId];
+    });
   });
 
   // resize chart nodes if necessary to fit new ports

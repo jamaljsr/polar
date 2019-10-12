@@ -14,7 +14,7 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
   let cmp = <div>You&apos;ve somehow managed to select an invalid link</div>;
 
   const { bitcoin, lightning } = network.nodes;
-  const { type } = link.properties as LinkProperties;
+  const { type } = (link.properties as LinkProperties) || {};
   switch (type) {
     case 'backend':
       const bitcoinNode = bitcoin.find(n => n.name === link.to.nodeId);
