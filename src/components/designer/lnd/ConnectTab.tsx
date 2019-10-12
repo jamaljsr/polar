@@ -58,14 +58,14 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const hosts: DetailValues = ([
     ['GRPC Host', grpcHost, grpcHost, false],
     ['REST Host', restHost, restHost, false],
-    ['P2P LN Url', lnUrl, ellipseInner(lnUrl, 4, 20), true],
+    ['P2P LN Url', lnUrl, ellipseInner(lnUrl, 3, 19), true],
   ] as ValuesList).map(([label, value, text, tip]) => ({
     label,
     value: <CopyIcon label={label} value={value} text={text} tip={tip} />,
   }));
 
   const { tlsCert, adminMacaroon: admin, readonlyMacaroon: read } = values;
-  const [left, right] = isPaths ? [16, 22] : [16, 16];
+  const [left, right] = isPaths ? [16, 22] : [15, 15];
   const auth: DetailValues = [
     ['TLS Cert', tlsCert, ellipseInner(tlsCert, left, right)],
     ['Admin Macaroon', admin, ellipseInner(admin, left, right)],

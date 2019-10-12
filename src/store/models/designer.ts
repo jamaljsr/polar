@@ -1,4 +1,3 @@
-import { link } from 'fs';
 import RFC, { IChart, IConfig, IPosition } from '@mrblenny/react-flow-chart';
 import {
   Action,
