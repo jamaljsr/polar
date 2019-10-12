@@ -48,6 +48,15 @@ interface Props {
 
 const NetworkViewWrap: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const { networks } = useStoreState(s => s.network);
+  const { load } = useStoreActions(s => s.network);
+  const { notify } = useStoreActions(s => s.app);
+  const loadAsync = useAsyncCallback(async () => {
+    try {
+      await load();
+    } catch (error) {
+      notify({ message: 'Unable to load networks', error });
+    }
+  });
   if (match.params.id) {
     const networkId = parseInt(match.params.id);
     const network = networks.find(n => n.id === networkId);
@@ -61,6 +70,9 @@ const NetworkViewWrap: React.FC<RouteComponentProps<MatchParams>> = ({ match }) 
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description={`Could not find a network with the id '${match.params.id}'`}
     >
+      <Button type="link" size="large" onClick={loadAsync.execute}>
+        Reload Networks
+      </Button>
       <Link to={HOME}>
         <Button type="primary" size="large">
           View Networks

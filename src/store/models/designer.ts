@@ -1,3 +1,4 @@
+import { link } from 'fs';
 import RFC, { IChart, IConfig, IPosition } from '@mrblenny/react-flow-chart';
 import {
   Action,
@@ -11,7 +12,7 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { Network, StoreInjections } from 'types';
+import { Network, Status, StoreInjections } from 'types';
 import { updateChartFromNetwork } from 'utils/chart';
 import { RootModel } from './';
 
@@ -134,20 +135,42 @@ const designerModel: DesignerModel = {
     // this action is used when the OpenChannel modal is closed.
     // remove the link created in the chart since a new one will
     // be created when the channels are fetched
-    const chart = state.allCharts[state.activeId];
-    delete chart.links[linkId];
+    delete state.allCharts[state.activeId].links[linkId];
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
-    (actions, { payload }, { getState, getStoreActions }) => {
-      // show the OpenChannel modal if a link is created
-      if (getState().activeChart.links[payload.linkId]) {
-        getStoreActions().modals.showOpenChannel({
-          to: payload.toNodeId,
-          from: payload.fromNodeId,
-          linkId: payload.linkId,
+    (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
+      const { activeId, activeChart } = getState();
+      if (!activeChart.links[payload.linkId]) return;
+      const toNode = activeChart.nodes[payload.toNodeId];
+      const fromNode = activeChart.nodes[payload.fromNodeId];
+      if (fromNode.type !== 'lightning' || toNode.type !== 'lightning') {
+        actions.removeLink(payload.linkId);
+        getStoreActions().app.notify({
+          message: 'Cannot open a channel',
+          error: new Error('Must be between two lightning nodes'),
         });
+        return;
       }
+      const network = getStoreState().network.networkById(activeId);
+      if (!network) {
+        actions.removeLink(payload.linkId);
+        return;
+      }
+      if (network.status !== Status.Started) {
+        actions.removeLink(payload.linkId);
+        getStoreActions().app.notify({
+          message: 'Cannot open a channel',
+          error: new Error('The network must be Started first'),
+        });
+        return;
+      }
+      // show the OpenChannel modal if a link is created
+      getStoreActions().modals.showOpenChannel({
+        to: payload.toNodeId,
+        from: payload.fromNodeId,
+        linkId: payload.linkId,
+      });
     },
   ),
   // TODO: add unit tests for the actions below
