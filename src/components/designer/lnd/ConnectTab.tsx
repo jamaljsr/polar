@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Alert, Form, Radio } from 'antd';
-import { useStoreState } from 'store';
+import { Radio } from 'antd';
+import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { readHex } from 'utils/files';
-import CopyableInput from 'components/common/form/CopyableInput';
+import { ellipseInner } from 'utils/strings';
+import CopyIcon from 'components/common/CopyIcon';
+import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
     display: flex;
     justify-content: center;
+    font-size: 12px;
   `,
 };
 
@@ -18,16 +21,23 @@ interface Props {
   node: LndNode;
 }
 
+type ValuesList = [string, string, string, boolean][];
+
 const ConnectTab: React.FC<Props> = ({ node }) => {
+  const { notify } = useStoreActions(s => s.app);
   const [fileType, setFileType] = useState<string>('paths');
   const [hexValues, setHexValues] = useState<Record<string, string>>({});
-  const hexFilesAsync = useAsync(async () => {
+  useAsync(async () => {
     const { tlsCert, adminMacaroon, readonlyMacaroon } = node.paths;
-    setHexValues({
-      tlsCert: await readHex(tlsCert),
-      adminMacaroon: await readHex(adminMacaroon),
-      readonlyMacaroon: await readHex(readonlyMacaroon),
-    });
+    try {
+      setHexValues({
+        tlsCert: await readHex(tlsCert),
+        adminMacaroon: await readHex(adminMacaroon),
+        readonlyMacaroon: await readHex(readonlyMacaroon),
+      });
+    } catch (error) {
+      notify({ message: 'Failed to hex encode file contents', error });
+    }
   }, [node.paths]);
 
   let lnUrl = '';
@@ -40,53 +50,44 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     return <>Node needs to be started to view connection info</>;
   }
 
-  const values = fileType === 'paths' ? node.paths : hexValues;
+  const isPaths = fileType === 'paths';
+  const values = isPaths ? node.paths : hexValues;
+
+  const grpcHost = `127.0.0.1:${node.ports.grpc}`;
+  const restHost = `https://127.0.0.1:${node.ports.rest}`;
+  const hosts: DetailValues = ([
+    ['GRPC Host', grpcHost, grpcHost, false],
+    ['REST Host', restHost, restHost, false],
+    ['P2P LN Url', lnUrl, ellipseInner(lnUrl, 4, 20), true],
+  ] as ValuesList).map(([label, value, text, tip]) => ({
+    label,
+    value: <CopyIcon label={label} value={value} text={text} tip={tip} />,
+  }));
+
+  const { tlsCert, adminMacaroon: admin, readonlyMacaroon: read } = values;
+  const [left, right] = isPaths ? [16, 22] : [16, 16];
+  const auth: DetailValues = [
+    ['TLS Cert', tlsCert, ellipseInner(tlsCert, left, right)],
+    ['Admin Macaroon', admin, ellipseInner(admin, left, right)],
+    ['Read-only Macaroon', read, ellipseInner(read, left, right)],
+  ].map(([label, value, text]) => ({
+    label,
+    value: <CopyIcon label={label} value={value} text={text} tip />,
+  }));
 
   return (
     <>
-      <Form labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign="left">
-        <Form.Item label="LN Url">
-          <CopyableInput value={lnUrl} label="LN Url" />
-        </Form.Item>
-        <Form.Item label="GRPC Host">
-          <CopyableInput value={`127.0.0.1:${node.ports.grpc}`} label="GRPC Host" />
-        </Form.Item>
-        <Form.Item label="REST Host">
-          <CopyableInput
-            value={`https://127.0.0.1:${node.ports.rest}`}
-            label="REST Host"
-          />
-        </Form.Item>
-      </Form>
-      <Form.Item>
-        <Styled.RadioGroup
-          name="fileType"
-          defaultValue={fileType}
-          onChange={e => setFileType(e.target.value)}
-        >
-          <Radio.Button value="paths">File Paths</Radio.Button>
-          <Radio.Button value="hex">HEX Strings</Radio.Button>
-        </Styled.RadioGroup>
-      </Form.Item>
-      {hexFilesAsync.error && (
-        <Alert
-          type="error"
-          closable={false}
-          message="Unable to hex encode file contents"
-          description={hexFilesAsync.error.message}
-        />
-      )}
-      <Form>
-        <Form.Item label="TLS Cert">
-          <CopyableInput value={values.tlsCert} label="TLS Cert" />
-        </Form.Item>
-        <Form.Item label="Admin Macaroon">
-          <CopyableInput value={values.adminMacaroon} label="Admin Macaroon" />
-        </Form.Item>
-        <Form.Item label="Read-only Macaroon">
-          <CopyableInput value={values.readonlyMacaroon} label="Read-only Macaroon" />
-        </Form.Item>
-      </Form>
+      <DetailsList details={hosts} />
+      <Styled.RadioGroup
+        name="fileType"
+        defaultValue={fileType}
+        size="small"
+        onChange={e => setFileType(e.target.value)}
+      >
+        <Radio.Button value="paths">File Paths</Radio.Button>
+        <Radio.Button value="hex">HEX Strings</Radio.Button>
+      </Styled.RadioGroup>
+      <DetailsList details={auth} oneCol />
     </>
   );
 };

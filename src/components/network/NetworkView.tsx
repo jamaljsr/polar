@@ -33,6 +33,9 @@ const Styled = {
   NetworkDesigner: styled(NetworkDesigner)`
     flex: 1;
   `,
+  Error: styled.pre`
+    font-size: 11px;
+  `,
 };
 
 interface MatchParams {
@@ -83,8 +86,12 @@ const NetworkView: React.FC<Props> = ({ network }) => {
         extra={<NetworkActions status={network.status} onClick={toggleAsync.execute} />}
       />
       {/* TODO: display an info alert that the first startup may be slow */}
-      {/* TODO: improve error messages from docker */}
-      {toggleAsync.error && <Alert type="error" message={toggleAsync.error.message} />}
+      {toggleAsync.error && (
+        <Alert
+          type="error"
+          message={<Styled.Error>{toggleAsync.error.message}</Styled.Error>}
+        />
+      )}
       <Styled.NetworkDesigner network={network} />
     </Styled.NetworkView>
   );

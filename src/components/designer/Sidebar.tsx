@@ -60,7 +60,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
         Click on an element in the designer to see details
       </SidebarCard>
     );
-  }, [network, chart.selected, syncChartAsync]);
+  }, [network, chart.selected, syncChartAsync, chart.links]);
 
   return <>{cmp}</>;
 };
