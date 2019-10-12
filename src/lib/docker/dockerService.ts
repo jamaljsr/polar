@@ -2,6 +2,7 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
+import stripAnsi from 'strip-ansi';
 import { DockerLibrary, LndNode, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
 import { exists, read, write } from 'utils/files';
@@ -65,10 +66,17 @@ class DockerService implements DockerLibrary {
    * @param cmd the compose function to call
    * @param args the arguments to the compose function
    */
-  private async execute<T, A>(cmd: (args: A) => Promise<T>, args: A): Promise<T> {
+  private async execute<A>(
+    cmd: (args: A) => Promise<compose.IDockerComposeResult>,
+    args: A,
+  ): Promise<compose.IDockerComposeResult> {
     try {
-      return await cmd(args);
+      const result = await cmd(args);
+      result.out = stripAnsi(result.out);
+      result.err = stripAnsi(result.err);
+      return result;
     } catch (e) {
+      e.err = stripAnsi(e.err);
       info(`docker cmd failed: ${JSON.stringify(e)}`);
       throw new Error(e.err);
     }

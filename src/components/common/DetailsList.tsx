@@ -31,6 +31,26 @@ const Styled = {
     overflow: hidden;
     max-width: 200px;
   `,
+  LabelRow: styled.td`
+    padding-top: 0.5rem;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.8;
+  `,
+  ValueRow: styled.td`
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: right;
+    padding-bottom: 0.5rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  `,
 };
 
 export type DetailValues = {
@@ -41,20 +61,32 @@ export type DetailValues = {
 interface Props {
   details: DetailValues;
   title?: string;
+  oneCol?: boolean;
 }
 
-const DetailsList: React.SFC<Props> = ({ details, title }) => {
+const DetailsList: React.SFC<Props> = ({ details, title, oneCol }) => {
   return (
     <>
       {title && <h3>{title}</h3>}
       <Styled.Details>
         <tbody>
-          {details.map((d, i) => (
-            <Styled.Row key={i}>
-              <Styled.LabelCell>{d.label}</Styled.LabelCell>
-              <Styled.ValueCell>{d.value}</Styled.ValueCell>
-            </Styled.Row>
-          ))}
+          {details.map((d, i) =>
+            oneCol ? (
+              <React.Fragment key={i}>
+                <Styled.Row>
+                  <Styled.LabelRow>{d.label}</Styled.LabelRow>
+                </Styled.Row>
+                <Styled.Row>
+                  <Styled.ValueRow>{d.value}</Styled.ValueRow>
+                </Styled.Row>
+              </React.Fragment>
+            ) : (
+              <Styled.Row key={i}>
+                <Styled.LabelCell>{d.label}</Styled.LabelCell>
+                <Styled.ValueCell>{d.value}</Styled.ValueCell>
+              </Styled.Row>
+            ),
+          )}
         </tbody>
       </Styled.Details>
     </>
