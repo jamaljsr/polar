@@ -141,8 +141,8 @@ const designerModel: DesignerModel = {
     (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
       const { activeId, activeChart } = getState();
       if (!activeChart.links[payload.linkId]) return;
-      const toNode = activeChart.nodes[payload.toNodeId];
       const fromNode = activeChart.nodes[payload.fromNodeId];
+      const toNode = activeChart.nodes[payload.toNodeId];
       if (fromNode.type !== 'lightning' || toNode.type !== 'lightning') {
         actions.removeLink(payload.linkId);
         getStoreActions().app.notify({

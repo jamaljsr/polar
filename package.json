@@ -142,7 +142,8 @@
       "!<rootDir>/src/**/index.{ts,js}",
       "!<rootDir>/src/index.tsx",
       "!<rootDir>/src/react-app-env.d.ts",
-      "!<rootDir>/src/store/models/designer.ts"
+      "!<rootDir>/src/store/models/designer.ts",
+      "!<rootDir>/src/components/designer/custom/*.tsx"
     ],
     "resetMocks": true
   },

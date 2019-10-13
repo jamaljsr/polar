@@ -1,16 +1,21 @@
 import React from 'react';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
-import { BitcoindLibrary, LndLibrary } from 'types';
+import { BitcoindLibrary, LndLibrary, Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import {
+  getNetwork,
+  injections,
+  mockLndResponses,
+  renderWithProviders,
+} from 'utils/tests';
 import OpenChannelModal from './OpenChannelModal';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('OpenChannelModal', () => {
-  const renderComponent = async () => {
-    const network = getNetwork(1, 'test network');
+  const renderComponent = async (status?: Status) => {
+    const network = getNetwork(1, 'test network', status);
     const initialState = {
       network: {
         networks: [network],
@@ -42,14 +47,14 @@ describe('OpenChannelModal', () => {
     const { getByText } = await renderComponent();
     expect(getByText('Source')).toBeInTheDocument();
     expect(getByText('Destination')).toBeInTheDocument();
-    expect(getByText('Capacity')).toBeInTheDocument();
+    expect(getByText('Capacity (sats)')).toBeInTheDocument();
   });
 
   it('should render form inputs', async () => {
     const { getByLabelText } = await renderComponent();
     expect(getByLabelText('Source')).toBeInTheDocument();
     expect(getByLabelText('Destination')).toBeInTheDocument();
-    expect(getByLabelText('Capacity')).toBeInTheDocument();
+    expect(getByLabelText('Capacity (sats)')).toBeInTheDocument();
   });
 
   it('should render button', async () => {
@@ -72,19 +77,17 @@ describe('OpenChannelModal', () => {
   });
 
   it('should remove chart link when cancel is clicked', async () => {
-    const { getByText, store } = await renderComponent();
+    const { getByText, store } = await renderComponent(Status.Started);
     const linkId = 'xxxx';
     await wait(() => {
-      const { designer, modals } = store.getActions();
-      // designer.addChart({ id: network.id, chart: initChartFromNetwork(network) });
-      // designer.setActiveId(network.id);
-      designer.onLinkStart({ linkId, fromNodeId: 'lnd-1', fromPortId: 'p1' } as any);
-      designer.onLinkComplete({ linkId, toNodeId: 'lnd-2', toPortId: 'p2' } as any);
-      modals.showOpenChannel({ linkId });
+      const { designer } = store.getActions();
+      const link = { linkId, fromNodeId: 'lnd-1', fromPortId: 'p1' } as any;
+      // create a new link which will open the modal
+      designer.onLinkStart(link);
+      designer.onLinkComplete({ ...link, toNodeId: 'lnd-2', toPortId: 'p2' } as any);
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
     await wait(() => fireEvent.click(getByText('Cancel')));
-    // await waitForElementToBeRemoved(() => queryByText('Cancel'));
     expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
   });
 
@@ -108,21 +111,23 @@ describe('OpenChannelModal', () => {
     await wait(() => {
       store.getActions().modals.showOpenChannel({ from: 'invalid', to: 'invalid' });
     });
-    fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
+    fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
     await wait(() => fireEvent.click(btn));
     expect(btn).toBeInTheDocument();
   });
 
   it('should open a channel successfully', async () => {
+    lndServiceMock.listChannels.mockResolvedValue(mockLndResponses.listChannels);
+    lndServiceMock.pendingChannels.mockResolvedValue(mockLndResponses.pendingChannels);
     const { getByText, getByLabelText, store, network } = await renderComponent();
     await wait(() => {
       store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
     });
-    fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
+    fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
     await wait(() => fireEvent.click(getByText('Open Channel')));
     expect(store.getState().modals.openChannel.visible).toBe(false);
     const [node1, node2] = network.nodes.lightning;
-    expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, '1000');
+    expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
     expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
   });
 
@@ -132,7 +137,7 @@ describe('OpenChannelModal', () => {
     await wait(() => {
       store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
     });
-    fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
+    fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
     await wait(() => fireEvent.click(getByText('Open Channel')));
     expect(getByText('Unable to open the channel')).toBeInTheDocument();
     expect(getByText('error-msg')).toBeInTheDocument();
