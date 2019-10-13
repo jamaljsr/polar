@@ -71,15 +71,15 @@ describe('LndDetails', () => {
       const { findByText } = renderComponent(Status.Starting);
       fireEvent.click(await findByText('Actions'));
       expect(
-        await findByText('Start the network to interact with this node'),
+        await findByText('Node needs to be started to perform actions on it'),
       ).toBeInTheDocument();
     });
 
-    it('should display start msg in Actions tab', async () => {
+    it('should display start msg in Connect tab', async () => {
       const { findByText } = renderComponent(Status.Starting);
       fireEvent.click(await findByText('Connect'));
       expect(
-        await findByText('Start the network to view connection info'),
+        await findByText('Node needs to be started to view connection info'),
       ).toBeInTheDocument();
     });
   });
@@ -113,6 +113,12 @@ describe('LndDetails', () => {
         confirmedBalance: '10',
         unconfirmedBalance: '20',
         totalBalance: '30',
+      });
+      lndServiceMock.listChannels.mockResolvedValue({
+        ...mockLndResponses.listChannels,
+      });
+      lndServiceMock.pendingChannels.mockResolvedValue({
+        ...mockLndResponses.pendingChannels,
       });
     });
 
@@ -208,16 +214,14 @@ describe('LndDetails', () => {
     it('should display hex values for paths', async () => {
       const mockFiles = files as jest.Mocked<typeof files>;
       mockFiles.readHex.mockResolvedValue('test-hex');
-      const { findByText, container, getAllByDisplayValue } = renderComponent(
-        Status.Started,
-      );
+      const { findByText, container, getAllByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
       expect(files.readHex).toBeCalledTimes(3);
       const hexBtn = container.querySelector(
         'input[name=fileType][value=hex]',
       ) as Element;
       fireEvent.click(hexBtn);
-      expect(getAllByDisplayValue('test-hex')).toHaveLength(3);
+      expect(getAllByText('test-hex')).toHaveLength(3);
     });
 
     it('should display an error if getting hex strings fails', async () => {
@@ -225,7 +229,7 @@ describe('LndDetails', () => {
       mockFiles.readHex.mockRejectedValue(new Error('test-error'));
       const { findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
-      expect(await findByText('Unable to hex encode file contents')).toBeInTheDocument();
+      expect(await findByText('Failed to hex encode file contents')).toBeInTheDocument();
       expect(await findByText('test-error')).toBeInTheDocument();
     });
   });

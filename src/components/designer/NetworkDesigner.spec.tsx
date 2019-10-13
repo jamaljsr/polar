@@ -77,7 +77,7 @@ describe('NetworkDesigner Component', () => {
     const { getByText, store } = renderComponent();
     await wait(() => {
       store.getActions().modals.showOpenChannel({});
-      expect(getByText('Capacity')).toBeInTheDocument();
+      expect(getByText('Capacity (sats)')).toBeInTheDocument();
     });
   });
 });

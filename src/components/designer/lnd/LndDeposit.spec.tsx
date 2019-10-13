@@ -65,7 +65,7 @@ describe('LndDeposit', () => {
 
   it('should use a default value of 100000 for the input', () => {
     const { input } = renderComponent();
-    expect(input.value).toEqual('100000');
+    expect(input.value).toEqual('1,000,000');
   });
 
   it('should deposit funds when the button is clicked', async () => {
@@ -73,7 +73,7 @@ describe('LndDeposit', () => {
     const amount = '250000';
     fireEvent.change(input, { target: { value: amount } });
     fireEvent.click(btn);
-    await waitForElement(() => getByText('Deposit successful'));
+    await waitForElement(() => getByText('Deposited 250,000 sats to lnd-1'));
     expect(lndServiceMock.getNewAddress).toBeCalledTimes(1);
     expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
       expect.anything(),

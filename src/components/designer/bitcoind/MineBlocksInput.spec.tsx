@@ -39,7 +39,7 @@ describe('MineBlocksInput', () => {
 
   it('should use a default value of 3 for the input', () => {
     const { input } = renderComponent();
-    expect(input.value).toEqual('3');
+    expect(input.value).toEqual('6');
   });
 
   it('should mine a block when the button is clicked', () => {

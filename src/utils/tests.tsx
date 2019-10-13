@@ -99,4 +99,14 @@ export const mockLndResponses = {
     unconfirmedBalance: '0',
     totalBalance: '0',
   } as LND.WalletBalanceResponse,
+  listChannels: {
+    channels: [],
+  } as LND.ListChannelsResponse,
+  pendingChannels: {
+    totalLimboBalance: '0',
+    pendingOpenChannels: [],
+    pendingClosingChannels: [],
+    pendingForceClosingChannels: [],
+    waitingCloseChannels: [],
+  } as LND.PendingChannelsResponse,
 };
