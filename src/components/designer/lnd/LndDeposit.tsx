@@ -28,7 +28,7 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
           min={1}
           max={100 * 100000000}
           formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          parser={v => (v ? v.replace(/(,*)/g, '') : '')}
+          parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
           onChange={v => v && setAmount(v)}
           style={{ width: '65%' }}
         />

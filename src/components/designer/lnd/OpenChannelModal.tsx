@@ -84,7 +84,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
           <InputNumber
             min={20000}
             formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={v => (v ? v.replace(/(,*)/g, '') : '')}
+            parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
             style={{ width: '100%' }}
           />,
         )}
