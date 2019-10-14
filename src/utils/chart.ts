@@ -157,42 +157,38 @@ const updateLinksAndPorts = (
   };
 };
 
-export const updateChartFromNetwork = (
-  chart: IChart,
-  nodesData: LndNodeMapping,
-): IChart => {
+export const updateChartFromLnd = (chart: IChart, lndData: LndNodeMapping): IChart => {
   // create a mapping of node name to pubkey for lookups
   const pubkeys: Record<string, string> = {};
-  Object.entries(nodesData).forEach(([name, data]) => {
+  Object.entries(lndData).forEach(([name, data]) => {
     if (!data.info || !data.info.identityPubkey) return;
     pubkeys[data.info.identityPubkey] = name;
   });
 
   const nodes = { ...chart.nodes };
   const links = { ...chart.links };
-  const linkIds: string[] = [];
+  const createdLinkIds: string[] = [];
 
   // update the node and links for each node
-  Object.entries(nodesData).forEach(([fromName, data]) => {
-    // const { newNode, newLinks } = updateNode(fromName, nodes[fromName], data, pubkeys);
+  Object.entries(lndData).forEach(([fromName, data]) => {
     const fromNode = nodes[fromName];
 
     if (data.channels) {
       const { open, opening, closing, forceClosing, waitingClose } = data.channels;
 
       // merge all of the channel types into one array
-      const mapPending = (c: any) => c.channel as PendingChannel;
+      const pluckChan = (c: any) => c.channel as PendingChannel;
       const allChannels = [
         ...open.filter(c => c.initiator).map(mapOpenChannel),
-        ...opening.map(mapPending).map(mapPendingChannel('Opening')),
-        ...closing.map(mapPending).map(mapPendingChannel('Closing')),
-        ...forceClosing.map(mapPending).map(mapPendingChannel('Force Closing')),
-        ...waitingClose.map(mapPending).map(mapPendingChannel('Waiting to Close')),
+        ...opening.map(pluckChan).map(mapPendingChannel('Opening')),
+        ...closing.map(pluckChan).map(mapPendingChannel('Closing')),
+        ...forceClosing.map(pluckChan).map(mapPendingChannel('Force Closing')),
+        ...waitingClose.map(pluckChan).map(mapPendingChannel('Waiting to Close')),
       ];
 
       allChannels.forEach(channel => {
         updateLinksAndPorts(channel, pubkeys, nodes, fromNode, links);
-        linkIds.push(channel.uniqueId);
+        createdLinkIds.push(channel.uniqueId);
       });
 
       nodes[fromName] = {
@@ -204,7 +200,7 @@ export const updateChartFromNetwork = (
   // remove links for channels that no longer exist
   Object.keys(links).forEach(linkId => {
     // don't remove links for existing channels
-    if (linkIds.includes(linkId)) return;
+    if (createdLinkIds.includes(linkId)) return;
     // don't remove links to bitcoin nodes
     if (linkId.endsWith('-backend')) return;
     // delete all other links
@@ -217,14 +213,14 @@ export const updateChartFromNetwork = (
       // don't remove special ports
       if (['empty-left', 'empty-right', 'backend'].includes(portId)) return;
       // don't remove ports for existing channels
-      if (linkIds.includes(portId)) return;
+      if (createdLinkIds.includes(portId)) return;
       // delete all other ports
       delete node.ports[portId];
     });
   });
 
   // resize chart nodes if necessary to fit new ports
-  Object.keys(nodesData).forEach(name => updateNodeSize(nodes[name]));
+  Object.keys(lndData).forEach(name => updateNodeSize(nodes[name]));
 
   return {
     ...chart,

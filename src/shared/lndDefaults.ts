@@ -1,7 +1,28 @@
 import * as LND from '@radar/lnrpc';
-import { ipcChannels } from '../../src/shared';
+import { ipcChannels } from './';
 
-const defaultChannel = (value: LND.Channel): LND.Channel => ({
+export const defaultInfo = (
+  value: Partial<LND.GetInfoResponse>,
+): LND.GetInfoResponse => ({
+  identityPubkey: '',
+  alias: '',
+  numPendingChannels: 0,
+  numActiveChannels: 0,
+  numPeers: 0,
+  blockHeight: 0,
+  blockHash: '',
+  syncedToChain: false,
+  testnet: false,
+  chains: [],
+  uris: [],
+  bestHeaderTimestamp: '',
+  version: '',
+  numInactiveChannels: 0,
+  color: '',
+  ...value,
+});
+
+export const defaultChannel = (value: Partial<LND.Channel>): LND.Channel => ({
   active: false,
   remotePubkey: '',
   channelPoint: '',
@@ -26,7 +47,9 @@ const defaultChannel = (value: LND.Channel): LND.Channel => ({
   ...value,
 });
 
-const defaultPendingChannel = (value: LND.PendingChannel): LND.PendingChannel => ({
+export const defaultPendingChannel = (
+  value: Partial<LND.PendingChannel>,
+): LND.PendingChannel => ({
   remoteNodePub: '',
   channelPoint: '',
   capacity: '0',
@@ -37,8 +60,8 @@ const defaultPendingChannel = (value: LND.PendingChannel): LND.PendingChannel =>
   ...value,
 });
 
-const defaultPendingOpenChannel = (
-  value: LND.PendingOpenChannel,
+export const defaultPendingOpenChannel = (
+  value: Partial<LND.PendingOpenChannel>,
 ): LND.PendingOpenChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
   confirmationHeight: 0,
@@ -48,14 +71,16 @@ const defaultPendingOpenChannel = (
   ...value,
 });
 
-const defaultClosedChannel = (value: LND.ClosedChannel): LND.ClosedChannel => ({
+export const defaultClosedChannel = (
+  value: Partial<LND.ClosedChannel>,
+): LND.ClosedChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
   closingTxid: '',
   ...value,
 });
 
-const defaultForceClosedChannel = (
-  value: LND.ForceClosedChannel,
+export const defaultForceClosedChannel = (
+  value: Partial<LND.ForceClosedChannel>,
 ): LND.ForceClosedChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
   closingTxid: '',
@@ -67,8 +92,8 @@ const defaultForceClosedChannel = (
   ...value,
 });
 
-const defaultWaitingCloseChannel = (
-  value: LND.WaitingCloseChannel,
+export const defaultWaitingCloseChannel = (
+  value: Partial<LND.WaitingCloseChannel>,
 ): LND.WaitingCloseChannel => ({
   channel: defaultPendingChannel(value.channel as LND.PendingChannel),
   limboBalance: '0',
@@ -78,23 +103,7 @@ const defaultWaitingCloseChannel = (
 const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
 
 const defaults = {
-  [ipcChannels.getInfo]: {
-    identityPubkey: '',
-    alias: '',
-    numPendingChannels: 0,
-    numActiveChannels: 0,
-    numPeers: 0,
-    blockHeight: 0,
-    blockHash: '',
-    syncedToChain: false,
-    testnet: false,
-    chains: [],
-    uris: [],
-    bestHeaderTimestamp: '',
-    version: '',
-    numInactiveChannels: 0,
-    color: '',
-  } as LND.GetInfoResponse,
+  [ipcChannels.getInfo]: defaultInfo,
   [ipcChannels.walletBalance]: {
     confirmedBalance: '0',
     totalBalance: '0',
