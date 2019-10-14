@@ -1,4 +1,5 @@
 import React from 'react';
+import { IChart } from '@mrblenny/react-flow-chart';
 import { fireEvent, wait } from '@testing-library/dom';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
@@ -15,16 +16,17 @@ describe('NetworkDesigner Component', () => {
     });
   });
 
-  const renderComponent = () => {
+  const renderComponent = (charts?: Record<number, IChart>) => {
     const network = getNetwork(1, 'test network');
+    const allCharts = charts || {
+      1: initChartFromNetwork(network),
+    };
     const initialState = {
       network: {
         networks: [network],
       },
       designer: {
-        allCharts: {
-          1: initChartFromNetwork(network),
-        },
+        allCharts,
       },
     };
     const cmp = <NetworkDesigner network={network} updateStateDelay={0} />;
@@ -53,13 +55,21 @@ describe('NetworkDesigner Component', () => {
     expect(getByText('Network Designer')).toBeInTheDocument();
   });
 
-  it('should update the redux state after a delay', async () => {
+  it('should update the redux state after a node is selected', async () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().designer.activeChart.selected.id).toBeFalsy();
     fireEvent.click(getByText('lnd-1'));
 
     await wait(() => {
       expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
+    });
+  });
+
+  it('should not set the active chart if it doesnt exist', async () => {
+    const { getByLabelText, store } = renderComponent({});
+    await wait(() => {
+      expect(store.getState().designer.activeChart).toBeUndefined();
+      expect(getByLabelText('icon: loading')).toBeInTheDocument();
     });
   });
 
