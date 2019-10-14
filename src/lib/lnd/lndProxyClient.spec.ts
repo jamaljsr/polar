@@ -52,4 +52,15 @@ describe('LndService', () => {
     lndProxyClient.openChannel(node, req);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.openChannel, { node, req });
   });
+
+  it('should call the listChannels ipc', () => {
+    const req = {};
+    lndProxyClient.listChannels(node, req);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.listChannels, { node, req });
+  });
+
+  it('should call the pendingChannels ipc', () => {
+    lndProxyClient.pendingChannels(node);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.pendingChannels, { node });
+  });
 });

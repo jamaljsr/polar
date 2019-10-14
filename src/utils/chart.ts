@@ -75,7 +75,7 @@ const updateNodeSize = (node: INode) => {
     const rightPorts = Object.values(ports).filter(p => p.type === 'right').length;
     const numPorts = Math.max(leftPorts, rightPorts, 1);
     node.size = {
-      ...(size || {}),
+      ...size,
       height: numPorts * 24 + 12,
     };
   }
