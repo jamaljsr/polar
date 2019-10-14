@@ -12,7 +12,7 @@ import {
   thunkOn,
 } from 'easy-peasy';
 import { Network, Status, StoreInjections } from 'types';
-import { updateChartFromNetwork } from 'utils/chart';
+import { updateChartFromLnd } from 'utils/chart';
 import { RootModel } from './';
 
 export const rotate = (
@@ -107,7 +107,7 @@ const designerModel: DesignerModel = {
       const nodesData = getStoreState().lnd.nodes;
       const { allCharts } = getState();
       // sync the chart with data from all of the nodes
-      const chart = updateChartFromNetwork(allCharts[network.id], nodesData);
+      const chart = updateChartFromLnd(allCharts[network.id], nodesData);
       actions.setAllCharts({
         ...allCharts,
         [network.id]: chart,
