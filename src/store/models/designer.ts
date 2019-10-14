@@ -172,6 +172,18 @@ const designerModel: DesignerModel = {
       });
     },
   ),
+  onCanvasDrop: action((state, { config, data, position }) => {
+    // const chart = state.allCharts[state.activeId];
+    // const id = Date.now().toString(); // TODO: v4();
+    // chart.nodes[id] = {
+    //   id,
+    //   position: snap(position, config),
+    //   orientation: data.orientation || 0,
+    //   type: data.type,
+    //   ports: data.ports,
+    //   properties: data.properties,
+    // };
+  }),
   // TODO: add unit tests for the actions below
   // This file is excluded from test coverage analysis because
   // these actions were copied with a little modification from
@@ -318,18 +330,6 @@ const designerModel: DesignerModel = {
 
       chart.nodes[nodeToUpdate.id] = { ...node };
     }
-  }),
-  onCanvasDrop: action((state, { config, data, position }) => {
-    const chart = state.allCharts[state.activeId];
-    const id = Date.now().toString(); // TODO: v4();
-    chart.nodes[id] = {
-      id,
-      position: snap(position, config),
-      orientation: data.orientation || 0,
-      type: data.type,
-      ports: data.ports,
-      properties: data.properties,
-    };
   }),
 };
 

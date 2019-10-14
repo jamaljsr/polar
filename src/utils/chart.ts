@@ -1,7 +1,7 @@
 import { IChart, ILink, INode } from '@mrblenny/react-flow-chart';
 import { Channel, PendingChannel } from '@radar/lnrpc';
 import { LndNodeMapping } from 'store/models/lnd';
-import { Network } from 'types';
+import { BitcoinNode, LndNode, Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
 import lndlogo from 'resources/lnd.png';
 
@@ -14,6 +14,51 @@ export interface LinkProperties {
   status: string;
 }
 
+export const createLndNode = (lnd: LndNode) => {
+  const node: INode = {
+    id: lnd.name,
+    type: 'lightning',
+    position: { x: lnd.id * 250 + 50, y: lnd.id % 2 === 0 ? 100 : 200 },
+    ports: {
+      'empty-left': { id: 'empty-left', type: 'left' },
+      'empty-right': { id: 'empty-right', type: 'right' },
+      backend: { id: 'backend', type: 'output' },
+    },
+    size: { width: 200, height: 36 },
+    properties: {
+      status: lnd.status,
+      icon: lndlogo,
+    },
+  };
+
+  const link: ILink = {
+    id: `${lnd.name}-backend`,
+    from: { nodeId: lnd.name, portId: 'backend' },
+    to: { nodeId: lnd.backendName, portId: 'backend' },
+    properties: {
+      type: 'backend',
+    },
+  };
+
+  return { node, link };
+};
+
+export const createBitcoinNode = (node: BitcoinNode): INode => {
+  return {
+    id: node.name,
+    type: 'bitcoin',
+    position: { x: node.id * 250 + 200, y: 400 },
+    ports: {
+      backend: { id: 'backend', type: 'input' },
+    },
+    size: { width: 200, height: 36 },
+    properties: {
+      status: node.status,
+      icon: btclogo,
+    },
+  };
+};
+
 export const initChartFromNetwork = (network: Network): IChart => {
   const chart: IChart = {
     offset: { x: 0, y: 0 },
@@ -24,45 +69,13 @@ export const initChartFromNetwork = (network: Network): IChart => {
   };
 
   network.nodes.bitcoin.forEach(n => {
-    chart.nodes[n.name] = {
-      id: n.name,
-      type: 'bitcoin',
-      position: { x: n.id * 250 + 200, y: 400 },
-      ports: {
-        backend: { id: 'backend', type: 'input' },
-      },
-      properties: {
-        status: n.status,
-        icon: btclogo,
-      },
-    };
+    chart.nodes[n.name] = createBitcoinNode(n);
   });
 
   network.nodes.lightning.forEach(n => {
-    chart.nodes[n.name] = {
-      id: n.name,
-      type: 'lightning',
-      position: { x: n.id * 250 + 50, y: n.id % 2 === 0 ? 100 : 200 },
-      ports: {
-        'empty-left': { id: 'empty-left', type: 'left' },
-        'empty-right': { id: 'empty-right', type: 'right' },
-        backend: { id: 'backend', type: 'output' },
-      },
-      properties: {
-        status: n.status,
-        icon: lndlogo,
-      },
-    };
-
-    const linkName = `${n.name}-backend`;
-    chart.links[linkName] = {
-      id: linkName,
-      from: { nodeId: n.name, portId: 'backend' },
-      to: { nodeId: n.backendName, portId: 'backend' },
-      properties: {
-        type: 'backend',
-      },
-    };
+    const { node, link } = createLndNode(n);
+    chart.nodes[node.id] = node;
+    chart.links[link.id] = link;
   });
 
   return chart;
