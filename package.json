@@ -92,7 +92,7 @@
     "eslint-plugin-react": "7.16.0",
     "fs-extra": "8.1.0",
     "history": "4.10.1",
-    "husky": "3.0.8",
+    "husky": "3.0.9",
     "i18next": "17.0.18",
     "i18next-browser-languagedetector": "3.0.3",
     "i18next-scanner": "2.10.3",
