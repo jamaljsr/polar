@@ -1,5 +1,6 @@
 import * as LND from '@radar/lnrpc';
 import { createStore } from 'easy-peasy';
+import { ipcChannels, withDefaults } from 'shared';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import { getNetwork, injections, mockLndResponses } from 'utils/tests';
@@ -44,6 +45,12 @@ describe('LND Model', () => {
       unconfirmedBalance: '200',
       totalBalance: '300',
     });
+    lndServiceMock.listChannels.mockResolvedValue(
+      withDefaults({}, ipcChannels.listChannels),
+    );
+    lndServiceMock.pendingChannels.mockResolvedValue(
+      withDefaults({}, ipcChannels.pendingChannels),
+    );
   });
 
   it('should have a valid initial state', () => {
@@ -54,7 +61,7 @@ describe('LND Model', () => {
     const { getInfo } = store.getActions().lnd;
     await getInfo(node);
     const nodeState = store.getState().lnd.nodes[node.name];
-    expect(nodeState.info).toBeTruthy();
+    expect(nodeState.info).toBeDefined();
     const info = nodeState.info as LND.GetInfoResponse;
     expect(info.alias).toEqual('my-node');
     expect(info.identityPubkey).toEqual('abcdef');
@@ -65,18 +72,33 @@ describe('LND Model', () => {
     const { getWalletBalance } = store.getActions().lnd;
     await getWalletBalance(node);
     const nodeState = store.getState().lnd.nodes[node.name];
-    expect(nodeState.walletBalance).toBeTruthy();
+    expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
     expect(balances.confirmedBalance).toEqual('100');
     expect(balances.unconfirmedBalance).toEqual('200');
     expect(balances.totalBalance).toEqual('300');
   });
 
+  it('should update state with getChannels response', async () => {
+    const { getChannels } = store.getActions().lnd;
+    await getChannels(node);
+    const nodeState = store.getState().lnd.nodes[node.name];
+    expect(nodeState.channels).toBeDefined();
+    const channels = nodeState.channels;
+    if (channels) {
+      expect(channels.open).toEqual([]);
+      expect(channels.opening).toEqual([]);
+      expect(channels.closing).toEqual([]);
+      expect(channels.forceClosing).toEqual([]);
+      expect(channels.waitingClose).toEqual([]);
+    }
+  });
+
   it('should be able to deposit funds using the backend bitcoin node', async () => {
     const { depositFunds } = store.getActions().lnd;
     await depositFunds({ node, sats: '50000' });
     const nodeState = store.getState().lnd.nodes[node.name];
-    expect(nodeState.walletBalance).toBeTruthy();
+    expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
     expect(balances.confirmedBalance).toEqual('100');
     expect(balances.unconfirmedBalance).toEqual('200');
@@ -88,7 +110,7 @@ describe('LND Model', () => {
     const modifiednode = { ...node, backendName: 'not-valid' };
     await depositFunds({ node: modifiednode, sats: '50000' });
     const nodeState = store.getState().lnd.nodes[node.name];
-    expect(nodeState.walletBalance).toBeTruthy();
+    expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
     expect(balances.confirmedBalance).toEqual('100');
     expect(balances.unconfirmedBalance).toEqual('200');

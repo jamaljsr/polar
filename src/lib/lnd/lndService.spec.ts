@@ -28,6 +28,20 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should get list channels', async () => {
+    const expected = { channels: [] };
+    lndProxyClient.listChannels = jest.fn().mockResolvedValue(expected);
+    const actual = await lndService.listChannels(node);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should get list pending channels', async () => {
+    const expected = { pendingOpenChannels: [] };
+    lndProxyClient.pendingChannels = jest.fn().mockResolvedValue(expected);
+    const actual = await lndService.pendingChannels(node);
+    expect(actual).toEqual(expected);
+  });
+
   describe('openChannel', () => {
     it('should open the channel successfully', async () => {
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({ identityPubkey: 'asdf' });
