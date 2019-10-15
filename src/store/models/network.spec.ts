@@ -136,6 +136,26 @@ describe('Network model', () => {
     });
   });
 
+  describe('Adding a Node', () => {
+    beforeEach(async () => {
+      await store.getActions().network.addNetwork(addNetworkArgs);
+    });
+
+    it('should add a node to an existing network', async () => {
+      store.getActions().network.addLndNode(firstNetwork().id);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning).toHaveLength(3);
+      expect(lightning[2].name).toBe('lnd-3');
+    });
+
+    it('should throw an error if the network id is invalid', async () => {
+      const { addLndNode } = store.getActions().network;
+      await expect(addLndNode(999)).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+  });
+
   describe('Starting', () => {
     beforeEach(async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);

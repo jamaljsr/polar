@@ -1,4 +1,4 @@
-import { IChart } from '@mrblenny/react-flow-chart';
+import { IChart, IConfig } from '@mrblenny/react-flow-chart';
 import {
   defaultChannel,
   defaultInfo,
@@ -7,7 +7,7 @@ import {
 } from 'shared';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
-import { initChartFromNetwork, updateChartFromLnd } from './chart';
+import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
 import { getNetwork } from './tests';
 
 describe('Chart Util', () => {
@@ -72,6 +72,23 @@ describe('Chart Util', () => {
     };
   });
 
+  describe('snap', () => {
+    it('should snap position to a 20*20 grid', () => {
+      const config = { snapToGrid: true } as IConfig;
+      expect(snap({ x: 20, y: 20 }, config)).toEqual({ x: 20, y: 20 });
+      expect(snap({ x: 21, y: 21 }, config)).toEqual({ x: 20, y: 20 });
+      expect(snap({ x: 28, y: 28 }, config)).toEqual({ x: 20, y: 20 });
+      expect(snap({ x: 31, y: 31 }, config)).toEqual({ x: 40, y: 40 });
+      expect(snap({ x: 35, y: 35 }, config)).toEqual({ x: 40, y: 40 });
+    });
+
+    it('should not snap position', () => {
+      expect(snap({ x: 20, y: 20 })).toEqual({ x: 20, y: 20 });
+      expect(snap({ x: 21, y: 21 })).toEqual({ x: 21, y: 21 });
+      expect(snap({ x: 31, y: 31 })).toEqual({ x: 31, y: 31 });
+    });
+  });
+
   describe('updateChartFromNetwork', () => {
     it('should create link for an open channel', () => {
       addChannel('lnd-1', 'lnd2pubkey');
@@ -126,7 +143,7 @@ describe('Chart Util', () => {
 
     it('should update the node sizes', () => {
       chart.nodes['lnd-1'].size = { width: 100, height: 20 };
-      chart.nodes['lnd-2'].size = { width: 100, height: 20 };
+      chart.nodes['lnd-2'].size = undefined;
       addChannel('lnd-1', 'lnd2pubkey');
       const result = updateChartFromLnd(chart, lndData);
       let size = result.nodes['lnd-1'].size;

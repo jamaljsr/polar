@@ -1,4 +1,4 @@
-import { IChart, ILink, INode } from '@mrblenny/react-flow-chart';
+import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
 import { Channel, PendingChannel } from '@radar/lnrpc';
 import { LndNodeMapping } from 'store/models/lnd';
 import { BitcoinNode, LndNode, Network } from 'types';
@@ -13,6 +13,24 @@ export interface LinkProperties {
   direction: 'ltr' | 'rtl';
   status: string;
 }
+
+export const rotate = (
+  center: IPosition,
+  current: IPosition,
+  angle: number,
+): IPosition => {
+  const radians = (Math.PI / 180) * angle;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const x = cos * (current.x - center.x) + sin * (current.y - center.y) + center.x;
+  const y = cos * (current.y - center.y) - sin * (current.x - center.x) + center.y;
+  return { x, y };
+};
+
+export const snap = (position: IPosition, config?: IConfig) =>
+  config && config.snapToGrid
+    ? { x: Math.round(position.x / 20) * 20, y: Math.round(position.y / 20) * 20 }
+    : position;
 
 export const createLndChartNode = (lnd: LndNode) => {
   const node: INode = {
@@ -82,16 +100,15 @@ export const initChartFromNetwork = (network: Network): IChart => {
 };
 
 const updateNodeSize = (node: INode) => {
-  if (node.size) {
-    const { ports, size } = node;
-    const leftPorts = Object.values(ports).filter(p => p.type === 'left').length;
-    const rightPorts = Object.values(ports).filter(p => p.type === 'right').length;
-    const numPorts = Math.max(leftPorts, rightPorts, 1);
-    node.size = {
-      ...size,
-      height: numPorts * 24 + 12,
-    };
-  }
+  if (!node.size) node.size = { width: 200, height: 36 };
+  const { ports, size } = node;
+  const leftPorts = Object.values(ports).filter(p => p.type === 'left').length;
+  const rightPorts = Object.values(ports).filter(p => p.type === 'right').length;
+  const numPorts = Math.max(leftPorts, rightPorts, 1);
+  node.size = {
+    ...size,
+    height: numPorts * 24 + 12,
+  };
 };
 
 interface ChannelInfo {
