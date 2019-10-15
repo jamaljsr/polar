@@ -1,6 +1,33 @@
 import React, { useMemo } from 'react';
-import { generateCurvePath, ILinkDefaultProps } from '@mrblenny/react-flow-chart';
+import { ILinkDefaultProps, IPosition } from '@mrblenny/react-flow-chart';
 import { LinkProperties } from 'utils/chart';
+
+export const generateCurvePath = (startPos: IPosition, endPos: IPosition): string => {
+  const width = Math.abs(startPos.x - endPos.x);
+  const height = Math.abs(startPos.y - endPos.y);
+  const leftToRight = startPos.x < endPos.x;
+  const topToBottom = startPos.y < endPos.y;
+  const isHorizontal = width > height;
+
+  let start;
+  let end;
+  if (isHorizontal) {
+    start = leftToRight ? startPos : endPos;
+    end = leftToRight ? endPos : startPos;
+  } else {
+    start = topToBottom ? startPos : endPos;
+    end = topToBottom ? endPos : startPos;
+  }
+
+  const curve = isHorizontal ? width / 3 : height / 3;
+  const curveX = isHorizontal ? curve : 0;
+  const curveY = isHorizontal ? 0 : curve;
+
+  // add 0.001 to the last point's coords to workaround gradients dissappearing
+  // when rendered as a straight line. See https://stackoverflow.com/a/34687362
+  return `M${start.x},${start.y} C ${start.x + curveX},${start.y + curveY} ${end.x -
+    curveX},${end.y - curveY} ${end.x + 0.001},${end.y + 0.001}`;
+};
 
 const CustomLink: React.FC<ILinkDefaultProps> = ({
   config,

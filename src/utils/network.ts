@@ -25,7 +25,7 @@ const getFilePaths = (name: string, network: Network) => {
   };
 };
 
-export const createLndNode = (network: Network, status: Status): LndNode => {
+export const createLndNetworkNode = (network: Network, status: Status): LndNode => {
   const index = network.nodes.lightning.length;
   const name = `lnd-${index + 1}`;
   return {
@@ -45,7 +45,10 @@ export const createLndNode = (network: Network, status: Status): LndNode => {
   };
 };
 
-export const createBitcoindNode = (network: Network, status: Status): BitcoinNode => {
+export const createBitcoindNetworkNode = (
+  network: Network,
+  status: Status,
+): BitcoinNode => {
   const index = network.nodes.bitcoin.length;
   const name = `bitcoind-${index + 1}`;
   return {
@@ -82,12 +85,12 @@ export const createNetwork = (config: {
     },
   };
 
-  range(bitcoindNodes).map(() => {
-    network.nodes.bitcoin.push(createBitcoindNode(network, status));
+  range(bitcoindNodes).forEach(() => {
+    network.nodes.bitcoin.push(createBitcoindNetworkNode(network, status));
   });
 
   range(lndNodes).forEach(() => {
-    network.nodes.lightning.push(createLndNode(network, status));
+    network.nodes.lightning.push(createLndNetworkNode(network, status));
   });
 
   return network;

@@ -50,7 +50,7 @@ describe('Network model', () => {
   it('should load a list of networks', async () => {
     const mockNetworks = [getNetwork(1, 'test 1'), getNetwork(2, 'test 2')];
     const mockCharts = mockNetworks.map(initChartFromNetwork);
-    const mockedLoad = injections.dockerService.load as jest.Mock;
+    const mockedLoad = injections.dockerService.loadNetworks as jest.Mock;
     mockedLoad.mockResolvedValue({ networks: mockNetworks, charts: mockCharts });
     await store.getActions().network.load();
     const [net1, net2] = store.getState().network.networks;
@@ -86,7 +86,7 @@ describe('Network model', () => {
     it('should call the docker service when adding a new network', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
       expect(store.getState().network.networks.length).toBe(1);
-      expect(injections.dockerService.create).toBeCalledTimes(1);
+      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
     });
 
     it('should add a network with the correct LND nodes', async () => {
@@ -131,8 +131,8 @@ describe('Network model', () => {
 
     it('should save the networks to disk', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
-      expect(injections.dockerService.create).toBeCalledTimes(1);
-      expect(injections.dockerService.save).toBeCalledTimes(1);
+      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
+      expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
     });
   });
 

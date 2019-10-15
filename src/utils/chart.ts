@@ -14,7 +14,7 @@ export interface LinkProperties {
   status: string;
 }
 
-export const createLndNode = (lnd: LndNode) => {
+export const createLndChartNode = (lnd: LndNode) => {
   const node: INode = {
     id: lnd.name,
     type: 'lightning',
@@ -43,7 +43,7 @@ export const createLndNode = (lnd: LndNode) => {
   return { node, link };
 };
 
-export const createBitcoinNode = (node: BitcoinNode): INode => {
+export const createBitcoinChartNode = (node: BitcoinNode): INode => {
   return {
     id: node.name,
     type: 'bitcoin',
@@ -69,11 +69,11 @@ export const initChartFromNetwork = (network: Network): IChart => {
   };
 
   network.nodes.bitcoin.forEach(n => {
-    chart.nodes[n.name] = createBitcoinNode(n);
+    chart.nodes[n.name] = createBitcoinChartNode(n);
   });
 
   network.nodes.lightning.forEach(n => {
-    const { node, link } = createLndNode(n);
+    const { node, link } = createLndChartNode(n);
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;
   });

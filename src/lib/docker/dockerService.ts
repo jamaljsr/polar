@@ -10,10 +10,10 @@ import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
   /**
-   * Create a docker-compose.yml file for the given network
-   * @param network the network to create a compose file for
+   * Save a docker-compose.yml file for the given network
+   * @param network the network to save a compose file for
    */
-  async create(network: Network) {
+  async saveComposeFile(network: Network) {
     const file = new ComposeFile();
 
     const prefix = (name: string) => `polar-n${network.id}-${name}`;
@@ -86,7 +86,7 @@ class DockerService implements DockerLibrary {
    * Saves the given networks to disk
    * @param networks the list of networks to save
    */
-  async save(data: NetworksFile) {
+  async saveNetworks(data: NetworksFile) {
     const json = JSON.stringify(data, null, 2);
     const path = join(networksPath, 'networks.json');
     await write(path, json);
@@ -96,7 +96,7 @@ class DockerService implements DockerLibrary {
   /**
    * Loads a list of networks from the file system
    */
-  async load(): Promise<NetworksFile> {
+  async loadNetworks(): Promise<NetworksFile> {
     const path = join(networksPath, 'networks.json');
     if (await exists(path)) {
       const json = await read(path);

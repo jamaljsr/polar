@@ -6,14 +6,20 @@ const Styled = {
   Node: styled.div`
     display: flex;
     justify-content: space-between;
+    alignt-items: center;
     margin: 20px 0;
-    padding: 15px 20px;
+    padding: 10px 10px;
     border: 1px solid #e8e8e8;
-    border-radius: 3px;
+    border-radius: 4px;
     box-shadow: 4px 2px 9px rgba(0, 0, 0, 0.1);
     cursor: move;
   `,
-  Icon: styled.img`
+  Label: styled.span`
+    flex: 1;
+    padding-left: 10px;
+    font-weight: bold;
+  `,
+  Logo: styled.img`
     width: 24px;
     height: 24px;
   `,
@@ -33,8 +39,8 @@ const DraggableNode: React.FC<Props> = ({ label, icon, properties }) => {
         event.dataTransfer.setData(REACT_FLOW_CHART, JSON.stringify(properties));
       }}
     >
-      <span>{label}</span>
-      <Styled.Icon src={icon} alt={label} />
+      <Styled.Label>{label}</Styled.Label>
+      <Styled.Logo src={icon} alt={label} />
     </Styled.Node>
   );
 };

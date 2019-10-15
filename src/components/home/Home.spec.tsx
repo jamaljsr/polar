@@ -18,7 +18,7 @@ describe('Home component', () => {
   };
 
   it('should display a notification if it fails to load networks from disk', async () => {
-    const loadMock = injections.dockerService.load as jest.Mock;
+    const loadMock = injections.dockerService.loadNetworks as jest.Mock;
     loadMock.mockRejectedValue(new Error('error reading file'));
     const { findByText } = renderComponent();
     expect(await findByText('error reading file')).toBeInTheDocument();
