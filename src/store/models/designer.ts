@@ -11,8 +11,8 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { Network, Status, StoreInjections } from 'types';
-import { updateChartFromLnd } from 'utils/chart';
+import { LndNode, Network, Status, StoreInjections } from 'types';
+import { createLndChartNode, updateChartFromLnd } from 'utils/chart';
 import { RootModel } from './';
 
 export const rotate = (
@@ -45,7 +45,14 @@ export interface DesignerModel {
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
+  addLndNode: Action<DesignerModel, { lndNode: LndNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
+  onCanvasDrop: Thunk<
+    DesignerModel,
+    Parameters<RFC.IOnCanvasDrop>[0],
+    StoreInjections,
+    RootModel
+  >;
   // Flowchart component callbacks
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
   onDragCanvas: Action<DesignerModel, Parameters<RFC.IOnDragCanvas>[0]>;
@@ -61,7 +68,6 @@ export interface DesignerModel {
   onNodeClick: Action<DesignerModel, Parameters<RFC.IOnNodeClick>[0]>;
   onNodeSizeChange: Action<DesignerModel, Parameters<RFC.IOnNodeSizeChange>[0]>;
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
-  onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
 }
 
 const designerModel: DesignerModel = {
@@ -136,6 +142,13 @@ const designerModel: DesignerModel = {
     // be created when the channels are fetched
     delete state.allCharts[state.activeId].links[linkId];
   }),
+  addLndNode: action((state, { lndNode, position }) => {
+    const chart = state.allCharts[state.activeId];
+    const { node, link } = createLndChartNode(lndNode);
+    node.position = position;
+    chart.nodes[node.id] = node;
+    chart.links[link.id] = link;
+  }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
     (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
@@ -172,18 +185,21 @@ const designerModel: DesignerModel = {
       });
     },
   ),
-  onCanvasDrop: action((state, { config, data, position }) => {
-    // const chart = state.allCharts[state.activeId];
-    // const id = Date.now().toString(); // TODO: v4();
-    // chart.nodes[id] = {
-    //   id,
-    //   position: snap(position, config),
-    //   orientation: data.orientation || 0,
-    //   type: data.type,
-    //   ports: data.ports,
-    //   properties: data.properties,
-    // };
-  }),
+  onCanvasDrop: thunk(
+    async (actions, { data, position }, { getStoreState, getStoreActions }) => {
+      const { activeId } = getStoreState().designer;
+      if (data.type === 'lnd') {
+        const { addLndNode, start } = getStoreActions().network;
+        const network = getStoreState().network.networkById(activeId);
+        const lndNode = await addLndNode(activeId);
+        actions.addLndNode({ lndNode, position });
+        actions.redrawChart();
+        if (network.status === Status.Started) {
+          await start(activeId);
+        }
+      }
+    },
+  ),
   // TODO: add unit tests for the actions below
   // This file is excluded from test coverage analysis because
   // these actions were copied with a little modification from

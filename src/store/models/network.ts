@@ -1,10 +1,9 @@
 import { info } from 'electron-log';
-
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { CommonNode, Network, Status, StoreInjections } from 'types';
+import { CommonNode, LndNode, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { createNetwork } from 'utils/network';
+import { createLndNetworkNode, createNetwork } from 'utils/network';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
@@ -30,6 +29,7 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  addLndNode: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<LndNode>>;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean }
@@ -59,7 +59,7 @@ const networkModel: NetworkModel = {
     state.loaded = loaded;
   }),
   load: thunk(async (actions, payload, { injections, getStoreActions }) => {
-    const { networks, charts } = await injections.dockerService.load();
+    const { networks, charts } = await injections.dockerService.loadNetworks();
     if (networks && networks.length) {
       actions.setNetworks(networks);
     }
@@ -71,7 +71,7 @@ const networkModel: NetworkModel = {
       networks: getState().networks,
       charts: getStoreState().designer.allCharts,
     };
-    await injections.dockerService.save(data);
+    await injections.dockerService.saveNetworks(data);
   }),
   add: action((state, { name, lndNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
@@ -84,13 +84,24 @@ const networkModel: NetworkModel = {
       actions.add(payload);
       const { networks } = getState();
       const newNetwork = networks[networks.length - 1];
-      await injections.dockerService.create(newNetwork);
+      await injections.dockerService.saveComposeFile(newNetwork);
       const chart = initChartFromNetwork(newNetwork);
       getStoreActions().designer.addChart({ id: newNetwork.id, chart });
       await actions.save();
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },
   ),
+  addLndNode: thunk(async (actions, id, { getState, injections }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(`Network with the id '${id}' was not found.`);
+    const node = createLndNetworkNode(network, Status.Stopped);
+    network.nodes.lightning.push(node);
+    actions.setNetworks(networks);
+    await actions.save();
+    await injections.dockerService.saveComposeFile(network);
+    return node;
+  }),
   setStatus: action((state, { id, status, only, all = true }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(`Network with the id '${id}' was not found.`);

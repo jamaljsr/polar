@@ -44,7 +44,7 @@ describe('NewNetwork component', () => {
       fireEvent.change(nameInput, { target: { value: 'test' } });
       fireEvent.click(createBtn);
       await waitForDomChange();
-      expect(injections.dockerService.create).toBeCalled();
+      expect(injections.dockerService.saveComposeFile).toBeCalled();
     });
   });
 });

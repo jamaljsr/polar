@@ -30,15 +30,17 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   useAsync(async () => {
     const { tlsCert, adminMacaroon, readonlyMacaroon } = node.paths;
     try {
-      setHexValues({
-        tlsCert: await readHex(tlsCert),
-        adminMacaroon: await readHex(adminMacaroon),
-        readonlyMacaroon: await readHex(readonlyMacaroon),
-      });
+      if (node.status === Status.Started) {
+        setHexValues({
+          tlsCert: await readHex(tlsCert),
+          adminMacaroon: await readHex(adminMacaroon),
+          readonlyMacaroon: await readHex(readonlyMacaroon),
+        });
+      }
     } catch (error) {
       notify({ message: 'Failed to hex encode file contents', error });
     }
-  }, [node.paths]);
+  }, [node.paths, node.status]);
 
   let lnUrl = '';
   const nodeState = useStoreState(s => s.lnd.nodes[node.name]);

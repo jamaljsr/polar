@@ -57,7 +57,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
       <DraggableNode
         label="LND v0.7.1 Node"
         icon={lndLogo}
-        properties={{ test: 'asd' }}
+        properties={{ type: 'lnd' }}
       />
     </SidebarCard>
   );

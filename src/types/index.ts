@@ -65,11 +65,11 @@ export interface Network {
 }
 
 export interface DockerLibrary {
-  create: (network: Network) => Promise<void>;
+  saveComposeFile: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
-  save: (networks: NetworksFile) => Promise<void>;
-  load: () => Promise<NetworksFile>;
+  saveNetworks: (networks: NetworksFile) => Promise<void>;
+  loadNetworks: () => Promise<NetworksFile>;
 }
 
 export interface BitcoindLibrary {
