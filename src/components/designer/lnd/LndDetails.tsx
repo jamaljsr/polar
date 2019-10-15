@@ -3,7 +3,7 @@ import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
 import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'types';
-import { format } from 'utils/units';
+import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
 import ActionsTab from './ActionsTab';
@@ -15,9 +15,7 @@ interface Props {
 }
 
 const LndDetails: React.FC<Props> = ({ node }) => {
-  const [activeTab, setActiveTab] = useState(
-    node.status === Status.Started ? 'connect' : 'info',
-  );
+  const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
     async (node: LndNode) => {
@@ -35,7 +33,7 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
       const { confirmedBalance } = nodeState.walletBalance;
-      extra = <strong>{format(confirmedBalance)} sats</strong>;
+      extra = <strong>{abbreviate(confirmedBalance)} sats</strong>;
     }
   }
 

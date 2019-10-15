@@ -188,9 +188,17 @@ const designerModel: DesignerModel = {
   onCanvasDrop: thunk(
     async (actions, { data, position }, { getStoreState, getStoreActions }) => {
       const { activeId } = getStoreState().designer;
+      const { networkById } = getStoreState().network;
+      const network = networkById(activeId);
+      if (![Status.Started, Status.Stopped].includes(network.status)) {
+        getStoreActions().app.notify({
+          message: 'Failed to add node',
+          error: new Error('Cannot add a new node when the network is transitioning'),
+        });
+        return;
+      }
       if (data.type === 'lnd') {
         const { addLndNode, start } = getStoreActions().network;
-        const network = getStoreState().network.networkById(activeId);
         const lndNode = await addLndNode(activeId);
         actions.addLndNode({ lndNode, position });
         actions.redrawChart();
