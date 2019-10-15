@@ -46,8 +46,7 @@ Polar requires that you have Docker installed to create the local networks
 - [electron-log](https://github.com/megahertz/electron-log): multi-level logging to console and file
 - [Prettier](https://github.com/prettier/prettier): keep code format consistent
 - [ESLint](https://github.com/eslint/eslint): follow code quality best practices
-- [Travis](https://travis-ci.org): automate builds and testing on Mac/Linux
-- [AppVeyor](https://appveyor.com): automate builds and testing on Windows
+- [Github Actions](https://github.com/actions): automate builds and testing on Windows/Mac/Linux
 - [Renevate Bot](https://github.com/renovatebot/renovate): automate dependency upgrades via GitHub bot
 - [Jest](https://github.com/facebook/jest): delightful JavaScript testing
 - [React Testing Library](https://github.com/testing-library/react-testing-library): React specific testing utilities
@@ -55,3 +54,7 @@ Polar requires that you have Docker installed to create the local networks
 - [Testcafe](https://github.com/DevExpress/testcafe): End-to-end is important
 - [commitlint](https://github.com/conventional-changelog/commitlint): standardize git commit messages
 - [standard-version](https://github.com/conventional-changelog/commitlint): automate release versioning and changelog generation
+
+## Recognition
+
+Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/joule-extension), [Zap Wallet](https://github.com/LN-Zap/zap-desktop), [LND](https://github.com/lightningnetwork/lnd), [Bitcoin Core](https://github.com/bitcoin/bitcoin), along with many others for the amazing apps & libraries that gave this project inspiration, ideas & sometimes even a little code 😊. 
