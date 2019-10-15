@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { INodeInnerDefaultProps, ISize } from '@mrblenny/react-flow-chart';
-
-import { StatusBadge } from 'components/common';
+import { LOADING_NODE_ID } from 'utils/constants';
+import { Loader, StatusBadge } from 'components/common';
 
 const Styled = {
   Node: styled.div<{ size?: ISize }>`
@@ -17,7 +17,11 @@ const Styled = {
 };
 
 const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
-  return (
+  return node.id === LOADING_NODE_ID ? (
+    <Styled.Node size={node.size}>
+      <Loader size="16px" />
+    </Styled.Node>
+  ) : (
     <Styled.Node size={node.size}>
       <span>
         <StatusBadge text={node.id} status={node.properties.status} />

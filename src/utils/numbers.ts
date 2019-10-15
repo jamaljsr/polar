@@ -12,7 +12,7 @@ export const range = (count: number): ReadonlyArray<number> => {
   return [...Array<number>(count).keys()];
 };
 
-const suffixes = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
+const suffixes = ['', 'k', 'M', 'B', 'T', 'P', 'E'];
 /**
  * Abbreviates a number into shortened form
  * @param value the number to abbreviate
@@ -23,7 +23,7 @@ export const abbreviate = (value: number | string): string => {
   const tier = (Math.log10(num) / 3) | 0;
 
   // if zero, we don't need a suffix
-  if (tier == 0) return num.toString();
+  if (tier === 0) return num.toString();
 
   // get suffix and determine scale
   const suffix = suffixes[tier];

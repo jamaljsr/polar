@@ -1,4 +1,4 @@
-import RFC, { IChart, IConfig, IPosition } from '@mrblenny/react-flow-chart';
+import RFC, { IChart, IPosition } from '@mrblenny/react-flow-chart';
 import {
   Action,
   action,
@@ -12,26 +12,9 @@ import {
   thunkOn,
 } from 'easy-peasy';
 import { LndNode, Network, Status, StoreInjections } from 'types';
-import { createLndChartNode, updateChartFromLnd } from 'utils/chart';
+import { createLndChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
+import { LOADING_NODE_ID } from 'utils/constants';
 import { RootModel } from './';
-
-export const rotate = (
-  center: IPosition,
-  current: IPosition,
-  angle: number,
-): IPosition => {
-  const radians = (Math.PI / 180) * angle;
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-  const x = cos * (current.x - center.x) + sin * (current.y - center.y) + center.x;
-  const y = cos * (current.y - center.y) - sin * (current.x - center.x) + center.y;
-  return { x, y };
-};
-
-const snap = (position: IPosition, config?: IConfig) =>
-  config && config.snapToGrid
-    ? { x: Math.round(position.x / 20) * 20, y: Math.round(position.y / 20) * 20 }
-    : position;
 
 export interface DesignerModel {
   activeId: number;
@@ -45,14 +28,10 @@ export interface DesignerModel {
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
+  removeNode: Action<DesignerModel, string>;
   addLndNode: Action<DesignerModel, { lndNode: LndNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
-  onCanvasDrop: Thunk<
-    DesignerModel,
-    Parameters<RFC.IOnCanvasDrop>[0],
-    StoreInjections,
-    RootModel
-  >;
+  onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   // Flowchart component callbacks
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
   onDragCanvas: Action<DesignerModel, Parameters<RFC.IOnDragCanvas>[0]>;
@@ -68,6 +47,7 @@ export interface DesignerModel {
   onNodeClick: Action<DesignerModel, Parameters<RFC.IOnNodeClick>[0]>;
   onNodeSizeChange: Action<DesignerModel, Parameters<RFC.IOnNodeSizeChange>[0]>;
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
+  onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
 }
 
 const designerModel: DesignerModel = {
@@ -142,6 +122,12 @@ const designerModel: DesignerModel = {
     // be created when the channels are fetched
     delete state.allCharts[state.activeId].links[linkId];
   }),
+  removeNode: action((state, nodeId) => {
+    // this action is used when a node is dropped onto the canvas.
+    // remove the node created in the chart once the async loading
+    // has been completed
+    delete state.allCharts[state.activeId].nodes[nodeId];
+  }),
   addLndNode: action((state, { lndNode, position }) => {
     const chart = state.allCharts[state.activeId];
     const { node, link } = createLndChartNode(lndNode);
@@ -153,40 +139,42 @@ const designerModel: DesignerModel = {
     actions => actions.onLinkComplete,
     (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
       const { activeId, activeChart } = getState();
-      if (!activeChart.links[payload.linkId]) return;
-      const fromNode = activeChart.nodes[payload.fromNodeId];
-      const toNode = activeChart.nodes[payload.toNodeId];
-      if (fromNode.type !== 'lightning' || toNode.type !== 'lightning') {
-        actions.removeLink(payload.linkId);
+      const { linkId, fromNodeId, toNodeId } = payload;
+      if (!activeChart.links[linkId]) return;
+      const fromNode = activeChart.nodes[fromNodeId];
+      const toNode = activeChart.nodes[fromNodeId];
+
+      const showError = (error: Error) => {
+        actions.removeLink(linkId);
         getStoreActions().app.notify({
           message: 'Cannot open a channel',
-          error: new Error('Must be between two lightning nodes'),
+          error,
         });
-        return;
+      };
+      if (fromNode.type !== 'lightning' || toNode.type !== 'lightning') {
+        return showError(new Error('Must be between two lightning nodes'));
       }
-      const network = getStoreState().network.networkById(activeId);
-      if (!network) {
-        actions.removeLink(payload.linkId);
-        return;
+      let network: Network;
+      try {
+        network = getStoreState().network.networkById(activeId);
+      } catch (error) {
+        return showError(error);
       }
       if (network.status !== Status.Started) {
-        actions.removeLink(payload.linkId);
-        getStoreActions().app.notify({
-          message: 'Cannot open a channel',
-          error: new Error('The network must be Started first'),
-        });
-        return;
+        return showError(new Error('The network must be Started first'));
       }
-      // show the OpenChannel modal if a link is created
+
       getStoreActions().modals.showOpenChannel({
-        to: payload.toNodeId,
-        from: payload.fromNodeId,
-        linkId: payload.linkId,
+        to: toNodeId,
+        from: fromNodeId,
+        linkId: linkId,
       });
     },
   ),
-  onCanvasDrop: thunk(
-    async (actions, { data, position }, { getStoreState, getStoreActions }) => {
+  onCanvasDropListener: thunkOn(
+    actions => actions.onCanvasDrop,
+    async (actions, { payload }, { getStoreState, getStoreActions }) => {
+      const { data, position } = payload;
       const { activeId } = getStoreState().designer;
       const { networkById } = getStoreState().network;
       const network = networkById(activeId);
@@ -195,9 +183,7 @@ const designerModel: DesignerModel = {
           message: 'Failed to add node',
           error: new Error('Cannot add a new node when the network is transitioning'),
         });
-        return;
-      }
-      if (data.type === 'lnd') {
+      } else if (data.type === 'lnd') {
         const { addLndNode, start } = getStoreActions().network;
         const lndNode = await addLndNode(activeId);
         actions.addLndNode({ lndNode, position });
@@ -206,155 +192,216 @@ const designerModel: DesignerModel = {
           await start(activeId);
         }
       }
+
+      // remove the loading node added in onCanvasDrop
+      actions.removeNode(LOADING_NODE_ID);
     },
   ),
   // TODO: add unit tests for the actions below
-  // This file is excluded from test coverage analysis because
-  // these actions were copied with a little modification from
+  // These actions are excluded from test coverage analysis because
+  // they were copied no modifications from
   // https://github.com/MrBlenny/react-flow-chart/blob/master/src/container/actions.ts
-  onDragNode: action((state, { config, data, id }) => {
-    const chart = state.allCharts[state.activeId];
-    if (chart.nodes[id]) {
-      chart.nodes[id] = {
-        ...chart.nodes[id],
-        position: snap(data, config),
+  onDragNode: action(
+    /* istanbul ignore next */
+    (state, { config, data, id }) => {
+      const chart = state.allCharts[state.activeId];
+      if (chart.nodes[id]) {
+        chart.nodes[id] = {
+          ...chart.nodes[id],
+          position: snap(data, config),
+        };
+      }
+    },
+  ),
+  onDragCanvas: action(
+    /* istanbul ignore next */
+    (state, { config, data }) => {
+      const chart = state.allCharts[state.activeId];
+      chart.offset = snap(data, config);
+    },
+  ),
+  onLinkStart: action(
+    /* istanbul ignore next */
+    (state, { linkId, fromNodeId, fromPortId }) => {
+      const chart = state.allCharts[state.activeId];
+      chart.links[linkId] = {
+        id: linkId,
+        from: {
+          nodeId: fromNodeId,
+          portId: fromPortId,
+        },
+        to: {},
       };
-    }
-  }),
-  onDragCanvas: action((state, { config, data }) => {
-    const chart = state.allCharts[state.activeId];
-    chart.offset = snap(data, config);
-  }),
-  onLinkStart: action((state, { linkId, fromNodeId, fromPortId }) => {
-    const chart = state.allCharts[state.activeId];
-    chart.links[linkId] = {
-      id: linkId,
-      from: {
-        nodeId: fromNodeId,
-        portId: fromPortId,
-      },
-      to: {},
-    };
-  }),
-  onLinkMove: action((state, { linkId, toPosition }) => {
-    const chart = state.allCharts[state.activeId];
-    const link = chart.links[linkId];
-    link.to.position = toPosition;
-    chart.links[linkId] = { ...link };
-  }),
-  onLinkComplete: action((state, args) => {
-    const chart = state.allCharts[state.activeId];
-    const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
-    if (
-      (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
-      fromNodeId !== toNodeId &&
-      [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
-    ) {
-      chart.links[linkId].to = {
-        nodeId: toNodeId,
-        portId: toPortId,
-      };
-    } else {
+    },
+  ),
+  onLinkMove: action(
+    /* istanbul ignore next */
+    (state, { linkId, toPosition }) => {
+      const chart = state.allCharts[state.activeId];
+      const link = chart.links[linkId];
+      link.to.position = toPosition;
+      chart.links[linkId] = { ...link };
+    },
+  ),
+  onLinkComplete: action(
+    /* istanbul ignore next */
+    (state, args) => {
+      const chart = state.allCharts[state.activeId];
+      const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
+      if (
+        (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
+        fromNodeId !== toNodeId &&
+        [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
+      ) {
+        chart.links[linkId].to = {
+          nodeId: toNodeId,
+          portId: toPortId,
+        };
+      } else {
+        delete chart.links[linkId];
+      }
+    },
+  ),
+  onLinkCancel: action(
+    /* istanbul ignore next */
+    (state, { linkId }) => {
+      const chart = state.allCharts[state.activeId];
       delete chart.links[linkId];
-    }
-  }),
-  onLinkCancel: action((state, { linkId }) => {
-    const chart = state.allCharts[state.activeId];
-    delete chart.links[linkId];
-  }),
-  onLinkMouseEnter: action((state, { linkId }) => {
-    const chart = state.allCharts[state.activeId];
-    // Set the link to hover
-    const link = chart.links[linkId];
-    // Set the connected ports to hover
-    if (link.to.nodeId && link.to.portId) {
-      if (chart.hovered.type !== 'link' || chart.hovered.id !== linkId) {
-        chart.hovered = {
+    },
+  ),
+  onLinkMouseEnter: action(
+    /* istanbul ignore next */
+    (state, { linkId }) => {
+      const chart = state.allCharts[state.activeId];
+      // Set the link to hover
+      const link = chart.links[linkId];
+      // Set the connected ports to hover
+      if (link.to.nodeId && link.to.portId) {
+        if (chart.hovered.type !== 'link' || chart.hovered.id !== linkId) {
+          chart.hovered = {
+            type: 'link',
+            id: linkId,
+          };
+        }
+      }
+    },
+  ),
+  onLinkMouseLeave: action(
+    /* istanbul ignore next */
+    (state, { linkId }) => {
+      const chart = state.allCharts[state.activeId];
+      const link = chart.links[linkId];
+      // Set the connected ports to hover
+      if (link.to.nodeId && link.to.portId) {
+        chart.hovered = {};
+      }
+    },
+  ),
+  onLinkClick: action(
+    /* istanbul ignore next */
+    (state, { linkId }) => {
+      const chart = state.allCharts[state.activeId];
+      if (chart.selected.id !== linkId || chart.selected.type !== 'link') {
+        chart.selected = {
           type: 'link',
           id: linkId,
         };
       }
-    }
-  }),
-  onLinkMouseLeave: action((state, { linkId }) => {
-    const chart = state.allCharts[state.activeId];
-    const link = chart.links[linkId];
-    // Set the connected ports to hover
-    if (link.to.nodeId && link.to.portId) {
-      chart.hovered = {};
-    }
-  }),
-  onLinkClick: action((state, { linkId }) => {
-    const chart = state.allCharts[state.activeId];
-    if (chart.selected.id !== linkId || chart.selected.type !== 'link') {
-      chart.selected = {
-        type: 'link',
-        id: linkId,
+    },
+  ),
+  onCanvasClick: action(
+    /* istanbul ignore next */
+    state => {
+      const chart = state.allCharts[state.activeId];
+      if (chart.selected.id) {
+        chart.selected = {};
+      }
+    },
+  ),
+  onDeleteKey: action(
+    /* istanbul ignore next */
+    state => {
+      const chart = state.allCharts[state.activeId];
+      if (chart.selected.type === 'node' && chart.selected.id) {
+        const node = chart.nodes[chart.selected.id];
+        // Delete the connected links
+        Object.keys(chart.links).forEach(linkId => {
+          const link = chart.links[linkId];
+          if (link.from.nodeId === node.id || link.to.nodeId === node.id) {
+            delete chart.links[link.id];
+          }
+        });
+        // Delete the node
+        delete chart.nodes[chart.selected.id];
+      } else if (chart.selected.type === 'link' && chart.selected.id) {
+        delete chart.links[chart.selected.id];
+      }
+      if (chart.selected) {
+        chart.selected = {};
+      }
+    },
+  ),
+  onNodeClick: action(
+    /* istanbul ignore next */
+    (state, { nodeId }) => {
+      const chart = state.allCharts[state.activeId];
+      if (chart.selected.id !== nodeId || chart.selected.type !== 'node') {
+        chart.selected = {
+          type: 'node',
+          id: nodeId,
+        };
+      }
+    },
+  ),
+  onNodeSizeChange: action(
+    /* istanbul ignore next */
+    (state, { nodeId, size }) => {
+      const chart = state.allCharts[state.activeId];
+      chart.nodes[nodeId].size = {
+        ...size,
       };
-    }
-  }),
-  onCanvasClick: action(state => {
-    const chart = state.allCharts[state.activeId];
-    if (chart.selected.id) {
-      chart.selected = {};
-    }
-  }),
-  onDeleteKey: action(state => {
-    const chart = state.allCharts[state.activeId];
-    if (chart.selected.type === 'node' && chart.selected.id) {
-      const node = chart.nodes[chart.selected.id];
-      // Delete the connected links
-      Object.keys(chart.links).forEach(linkId => {
-        const link = chart.links[linkId];
-        if (link.from.nodeId === node.id || link.to.nodeId === node.id) {
-          delete chart.links[link.id];
-        }
-      });
-      // Delete the node
-      delete chart.nodes[chart.selected.id];
-    } else if (chart.selected.type === 'link' && chart.selected.id) {
-      delete chart.links[chart.selected.id];
-    }
-    if (chart.selected) {
-      chart.selected = {};
-    }
-  }),
-  onNodeClick: action((state, { nodeId }) => {
-    const chart = state.allCharts[state.activeId];
-    if (chart.selected.id !== nodeId || chart.selected.type !== 'node') {
-      chart.selected = {
-        type: 'node',
-        id: nodeId,
-      };
-    }
-  }),
-  onNodeSizeChange: action((state, { nodeId, size }) => {
-    const chart = state.allCharts[state.activeId];
-    chart.nodes[nodeId].size = {
-      ...size,
-    };
-  }),
-  onPortPositionChange: action((state, { node: nodeToUpdate, port, el, nodesEl }) => {
-    const chart = state.allCharts[state.activeId];
-    if (nodeToUpdate.size) {
-      // rotate the port's position based on the node's orientation prop (angle)
-      const center = { x: nodeToUpdate.size.width / 2, y: nodeToUpdate.size.height / 2 };
-      const current = {
-        x: el.offsetLeft + nodesEl.offsetLeft + el.offsetWidth / 2,
-        y: el.offsetTop + nodesEl.offsetTop + el.offsetHeight / 2,
-      };
-      const angle = nodeToUpdate.orientation || 0;
-      const position = rotate(center, current, angle);
+    },
+  ),
+  onPortPositionChange: action(
+    /* istanbul ignore next */
+    (state, { node: nodeToUpdate, port, el, nodesEl }) => {
+      const chart = state.allCharts[state.activeId];
+      if (nodeToUpdate.size) {
+        // rotate the port's position based on the node's orientation prop (angle)
+        const center = {
+          x: nodeToUpdate.size.width / 2,
+          y: nodeToUpdate.size.height / 2,
+        };
+        const current = {
+          x: el.offsetLeft + nodesEl.offsetLeft + el.offsetWidth / 2,
+          y: el.offsetTop + nodesEl.offsetTop + el.offsetHeight / 2,
+        };
+        const angle = nodeToUpdate.orientation || 0;
+        const position = rotate(center, current, angle);
 
-      const node = chart.nodes[nodeToUpdate.id];
-      node.ports[port.id].position = {
-        x: position.x,
-        y: position.y,
-      };
+        const node = chart.nodes[nodeToUpdate.id];
+        node.ports[port.id].position = {
+          x: position.x,
+          y: position.y,
+        };
 
-      chart.nodes[nodeToUpdate.id] = { ...node };
-    }
-  }),
+        chart.nodes[nodeToUpdate.id] = { ...node };
+      }
+    },
+  ),
+  onCanvasDrop: action(
+    /* istanbul ignore next */
+    (state, { config, data, position }) => {
+      const chart = state.allCharts[state.activeId];
+      chart.nodes[LOADING_NODE_ID] = {
+        id: LOADING_NODE_ID,
+        position: snap(position, config),
+        type: data.type,
+        ports: {},
+        properties: {},
+      };
+    },
+  ),
 };
 
 export default designerModel;

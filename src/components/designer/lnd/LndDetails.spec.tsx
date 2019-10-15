@@ -165,8 +165,8 @@ describe('LndDetails', () => {
     });
 
     it('should display the wallet balance in the header', async () => {
-      const { findByText } = renderComponent(Status.Started);
-      expect(await findByText('10 sats')).toBeInTheDocument();
+      const { findAllByText } = renderComponent(Status.Started);
+      expect(await findAllByText('10 sats')).toHaveLength(2);
     });
 
     it('should display an error if data fetching fails', async () => {
@@ -216,6 +216,7 @@ describe('LndDetails', () => {
       mockFiles.readHex.mockResolvedValue('test-hex');
       const { findByText, container, getAllByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
+      await waitForElement(() => getAllByText('TLS Cert'));
       expect(files.readHex).toBeCalledTimes(3);
       const hexBtn = container.querySelector(
         'input[name=fileType][value=hex]',

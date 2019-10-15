@@ -1,0 +1,83 @@
+import React from 'react';
+import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
+import { createEvent, fireEvent } from '@testing-library/dom';
+import { Status } from 'types';
+import { initChartFromNetwork } from 'utils/chart';
+import {
+  getNetwork,
+  injections,
+  mockLndResponses,
+  renderWithProviders,
+} from 'utils/tests';
+import DefaultSidebar from './DefaultSidebar';
+
+const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
+
+describe('DefaultSidebar Component', () => {
+  const renderComponent = (status?: Status) => {
+    const network = getNetwork(1, 'test network', status);
+    const chart = initChartFromNetwork(network);
+    const initialState = {
+      network: {
+        networks: [network],
+      },
+      designer: {
+        activeId: network.id,
+        allCharts: {
+          [network.id]: chart,
+        },
+      },
+    };
+
+    const result = renderWithProviders(<DefaultSidebar network={network} />, {
+      initialState,
+    });
+    return {
+      ...result,
+      network,
+    };
+  };
+
+  it('should render display a draggable LND node', () => {
+    const { getByText } = renderComponent();
+    expect(getByText('LND v0.7.1 Node')).toBeInTheDocument();
+  });
+
+  it('should allow dragging a node', async () => {
+    const { getByText } = renderComponent();
+    const lnd = getByText('LND v0.7.1 Node');
+    const setData = jest.fn();
+    const dragEvent = createEvent.dragStart(lnd);
+    Object.defineProperty(dragEvent, 'dataTransfer', { value: { setData } });
+    fireEvent(lnd, dragEvent);
+    expect(setData).toBeCalledWith(REACT_FLOW_CHART, JSON.stringify({ type: 'lnd' }));
+  });
+
+  describe('Sync Chart button', () => {
+    it('should display an error if syncing the chart fails', async () => {
+      lndServiceMock.getInfo.mockRejectedValue(new Error('failed to get info'));
+      const { getByLabelText, findByText } = renderComponent(Status.Started);
+      fireEvent.click(getByLabelText('icon: reload'));
+      expect(await findByText('failed to get info')).toBeInTheDocument();
+      expect(lndServiceMock.getInfo).toBeCalledTimes(2);
+    });
+
+    it('should sync the chart from LND nodes', async () => {
+      lndServiceMock.getInfo.mockResolvedValue(mockLndResponses.getInfo);
+      lndServiceMock.getWalletBalance.mockResolvedValue(
+        mockLndResponses.getWalletBalance,
+      );
+      lndServiceMock.listChannels.mockResolvedValue(mockLndResponses.listChannels);
+      lndServiceMock.pendingChannels.mockResolvedValue(mockLndResponses.pendingChannels);
+      const { getByLabelText, findByText } = renderComponent(Status.Started);
+      fireEvent.click(getByLabelText('icon: reload'));
+      expect(
+        await findByText('The designer has been synced with the Lightning nodes'),
+      ).toBeInTheDocument();
+      expect(lndServiceMock.getInfo).toBeCalledTimes(2);
+      expect(lndServiceMock.getWalletBalance).toBeCalledTimes(2);
+      expect(lndServiceMock.listChannels).toBeCalledTimes(2);
+      expect(lndServiceMock.pendingChannels).toBeCalledTimes(2);
+    });
+  });
+});
