@@ -2,8 +2,8 @@
 
 Small Stuff
 
+- add lndconnect connection info
 - use dynamic ports for nodes to avoid conflicts with the host OS
-- add new LND node
 - close channel
 - switch renovatebot to dependabot and use automatic security fixes
 - pull docker images on startup if they don't exist locally

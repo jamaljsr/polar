@@ -44,12 +44,12 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
 
   // memoize these calculations for a bit of perf
   const { leftStop, rightStop, leftColor, rightColor } = useMemo(() => {
-    const [blue, green, orange, darkgray] = ['#6495ED', '#52c41a', '#fa8c16', 'darkgray'];
+    const [blue, green, orange, gray] = ['#6495ED', '#52c41a', '#fa8c16', 'lightgray'];
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes
-    let leftColor = darkgray;
-    let rightColor = darkgray;
+    let leftColor = gray;
+    let rightColor = gray;
     if (link.properties) {
       const { type, direction, toBalance, capacity } = link.properties as LinkProperties;
       if (type === 'open-channel') {

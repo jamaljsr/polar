@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { INodeInnerDefaultProps, ISize } from '@mrblenny/react-flow-chart';
+
 import { StatusBadge } from 'components/common';
 
 const Styled = {
