@@ -100,6 +100,7 @@ describe('LndDetails', () => {
 
   describe('with node Started', () => {
     const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
+    const mockFiles = files as jest.Mocked<typeof files>;
 
     beforeEach(() => {
       lndServiceMock.getInfo.mockResolvedValue({
@@ -211,27 +212,60 @@ describe('LndDetails', () => {
       expect(from).toEqual(node.name);
     });
 
-    it('should display hex values for paths', async () => {
-      const mockFiles = files as jest.Mocked<typeof files>;
-      mockFiles.readHex.mockResolvedValue('test-hex');
-      const { findByText, container, getAllByText } = renderComponent(Status.Started);
-      fireEvent.click(await findByText('Connect'));
-      await waitForElement(() => getAllByText('TLS Cert'));
-      expect(files.readHex).toBeCalledTimes(3);
-      const hexBtn = container.querySelector(
-        'input[name=fileType][value=hex]',
-      ) as Element;
-      fireEvent.click(hexBtn);
-      expect(getAllByText('test-hex')).toHaveLength(3);
-    });
+    describe('connect options', () => {
+      const toggle = (container: HTMLElement, value: string) => {
+        fireEvent.click(container.querySelector(
+          `input[name=authType][value=${value}]`,
+        ) as Element);
+      };
 
-    it('should display an error if getting hex strings fails', async () => {
-      const mockFiles = files as jest.Mocked<typeof files>;
-      mockFiles.readHex.mockRejectedValue(new Error('test-error'));
-      const { findByText } = renderComponent(Status.Started);
-      fireEvent.click(await findByText('Connect'));
-      expect(await findByText('Failed to hex encode file contents')).toBeInTheDocument();
-      expect(await findByText('test-error')).toBeInTheDocument();
+      it('should display hex values for paths', async () => {
+        mockFiles.readHex.mockResolvedValue('test-hex');
+        const { findByText, container, getAllByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        await waitForElement(() => getAllByText('TLS Cert'));
+        toggle(container, 'hex');
+        await wait(() => {
+          expect(files.readHex).toBeCalledTimes(3);
+          expect(getAllByText('test-hex')).toHaveLength(3);
+        });
+      });
+
+      it('should display an error if getting hex strings fails', async () => {
+        mockFiles.readHex.mockRejectedValue(new Error('hex-error'));
+        const { findByText, container } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        toggle(container, 'hex');
+        expect(
+          await findByText('Failed to hex encode file contents'),
+        ).toBeInTheDocument();
+        expect(await findByText('hex-error')).toBeInTheDocument();
+      });
+
+      it('should display LND Connect url', async () => {
+        mockFiles.readHex.mockResolvedValue('test-hex');
+        mockFiles.read.mockResolvedValue('test-data');
+        const { findByText, container, getByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        await waitForElement(() => getByText('TLS Cert'));
+        toggle(container, 'lndc');
+        await waitForElement(() => getByText('LND Connect Url'));
+        expect(files.read).toBeCalledTimes(1);
+        expect(files.readHex).toBeCalledTimes(1);
+        expect(getByText(/lndconnect/)).toBeInTheDocument();
+      });
+
+      it('should display and error if getting the LND Connect url failes', async () => {
+        mockFiles.readHex.mockRejectedValue(new Error('lndc-error'));
+        mockFiles.read.mockResolvedValue('test-data');
+        const { findByText, container, getByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        await waitForElement(() => getByText('TLS Cert'));
+        toggle(container, 'lndc');
+        await waitForElement(() => getByText('LND Connect Url'));
+        expect(getByText('Unable to create LND Connect url')).toBeInTheDocument();
+        expect(getByText('lndc-error')).toBeInTheDocument();
+      });
     });
   });
 });

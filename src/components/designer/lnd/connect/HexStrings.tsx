@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { useStoreActions } from 'store';
-import { LndNode, Status } from 'types';
+import { LndNode } from 'types';
 import { readHex } from 'utils/files';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
@@ -17,13 +17,11 @@ const HexStrings: React.FC<Props> = ({ node }) => {
   useAsync(async () => {
     const { tlsCert, adminMacaroon, readonlyMacaroon } = node.paths;
     try {
-      if (node.status === Status.Started) {
-        setHexValues({
-          tlsCert: await readHex(tlsCert),
-          adminMacaroon: await readHex(adminMacaroon),
-          readonlyMacaroon: await readHex(readonlyMacaroon),
-        });
-      }
+      setHexValues({
+        tlsCert: await readHex(tlsCert),
+        adminMacaroon: await readHex(adminMacaroon),
+        readonlyMacaroon: await readHex(readonlyMacaroon),
+      });
     } catch (error) {
       notify({ message: 'Failed to hex encode file contents', error });
     }

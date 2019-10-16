@@ -2,7 +2,6 @@
 
 Small Stuff
 
-- add lndconnect connection info
 - use dynamic ports for nodes to avoid conflicts with the host OS
 - close channel
 - switch renovatebot to dependabot and use automatic security fixes

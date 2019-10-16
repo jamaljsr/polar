@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { encode } from 'lndconnect';
 import { useStoreActions } from 'store';
-import { LndNode, Status } from 'types';
+import { LndNode } from 'types';
 import { read, readHex } from 'utils/files';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
@@ -18,14 +18,12 @@ const LndConnect: React.FC<Props> = ({ node }) => {
   useAsync(async () => {
     const { tlsCert, adminMacaroon } = node.paths;
     try {
-      if (node.status === Status.Started) {
-        const url = encode({
-          host: `127.0.0.1:${node.ports.grpc}`,
-          cert: await read(tlsCert),
-          macaroon: await readHex(adminMacaroon),
-        });
-        setConnectUrl(url);
-      }
+      const url = encode({
+        host: `127.0.0.1:${node.ports.grpc}`,
+        cert: await read(tlsCert),
+        macaroon: await readHex(adminMacaroon),
+      });
+      setConnectUrl(url);
     } catch (error) {
       notify({ message: 'Unable to create LND Connect url', error });
     }
