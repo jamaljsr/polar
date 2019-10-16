@@ -1,3 +1,4 @@
+import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
 import { LndVersion, Network, Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -11,6 +12,7 @@ jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
 }));
 const filesMock = files as jest.Mocked<typeof files>;
+const mockDetectPort = detectPort as jest.Mock;
 const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
@@ -220,6 +222,43 @@ describe('Network model', () => {
       await start(network.id);
       const { bitcoin } = firstNetwork().nodes;
       bitcoin.forEach(node => expect(node.status).toBe(Status.Error));
+    });
+
+    it('should not save compose file and networks if all ports are available', async () => {
+      mockDetectPort.mockImplementation(port => Promise.resolve(port));
+      (injections.dockerService.saveComposeFile as jest.Mock).mockReset();
+      (injections.dockerService.saveNetworks as jest.Mock).mockReset();
+      const { start } = store.getActions().network;
+      const network = firstNetwork();
+      await start(network.id);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning[0].ports.grpc).toBe(10001);
+      expect(lightning[1].ports.grpc).toBe(10002);
+      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(0);
+      expect(injections.dockerService.saveNetworks).toBeCalledTimes(0);
+    });
+
+    it('should save compose file and networks when a port is in use', async () => {
+      const portsInUse = [10001];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+
+      // add a second network to be sure updating works
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        name: 'test2',
+      });
+      (injections.dockerService.saveComposeFile as jest.Mock).mockReset();
+      (injections.dockerService.saveNetworks as jest.Mock).mockReset();
+      const { start } = store.getActions().network;
+      const network = firstNetwork();
+      await start(network.id);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning[0].ports.grpc).toBe(10002);
+      expect(lightning[1].ports.grpc).toBe(10003);
+      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
+      expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
     });
   });
 
