@@ -40,12 +40,12 @@ describe('DefaultSidebar Component', () => {
 
   it('should render display a draggable LND node', () => {
     const { getByText } = renderComponent();
-    expect(getByText('LND v0.8.0 Node')).toBeInTheDocument();
+    expect(getByText(`LND v${LndVersion.latest}`)).toBeInTheDocument();
   });
 
   it('should allow dragging a node', async () => {
     const { getByText } = renderComponent();
-    const lnd = getByText('LND v0.8.0 Node');
+    const lnd = getByText(`LND v${LndVersion.latest}`);
     const setData = jest.fn();
     const dragEvent = createEvent.dragStart(lnd);
     Object.defineProperty(dragEvent, 'dataTransfer', { value: { setData } });

@@ -3,7 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
 import { Button, Tooltip } from 'antd';
 import { useStoreActions } from 'store';
-import { Network, Status } from 'types';
+import { LndVersion, Network, Status } from 'types';
 import lndLogo from 'resources/lnd.png';
 import SidebarCard from '../SidebarCard';
 import DraggableNode from './DraggableNode';
@@ -54,16 +54,16 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
       <Styled.AddDesc>
         Drag a node below onto the canvas to add it to the network
       </Styled.AddDesc>
-      <DraggableNode
-        label="LND v0.8.0 Node"
-        icon={lndLogo}
-        properties={{ type: 'lnd', version: '0.8.0-beta' }}
-      />
-      <DraggableNode
-        label="LND v0.7.1 Node"
-        icon={lndLogo}
-        properties={{ type: 'lnd', version: '0.7.1-beta' }}
-      />
+      {Object.keys(LndVersion)
+        .filter(v => v !== 'latest')
+        .map(version => (
+          <DraggableNode
+            key={version}
+            label={`LND v${version}`}
+            icon={lndLogo}
+            properties={{ type: 'lnd', version }}
+          />
+        ))}
     </SidebarCard>
   );
 };
