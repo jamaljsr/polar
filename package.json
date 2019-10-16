@@ -45,7 +45,8 @@
     "electron-is-dev": "1.1.0",
     "electron-log": "3.0.8",
     "electron-window-state": "5.0.3",
-    "js-yaml": "3.13.1"
+    "js-yaml": "3.13.1",
+    "lndconnect": "0.2.10"
   },
   "devDependencies": {
     "@commitlint/cli": "8.2.0",

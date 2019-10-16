@@ -17,7 +17,6 @@ interface Props {
   value: string;
   label?: string;
   text?: ReactNode;
-  tip?: boolean;
 }
 
 const CopyIcon: React.FC<Props> = ({ value, label, text }) => {
