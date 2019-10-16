@@ -1,4 +1,5 @@
 import { join } from 'path';
+import detectPort from 'detect-port';
 import { BitcoinNode, LndNode, LndVersion, Network, Status } from 'types';
 import { networksPath } from './config';
 import { range } from './numbers';
@@ -100,4 +101,69 @@ export const createNetwork = (config: {
   });
 
   return network;
+};
+
+/**
+ * Checks a range of port numbers to see if they are open on the current operating system.
+ * Returns a new array of port numbers that are confirmed available
+ * @param requestedPorts the ports to check for availability. ** must be in ascending order
+ *
+ * @example if port 10002 is in use
+ * getOpenPortRange([10001, 10002, 10003]) -> [10001, 10004, 10005]
+ */
+export const getOpenPortRange = async (requestedPorts: number[]): Promise<number[]> => {
+  const openPorts: number[] = [];
+
+  for (let port of requestedPorts) {
+    if (openPorts.length) {
+      // adjust to check after the previous open port if necessary, since the
+      const lastOpenPort = openPorts[openPorts.length - 1];
+      if (port <= lastOpenPort) {
+        port = lastOpenPort + 1;
+      }
+    }
+    const openPort = await detectPort(port);
+    openPorts.push(openPort);
+  }
+  return openPorts;
+};
+
+/**
+ * Ensures the ports specified on the nodes are available on the host OS.
+ * This fuction mutates the network object supplied
+ * @param network the network with nodes to verify ports of
+ */
+export const ensureOpenPorts = async (network: Network): Promise<boolean> => {
+  let updated = false;
+
+  // filter out nodes that are already started since their ports are in use by themselves
+  const bitcoin = network.nodes.bitcoin.filter(n => n.status !== Status.Started);
+  if (bitcoin.length) {
+    const existingPorts = bitcoin.map(n => n.ports.rpc);
+    const openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => (bitcoin[index].ports.rpc = port));
+      updated = true;
+    }
+  }
+
+  // filter out nodes that are already started since their ports are in use by themselves
+  const lightning = network.nodes.lightning.filter(n => n.status !== Status.Started);
+  if (lightning.length) {
+    let existingPorts = lightning.map(n => n.ports.grpc);
+    let openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => (lightning[index].ports.grpc = port));
+      updated = true;
+    }
+
+    existingPorts = lightning.map(n => n.ports.rest);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => (lightning[index].ports.rest = port));
+      updated = true;
+    }
+  }
+
+  return updated;
 };
