@@ -185,7 +185,7 @@ const designerModel: DesignerModel = {
         });
       } else if (data.type === 'lnd') {
         const { addLndNode, start } = getStoreActions().network;
-        const lndNode = await addLndNode(activeId);
+        const lndNode = await addLndNode({ id: activeId, version: data.version });
         actions.addLndNode({ lndNode, position });
         actions.redrawChart();
         if (network.status === Status.Started) {

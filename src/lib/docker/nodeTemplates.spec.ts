@@ -1,3 +1,4 @@
+import { LndVersion } from 'types';
 import { bitcoind, lnd } from './nodeTemplates';
 
 describe('nodeTemplates', () => {
@@ -9,7 +10,7 @@ describe('nodeTemplates', () => {
   });
 
   it('should create a valid lnd config', () => {
-    const node = lnd('mynode', '0.7.1-beta', 'btcnode1', 8080, 10009);
+    const node = lnd('mynode', LndVersion.latest, 'btcnode1', 8080, 10009);
     expect(node.image).toContain('lnd');
     expect(node.container_name).toEqual('mynode');
     expect(node.command).toContain('btcnode1');

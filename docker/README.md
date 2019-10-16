@@ -29,7 +29,8 @@ $ docker push polarlightning/bitcoind:<version>
 
 ### Tags
 
-- `0.7.1-beta`, `latest` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
+- `0.8.0-beta`, `latest` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
+- `0.7.1-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 
 **Building the image**
 
@@ -38,7 +39,7 @@ $ cd lnd
 $ docker build --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> .
 ```
 
-Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
+Replace `<version>` with the desired LND version (ex: `0.8.0-beta`)
 
 **Push to Docker Hub**
 

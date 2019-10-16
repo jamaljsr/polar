@@ -1,3 +1,4 @@
+import { LndVersion } from 'types';
 import ComposeFile from './composeFile';
 
 describe('ComposeFile', () => {
@@ -17,7 +18,7 @@ describe('ComposeFile', () => {
 
   it('should add multiple services', () => {
     composeFile.addBitcoind('bitcoind1', '0.18.1', 18443);
-    composeFile.addLnd('lnd1', '0.7.1', 'bitcoind1', 8080, 10009);
+    composeFile.addLnd('lnd1', LndVersion.latest, 'bitcoind1', 8080, 10009);
     expect(Object.keys(composeFile.content.services).length).toEqual(2);
   });
 
@@ -35,12 +36,12 @@ describe('ComposeFile', () => {
   });
 
   it('should add an lnd config', () => {
-    composeFile.addLnd('lnd1', '0.7.1', 'bitcoind1', 8080, 10009);
+    composeFile.addLnd('lnd1', LndVersion.latest, 'bitcoind1', 8080, 10009);
     expect(composeFile.content.services.lnd1).not.toBeUndefined();
   });
 
   it('should create the correct lnd docker compose values', () => {
-    composeFile.addLnd('lnd1', '0.7.1', 'bitcoind1', 8080, 10009);
+    composeFile.addLnd('lnd1', LndVersion.latest, 'bitcoind1', 8080, 10009);
     const service = composeFile.content.services.lnd1;
     expect(service.image).toContain('lnd');
     expect(service.container_name).toEqual('lnd1');

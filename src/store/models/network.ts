@@ -1,7 +1,7 @@
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { CommonNode, LndNode, Network, Status, StoreInjections } from 'types';
+import { CommonNode, LndNode, LndVersion, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { createLndNetworkNode, createNetwork } from 'utils/network';
 import { NETWORK_VIEW } from 'components/routing';
@@ -29,7 +29,13 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
-  addLndNode: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<LndNode>>;
+  addLndNode: Thunk<
+    NetworkModel,
+    { id: number; version: LndVersion },
+    StoreInjections,
+    RootModel,
+    Promise<LndNode>
+  >;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean }
@@ -91,11 +97,11 @@ const networkModel: NetworkModel = {
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },
   ),
-  addLndNode: thunk(async (actions, id, { getState, injections }) => {
+  addLndNode: thunk(async (actions, { id, version }, { getState, injections }) => {
     const networks = getState().networks;
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(`Network with the id '${id}' was not found.`);
-    const node = createLndNetworkNode(network, Status.Stopped);
+    const node = createLndNetworkNode(network, version, Status.Stopped);
     network.nodes.lightning.push(node);
     actions.setNetworks(networks);
     await actions.save();

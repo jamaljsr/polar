@@ -53,6 +53,12 @@ export interface LndNode extends LightningNode {
   };
 }
 
+export enum LndVersion {
+  latest = '0.8.0-beta',
+  '0.8.0-beta' = '0.8.0-beta',
+  '0.7.1-beta' = '0.7.1-beta',
+}
+
 export interface Network {
   id: number;
   name: string;
