@@ -17,7 +17,6 @@ Bigger things
 - add block explorer (https://github.com/janoside/btc-rpc-explorer)
 - add grpc API explorer (https://github.com/grpc-ecosystem/awesome-grpc#gui)
 - add support for c-lightning, eclair, btcd
-- add block explorer (https://github.com/janoside/btc-rpc-explorer)
 - live theme changer (https://medium.com/@mzohaib.qc/ant-design-dynamic-runtime-theme-1f9a1a030ba0)
 - dark theme UI (https://material.io/design/color/dark-theme.html)
 - POC testing-library for testcafe (https://testing-library.com/docs/testcafe-testing-library/intro)

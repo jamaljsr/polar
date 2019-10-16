@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { BitcoinNode, LndNode, Network, Status } from 'types';
+import { BitcoinNode, LndNode, LndVersion, Network, Status } from 'types';
 import { networksPath } from './config';
 import { range } from './numbers';
 
@@ -25,7 +25,11 @@ const getFilePaths = (name: string, network: Network) => {
   };
 };
 
-export const createLndNetworkNode = (network: Network, status: Status): LndNode => {
+export const createLndNetworkNode = (
+  network: Network,
+  version: LndVersion,
+  status: Status,
+): LndNode => {
   const index = network.nodes.lightning.length;
   const name = `lnd-${index + 1}`;
   return {
@@ -34,7 +38,7 @@ export const createLndNetworkNode = (network: Network, status: Status): LndNode 
     name: name,
     type: 'lightning',
     implementation: 'LND',
-    version: '0.7.1-beta',
+    version,
     status,
     backendName: network.nodes.bitcoin[0].name,
     paths: getFilePaths(name, network),
@@ -90,7 +94,9 @@ export const createNetwork = (config: {
   });
 
   range(lndNodes).forEach(() => {
-    network.nodes.lightning.push(createLndNetworkNode(network, status));
+    network.nodes.lightning.push(
+      createLndNetworkNode(network, LndVersion.latest, status),
+    );
   });
 
   return network;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
-import { Status } from 'types';
+import { LndVersion, Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,
@@ -40,17 +40,20 @@ describe('DefaultSidebar Component', () => {
 
   it('should render display a draggable LND node', () => {
     const { getByText } = renderComponent();
-    expect(getByText('LND v0.7.1 Node')).toBeInTheDocument();
+    expect(getByText('LND v0.8.0 Node')).toBeInTheDocument();
   });
 
   it('should allow dragging a node', async () => {
     const { getByText } = renderComponent();
-    const lnd = getByText('LND v0.7.1 Node');
+    const lnd = getByText('LND v0.8.0 Node');
     const setData = jest.fn();
     const dragEvent = createEvent.dragStart(lnd);
     Object.defineProperty(dragEvent, 'dataTransfer', { value: { setData } });
     fireEvent(lnd, dragEvent);
-    expect(setData).toBeCalledWith(REACT_FLOW_CHART, JSON.stringify({ type: 'lnd' }));
+    expect(setData).toBeCalledWith(
+      REACT_FLOW_CHART,
+      JSON.stringify({ type: 'lnd', version: LndVersion.latest }),
+    );
   });
 
   describe('Sync Chart button', () => {

@@ -55,9 +55,14 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
         Drag a node below onto the canvas to add it to the network
       </Styled.AddDesc>
       <DraggableNode
+        label="LND v0.8.0 Node"
+        icon={lndLogo}
+        properties={{ type: 'lnd', version: '0.8.0-beta' }}
+      />
+      <DraggableNode
         label="LND v0.7.1 Node"
         icon={lndLogo}
-        properties={{ type: 'lnd' }}
+        properties={{ type: 'lnd', version: '0.7.1-beta' }}
       />
     </SidebarCard>
   );
