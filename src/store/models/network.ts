@@ -3,7 +3,7 @@ import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { CommonNode, LndNode, LndVersion, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { createLndNetworkNode, createNetwork } from 'utils/network';
+import { createLndNetworkNode, createNetwork, ensureOpenPorts } from 'utils/network';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
@@ -131,6 +131,16 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
     actions.setStatus({ id: network.id, status: Status.Starting });
     try {
+      // make sure the node ports are available
+      if (await ensureOpenPorts(network)) {
+        // at least one port was updated. save the network & composeFile
+        const networks = getState().networks.map(n =>
+          n.id === network.id ? network : n,
+        );
+        actions.setNetworks(networks);
+        await actions.save();
+        await injections.dockerService.saveComposeFile(network);
+      }
       // start the docker containers
       await injections.dockerService.start(network);
       // set the status of only the network to Started
