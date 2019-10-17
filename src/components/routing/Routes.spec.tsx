@@ -9,7 +9,7 @@ describe('App container', () => {
 
   it('should render the home page', async () => {
     const { findByText } = renderComponent(HOME);
-    expect(await findByText("Let's get started")).toBeInTheDocument();
+    expect(await findByText("Let's get started!")).toBeInTheDocument();
   });
 
   it('should render the new network page', () => {

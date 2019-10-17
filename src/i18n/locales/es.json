@@ -3,8 +3,6 @@
   "cmps.nav-menu.settings": "Configuraciones",
   "cmps.home.load-error-msg": "No se pueden cargar las redes guardadas previamente",
   "cmps.get-started.title": "Empecemos",
-  "cmps.get-started.welcome-1": "Polar le permite crear y ejecutar fácilmente redes locales Lightning para desarrollo y pruebas.",
-  "cmps.get-started.welcome-2": "Primero, deberá crear una red. Luego puede interactuar con los nodos bitcoin y lightning a través de sus API.",
   "cmps.get-started.create-btn": "Crea tu primera red",
   "cmps.new-network.title": "Crear una nueva red Lightning",
   "cmps.new-network.name-label": "Nombre de red",

@@ -26,8 +26,8 @@ describe('Home component', () => {
 
   it('should display the getting started card when no networks are created', async () => {
     const { findByText } = renderComponent([]);
-    expect(await findByText("Let's get started")).toBeInTheDocument();
-    expect(await findByText('Create your first Network')).toBeInTheDocument();
+    expect(await findByText("Let's get started!")).toBeInTheDocument();
+    expect(await findByText('Create a Lightning Network')).toBeInTheDocument();
   });
 
   it('should display a list of networks', async () => {
