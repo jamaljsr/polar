@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Tooltip } from 'antd';
 import { Status } from 'types';
 
@@ -19,13 +20,16 @@ const badgeStatuses: BadgeStatus = {
   [Status.Error]: 'error',
 };
 
-const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => (
-  <>
-    <Tooltip overlay={Status[status]}>
-      <Badge status={badgeStatuses[status]} />
-    </Tooltip>
-    {text}
-  </>
-);
+const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      <Tooltip overlay={t(`enums.status.${Status[status].toLowerCase()}`)}>
+        <Badge status={badgeStatuses[status]} />
+      </Tooltip>
+      {text}
+    </>
+  );
+};
 
 export default StatusBadge;
