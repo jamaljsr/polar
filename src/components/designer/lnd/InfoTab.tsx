@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tooltip } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
@@ -13,14 +14,20 @@ interface Props {
 }
 
 const InfoTab: React.FC<Props> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.InfoTab');
   const { nodes } = useStoreState(s => s.lnd);
   const details: DetailValues = [
-    { label: 'Node Type', value: node.type },
-    { label: 'Implementation', value: node.implementation },
-    { label: 'Version', value: `v${node.version}` },
+    { label: l('nodeType'), value: node.type },
+    { label: l('implementation'), value: node.implementation },
+    { label: l('version'), value: `v${node.version}` },
     {
-      label: 'Status',
-      value: <StatusBadge status={node.status} text={Status[node.status]} />,
+      label: l('status'),
+      value: (
+        <StatusBadge
+          status={node.status}
+          text={l(`enums.status.${Status[node.status]}`)}
+        />
+      ),
     },
   ];
 
@@ -29,11 +36,11 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     if (nodeState.walletBalance) {
       const { confirmedBalance, unconfirmedBalance } = nodeState.walletBalance;
       details.push({
-        label: 'Confirmed Balance',
+        label: l('confirmedBalance'),
         value: `${format(confirmedBalance)} sats`,
       });
       details.push({
-        label: 'Unconfirmed Balance',
+        label: l('unconfirmedBalance'),
         value: `${format(unconfirmedBalance)} sats`,
       });
     }
@@ -53,15 +60,15 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         </>
       );
       const channels = (
-        <Tooltip title="Active / Pending / Inactive">
+        <Tooltip title={l('channelsTooltip')}>
           {`${numActiveChannels} / ${numPendingChannels} / ${numInactiveChannels}`}
         </Tooltip>
       );
       details.push(
-        { label: 'Alias', value: alias },
-        { label: 'Pubkey', value: pubkey },
-        { label: 'Synced to Chain', value: `${syncedToChain}` },
-        { label: 'Channels', value: channels },
+        { label: l('alias'), value: alias },
+        { label: l('pubkey'), value: pubkey },
+        { label: l('syncedToChain'), value: `${syncedToChain}` },
+        { label: l('channels'), value: channels },
       );
     }
   }

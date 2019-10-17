@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'types';
 import { abbreviate } from 'utils/numbers';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const LndDetails: React.FC<Props> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.LndDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
@@ -38,9 +40,9 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   }
 
   const tabHeaders = [
-    { key: 'info', tab: 'Info' },
-    { key: 'connect', tab: 'Connect' },
-    { key: 'actions', tab: 'Actions' },
+    { key: 'info', tab: l('info') },
+    { key: 'connect', tab: l('connect') },
+    { key: 'actions', tab: l('actions') },
   ];
   const tabContents: Record<string, ReactNode> = {
     info: <InfoTab node={node} />,
@@ -56,19 +58,14 @@ const LndDetails: React.FC<Props> = ({ node }) => {
       onTabChange={setActiveTab}
     >
       {node.status === Status.Starting && (
-        <Alert
-          type="info"
-          showIcon
-          closable={false}
-          message="Waiting for LND to come online"
-        />
+        <Alert type="info" showIcon closable={false} message={l('waitingNotice')} />
       )}
       {node.status !== Status.Started && !nodeState && getInfoAsync.loading && <Loader />}
       {getInfoAsync.error && node.status === Status.Started && (
         <Alert
           type="error"
           closable={false}
-          message="Unable to connect to node"
+          message={l('connectError')}
           description={getInfoAsync.error.message}
         />
       )}

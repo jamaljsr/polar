@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
+import { usePrefixedTranslation } from 'hooks';
 import { encode } from 'lndconnect';
 import { useStoreActions } from 'store';
 import { LndNode } from 'types';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const LndConnect: React.FC<Props> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.LndConnect');
   const { notify } = useStoreActions(s => s.app);
   const [connectUrl, setConnectUrl] = useState('');
   useAsync(async () => {
@@ -25,16 +27,16 @@ const LndConnect: React.FC<Props> = ({ node }) => {
       });
       setConnectUrl(url);
     } catch (error) {
-      notify({ message: 'Unable to create LND Connect url', error });
+      notify({ message: l('encodeError'), error });
     }
   }, [node.paths, node.status]);
 
   const details: DetailValues = [
     {
-      label: 'LND Connect Url',
+      label: l('connectUrl'),
       value: (
         <CopyIcon
-          label={'LND Connect Url'}
+          label={l('connectUrl')}
           value={connectUrl}
           text={ellipseInner(connectUrl, 34, 1)}
         />
