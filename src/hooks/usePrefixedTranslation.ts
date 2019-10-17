@@ -13,7 +13,7 @@ const usePrefixedTranslation = (prefix: string) => {
   };
 
   return {
-    t: translate,
+    l: translate,
   };
 };
 

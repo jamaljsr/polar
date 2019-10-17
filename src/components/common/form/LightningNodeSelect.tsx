@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { WalletBalanceResponse } from '@radar/lnrpc';
 import { Form, Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
+import { usePrefixedTranslation } from 'hooks';
 import { LndNodeModel } from 'store/models/lnd';
 import { Network } from 'types';
 import { format } from 'utils/units';
@@ -26,15 +26,13 @@ const LightningNodeSelect: React.FC<Props> = ({
   initialValue,
   nodes,
 }) => {
-  const { t } = useTranslation();
+  const { l } = usePrefixedTranslation('cmps.common.form.LightningNodeSelect');
   const [help, setHelp] = useState<string>();
   const [initialized, setInitialized] = useState(false);
   const getBalance = (name: string): string | undefined => {
     if (nodes && nodes[name] && nodes[name].walletBalance) {
       const balances = nodes[name].walletBalance as WalletBalanceResponse;
-      return `${t('cmps.lightning-node-select.balance', 'Balance')}: ${format(
-        balances.confirmedBalance,
-      )} sats`;
+      return `${l('balance')}: ${format(balances.confirmedBalance)} sats`;
     }
   };
   if (initialValue && !initialized) {
@@ -47,7 +45,7 @@ const LightningNodeSelect: React.FC<Props> = ({
     <Form.Item label={label} help={help}>
       {form.getFieldDecorator(id, {
         initialValue: initialValue,
-        rules: [{ required: true, message: 'required' }],
+        rules: [{ required: true, message: l('cmps.forms.required') }],
       })(
         <Select onChange={v => setHelp(getBalance(v.toString()))}>
           {lightning.map(node => (

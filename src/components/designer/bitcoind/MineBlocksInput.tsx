@@ -15,14 +15,14 @@ const Styled = {
 };
 
 const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
-  const { t } = usePrefixedTranslation('cmps.mine-blocks-input');
+  const { l } = usePrefixedTranslation('cmps.designer.bitcoind.MineBlocksInput');
   const [value, setValue] = useState(6);
   const { mine } = useStoreActions(s => s.bitcoind);
   const mineAsync = useAsyncCallback(mine);
 
   return (
     <>
-      <Styled.FormItem label={t('label')}>
+      <Styled.FormItem label={l('label')}>
         <InputGroup compact>
           <InputNumber
             value={value}
@@ -37,7 +37,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
             style={{ width: '35%' }}
             icon="tool"
           >
-            {t('btn')}
+            {l('btn')}
           </Button>
         </InputGroup>
       </Styled.FormItem>
@@ -46,7 +46,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           type="error"
           showIcon
           closable={false}
-          message={t('error')}
+          message={l('error')}
           description={mineAsync.error.message}
         />
       )}

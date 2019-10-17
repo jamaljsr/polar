@@ -20,7 +20,7 @@ interface Props extends FormComponentProps<FormFields> {
 }
 
 const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
-  const { t } = usePrefixedTranslation('cmps.open-channel-modal');
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.OpenChannelModal');
   const { nodes } = useStoreState(s => s.lnd);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
@@ -57,7 +57,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             network={network}
             id="from"
             form={form}
-            label={t('source', 'Source')}
+            label={l('source')}
             initialValue={from}
             nodes={nodes}
           />
@@ -67,22 +67,22 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             network={network}
             id="to"
             form={form}
-            label={t('dest', 'Destination')}
+            label={l('dest')}
             initialValue={to}
             nodes={nodes}
           />
         </Col>
       </Row>
       <Form.Item
-        label={t('capacity-label', 'Capacity') + ' (sats)'}
-        help={t('capacity-info', {
+        label={l('capacityLabel') + ' (sats)'}
+        help={l('capacityInfo', {
           min: '20,000 sats',
           max: '16,777,216 sats',
         })}
       >
         {form.getFieldDecorator('sats', {
           initialValue: 20000,
-          rules: [{ required: true, message: 'required' }],
+          rules: [{ required: true, message: l('cmps.forms.required') }],
         })(
           <InputNumber
             min={20000}
@@ -102,7 +102,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
       <Alert
         type="error"
         closable={false}
-        message={t('balances-error', 'Unable to fetch node balances')}
+        message={l('balancesError')}
         description={getBalancesAsync.error.message}
       />
     );
@@ -111,19 +111,19 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   return (
     <>
       <Modal
-        title={t('title', 'Open New Channel')}
+        title={l('title')}
         visible={visible}
         onCancel={() => hideOpenChannel()}
         destroyOnClose
-        cancelText={t('cancel-btn', 'Cancel')}
-        okText={t('ok-btn', 'Open Channel')}
+        cancelText={l('cancelBtn')}
+        okText={l('okBtn')}
         okButtonProps={{ loading: openChanAsync.loading }}
         onOk={handleSubmit}
       >
         {openChanAsync.error && (
           <Alert
             type="error"
-            message={t('submit-error', 'Unable to open the channel')}
+            message={l('submitError')}
             description={openChanAsync.error.message}
           />
         )}

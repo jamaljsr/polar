@@ -2,6 +2,7 @@ import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
 import { Button, Tooltip } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { LndVersion, Network, Status } from 'types';
 import lndLogo from 'resources/lnd.png';
@@ -23,23 +24,29 @@ interface Props {
 }
 
 const DefaultSidebar: React.FC<Props> = ({ network }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
   const { notify } = useStoreActions(s => s.app);
   const { syncChart, redrawChart } = useStoreActions(s => s.designer);
   const syncChartAsync = useAsyncCallback(async () => {
     try {
       await syncChart(network);
       redrawChart();
-      notify({ message: 'The designer has been synced with the Lightning nodes' });
+      notify({
+        message: l('syncSuccess'),
+      });
     } catch (error) {
-      notify({ message: 'Failed to sync the network', error });
+      notify({
+        message: l('syncError'),
+        error,
+      });
     }
   });
 
   return (
     <SidebarCard
-      title="Network Designer"
+      title={l('title')}
       extra={
-        <Tooltip title="Update channels from nodes">
+        <Tooltip title={l('syncBtnTip')}>
           <Button
             icon="reload"
             disabled={network.status !== Status.Started}
@@ -49,11 +56,9 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
         </Tooltip>
       }
     >
-      <p>Click on an element in the designer to see details</p>
-      <Styled.AddNodes>Add Nodes</Styled.AddNodes>
-      <Styled.AddDesc>
-        Drag a node below onto the canvas to add it to the network
-      </Styled.AddDesc>
+      <p>{l('mainDesc')}</p>
+      <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
+      <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
       {Object.keys(LndVersion)
         .filter(v => v !== 'latest')
         .map(version => (
