@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Button, Form, Input, InputNumber } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { LndNode } from 'types';
 import { format } from 'utils/units';
@@ -8,20 +9,23 @@ import { format } from 'utils/units';
 const InputGroup = Input.Group;
 
 const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.Deposit');
   const [amount, setAmount] = useState(1000000);
   const { notify } = useStoreActions(s => s.app);
   const { depositFunds } = useStoreActions(s => s.lnd);
   const depositAsync = useAsyncCallback(async () => {
     try {
       await depositFunds({ node, sats: amount.toString() });
-      notify({ message: `Deposited ${format(amount)} sats to ${node.name}` });
+      notify({
+        message: l('depositSuccess', { amount: format(amount), node: node.name }),
+      });
     } catch (error) {
-      notify({ message: 'Unable to deposit funds', error });
+      notify({ message: l('depositError'), error });
     }
   });
 
   return (
-    <Form.Item label="Deposit Funds (satoshis)">
+    <Form.Item label={l('title')}>
       <InputGroup compact>
         <InputNumber
           value={amount}
@@ -38,7 +42,7 @@ const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
           style={{ width: '35%' }}
           icon="download"
         >
-          Deposit
+          {l('depositBtn')}
         </Button>
       </InputGroup>
     </Form.Item>

@@ -1,45 +1,25 @@
 import React from 'react';
-import { Button, Form, Icon } from 'antd';
-import { useStoreActions } from 'store';
+import { usePrefixedTranslation } from 'hooks';
 import { LndNode, Status } from 'types';
-import LndDeposit from './LndDeposit';
+import { Deposit, OpenChannelButtons } from './actions';
 
 interface Props {
   node: LndNode;
 }
 
 const ActionsTab: React.FC<Props> = ({ node }) => {
-  const { showOpenChannel } = useStoreActions(s => s.modals);
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.ActionsTab');
 
   if (node.status !== Status.Started) {
-    return <>Node needs to be started to perform actions on it</>;
+    return <>{l('notStarted')}</>;
   }
 
   return (
     <>
       {node.status === Status.Started && (
         <>
-          <LndDeposit node={node} />
-          <Form.Item label="Open Channel">
-            <Button.Group style={{ width: '100%' }}>
-              <Button
-                type="primary"
-                style={{ width: '50%' }}
-                onClick={() => showOpenChannel({ to: node.name })}
-              >
-                <Icon type="download" />
-                Incoming
-              </Button>
-              <Button
-                type="primary"
-                style={{ width: '50%' }}
-                onClick={() => showOpenChannel({ from: node.name })}
-              >
-                <Icon type="upload" />
-                Outgoing
-              </Button>
-            </Button.Group>
-          </Form.Item>
+          <Deposit node={node} />
+          <OpenChannelButtons node={node} />
         </>
       )}
     </>

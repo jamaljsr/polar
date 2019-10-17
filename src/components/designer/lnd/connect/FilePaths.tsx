@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePrefixedTranslation } from 'hooks';
 import { LndNode } from 'types';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
@@ -9,13 +10,13 @@ interface Props {
 }
 
 const FilePaths: React.FC<Props> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.FilePaths');
   const { tlsCert, adminMacaroon: admin, readonlyMacaroon: read } = node.paths;
-  const [left, right] = [14, 22];
 
   const auth: DetailValues = [
-    ['TLS Cert', tlsCert, ellipseInner(tlsCert, left, right)],
-    ['Admin Macaroon', admin, ellipseInner(admin, left, right)],
-    ['Read-only Macaroon', read, ellipseInner(read, left, right)],
+    [l('tlsCert'), tlsCert, ellipseInner(tlsCert, 14, 22)],
+    [l('adminMacaroon'), admin, ellipseInner(admin, 14, 22)],
+    [l('readOnlyMacaroon'), read, ellipseInner(read, 14, 22)],
   ].map(([label, value, text]) => ({
     label,
     value: <CopyIcon label={label} value={value} text={text} />,

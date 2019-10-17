@@ -7,12 +7,12 @@ import {
   mockLndResponses,
   renderWithProviders,
 } from 'utils/tests';
-import LndDeposit from './LndDeposit';
+import { Deposit } from './';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
-describe('LndDeposit', () => {
+describe('Deposit', () => {
   const renderComponent = () => {
     const network = getNetwork(1, 'test network');
     const initialState = {
@@ -20,7 +20,7 @@ describe('LndDeposit', () => {
         networks: [network],
       },
     };
-    const cmp = <LndDeposit node={network.nodes.lightning[0]} />;
+    const cmp = <Deposit node={network.nodes.lightning[0]} />;
     const result = renderWithProviders(cmp, { initialState });
     return {
       ...result,
@@ -48,7 +48,7 @@ describe('LndDeposit', () => {
 
   it('should render label', () => {
     const { getByText } = renderComponent();
-    expect(getByText('Deposit Funds (satoshis)')).toBeInTheDocument();
+    expect(getByText('Deposit Funds')).toBeInTheDocument();
   });
 
   it('should render button', () => {

@@ -6,7 +6,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import { Link, NodeInner, Port, Ports } from './custom';
-import OpenChannelModal from './lnd/OpenChannelModal';
+import { OpenChannelModal } from './lnd/actions';
 import Sidebar from './Sidebar';
 
 const Styled = {

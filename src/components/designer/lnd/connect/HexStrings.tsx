@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { LndNode } from 'types';
 import { readHex } from 'utils/files';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const HexStrings: React.FC<Props> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.HexStrings');
   const { notify } = useStoreActions(s => s.app);
   const [hexValues, setHexValues] = useState<Record<string, string>>({});
   useAsync(async () => {
@@ -23,15 +25,15 @@ const HexStrings: React.FC<Props> = ({ node }) => {
         readonlyMacaroon: await readHex(readonlyMacaroon),
       });
     } catch (error) {
-      notify({ message: 'Failed to hex encode file contents', error });
+      notify({ message: l('hexError'), error });
     }
   }, [node.paths, node.status]);
 
   const { tlsCert, adminMacaroon: admin, readonlyMacaroon: read } = hexValues;
   const auth: DetailValues = [
-    ['TLS Cert', tlsCert, ellipseInner(tlsCert, 14)],
-    ['Admin Macaroon', admin, ellipseInner(admin, 14)],
-    ['Read-only Macaroon', read, ellipseInner(read, 14)],
+    [l('tlsCert'), tlsCert, ellipseInner(tlsCert, 14)],
+    [l('adminMacaroon'), admin, ellipseInner(admin, 14)],
+    [l('readOnlyMacaroon'), read, ellipseInner(read, 14)],
   ].map(([label, value, text]) => ({
     label,
     value: <CopyIcon label={label} value={value} text={text} />,
