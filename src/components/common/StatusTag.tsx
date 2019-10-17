@@ -18,11 +18,7 @@ const statusColors = {
 const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
   const { t } = useTranslation();
 
-  return (
-    <Tag color={statusColors[status]}>
-      {t(`enums.status.${Status[status].toLowerCase()}`)}
-    </Tag>
-  );
+  return <Tag color={statusColors[status]}>{t(`enums.status.${Status[status]}`)}</Tag>;
 };
 
 export default StatusTag;

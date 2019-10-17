@@ -33,7 +33,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
       value: (
         <StatusBadge
           status={node.status}
-          text={l(`enums.status.${Status[node.status].toLowerCase()}`)}
+          text={l(`enums.status.${Status[node.status]}`)}
         />
       ),
     },

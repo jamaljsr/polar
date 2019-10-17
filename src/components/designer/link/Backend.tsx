@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, LightningNode, Status } from 'types';
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -10,12 +11,14 @@ interface Props {
 }
 
 const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.link.Backend');
+
   const backendDetails: DetailValues = [
-    { label: 'Name', value: bitcoinNode.name },
-    { label: 'Implementation', value: bitcoinNode.implementation },
-    { label: 'Version', value: `v${bitcoinNode.version}` },
+    { label: l('name'), value: bitcoinNode.name },
+    { label: l('implementation'), value: bitcoinNode.implementation },
+    { label: l('version'), value: `v${bitcoinNode.version}` },
     {
-      label: 'Status',
+      label: l('status'),
       value: (
         <StatusBadge status={bitcoinNode.status} text={Status[bitcoinNode.status]} />
       ),
@@ -23,11 +26,11 @@ const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
   ];
 
   const lightningDetails: DetailValues = [
-    { label: 'Name', value: lightningNode.name },
-    { label: 'Implementation', value: lightningNode.implementation },
-    { label: 'Version', value: `v${lightningNode.version}` },
+    { label: l('name'), value: lightningNode.name },
+    { label: l('implementation'), value: lightningNode.implementation },
+    { label: l('version'), value: `v${lightningNode.version}` },
     {
-      label: 'Status',
+      label: l('status'),
       value: (
         <StatusBadge status={lightningNode.status} text={Status[lightningNode.status]} />
       ),
@@ -35,9 +38,9 @@ const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
   ];
 
   return (
-    <SidebarCard title="Blockchain Backend Connection">
-      <DetailsList title="Lightning Node" details={lightningDetails} />
-      <DetailsList title="Bitcoin Node" details={backendDetails} />
+    <SidebarCard title={l('title')}>
+      <DetailsList title={l('lightningTitle')} details={lightningDetails} />
+      <DetailsList title={l('bitcoinTitle')} details={backendDetails} />
     </SidebarCard>
   );
 };
