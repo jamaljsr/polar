@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { useTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
 import { Icon, message } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 
 const Styled = {
   Icon: styled(Icon)`
@@ -21,8 +21,8 @@ interface Props {
 }
 
 const CopyIcon: React.FC<Props> = ({ value, label = '', text }) => {
-  const { t } = useTranslation();
-  const msg = t('cmps.copy-icon.message', { label });
+  const { l } = usePrefixedTranslation('cmps.common.CopyIcon');
+  const msg = l('message', { label });
   const cmp = (
     <>
       {text}

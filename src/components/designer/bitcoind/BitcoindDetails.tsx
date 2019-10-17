@@ -12,7 +12,7 @@ import SidebarCard from '../SidebarCard';
 import MineBlocksInput from './MineBlocksInput';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
-  const { t } = usePrefixedTranslation('cmps.bitcoind-details');
+  const { l } = usePrefixedTranslation('cmps.designer.bitcoind.BitcoinDetails');
   const { getInfo } = useStoreActions(s => s.bitcoind);
   const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
   const getInfoAsync = useAsync(
@@ -25,15 +25,15 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   );
 
   const details: DetailValues = [
-    { label: t('node-type'), value: node.type },
-    { label: t('implementation'), value: node.implementation },
-    { label: t('version'), value: `v${node.version}` },
+    { label: l('nodeType'), value: node.type },
+    { label: l('implementation'), value: node.implementation },
+    { label: l('version'), value: `v${node.version}` },
     {
-      label: t('status'),
+      label: l('status'),
       value: (
         <StatusBadge
           status={node.status}
-          text={t(`enums.status.${Status[node.status].toLowerCase()}`)}
+          text={l(`enums.status.${Status[node.status].toLowerCase()}`)}
         />
       ),
     },
@@ -42,14 +42,14 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   let extra: ReactNode | undefined;
   if (node.status === Status.Started && chainInfo && walletInfo) {
     details.push(
-      { label: t('rpc-host'), value: `127.0.0.1:${node.ports.rpc}` },
-      { label: t('wallet-balance'), value: `${walletInfo.balance} BTC` },
-      { label: t('block-height'), value: chainInfo.blocks },
+      { label: l('rpcHost'), value: `127.0.0.1:${node.ports.rpc}` },
+      { label: l('walletBalance'), value: `${walletInfo.balance} BTC` },
+      { label: l('blockHeight'), value: chainInfo.blocks },
       {
-        label: t('block-hash'),
+        label: l('blockHash'),
         value: (
           <CopyIcon
-            label={t('block-hash')}
+            label={l('blockHash')}
             value={chainInfo.bestblockhash}
             text={ellipseInner(chainInfo.bestblockhash)}
           />
@@ -63,13 +63,13 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     <SidebarCard title={node.name} extra={extra}>
       {getInfoAsync.loading && <Loader />}
       {node.status === Status.Starting && (
-        <Alert type="info" showIcon closable={false} message={t('waiting-notice')} />
+        <Alert type="info" showIcon closable={false} message={l('waitingNotice')} />
       )}
       {getInfoAsync.error && (
         <Alert
           type="error"
           closable={false}
-          message={t('get-info-err')}
+          message={l('getInfoErr')}
           description={getInfoAsync.error.message}
         />
       )}
