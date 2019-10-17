@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { FlowChart } from '@mrblenny/react-flow-chart';
-import useDebounce from 'hooks/useDebounce';
+import { useDebounce } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';

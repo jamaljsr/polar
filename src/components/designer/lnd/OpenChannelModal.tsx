@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import { useTranslation } from 'react-i18next';
 import { Alert, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { OpenChannelPayload } from 'store/models/lnd';
 import { Network } from 'types';
@@ -20,7 +20,7 @@ interface Props extends FormComponentProps<FormFields> {
 }
 
 const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
-  const { t } = useTranslation();
+  const { t } = usePrefixedTranslation('cmps.open-channel-modal');
   const { nodes } = useStoreState(s => s.lnd);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
@@ -57,7 +57,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             network={network}
             id="from"
             form={form}
-            label={t('cmps.open-channel-modal.source', 'Source')}
+            label={t('source', 'Source')}
             initialValue={from}
             nodes={nodes}
           />
@@ -67,15 +67,18 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             network={network}
             id="to"
             form={form}
-            label={t('cmps.open-channel-modal.dest', 'Destination')}
+            label={t('dest', 'Destination')}
             initialValue={to}
             nodes={nodes}
           />
         </Col>
       </Row>
       <Form.Item
-        label={t('cmps.open-channel-modal.capacity-label', 'Capacity (sats)')}
-        help="Minimum: 20,000 sats - Maximum 16,777,216 sats"
+        label={t('capacity-label', 'Capacity') + ' (sats)'}
+        help={t('capacity-info', {
+          min: '20,000 sats',
+          max: '16,777,216 sats',
+        })}
       >
         {form.getFieldDecorator('sats', {
           initialValue: 20000,
@@ -99,7 +102,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
       <Alert
         type="error"
         closable={false}
-        message="Unable to fetch node balances"
+        message={t('balances-error', 'Unable to fetch node balances')}
         description={getBalancesAsync.error.message}
       />
     );
@@ -108,18 +111,19 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   return (
     <>
       <Modal
-        title="Open New Channel"
+        title={t('title', 'Open New Channel')}
         visible={visible}
         onCancel={() => hideOpenChannel()}
         destroyOnClose
-        okText={t('cmps.open-channel-modal.on-text', 'Open Channel')}
+        cancelText={t('cancel-btn', 'Cancel')}
+        okText={t('ok-btn', 'Open Channel')}
         okButtonProps={{ loading: openChanAsync.loading }}
         onOk={handleSubmit}
       >
         {openChanAsync.error && (
           <Alert
             type="error"
-            message="Unable to open the channel"
+            message={t('submit-error', 'Unable to open the channel')}
             description={openChanAsync.error.message}
           />
         )}

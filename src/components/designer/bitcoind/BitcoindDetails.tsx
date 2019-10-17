@@ -1,16 +1,18 @@
 import React, { ReactNode } from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { BitcoinNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { toSats } from 'utils/units';
-import { DetailsList, Loader, StatusBadge } from 'components/common';
+import { CopyIcon, DetailsList, Loader, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
 import MineBlocksInput from './MineBlocksInput';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
+  const { t } = usePrefixedTranslation('cmps.bitcoind-details');
   const { getInfo } = useStoreActions(s => s.bitcoind);
   const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
   const getInfoAsync = useAsync(
@@ -23,22 +25,36 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   );
 
   const details: DetailValues = [
-    { label: 'Node Type', value: node.type },
-    { label: 'Implementation', value: node.implementation },
-    { label: 'Version', value: `v${node.version}` },
+    { label: t('node-type'), value: node.type },
+    { label: t('implementation'), value: node.implementation },
+    { label: t('version'), value: `v${node.version}` },
     {
-      label: 'Status',
-      value: <StatusBadge status={node.status} text={Status[node.status]} />,
+      label: t('status'),
+      value: (
+        <StatusBadge
+          status={node.status}
+          text={t(`enums.status.${Status[node.status].toLowerCase()}`)}
+        />
+      ),
     },
   ];
 
   let extra: ReactNode | undefined;
   if (node.status === Status.Started && chainInfo && walletInfo) {
     details.push(
-      { label: 'RPC Host', value: `127.0.0.1:${node.ports.rpc}` },
-      { label: 'Wallet Balance', value: `${walletInfo.balance} BTC` },
-      { label: 'Block Height', value: chainInfo.blocks },
-      { label: 'Block Hash', value: ellipseInner(chainInfo.bestblockhash) },
+      { label: t('rpc-host'), value: `127.0.0.1:${node.ports.rpc}` },
+      { label: t('wallet-balance'), value: `${walletInfo.balance} BTC` },
+      { label: t('block-height'), value: chainInfo.blocks },
+      {
+        label: t('block-hash'),
+        value: (
+          <CopyIcon
+            label={t('block-hash')}
+            value={chainInfo.bestblockhash}
+            text={ellipseInner(chainInfo.bestblockhash)}
+          />
+        ),
+      },
     );
     extra = <strong>{toSats(walletInfo.balance, true)} sats</strong>;
   }
@@ -47,18 +63,13 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     <SidebarCard title={node.name} extra={extra}>
       {getInfoAsync.loading && <Loader />}
       {node.status === Status.Starting && (
-        <Alert
-          type="info"
-          showIcon
-          closable={false}
-          message="Waiting for bitcoind to come online"
-        />
+        <Alert type="info" showIcon closable={false} message={t('waiting-notice')} />
       )}
       {getInfoAsync.error && (
         <Alert
           type="error"
           closable={false}
-          message="Unable to connect to node"
+          message={t('get-info-err')}
           description={getInfoAsync.error.message}
         />
       )}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
 import { Alert, Button, Form, Input, InputNumber } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { BitcoinNode } from 'types';
 
@@ -14,13 +15,14 @@ const Styled = {
 };
 
 const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
+  const { t } = usePrefixedTranslation('cmps.mine-blocks-input');
   const [value, setValue] = useState(6);
   const { mine } = useStoreActions(s => s.bitcoind);
   const mineAsync = useAsyncCallback(mine);
 
   return (
     <>
-      <Styled.FormItem label="Manually Mine Blocks">
+      <Styled.FormItem label={t('label')}>
         <InputGroup compact>
           <InputNumber
             value={value}
@@ -35,7 +37,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
             style={{ width: '35%' }}
             icon="tool"
           >
-            Mine
+            {t('btn')}
           </Button>
         </InputGroup>
       </Styled.FormItem>
@@ -44,7 +46,8 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           type="error"
           showIcon
           closable={false}
-          message={`Unable to mine blocks. ${mineAsync.error.message}`}
+          message={t('error')}
+          description={mineAsync.error.message}
         />
       )}
     </>

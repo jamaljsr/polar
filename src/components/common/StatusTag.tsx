@@ -20,7 +20,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
 
   return (
     <Tag color={statusColors[status]}>
-      {t(`cmps.status-tag.status-${Status[status].toLowerCase()}`)}
+      {t(`enums.status.${Status[status].toLowerCase()}`)}
     </Tag>
   );
 };
