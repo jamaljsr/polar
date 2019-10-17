@@ -25,12 +25,12 @@ const Styled = {
     height: 16px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 5px;
+    margin-right: 10px;
   `,
   Brand: styled.span`
     display: inline-block;
     color: #fff;
-    font-weight: 600;
+    font-weight: 300;
     font-size: 18px;
     vertical-align: middle;
   `,

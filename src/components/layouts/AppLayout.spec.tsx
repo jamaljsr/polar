@@ -26,21 +26,21 @@ describe('AppLayout component', () => {
 
   it('should have language set to English by default', () => {
     const { getByText } = renderComponent();
-    expect(getByText("Let's get started")).toBeInTheDocument();
+    expect(getByText("Let's get started!")).toBeInTheDocument();
   });
 
   it('should set language to English', () => {
     const { getByText } = renderComponent();
-    expect(getByText("Let's get started")).toBeInTheDocument();
+    expect(getByText("Let's get started!")).toBeInTheDocument();
     fireEvent.click(getByText('ES'));
     expect(getByText('Empecemos')).toBeInTheDocument();
     fireEvent.click(getByText('EN'));
-    expect(getByText("Let's get started")).toBeInTheDocument();
+    expect(getByText("Let's get started!")).toBeInTheDocument();
   });
 
   it('should set language to Spanish', async () => {
     const { getByText } = renderComponent();
-    expect(getByText("Let's get started")).toBeInTheDocument();
+    expect(getByText("Let's get started!")).toBeInTheDocument();
     fireEvent.click(getByText('ES'));
     expect(getByText('Empecemos')).toBeInTheDocument();
   });

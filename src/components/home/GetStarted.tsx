@@ -2,16 +2,27 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { Button, Card } from 'antd';
+import { Button } from 'antd';
 import { NETWORK } from 'components/routing';
+import logobw from 'resources/logo_bw.png';
 
 const Styled = {
-  Welcome: styled.p`
-    text-align: center;
+  GetStarted: styled.div`
+    width: 100%;
+    height: 100%;
+    background-image: url(${logobw});
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   `,
-  Create: styled.p`
-    padding: 16px;
-    text-align: center;
+  Header: styled.h1`
+    font-size: 44px;
+    font-weight: 300;
+    margin-bottom: 30px;
   `,
 };
 
@@ -19,17 +30,14 @@ const GetStarted: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Card title={t('cmps.get-started.title')}>
-      <Styled.Welcome>{t('cmps.get-started.welcome-1')}</Styled.Welcome>
-      <Styled.Welcome>{t('cmps.get-started.welcome-2')}</Styled.Welcome>
-      <Styled.Create>
-        <Link to={NETWORK}>
-          <Button type="primary" size="large">
-            {t('cmps.get-started.create-btn', 'Create your first Network')}
-          </Button>
-        </Link>
-      </Styled.Create>
-    </Card>
+    <Styled.GetStarted>
+      <Styled.Header>{t('cmps.get-started.title', "Let's get started!")}</Styled.Header>
+      <Link to={NETWORK}>
+        <Button type="primary" size="large">
+          {t('cmps.get-started.create-btn', 'Create a Lightning Network')}
+        </Button>
+      </Link>
+    </Styled.GetStarted>
   );
 };
 
