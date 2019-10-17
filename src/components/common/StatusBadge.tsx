@@ -24,7 +24,7 @@ const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => {
   const { t } = useTranslation();
   return (
     <>
-      <Tooltip overlay={t(`enums.status.${Status[status].toLowerCase()}`)}>
+      <Tooltip overlay={t(`enums.status.${Status[status]}`)}>
         <Badge status={badgeStatuses[status]} />
       </Tooltip>
       {text}

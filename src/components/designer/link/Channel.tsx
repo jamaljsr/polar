@@ -1,5 +1,6 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
+import { usePrefixedTranslation } from 'hooks';
 import { LightningNode, Status } from 'types';
 import { LinkProperties } from 'utils/chart';
 import { format } from 'utils/units';
@@ -14,30 +15,36 @@ interface Props {
 }
 
 const Channel: React.FC<Props> = ({ link, from, to }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.link.Channel');
   const { fromBalance, toBalance, capacity, status } = link.properties as LinkProperties;
 
   const channelDetails: DetailValues = [
-    { label: 'Status', value: status },
-    { label: 'Capacity', value: `${format(capacity)} sats` },
-    { label: 'Source Balance', value: `${format(fromBalance)} sats` },
-    { label: 'Destination Balance', value: `${format(toBalance)} sats` },
+    { label: l('status'), value: status },
+    { label: l('capacity'), value: `${format(capacity)} sats` },
+    { label: l('sourceBalance'), value: `${format(fromBalance)} sats` },
+    { label: l('destinationBalance'), value: `${format(toBalance)} sats` },
   ];
 
   const [fromDetails, toDetails] = [from, to].map(node => [
-    { label: 'Name', value: node.name },
-    { label: 'Implementation', value: node.implementation },
-    { label: 'Version', value: `v${node.version}` },
+    { label: l('name'), value: node.name },
+    { label: l('implementation'), value: node.implementation },
+    { label: l('version'), value: `v${node.version}` },
     {
-      label: 'Status',
-      value: <StatusBadge status={node.status} text={Status[node.status]} />,
+      label: l('status'),
+      value: (
+        <StatusBadge
+          status={node.status}
+          text={l(`enums.status.${Status[node.status]}`)}
+        />
+      ),
     },
   ]);
 
   return (
-    <SidebarCard title="Channel Details">
+    <SidebarCard title={l('title')}>
       <DetailsList details={channelDetails} />
-      <DetailsList title="Source Node" details={fromDetails} />
-      <DetailsList title="Destination Node" details={toDetails} />
+      <DetailsList title={l('sourceTitle')} details={fromDetails} />
+      <DetailsList title={l('destinationTitle')} details={toDetails} />
     </SidebarCard>
   );
 };
