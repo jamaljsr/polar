@@ -2,7 +2,7 @@ import { Selector } from 'testcafe';
 
 class Home {
   getStarted = Selector('.ant-card-head-title');
-  createButton = Selector('button').withExactText('Create your first Network');
+  createButton = Selector('button').withExactText('Create a Lightning Network');
   cardTitles = Selector('.ant-card-head-title');
 
   getStartedText = () => this.getStarted.innerText;
