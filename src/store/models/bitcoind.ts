@@ -1,6 +1,9 @@
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, StoreInjections } from 'types';
+import { prefixTranslation } from 'utils/translate';
+
+const { l } = prefixTranslation('store.models.bitcoind');
 
 export interface BitcoindModel {
   chainInfo: ChainInfo | undefined;
@@ -30,7 +33,7 @@ const bitcoindModel: BitcoindModel = {
   }),
   mine: thunk(async (actions, { blocks, node }, { injections }) => {
     if (blocks < 0) {
-      throw new Error('The number of blocks to mine must be a positve number');
+      throw new Error(l('mineError'));
     }
     await injections.bitcoindService.mine(blocks, node.ports.rpc);
     await actions.getInfo(node);

@@ -113,5 +113,13 @@
   "cmps.network.NewNetwork.lndNodesLabel": "¿Cuántos nodos de LND?",
   "cmps.network.NewNetwork.bitcoindNodesLabel": "¿Cuántos nodos de bitcoind?",
   "cmps.network.NewNetwork.bitcoindNodesSoon": "Próximamente",
-  "cmps.network.NewNetwork.btnCreate": "Crear"
+  "cmps.network.NewNetwork.btnCreate": "Crear",
+  "store.models.bitcoind.mineError": "El número de bloques a minar debe ser un número positivo.",
+  "store.models.designer.notFoundError": "Gráfico no encontrado para la red con id {{networkId}}",
+  "store.models.designer.linkErrTitle": "No se puede abrir un canal.",
+  "store.models.designer.linkErrNodes": "Debe estar entre dos nodos de rayos",
+  "store.models.designer.linkErrNotStarted": "La red debe iniciarse primero",
+  "store.models.designer.dropErrTitle": "Error al agregar nodo",
+  "store.models.designer.dropErrMsg": "No se puede agregar un nuevo nodo cuando la red está en transición",
+  "store.models.network.networkByIdErr": "No se encontró la red con el ID '{{networkId}}'."
 }
