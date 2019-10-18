@@ -29,25 +29,39 @@ describe('AppLayout component', () => {
     expect(getByText("Let's get started!")).toBeInTheDocument();
   });
 
-  it('should set language to English', () => {
-    const { getByText } = renderComponent();
-    expect(getByText("Let's get started!")).toBeInTheDocument();
-    fireEvent.click(getByText('ES'));
-    expect(getByText('Empecemos')).toBeInTheDocument();
-    fireEvent.click(getByText('EN'));
-    expect(getByText("Let's get started!")).toBeInTheDocument();
-  });
-
-  it('should set language to Spanish', async () => {
-    const { getByText } = renderComponent();
-    expect(getByText("Let's get started!")).toBeInTheDocument();
-    fireEvent.click(getByText('ES'));
-    expect(getByText('Empecemos')).toBeInTheDocument();
-  });
-
   it('should navigate to home page when logo clicked', () => {
     const { getByAltText, history } = renderComponent('/network');
     fireEvent.click(getByAltText('logo'));
     expect(history.location.pathname).toEqual('/');
+  });
+
+  describe('Language Switcher', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should set language to English', () => {
+      const { getByText } = renderComponent();
+      expect(getByText("Let's get started!")).toBeInTheDocument();
+      fireEvent.mouseEnter(getByText('English'));
+      jest.runAllTimers();
+      fireEvent.click(getByText('Español (es)'));
+      expect(getByText('Empecemos')).toBeInTheDocument();
+      fireEvent.click(getByText('English (en-US)'));
+      expect(getByText("Let's get started!")).toBeInTheDocument();
+    });
+
+    it('should set language to Spanish', async () => {
+      const { getByText } = renderComponent();
+      expect(getByText("Let's get started!")).toBeInTheDocument();
+      fireEvent.mouseEnter(getByText('English'));
+      jest.runAllTimers();
+      fireEvent.click(getByText('Español (es)'));
+      expect(getByText('Empecemos')).toBeInTheDocument();
+    });
   });
 });

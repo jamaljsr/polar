@@ -1,11 +1,11 @@
 import { initReactI18next } from 'react-i18next';
 import { app, remote } from 'electron';
 import i18n from 'i18next';
-import { LocalConfig } from 'types';
+import { LocaleConfig } from 'types';
 
 const detectedLang = (app || remote.app).getLocale();
 
-const config: LocalConfig = {
+export const localeConfig: LocaleConfig = {
   fallbackLng: 'en-US',
   languages: {
     'en-US': 'English',
@@ -13,7 +13,7 @@ const config: LocalConfig = {
   },
 };
 
-const resources = Object.keys(config.languages).reduce(
+const resources = Object.keys(localeConfig.languages).reduce(
   (acc: { [key: string]: any }, lang) => {
     acc[lang] = {
       translation: require(`./locales/${lang}.json`),
@@ -23,7 +23,7 @@ const resources = Object.keys(config.languages).reduce(
   Object,
 );
 
-const whitelist = Object.keys(config.languages).reduce((acc: string[], lang) => {
+const whitelist = Object.keys(localeConfig.languages).reduce((acc: string[], lang) => {
   acc.push(lang);
 
   if (lang.includes('-')) {
@@ -37,7 +37,7 @@ i18n.use(initReactI18next).init({
   lng: detectedLang || 'en-US',
   resources,
   whitelist,
-  fallbackLng: config.fallbackLng,
+  fallbackLng: localeConfig.fallbackLng,
   keySeparator: false,
   interpolation: {
     escapeValue: false,

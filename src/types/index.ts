@@ -2,7 +2,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 
-export interface LocalConfig {
+export interface LocaleConfig {
   fallbackLng: string;
   languages: {
     [key: string]: string;
