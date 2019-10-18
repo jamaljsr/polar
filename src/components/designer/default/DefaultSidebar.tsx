@@ -1,12 +1,10 @@
 import React from 'react';
-import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { useStoreActions } from 'store';
-import { LndVersion, Network, Status } from 'types';
+import { LndVersion, Network } from 'types';
 import lndLogo from 'resources/lnd.png';
 import SidebarCard from '../SidebarCard';
+import SyncButton from '../SyncButton';
 import DraggableNode from './DraggableNode';
 
 const Styled = {
@@ -25,37 +23,9 @@ interface Props {
 
 const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
-  const { notify } = useStoreActions(s => s.app);
-  const { syncChart, redrawChart } = useStoreActions(s => s.designer);
-  const syncChartAsync = useAsyncCallback(async () => {
-    try {
-      await syncChart(network);
-      redrawChart();
-      notify({
-        message: l('syncSuccess'),
-      });
-    } catch (error) {
-      notify({
-        message: l('syncError'),
-        error,
-      });
-    }
-  });
 
   return (
-    <SidebarCard
-      title={l('title')}
-      extra={
-        <Tooltip title={l('syncBtnTip')}>
-          <Button
-            icon="reload"
-            disabled={network.status !== Status.Started}
-            onClick={syncChartAsync.execute}
-            loading={syncChartAsync.loading}
-          />
-        </Tooltip>
-      }
-    >
+    <SidebarCard title={l('title')} extra={<SyncButton network={network} />}>
       <p>{l('mainDesc')}</p>
       <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>

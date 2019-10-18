@@ -256,5 +256,6 @@ export const updateChartFromLnd = (chart: IChart, lndData: LndNodeMapping): ICha
     ...chart,
     nodes,
     links,
+    selected: {},
   };
 };

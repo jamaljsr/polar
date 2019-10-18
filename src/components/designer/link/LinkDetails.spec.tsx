@@ -1,7 +1,6 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
-import { render } from '@testing-library/react';
-import { getNetwork } from 'utils/tests';
+import { getNetwork, renderWithProviders } from 'utils/tests';
 import LinkDetails from './LinkDetails';
 
 describe('LinkDetails component', () => {
@@ -13,7 +12,7 @@ describe('LinkDetails component', () => {
       to: { nodeId: to, portId: 'asdf' },
       properties,
     };
-    const result = render(<LinkDetails link={link} network={network} />);
+    const result = renderWithProviders(<LinkDetails link={link} network={network} />);
     return { ...result, link, network };
   };
 
