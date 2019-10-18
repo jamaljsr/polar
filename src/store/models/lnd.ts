@@ -31,6 +31,7 @@ export interface OpenChannelPayload {
   from: LndNode;
   to: LndNode;
   sats: string;
+  autoFund: boolean;
 }
 
 export interface LndModel {
@@ -104,9 +105,14 @@ const lndModel: LndModel = {
   openChannel: thunk(
     async (
       actions,
-      { from, to, sats },
+      { from, to, sats, autoFund },
       { injections, getStoreState, getStoreActions },
     ) => {
+      // automatically deposit funds when the node doesn't have enough to open the channel
+      if (autoFund) {
+        const fund = (parseInt(sats) * 2).toString();
+        await actions.depositFunds({ node: from, sats: fund });
+      }
       // open the channel via LND
       await injections.lndService.openChannel(from, to, sats);
       // mine some blocks to confirm the txn
