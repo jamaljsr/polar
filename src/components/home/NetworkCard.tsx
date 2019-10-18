@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Card, Col, Icon, Row, Statistic } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { StatusBadge } from 'components/common';
@@ -13,6 +14,7 @@ const Styled = {
 };
 
 const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
+  const { l } = usePrefixedTranslation('cmps.home.NetworkCard');
   const { navigateTo } = useStoreActions(s => s.app);
 
   return (
@@ -25,14 +27,14 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
       <Row>
         <Col span={12}>
           <Statistic
-            title="Lightning Nodes"
+            title={l('lightningNodes')}
             value={network.nodes.lightning.length}
             suffix={<Icon type="thunderbolt" />}
           />
         </Col>
         <Col span={12}>
           <Statistic
-            title="Bitcoin Nodes"
+            title={l('bitcoinNodes')}
             value={network.nodes.bitcoin.length}
             suffix={<Icon type="link" />}
           />

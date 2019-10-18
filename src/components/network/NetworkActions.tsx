@@ -1,7 +1,7 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button, Dropdown, Icon, Menu } from 'antd';
 import { ButtonType } from 'antd/lib/button';
+import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'types';
 
 interface Props {
@@ -44,7 +44,7 @@ const config: {
 };
 
 const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
-  const { t } = useTranslation();
+  const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
   const loading = status === Status.Starting || status === Status.Stopping;
   const { label, type, icon } = config[status];
 
@@ -52,11 +52,11 @@ const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
     <Menu theme="dark">
       <Menu.Item key="1">
         <Icon type="form" />
-        {t('cmps.network-actions.menu-rename', 'Rename')}
+        {l('menuRename')}
       </Menu.Item>
       <Menu.Item key="2">
         <Icon type="close" />
-        {t('cmps.network-actions.menu-delete', 'Delete')}
+        {l('menuDelete')}
       </Menu.Item>
     </Menu>
   );
@@ -64,7 +64,7 @@ const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
   return (
     <>
       <Button key="start" type={type} icon={icon} loading={loading} onClick={onClick}>
-        {t(`cmps.network-actions.primary-btn-${label.toLocaleLowerCase()}`, label)}
+        {l(`primaryBtn${label}`)}
       </Button>
       <Dropdown key="options" overlay={menu}>
         <Button icon="more" />

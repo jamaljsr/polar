@@ -12,7 +12,7 @@ describe('AppLayout component', () => {
       return (
         <AppLayout>
           <p>Hello World!</p>
-          <p>{t('cmps.get-started.title')}</p>
+          <p>{t('cmps.home.GetStarted.title')}</p>
         </AppLayout>
       );
     };

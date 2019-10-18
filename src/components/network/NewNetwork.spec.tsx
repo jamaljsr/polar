@@ -27,7 +27,7 @@ describe('NewNetwork component', () => {
   it('should display an error if empty name is submitted', () => {
     const { getByText, createBtn } = renderComponent();
     fireEvent.click(createBtn);
-    expect(getByText('name is required')).toBeInTheDocument();
+    expect(getByText('required')).toBeInTheDocument();
   });
 
   describe('with valid submission', () => {
