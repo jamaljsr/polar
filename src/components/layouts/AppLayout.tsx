@@ -38,8 +38,9 @@ const Styled = {
     display: flex;
   `,
   Footer: styled(Footer)`
-    text-align: center;
-    padding: 0 50px;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 5px;
   `,
 };
 
@@ -61,7 +62,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
       </Styled.Header>
       <Styled.Content>{props.children}</Styled.Content>
       <Styled.Footer>
-        Polar &copy; 2019 Fomo Bros <LocaleSwitch />
+        <LocaleSwitch />
       </Styled.Footer>
     </Styled.Layout>
   );
