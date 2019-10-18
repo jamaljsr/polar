@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import { Alert, Col, Form, InputNumber, Modal, Row } from 'antd';
+import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
@@ -13,6 +13,7 @@ interface FormFields {
   from: string;
   to: string;
   sats: string;
+  autoFund: boolean;
 }
 
 interface Props extends FormComponentProps<FormFields> {
@@ -20,22 +21,39 @@ interface Props extends FormComponentProps<FormFields> {
 }
 
 const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.OpenChannelModal');
+  const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.OpenChannelModal');
   const { nodes } = useStoreState(s => s.lnd);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
   const { getWalletBalance, openChannel } = useStoreActions(s => s.lnd);
+  const { notify } = useStoreActions(s => s.app);
+
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
     const { lightning } = network.nodes;
-    for (const name in lightning) {
-      await getWalletBalance(lightning[name]);
+    for (const node of lightning) {
+      await getWalletBalance(node);
     }
   }, [network.nodes, visible]);
+
   const openChanAsync = useAsyncCallback(async (payload: OpenChannelPayload) => {
-    await openChannel(payload);
-    hideOpenChannel();
+    try {
+      await openChannel(payload);
+      hideOpenChannel();
+    } catch (error) {
+      notify({ message: l('submitError'), error });
+    }
   });
+
+  // flag to show the deposit checkbox if the from node balance is less than the capacity
+  let showDeposit = false;
+  const selectedFrom = form.getFieldValue('from') || from;
+  if (selectedFrom && nodes[selectedFrom]) {
+    const { confirmedBalance } = nodes[selectedFrom].walletBalance || {};
+    const balance = parseInt(confirmedBalance || '0');
+    const sats = form.getFieldValue('sats');
+    showDeposit = balance <= sats;
+  }
 
   const handleSubmit = () => {
     form.validateFields((err, values: FormFields) => {
@@ -45,7 +63,8 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
       const fromNode = lightning.find(n => n.name === values.from);
       const toNode = lightning.find(n => n.name === values.to);
       if (!fromNode || !toNode) return;
-      openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats });
+      const autoFund = showDeposit && values.autoFund;
+      openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats, autoFund });
     });
   };
 
@@ -92,10 +111,21 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
           />,
         )}
       </Form.Item>
+      {showDeposit && (
+        <Form.Item>
+          {form.getFieldDecorator('autoFund', {
+            valuePropName: 'checked',
+          })(
+            <Checkbox>
+              Deposit enough funds to {selectedFrom} to open the channel
+            </Checkbox>,
+          )}
+        </Form.Item>
+      )}
     </Form>
   );
 
-  if (getBalancesAsync.loading) {
+  if (getBalancesAsync.loading || openChanAsync.loading) {
     cmp = <Loader />;
   } else if (getBalancesAsync.error) {
     cmp = (
@@ -120,13 +150,6 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         okButtonProps={{ loading: openChanAsync.loading }}
         onOk={handleSubmit}
       >
-        {openChanAsync.error && (
-          <Alert
-            type="error"
-            message={l('submitError')}
-            description={openChanAsync.error.message}
-          />
-        )}
         {cmp}
       </Modal>
     </>
