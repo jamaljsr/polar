@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useAsync } from 'react-async-hook';
-import { useTranslation } from 'react-i18next';
 import { info } from 'electron-log';
-import { Alert, Col, Row } from 'antd';
+import { Col, Row } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { Loader } from 'components/common';
 import { GetStarted, NetworkCard } from './';
@@ -10,10 +10,21 @@ import { GetStarted, NetworkCard } from './';
 const Home: React.FC = () => {
   useEffect(() => info('Rendering Home component'), []);
 
-  const { t } = useTranslation();
+  const { l } = usePrefixedTranslation('cmps.home.Home');
+  const { notify } = useStoreActions(s => s.app);
   const { networks, loaded } = useStoreState(s => s.network);
   const { load } = useStoreActions(s => s.network);
-  const loadAsync = useAsync(() => load(), [], { executeOnMount: !loaded });
+  const loadAsync = useAsync(
+    async () => {
+      try {
+        await load();
+      } catch (error) {
+        notify({ message: l('loadError'), error });
+      }
+    },
+    [],
+    { executeOnMount: !loaded },
+  );
 
   if (loadAsync.loading) {
     return <Loader />;
@@ -21,18 +32,6 @@ const Home: React.FC = () => {
 
   return (
     <>
-      {loadAsync.error && (
-        <Alert
-          type="error"
-          showIcon
-          closable
-          message={t(
-            'cmps.home.load-error-msg',
-            'Unable to load previously save networks',
-          )}
-          description={loadAsync.error.message}
-        />
-      )}
       {networks.length === 0 && <GetStarted />}
       <Row gutter={16}>
         {networks.map(n => (

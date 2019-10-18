@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Button } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { NETWORK } from 'components/routing';
 import logobw from 'resources/logo_bw.png';
 
@@ -27,14 +27,14 @@ const Styled = {
 };
 
 const GetStarted: React.FC = () => {
-  const { t } = useTranslation();
+  const { l } = usePrefixedTranslation('cmps.home.GetStarted');
 
   return (
     <Styled.GetStarted>
-      <Styled.Header>{t('cmps.get-started.title', "Let's get started!")}</Styled.Header>
+      <Styled.Header>{l('title')}</Styled.Header>
       <Link to={NETWORK}>
         <Button type="primary" size="large">
-          {t('cmps.get-started.create-btn', 'Create a Lightning Network')}
+          {l('createBtn')}
         </Button>
       </Link>
     </Styled.GetStarted>
