@@ -4,8 +4,11 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { CommonNode, LndNode, LndVersion, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { createLndNetworkNode, createNetwork, ensureOpenPorts } from 'utils/network';
+import { prefixTranslation } from 'utils/translate';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
+
+const { l } = prefixTranslation('store.models.network');
 
 interface AddNetworkArgs {
   name: string;
@@ -53,7 +56,7 @@ const networkModel: NetworkModel = {
     const networkId = typeof id === 'number' ? id : parseInt(id || '');
     const network = state.networks.find(n => n.id === networkId);
     if (!network) {
-      throw new Error(`Network with the id '${networkId}' was not found.`);
+      throw new Error(l('networkByIdErr', { networkId }));
     }
     return network;
   }),
@@ -100,7 +103,7 @@ const networkModel: NetworkModel = {
   addLndNode: thunk(async (actions, { id, version }, { getState, injections }) => {
     const networks = getState().networks;
     const network = networks.find(n => n.id === id);
-    if (!network) throw new Error(`Network with the id '${id}' was not found.`);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
     const node = createLndNetworkNode(network, version, Status.Stopped);
     network.nodes.lightning.push(node);
     actions.setNetworks(networks);
@@ -110,7 +113,7 @@ const networkModel: NetworkModel = {
   }),
   setStatus: action((state, { id, status, only, all = true }) => {
     const network = state.networks.find(n => n.id === id);
-    if (!network) throw new Error(`Network with the id '${id}' was not found.`);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
     const setNodeStatus = (n: CommonNode) => (n.status = status);
     if (only) {
       // only update a specific node's status
@@ -128,7 +131,7 @@ const networkModel: NetworkModel = {
   }),
   start: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networks.find(n => n.id === networkId);
-    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
     actions.setStatus({ id: network.id, status: Status.Starting });
     try {
       // make sure the node ports are available
@@ -175,7 +178,7 @@ const networkModel: NetworkModel = {
   }),
   stop: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networks.find(n => n.id === networkId);
-    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
       await injections.dockerService.stop(network);
@@ -188,7 +191,7 @@ const networkModel: NetworkModel = {
   }),
   toggle: thunk(async (actions, networkId, { getState }) => {
     const network = getState().networks.find(n => n.id === networkId);
-    if (!network) throw new Error(`Network with the id '${networkId}' was not found.`);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
     if (network.status === Status.Stopped || network.status === Status.Error) {
       await actions.start(network.id);
     } else if (network.status === Status.Started) {

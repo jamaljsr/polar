@@ -14,7 +14,10 @@ import {
 import { LndNode, Network, Status, StoreInjections } from 'types';
 import { createLndChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
+import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
+
+const { l } = prefixTranslation('store.models.designer');
 
 export interface DesignerModel {
   activeId: number;
@@ -59,8 +62,7 @@ const designerModel: DesignerModel = {
   activeChart: computed(state => state.allCharts[state.activeId]),
   // reducer actions (mutations allowed thx to immer)
   setActiveId: action((state, networkId) => {
-    if (!state.allCharts[networkId])
-      throw new Error(`Chart not found for network with id ${networkId}`);
+    if (!state.allCharts[networkId]) throw new Error(l('notFoundError', { networkId }));
     state.activeId = networkId;
   }),
   setAllCharts: action((state, charts) => {
@@ -142,17 +144,17 @@ const designerModel: DesignerModel = {
       const { linkId, fromNodeId, toNodeId } = payload;
       if (!activeChart.links[linkId]) return;
       const fromNode = activeChart.nodes[fromNodeId];
-      const toNode = activeChart.nodes[fromNodeId];
+      const toNode = activeChart.nodes[toNodeId];
 
       const showError = (error: Error) => {
         actions.removeLink(linkId);
         getStoreActions().app.notify({
-          message: 'Cannot open a channel',
+          message: l('linkErrTitle'),
           error,
         });
       };
       if (fromNode.type !== 'lightning' || toNode.type !== 'lightning') {
-        return showError(new Error('Must be between two lightning nodes'));
+        return showError(new Error(l('linkErrNodes')));
       }
       let network: Network;
       try {
@@ -161,7 +163,7 @@ const designerModel: DesignerModel = {
         return showError(error);
       }
       if (network.status !== Status.Started) {
-        return showError(new Error('The network must be Started first'));
+        return showError(new Error(l('linkErrNotStarted')));
       }
 
       getStoreActions().modals.showOpenChannel({
@@ -180,8 +182,8 @@ const designerModel: DesignerModel = {
       const network = networkById(activeId);
       if (![Status.Started, Status.Stopped].includes(network.status)) {
         getStoreActions().app.notify({
-          message: 'Failed to add node',
-          error: new Error('Cannot add a new node when the network is transitioning'),
+          message: l('dropErrTitle'),
+          error: new Error(l('dropErrMsg')),
         });
       } else if (data.type === 'lnd') {
         const { addLndNode, start } = getStoreActions().network;
