@@ -1,7 +1,10 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
+import { usePrefixedTranslation } from 'hooks';
 import { Network } from 'types';
 import { LinkProperties } from 'utils/chart';
+import SidebarCard from '../SidebarCard';
+import SyncButton from '../SyncButton';
 import Backend from './Backend';
 import Channel from './Channel';
 
@@ -11,7 +14,13 @@ interface Props {
 }
 
 const LinkDetails: React.FC<Props> = ({ link, network }) => {
-  let cmp = <div>You&apos;ve somehow managed to select an invalid link</div>;
+  const { l } = usePrefixedTranslation('cmps.designer.link.LinkDetails');
+
+  let cmp = (
+    <SidebarCard title={l('invalidTitle')} extra={<SyncButton network={network} />}>
+      {l('invalidMsg')}
+    </SidebarCard>
+  );
 
   const { bitcoin, lightning } = network.nodes;
   const { type } = (link.properties as LinkProperties) || {};
