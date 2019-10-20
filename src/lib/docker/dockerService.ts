@@ -1,3 +1,4 @@
+import { remote } from 'electron';
 import { info } from 'electron-log';
 import { join } from 'path';
 import * as compose from 'docker-compose';
@@ -47,7 +48,7 @@ class DockerService implements DockerLibrary {
   async start(network: Network) {
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
-    const result = await this.execute(compose.upAll, { cwd: network.path });
+    const result = await this.execute(compose.upAll, this.getArgs(network));
     info(`Network started:\n ${result.out || result.err}`);
   }
 
@@ -58,7 +59,7 @@ class DockerService implements DockerLibrary {
   async stop(network: Network) {
     info(`Stopping docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
-    const result = await this.execute(compose.down, { cwd: network.path });
+    const result = await this.execute(compose.down, this.getArgs(network));
     info(`Network stopped:\n ${result.out || result.err}`);
   }
 
@@ -79,7 +80,7 @@ class DockerService implements DockerLibrary {
     } catch (e) {
       e.err = stripAnsi(e.err);
       info(`docker cmd failed: ${JSON.stringify(e)}`);
-      throw new Error(e.err);
+      throw new Error(e.err || JSON.stringify(e));
     }
   }
 
@@ -108,6 +109,16 @@ class DockerService implements DockerLibrary {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
       return { networks: [], charts: {} };
     }
+  }
+
+  private getArgs(network: Network) {
+    return {
+      cwd: network.path,
+      env: {
+        ...process.env,
+        ...(remote ? remote.process.env : {}),
+      },
+    };
   }
 }
 

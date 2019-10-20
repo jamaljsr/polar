@@ -23,7 +23,7 @@
     "lint:fix": "yarn lint --fix",
     "package": "yarn build && yarn package:electron",
     "package:ci": "yarn postinstall && yarn build && yarn package:electron --publish onTagOrDraft",
-    "package:electron": "electron-builder build -c.extraMetadata.main=build/main/index.js --config .electronbuildrc",
+    "package:electron": "electron-builder build -c.extraMetadata.main=build/main/electron/index.js --config .electronbuildrc",
     "postinstall": "electron-builder install-app-deps",
     "prebuild": "tsc -p electron/tsconfig.json",
     "release": "standard-version --no-verify",
@@ -48,7 +48,8 @@
     "electron-log": "3.0.8",
     "electron-window-state": "5.0.3",
     "js-yaml": "3.13.1",
-    "lndconnect": "0.2.10"
+    "lndconnect": "0.2.10",
+    "shell-env": "^3.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "8.2.0",
