@@ -6320,6 +6320,11 @@ default-gateway@^4.2.0:
     execa "^1.0.0"
     ip-regex "^2.1.0"
 
+default-shell@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/default-shell/-/default-shell-1.0.1.tgz#752304bddc6174f49eb29cb988feea0b8813c8bc"
+  integrity sha1-dSMEvdxhdPSespy5iP7qC4gTyLw=
+
 defer-to-connect@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/defer-to-connect/-/defer-to-connect-1.0.2.tgz#4bae758a314b034ae33902b5aac25a8dd6a8633e"
@@ -16153,6 +16158,15 @@ shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
   integrity sha1-2kL0l0DAtC2yypcoVxyxkMmO/qM=
+
+shell-env@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/shell-env/-/shell-env-3.0.0.tgz#42484ebd0798ee321ba69f6151f2aeab13fde1d4"
+  integrity sha512-zE0lGldowbCLnnorLnOUO6gLSwEoW4u+qWcEV1HH2qje5sIg0PvBd+8ro74EgSZv0MBEP2dROD6vSKhGDbUIMQ==
+  dependencies:
+    default-shell "^1.0.1"
+    execa "^1.0.0"
+    strip-ansi "^5.2.0"
 
 shell-quote@1.6.1:
   version "1.6.1"
