@@ -129,7 +129,7 @@ const networkModel: NetworkModel = {
       network.status = status;
     }
   }),
-  start: thunk(async (actions, networkId, { getState, injections }) => {
+  start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     actions.setStatus({ id: network.id, status: Status.Starting });
@@ -168,6 +168,7 @@ const networkModel: NetworkModel = {
             status: isOnline ? Status.Started : Status.Error,
             only: bitcoind.name,
           });
+          return getStoreActions().bitcoind.getInfo(bitcoind);
         });
       }
     } catch (e) {

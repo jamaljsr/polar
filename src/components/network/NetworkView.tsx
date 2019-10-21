@@ -63,7 +63,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         tags={<StatusTag status={network.status} />}
         extra={
           <NetworkActions
-            status={network.status}
+            network={network}
             onClick={() => toggleAsync.execute(network.id)}
           />
         }

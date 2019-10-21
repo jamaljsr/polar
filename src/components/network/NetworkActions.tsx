@@ -1,11 +1,20 @@
 import React from 'react';
-import { Button, Dropdown, Icon, Menu } from 'antd';
+import { useAsyncCallback } from 'react-async-hook';
+import styled from '@emotion/styled';
+import { Button, Divider, Dropdown, Icon, Menu, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
-import { Status } from 'types';
+import { useStoreActions, useStoreState } from 'store';
+import { Network, Status } from 'types';
+
+const Styled = {
+  Button: styled(Button)`
+    margin-left: 0;
+  `,
+};
 
 interface Props {
-  status: Status;
+  network: Network;
   onClick: () => void;
 }
 
@@ -23,7 +32,7 @@ const config: {
   },
   [Status.Started]: {
     label: 'Stop',
-    type: 'default',
+    type: 'danger',
     icon: 'stop',
   },
   [Status.Stopping]: {
@@ -43,10 +52,25 @@ const config: {
   },
 };
 
-const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
+const NetworkActions: React.FC<Props> = ({ network, onClick }) => {
   const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
+
+  const { status, nodes } = network;
+  const bitcoinNode = nodes.bitcoin[0];
   const loading = status === Status.Starting || status === Status.Stopping;
+  const started = status === Status.Started;
   const { label, type, icon } = config[status];
+
+  const { chainInfo } = useStoreState(s => s.bitcoind);
+  const { notify } = useStoreActions(s => s.app);
+  const { mine } = useStoreActions(s => s.bitcoind);
+  const mineAsync = useAsyncCallback(async () => {
+    try {
+      await mine({ blocks: 1, node: bitcoinNode });
+    } catch (error) {
+      notify({ message: l('mineError'), error });
+    }
+  });
 
   const menu = (
     <Menu theme="dark">
@@ -63,9 +87,25 @@ const NetworkActions: React.FC<Props> = ({ status, onClick }) => {
 
   return (
     <>
-      <Button key="start" type={type} icon={icon} loading={loading} onClick={onClick}>
+      {bitcoinNode.status === Status.Started && chainInfo && (
+        <>
+          <Tag>height: {chainInfo.blocks}</Tag>
+          <Button onClick={mineAsync.execute} loading={mineAsync.loading} icon="tool">
+            {l('mineBtn')}
+          </Button>
+          <Divider type="vertical" />
+        </>
+      )}
+      <Styled.Button
+        key="start"
+        type={type}
+        icon={icon}
+        loading={loading}
+        ghost={started}
+        onClick={onClick}
+      >
         {l(`primaryBtn${label}`)}
-      </Button>
+      </Styled.Button>
       <Dropdown key="options" overlay={menu}>
         <Button icon="more" />
       </Dropdown>

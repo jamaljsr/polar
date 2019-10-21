@@ -110,6 +110,8 @@
   "cmps.network.NetworkActions.primaryBtnStopping": "Parada",
   "cmps.network.NetworkActions.primaryBtnStart": "Comienzo",
   "cmps.network.NetworkActions.primaryBtnRestart": "Reiniciar",
+  "cmps.network.NetworkActions.mineBtn": "Mina rápida",
+  "cmps.network.NetworkActions.mineError": "Incapaz de extraer bloques",
   "cmps.network.NewNetwork.title": "Crear una nueva red Lightning",
   "cmps.network.NewNetwork.nameLabel": "Nombre de red",
   "cmps.network.NewNetwork.namePhldr": "Mi Lightning Simnet",

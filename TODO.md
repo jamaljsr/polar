@@ -3,8 +3,10 @@
 Small Stuff
 
 - display blockheight and mine button in network header
+- implement rename & delete network features
 - close channel
 - implement real-time channel updates from LND via GRPC streams
+- implement option to auto-mine every X minutes
 - switch renovatebot to dependabot and use automatic security fixes
 - pull docker images on startup if they don't exist locally
 - generate alice/bob/carol names for lnd nodes
