@@ -4,6 +4,9 @@ module.exports = {
       getPath: p => `ELECTRON_PATH[${p}]`,
       getLocale: () => 'en-US',
     },
+    process: {
+      env: {},
+    },
   },
   ipcRenderer: {
     once: jest.fn(),
