@@ -1678,10 +1678,10 @@
     mkdirp "^0.5.1"
     rimraf "^2.5.2"
 
-"@mrblenny/react-flow-chart@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@mrblenny/react-flow-chart/-/react-flow-chart-0.0.7.tgz#f2aebbb4783c0655f85a88959c01786ed5285ece"
-  integrity sha512-M2AgHnoEBhhSXwifK0NZiLnpTD31srD1kSM7omo/FSuuGpymb5Oa/DE+0Yjj2boEkjkovkWftVFhkrzEVkd+RQ==
+"@mrblenny/react-flow-chart@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@mrblenny/react-flow-chart/-/react-flow-chart-0.0.8.tgz#d6ab750bca775356551bccc71ed00e3785f4d20f"
+  integrity sha512-ZjvdCAPWlMJCziB4cyO8HlYmoWHHUlt1/eVNmx/0GVjVBOTYPJOJnQWF5SlFlplNAXho3MFTr3RhnG9abZxBVw==
   dependencies:
     react-draggable "^3.0.5"
     react-resize-observer "^1.1.1"
