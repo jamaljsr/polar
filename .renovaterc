@@ -1,5 +1,5 @@
 {
-  "extends": ["config:js-app", "schedule:weekly"],
+  "extends": ["config:js-app", "schedule:nonOfficeHours"],
   "rangeStrategy": "bump",
   "automerge": true,
   "major": {
