@@ -1,9 +1,9 @@
 import { assertNoConsoleErrors, cleanup, getPageUrl, pageUrl } from './helpers';
-import { App, NetworkView, NewNetwork } from './pages';
+import { Home, NetworkView, NewNetwork } from './pages';
 
 fixture`Network`
   .page(pageUrl)
-  .beforeEach(App.clickCreateNetwork)
+  .beforeEach(Home.clickCreateButton)
   .afterEach(assertNoConsoleErrors)
   .afterEach(cleanup);
 
