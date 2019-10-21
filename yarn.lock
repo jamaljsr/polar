@@ -1800,19 +1800,12 @@
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
-"@rescripts/rescript-use-babel-config@0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-babel-config/-/rescript-use-babel-config-0.0.8.tgz#fa4cab17dfaf7ec8b98ec619b608930675936fa8"
-  integrity sha512-fqlcSky7rQDj85srl5+jnxzvmRNKnDLDLMG+K4zsIhZ/+WRTwo44D4cFxbHspBrnTFhpa6ac7peBYPRCCFvJMQ==
+"@rescripts/rescript-use-babel-config@0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-babel-config/-/rescript-use-babel-config-0.0.9.tgz#18d30e85b205fd8065354f1be263bf0603d2ccfa"
+  integrity sha512-jJjqUFJRqTjFgntM3TAuPPKtxpf0rltV7hFtTTxrO2i+DqUerj0SEWZMeVWJv/t4QkBtNQBKlDD7MF3TGHflpw==
   dependencies:
-    "@rescripts/utilities" "^0.0.5"
-
-"@rescripts/utilities@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.5.tgz#1bc296744044e4c6ea5d137f073f72b4892a357a"
-  integrity sha512-9YtdDTiICbUzFpmUnfSJRfeBtNR+T3+5LYiPS7xaNSzmOiVXwWubl5kfEzNQIpcg5xOUknYbkObwyUzd9s3QvQ==
-  dependencies:
-    ramda "^0.26.0"
+    "@rescripts/utilities" "^0.0.6"
 
 "@rescripts/utilities@^0.0.6":
   version "0.0.6"
