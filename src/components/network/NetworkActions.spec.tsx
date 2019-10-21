@@ -1,14 +1,29 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/dom';
-import { render } from '@testing-library/react';
+import { fireEvent, wait } from '@testing-library/dom';
 import { Status } from 'types';
+import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkActions from './NetworkActions';
 
 describe('NetworkActions Component', () => {
   const handleClick = jest.fn();
 
   const renderComponent = (status: Status) => {
-    return render(<NetworkActions status={status} onClick={handleClick} />);
+    const network = getNetwork(1, 'test network', status);
+    network.nodes.bitcoin.forEach(n => (n.status = status));
+    const initialState = {
+      network: {
+        networks: [network],
+      },
+      bitcoind: {
+        chainInfo: {
+          blocks: 10,
+        },
+      },
+    };
+    return renderWithProviders(
+      <NetworkActions network={network} onClick={handleClick} />,
+      { initialState },
+    );
   };
 
   it('should render the Starting status', () => {
@@ -51,5 +66,29 @@ describe('NetworkActions Component', () => {
     const primaryBtn = getByText('Start');
     fireEvent.click(primaryBtn);
     expect(handleClick).toBeCalled();
+  });
+
+  it('should display the current block height', () => {
+    const { getByText } = renderComponent(Status.Started);
+    expect(getByText('height: 10')).toBeInTheDocument();
+  });
+
+  it('should mine a block when the Mine button is clicked', async () => {
+    const mineMock = injections.bitcoindService.mine as jest.Mock;
+    mineMock.mockResolvedValue(true);
+    const { getByText, store } = renderComponent(Status.Started);
+    fireEvent.click(getByText('Quick Mine'));
+    await wait(() => {
+      const port = store.getState().network.networks[0].nodes.bitcoin[0].ports.rpc;
+      expect(mineMock).toBeCalledWith(1, port);
+    });
+  });
+
+  it('should display an error if mining fails', async () => {
+    const mineMock = injections.bitcoindService.mine as jest.Mock;
+    mineMock.mockRejectedValue(new Error('connection failed'));
+    const { getByText, findByText } = renderComponent(Status.Started);
+    fireEvent.click(getByText('Quick Mine'));
+    expect(await findByText(/connection failed/)).toBeInTheDocument();
   });
 });

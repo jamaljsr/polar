@@ -5,6 +5,7 @@ import { BitcoindLibrary, DockerLibrary, LndLibrary, Status } from 'types';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { injections } from 'utils/tests';
 import appModel from './app';
+import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import modalsModel from './modals';
 import networkModel from './network';
@@ -23,6 +24,7 @@ describe('Designer model', () => {
   const rootModel = {
     app: appModel,
     network: networkModel,
+    bitcoind: bitcoindModel,
     designer: designerModel,
     modals: modalsModel,
   };

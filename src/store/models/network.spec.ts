@@ -4,6 +4,7 @@ import { LndVersion, Network, Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
 import { getNetwork, injections } from 'utils/tests';
+import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import lndModel from './lnd';
 import networkModel from './network';
@@ -22,6 +23,7 @@ describe('Network model', () => {
   const rootModel = {
     network: networkModel,
     lnd: lndModel,
+    bitcoind: bitcoindModel,
     designer: designerModel,
   };
   // initialize store for type inference
