@@ -2,12 +2,14 @@
 
 Small Stuff
 
+- display blockheight and mine button in network header
 - close channel
+- implement real-time channel updates from LND via GRPC streams
 - switch renovatebot to dependabot and use automatic security fixes
 - pull docker images on startup if they don't exist locally
 - generate alice/bob/carol names for lnd nodes
 - display docker streaming logs in the UI
-- mock docker for e2e tests
+- mock or install docker on build servers for e2e tests
 - consistent scrollbars for all OS's (https://github.com/xobotyi/react-scrollbars-custom) (https://github.com/souhe/reactScrollbar)
 
 Bigger things
