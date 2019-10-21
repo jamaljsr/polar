@@ -116,7 +116,7 @@ class DockerService implements DockerLibrary {
       cwd: network.path,
       env: {
         ...process.env,
-        ...(remote ? remote.process.env : {}),
+        ...(remote && remote.process ? remote.process.env : {}),
       },
     };
   }

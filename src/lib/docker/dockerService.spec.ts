@@ -1,3 +1,4 @@
+import * as electron from 'electron';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import { dockerService } from 'lib/docker';
@@ -13,6 +14,7 @@ jest.mock('utils/files', () => ({
 
 const filesMock = files as jest.Mocked<typeof files>;
 const composeMock = compose as jest.Mocked<typeof compose>;
+const electronMock = electron as jest.Mocked<typeof electron>;
 
 describe('DockerService', () => {
   let network: Network;
@@ -101,19 +103,38 @@ describe('DockerService', () => {
     it('should call compose.upAll when a network is started', async () => {
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
-      expect(composeMock.upAll).toBeCalledWith({ cwd: network.path });
+      expect(composeMock.upAll).toBeCalledWith(
+        expect.objectContaining({ cwd: network.path }),
+      );
     });
 
     it('should call compose.down when a network is stopped', async () => {
       composeMock.down.mockResolvedValue(mockResult);
       await dockerService.stop(network);
-      expect(composeMock.down).toBeCalledWith({ cwd: network.path });
+      expect(composeMock.down).toBeCalledWith(
+        expect.objectContaining({ cwd: network.path }),
+      );
     });
 
     it('should reformat thrown exceptions', async () => {
       const err = 'oops, didnt work';
       composeMock.upAll.mockRejectedValueOnce({ err });
       await expect(dockerService.start(network)).rejects.toThrow(err);
+    });
+
+    it('should pass through thrown exceptions', async () => {
+      composeMock.upAll.mockRejectedValueOnce({ errno: 'oops, didnt work' });
+      await expect(dockerService.start(network)).rejects.toThrow('oops, didnt work');
+    });
+
+    it('should not fail if electron.remote is undefined', async () => {
+      electronMock.remote.process = undefined;
+      composeMock.upAll.mockResolvedValue(mockResult);
+      await dockerService.start(network);
+      expect(composeMock.upAll).toBeCalledWith(
+        expect.objectContaining({ cwd: network.path }),
+      );
+      electronMock.remote.process = {};
     });
   });
 });
