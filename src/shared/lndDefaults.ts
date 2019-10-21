@@ -62,43 +62,55 @@ export const defaultPendingChannel = (
 
 export const defaultPendingOpenChannel = (
   value: Partial<LND.PendingOpenChannel>,
-): LND.PendingOpenChannel => ({
-  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
-  confirmationHeight: 0,
-  commitFee: '0',
-  commitWeight: '0',
-  feePerKw: '0',
-  ...value,
-});
+): LND.PendingOpenChannel => {
+  const { channel, ...rest } = value;
+  return {
+    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    confirmationHeight: 0,
+    commitFee: '0',
+    commitWeight: '0',
+    feePerKw: '0',
+    ...rest,
+  };
+};
 
 export const defaultClosedChannel = (
   value: Partial<LND.ClosedChannel>,
-): LND.ClosedChannel => ({
-  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
-  closingTxid: '',
-  ...value,
-});
+): LND.ClosedChannel => {
+  const { channel, ...rest } = value;
+  return {
+    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    closingTxid: '',
+    ...rest,
+  };
+};
 
 export const defaultForceClosedChannel = (
   value: Partial<LND.ForceClosedChannel>,
-): LND.ForceClosedChannel => ({
-  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
-  closingTxid: '',
-  limboBalance: '0',
-  maturityHeight: 0,
-  blocksTilMaturity: 0,
-  recoveredBalance: '0',
-  pendingHtlcs: [],
-  ...value,
-});
+): LND.ForceClosedChannel => {
+  const { channel, ...rest } = value;
+  return {
+    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    closingTxid: '',
+    limboBalance: '0',
+    maturityHeight: 0,
+    blocksTilMaturity: 0,
+    recoveredBalance: '0',
+    pendingHtlcs: [],
+    ...rest,
+  };
+};
 
 export const defaultWaitingCloseChannel = (
   value: Partial<LND.WaitingCloseChannel>,
-): LND.WaitingCloseChannel => ({
-  channel: defaultPendingChannel(value.channel as LND.PendingChannel),
-  limboBalance: '0',
-  ...value,
-});
+): LND.WaitingCloseChannel => {
+  const { channel, ...rest } = value;
+  return {
+    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    limboBalance: '0',
+    ...rest,
+  };
+};
 
 const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
 
