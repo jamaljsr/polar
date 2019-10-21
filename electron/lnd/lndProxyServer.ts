@@ -115,7 +115,10 @@ export const initLndProxy = (ipc: IpcMain) => {
     debug(`listening for ipc command "${channel}"`);
     ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
-      debug(`LndProxyServer: received request "${requestChan}"`, ...args);
+      debug(
+        `LndProxyServer: received request "${requestChan}"`,
+        JSON.stringify(args, null, 2),
+      );
       // inspect the first arg to see if it has a specific channel to reply to
       let uniqueChan = responseChan;
       if (args && args[0] && args[0].replyTo) {
@@ -125,13 +128,16 @@ export const initLndProxy = (ipc: IpcMain) => {
         // attempt to execute the associated function
         let result = await func(...args);
         // merge the result with default values since LND omits falsey values
-        debug(`LndProxyServer: send response "${uniqueChan}"`, result);
+        debug(
+          `LndProxyServer: send response "${uniqueChan}"`,
+          JSON.stringify(result, null, 2),
+        );
         result = withDefaults(result, channel as DefaultsKey);
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
       } catch (err) {
         // reply with an error message if the execution fails
-        debug(`LndProxyServer: send error "${uniqueChan}"`, err);
+        debug(`LndProxyServer: send error "${uniqueChan}"`, JSON.stringify(err, null, 2));
         event.reply(uniqueChan, { err: err.message });
       }
     });

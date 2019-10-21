@@ -14,7 +14,7 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
     const reqChan = `${prefix}-${channel}-request`;
     const resChan = `${prefix}-${channel}-response`;
     // set the response channel dynamically to avoid race conditions
-    // when multiple requests are in flight
+    // when multiple requests are in flight at the same time
     const uniqueness = Math.round(Math.random() * Date.now());
     const uniqPayload = {
       ...payload,
@@ -23,14 +23,20 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
 
     return new Promise((resolve, reject) => {
       ipcRenderer.once(uniqPayload.replyTo, (event: IpcRendererEvent, res: any) => {
-        debug(`${serviceName}: received response "${uniqPayload.replyTo}"`, res);
+        debug(
+          `${serviceName}: received response "${uniqPayload.replyTo}"`,
+          JSON.stringify(res, null, 2),
+        );
         if (res.err) {
           reject(new Error(res.err));
         } else {
           resolve(res);
         }
       });
-      debug(`${serviceName}: send request "${reqChan}"`, uniqPayload);
+      debug(
+        `${serviceName}: send request "${reqChan}"`,
+        JSON.stringify(uniqPayload, null, 2),
+      );
       ipcRenderer.send(reqChan, uniqPayload);
     });
   };
