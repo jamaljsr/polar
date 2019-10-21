@@ -58,7 +58,7 @@
     "@hot-loader/react-dom": "16.10.2",
     "@mrblenny/react-flow-chart": "0.0.8",
     "@rescripts/cli": "0.0.13",
-    "@rescripts/rescript-use-babel-config": "0.0.8",
+    "@rescripts/rescript-use-babel-config": "0.0.9",
     "@testing-library/jest-dom": "4.1.2",
     "@testing-library/react": "9.3.0",
     "@types/dockerode": "2.5.20",
