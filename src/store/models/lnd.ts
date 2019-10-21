@@ -119,7 +119,9 @@ const lndModel: LndModel = {
       const network = getStoreState().network.networkById(from.networkId);
       const node = network.nodes.bitcoin[0];
       await injections.bitcoindService.mine(BLOCKS_TIL_COMFIRMED, node.ports.rpc);
-      // synchonize the chart with the new channel
+      // add a small delay to allow LND to process the mined blocks
+      await delay(250);
+      // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
       await getStoreActions().designer.redrawChart();
     },
