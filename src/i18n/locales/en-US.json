@@ -110,6 +110,8 @@
   "cmps.network.NetworkActions.primaryBtnStopping": "Stopping",
   "cmps.network.NetworkActions.primaryBtnStart": "Start",
   "cmps.network.NetworkActions.primaryBtnRestart": "Restart",
+  "cmps.network.NetworkActions.mineBtn": "Quick Mine",
+  "cmps.network.NetworkActions.mineError": "Unable to mine blocks",
   "cmps.network.NewNetwork.title": "Create a new Lightning Network",
   "cmps.network.NewNetwork.nameLabel": "Network Name",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
