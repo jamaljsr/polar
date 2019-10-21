@@ -124,8 +124,10 @@ describe('OpenChannelModal', () => {
       store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
     });
     fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-    await wait(() => fireEvent.click(getByText('Open Channel')));
-    expect(store.getState().modals.openChannel.visible).toBe(false);
+    fireEvent.click(getByText('Open Channel'));
+    await wait(() => {
+      expect(store.getState().modals.openChannel.visible).toBe(false);
+    });
     const [node1, node2] = network.nodes.lightning;
     expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
     expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
@@ -152,7 +154,6 @@ describe('OpenChannelModal', () => {
     await wait(() => {
       expect(store.getState().modals.openChannel.visible).toBe(false);
     });
-
     const [node1, node2] = network.nodes.lightning;
     expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
     expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
