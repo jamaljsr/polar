@@ -46,7 +46,15 @@ export interface NetworkModel {
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  rename: Thunk<
+    NetworkModel,
+    { id: number; name: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 }
+
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
@@ -198,6 +206,15 @@ const networkModel: NetworkModel = {
     } else if (network.status === Status.Started) {
       await actions.stop(network.id);
     }
+  }),
+  rename: thunk(async (actions, { id, name }, { getState }) => {
+    if (!name) throw new Error(l('renameErr', { name }));
+    const { networks } = getState();
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+    network.name = name;
+    actions.setNetworks(networks);
+    await actions.save();
   }),
 };
 

@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Alert, Empty, PageHeader } from 'antd';
+import { Alert, Button, Empty, Input, PageHeader } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
@@ -28,6 +29,9 @@ const Styled = {
     margin-bottom: 10px;
     flex: 0;
   `,
+  RenameInput: styled(Input)`
+    width: 500px;
+  `,
   NetworkDesigner: styled(NetworkDesigner)`
     flex: 1;
   `,
@@ -42,21 +46,61 @@ interface MatchParams {
 
 const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
+  const { l } = usePrefixedTranslation('cmps.network.NetworkView');
 
   const { networks } = useStoreState(s => s.network);
   const networkId = parseInt(match.params.id || '');
   const network = networks.find(n => n.id === networkId);
 
-  const { toggle } = useStoreActions(s => s.network);
+  const [editing, setEditing] = useState(false);
+  const [editingName, setEditingName] = useState('');
+
+  const { navigateTo, notify } = useStoreActions(s => s.app);
+  const { toggle, rename } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
-  const { navigateTo } = useStoreActions(s => s.app);
+  const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
+    try {
+      await rename(payload);
+      setEditing(false);
+    } catch (error) {
+      notify({ message: l('renameError'), error });
+    }
+  });
 
   useEffect(() => {
     if (!network) navigateTo(HOME);
   }, [network, navigateTo]);
 
-  return !network ? null : (
-    <Styled.NetworkView>
+  if (!network) return null;
+
+  let header: ReactNode;
+  if (editing) {
+    header = (
+      <Styled.PageHeader
+        title={
+          <Styled.RenameInput
+            name="newNetworkName"
+            value={editingName}
+            onChange={e => setEditingName(e.target.value)}
+          />
+        }
+        extra={[
+          <Button
+            key="save"
+            type="primary"
+            loading={renameAsync.loading}
+            onClick={() => renameAsync.execute({ id: network.id, name: editingName })}
+          >
+            {l('renameSave')}
+          </Button>,
+          <Button key="cancel" type="link" onClick={() => setEditing(false)}>
+            {l('renameCancel')}
+          </Button>,
+        ]}
+      ></Styled.PageHeader>
+    );
+  } else {
+    header = (
       <Styled.PageHeader
         title={network.name}
         onBack={() => navigateTo(HOME)}
@@ -65,9 +109,19 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
           <NetworkActions
             network={network}
             onClick={() => toggleAsync.execute(network.id)}
+            onRenameClick={() => {
+              setEditing(true);
+              setEditingName(network.name);
+            }}
           />
         }
       />
+    );
+  }
+
+  return (
+    <Styled.NetworkView>
+      {header}
       {/* TODO: display an info alert that the first startup may be slow */}
       {toggleAsync.error && (
         <Alert

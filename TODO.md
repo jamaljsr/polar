@@ -3,7 +3,7 @@
 Small Stuff
 
 - display blockheight and mine button in network header
-- implement rename & delete network features
+- implement delete network
 - close channel
 - implement real-time channel updates from LND via GRPC streams
 - implement option to auto-mine every X minutes

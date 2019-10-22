@@ -112,6 +112,9 @@
   "cmps.network.NetworkActions.primaryBtnRestart": "Restart",
   "cmps.network.NetworkActions.mineBtn": "Quick Mine",
   "cmps.network.NetworkActions.mineError": "Unable to mine blocks",
+  "cmps.network.NetworkView.renameSave": "Save",
+  "cmps.network.NetworkView.renameCancel": "Cancel",
+  "cmps.network.NetworkView.renameError": "Failed to rename the network",
   "cmps.network.NewNetwork.title": "Create a new Lightning Network",
   "cmps.network.NewNetwork.nameLabel": "Network Name",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
@@ -126,5 +129,6 @@
   "store.models.designer.linkErrNotStarted": "The network must be Started first",
   "store.models.designer.dropErrTitle": "Failed to add node",
   "store.models.designer.dropErrMsg": "Cannot add a new node when the network is transitioning",
-  "store.models.network.networkByIdErr": "Network with the id '{{networkId}}' was not found."
+  "store.models.network.networkByIdErr": "Network with the id '{{networkId}}' was not found.",
+  "store.models.network.renameErr": "The network name '{{name}}' is not valid"
 }

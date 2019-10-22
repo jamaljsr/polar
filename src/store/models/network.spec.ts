@@ -366,5 +366,10 @@ describe('Network model', () => {
       const { setStatus: setNetworkStatus } = store.getActions().network;
       expect(() => setNetworkStatus({ id: 10, status: Status.Starting })).toThrow();
     });
+
+    it('should fail to rename with an invalid id', async () => {
+      const { rename } = store.getActions().network;
+      await expect(rename({ id: 10, name: 'asdf' })).rejects.toThrow();
+    });
   });
 });
