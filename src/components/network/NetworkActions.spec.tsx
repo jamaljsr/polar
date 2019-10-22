@@ -7,6 +7,7 @@ import NetworkActions from './NetworkActions';
 describe('NetworkActions Component', () => {
   const handleClick = jest.fn();
   const handleRenameClick = jest.fn();
+  const handleDeleteClick = jest.fn();
 
   const renderComponent = (status: Status) => {
     const network = getNetwork(1, 'test network', status);
@@ -26,10 +27,14 @@ describe('NetworkActions Component', () => {
         network={network}
         onClick={handleClick}
         onRenameClick={handleRenameClick}
+        onDeleteClick={handleDeleteClick}
       />,
       { initialState },
     );
   };
+
+  beforeEach(jest.useFakeTimers);
+  afterEach(jest.useRealTimers);
 
   it('should render the Starting status', () => {
     const { getByText } = renderComponent(Status.Starting);
@@ -71,6 +76,24 @@ describe('NetworkActions Component', () => {
     const primaryBtn = getByText('Start');
     fireEvent.click(primaryBtn);
     expect(handleClick).toBeCalled();
+  });
+
+  it('should call onRenameClick when rename menu item clicked', async () => {
+    const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+    fireEvent.mouseOver(getByLabelText('icon: more'));
+    await wait(() => jest.runOnlyPendingTimers());
+    fireEvent.click(getByText('Rename'));
+    await wait(() => jest.runOnlyPendingTimers());
+    expect(handleRenameClick).toBeCalled();
+  });
+
+  it('should call onDeleteClick when rename menu item clicked', async () => {
+    const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+    fireEvent.mouseOver(getByLabelText('icon: more'));
+    await wait(() => jest.runOnlyPendingTimers());
+    fireEvent.click(getByText('Delete'));
+    await wait(() => jest.runOnlyPendingTimers());
+    expect(handleDeleteClick).toBeCalled();
   });
 
   it('should display the current block height', () => {

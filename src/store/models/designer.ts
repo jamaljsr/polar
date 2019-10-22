@@ -27,6 +27,7 @@ export interface DesignerModel {
   setActiveId: Action<DesignerModel, number>;
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
   addChart: Action<DesignerModel, { id: number; chart: IChart }>;
+  removeChart: Action<DesignerModel, number>;
   redrawChart: Action<DesignerModel>;
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
@@ -70,6 +71,12 @@ const designerModel: DesignerModel = {
   }),
   addChart: action((state, { id, chart }) => {
     state.allCharts[id] = chart;
+  }),
+  removeChart: action((state, id) => {
+    delete state.allCharts[id];
+    if (state.activeId === id) {
+      state.activeId = -1;
+    }
   }),
   redrawChart: action(state => {
     // This is a bit of a hack to make a minor tweak to the chart because

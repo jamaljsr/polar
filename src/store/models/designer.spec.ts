@@ -55,9 +55,9 @@ describe('Designer model', () => {
     const firstNetwork = () => store.getState().network.networks[0];
     const firstChart = () => store.getState().designer.allCharts[firstNetwork().id];
 
-    beforeEach(() => {
+    beforeEach(async () => {
       const { addNetwork } = store.getActions().network;
-      addNetwork({ name: 'test', lndNodes: 2, bitcoindNodes: 1 });
+      await addNetwork({ name: 'test', lndNodes: 2, bitcoindNodes: 1 });
     });
 
     it('should have a chart in state', () => {
@@ -73,8 +73,30 @@ describe('Designer model', () => {
       store.getActions().designer.setActiveId(firstNetwork().id);
       const { activeId, activeChart } = store.getState().designer;
       expect(activeId).toBe(firstNetwork().id);
-      expect(activeChart).not.toBeUndefined();
+      expect(activeChart).toBeDefined();
       expect(Object.keys(activeChart.nodes)).toHaveLength(3);
+    });
+
+    it('should remove the active chart', () => {
+      store.getActions().designer.setActiveId(firstNetwork().id);
+      const { removeChart } = store.getActions().designer;
+      removeChart(firstNetwork().id);
+      const { activeId, activeChart } = store.getState().designer;
+      expect(activeId).toBe(-1);
+      expect(activeChart).toBeUndefined();
+    });
+
+    it('should remove an inactive chart', async () => {
+      const { addNetwork } = store.getActions().network;
+      await addNetwork({ name: 'test 2', lndNodes: 2, bitcoindNodes: 1 });
+      store.getActions().designer.setActiveId(firstNetwork().id);
+      const { removeChart } = store.getActions().designer;
+      const idToRemove = store.getState().network.networks[1].id;
+      removeChart(idToRemove);
+      const { activeId, activeChart, allCharts } = store.getState().designer;
+      expect(allCharts[idToRemove]).toBeUndefined();
+      expect(activeId).toBe(firstNetwork().id);
+      expect(activeChart).toBeDefined();
     });
 
     it('should update the nodes status when the network is updated', () => {

@@ -371,5 +371,10 @@ describe('Network model', () => {
       const { rename } = store.getActions().network;
       await expect(rename({ id: 10, name: 'asdf' })).rejects.toThrow();
     });
+
+    it('should fail to remove with an invalid id', async () => {
+      const { remove } = store.getActions().network;
+      await expect(remove(10)).rejects.toThrow();
+    });
   });
 });

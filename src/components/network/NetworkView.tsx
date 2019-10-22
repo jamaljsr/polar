@@ -3,7 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import { RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Alert, Button, Empty, Input, PageHeader } from 'antd';
+import { Alert, Button, Empty, Input, Modal, PageHeader } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { StatusTag } from 'components/common';
@@ -56,7 +56,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const [editingName, setEditingName] = useState('');
 
   const { navigateTo, notify } = useStoreActions(s => s.app);
-  const { toggle, rename } = useStoreActions(s => s.network);
+  const { toggle, rename, remove } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
   const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
     try {
@@ -65,6 +65,25 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     } catch (error) {
       notify({ message: l('renameError'), error });
     }
+  });
+  const removeAsync = useAsyncCallback(async (networkId: number, name: string) => {
+    Modal.confirm({
+      title: l('deleteTitle'),
+      content: l('deleteContent'),
+      okText: l('deleteConfirmBtn'),
+      okType: 'danger',
+      cancelText: l('deleteCancelBtn'),
+      onOk: async () => {
+        try {
+          await remove(networkId);
+          notify({ message: l('deleteSuccess', { name }) });
+          // no need to navigate away since it will be done by useEffect below
+        } catch (error) {
+          notify({ message: l('deleteError'), error });
+          throw error;
+        }
+      },
+    });
   });
 
   useEffect(() => {
@@ -113,6 +132,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
               setEditing(true);
               setEditingName(network.name);
             }}
+            onDeleteClick={() => removeAsync.execute(network.id, network.name)}
           />
         }
       />
