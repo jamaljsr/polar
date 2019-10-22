@@ -6,6 +6,7 @@ import NetworkActions from './NetworkActions';
 
 describe('NetworkActions Component', () => {
   const handleClick = jest.fn();
+  const handleRenameClick = jest.fn();
 
   const renderComponent = (status: Status) => {
     const network = getNetwork(1, 'test network', status);
@@ -21,7 +22,11 @@ describe('NetworkActions Component', () => {
       },
     };
     return renderWithProviders(
-      <NetworkActions network={network} onClick={handleClick} />,
+      <NetworkActions
+        network={network}
+        onClick={handleClick}
+        onRenameClick={handleRenameClick}
+      />,
       { initialState },
     );
   };

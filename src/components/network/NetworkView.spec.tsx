@@ -107,4 +107,52 @@ describe('NetworkView Component', () => {
     // should remain the same since button should be disabled
     expect(primaryBtn).toHaveTextContent('Starting');
   });
+
+  describe('rename network', () => {
+    beforeEach(jest.useFakeTimers);
+    afterEach(jest.useRealTimers);
+
+    it('should show the rename input', async () => {
+      const { getByLabelText, getByText, findByDisplayValue } = renderComponent('1');
+      fireEvent.mouseOver(getByLabelText('icon: more'));
+      await wait(() => jest.runOnlyPendingTimers());
+      fireEvent.click(getByText('Rename'));
+      const input = (await findByDisplayValue('test network')) as HTMLInputElement;
+      expect(input).toBeInTheDocument();
+      expect(input.type).toBe('text');
+      fireEvent.click(getByText('Cancel'));
+      expect(input).not.toBeInTheDocument();
+      expect(getByText('Start')).toBeInTheDocument();
+    });
+
+    it('should rename the network', async () => {
+      const { getByLabelText, getByText, findByDisplayValue, store } = renderComponent(
+        '1',
+      );
+      fireEvent.mouseOver(getByLabelText('icon: more'));
+      await wait(() => jest.runOnlyPendingTimers());
+      fireEvent.click(getByText('Rename'));
+      const input = await findByDisplayValue('test network');
+      fireEvent.change(input, { target: { value: 'new network name' } });
+      fireEvent.click(getByText('Save'));
+      await wait(() => {
+        expect(store.getState().network.networkById(1).name).toBe('new network name');
+      });
+    });
+
+    it('should display an error if renaming fails', async () => {
+      const { getByLabelText, getByText, findByDisplayValue, store } = renderComponent(
+        '1',
+      );
+      fireEvent.mouseOver(getByLabelText('icon: more'));
+      await wait(() => jest.runOnlyPendingTimers());
+      fireEvent.click(getByText('Rename'));
+      const input = await findByDisplayValue('test network');
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.click(getByText('Save'));
+      await wait(() => {
+        expect(getByText('Failed to rename the network')).toBeInTheDocument();
+      });
+    });
+  });
 });

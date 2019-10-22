@@ -112,6 +112,9 @@
   "cmps.network.NetworkActions.primaryBtnRestart": "Reiniciar",
   "cmps.network.NetworkActions.mineBtn": "Mina rápida",
   "cmps.network.NetworkActions.mineError": "Incapaz de extraer bloques",
+  "cmps.network.NetworkView.renameSave": "Salvar",
+  "cmps.network.NetworkView.renameCancel": "Cancelar",
+  "cmps.network.NetworkView.renameError": "Error al cambiar el nombre de la red",
   "cmps.network.NewNetwork.title": "Crear una nueva red Lightning",
   "cmps.network.NewNetwork.nameLabel": "Nombre de red",
   "cmps.network.NewNetwork.namePhldr": "Mi Lightning Simnet",
@@ -126,5 +129,6 @@
   "store.models.designer.linkErrNotStarted": "La red debe iniciarse primero",
   "store.models.designer.dropErrTitle": "Error al agregar nodo",
   "store.models.designer.dropErrMsg": "No se puede agregar un nuevo nodo cuando la red está en transición",
-  "store.models.network.networkByIdErr": "No se encontró la red con el ID '{{networkId}}'."
+  "store.models.network.networkByIdErr": "No se encontró la red con el ID '{{networkId}}'.",
+  "store.models.network.renameErr": "El nombre de red '{{name}}' no es válido"
 }
