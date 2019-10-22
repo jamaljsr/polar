@@ -2,6 +2,7 @@
   "extends": ["config:js-app", "schedule:nonOfficeHours"],
   "rangeStrategy": "bump",
   "automerge": true,
+  "automergeType": "branch",
   "major": {
     "automerge": false
   },
