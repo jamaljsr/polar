@@ -17,6 +17,7 @@ interface Props {
   network: Network;
   onClick: () => void;
   onRenameClick: () => void;
+  onDeleteClick: () => void;
 }
 
 const config: {
@@ -53,7 +54,12 @@ const config: {
   },
 };
 
-const NetworkActions: React.FC<Props> = ({ network, onClick, onRenameClick }) => {
+const NetworkActions: React.FC<Props> = ({
+  network,
+  onClick,
+  onRenameClick,
+  onDeleteClick,
+}) => {
   const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
 
   const { status, nodes } = network;
@@ -75,11 +81,11 @@ const NetworkActions: React.FC<Props> = ({ network, onClick, onRenameClick }) =>
 
   const menu = (
     <Menu theme="dark">
-      <Menu.Item key="1" onClick={onRenameClick}>
+      <Menu.Item key="rename" onClick={onRenameClick}>
         <Icon type="form" />
         {l('menuRename')}
       </Menu.Item>
-      <Menu.Item key="2">
+      <Menu.Item key="delete" onClick={onDeleteClick}>
         <Icon type="close" />
         {l('menuDelete')}
       </Menu.Item>

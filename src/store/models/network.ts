@@ -3,6 +3,7 @@ import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { CommonNode, LndNode, LndVersion, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { rm } from 'utils/files';
 import { createLndNetworkNode, createNetwork, ensureOpenPorts } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { NETWORK_VIEW } from 'components/routing';
@@ -53,6 +54,7 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
 }
 
 const networkModel: NetworkModel = {
@@ -214,6 +216,19 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
     network.name = name;
     actions.setNetworks(networks);
+    await actions.save();
+  }),
+  remove: thunk(async (actions, networkId, { getState, getStoreActions }) => {
+    const { networks } = getState();
+    const network = networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    if (network.status !== Status.Stopped) {
+      await actions.stop(networkId);
+    }
+    await rm(network.path);
+    const newNetworks = networks.filter(n => n.id !== networkId);
+    actions.setNetworks(newNetworks);
+    getStoreActions().designer.removeChart(networkId);
     await actions.save();
   }),
 };

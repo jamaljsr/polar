@@ -1,4 +1,4 @@
-import { outputFile, pathExists, readFile } from 'fs-extra';
+import { outputFile, pathExists, readFile, remove } from 'fs-extra';
 import { isAbsolute, join } from 'path';
 import { waitFor } from './async';
 import { dataPath } from './config';
@@ -33,6 +33,12 @@ export const exists = async (filePath: string): Promise<boolean> =>
  */
 export const readHex = async (filePath: string): Promise<string> =>
   (await readFile(abs(filePath))).toString('hex');
+
+/**
+ * Deletes a file or directory from disk. The directory can have contents. Like `rm -rf`
+ * @param path the path to the file or directory. either absolute or relative to the app's data dir
+ */
+export const rm = async (path: string): Promise<void> => await remove(abs(path));
 
 /**
  * Returns a promise that will ressolve when the file exists or the timeout expires
