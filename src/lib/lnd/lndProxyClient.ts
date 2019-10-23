@@ -37,6 +37,10 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.openChannel, { node, req });
   }
 
+  async closeChannel(node: LndNode, req: LND.CloseChannelRequest): Promise<any> {
+    return await this.ipc(ipcChannels.closeChannel, { node, req });
+  }
+
   async listChannels(
     node: LndNode,
     req: LND.ListChannelsRequest,

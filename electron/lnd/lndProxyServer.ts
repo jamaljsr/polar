@@ -69,6 +69,15 @@ const openChannel = async (args: {
   return await rpc.openChannelSync(args.req);
 };
 
+const closeChannel = async (args: {
+  node: LndNode;
+  req: LND.CloseChannelRequest;
+}): Promise<any> => {
+  const rpc = await getRpc(args.node);
+  // TODO: capture the stream events and push them to the UI
+  rpc.closeChannel(args.req);
+};
+
 const listChannels = async (args: {
   node: LndNode;
   req: LND.ListChannelsRequest;
@@ -97,6 +106,7 @@ const listeners: {
   [ipcChannels.listPeers]: listPeers,
   [ipcChannels.connectPeer]: connectPeer,
   [ipcChannels.openChannel]: openChannel,
+  [ipcChannels.closeChannel]: closeChannel,
   [ipcChannels.listChannels]: listChannels,
   [ipcChannels.pendingChannels]: pendingChannels,
 };

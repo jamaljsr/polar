@@ -48,7 +48,12 @@ export interface LndModel {
   getAllInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   depositFunds: Thunk<LndModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<LndModel, OpenChannelPayload, StoreInjections, RootModel>;
-  closeChannel: Thunk<LndModel, { channelPoint: string }, StoreInjections, RootModel>;
+  closeChannel: Thunk<
+    LndModel,
+    { node: LndNode; channelPoint: string },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const lndModel: LndModel = {
@@ -128,8 +133,24 @@ const lndModel: LndModel = {
     },
   ),
   closeChannel: thunk(
-    async (actions, { channelPoint }, { injections, getStoreState }) => {
-      await delay(1000);
+    async (
+      actions,
+      { node, channelPoint },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      await injections.lndService.closeChannel(node, channelPoint);
+      // mine some blocks to confirm the txn
+      const network = getStoreState().network.networkById(node.networkId);
+      const bitcoinNode = network.nodes.bitcoin[0];
+      await injections.bitcoindService.mine(1, bitcoinNode.ports.rpc);
+      // TODO: remove these delays once LND streaming updates are implemented
+      await delay(250);
+      await injections.bitcoindService.mine(1, bitcoinNode.ports.rpc);
+      // add a small delay to allow LND to process the mined blocks
+      await delay(250);
+      // synchronize the chart with the new channel
+      await getStoreActions().designer.syncChart(network);
+      getStoreActions().designer.redrawChart();
     },
   ),
 };

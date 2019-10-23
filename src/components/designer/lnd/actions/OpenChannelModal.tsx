@@ -77,6 +77,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             id="from"
             form={form}
             label={l('source')}
+            disabled={openChanAsync.loading}
             initialValue={from}
             nodes={nodes}
           />
@@ -87,6 +88,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             id="to"
             form={form}
             label={l('dest')}
+            disabled={openChanAsync.loading}
             initialValue={to}
             nodes={nodes}
           />
@@ -105,6 +107,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         })(
           <InputNumber
             min={20000}
+            disabled={openChanAsync.loading}
             formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
             style={{ width: '100%' }}
@@ -125,7 +128,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
     </Form>
   );
 
-  if (getBalancesAsync.loading || openChanAsync.loading) {
+  if (getBalancesAsync.loading) {
     cmp = <Loader />;
   } else if (getBalancesAsync.error) {
     cmp = (
