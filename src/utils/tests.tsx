@@ -77,6 +77,22 @@ export const renderWithProviders = (
   return { ...result, history, injections, store };
 };
 
+/**
+ * Suppresses console errors when executing some code.
+ * For example: antd Modal.confirm logs a console error when onOk fails
+ * this supresses those errors from being displayed in test runs
+ * @param func the code to run
+ */
+export const suppressConsoleErrors = async (func: () => any | Promise<any>) => {
+  const oldConsoleErr = console.error;
+  console.error = () => {};
+  const result = func();
+  if (typeof result.then === 'function') {
+    await result;
+  }
+  console.error = oldConsoleErr;
+};
+
 export const mockLndResponses = {
   getInfo: {
     identityPubkey: '',

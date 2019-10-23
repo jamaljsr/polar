@@ -42,6 +42,13 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should close the channel', async () => {
+    const expected = true;
+    lndProxyClient.closeChannel = jest.fn().mockResolvedValue(expected);
+    const actual = await lndService.closeChannel(node, 'chanPoint');
+    expect(actual).toEqual(expected);
+  });
+
   describe('openChannel', () => {
     it('should open the channel successfully', async () => {
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({ identityPubkey: 'asdf' });
