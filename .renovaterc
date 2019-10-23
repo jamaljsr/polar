@@ -3,9 +3,8 @@
   "rangeStrategy": "bump",
   "automerge": true,
   "automergeType": "branch",
-  "major": {
-    "automerge": false
-  },
+  "masterIssue": true,
+  "masterIssueAutoclose": true,
   "ignoreDeps": [
     "babel-eslint",
     "babel-jest",
