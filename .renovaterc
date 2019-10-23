@@ -5,11 +5,6 @@
   "automergeType": "branch",
   "masterIssue": true,
   "masterIssueAutoclose": true,
-  "schedule": [
-    "after 2am every weekday",
-    "before 12pm every weekday",
-    "every weekend"
-  ],
   "ignoreDeps": [
     "babel-eslint",
     "babel-jest",
