@@ -75,7 +75,7 @@
     "@types/redux-logger": "3.0.7",
     "@typescript-eslint/eslint-plugin": "2.3.2",
     "@typescript-eslint/parser": "2.3.2",
-    "antd": "3.23.6",
+    "antd": "3.24.2",
     "babel-plugin-emotion": "10.0.20",
     "babel-plugin-import": "1.12.2",
     "bitcoin-core": "3.0.0",
