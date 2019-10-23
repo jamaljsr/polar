@@ -219,7 +219,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(networks);
     await actions.save();
   }),
-  remove: thunk(async (actions, networkId, { getState, getStoreActions }) => {
+  remove: thunk(async (actions, networkId, { getState, getStoreActions, injections }) => {
     const { networks } = getState();
     const network = networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
@@ -231,6 +231,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     await actions.save();
+    await injections.lndService.clearCachedNodes(network);
   }),
 };
 
