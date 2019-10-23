@@ -1,6 +1,7 @@
 import { join } from 'path';
 import detectPort from 'detect-port';
-import { BitcoinNode, LndNode, LndVersion, Network, Status } from 'types';
+import { BitcoinNode, LndNode, LndVersion, Status } from 'shared/types';
+import { Network } from 'types';
 import { networksPath } from './config';
 import { range } from './numbers';
 

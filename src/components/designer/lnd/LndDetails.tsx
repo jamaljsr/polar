@@ -3,7 +3,7 @@ import { useAsync } from 'react-async-hook';
 import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
-import { LndNode, Status } from 'types';
+import { LndNode, Status } from 'shared/types';
 import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';

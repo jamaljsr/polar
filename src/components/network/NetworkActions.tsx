@@ -5,7 +5,8 @@ import { Button, Divider, Dropdown, Icon, Menu, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
-import { Network, Status } from 'types';
+import { Network } from 'types';
+import { Status } from 'shared/types';
 
 const Styled = {
   Button: styled(Button)`

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { Status } from 'types';
+import { Status } from 'shared/types';
 import { getNetwork } from 'utils/tests';
 import Backend from './Backend';
 

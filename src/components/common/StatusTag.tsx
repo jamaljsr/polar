@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tag } from 'antd';
-import { Status } from 'types';
+import { Status } from 'shared/types';
 
 export interface StatusTagProps {
   status: Status;

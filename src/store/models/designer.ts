@@ -11,7 +11,8 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { LndNode, Network, Status, StoreInjections } from 'types';
+import { LndNode, Status } from 'shared/types';
+import { Network, StoreInjections } from 'types';
 import { createLndChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { prefixTranslation } from 'utils/translate';

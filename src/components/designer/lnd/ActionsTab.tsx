@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode, Status } from 'types';
+import { LndNode, Status } from 'shared/types';
 import { Deposit, OpenChannelButtons } from './actions';
 
 interface Props {

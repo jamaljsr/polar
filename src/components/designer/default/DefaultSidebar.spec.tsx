@@ -1,7 +1,7 @@
 import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
-import { LndVersion, Status } from 'types';
+import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,

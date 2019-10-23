@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { LndNode } from 'types';
+import { LndNode } from 'shared/types';
 import { readHex } from 'utils/files';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';

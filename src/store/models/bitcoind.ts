@@ -1,6 +1,7 @@
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { BitcoinNode, StoreInjections } from 'types';
+import { BitcoinNode } from 'shared/types';
+import { StoreInjections } from 'types';
 import { prefixTranslation } from 'utils/translate';
 
 const { l } = prefixTranslation('store.models.bitcoind');

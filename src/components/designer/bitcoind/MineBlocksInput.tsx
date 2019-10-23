@@ -3,8 +3,8 @@ import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { BitcoinNode } from 'shared/types';
 import { useStoreActions } from 'store';
-import { BitcoinNode } from 'types';
 
 const InputGroup = Input.Group;
 

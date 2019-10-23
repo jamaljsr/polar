@@ -1,6 +1,6 @@
 import React from 'react';
 import { ISelectedOrHovered } from '@mrblenny/react-flow-chart';
-import { Status } from 'types';
+import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import Sidebar from './Sidebar';

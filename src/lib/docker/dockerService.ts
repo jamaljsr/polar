@@ -3,10 +3,11 @@ import { join } from 'path';
 import * as compose from 'docker-compose';
 import yaml from 'js-yaml';
 import stripAnsi from 'strip-ansi';
-import { DockerLibrary, LndNode, Network, NetworksFile } from 'types';
+import { DockerLibrary, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
 import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
+import { LndNode } from 'shared/types';
 
 class DockerService implements DockerLibrary {
   /**
