@@ -7,6 +7,7 @@ import lndlogo from 'resources/lnd.png';
 
 export interface LinkProperties {
   type: 'backend' | 'pending-channel' | 'open-channel';
+  channelPoint: string;
   capacity: string;
   fromBalance: string;
   toBalance: string;
@@ -114,6 +115,7 @@ const updateNodeSize = (node: INode) => {
 interface ChannelInfo {
   pending: boolean;
   uniqueId: string;
+  channelPoint: string;
   pubkey: string;
   capacity: string;
   localBalance: string;
@@ -124,6 +126,7 @@ interface ChannelInfo {
 const mapOpenChannel = (chan: Channel): ChannelInfo => ({
   pending: false,
   uniqueId: chan.channelPoint.slice(-12),
+  channelPoint: chan.channelPoint,
   pubkey: chan.remotePubkey,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
@@ -134,6 +137,7 @@ const mapOpenChannel = (chan: Channel): ChannelInfo => ({
 const mapPendingChannel = (status: string) => (chan: PendingChannel): ChannelInfo => ({
   pending: true,
   uniqueId: chan.channelPoint.slice(-12),
+  channelPoint: chan.channelPoint,
   pubkey: chan.remoteNodePub,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
@@ -178,6 +182,7 @@ const updateLinksAndPorts = (
     to: { nodeId: toName, portId: chanId },
     properties: {
       type: info.pending ? 'pending-channel' : 'open-channel',
+      channelPoint: info.channelPoint,
       capacity: info.capacity,
       fromBalance: info.localBalance,
       toBalance: info.remoteBalance,

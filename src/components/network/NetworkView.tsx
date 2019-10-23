@@ -66,7 +66,8 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       notify({ message: l('renameError'), error });
     }
   });
-  const removeAsync = useAsyncCallback(async (networkId: number, name: string) => {
+
+  const showRemoveModal = (networkId: number, name: string) => {
     Modal.confirm({
       title: l('deleteTitle'),
       content: l('deleteContent'),
@@ -84,7 +85,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         }
       },
     });
-  });
+  };
 
   useEffect(() => {
     if (!network) navigateTo(HOME);
@@ -132,7 +133,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
               setEditing(true);
               setEditingName(network.name);
             }}
-            onDeleteClick={() => removeAsync.execute(network.id, network.name)}
+            onDeleteClick={() => showRemoveModal(network.id, network.name)}
           />
         }
       />
