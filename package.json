@@ -101,7 +101,7 @@
     "i18next-scanner": "2.10.3",
     "less": "3.10.3",
     "less-loader": "5.0.0",
-    "lint-staged": "9.4.1",
+    "lint-staged": "9.4.2",
     "nodemon": "1.19.3",
     "prettier": "1.18.2",
     "react": "16.10.1",
