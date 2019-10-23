@@ -12,6 +12,7 @@ export interface Props {
   id: string;
   form: WrappedFormUtils<any>;
   label?: string;
+  disabled?: boolean;
   initialValue?: string;
   nodes?: {
     [key: string]: LndNodeModel;
@@ -23,6 +24,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   id,
   form,
   label,
+  disabled,
   initialValue,
   nodes,
 }) => {
@@ -47,7 +49,7 @@ const LightningNodeSelect: React.FC<Props> = ({
         initialValue: initialValue,
         rules: [{ required: true, message: l('cmps.forms.required') }],
       })(
-        <Select onChange={v => setHelp(getBalance(v.toString()))}>
+        <Select disabled={disabled} onChange={v => setHelp(getBalance(v.toString()))}>
           {lightning.map(node => (
             <Select.Option key={node.name} value={node.name}>
               {node.name}

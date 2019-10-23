@@ -47,6 +47,18 @@ class LndService implements LndLibrary {
     return await proxy.openChannel(from, req);
   }
 
+  async closeChannel(node: LndNode, channelPoint: string): Promise<any> {
+    const [txid, txindex] = channelPoint.split(':');
+    const req: LND.CloseChannelRequest = {
+      channelPoint: {
+        fundingTxidBytes: Buffer.from(txid),
+        fundingTxidStr: txid,
+        outputIndex: parseInt(txindex),
+      },
+    };
+    return await proxy.closeChannel(node, req);
+  }
+
   async listChannels(node: LndNode): Promise<LND.ListChannelsResponse> {
     return await proxy.listChannels(node, {});
   }

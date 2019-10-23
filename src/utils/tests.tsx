@@ -40,6 +40,7 @@ export const injections: StoreInjections = {
     waitUntilOnline: jest.fn(),
     getNewAddress: jest.fn(),
     openChannel: jest.fn(),
+    closeChannel: jest.fn(),
     listChannels: jest.fn(),
     pendingChannels: jest.fn(),
   },
