@@ -1,10 +1,15 @@
 import * as LND from '@radar/lnrpc';
-import { LndLibrary } from 'types';
+import { LndNode } from 'shared/types';
+import { LndLibrary, Network } from 'types';
 import { waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
-import { LndNode } from 'shared/types';
 
 class LndService implements LndLibrary {
+  async clearCachedNodes(network: Network): Promise<void> {
+    const nodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
+    await proxy.clearCachedNodes(nodes);
+  }
+
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
     return await proxy.getInfo(node);
   }

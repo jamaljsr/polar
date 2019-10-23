@@ -38,7 +38,8 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  waitUntilOnline(node: LndNode): Promise<boolean>;
+  clearCachedNodes: (network: Network) => Promise<void>;
+  waitUntilOnline: (node: LndNode) => Promise<boolean>;
   getInfo: (node: LndNode) => Promise<LND.GetInfoResponse>;
   getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
   getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;

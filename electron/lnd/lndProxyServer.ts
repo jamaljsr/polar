@@ -31,6 +31,27 @@ const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
   return rpcCache[id];
 };
 
+/**
+ * Clears the rpcCache for specific LND nodes. This must return a promise to be
+ * consistent with all the other listeners below
+ * @param nodes the array of nodes clear the cache for
+ */
+const clearCachedNodes = (args: {
+  nodes: LndNode[];
+}): Promise<{ clearedIds: string[] }> => {
+  const clearedIds: string[] = [];
+  args.nodes.forEach(node => {
+    const { networkId, name } = node;
+    // TODO: use node unique id for caching since is an application level global variable
+    const id = `n${networkId}-${name}`;
+    if (rpcCache[id]) {
+      delete rpcCache[id];
+      clearedIds.push(id);
+    }
+  });
+  return Promise.resolve({ clearedIds });
+};
+
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.getInfo();
@@ -100,6 +121,7 @@ const pendingChannels = async (args: {
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
+  [ipcChannels.clearCachedNodes]: clearCachedNodes,
   [ipcChannels.getInfo]: getInfo,
   [ipcChannels.walletBalance]: walletBalance,
   [ipcChannels.newAddress]: newAddress,
