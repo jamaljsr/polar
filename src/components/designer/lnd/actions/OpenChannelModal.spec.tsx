@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
-import { BitcoindLibrary, LndLibrary, Status } from 'types';
+import { Status } from 'shared/types';
+import { BitcoindLibrary, LndLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,

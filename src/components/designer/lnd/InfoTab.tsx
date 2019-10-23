@@ -1,8 +1,8 @@
 import React from 'react';
 import { Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { LndNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
-import { LndNode, Status } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { StatusBadge } from 'components/common';

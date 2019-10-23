@@ -1,6 +1,7 @@
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { LndVersion, Network, Status } from 'types';
+import { LndVersion, Status } from 'shared/types';
+import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
 import { getNetwork, injections } from 'utils/tests';

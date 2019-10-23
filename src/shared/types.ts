@@ -1,4 +1,3 @@
-// TODO: Move shared types into the src/shared folder
 export enum Status {
   Starting,
   Started,
@@ -23,6 +22,12 @@ export interface LightningNode extends CommonNode {
   backendName: string;
 }
 
+export enum LndVersion {
+  latest = '0.8.0-beta',
+  '0.8.0-beta' = '0.8.0-beta',
+  '0.7.1-beta' = '0.7.1-beta',
+}
+
 export interface LndNode extends LightningNode {
   paths: {
     tlsCert: string;
@@ -32,5 +37,13 @@ export interface LndNode extends LightningNode {
   ports: {
     rest: number;
     grpc: number;
+  };
+}
+
+export interface BitcoinNode extends CommonNode {
+  type: 'bitcoin';
+  implementation: 'bitcoind' | 'btcd';
+  ports: {
+    rpc: number;
   };
 }

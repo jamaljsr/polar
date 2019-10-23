@@ -1,6 +1,6 @@
 import React from 'react';
 import { waitForElement } from '@testing-library/dom';
-import { Status } from 'types';
+import { Status } from 'shared/types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import BitcoindDetails from './BitcoindDetails';
 

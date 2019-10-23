@@ -1,7 +1,8 @@
 import detectPort from 'detect-port';
-import { Network, Status } from 'types';
+import { Network } from 'types';
 import { ensureOpenPorts, getOpenPortRange } from './network';
 import { getNetwork } from './tests';
+import { Status } from 'shared/types';
 
 const mockDetectPort = detectPort as jest.Mock;
 

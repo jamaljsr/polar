@@ -1,7 +1,7 @@
 import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
-import { BitcoindLibrary, DockerLibrary, LndLibrary, Status } from 'types';
+import { BitcoindLibrary, DockerLibrary, LndLibrary } from 'types';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { injections } from 'utils/tests';
 import appModel from './app';
@@ -9,6 +9,7 @@ import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import modalsModel from './modals';
 import networkModel from './network';
+import { Status } from 'shared/types';
 
 jest.mock('antd', () => ({
   ...jest.requireActual('antd'),
