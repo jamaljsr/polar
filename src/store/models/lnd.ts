@@ -48,6 +48,7 @@ export interface LndModel {
   getAllInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   depositFunds: Thunk<LndModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<LndModel, OpenChannelPayload, StoreInjections, RootModel>;
+  closeChannel: Thunk<LndModel, { channelPoint: string }, StoreInjections, RootModel>;
 }
 
 const lndModel: LndModel = {
@@ -123,7 +124,12 @@ const lndModel: LndModel = {
       await delay(250);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
-      await getStoreActions().designer.redrawChart();
+      getStoreActions().designer.redrawChart();
+    },
+  ),
+  closeChannel: thunk(
+    async (actions, { channelPoint }, { injections, getStoreState }) => {
+      await delay(1000);
     },
   ),
 };

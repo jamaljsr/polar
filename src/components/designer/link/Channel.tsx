@@ -1,10 +1,13 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
+import { Button, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { useStoreActions } from 'store';
 import { LightningNode, Status } from 'types';
 import { LinkProperties } from 'utils/chart';
+import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
-import { DetailsList, StatusBadge } from 'components/common';
+import { CopyIcon, DetailsList, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
 
@@ -16,13 +19,50 @@ interface Props {
 
 const Channel: React.FC<Props> = ({ link, from, to }) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.Channel');
-  const { fromBalance, toBalance, capacity, status } = link.properties as LinkProperties;
+  const {
+    fromBalance,
+    toBalance,
+    capacity,
+    status,
+    channelPoint,
+  } = link.properties as LinkProperties;
+
+  const { notify } = useStoreActions(s => s.app);
+  const { closeChannel } = useStoreActions(s => s.lnd);
+  const showCloseChanModal = () => {
+    Modal.confirm({
+      title: l('closeChanModalTitle'),
+      okText: l('closeChanConfirmBtn'),
+      okType: 'danger',
+      cancelText: l('closeChanCancelBtn'),
+      onOk: async () => {
+        try {
+          await closeChannel({ channelPoint });
+          notify({ message: l('closeChanSuccess') });
+          // no need to navigate away since it will be done by useEffect below
+        } catch (error) {
+          notify({ message: l('closeChanError'), error });
+          throw error;
+        }
+      },
+    });
+  };
 
   const channelDetails: DetailValues = [
     { label: l('status'), value: status },
     { label: l('capacity'), value: `${format(capacity)} sats` },
     { label: l('sourceBalance'), value: `${format(fromBalance)} sats` },
     { label: l('destinationBalance'), value: `${format(toBalance)} sats` },
+    {
+      label: l('channelPoint'),
+      value: (
+        <CopyIcon
+          value={channelPoint}
+          text={ellipseInner(channelPoint, 4, 6)}
+          label={l('channelPoint')}
+        />
+      ),
+    },
   ];
 
   const [fromDetails, toDetails] = [from, to].map(node => [
@@ -45,6 +85,9 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
       <DetailsList details={channelDetails} />
       <DetailsList title={l('sourceTitle')} details={fromDetails} />
       <DetailsList title={l('destinationTitle')} details={toDetails} />
+      <Button type="danger" block ghost onClick={showCloseChanModal}>
+        {l('closeChanBtn')}
+      </Button>
     </SidebarCard>
   );
 };
