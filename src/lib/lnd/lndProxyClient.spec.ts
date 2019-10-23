@@ -53,6 +53,18 @@ describe('LndService', () => {
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.openChannel, { node, req });
   });
 
+  it('should call the closeChannel ipc', () => {
+    const req = {
+      channelPoint: {
+        fundingTxidBytes: Buffer.from('txid'),
+        fundingTxidStr: 'txid',
+        outputIndex: 0,
+      },
+    };
+    lndProxyClient.closeChannel(node, req);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.closeChannel, { node, req });
+  });
+
   it('should call the listChannels ipc', () => {
     const req = {};
     lndProxyClient.listChannels(node, req);

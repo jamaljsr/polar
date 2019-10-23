@@ -4,7 +4,12 @@ import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { createMemoryHistory } from 'history';
 import { Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import {
+  getNetwork,
+  injections,
+  renderWithProviders,
+  suppressConsoleErrors,
+} from 'utils/tests';
 import NetworkView from './NetworkView';
 
 const fsMock = fsExtra as jest.Mocked<typeof fsExtra>;
@@ -194,22 +199,21 @@ describe('NetworkView Component', () => {
     it('should display an error if the delete fails', async () => {
       // antd Modal.confirm logs a console error when onOk fails
       // this supresses those errors from being displayed in test runs
-      const oldConsoleErr = console.error;
-      console.error = () => {};
-      fsMock.remove = jest.fn().mockRejectedValue(new Error('cannot delete'));
-      const { getByLabelText, getByText, getAllByText, store } = renderComponent('1');
-      fireEvent.mouseOver(getByLabelText('icon: more'));
-      await wait(() => jest.runOnlyPendingTimers());
-      fireEvent.click(getByText('Delete'));
-      await wait(() => jest.runOnlyPendingTimers());
-      // antd creates two modals in the DOM for some silly reason. Need to click one
-      fireEvent.click(getAllByText('Yes')[0]);
-      // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('icon: close-circle-o'));
-      expect(getByText('cannot delete')).toBeInTheDocument();
-      expect(store.getState().network.networks).toHaveLength(1);
-      expect(store.getState().designer.allCharts[1]).toBeDefined();
-      console.error = oldConsoleErr;
+      await suppressConsoleErrors(async () => {
+        fsMock.remove = jest.fn().mockRejectedValue(new Error('cannot delete'));
+        const { getByLabelText, getByText, getAllByText, store } = renderComponent('1');
+        fireEvent.mouseOver(getByLabelText('icon: more'));
+        await wait(() => jest.runOnlyPendingTimers());
+        fireEvent.click(getByText('Delete'));
+        await wait(() => jest.runOnlyPendingTimers());
+        // antd creates two modals in the DOM for some silly reason. Need to click one
+        fireEvent.click(getAllByText('Yes')[0]);
+        // wait for the error notification to be displayed
+        await waitForElement(() => getByLabelText('icon: close-circle-o'));
+        expect(getByText('cannot delete')).toBeInTheDocument();
+        expect(store.getState().network.networks).toHaveLength(1);
+        expect(store.getState().designer.allCharts[1]).toBeDefined();
+      });
     });
   });
 });
