@@ -39,6 +39,10 @@ Polar requires that you have Docker installed to create the local networks
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
 
+## Download
+
+The current pre-release downloads can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
+
 ## Development
 
 ### Commands
