@@ -39,9 +39,6 @@ jobs:
         run: yarn test:codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      ## e2e tests are too flaky and fail randomly. 
-      ## disabling for now to minimize annoyance levels
-      # - name: e2e tests (mac & windows)
-      #   if: matrix.os != 'ubuntu-latest'
-      #   run: yarn test:e2e
-
+      - name: e2e tests (mac only)
+        if: matrix.os == 'macOS-latest'
+        run: yarn test:e2e
