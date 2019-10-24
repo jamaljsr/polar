@@ -10,10 +10,6 @@ class LndProxyClient {
     this.ipc = createIpcSender('LndProxyClient', 'lnd');
   }
 
-  async clearCachedNodes(nodes: LndNode[]): Promise<{ clearedIds: string[] }> {
-    return this.ipc(ipcChannels.clearCachedNodes, { nodes });
-  }
-
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
     return await this.ipc(ipcChannels.getInfo, { node });
   }
@@ -54,6 +50,10 @@ class LndProxyClient {
 
   async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
     return await this.ipc(ipcChannels.pendingChannels, { node });
+  }
+
+  async onNodesDeleted(nodes: LndNode[]): Promise<void> {
+    return await this.ipc(ipcChannels.onNodesDeleted, { nodes });
   }
 }
 
