@@ -1,18 +1,45 @@
-# Lightning Polar
+# Polar
 
 > One-click Bitcoin Lightning networks for local app development & testing
 
 [![Actions Status](https://github.com/jamaljsr/polar/workflows/CI/badge.svg)](https://github.com/jamaljsr/polar/actions)
 [![codecov](https://codecov.io/gh/jamaljsr/polar/branch/master/graph/badge.svg)](https://codecov.io/gh/jamaljsr/polar)
 
-## Development
+<p align="center">
+  <img src="./assets/screen.png" />
+  <a href="https://youtu.be/ynlmq_3LVeA" target="_blank">
+  View a short video demo
+  </a>
+</p>
 
-### Dependencies
+## Purpose
+
+Polar was built to help Lightning Network application developers quickly spin up one or more networks locally on their computers.
+
+With Polar you can:
+
+- Create a regtest Lightning Network in just a few clicks
+- Connect from your app to the lightning nodes via RPC
+- Add more nodes using drag & drop
+- Open & Close Channels
+- Manually mine new blocks
+- Deposit regtest coins into each Lightning node
+
+Supported Network Nodes:
+
+- LND v0.8.0 & v0.7.1
+- Bitcoin Core v0.18.1
+- c-lightning (coming soon)
+- eclair (coming soon)
+
+## Dependencies
 
 Polar requires that you have Docker installed to create the local networks
 
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
+
+## Development
 
 ### Commands
 
@@ -57,4 +84,4 @@ Polar requires that you have Docker installed to create the local networks
 
 ## Recognition
 
-Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/joule-extension), [Zap Wallet](https://github.com/LN-Zap/zap-desktop), [LND](https://github.com/lightningnetwork/lnd), [Bitcoin Core](https://github.com/bitcoin/bitcoin), along with many others for the amazing apps & libraries that gave this project inspiration, ideas & sometimes even a little code 😊. 
+Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/joule-extension), [Zap Wallet](https://github.com/LN-Zap/zap-desktop), [LND](https://github.com/lightningnetwork/lnd), [Bitcoin Core](https://github.com/bitcoin/bitcoin), along with many others for the amazing apps & libraries that gave this project inspiration, ideas & sometimes even a little code 😊.
