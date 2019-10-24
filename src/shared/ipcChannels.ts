@@ -1,5 +1,5 @@
 export default {
-  clearCachedNodes: 'clear-cached-nodes',
+  onNodesDeleted: 'clear-cached-nodes',
   getInfo: 'get-info',
   walletBalance: 'wallet-balance',
   newAddress: 'new-address',

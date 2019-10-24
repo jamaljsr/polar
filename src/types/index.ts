@@ -38,7 +38,6 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  clearCachedNodes: (network: Network) => Promise<void>;
   waitUntilOnline: (node: LndNode) => Promise<boolean>;
   getInfo: (node: LndNode) => Promise<LND.GetInfoResponse>;
   getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
@@ -47,6 +46,7 @@ export interface LndLibrary {
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
   pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
+  onNodesDeleted: (network: Network) => Promise<void>;
 }
 
 export interface StoreInjections {
