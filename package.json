@@ -81,7 +81,7 @@
     "bitcoin-core": "3.0.0",
     "codecov": "3.6.1",
     "commitizen": "4.0.3",
-    "concurrently": "4.1.2",
+    "concurrently": "5.0.0",
     "connected-react-router": "6.5.2",
     "cross-env": "6.0.3",
     "devtron": "1.4.0",
