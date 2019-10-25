@@ -6562,10 +6562,10 @@ docker-modem@^2.0.0:
     split-ca "^1.0.0"
     ssh2 "^0.8.5"
 
-dockerode@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.0.1.tgz#69423c7d7eb313315f47851f75c4693436d5f0a5"
-  integrity sha512-l6C/1ZF3t5qNy5xD/pd0muY6qff3qMls6iiqWNl6prODBZXe06v9w2dlxe0xDxfXwvSk5NCH+nbAaZ5b3BqvSA==
+dockerode@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.0.2.tgz#6e61de42ecbbae997196874e53150e3d7ae3c964"
+  integrity sha512-jql7zwTQH2psjyevyeWOpe9XJ8x1WbXX/TwKHcWlJsq1jivxN2+1nVqT72HKE9xxNR/MGcuWcPxrCBHNu9GZpw==
   dependencies:
     concat-stream "~2.0.0"
     docker-modem "^2.0.0"
