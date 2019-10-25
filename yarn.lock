@@ -6551,10 +6551,10 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docker-compose@0.22.2:
-  version "0.22.2"
-  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.22.2.tgz#37832c58973694965cb721a24c405e7f48fff738"
-  integrity sha512-iXWb5+LiYmylIMFXvGTYsjI1F+Xyx78Jm/uj1dxwwZLbWkUdH6yOXY5Nr3RjbYX15EgbGJCq78d29CmWQQQMPg==
+docker-compose@0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.0.tgz#c53eb95daa435a087872f20c4be46236141129e0"
+  integrity sha512-BKE5OL0FauWFQ1Kd/wnHTq3wY0AFrojL4+0RcsCdqwAhbG72hGpSylr2V8VmdzSmSzny8DnaJ0K3KlbFOM3HAg==
 
 docker-modem@^2.0.0:
   version "2.0.0"
