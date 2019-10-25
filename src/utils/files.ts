@@ -17,8 +17,8 @@ export const write = async (filePath: string, content: string) =>
  * Reads data from a file located in the app's data directory
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  */
-export const read = async (filePath: string): Promise<string> =>
-  (await readFile(abs(filePath))).toString();
+export const read = async (filePath: string, encoding?: string): Promise<string> =>
+  (await readFile(abs(filePath))).toString(encoding);
 
 /**
  * Checks to see if a file exists

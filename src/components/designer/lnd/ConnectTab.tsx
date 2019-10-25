@@ -7,7 +7,7 @@ import { useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
-import { FilePaths, HexStrings, LndConnect } from './connect';
+import { FilePaths, LndConnect, EncodedStrings } from './connect';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -48,7 +48,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   const authCmps: Record<string, ReactNode> = {
     paths: <FilePaths node={node} />,
-    hex: <HexStrings node={node} />,
+    hex: <EncodedStrings node={node} encoding="hex" />,
+    base64: <EncodedStrings node={node} encoding="base64" />,
     lndc: <LndConnect node={node} />,
   };
 
@@ -63,6 +64,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       >
         <Radio.Button value="paths">{l('filePaths')}</Radio.Button>
         <Radio.Button value="hex">{l('hexStrings')}</Radio.Button>
+        <Radio.Button value="base64">{l('base64Strings')}</Radio.Button>
         <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
       </Styled.RadioGroup>
       {authCmps[authType]}
