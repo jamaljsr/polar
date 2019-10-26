@@ -1,4 +1,4 @@
-import { LndVersion } from 'shared/types';
+import { LndVersion } from 'types';
 import ComposeFile from './composeFile';
 
 describe('ComposeFile', () => {

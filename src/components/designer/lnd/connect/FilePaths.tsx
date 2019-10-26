@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode } from 'shared/types';
+import { LndNode } from 'types';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';

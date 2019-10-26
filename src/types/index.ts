@@ -1,13 +1,62 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import { BitcoinNode, LndNode, Status } from 'shared/types';
 
 export interface LocaleConfig {
   fallbackLng: string;
   languages: {
     [key: string]: string;
   };
+}
+
+export enum Status {
+  Starting,
+  Started,
+  Stopping,
+  Stopped,
+  Error,
+}
+
+export interface CommonNode {
+  // TODO: change id to a uuid
+  id: number;
+  networkId: number;
+  name: string;
+  type: 'bitcoin' | 'lightning';
+  version: string;
+  status: Status;
+}
+
+export interface BitcoinNode extends CommonNode {
+  type: 'bitcoin';
+  implementation: 'bitcoind' | 'btcd';
+  ports: {
+    rpc: number;
+  };
+}
+
+export interface LightningNode extends CommonNode {
+  type: 'lightning';
+  implementation: 'LND' | 'c-lightning' | 'eclair';
+  backendName: string;
+}
+
+export interface LndNode extends LightningNode {
+  paths: {
+    tlsCert: string;
+    adminMacaroon: string;
+    readonlyMacaroon: string;
+  };
+  ports: {
+    rest: number;
+    grpc: number;
+  };
+}
+
+export enum LndVersion {
+  latest = '0.8.0-beta',
+  '0.8.0-beta' = '0.8.0-beta',
+  '0.7.1-beta' = '0.7.1-beta',
 }
 
 export interface Network {
@@ -38,7 +87,7 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  waitUntilOnline: (node: LndNode) => Promise<boolean>;
+  waitUntilOnline(node: LndNode): Promise<boolean>;
   getInfo: (node: LndNode) => Promise<LND.GetInfoResponse>;
   getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
   getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;
@@ -46,7 +95,6 @@ export interface LndLibrary {
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
   pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
-  onNodesDeleted: (network: Network) => Promise<void>;
 }
 
 export interface StoreInjections {

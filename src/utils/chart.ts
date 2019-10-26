@@ -1,8 +1,7 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
 import { Channel, PendingChannel } from '@radar/lnrpc';
-import { BitcoinNode, LndNode } from 'shared/types';
 import { LndNodeMapping } from 'store/models/lnd';
-import { Network } from 'types';
+import { BitcoinNode, LndNode, Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
 import lndlogo from 'resources/lnd.png';
 

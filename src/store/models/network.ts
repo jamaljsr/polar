@@ -1,8 +1,7 @@
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { CommonNode, LndNode, LndVersion, Status } from 'shared/types';
-import { Network, StoreInjections } from 'types';
+import { CommonNode, LndNode, LndVersion, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
 import { createLndNetworkNode, createNetwork, ensureOpenPorts } from 'utils/network';
@@ -219,7 +218,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(networks);
     await actions.save();
   }),
-  remove: thunk(async (actions, networkId, { getState, getStoreActions, injections }) => {
+  remove: thunk(async (actions, networkId, { getState, getStoreActions }) => {
     const { networks } = getState();
     const network = networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
@@ -231,7 +230,6 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     await actions.save();
-    await injections.lndService.onNodesDeleted(network);
   }),
 };
 

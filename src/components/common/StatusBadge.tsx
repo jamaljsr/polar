@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Tooltip } from 'antd';
-import { Status } from 'shared/types';
+import { Status } from 'types';
 
 export interface StatusBadgeProps {
   status: Status;

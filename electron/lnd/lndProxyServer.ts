@@ -2,7 +2,7 @@ import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import createLndRpc, * as LND from '@radar/lnrpc';
 import { DefaultsKey, ipcChannels, withDefaults } from '../../src/shared';
-import { LndNode } from '../../src/shared/types';
+import { LndNode } from '../types';
 
 /**
  * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
@@ -29,27 +29,6 @@ const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
     rpcCache[id] = await createLndRpc(config);
   }
   return rpcCache[id];
-};
-
-/**
- * Clears the rpcCache for specific LND nodes. This must return a promise to be
- * consistent with all the other listeners below
- * @param nodes the array of nodes clear the cache for
- */
-const onNodesDeleted = (args: {
-  nodes: LndNode[];
-}): Promise<{ clearedIds: string[] }> => {
-  const clearedIds: string[] = [];
-  args.nodes.forEach(node => {
-    const { networkId, name } = node;
-    // TODO: use node unique id for caching since is an application level global variable
-    const id = `n${networkId}-${name}`;
-    if (rpcCache[id]) {
-      delete rpcCache[id];
-      clearedIds.push(id);
-    }
-  });
-  return Promise.resolve({ clearedIds });
 };
 
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
@@ -121,7 +100,6 @@ const pendingChannels = async (args: {
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
-  [ipcChannels.onNodesDeleted]: onNodesDeleted,
   [ipcChannels.getInfo]: getInfo,
   [ipcChannels.walletBalance]: walletBalance,
   [ipcChannels.newAddress]: newAddress,

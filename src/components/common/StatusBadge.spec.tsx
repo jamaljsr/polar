@@ -1,5 +1,5 @@
 import React from 'react';
-import { Status } from 'shared/types';
+import { Status } from 'types';
 import { renderWithProviders } from 'utils/tests';
 import StatusTag from './StatusTag';
 

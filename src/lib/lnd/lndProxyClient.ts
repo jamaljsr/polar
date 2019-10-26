@@ -1,7 +1,7 @@
 import * as LND from '@radar/lnrpc';
 import { ipcChannels } from 'shared';
-import { LndNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
+import { LndNode } from 'types';
 
 class LndProxyClient {
   ipc: IpcSender;
@@ -50,10 +50,6 @@ class LndProxyClient {
 
   async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
     return await this.ipc(ipcChannels.pendingChannels, { node });
-  }
-
-  async onNodesDeleted(nodes: LndNode[]): Promise<void> {
-    return await this.ipc(ipcChannels.onNodesDeleted, { nodes });
   }
 }
 

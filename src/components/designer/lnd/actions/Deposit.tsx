@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode } from 'shared/types';
 import { useStoreActions } from 'store';
+import { LndNode } from 'types';
 import { format } from 'utils/units';
 
 const InputGroup = Input.Group;

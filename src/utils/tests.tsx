@@ -5,9 +5,8 @@ import { render } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
-import { Status } from 'shared/types';
 import { createReduxStore } from 'store';
-import { Network, StoreInjections } from 'types';
+import { Network, Status, StoreInjections } from 'types';
 import { createNetwork } from './network';
 
 export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
@@ -36,10 +35,9 @@ export const injections: StoreInjections = {
     mine: jest.fn(),
   },
   lndService: {
-    onNodesDeleted: jest.fn(),
-    waitUntilOnline: jest.fn(),
     getInfo: jest.fn(),
     getWalletBalance: jest.fn(),
+    waitUntilOnline: jest.fn(),
     getNewAddress: jest.fn(),
     openChannel: jest.fn(),
     closeChannel: jest.fn(),
