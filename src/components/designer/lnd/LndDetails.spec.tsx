@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
+import { Status } from 'shared/types';
 import { LndLibrary } from 'types';
 import * as files from 'utils/files';
 import {
@@ -9,7 +10,6 @@ import {
   renderWithProviders,
 } from 'utils/tests';
 import LndDetails from './LndDetails';
-import { Status } from 'shared/types';
 
 jest.mock('utils/files');
 
@@ -221,26 +221,45 @@ describe('LndDetails', () => {
       };
 
       it('should display hex values for paths', async () => {
-        mockFiles.readHex.mockResolvedValue('test-hex');
+        mockFiles.read.mockResolvedValue('test-hex');
         const { findByText, container, getAllByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
         await waitForElement(() => getAllByText('TLS Cert'));
         toggle(container, 'hex');
         await wait(() => {
-          expect(files.readHex).toBeCalledTimes(3);
+          expect(files.read).toBeCalledTimes(3);
           expect(getAllByText('test-hex')).toHaveLength(3);
         });
       });
 
       it('should display an error if getting hex strings fails', async () => {
-        mockFiles.readHex.mockRejectedValue(new Error('hex-error'));
+        mockFiles.read.mockRejectedValue(new Error('hex-error'));
         const { findByText, container } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
         toggle(container, 'hex');
-        expect(
-          await findByText('Failed to hex encode file contents'),
-        ).toBeInTheDocument();
+        expect(await findByText('Failed to encode file contents')).toBeInTheDocument();
         expect(await findByText('hex-error')).toBeInTheDocument();
+      });
+
+      it('should display base64 values for paths', async () => {
+        mockFiles.read.mockResolvedValue('test-base64');
+        const { findByText, container, getAllByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        await waitForElement(() => getAllByText('TLS Cert'));
+        toggle(container, 'base64');
+        await wait(() => {
+          expect(files.read).toBeCalledTimes(3);
+          expect(getAllByText('test-base64')).toHaveLength(3);
+        });
+      });
+
+      it('should display an error if getting base64 strings fails', async () => {
+        mockFiles.read.mockRejectedValue(new Error('base64-error'));
+        const { findByText, container } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        toggle(container, 'base64');
+        expect(await findByText('Failed to encode file contents')).toBeInTheDocument();
+        expect(await findByText('base64-error')).toBeInTheDocument();
       });
 
       it('should display LND Connect url', async () => {
