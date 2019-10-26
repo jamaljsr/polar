@@ -1,17 +1,13 @@
 import * as LND from '@radar/lnrpc';
 import { ipcChannels } from 'shared';
-import { LndNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
+import { LndNode } from 'shared/types';
 
 class LndProxyClient {
   ipc: IpcSender;
 
   constructor() {
     this.ipc = createIpcSender('LndProxyClient', 'lnd');
-  }
-
-  async clearCachedNodes(nodes: LndNode[]): Promise<{ clearedIds: string[] }> {
-    return this.ipc(ipcChannels.clearCachedNodes, { nodes });
   }
 
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
