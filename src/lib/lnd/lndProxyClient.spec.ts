@@ -18,12 +18,6 @@ describe('LndService', () => {
     lndProxyClient.ipc = actualIpc;
   });
 
-  it('should call the clearCachedNodes ipc', async () => {
-    const nodes = [node];
-    lndProxyClient.clearCachedNodes(nodes);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.clearCachedNodes, { nodes });
-  });
-
   it('should call the getInfo ipc', () => {
     lndProxyClient.getInfo(node);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.getInfo, { node });
