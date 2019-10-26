@@ -1,6 +1,5 @@
 import BitcoinCore from 'bitcoin-core';
-import { BitcoinNode } from 'shared/types';
-import { BitcoindLibrary } from 'types';
+import { BitcoindLibrary, BitcoinNode } from 'types';
 import { waitFor } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED, COINBASE_MATURITY_HEIGHT } from 'utils/constants';
 

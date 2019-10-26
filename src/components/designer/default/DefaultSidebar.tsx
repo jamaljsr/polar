@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { usePrefixedTranslation } from 'hooks';
-import { LndVersion } from 'shared/types';
-import { Network } from 'types';
+import { LndVersion, Network } from 'types';
 import lndLogo from 'resources/lnd.png';
 import SidebarCard from '../SidebarCard';
 import SyncButton from '../SyncButton';

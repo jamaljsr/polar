@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/dom';
-import { Status } from 'shared/types';
+import { Status } from 'types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkActions from './NetworkActions';
 

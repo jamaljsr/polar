@@ -3,7 +3,7 @@ import { useAsync } from 'react-async-hook';
 import { usePrefixedTranslation } from 'hooks';
 import { encode } from 'lndconnect';
 import { useStoreActions } from 'store';
-import { LndNode } from 'shared/types';
+import { LndNode } from 'types';
 import { read, readHex } from 'utils/files';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';

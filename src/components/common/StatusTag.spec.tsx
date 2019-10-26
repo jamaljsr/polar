@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { Status } from 'shared/types';
+import { Status } from 'types';
 import StatusBadge from './StatusBadge';
 
 describe('StatusTag Component', () => {

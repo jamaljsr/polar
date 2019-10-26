@@ -2,7 +2,7 @@ import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { fireEvent, waitForElement } from '@testing-library/dom';
 import { ipcChannels, withDefaults } from 'shared';
-import { Status } from 'shared/types';
+import { Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,

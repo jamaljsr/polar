@@ -2,8 +2,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Button, Form, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode } from 'shared/types';
 import { useStoreActions } from 'store';
+import { LndNode } from 'types';
 
 const Styled = {
   Button: styled(Button)`

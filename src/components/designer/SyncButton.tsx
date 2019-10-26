@@ -3,8 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import { Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { Network } from 'types';
-import { Status } from 'shared/types';
+import { Network, Status } from 'types';
 
 interface Props {
   network: Network;

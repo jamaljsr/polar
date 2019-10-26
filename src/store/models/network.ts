@@ -1,8 +1,7 @@
 import { info } from 'electron-log';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { CommonNode, LndNode, LndVersion, Status } from 'shared/types';
-import { Network, StoreInjections } from 'types';
+import { CommonNode, LndNode, LndVersion, Network, Status, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
 import { createLndNetworkNode, createNetwork, ensureOpenPorts } from 'utils/network';

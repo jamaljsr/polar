@@ -1,8 +1,7 @@
 import * as LND from '@radar/lnrpc';
-import { LndLibrary } from 'types';
+import { LndLibrary, LndNode } from 'types';
 import { waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
-import { LndNode } from 'shared/types';
 
 class LndService implements LndLibrary {
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {

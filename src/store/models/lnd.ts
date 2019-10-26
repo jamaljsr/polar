@@ -1,7 +1,6 @@
 import * as LND from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { LndNode } from 'shared/types';
-import { StoreInjections } from 'types';
+import { LndNode, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';

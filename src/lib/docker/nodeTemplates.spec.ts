@@ -1,4 +1,4 @@
-import { LndVersion } from 'shared/types';
+import { LndVersion } from 'types';
 import { bitcoind, lnd } from './nodeTemplates';
 
 describe('nodeTemplates', () => {

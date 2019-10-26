@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoinNode, LightningNode, Status } from 'shared/types';
+import { BitcoinNode, LightningNode, Status } from 'types';
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';

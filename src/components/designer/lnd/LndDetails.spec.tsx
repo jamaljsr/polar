@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
-import { LndLibrary } from 'types';
+import { LndLibrary, Status } from 'types';
 import * as files from 'utils/files';
 import {
   getNetwork,
@@ -9,7 +9,6 @@ import {
   renderWithProviders,
 } from 'utils/tests';
 import LndDetails from './LndDetails';
-import { Status } from 'shared/types';
 
 jest.mock('utils/files');
 

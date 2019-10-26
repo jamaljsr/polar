@@ -1,7 +1,7 @@
 import * as LND from '@radar/lnrpc';
 import { ipcChannels } from 'shared';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
-import { LndNode } from 'shared/types';
+import { LndNode } from 'types';
 
 class LndProxyClient {
   ipc: IpcSender;

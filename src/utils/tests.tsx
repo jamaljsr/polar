@@ -6,9 +6,8 @@ import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
-import { Network, StoreInjections } from 'types';
+import { Network, Status, StoreInjections } from 'types';
 import { createNetwork } from './network';
-import { Status } from 'shared/types';
 
 export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
   createNetwork({

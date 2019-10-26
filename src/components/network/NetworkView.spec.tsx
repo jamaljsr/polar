@@ -2,7 +2,7 @@ import React from 'react';
 import fsExtra from 'fs-extra';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { createMemoryHistory } from 'history';
-import { Status } from 'shared/types';
+import { Status } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,

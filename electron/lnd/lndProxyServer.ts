@@ -2,7 +2,7 @@ import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import createLndRpc, * as LND from '@radar/lnrpc';
 import { DefaultsKey, ipcChannels, withDefaults } from '../../src/shared';
-import { LndNode } from '../../src/shared/types';
+import { LndNode } from '../types';
 
 /**
  * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
