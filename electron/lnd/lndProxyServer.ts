@@ -36,7 +36,7 @@ const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
  * consistent with all the other listeners below
  * @param nodes the array of nodes clear the cache for
  */
-const onNodesDeleted = (args: {
+const clearCachedNodes = (args: {
   nodes: LndNode[];
 }): Promise<{ clearedIds: string[] }> => {
   const clearedIds: string[] = [];
@@ -121,7 +121,7 @@ const pendingChannels = async (args: {
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
-  [ipcChannels.onNodesDeleted]: onNodesDeleted,
+  [ipcChannels.clearCachedNodes]: clearCachedNodes,
   [ipcChannels.getInfo]: getInfo,
   [ipcChannels.walletBalance]: walletBalance,
   [ipcChannels.newAddress]: newAddress,

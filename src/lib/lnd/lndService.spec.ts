@@ -7,6 +7,13 @@ jest.mock('./lndProxyClient');
 describe('LndService', () => {
   const [node, node2] = getNetwork().nodes.lightning;
 
+  it('should clear cached node data', async () => {
+    const network = getNetwork();
+    await lndService.clearCachedNodes(network);
+    const [n1, n2] = network.nodes.lightning;
+    expect(lndProxyClient.clearCachedNodes).toBeCalledWith([n1, n2]);
+  });
+
   it('should get node info', async () => {
     const expected = { identityPubkey: 'asdf' };
     lndProxyClient.getInfo = jest.fn().mockResolvedValue(expected);
@@ -47,13 +54,6 @@ describe('LndService', () => {
     lndProxyClient.closeChannel = jest.fn().mockResolvedValue(expected);
     const actual = await lndService.closeChannel(node, 'chanPoint');
     expect(actual).toEqual(expected);
-  });
-
-  it('should call onNodesDeleted', async () => {
-    const network = getNetwork();
-    await lndService.onNodesDeleted(network);
-    const [n1, n2] = network.nodes.lightning;
-    expect(lndProxyClient.onNodesDeleted).toBeCalledWith([n1, n2]);
   });
 
   describe('openChannel', () => {

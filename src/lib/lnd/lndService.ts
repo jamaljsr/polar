@@ -5,6 +5,11 @@ import { waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
 
 class LndService implements LndLibrary {
+  async clearCachedNodes(network: Network): Promise<void> {
+    const nodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
+    await proxy.clearCachedNodes(nodes);
+  }
+
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
     return await proxy.getInfo(node);
   }
@@ -66,11 +71,6 @@ class LndService implements LndLibrary {
 
   async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
     return await proxy.pendingChannels(node);
-  }
-
-  async onNodesDeleted(network: Network): Promise<void> {
-    const nodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
-    return await proxy.onNodesDeleted(nodes);
   }
 
   /**

@@ -18,6 +18,12 @@ describe('LndService', () => {
     lndProxyClient.ipc = actualIpc;
   });
 
+  it('should call the clearCachedNodes ipc', async () => {
+    const nodes = [node];
+    lndProxyClient.clearCachedNodes(nodes);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.clearCachedNodes, { nodes });
+  });
+
   it('should call the getInfo ipc', () => {
     lndProxyClient.getInfo(node);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.getInfo, { node });
@@ -74,11 +80,5 @@ describe('LndService', () => {
   it('should call the pendingChannels ipc', () => {
     lndProxyClient.pendingChannels(node);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.pendingChannels, { node });
-  });
-
-  it('should call the onNodesDeleted ipc', async () => {
-    const nodes = [node];
-    lndProxyClient.onNodesDeleted(nodes);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.onNodesDeleted, { nodes });
   });
 });

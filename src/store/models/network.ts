@@ -231,7 +231,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     await actions.save();
-    await injections.lndService.onNodesDeleted(network);
+    await injections.lndService.clearCachedNodes(network);
   }),
 };
 
