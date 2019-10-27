@@ -46,8 +46,8 @@ describe('NetworkView Component', () => {
   };
 
   beforeEach(() => {
-    lndServiceMock.waitUntilOnline.mockResolvedValue(true);
-    bitcoindServiceMock.waitUntilOnline.mockResolvedValue(true);
+    lndServiceMock.waitUntilOnline.mockResolvedValue();
+    bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
   });
 
   it('should not render if the network is not found', () => {

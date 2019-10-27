@@ -26,7 +26,7 @@ describe('Async Util', () => {
 
     it('should resolve once the condition becomes true', async () => {
       // return false initially
-      const condition = jest.fn().mockResolvedValue(false);
+      const condition = jest.fn().mockRejectedValue(new Error('test-error'));
       // chain the spy onto the promise so we can inspect if its been called
       const spy = jest.fn(x => x);
       const promise = waitFor(condition, 10, 100).then(spy);

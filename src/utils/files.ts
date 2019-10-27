@@ -45,5 +45,13 @@ export const waitForFile = async (
   timeout = 5000,
 ): Promise<void> => {
   const path = abs(filePath);
-  return waitFor(async () => await exists(path), interval, timeout);
+  return waitFor(
+    async () => {
+      if (!(await exists(path))) {
+        throw new Error(`File does not exist: ${path}`);
+      }
+    },
+    interval,
+    timeout,
+  );
 };

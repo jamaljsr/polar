@@ -1,6 +1,7 @@
 import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
+import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary, LndLibrary } from 'types';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { injections } from 'utils/tests';
@@ -9,7 +10,6 @@ import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import modalsModel from './modals';
 import networkModel from './network';
-import { Status } from 'shared/types';
 
 jest.mock('antd', () => ({
   ...jest.requireActual('antd'),
@@ -288,8 +288,8 @@ describe('Designer model', () => {
       });
 
       it('should start the node if the network is running', async () => {
-        mockBitcoindService.waitUntilOnline.mockResolvedValue(true);
-        mockLndService.waitUntilOnline.mockResolvedValue(true);
+        mockBitcoindService.waitUntilOnline.mockResolvedValue();
+        mockLndService.waitUntilOnline.mockResolvedValue();
         mockDockerService.start.mockReset();
         const { setStatus } = store.getActions().network;
         setStatus({ id: firstNetwork().id, status: Status.Started });
