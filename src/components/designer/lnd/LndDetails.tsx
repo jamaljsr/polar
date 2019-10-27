@@ -1,9 +1,9 @@
 import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert } from 'antd';
+import { Alert, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { useStoreActions, useStoreState } from 'store';
 import { LndNode, Status } from 'shared/types';
+import { useStoreActions, useStoreState } from 'store';
 import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
@@ -58,7 +58,13 @@ const LndDetails: React.FC<Props> = ({ node }) => {
       onTabChange={setActiveTab}
     >
       {node.status === Status.Starting && (
-        <Alert type="info" showIcon closable={false} message={l('waitingNotice')} />
+        <Alert
+          type="info"
+          showIcon
+          icon={<Icon type="loading" />}
+          closable={false}
+          message={l('waitingNotice')}
+        />
       )}
       {node.status !== Status.Started && !nodeState && getInfoAsync.loading && <Loader />}
       {getInfoAsync.error && node.status === Status.Started && (

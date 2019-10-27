@@ -81,15 +81,10 @@ class LndService implements LndLibrary {
     node: LndNode,
     interval = 3 * 1000, // check every 3 seconds
     timeout = 30 * 1000, // timeout after 30 seconds
-  ): Promise<boolean> {
+  ): Promise<void> {
     return waitFor(
       async () => {
-        try {
-          await this.getInfo(node);
-          return true;
-        } catch {
-          return false;
-        }
+        await this.getInfo(node);
       },
       interval,
       timeout,

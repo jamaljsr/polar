@@ -48,19 +48,18 @@ class BitcoindService implements BitcoindLibrary {
     return await client.generateToAddress(numBlocks, addr);
   }
 
+  /**
+   * Helper function to continually query the bitcoind node until a successful
+   * response is received or it times out
+   */
   async waitUntilOnline(
     port?: number,
     interval = 3 * 1000, // check every 3 seconds
     timeout = 30 * 1000, // timeout after 30 seconds
-  ) {
+  ): Promise<void> {
     return waitFor(
       async () => {
-        try {
-          await this.getBlockchainInfo(port);
-          return true;
-        } catch {
-          return false;
-        }
+        await this.getBlockchainInfo(port);
       },
       interval,
       timeout,
