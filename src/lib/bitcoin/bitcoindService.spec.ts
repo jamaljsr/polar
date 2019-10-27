@@ -67,16 +67,16 @@ describe('BitcoindService', () => {
   });
 
   describe('waitUntilOnline', () => {
-    it('should return true when successful', async () => {
-      const result = await bitcoindService.waitUntilOnline();
-      expect(result).toBe(true);
+    it('should wait successfully', async () => {
+      await expect(bitcoindService.waitUntilOnline()).resolves.not.toThrow();
       expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
     });
 
-    it('should return false on failure', async () => {
-      mockProto.getBlockchainInfo = jest.fn().mockRejectedValue(new Error());
-      const result = await bitcoindService.waitUntilOnline(18443, 0.5, 1);
-      expect(result).toBe(false);
+    it('should throw error if waiting fails', async () => {
+      mockProto.getBlockchainInfo = jest.fn().mockRejectedValue(new Error('test-error'));
+      await expect(bitcoindService.waitUntilOnline(18443, 0.5, 1)).rejects.toThrow(
+        'test-error',
+      );
       expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
     });
   });

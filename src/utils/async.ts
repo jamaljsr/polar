@@ -17,9 +17,9 @@ export const waitFor = async (
   timeout = 5000,
 ): Promise<any> => {
   try {
-    await conditionFunc();
+    const result = await conditionFunc();
     // if the condition succeeds, then return immediately
-    return Promise.resolve();
+    return Promise.resolve(result);
   } catch {
     // do nothing if the condition fails the first time
   }
@@ -36,7 +36,7 @@ export const waitFor = async (
         return resolve(result);
       } catch (error) {
         // only reject when the timeout expires, otherwise ignore the error
-        if (timesToCheck < 0) {
+        if (timesToCheck <= 0) {
           clearInterval(timer);
           return reject(error);
         }

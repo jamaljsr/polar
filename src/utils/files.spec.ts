@@ -109,13 +109,12 @@ describe('Files util', () => {
   describe('wait for files', () => {
     it('should resolve immediately if the file already exists', async () => {
       mockFs.pathExists.mockResolvedValue(true as never);
-      const result = await waitForFile('test.txt');
-      expect(result).toBe(true);
+      await expect(waitForFile('test.txt')).resolves.not.toThrow();
     });
 
     it('should timeout if the file never exists', async () => {
       mockFs.pathExists.mockResolvedValue(false as never);
-      await expect(waitForFile('test.txt', 10, 30)).resolves.toBe(false);
+      await expect(waitForFile('test.txt', 10, 30)).rejects.toThrow();
     });
 
     it('should resolve once the file exists', async () => {
@@ -129,7 +128,7 @@ describe('Files util', () => {
       // make pathExists return true
       mockFs.pathExists.mockResolvedValue(true as never);
       // wait for the promise to be resolved
-      await expect(promise).resolves.toBe(true);
+      await expect(promise).resolves.not.toThrow();
       // confirm the spy was called
       expect(spy).toBeCalled();
     });

@@ -43,9 +43,9 @@ describe('Network model', () => {
     // reset the store before each test run
     store = createStore(rootModel, { injections });
     // always return true immediately
-    filesMock.waitForFile.mockResolvedValue(true);
-    lndServiceMock.waitUntilOnline.mockResolvedValue(true);
-    bitcoindServiceMock.waitUntilOnline.mockResolvedValue(true);
+    filesMock.waitForFile.mockResolvedValue();
+    lndServiceMock.waitUntilOnline.mockResolvedValue();
+    bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
   });
 
   it('should have a valid initial state', () => {
@@ -210,21 +210,23 @@ describe('Network model', () => {
     });
 
     it('should set LND node status to error if the node startup fails', async () => {
-      lndServiceMock.waitUntilOnline.mockResolvedValue(false);
+      lndServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
       const { lightning } = firstNetwork().nodes;
       lightning.forEach(node => expect(node.status).toBe(Status.Error));
+      lightning.forEach(node => expect(node.errorMsg).toBe('test-error'));
     });
 
     it('should set bitcoind node status to error if the node startup fails', async () => {
-      bitcoindServiceMock.waitUntilOnline.mockResolvedValue(false);
+      bitcoindServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
       const { bitcoin } = firstNetwork().nodes;
       bitcoin.forEach(node => expect(node.status).toBe(Status.Error));
+      bitcoin.forEach(node => expect(node.errorMsg).toBe('test-error'));
     });
 
     it('should not save compose file and networks if all ports are available', async () => {

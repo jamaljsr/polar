@@ -87,18 +87,18 @@ describe('LndService', () => {
   });
 
   describe('waitUntilOnline', () => {
-    it('should return true when successful', async () => {
+    it('should wait successfully', async () => {
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
-      const result = await lndService.waitUntilOnline(node);
-      expect(result).toBe(true);
+      await expect(lndService.waitUntilOnline(node)).resolves.not.toThrow();
       expect(lndProxyClient.getInfo).toBeCalledTimes(1);
     });
 
-    it('should return false on failure', async () => {
-      lndProxyClient.getInfo = jest.fn().mockRejectedValue(new Error());
-      const result = await lndService.waitUntilOnline(node, 0.5, 1);
-      expect(result).toBe(false);
-      expect(lndProxyClient.getInfo).toBeCalledTimes(5);
+    it('should throw error if waiting fails', async () => {
+      lndProxyClient.getInfo = jest.fn().mockRejectedValue(new Error('test-error'));
+      await expect(lndService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
+        'test-error',
+      );
+      expect(lndProxyClient.getInfo).toBeCalledTimes(4);
     });
   });
 });

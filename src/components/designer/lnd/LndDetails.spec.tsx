@@ -16,6 +16,9 @@ jest.mock('utils/files');
 describe('LndDetails', () => {
   const renderComponent = (status?: Status) => {
     const network = getNetwork(1, 'test network', status);
+    if (status === Status.Error) {
+      network.nodes.lightning.forEach(n => (n.errorMsg = 'test-error'));
+    }
     const initialState = {
       network: {
         networks: [network],
@@ -289,6 +292,20 @@ describe('LndDetails', () => {
         expect(getByText('Unable to create LND Connect url')).toBeInTheDocument();
         expect(getByText('lndc-error')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('with node Error', () => {
+    it('should display correct Status', async () => {
+      const { findByText, node } = renderComponent(Status.Error);
+      expect(await findByText('Status')).toBeInTheDocument();
+      expect(await findByText(Status[node.status])).toBeInTheDocument();
+    });
+
+    it('should display correct Status', async () => {
+      const { findByText } = renderComponent(Status.Error);
+      expect(await findByText('Unable to connect to LND node')).toBeInTheDocument();
+      expect(await findByText('test-error')).toBeInTheDocument();
     });
   });
 });
