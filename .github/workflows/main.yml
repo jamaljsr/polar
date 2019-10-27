@@ -1,7 +1,13 @@
 name: CI
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches:
+    - master
+    - renovate/*
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+    
 jobs:
   test:
     name: Run tests on ${{ matrix.os }}
