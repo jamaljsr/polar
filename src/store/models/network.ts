@@ -43,7 +43,7 @@ export interface NetworkModel {
   >;
   setStatus: Action<
     NetworkModel,
-    { id: number; status: Status; only?: string; all?: boolean }
+    { id: number; status: Status; only?: string; all?: boolean; error?: Error }
   >;
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
@@ -122,10 +122,13 @@ const networkModel: NetworkModel = {
     await injections.dockerService.saveComposeFile(network);
     return node;
   }),
-  setStatus: action((state, { id, status, only, all = true }) => {
+  setStatus: action((state, { id, status, only, all = true, error }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-    const setNodeStatus = (n: CommonNode) => (n.status = status);
+    const setNodeStatus = (n: CommonNode) => {
+      n.status = status;
+      n.errorMsg = error && error.message;
+    };
     if (only) {
       // only update a specific node's status
       network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
@@ -143,14 +146,13 @@ const networkModel: NetworkModel = {
   start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
-    actions.setStatus({ id: network.id, status: Status.Starting });
+    const { id } = network;
+    actions.setStatus({ id: id, status: Status.Starting });
     try {
       // make sure the node ports are available
       if (await ensureOpenPorts(network)) {
         // at least one port was updated. save the network & composeFile
-        const networks = getState().networks.map(n =>
-          n.id === network.id ? network : n,
-        );
+        const networks = getState().networks.map(n => (n.id === id ? network : n));
         actions.setNetworks(networks);
         await actions.save();
         await injections.dockerService.saveComposeFile(network);
@@ -158,32 +160,32 @@ const networkModel: NetworkModel = {
       // start the docker containers
       await injections.dockerService.start(network);
       // set the status of only the network to Started
-      actions.setStatus({ id: network.id, status: Status.Started, all: false });
+      actions.setStatus({ id, status: Status.Started, all: false });
       // wait for lnd nodes to come online before updating their status
       for (const lnd of network.nodes.lightning) {
         // use .then() to continue execution while the promises are waiting to complete
-        injections.lndService.waitUntilOnline(lnd).then(isOnline => {
-          actions.setStatus({
-            id: network.id,
-            status: isOnline ? Status.Started : Status.Error,
-            only: lnd.name,
-          });
-        });
+        injections.lndService
+          .waitUntilOnline(lnd)
+          .then(() => actions.setStatus({ id, status: Status.Started, only: lnd.name }))
+          .catch(error =>
+            actions.setStatus({ id, status: Status.Error, only: lnd.name, error }),
+          );
       }
       // wait for bitcoind nodes to come online before updating their status
       for (const bitcoind of network.nodes.bitcoin) {
         // use .then() to continue execution while the promises are waiting to complete
-        injections.bitcoindService.waitUntilOnline(bitcoind.ports.rpc).then(isOnline => {
-          actions.setStatus({
-            id: network.id,
-            status: isOnline ? Status.Started : Status.Error,
-            only: bitcoind.name,
-          });
-          return getStoreActions().bitcoind.getInfo(bitcoind);
-        });
+        injections.bitcoindService
+          .waitUntilOnline(bitcoind.ports.rpc)
+          .then(() => {
+            actions.setStatus({ id, status: Status.Started, only: bitcoind.name });
+            return getStoreActions().bitcoind.getInfo(bitcoind);
+          })
+          .catch(error =>
+            actions.setStatus({ id, status: Status.Error, only: bitcoind.name, error }),
+          );
       }
     } catch (e) {
-      actions.setStatus({ id: network.id, status: Status.Error });
+      actions.setStatus({ id, status: Status.Error });
       info(`unable to start network '${network.name}'`, e.message);
       throw e;
     }

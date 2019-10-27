@@ -30,7 +30,7 @@ export interface DockerLibrary {
 }
 
 export interface BitcoindLibrary {
-  waitUntilOnline: (port?: number) => Promise<boolean>;
+  waitUntilOnline: (port?: number) => Promise<void>;
   getBlockchainInfo: (port?: number) => Promise<ChainInfo>;
   getWalletInfo: (port?: number) => Promise<WalletInfo>;
   mine: (numBlocks: number, port?: number) => Promise<string[]>;
@@ -38,7 +38,7 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  waitUntilOnline: (node: LndNode) => Promise<boolean>;
+  waitUntilOnline: (node: LndNode) => Promise<void>;
   getInfo: (node: LndNode) => Promise<LND.GetInfoResponse>;
   getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
   getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;

@@ -14,6 +14,7 @@ export interface CommonNode {
   type: 'bitcoin' | 'lightning';
   version: string;
   status: Status;
+  errorMsg?: string;
 }
 
 export interface LightningNode extends CommonNode {

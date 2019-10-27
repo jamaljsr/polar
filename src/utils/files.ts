@@ -43,7 +43,7 @@ export const waitForFile = async (
   filePath: string,
   interval = 500,
   timeout = 5000,
-): Promise<boolean> => {
+): Promise<void> => {
   const path = abs(filePath);
-  return waitFor(() => exists(path), interval, timeout);
+  return waitFor(async () => await exists(path), interval, timeout);
 };

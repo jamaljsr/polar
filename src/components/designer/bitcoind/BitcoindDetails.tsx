@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert } from 'antd';
+import { Alert, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -63,7 +63,22 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     <SidebarCard title={node.name} extra={extra}>
       {getInfoAsync.loading && <Loader />}
       {node.status === Status.Starting && (
-        <Alert type="info" showIcon closable={false} message={l('waitingNotice')} />
+        <Alert
+          type="info"
+          showIcon
+          closable={false}
+          message={l('waitingNotice')}
+          icon={<Icon type="loading" />}
+        />
+      )}
+      {node.status === Status.Error && node.errorMsg && (
+        <Alert
+          type="error"
+          message={l('startError')}
+          description={node.errorMsg}
+          closable={false}
+          showIcon
+        />
       )}
       {getInfoAsync.error && (
         <Alert

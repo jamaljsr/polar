@@ -12,8 +12,8 @@ export interface LndNodeMapping {
 }
 
 export interface LndNodeModel {
-  info?: LND.GetInfoResponse | undefined;
-  walletBalance?: LND.WalletBalanceResponse | undefined;
+  info?: LND.GetInfoResponse;
+  walletBalance?: LND.WalletBalanceResponse;
   channels?: {
     open: LND.Channel[];
     opening: LND.PendingOpenChannel[];

@@ -12,27 +12,34 @@ export const delay = async (timeout: number) =>
  * @param timeout the absolute timeout to abort checking the codition and return false
  */
 export const waitFor = async (
-  conditionFunc: () => Promise<boolean>,
+  conditionFunc: () => Promise<any>,
   interval = 500,
   timeout = 5000,
-): Promise<boolean> => {
-  // if the condition is true, then return immediately
-  if (await conditionFunc()) {
-    return Promise.resolve(true);
+): Promise<any> => {
+  try {
+    await conditionFunc();
+    // if the condition succeeds, then return immediately
+    return Promise.resolve();
+  } catch {
+    // do nothing if the condition fails the first time
   }
+
   // return a promise that will resolve when the condition is true
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     // keep a countdown of the number of times to check
     // so it can abort after a the timeout expires
     let timesToCheck = timeout / interval;
     const timer = setInterval(async () => {
-      if (await conditionFunc()) {
+      try {
+        const result = await conditionFunc();
         clearInterval(timer);
-        return resolve(true);
-      }
-      if (timesToCheck < 0) {
-        clearInterval(timer);
-        return resolve(false);
+        return resolve(result);
+      } catch (error) {
+        // only reject when the timeout expires, otherwise ignore the error
+        if (timesToCheck < 0) {
+          clearInterval(timer);
+          return reject(error);
+        }
       }
       // decrement the number of times to check in each iteration
       timesToCheck -= 1;
