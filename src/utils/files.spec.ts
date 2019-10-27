@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { join } from 'path';
 import { dataPath } from './config';
-import { exists, read, readHex, waitForFile, write } from './files';
+import { exists, read, waitForFile, write } from './files';
 
 jest.mock('fs-extra', () => ({
   mkdirs: jest.fn(),
@@ -36,6 +36,18 @@ describe('Files util', () => {
       await read(absPath);
       expect(mockFs.readFile).toBeCalledTimes(1);
       expect(mockFs.readFile).toBeCalledWith(absPath);
+    });
+
+    it('should convert data from disk to hex format', async () => {
+      mockFs.readFile.mockResolvedValue(Buffer.from('test data'));
+      const path = join('networks', 'test.txt');
+      expect(await read(path, 'hex')).toEqual('746573742064617461');
+    });
+
+    it('should convert data from disk to base64 format', async () => {
+      mockFs.readFile.mockResolvedValue(Buffer.from('test data'));
+      const path = join('networks', 'test.txt');
+      expect(await read(path, 'base64')).toEqual('dGVzdCBkYXRh');
     });
   });
 
@@ -91,13 +103,6 @@ describe('Files util', () => {
       const fileExists = await exists(absPath);
       expect(fileExists).toBe(true);
       expect(mockFs.pathExists).toBeCalledWith(absPath);
-    });
-  });
-
-  describe('read hex', () => {
-    it('should convert data from disk to hex formar', async () => {
-      mockFs.readFile.mockResolvedValue(Buffer.from('test data'));
-      expect(await readHex(join('networks', 'test.txt'))).toEqual('746573742064617461');
     });
   });
 

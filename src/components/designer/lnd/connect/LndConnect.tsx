@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { usePrefixedTranslation } from 'hooks';
 import { encode } from 'lndconnect';
-import { useStoreActions } from 'store';
 import { LndNode } from 'shared/types';
-import { read, readHex } from 'utils/files';
+import { useStoreActions } from 'store';
+import { read } from 'utils/files';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -23,7 +23,7 @@ const LndConnect: React.FC<Props> = ({ node }) => {
       const url = encode({
         host: `127.0.0.1:${node.ports.grpc}`,
         cert: await read(tlsCert),
-        macaroon: await readHex(adminMacaroon),
+        macaroon: await read(adminMacaroon, 'hex'),
       });
       setConnectUrl(url);
     } catch (error) {
