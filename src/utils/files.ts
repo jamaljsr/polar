@@ -28,13 +28,6 @@ export const exists = async (filePath: string): Promise<boolean> =>
   await pathExists(abs(filePath));
 
 /**
- * Reads a file from disk and returns it in hex format
- * @param filePath the path to the file. either absolute or relative to the app's data dir
- */
-export const readHex = async (filePath: string): Promise<string> =>
-  (await readFile(abs(filePath))).toString('hex');
-
-/**
  * Deletes a file or directory from disk. The directory can have contents. Like `rm -rf`
  * @param path the path to the file or directory. either absolute or relative to the app's data dir
  */

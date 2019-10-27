@@ -263,21 +263,24 @@ describe('LndDetails', () => {
       });
 
       it('should display LND Connect url', async () => {
-        mockFiles.readHex.mockResolvedValue('test-hex');
-        mockFiles.read.mockResolvedValue('test-data');
+        mockFiles.read.mockImplementation((p, e) =>
+          Promise.resolve(e === 'hex' ? 'test-hex' : 'test-data'),
+        );
         const { findByText, container, getByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
         await waitForElement(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
         await waitForElement(() => getByText('LND Connect Url'));
-        expect(files.read).toBeCalledTimes(1);
-        expect(files.readHex).toBeCalledTimes(1);
+        expect(files.read).toBeCalledTimes(2);
         expect(getByText(/lndconnect/)).toBeInTheDocument();
       });
 
       it('should display and error if getting the LND Connect url failes', async () => {
-        mockFiles.readHex.mockRejectedValue(new Error('lndc-error'));
-        mockFiles.read.mockResolvedValue('test-data');
+        mockFiles.read.mockImplementation((p, e) =>
+          e === 'hex'
+            ? Promise.reject(new Error('lndc-error'))
+            : Promise.resolve('test-data'),
+        );
         const { findByText, container, getByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
         await waitForElement(() => getByText('TLS Cert'));
