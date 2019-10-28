@@ -6782,10 +6782,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-easy-peasy@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.1.0.tgz#b2989002e7c1e76353b10d5ba3cd5f0880f0d8c2"
-  integrity sha512-0voU8JEy7S7DudHzF8s1QnujVCRfuP9bQKHe7iCrRFoNfsGMCIqEft/axQYX2lvaJYpsYmXlcn8vcn4aJxDYhw==
+easy-peasy@3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.1.1.tgz#11b21db823065f71bb2467ef2ad4c53bc4af996f"
+  integrity sha512-QErolWnGAgtBo+LchESCKZ0UBfMyMfmZc3tkyK/HY1ZLYUTq6aY7DFiYHgtqMLRWwbiPFMUfYrI0KB74w8iAvA==
   dependencies:
     immer-peasy "3.1.3"
     memoizerific "^1.11.3"
@@ -6793,7 +6793,8 @@ easy-peasy@3.1.0:
     redux "^4.0.4"
     redux-thunk "^2.3.0"
     shallowequal "^1.1.0"
-    ts-toolbelt "^4.7.23"
+    symbol-observable "^1.2.0"
+    ts-toolbelt "^4.9.9"
 
 easy-stack@^1.0.0:
   version "1.0.0"
@@ -17709,10 +17710,10 @@ ts-protoc-gen@^0.8.0:
   dependencies:
     google-protobuf "^3.6.1"
 
-ts-toolbelt@^4.7.23:
-  version "4.7.24"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-4.7.24.tgz#9e150a552bed3618c385d0fb276127937f473ff2"
-  integrity sha512-jOnCkp4Yqa53CNonegmTCu7bhi9ame5iZNOZaby2wIvtgCGRKSxlr4j/7Qyabz02qY7ex4tviwj/t2irr305XQ==
+ts-toolbelt@^4.9.9:
+  version "4.9.9"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-4.9.9.tgz#1a5870096430a15f5a694d53c40705473cd7b131"
+  integrity sha512-syHEGzoVahm9PoUgeN5Q3d/Dcn3nHGko26Zhxq6T9WfOyADgrg3OXP/Fp6GOpfuZt5Ln9IJW+zn+rQ9C8FqeIg==
 
 tslib@^1.8.1:
   version "1.10.0"
