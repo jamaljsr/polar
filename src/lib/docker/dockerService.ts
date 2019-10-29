@@ -1,16 +1,31 @@
 import { remote } from 'electron';
-import { info } from 'electron-log';
+import { debug, info } from 'electron-log';
 import { join } from 'path';
 import * as compose from 'docker-compose';
+import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
+import { LndNode } from 'shared/types';
 import stripAnsi from 'strip-ansi';
-import { DockerLibrary, Network, NetworksFile } from 'types';
+import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
 import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
-import { LndNode } from 'shared/types';
 
 class DockerService implements DockerLibrary {
+  async getVersions(): Promise<DockerVersions> {
+    debug('getting docker-compose version');
+    const composeVersion = await this.execute(compose.version, {});
+    debug(`Result: ${JSON.stringify(composeVersion)}`);
+    debug('fetching docker version');
+    const dockerode = new Dockerode();
+    const dockerVersion = await dockerode.version();
+    debug(`Result: ${JSON.stringify(dockerVersion)}`);
+    return {
+      docker: dockerVersion.Version,
+      compose: composeVersion.out.trim(),
+    };
+  }
+
   /**
    * Save a docker-compose.yml file for the given network
    * @param network the network to save a compose file for

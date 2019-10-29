@@ -110,7 +110,7 @@
   "cmps.designer.SyncButton.syncBtnTip": "Update channels from nodes",
   "cmps.home.GetStarted.title": "Let's get started!",
   "cmps.home.GetStarted.createBtn": "Create a Lightning Network",
-  "cmps.home.Home.loadError": "Unable to load previously save networks",
+  "cmps.home.Home.initError": "No se puede inicializar el estado de la aplicación",
   "cmps.home.NetworkCard.lightningNodes": "Lightning Nodes",
   "cmps.home.NetworkCard.bitcoinNodes": "Bitcoin Nodes",
   "cmps.network.NetworkActions.menuRename": "Rename",

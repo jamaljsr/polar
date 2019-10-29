@@ -6,6 +6,7 @@ import { NavMenu } from 'components/common';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
 import LocaleSwitch from './LocaleSwitch';
+import Status from './Status';
 
 const { Header, Content, Footer } = Layout;
 
@@ -39,7 +40,7 @@ const Styled = {
   `,
   Footer: styled(Footer)`
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding: 0 5px;
   `,
 };
@@ -62,6 +63,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
       </Styled.Header>
       <Styled.Content>{props.children}</Styled.Content>
       <Styled.Footer>
+        <Status />
         <LocaleSwitch />
       </Styled.Footer>
     </Styled.Layout>
