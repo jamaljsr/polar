@@ -21,7 +21,13 @@ export interface Network {
   };
 }
 
+export interface DockerVersions {
+  docker: string;
+  compose: string;
+}
+
 export interface DockerLibrary {
+  getVersions: () => Promise<DockerVersions>;
   saveComposeFile: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;

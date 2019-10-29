@@ -11,22 +11,22 @@ const Home: React.FC = () => {
   useEffect(() => info('Rendering Home component'), []);
 
   const { l } = usePrefixedTranslation('cmps.home.Home');
-  const { notify } = useStoreActions(s => s.app);
-  const { networks, loaded } = useStoreState(s => s.network);
-  const { load } = useStoreActions(s => s.network);
-  const loadAsync = useAsync(
+  const { notify, initialize } = useStoreActions(s => s.app);
+  const { networks } = useStoreState(s => s.network);
+  const { initialized } = useStoreState(s => s.app);
+  const initAsync = useAsync(
     async () => {
       try {
-        await load();
+        await initialize();
       } catch (error) {
         notify({ message: l('loadError'), error });
       }
     },
     [],
-    { executeOnMount: !loaded },
+    { executeOnMount: !initialized },
   );
 
-  if (loadAsync.loading) {
+  if (initAsync.loading) {
     return <Loader />;
   }
 

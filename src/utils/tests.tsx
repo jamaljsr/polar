@@ -22,6 +22,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
   dockerService: {
+    getVersions: jest.fn(),
     saveComposeFile: jest.fn(),
     start: jest.fn(),
     stop: jest.fn(),

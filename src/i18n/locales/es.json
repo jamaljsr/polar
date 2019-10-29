@@ -110,7 +110,7 @@
   "cmps.designer.SyncButton.syncBtnTip": "Actualizar canales desde nodos",
   "cmps.home.GetStarted.title": "Empecemos",
   "cmps.home.GetStarted.createBtn": "Crea tu primera red",
-  "cmps.home.Home.loadError": "No se pueden cargar las redes guardadas previamente",
+  "cmps.home.Home.initError": "No se pueden cargar las redes guardadas previamente",
   "cmps.home.NetworkCard.lightningNodes": "Nodos Relámpagos",
   "cmps.home.NetworkCard.bitcoinNodes": "Nodos de Bitcoin",
   "cmps.network.NetworkActions.menuRename": "Rebautizar",

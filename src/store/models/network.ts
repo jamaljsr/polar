@@ -20,10 +20,8 @@ interface AddNetworkArgs {
 
 export interface NetworkModel {
   networks: Network[];
-  loaded: boolean;
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   setNetworks: Action<NetworkModel, Network[]>;
-  setLoaded: Action<NetworkModel, boolean>;
   load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   save: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
@@ -61,7 +59,6 @@ export interface NetworkModel {
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
-  loaded: false,
   // computed properties/functions
   networkById: computed(state => (id?: string | number) => {
     const networkId = typeof id === 'number' ? id : parseInt(id || '');
@@ -75,16 +72,12 @@ const networkModel: NetworkModel = {
   setNetworks: action((state, networks) => {
     state.networks = networks;
   }),
-  setLoaded: action((state, loaded) => {
-    state.loaded = loaded;
-  }),
   load: thunk(async (actions, payload, { injections, getStoreActions }) => {
     const { networks, charts } = await injections.dockerService.loadNetworks();
     if (networks && networks.length) {
       actions.setNetworks(networks);
     }
     getStoreActions().designer.setAllCharts(charts);
-    actions.setLoaded(true);
   }),
   save: thunk(async (actions, payload, { getState, injections, getStoreState }) => {
     const data = {
