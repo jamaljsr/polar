@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import * as LND from '@radar/lnrpc';
 import { render } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
@@ -94,39 +93,4 @@ export const suppressConsoleErrors = async (func: () => any | Promise<any>) => {
     await result;
   }
   console.error = oldConsoleErr;
-};
-
-export const mockLndResponses = {
-  getInfo: {
-    identityPubkey: '',
-    alias: '',
-    numPendingChannels: 0,
-    numActiveChannels: 0,
-    numPeers: 0,
-    blockHeight: 0,
-    blockHash: '',
-    syncedToChain: false,
-    testnet: false,
-    chains: [],
-    uris: [],
-    bestHeaderTimestamp: '',
-    version: '',
-    numInactiveChannels: 0,
-    color: '',
-  } as LND.GetInfoResponse,
-  getWalletBalance: {
-    confirmedBalance: '0',
-    unconfirmedBalance: '0',
-    totalBalance: '0',
-  } as LND.WalletBalanceResponse,
-  listChannels: {
-    channels: [],
-  } as LND.ListChannelsResponse,
-  pendingChannels: {
-    totalLimboBalance: '0',
-    pendingOpenChannels: [],
-    pendingClosingChannels: [],
-    pendingForceClosingChannels: [],
-    waitingCloseChannels: [],
-  } as LND.PendingChannelsResponse,
 };

@@ -1,14 +1,10 @@
 import React from 'react';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
+import { defaultInfo, defaultListChannels, defaultPendingChannels } from 'shared';
 import { Status } from 'shared/types';
 import { LndLibrary } from 'types';
 import * as files from 'utils/files';
-import {
-  getNetwork,
-  injections,
-  mockLndResponses,
-  renderWithProviders,
-} from 'utils/tests';
+import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import LndDetails from './LndDetails';
 
 jest.mock('utils/files');
@@ -107,24 +103,20 @@ describe('LndDetails', () => {
     const mockFiles = files as jest.Mocked<typeof files>;
 
     beforeEach(() => {
-      lndServiceMock.getInfo.mockResolvedValue({
-        ...mockLndResponses.getInfo,
-        alias: 'my-node',
-        identityPubkey: 'abcdef',
-        syncedToChain: true,
-      });
+      lndServiceMock.getInfo.mockResolvedValue(
+        defaultInfo({
+          alias: 'my-node',
+          identityPubkey: 'abcdef',
+          syncedToChain: true,
+        }),
+      );
       lndServiceMock.getWalletBalance.mockResolvedValue({
-        ...mockLndResponses.getWalletBalance,
         confirmedBalance: '10',
         unconfirmedBalance: '20',
         totalBalance: '30',
       });
-      lndServiceMock.listChannels.mockResolvedValue({
-        ...mockLndResponses.listChannels,
-      });
-      lndServiceMock.pendingChannels.mockResolvedValue({
-        ...mockLndResponses.pendingChannels,
-      });
+      lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
+      lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
     });
 
     it('should display correct Status', async () => {

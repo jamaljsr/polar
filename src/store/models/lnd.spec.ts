@@ -1,9 +1,9 @@
 import * as LND from '@radar/lnrpc';
 import { createStore } from 'easy-peasy';
-import { ipcChannels, withDefaults } from 'shared';
+import { defaultInfo, ipcChannels, withDefaults } from 'shared';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
-import { getNetwork, injections, mockLndResponses } from 'utils/tests';
+import { getNetwork, injections } from 'utils/tests';
 import lndModel from './lnd';
 import networkModel from './network';
 
@@ -33,14 +33,14 @@ describe('LND Model', () => {
     asyncUtilMock.delay.mockResolvedValue(true);
     bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
     lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
-    lndServiceMock.getInfo.mockResolvedValue({
-      ...mockLndResponses.getInfo,
-      alias: 'my-node',
-      identityPubkey: 'abcdef',
-      syncedToChain: true,
-    });
+    lndServiceMock.getInfo.mockResolvedValue(
+      defaultInfo({
+        alias: 'my-node',
+        identityPubkey: 'abcdef',
+        syncedToChain: true,
+      }),
+    );
     lndServiceMock.getWalletBalance.mockResolvedValue({
-      ...mockLndResponses.getWalletBalance,
       confirmedBalance: '100',
       unconfirmedBalance: '200',
       totalBalance: '300',
