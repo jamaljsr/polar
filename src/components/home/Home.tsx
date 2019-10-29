@@ -5,7 +5,7 @@ import { Col, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { Loader } from 'components/common';
-import { GetStarted, NetworkCard } from './';
+import { DetectDockerModal, GetStarted, NetworkCard } from './';
 
 const Home: React.FC = () => {
   useEffect(() => info('Rendering Home component'), []);
@@ -40,6 +40,7 @@ const Home: React.FC = () => {
           </Col>
         ))}
       </Row>
+      <DetectDockerModal />
     </>
   );
 };

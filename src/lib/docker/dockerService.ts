@@ -12,18 +12,33 @@ import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
-  async getVersions(): Promise<DockerVersions> {
-    debug('getting docker-compose version');
-    const composeVersion = await this.execute(compose.version, {});
-    debug(`Result: ${JSON.stringify(composeVersion)}`);
-    debug('fetching docker version');
-    const dockerode = new Dockerode();
-    const dockerVersion = await dockerode.version();
-    debug(`Result: ${JSON.stringify(dockerVersion)}`);
-    return {
-      docker: dockerVersion.Version,
-      compose: composeVersion.out.trim(),
+  async getVersions(throwOnError?: boolean): Promise<DockerVersions> {
+    const versions = {
+      docker: '',
+      compose: '',
     };
+
+    try {
+      debug('fetching docker version');
+      const dockerVersion = await new Dockerode().version();
+      debug(`Result: ${JSON.stringify(dockerVersion)}`);
+      versions.docker = dockerVersion.Version;
+    } catch (error) {
+      debug(`Failed: ${error.message}`);
+      if (throwOnError) throw error;
+    }
+
+    try {
+      debug('getting docker-compose version');
+      const composeVersion = await this.execute(compose.version, {});
+      debug(`Result: ${JSON.stringify(composeVersion)}`);
+      versions.compose = composeVersion.out.trim();
+    } catch (error) {
+      debug(`Failed: ${error.message}`);
+      if (throwOnError) throw error;
+    }
+
+    return versions;
   }
 
   /**

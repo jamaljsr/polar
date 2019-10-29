@@ -1,3 +1,4 @@
+import { shell } from 'electron';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
@@ -14,11 +15,13 @@ export interface NotifyOptions {
 export interface AppModel {
   initialized: boolean;
   dockerVersions: DockerVersions;
-  setDockerVersions: Action<AppModel, DockerVersions>;
   setInitialized: Action<AppModel, boolean>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
+  setDockerVersions: Action<AppModel, DockerVersions>;
+  getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
   notify: Action<AppModel, NotifyOptions>;
   navigateTo: Thunk<AppModel, string>;
+  openInBrowser: Action<AppModel, string>;
 }
 
 const appModel: AppModel = {
@@ -29,17 +32,20 @@ const appModel: AppModel = {
     compose: '',
   },
   // reducer actions (mutations allowed thx to immer)
-  setDockerVersions: action((state, versions) => {
-    state.dockerVersions = versions;
-  }),
   setInitialized: action((state, initialized) => {
     state.initialized = initialized;
   }),
-  initialize: thunk(async (actions, _, { injections, getStoreActions }) => {
+  initialize: thunk(async (actions, payload, { getStoreActions }) => {
     await getStoreActions().network.load();
-    const versions = await injections.dockerService.getVersions();
-    actions.setDockerVersions(versions);
+    await actions.getDockerVersions({});
     actions.setInitialized(true);
+  }),
+  setDockerVersions: action((state, versions) => {
+    state.dockerVersions = versions;
+  }),
+  getDockerVersions: thunk(async (actions, { throwErr }, { injections }) => {
+    const versions = await injections.dockerService.getVersions(throwErr);
+    actions.setDockerVersions(versions);
   }),
   notify: action((state, { message, description, error }) => {
     const options = {
@@ -61,6 +67,9 @@ const appModel: AppModel = {
   }),
   navigateTo: thunk((actions, route, { dispatch }) => {
     dispatch(push(route));
+  }),
+  openInBrowser: action((state, url) => {
+    shell.openExternal(url);
   }),
 };
 
