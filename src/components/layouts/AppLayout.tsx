@@ -5,8 +5,7 @@ import { Layout } from 'antd';
 import { NavMenu } from 'components/common';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
-import LocaleSwitch from './LocaleSwitch';
-import Status from './Status';
+import { LocaleSwitch, Status } from './';
 
 const { Header, Content, Footer } = Layout;
 

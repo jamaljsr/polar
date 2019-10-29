@@ -27,7 +27,7 @@ export interface DockerVersions {
 }
 
 export interface DockerLibrary {
-  getVersions: () => Promise<DockerVersions>;
+  getVersions: (throwOnError?: boolean) => Promise<DockerVersions>;
   saveComposeFile: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
