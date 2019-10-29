@@ -1,14 +1,15 @@
 import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
+import {
+  defaultInfo,
+  defaultListChannels,
+  defaultPendingChannels,
+  defaultWalletBalance,
+} from 'shared';
 import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import {
-  getNetwork,
-  injections,
-  mockLndResponses,
-  renderWithProviders,
-} from 'utils/tests';
+import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import DefaultSidebar from './DefaultSidebar';
 
 const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
@@ -66,12 +67,10 @@ describe('DefaultSidebar Component', () => {
     });
 
     it('should sync the chart from LND nodes', async () => {
-      lndServiceMock.getInfo.mockResolvedValue(mockLndResponses.getInfo);
-      lndServiceMock.getWalletBalance.mockResolvedValue(
-        mockLndResponses.getWalletBalance,
-      );
-      lndServiceMock.listChannels.mockResolvedValue(mockLndResponses.listChannels);
-      lndServiceMock.pendingChannels.mockResolvedValue(mockLndResponses.pendingChannels);
+      lndServiceMock.getInfo.mockResolvedValue(defaultInfo({}));
+      lndServiceMock.getWalletBalance.mockResolvedValue(defaultWalletBalance({}));
+      lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
+      lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
       const { getByLabelText, findByText } = renderComponent(Status.Started);
       fireEvent.click(getByLabelText('icon: reload'));
       expect(

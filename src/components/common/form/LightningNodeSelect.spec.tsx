@@ -1,8 +1,9 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { Form } from 'antd';
+import { ipcChannels, withDefaults } from 'shared';
 import { LndNodeModel } from 'store/models/lnd';
-import { getNetwork, mockLndResponses } from 'utils/tests';
+import { getNetwork } from 'utils/tests';
 import LightningNodeSelect, { Props } from './LightningNodeSelect';
 
 describe('LightningNodeSelect', () => {
@@ -40,10 +41,10 @@ describe('LightningNodeSelect', () => {
   it('should display the initial nodes balance', () => {
     const nodes = {
       'lnd-1': {
-        walletBalance: {
-          ...mockLndResponses.getWalletBalance,
-          confirmedBalance: '100',
-        },
+        walletBalance: withDefaults(
+          { confirmedBalance: '100' },
+          ipcChannels.walletBalance,
+        ),
       },
     };
     const { getByText } = renderComponent(nodes, 'lnd-1');
@@ -53,16 +54,16 @@ describe('LightningNodeSelect', () => {
   it('should display the selected nodes balance', async () => {
     const nodes = {
       'lnd-1': {
-        walletBalance: {
-          ...mockLndResponses.getWalletBalance,
-          confirmedBalance: '100',
-        },
+        walletBalance: withDefaults(
+          { confirmedBalance: '100' },
+          ipcChannels.walletBalance,
+        ),
       },
       'lnd-2': {
-        walletBalance: {
-          ...mockLndResponses.getWalletBalance,
-          confirmedBalance: '200',
-        },
+        walletBalance: withDefaults(
+          { confirmedBalance: '200' },
+          ipcChannels.walletBalance,
+        ),
       },
     };
     const { getByText, queryByText, getByLabelText } = renderComponent(nodes, 'lnd-1');

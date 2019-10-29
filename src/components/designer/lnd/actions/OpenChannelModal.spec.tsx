@@ -1,14 +1,10 @@
 import React from 'react';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
+import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { Status } from 'shared/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import {
-  getNetwork,
-  injections,
-  mockLndResponses,
-  renderWithProviders,
-} from 'utils/tests';
+import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import OpenChannelModal from './OpenChannelModal';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
@@ -118,8 +114,8 @@ describe('OpenChannelModal', () => {
   });
 
   it('should open a channel successfully', async () => {
-    lndServiceMock.listChannels.mockResolvedValue(mockLndResponses.listChannels);
-    lndServiceMock.pendingChannels.mockResolvedValue(mockLndResponses.pendingChannels);
+    lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
+    lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
     const { getByText, getByLabelText, store, network } = await renderComponent();
     await wait(() => {
       store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
@@ -135,11 +131,10 @@ describe('OpenChannelModal', () => {
   });
 
   it('should open a channel and deposit funds', async () => {
-    lndServiceMock.listChannels.mockResolvedValue(mockLndResponses.listChannels);
-    lndServiceMock.pendingChannels.mockResolvedValue(mockLndResponses.pendingChannels);
+    lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
+    lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
     lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
     lndServiceMock.getWalletBalance.mockResolvedValue({
-      ...mockLndResponses.getWalletBalance,
       confirmedBalance: '100',
       unconfirmedBalance: '200',
       totalBalance: '300',

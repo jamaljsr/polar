@@ -12,6 +12,10 @@ import { exists, read, write } from 'utils/files';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
+  /**
+   * Gets the versions of docker and docker-compose installed
+   * @param throwOnError set to true to throw an Error if detection fails
+   */
   async getVersions(throwOnError?: boolean): Promise<DockerVersions> {
     const versions = {
       docker: '',

@@ -1,6 +1,8 @@
 import * as LND from '@radar/lnrpc';
 import { ipcChannels } from './';
 
+const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
+
 export const defaultInfo = (
   value: Partial<LND.GetInfoResponse>,
 ): LND.GetInfoResponse => ({
@@ -19,6 +21,31 @@ export const defaultInfo = (
   version: '',
   numInactiveChannels: 0,
   color: '',
+  ...value,
+});
+
+export const defaultWalletBalance = (
+  value: Partial<LND.WalletBalanceResponse>,
+): LND.WalletBalanceResponse => ({
+  confirmedBalance: '0',
+  totalBalance: '0',
+  unconfirmedBalance: '0',
+  ...value,
+});
+
+export const defaultListPeers = (
+  value: Partial<LND.ListPeersResponse>,
+): LND.ListPeersResponse => ({
+  peers: [],
+  ...value,
+});
+
+export const defaultChannelPoint = (
+  value: Partial<LND.ChannelPoint>,
+): LND.ChannelPoint => ({
+  fundingTxidBytes: '',
+  fundingTxidStr: '',
+  outputIndex: 0,
   ...value,
 });
 
@@ -44,6 +71,13 @@ export const defaultChannel = (value: Partial<LND.Channel>): LND.Channel => ({
   chanStatusFlags: '',
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
+  ...value,
+});
+
+export const defaultListChannels = (
+  value: Partial<LND.ListChannelsResponse>,
+): LND.ListChannelsResponse => ({
+  channels: mapArray(value.channels || [], defaultChannel),
   ...value,
 });
 
@@ -112,43 +146,36 @@ export const defaultWaitingCloseChannel = (
   };
 };
 
-const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
+export const defaultPendingChannels = (
+  value: Partial<LND.PendingChannelsResponse>,
+): LND.PendingChannelsResponse => ({
+  totalLimboBalance: '',
+  pendingOpenChannels: mapArray(
+    value.pendingOpenChannels || [],
+    defaultPendingOpenChannel,
+  ),
+  pendingClosingChannels: mapArray(
+    value.pendingClosingChannels || [],
+    defaultClosedChannel,
+  ),
+  pendingForceClosingChannels: mapArray(
+    value.pendingForceClosingChannels || [],
+    defaultForceClosedChannel,
+  ),
+  waitingCloseChannels: mapArray(
+    value.waitingCloseChannels || [],
+    defaultWaitingCloseChannel,
+  ),
+  ...value,
+});
 
 const defaults = {
   [ipcChannels.getInfo]: defaultInfo,
-  [ipcChannels.walletBalance]: {
-    confirmedBalance: '0',
-    totalBalance: '0',
-    unconfirmedBalance: '0',
-  } as LND.WalletBalanceResponse,
-  [ipcChannels.listPeers]: {
-    peers: [],
-  } as LND.ListPeersResponse,
-  [ipcChannels.openChannel]: {
-    fundingTxidBytes: '',
-    fundingTxidStr: '',
-    outputIndex: 0,
-  } as LND.ChannelPoint,
-  [ipcChannels.listChannels]: (
-    values: LND.ListChannelsResponse,
-  ): LND.ListChannelsResponse => ({
-    channels: mapArray(values.channels, defaultChannel),
-  }),
-  [ipcChannels.pendingChannels]: (
-    values: LND.PendingChannelsResponse,
-  ): LND.PendingChannelsResponse => ({
-    totalLimboBalance: '',
-    pendingOpenChannels: mapArray(values.pendingOpenChannels, defaultPendingOpenChannel),
-    pendingClosingChannels: mapArray(values.pendingClosingChannels, defaultClosedChannel),
-    pendingForceClosingChannels: mapArray(
-      values.pendingForceClosingChannels,
-      defaultForceClosedChannel,
-    ),
-    waitingCloseChannels: mapArray(
-      values.waitingCloseChannels,
-      defaultWaitingCloseChannel,
-    ),
-  }),
+  [ipcChannels.walletBalance]: defaultWalletBalance,
+  [ipcChannels.listPeers]: defaultListPeers,
+  [ipcChannels.openChannel]: defaultChannelPoint,
+  [ipcChannels.listChannels]: defaultListChannels,
+  [ipcChannels.pendingChannels]: defaultPendingChannels,
 };
 
 export type DefaultsKey = keyof typeof defaults;
@@ -160,10 +187,6 @@ export type DefaultsKey = keyof typeof defaults;
  * @param key the key of the defaults object containing the default values for the response
  */
 export const withDefaults = (values: any, key: DefaultsKey): any => {
-  const def = defaults[key] || {};
-  if (typeof def === 'function') return def(values);
-  return {
-    ...def,
-    ...values,
-  };
+  const func = defaults[key];
+  return func ? func(values) : values;
 };
