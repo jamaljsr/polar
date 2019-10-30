@@ -5,7 +5,12 @@ import { CommonNode, LndNode, LndVersion, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
-import { createLndNetworkNode, createNetwork, ensureOpenPorts } from 'utils/network';
+import {
+  createLndNetworkNode,
+  createNetwork,
+  getOpenPorts,
+  OpenPorts,
+} from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
@@ -22,6 +27,7 @@ export interface NetworkModel {
   networks: Network[];
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   setNetworks: Action<NetworkModel, Network[]>;
+  updateNodePorts: Action<NetworkModel, { id: number; ports: OpenPorts }>;
   load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   save: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   add: Action<NetworkModel, AddNetworkArgs>;
@@ -71,6 +77,15 @@ const networkModel: NetworkModel = {
   // reducer actions (mutations allowed thx to immer)
   setNetworks: action((state, networks) => {
     state.networks = networks;
+  }),
+  updateNodePorts: action((state, { id, ports }) => {
+    const network = state.networks.find(n => n.id === id) as Network;
+    network.nodes.bitcoin
+      .filter(n => !!ports[n.name])
+      .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
+    network.nodes.lightning
+      .filter(n => !!ports[n.name])
+      .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
   }),
   load: thunk(async (actions, payload, { injections, getStoreActions }) => {
     const { networks, charts } = await injections.dockerService.loadNetworks();
@@ -137,16 +152,18 @@ const networkModel: NetworkModel = {
     }
   }),
   start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
-    const network = getState().networks.find(n => n.id === networkId);
+    let network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     const { id } = network;
     actions.setStatus({ id: id, status: Status.Starting });
     try {
       // make sure the node ports are available
-      if (await ensureOpenPorts(network)) {
+      const ports = await getOpenPorts(network);
+      if (ports) {
         // at least one port was updated. save the network & composeFile
-        const networks = getState().networks.map(n => (n.id === id ? network : n));
-        actions.setNetworks(networks);
+        actions.updateNodePorts({ id, ports });
+        // refetch the network with the updated ports
+        network = getState().networks.find(n => n.id === networkId) as Network;
         await actions.save();
         await injections.dockerService.saveComposeFile(network);
       }
