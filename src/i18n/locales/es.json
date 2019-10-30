@@ -8,7 +8,6 @@
   "cmps.common.form.LightningNodeSelect.balance": "Equilibrar",
   "cmps.common.CopyIcon.message": "Copiado {{label}} al portapapeles",
   "cmps.common.NavMenu.createNetwork": "Crear red",
-  "cmps.common.NavMenu.settings": "Configuraciones",
   "cmps.designer.bitcoind.BitcoinDetails.nodeType": "Tipo de nodo",
   "cmps.designer.bitcoind.BitcoinDetails.implementation": "Implementación",
   "cmps.designer.bitcoind.BitcoinDetails.version": "Versión",

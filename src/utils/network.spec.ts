@@ -1,7 +1,7 @@
 import detectPort from 'detect-port';
 import { Status } from 'shared/types';
 import { Network } from 'types';
-import { ensureOpenPorts, getOpenPortRange, OpenPorts } from './network';
+import { getOpenPortRange, getOpenPorts, OpenPorts } from './network';
 import { getNetwork } from './tests';
 
 const mockDetectPort = detectPort as jest.Mock;
@@ -19,7 +19,7 @@ describe('Network Utils', () => {
     });
   });
 
-  describe('ensureOpenPorts', () => {
+  describe('getOpenPorts', () => {
     let network: Network;
 
     beforeEach(() => {
@@ -30,7 +30,7 @@ describe('Network Utils', () => {
       mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
       network.nodes.lightning = [];
       const port = network.nodes.bitcoin[0].ports.rpc;
-      const ports = (await ensureOpenPorts(network)) as OpenPorts;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(port + 1);
     });
@@ -41,7 +41,7 @@ describe('Network Utils', () => {
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
       );
       network.nodes.bitcoin = [];
-      const ports = (await ensureOpenPorts(network)) as OpenPorts;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].grpc).toBe(10002);
       expect(ports[network.nodes.lightning[1].name].grpc).toBe(10003);
@@ -53,7 +53,7 @@ describe('Network Utils', () => {
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
       );
       network.nodes.bitcoin = [];
-      const ports = (await ensureOpenPorts(network)) as OpenPorts;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].rest).toBe(8082);
       expect(ports[network.nodes.lightning[1].name].rest).toBe(8083);
@@ -65,14 +65,14 @@ describe('Network Utils', () => {
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
       );
       network.nodes.bitcoin = [];
-      const ports = await ensureOpenPorts(network);
+      const ports = await getOpenPorts(network);
       expect(ports).toBeUndefined();
     });
 
     it('should not update ports for started nodes', async () => {
       mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
       network.nodes.lightning[0].status = Status.Started;
-      const ports = (await ensureOpenPorts(network)) as OpenPorts;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       // lnd-1 ports should not be changed
       expect(ports[network.nodes.lightning[0].name]).toBeUndefined();
