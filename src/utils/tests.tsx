@@ -18,6 +18,13 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     status,
   });
 
+export const mockProperty = <T extends {}, K extends keyof T>(
+  object: T,
+  property: K,
+  value: T[K],
+) => {
+  Object.defineProperty(object, property, { get: () => value });
+};
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
   dockerService: {

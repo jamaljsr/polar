@@ -5,7 +5,7 @@ import { Layout } from 'antd';
 import { NavMenu } from 'components/common';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
-import { LocaleSwitch, Status } from './';
+import { DockerStatus, LocaleSwitch } from './';
 
 const { Header, Content, Footer } = Layout;
 
@@ -62,7 +62,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
       </Styled.Header>
       <Styled.Content>{props.children}</Styled.Content>
       <Styled.Footer>
-        <Status />
+        <DockerStatus />
         <LocaleSwitch />
       </Styled.Footer>
     </Styled.Layout>
