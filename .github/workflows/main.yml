@@ -45,9 +45,6 @@ jobs:
         run: yarn test:codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - name: e2e tests (mac only)
-        if: matrix.os == 'macOS-latest'
-        run: yarn test:e2e
       - name: electron build
         run: yarn package:ci
         env:
