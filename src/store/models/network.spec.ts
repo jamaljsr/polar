@@ -206,7 +206,9 @@ describe('Network model', () => {
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
-      expect(injections.dockerService.start).toBeCalledWith(network);
+      expect(injections.dockerService.start).toBeCalledWith(
+        expect.objectContaining({ id: network.id }),
+      );
     });
 
     it('should set LND node status to error if the node startup fails', async () => {

@@ -117,25 +117,33 @@ export const getOpenPortRange = async (requestedPorts: number[]): Promise<number
 
   for (let port of requestedPorts) {
     if (openPorts.length) {
-      // adjust to check after the previous open port if necessary, since the
+      // adjust to check after the previous open port if necessary, since the last
+      // open port may have increased
       const lastOpenPort = openPorts[openPorts.length - 1];
       if (port <= lastOpenPort) {
         port = lastOpenPort + 1;
       }
     }
-    const openPort = await detectPort(port);
-    openPorts.push(openPort);
+    openPorts.push(await detectPort(port));
   }
   return openPorts;
 };
 
+export interface OpenPorts {
+  [key: string]: {
+    rpc?: number;
+    grpc?: number;
+    rest?: number;
+  };
+}
+
 /**
- * Ensures the ports specified on the nodes are available on the host OS.
- * This fuction mutates the network object supplied
+ * Checks if the ports specified on the nodes are available on the host OS. If not,
+ * return new ports that are confirmed available
  * @param network the network with nodes to verify ports of
  */
-export const ensureOpenPorts = async (network: Network): Promise<boolean> => {
-  let updated = false;
+export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefined> => {
+  const ports: OpenPorts = {};
 
   // filter out nodes that are already started since their ports are in use by themselves
   const bitcoin = network.nodes.bitcoin.filter(n => n.status !== Status.Started);
@@ -143,8 +151,9 @@ export const ensureOpenPorts = async (network: Network): Promise<boolean> => {
     const existingPorts = bitcoin.map(n => n.ports.rpc);
     const openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
-      openPorts.forEach((port, index) => (bitcoin[index].ports.rpc = port));
-      updated = true;
+      openPorts.forEach((port, index) => {
+        ports[bitcoin[index].name] = { rpc: port };
+      });
     }
   }
 
@@ -154,17 +163,23 @@ export const ensureOpenPorts = async (network: Network): Promise<boolean> => {
     let existingPorts = lightning.map(n => n.ports.grpc);
     let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
-      openPorts.forEach((port, index) => (lightning[index].ports.grpc = port));
-      updated = true;
+      openPorts.forEach((port, index) => {
+        ports[lightning[index].name] = { grpc: port };
+      });
     }
 
     existingPorts = lightning.map(n => n.ports.rest);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
-      openPorts.forEach((port, index) => (lightning[index].ports.rest = port));
-      updated = true;
+      openPorts.forEach((port, index) => {
+        ports[lightning[index].name] = {
+          ...(ports[lightning[index].name] || {}),
+          rest: port,
+        };
+      });
     }
   }
 
-  return updated;
+  // return undefined if no ports where updated
+  return Object.keys(ports).length > 0 ? ports : undefined;
 };
