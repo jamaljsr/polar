@@ -117,7 +117,7 @@
   "cmps.home.DetectDockerModal.checkAgain": "Check Again",
   "cmps.home.GetStarted.title": "Let's get started!",
   "cmps.home.GetStarted.createBtn": "Create a Lightning Network",
-  "cmps.home.Home.initError": "No se puede inicializar el estado de la aplicación",
+  "cmps.home.Home.initError": "Unable to initialize the application state",
   "cmps.home.NetworkCard.lightningNodes": "Lightning Nodes",
   "cmps.home.NetworkCard.bitcoinNodes": "Bitcoin Nodes",
   "cmps.network.NetworkActions.menuRename": "Rename",
