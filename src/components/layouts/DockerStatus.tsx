@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { useStoreState } from 'store';
 
 const Styled = {
-  Status: styled.div`
+  DockerStatus: styled.div`
     display: inline-block;
     line-height: 32px;
     height: 32px;
@@ -16,17 +16,17 @@ const Styled = {
   `,
 };
 
-const Status: React.FC = () => {
+const DockerStatus: React.FC = () => {
   const {
     dockerVersions: { docker, compose },
   } = useStoreState(s => s.app);
 
   return (
-    <Styled.Status>
+    <Styled.DockerStatus>
       {docker && <span>Docker v{docker}</span>}
       {compose && <span>Compose v{compose}</span>}
-    </Styled.Status>
+    </Styled.DockerStatus>
   );
 };
 
-export default Status;
+export default DockerStatus;

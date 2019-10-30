@@ -20,7 +20,7 @@ const Styled = {
   `,
 };
 
-const dockerLinks: Record<PolarPlatform, Record<string, string>> = {
+export const dockerLinks: Record<PolarPlatform, Record<string, string>> = {
   mac: {
     'Docker Desktop': 'https://docs.docker.com/docker-for-mac/install/',
   },
@@ -41,7 +41,7 @@ const buttonIcons: Record<PolarPlatform, string> = {
   unknown: 'download',
 };
 
-const DockerModal: React.FC = () => {
+const DetectDockerModal: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.home.DetectDockerModal');
   const {
     dockerVersions: { docker, compose },
@@ -102,4 +102,4 @@ const DockerModal: React.FC = () => {
   );
 };
 
-export default DockerModal;
+export default DetectDockerModal;

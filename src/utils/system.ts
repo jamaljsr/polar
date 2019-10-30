@@ -2,7 +2,7 @@ import os from 'os';
 
 export type PolarPlatform = 'mac' | 'windows' | 'linux' | 'unknown';
 
-export const platform: PolarPlatform = (() => {
+export const normalizePlatform = () => {
   switch (os.platform()) {
     case 'darwin':
       return 'mac';
@@ -13,7 +13,9 @@ export const platform: PolarPlatform = (() => {
     default:
       return 'unknown';
   }
-})();
+};
+
+export const platform: PolarPlatform = normalizePlatform();
 
 const is = (p: PolarPlatform) => p === platform;
 

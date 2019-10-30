@@ -1,11 +1,13 @@
 import * as electron from 'electron';
 import { join } from 'path';
 import * as compose from 'docker-compose';
+import Dockerode from 'dockerode';
 import { dockerService } from 'lib/docker';
 import { Network } from 'types';
 import * as files from 'utils/files';
 import { getNetwork } from 'utils/tests';
 
+jest.mock('dockerode');
 jest.mock('utils/files', () => ({
   write: jest.fn(),
   read: jest.fn(),
@@ -15,6 +17,7 @@ jest.mock('utils/files', () => ({
 const filesMock = files as jest.Mocked<typeof files>;
 const composeMock = compose as jest.Mocked<typeof compose>;
 const electronMock = electron as jest.Mocked<typeof electron>;
+const mockDockerode = (Dockerode as unknown) as jest.Mock<Dockerode>;
 
 describe('DockerService', () => {
   let network: Network;
@@ -23,6 +26,55 @@ describe('DockerService', () => {
 
   beforeEach(() => {
     network = getNetwork();
+  });
+
+  describe('detecting versions', () => {
+    const dockerVersion = mockDockerode.prototype.version;
+    const composeVersion = composeMock.version;
+
+    it('should get both versions successfully', async () => {
+      dockerVersion.mockResolvedValue({ Version: '1.2.3' });
+      composeVersion.mockResolvedValue({ ...mockResult, out: '4.5.6' });
+      const versions = await dockerService.getVersions(true);
+      expect(versions.docker).toBe('1.2.3');
+      expect(versions.compose).toBe('4.5.6');
+    });
+
+    it('should return default values if both throw errors', async () => {
+      dockerVersion.mockRejectedValue(new Error('docker-error'));
+      composeVersion.mockRejectedValue(new Error('compose-error'));
+      const versions = await dockerService.getVersions();
+      expect(versions.docker).toBe('');
+      expect(versions.compose).toBe('');
+    });
+
+    it('should return compose version if docker version fails', async () => {
+      dockerVersion.mockRejectedValue(new Error('docker-error'));
+      composeVersion.mockResolvedValue({ ...mockResult, out: '4.5.6' });
+      const versions = await dockerService.getVersions();
+      expect(versions.docker).toBe('');
+      expect(versions.compose).toBe('4.5.6');
+    });
+
+    it('should return docker version if docker compose fails', async () => {
+      dockerVersion.mockResolvedValue({ Version: '1.2.3' });
+      composeVersion.mockRejectedValue(new Error('compose-error'));
+      const versions = await dockerService.getVersions();
+      expect(versions.docker).toBe('1.2.3');
+      expect(versions.compose).toBe('');
+    });
+
+    it('should throw an error if docker version fails', async () => {
+      dockerVersion.mockRejectedValue(new Error('docker-error'));
+      composeVersion.mockResolvedValue({ ...mockResult, out: '4.5.6' });
+      await expect(dockerService.getVersions(true)).rejects.toThrow('docker-error');
+    });
+
+    it('should throw an error if compose version fails', async () => {
+      dockerVersion.mockResolvedValue({ Version: '1.2.3' });
+      composeVersion.mockRejectedValue({ err: 'compose-error' });
+      await expect(dockerService.getVersions(true)).rejects.toThrow('compose-error');
+    });
   });
 
   describe('saving data', () => {

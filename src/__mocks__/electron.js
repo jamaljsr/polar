@@ -12,4 +12,7 @@ module.exports = {
     once: jest.fn(),
     send: jest.fn(),
   },
+  shell: {
+    openExternal: jest.fn(),
+  },
 };
