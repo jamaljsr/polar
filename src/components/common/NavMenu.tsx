@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Dropdown, Icon, Menu } from 'antd';
+import { Icon, Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { NETWORK } from 'components/routing';
@@ -8,6 +8,7 @@ import { NETWORK } from 'components/routing';
 const Styled = {
   Menu: styled.div`
     float: right;
+    margin-top: 9px;
   `,
   Icon: styled(Icon)`
     font-size: 1.2rem;
@@ -18,24 +19,15 @@ const Styled = {
 const NavMenu: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.common.NavMenu');
   const { navigateTo } = useStoreActions(s => s.app);
-  const menu = (
-    <Menu theme="dark">
-      <Menu.Item onClick={() => navigateTo(NETWORK)}>
-        <Icon type="plus-circle" />
-        {l('createNetwork')}
-      </Menu.Item>
-      <Menu.Item>
-        <Icon type="setting" />
-        {l('settings')}
-      </Menu.Item>
-    </Menu>
-  );
 
   return (
     <Styled.Menu>
-      <Dropdown overlay={menu} trigger={['click']}>
-        <Styled.Icon type="menu" />
-      </Dropdown>
+      <Menu theme="dark" mode="horizontal" selectable={false}>
+        <Menu.Item onClick={() => navigateTo(NETWORK)}>
+          <Icon type="plus" />
+          {l('createNetwork')}
+        </Menu.Item>
+      </Menu>
     </Styled.Menu>
   );
 };
