@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { NETWORK } from 'components/routing';
+import { NETWORK_NEW } from 'components/routing';
 import logobw from 'resources/logo_bw.png';
 
 const Styled = {
@@ -32,7 +32,7 @@ const GetStarted: React.FC = () => {
   return (
     <Styled.GetStarted>
       <Styled.Header>{l('title')}</Styled.Header>
-      <Link to={NETWORK}>
+      <Link to={NETWORK_NEW}>
         <Button type="primary" size="large">
           {l('createBtn')}
         </Button>

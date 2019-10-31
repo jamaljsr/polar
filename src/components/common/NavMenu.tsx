@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Icon, Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { NETWORK } from 'components/routing';
+import { NETWORK_NEW } from 'components/routing';
 
 const Styled = {
   Menu: styled.div`
@@ -23,7 +23,7 @@ const NavMenu: React.FC = () => {
   return (
     <Styled.Menu>
       <Menu theme="dark" mode="horizontal" selectable={false}>
-        <Menu.Item onClick={() => navigateTo(NETWORK)}>
+        <Menu.Item onClick={() => navigateTo(NETWORK_NEW)}>
           <Icon type="plus" />
           {l('createNetwork')}
         </Menu.Item>
