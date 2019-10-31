@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, waitForDomChange } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
-import { NETWORK_VIEW } from 'components/routing';
+import { HOME, NETWORK_VIEW } from 'components/routing';
 import NewNetwork from './NewNetwork';
 
 describe('NewNetwork component', () => {
@@ -22,6 +22,13 @@ describe('NewNetwork component', () => {
   it('should have a submit button', () => {
     const { createBtn } = renderComponent();
     expect(createBtn).toBeInTheDocument();
+  });
+
+  it('should handle back button click', async () => {
+    const { getByLabelText, history } = renderComponent();
+    fireEvent.click(getByLabelText('icon: arrow-left'));
+    await waitForDomChange();
+    expect(history.location.pathname).toEqual(HOME);
   });
 
   it('should display an error if empty name is submitted', () => {
