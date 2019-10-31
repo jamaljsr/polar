@@ -34,7 +34,7 @@ class DockerService implements DockerLibrary {
 
     try {
       debug('getting docker-compose version');
-      const composeVersion = await this.execute(compose.version, {});
+      const composeVersion = await this.execute(compose.version, this.getArgs());
       debug(`Result: ${JSON.stringify(composeVersion)}`);
       versions.compose = composeVersion.out.trim();
     } catch (error) {
@@ -145,9 +145,9 @@ class DockerService implements DockerLibrary {
     }
   }
 
-  private getArgs(network: Network) {
+  private getArgs(network?: Network) {
     return {
-      cwd: network.path,
+      cwd: network ? network.path : __dirname,
       env: {
         ...process.env,
         ...(remote && remote.process ? remote.process.env : {}),
