@@ -120,7 +120,7 @@
     "react-router": "5.1.2",
     "react-router-dom": "5.1.2",
     "react-router-transition": "2.0.0",
-    "react-scripts": "3.1.2",
+    "react-scripts": "3.2.0",
     "redux": "4.0.4",
     "redux-logger": "3.0.6",
     "standard-version": "7.0.0",
@@ -128,13 +128,13 @@
     "stylelint": "11.1.1",
     "stylelint-config-prettier": "6.0.0",
     "stylelint-config-standard": "19.0.0",
-    "testcafe": "1.6.0",
+    "testcafe": "1.6.1-alpha.2",
     "testcafe-browser-provider-electron": "0.0.12",
     "testcafe-react-selectors": "3.3.0",
     "ts-node": "8.4.1",
     "typescript": "3.6.4",
     "wait-on": "3.3.0",
-    "webpack": "4.40.2"
+    "webpack": "4.41.0"
   },
   "husky": {
     "hooks": {

@@ -33,61 +33,54 @@ describe('NetworkDesigner Component', () => {
     return renderWithProviders(cmp, { initialState });
   };
 
-  it('should render the designer component', async () => {
+  it('should render the designer component', () => {
     const { getByText } = renderComponent();
     expect(getByText('lnd-1')).toBeInTheDocument();
     expect(getByText('lnd-2')).toBeInTheDocument();
     expect(getByText('bitcoind-1')).toBeInTheDocument();
   });
 
-  it('should render correct # of LND nodes', () => {
-    const { queryAllByText } = renderComponent();
-    expect(queryAllByText(/lnd-\d/)).toHaveLength(2);
+  it('should render correct # of LND nodes', async () => {
+    const { findAllByText } = renderComponent();
+    expect(await findAllByText(/lnd-\d/)).toHaveLength(2);
   });
 
-  it('should render correct # of bitcoind nodes', () => {
-    const { queryAllByText } = renderComponent();
-    expect(queryAllByText(/bitcoind-\d/)).toHaveLength(1);
+  it('should render correct # of bitcoind nodes', async () => {
+    const { findAllByText } = renderComponent();
+    expect(await findAllByText(/bitcoind-\d/)).toHaveLength(1);
   });
 
-  it('should display the default message in the sidebar', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('Network Designer')).toBeInTheDocument();
+  it('should display the default message in the sidebar', async () => {
+    const { findByText } = renderComponent();
+    expect(await findByText('Network Designer')).toBeInTheDocument();
   });
 
   it('should update the redux state after a node is selected', async () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().designer.activeChart.selected.id).toBeFalsy();
-    fireEvent.click(getByText('lnd-1'));
-
-    await wait(() => {
-      expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
-    });
+    await wait(() => fireEvent.click(getByText('lnd-1')));
+    expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
   });
 
   it('should not set the active chart if it doesnt exist', async () => {
     const { getByLabelText, store } = renderComponent({});
-    await wait(() => {
-      expect(store.getState().designer.activeChart).toBeUndefined();
-      expect(getByLabelText('icon: loading')).toBeInTheDocument();
-    });
+    expect(store.getState().designer.activeChart).toBeUndefined();
+    expect(getByLabelText('icon: loading')).toBeInTheDocument();
   });
 
   it('should display node details in the sidebar when a node is selected', async () => {
-    const { getByText, queryByText, findByText } = renderComponent();
+    const { getByText, queryByText } = renderComponent();
     expect(getByText('bitcoind-1')).toBeInTheDocument();
     expect(queryByText('Node Type')).not.toBeInTheDocument();
     // click the bitcoind node in the chart
-    fireEvent.click(getByText('bitcoind-1'));
+    await wait(() => fireEvent.click(getByText('bitcoind-1')));
     // ensure text from the sidebar is visible
-    expect(await findByText('Node Type')).toBeInTheDocument();
+    expect(getByText('Node Type')).toBeInTheDocument();
   });
 
   it('should display the OpenChannel modal', async () => {
     const { getByText, store } = renderComponent();
-    await wait(() => {
-      store.getActions().modals.showOpenChannel({});
-      expect(getByText('Capacity (sats)')).toBeInTheDocument();
-    });
+    await wait(() => store.getActions().modals.showOpenChannel({}));
+    expect(getByText('Capacity (sats)')).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/dom';
+import { fireEvent, waitForDomChange } from '@testing-library/dom';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import MineBlocksInput from './MineBlocksInput';
 
@@ -42,13 +42,14 @@ describe('MineBlocksInput', () => {
     expect(input.value).toEqual('6');
   });
 
-  it('should mine a block when the button is clicked', () => {
+  it('should mine a block when the button is clicked', async () => {
     const mineMock = injections.bitcoindService.mine as jest.Mock;
     mineMock.mockResolvedValue(true);
     const { input, btn, store } = renderComponent();
     const numBlocks = 5;
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
+    await waitForDomChange();
     const port = store.getState().network.networks[0].nodes.bitcoin[0].ports.rpc;
     expect(mineMock).toBeCalledWith(numBlocks, port);
   });
