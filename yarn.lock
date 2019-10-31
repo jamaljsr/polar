@@ -1791,15 +1791,16 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
-"@radar/lnrpc@0.7.1-beta":
-  version "0.7.1-beta"
-  resolved "https://registry.yarnpkg.com/@radar/lnrpc/-/lnrpc-0.7.1-beta.tgz#17673c61f5470fd17e8ac885076c688211852050"
-  integrity sha512-luWqG5Rjc7qA/7mU/Njgt+gED83KPsMcKR58vNs2qpBfjQ9uE7oYLvl8h4SV8yPBQex+OUVkHFsBH8PT8Icumw==
+"@radar/lnrpc@0.8.0-beta.1":
+  version "0.8.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@radar/lnrpc/-/lnrpc-0.8.0-beta.1.tgz#b834571e7348d7bff0c6cf00b33d6444c24283b5"
+  integrity sha512-RPkJmS83BbqZurrbB8ll+Ed5YiiZXL8pZx3QzaNPQn8ghLyIs1vmUOFVotEUSlLXoTLKl6hx56bup3LbUJ2/3Q==
   dependencies:
     "@grpc/proto-loader" "^0.4.0"
     "@types/google-protobuf" "^3.2.7"
     grpc "^1.19.0"
     pkg-dir "^2.0.0"
+    protobufjs "^6.8.8"
     ts-protoc-gen "^0.8.0"
 
 "@rescripts/cli@0.0.13":
@@ -14194,7 +14195,7 @@ protobufjs@^5.0.3:
     glob "^7.0.5"
     yargs "^3.10.0"
 
-protobufjs@^6.8.6:
+protobufjs@^6.8.6, protobufjs@^6.8.8:
   version "6.8.8"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.8.8.tgz#c8b4f1282fd7a90e6f5b109ed11c84af82908e7c"
   integrity sha512-AAmHtD5pXgZfi7GMpllpO3q1Xw1OYldr+dMUlAnffGTAhqkg72WdmSY71uKBF/JuyiKs8psYbtKrhi0ASCD8qw==
