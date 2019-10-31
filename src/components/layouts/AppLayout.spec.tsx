@@ -36,31 +36,21 @@ describe('AppLayout component', () => {
   });
 
   describe('Language Switcher', () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it('should set language to English', () => {
-      const { getByText } = renderComponent();
+    it('should set language to English', async () => {
+      const { getByText, findByText } = renderComponent();
       expect(getByText("Let's get started!")).toBeInTheDocument();
       fireEvent.mouseEnter(getByText('English'));
-      jest.runAllTimers();
-      fireEvent.click(getByText('Español (es)'));
+      fireEvent.click(await findByText('Español (es)'));
       expect(getByText('Empecemos')).toBeInTheDocument();
       fireEvent.click(getByText('English (en-US)'));
       expect(getByText("Let's get started!")).toBeInTheDocument();
     });
 
     it('should set language to Spanish', async () => {
-      const { getByText } = renderComponent();
+      const { getByText, findByText } = renderComponent();
       expect(getByText("Let's get started!")).toBeInTheDocument();
       fireEvent.mouseEnter(getByText('English'));
-      jest.runAllTimers();
-      fireEvent.click(getByText('Español (es)'));
+      fireEvent.click(await findByText('Español (es)'));
       expect(getByText('Empecemos')).toBeInTheDocument();
     });
   });
