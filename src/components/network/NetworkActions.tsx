@@ -4,13 +4,16 @@ import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, Icon, Menu, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
+import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { Status } from 'shared/types';
 
 const Styled = {
   Button: styled(Button)`
     margin-left: 0;
+  `,
+  MenuIcon: styled(Icon)`
+    margin-right: 5px;
   `,
 };
 
@@ -83,11 +86,11 @@ const NetworkActions: React.FC<Props> = ({
   const menu = (
     <Menu theme="dark">
       <Menu.Item key="rename" onClick={onRenameClick}>
-        <Icon type="form" />
+        <Styled.MenuIcon type="form" />
         {l('menuRename')}
       </Menu.Item>
       <Menu.Item key="delete" onClick={onDeleteClick}>
-        <Icon type="close" />
+        <Styled.MenuIcon type="close" />
         {l('menuDelete')}
       </Menu.Item>
     </Menu>
