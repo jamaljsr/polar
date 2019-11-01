@@ -5,6 +5,7 @@ import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
 import { getNetwork, injections } from 'utils/tests';
+import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import lndModel from './lnd';
@@ -22,6 +23,7 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 
 describe('Network model', () => {
   const rootModel = {
+    app: appModel,
     network: networkModel,
     lnd: lndModel,
     bitcoind: bitcoindModel,

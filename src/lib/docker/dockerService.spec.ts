@@ -4,6 +4,7 @@ import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import { dockerService } from 'lib/docker';
 import { Network } from 'types';
+import { DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { getNetwork } from 'utils/tests';
 
@@ -74,6 +75,27 @@ describe('DockerService', () => {
       dockerVersion.mockResolvedValue({ Version: '1.2.3' });
       composeVersion.mockRejectedValue({ err: 'compose-error' });
       await expect(dockerService.getVersions(true)).rejects.toThrow('compose-error');
+    });
+  });
+
+  describe('getting images', () => {
+    const dockerListImages = mockDockerode.prototype.listImages;
+    const polar = (name: string) => `${DOCKER_REPO}/${name}`;
+    const mapResponse = (names: string[]) => names.map(name => ({ RepoTags: [name] }));
+
+    it('should return a list of prefixed images', async () => {
+      dockerListImages.mockResolvedValue(mapResponse([polar('aaa'), polar('bbb')]));
+      expect(await dockerService.getImages()).toEqual(['aaa', 'bbb']);
+    });
+
+    it('should not return images that do not start with the prefix', async () => {
+      dockerListImages.mockResolvedValue(mapResponse(['other1', polar('aaa'), 'other2']));
+      expect(await dockerService.getImages()).toEqual(['aaa']);
+    });
+
+    it('should return an empty list if the fetch fails', async () => {
+      dockerListImages.mockRejectedValue(new Error('test-error'));
+      expect(await dockerService.getImages()).toEqual([]);
     });
   });
 

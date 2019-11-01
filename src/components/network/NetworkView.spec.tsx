@@ -17,11 +17,21 @@ const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.ln
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
+const dockerServiceMock = injections.dockerService as jest.Mocked<
+  typeof injections.dockerService
+>;
 
 describe('NetworkView Component', () => {
-  const renderComponent = (id: string | undefined, status?: Status) => {
+  const renderComponent = (
+    id: string | undefined,
+    status?: Status,
+    images?: string[],
+  ) => {
     const network = getNetwork(1, 'test network', status);
     const initialState = {
+      app: {
+        dockerImages: images || [],
+      },
       network: {
         networks: [network],
       },
@@ -48,6 +58,7 @@ describe('NetworkView Component', () => {
   beforeEach(() => {
     lndServiceMock.waitUntilOnline.mockResolvedValue();
     bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
+    dockerServiceMock.getImages.mockResolvedValue([]);
   });
 
   it('should not render if the network is not found', () => {
@@ -113,6 +124,25 @@ describe('NetworkView Component', () => {
     fireEvent.click(primaryBtn);
     // should remain the same since button should be disabled
     expect(primaryBtn).toHaveTextContent('Starting');
+  });
+
+  it('should display a message if the docker images are not downloaded', async () => {
+    const { getByText } = renderComponent('1');
+    expect(
+      getByText(
+        'Starting this network will take a bit longer than normal because it uses docker images that have not been downloaded yet.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('should display a message if the docker images are not downloaded', async () => {
+    const images = ['bitcoind:0.18.1', 'lnd:0.8.0-beta'];
+    const { queryByText } = renderComponent('1', Status.Stopped, images);
+    expect(
+      queryByText(
+        'Starting this network will take a bit longer than normal because it uses docker images that have not been downloaded yet.',
+      ),
+    ).toBeNull();
   });
 
   describe('rename network', () => {
