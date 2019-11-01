@@ -29,6 +29,7 @@ export const mockProperty = <T extends {}, K extends keyof T>(
 export const injections: StoreInjections = {
   dockerService: {
     getVersions: jest.fn(),
+    getImages: jest.fn(),
     saveComposeFile: jest.fn(),
     start: jest.fn(),
     stop: jest.fn(),

@@ -5,7 +5,9 @@ import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import { Alert, Button, Empty, Input, Modal, PageHeader } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
+import { getMissingImages } from 'utils/network';
 import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
 import { HOME } from 'components/routing';
@@ -32,6 +34,9 @@ const Styled = {
   RenameInput: styled(Input)`
     width: 500px;
   `,
+  Alert: styled(Alert)`
+    margin-bottom: 10px;
+  `,
   NetworkDesigner: styled(NetworkDesigner)`
     flex: 1;
   `,
@@ -56,6 +61,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const [editingName, setEditingName] = useState('');
 
   const { navigateTo, notify } = useStoreActions(s => s.app);
+  const { dockerImages } = useStoreState(s => s.app);
   const { toggle, rename, remove } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
   const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
@@ -140,12 +146,19 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     );
   }
 
+  const missingImages = getMissingImages(network, dockerImages);
+  const showWarning =
+    [Status.Stopped, Status.Starting].includes(network.status) &&
+    missingImages.length > 0;
+
   return (
     <Styled.NetworkView>
       {header}
-      {/* TODO: display an info alert that the first startup may be slow */}
+      {showWarning && (
+        <Styled.Alert type="warning" message={l('missingImages')} showIcon />
+      )}
       {toggleAsync.error && (
-        <Alert
+        <Styled.Alert
           type="error"
           message={<Styled.Error>{toggleAsync.error.message}</Styled.Error>}
         />

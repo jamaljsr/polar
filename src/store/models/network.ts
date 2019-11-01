@@ -125,7 +125,7 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
     const node = createLndNetworkNode(network, version, Status.Stopped);
     network.nodes.lightning.push(node);
-    actions.setNetworks(networks);
+    actions.setNetworks([...networks]);
     await actions.save();
     await injections.dockerService.saveComposeFile(network);
     return node;
@@ -169,6 +169,8 @@ const networkModel: NetworkModel = {
       }
       // start the docker containers
       await injections.dockerService.start(network);
+      // update the list of docker images pulled since new images may be pulled
+      await getStoreActions().app.getDockerImages();
       // set the status of only the network to Started
       actions.setStatus({ id, status: Status.Started, all: false });
       // wait for lnd nodes to come online before updating their status
