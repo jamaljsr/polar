@@ -128,6 +128,7 @@
   "cmps.network.NetworkActions.primaryBtnRestart": "Reiniciar",
   "cmps.network.NetworkActions.mineBtn": "Mina rápida",
   "cmps.network.NetworkActions.mineError": "Incapaz de extraer bloques",
+  "cmps.network.NetworkView.missingImages": "Iniciar esta red tomará un poco más de tiempo de lo normal porque usa imágenes acopladas que aún no se han descargado.",
   "cmps.network.NetworkView.renameSave": "Salvar",
   "cmps.network.NetworkView.renameCancel": "Cancelar",
   "cmps.network.NetworkView.renameError": "Error al cambiar el nombre de la red",

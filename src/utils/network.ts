@@ -105,6 +105,23 @@ export const createNetwork = (config: {
 };
 
 /**
+ * Returns the images needed to start a network that are not included in the list
+ * of images already pulled
+ * @param network the network to check
+ * @param pulled the list of images already pulled
+ */
+export const getMissingImages = (network: Network, pulled: string[]): string[] => {
+  const { bitcoin, lightning } = network.nodes;
+  const neededImages = [...bitcoin, ...lightning].map(
+    n => `${n.implementation.toLocaleLowerCase()}:${n.version}`,
+  );
+  // exclude images already pulled
+  const missing = neededImages.filter(i => !pulled.includes(i));
+  // filter out duplicates
+  return missing.filter((image, index) => missing.indexOf(image) === index);
+};
+
+/**
  * Checks a range of port numbers to see if they are open on the current operating system.
  * Returns a new array of port numbers that are confirmed available
  * @param requestedPorts the ports to check for availability. ** must be in ascending order
