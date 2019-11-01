@@ -147,16 +147,14 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   }
 
   const missingImages = getMissingImages(network, dockerImages);
-  const showWarning =
+  const showNotice =
     [Status.Stopped, Status.Starting].includes(network.status) &&
     missingImages.length > 0;
 
   return (
     <Styled.NetworkView>
       {header}
-      {showWarning && (
-        <Styled.Alert type="warning" message={l('missingImages')} showIcon />
-      )}
+      {showNotice && <Styled.Alert type="info" message={l('missingImages')} showIcon />}
       {toggleAsync.error && (
         <Styled.Alert
           type="error"
