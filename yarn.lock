@@ -5660,6 +5660,11 @@ dateformat@^3.0.0:
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-3.0.3.tgz#a6e37499a4d9a9cf85ef5872044d62901c9889ae"
   integrity sha512-jyCETtSl3VMZMWeRo7iY1FL19ges1t55hMo5yaam4Jrsm5EPL89UQkoQRyiI+Yf4k8r2ZpdngkV8hr1lIdjb3Q==
 
+debounce@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.0.tgz#44a540abc0ea9943018dc0eaa95cce87f65cd131"
+  integrity sha512-mYtLl1xfZLi1m4RtQYlZgJUNQjl4ZxVnHzIR8nLLgi4q1YT8o/WM+MK/f8yfcc9s5Ir5zRaPZyZU6xs1Syoocg==
+
 debug@*, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
@@ -6252,19 +6257,21 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-easy-peasy@3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.1.2.tgz#d6a683c9fc16429150793c61515ca2dbf8c6fbe2"
-  integrity sha512-nfuZQk84cQ36WpO1GSEaiMPzdtdfY+K5yRWDU8GYfB9tkxggM1QBg6P9r8EgKMvyIs2ba4Bqom3Aj7XQaKC9QA==
+easy-peasy@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.2.0.tgz#9c43539160d7fed19afc36fe04442d33762b0adb"
+  integrity sha512-RcYIMxKlYg663m+/Li1/ZXbN/PwSuGQ4n6ZlHNZnqJkpqt975R7yJIm4xBg1QeoeZSmiSnMnKAxlCzkq7jLM8w==
   dependencies:
+    debounce "^1.2.0"
     immer-peasy "3.1.3"
+    is-plain-object "^3.0.0"
     memoizerific "^1.11.3"
     prop-types "^15.6.2"
     redux "^4.0.4"
     redux-thunk "^2.3.0"
     shallowequal "^1.1.0"
     symbol-observable "^1.2.0"
-    ts-toolbelt "^4.9.14"
+    ts-toolbelt "^4.9.29"
 
 easy-stack@^1.0.0:
   version "1.0.0"
@@ -9332,6 +9339,13 @@ is-plain-object@^2.0.1, is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   dependencies:
     isobject "^3.0.1"
 
+is-plain-object@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/is-plain-object/-/is-plain-object-3.0.0.tgz#47bfc5da1b5d50d64110806c199359482e75a928"
+  integrity sha512-tZIpofR+P05k8Aocp7UI/2UTa9lTJSebCXpFFoR9aibpokDj/uXBsJ8luUu0tTVYKkMU6URDUuOfJZ7koewXvg==
+  dependencies:
+    isobject "^4.0.0"
+
 is-promise@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/is-promise/-/is-promise-2.1.0.tgz#79a2a9ece7f096e80f36d2b2f3bc16c1ff4bf3fa"
@@ -9517,6 +9531,11 @@ isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8=
+
+isobject@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/isobject/-/isobject-4.0.0.tgz#3f1c9155e73b192022a80819bacd0343711697b0"
+  integrity sha512-S/2fF5wH8SJA/kmwr6HYhK/RI/OkhD84k8ntalo0iJjZikgq1XFvR5M8NPT1x5F7fBwCG3qHfnzeP/Vh/ZxCUA==
 
 isomorphic-fetch@^2.1.1:
   version "2.2.1"
@@ -17154,10 +17173,10 @@ ts-protoc-gen@^0.8.0:
   dependencies:
     google-protobuf "^3.6.1"
 
-ts-toolbelt@^4.9.14:
-  version "4.9.20"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-4.9.20.tgz#1ec6a699d69552c7d1631d386a9d0f7630a305fa"
-  integrity sha512-hOMzuaMioBqOqsAqRzu3bIsO7MNxRx+ejstlcEI47jdJhHPoexA0BIUpAh75njuGognfwSVSibw8dHDy9g4iEQ==
+ts-toolbelt@^4.9.29:
+  version "4.9.30"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-4.9.30.tgz#302d6ae6b77cb9e56aa4dd51840a5dca18cd5746"
+  integrity sha512-RxLOznMz1ZhXZZJqWKO2BjUyWsRb4gUKd1vqlEEbJGtolAIcCNGf5LcoPxpCVccE6XdMjui1zs6MlFIoRf4ITA==
 
 tslib@^1.8.1:
   version "1.10.0"
