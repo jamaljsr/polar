@@ -19,6 +19,11 @@ const Root: React.FC = () => (
         code {
           font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
         }
+
+        #root {
+          width: 100vw;
+          height: 100vh;
+        }
       `}
     />
     <App />

@@ -11,6 +11,7 @@ export const bitcoind = (
 ): ComposeService => ({
   image: `polarlightning/bitcoind:${version}`,
   container_name: name,
+  hostname: name,
   // Note: escape ($) rpcauth with ($$)
   command: trimInside(`
     bitcoind
@@ -48,6 +49,7 @@ export const lnd = (
 ): ComposeService => ({
   image: `polarlightning/lnd:${version}`,
   container_name: name,
+  hostname: name,
   // TODO: store the rpc user/pass in a constants file
   command: trimInside(`
     lnd
