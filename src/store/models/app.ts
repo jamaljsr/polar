@@ -3,6 +3,8 @@ import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
+import { ipcChannels } from 'shared';
+import { createIpcSender } from 'lib/ipc/ipcService';
 import { DockerVersions, StoreInjections } from 'types';
 import { RootModel } from './';
 
@@ -25,6 +27,7 @@ export interface AppModel {
   notify: Action<AppModel, NotifyOptions>;
   navigateTo: Thunk<AppModel, string>;
   openInBrowser: Action<AppModel, string>;
+  openWindow: Thunk<AppModel, string, StoreInjections, RootModel>;
 }
 
 const appModel: AppModel = {
@@ -79,6 +82,10 @@ const appModel: AppModel = {
   }),
   openInBrowser: action((state, url) => {
     shell.openExternal(url);
+  }),
+  openWindow: thunk(async (actions, url) => {
+    const ipc = createIpcSender('AppModel', 'app');
+    await ipc(ipcChannels.openWindow, { url });
   }),
 };
 

@@ -11,7 +11,7 @@ import { useStoreActions } from 'store';
 const docker = new Docker();
 const termOptions: ITerminalOptions = {
   fontFamily: "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace",
-  fontSize: 13,
+  fontSize: 12,
   cursorBlink: true,
   cursorStyle: 'bar',
 };
@@ -61,7 +61,7 @@ const connect = async (term: Terminal, name: string, type: string) => {
   const containers = await docker.listContainers();
   debug(`all containers: ${JSON.stringify(containers)}`);
   const info = containers.find(c => c.Names.includes(`/${name}`));
-  debug(`found: ${info}`);
+  debug(`found: ${JSON.stringify(info, null, 2)}`);
   const container = info && docker.getContainer(info.Id);
   if (!container) throw new Error(`Docker container '${name}' not found`);
 
@@ -69,19 +69,22 @@ const connect = async (term: Terminal, name: string, type: string) => {
   const exec = await container.exec({ ...execCommand, User: config.user });
   // run exec to connect to the container
   const stream = await exec.start(execOptions);
-  // connect io streams
-  stream.on('data', (data: any) => term.write(data));
+  // connect I/O streams
   term.onData(data => stream.write(data));
+  stream.on('data', (data: any) => term.write(data));
+  // close the window if the stream is closed (ex: 'exit' typed)
+  stream.on('close', () => window.close());
   // run alias command
   stream.write(`${config.alias}\n`);
-  // handle the container going down while the terminal is open
-  container.wait(() => term.write('** container shutdown **'));
+  // close window if the container goes down while the terminal is open
+  container.wait(() => window.close());
 };
 
 const Styled = {
   Term: styled.div`
     width: 100%;
     height: 100%;
+    background-color: #000;
   `,
 };
 
@@ -104,6 +107,10 @@ const DockerTerminal: React.FC = () => {
     term.open(termEl.current as HTMLDivElement);
     fitAddon.fit();
 
+    // listen to resize events
+    const resize = () => fitAddon.fit();
+    window.addEventListener('resize', resize);
+
     // connect to docker
     connect(
       term,
@@ -115,6 +122,7 @@ const DockerTerminal: React.FC = () => {
 
     return () => {
       term.dispose();
+      window.removeEventListener('resize', resize);
     };
   }, [notify, name, type]);
 
