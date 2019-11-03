@@ -6,7 +6,13 @@ import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import { toSats } from 'utils/units';
-import { CopyIcon, DetailsList, Loader, StatusBadge } from 'components/common';
+import {
+  CopyIcon,
+  DetailsList,
+  Loader,
+  OpenTerminalButton,
+  StatusBadge,
+} from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
 import MineBlocksInput from './MineBlocksInput';
@@ -89,7 +95,12 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
         />
       )}
       <DetailsList details={details} />
-      {node.status === Status.Started && <MineBlocksInput node={node} />}
+      {node.status === Status.Started && (
+        <>
+          <MineBlocksInput node={node} />
+          <OpenTerminalButton node={node} />
+        </>
+      )}
     </SidebarCard>
   );
 };

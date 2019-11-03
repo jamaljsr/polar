@@ -1,33 +1,28 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
-import { join } from 'path';
+import { initAppIpcListener } from './appIpcListener';
+import { BASE_URL, IS_DEV } from './constants';
 import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
-
-const devUrl = 'http://localhost:3000';
-const prodUrl = `file://${join(__dirname, '../../../build/index.html')}`;
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
-  isDev: boolean;
-
-  constructor(isDev: boolean) {
-    this.isDev = isDev;
-  }
 
   start() {
     app.on('ready', async () => {
-      await this.createWindow();
+      await this.createMainWindow();
       initLndProxy(ipcMain);
+      initAppIpcListener(ipcMain);
     });
     app.on('window-all-closed', this.onAllClosed);
     app.on('activate', this.onActivate);
   }
 
-  async createWindow() {
+  async createMainWindow() {
     const mainState = windowState({
       defaultWidth: 900,
       defaultHeight: 600,
+      file: 'window-state-main.json',
     });
 
     this.mainWindow = new BrowserWindow({
@@ -42,14 +37,14 @@ class WindowManager {
     });
     this.mainWindow.removeMenu();
 
-    if (this.isDev) {
+    if (IS_DEV) {
       await this.setupDevEnv();
     }
 
     this.mainWindow.on('closed', this.onMainClosed);
 
     // use dev server for hot reload or file in production
-    this.mainWindow.loadURL(this.isDev ? devUrl : prodUrl);
+    this.mainWindow.loadURL(BASE_URL);
 
     // clear the proxy cached data if the window is reloaded
     this.mainWindow.webContents.on('did-finish-load', clearProxyCache);
@@ -84,7 +79,7 @@ class WindowManager {
 
   onActivate() {
     if (this.mainWindow === null) {
-      this.createWindow();
+      this.createMainWindow();
     }
   }
 }

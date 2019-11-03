@@ -223,6 +223,7 @@ const networkModel: NetworkModel = {
     } else if (network.status === Status.Started) {
       await actions.stop(network.id);
     }
+    await actions.save();
   }),
   rename: thunk(async (actions, { id, name }, { getState }) => {
     if (!name) throw new Error(l('renameErr', { name }));
