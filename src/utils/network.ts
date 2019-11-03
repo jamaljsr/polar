@@ -1,22 +1,22 @@
 import { join } from 'path';
 import detectPort from 'detect-port';
-import { BitcoinNode, LndNode, LndVersion, Status } from 'shared/types';
+import { BitcoinNode, CommonNode, LndNode, LndVersion, Status } from 'shared/types';
 import { Network } from 'types';
 import { networksPath } from './config';
 import { range } from './numbers';
 
+export const getContainerName = (node: CommonNode) =>
+  `polar-n${node.networkId}-${node.name}`;
+
 // long path games
 const getFilePaths = (name: string, network: Network) => {
-  // add polar prefix to the name. ex: polar-n1-lnd-1
-  const prefix = (name: string) => `polar-n${network.id}-${name}`;
-  // returns /volumes/lnd/polar-n1-lnd-1
-  const lndDataPath = (name: string) =>
-    join(network.path, 'volumes', 'lnd', prefix(name));
-  // returns /volumes/lnd/polar-n1-lnd-1/tls.cert
+  // returns /volumes/lnd/lnd-1
+  const lndDataPath = (name: string) => join(network.path, 'volumes', 'lnd', name);
+  // returns /volumes/lnd/lnd-1/tls.cert
   const lndCertPath = (name: string) => join(lndDataPath(name), 'tls.cert');
   // returns /data/chain/bitcoin/regtest
   const macaroonPath = join('data', 'chain', 'bitcoin', 'regtest');
-  // returns /volumes/lnd/polar-n1-lnd-1/data/chain/bitcoin/regtest/admin.amacaroon
+  // returns /volumes/lnd/lnd-1/data/chain/bitcoin/regtest/admin.amacaroon
   const lndMacaroonPath = (name: string, macaroon: string) =>
     join(lndDataPath(name), macaroonPath, `${macaroon}.macaroon`);
 

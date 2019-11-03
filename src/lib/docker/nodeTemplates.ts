@@ -6,11 +6,12 @@ const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
 export const bitcoind = (
   name: string,
+  container: string,
   version: string,
   rpcPort: number,
 ): ComposeService => ({
   image: `polarlightning/bitcoind:${version}`,
-  container_name: name,
+  container_name: container,
   hostname: name,
   // Note: escape ($) rpcauth with ($$)
   command: trimInside(`
@@ -42,15 +43,15 @@ export const bitcoind = (
 
 export const lnd = (
   name: string,
+  container: string,
   version: string,
   backendName: string,
   restPort: number,
   grpcPort: number,
 ): ComposeService => ({
   image: `polarlightning/lnd:${version}`,
-  container_name: name,
+  container_name: container,
   hostname: name,
-  // TODO: store the rpc user/pass in a constants file
   command: trimInside(`
     lnd
       --noseedbackup
@@ -70,7 +71,6 @@ export const lnd = (
       --bitcoind.zmqpubrawtx=tcp://${backendName}:28335
   `),
   restart: 'always',
-  // TODO: don't use the "polar" prefix in the path name
   volumes: [`./volumes/lnd/${name}:/home/lnd/.lnd`],
   expose: [
     '8080', // REST
