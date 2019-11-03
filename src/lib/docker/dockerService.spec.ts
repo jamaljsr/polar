@@ -6,6 +6,7 @@ import { dockerService } from 'lib/docker';
 import { Network } from 'types';
 import { DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
+import { createNetwork } from 'utils/network';
 import { getNetwork } from 'utils/tests';
 
 jest.mock('dockerode');
@@ -126,6 +127,23 @@ describe('DockerService', () => {
 
     it('should save with the lnd node in the compose file', () => {
       dockerService.saveComposeFile(network);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(
+          `container_name: polar-n1-${network.nodes.lightning[0].name}`,
+        ),
+      );
+    });
+
+    it('should save the lnd node with the first bitcoin node as backend', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 1,
+        bitcoindNodes: 1,
+      });
+      net.nodes.lightning[0].backendName = 'invalid';
+      dockerService.saveComposeFile(net);
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(

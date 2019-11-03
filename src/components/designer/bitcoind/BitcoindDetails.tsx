@@ -6,14 +6,9 @@ import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import { toSats } from 'utils/units';
-import {
-  CopyIcon,
-  DetailsList,
-  Loader,
-  OpenTerminalButton,
-  StatusBadge,
-} from 'components/common';
+import { CopyIcon, DetailsList, Loader, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
+import { OpenTerminalButton } from 'components/terminal';
 import SidebarCard from '../SidebarCard';
 import MineBlocksInput from './MineBlocksInput';
 

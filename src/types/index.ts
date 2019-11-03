@@ -2,6 +2,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { BitcoinNode, LndNode, Status } from 'shared/types';
+import { IpcSender } from 'lib/ipc/ipcService';
 
 export interface LocaleConfig {
   fallbackLng: string;
@@ -57,6 +58,7 @@ export interface LndLibrary {
 }
 
 export interface StoreInjections {
+  ipc: IpcSender;
   dockerService: DockerLibrary;
   bitcoindService: BitcoindLibrary;
   lndService: LndLibrary;

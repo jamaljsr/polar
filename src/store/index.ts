@@ -4,6 +4,7 @@ import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
 import { bitcoindService } from 'lib/bitcoin';
 import { dockerService } from 'lib/docker';
+import { createIpcSender } from 'lib/ipc/ipcService';
 import { lndService } from 'lib/lnd';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
@@ -48,6 +49,7 @@ export const createReduxStore = (options?: {
 // using injections allows for more easily mocking of dependencies in store actions
 // see https://easy-peasy.now.sh/docs/testing/testing-components.html#mocking-calls-to-services
 const injections: StoreInjections = {
+  ipc: createIpcSender('AppModel', 'app'),
   dockerService,
   bitcoindService,
   lndService,
