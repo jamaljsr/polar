@@ -2,6 +2,7 @@ import * as LND from '@radar/lnrpc';
 import { LndNode } from 'shared/types';
 import { LndLibrary, Network } from 'types';
 import { waitFor } from 'utils/async';
+import { getContainerName } from 'utils/network';
 import { lndProxyClient as proxy } from './';
 
 class LndService implements LndLibrary {
@@ -34,8 +35,7 @@ class LndService implements LndLibrary {
     if (!peer) {
       const addr: LND.LightningAddress = {
         pubkey: toPubKey,
-        // TODO: move this into a util file
-        host: `polar-n${to.networkId}-${to.name}`,
+        host: getContainerName(to),
       };
       await proxy.connectPeer(from, { addr });
     }

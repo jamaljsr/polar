@@ -70,21 +70,14 @@ class DockerService implements DockerLibrary {
    */
   async saveComposeFile(network: Network) {
     const file = new ComposeFile();
+    const { bitcoin, lightning } = network.nodes;
 
-    const prefix = (name: string) => `polar-n${network.id}-${name}`;
-    network.nodes.bitcoin.forEach(node => {
-      file.addBitcoind(prefix(node.name), node.version, node.ports.rpc);
-    });
-    network.nodes.lightning.forEach(node => {
+    bitcoin.forEach(node => file.addBitcoind(node));
+    lightning.forEach(node => {
       if (node.implementation === 'LND') {
         const lnd = node as LndNode;
-        file.addLnd(
-          prefix(lnd.name),
-          lnd.version,
-          prefix(lnd.backendName),
-          lnd.ports.rest,
-          lnd.ports.grpc,
-        );
+        const backend = bitcoin.find(n => n.name === lnd.backendName) || bitcoin[0];
+        file.addLnd(lnd, backend);
       }
     });
 

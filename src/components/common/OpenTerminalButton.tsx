@@ -3,6 +3,7 @@ import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, LndNode } from 'shared/types';
 import { useStoreActions } from 'store';
+import { getContainerName } from 'utils/network';
 import { TERMINAL } from 'components/routing';
 
 interface Props {
@@ -12,9 +13,6 @@ interface Props {
 const OpenTerminalButton: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.common.OpenTerminalButton');
   const { openWindow } = useStoreActions(s => s.app);
-
-  // TODO: use a helper for prefix
-  const containerName = `polar-n${node.networkId}-${node.name}`;
 
   let cmd = '';
   switch (node.implementation) {
@@ -31,7 +29,7 @@ const OpenTerminalButton: React.FC<Props> = ({ node }) => {
         type="primary"
         icon="code"
         block
-        onClick={() => openWindow(TERMINAL(node.implementation, containerName))}
+        onClick={() => openWindow(TERMINAL(node.implementation, getContainerName(node)))}
       >
         {l('btn')}
       </Button>

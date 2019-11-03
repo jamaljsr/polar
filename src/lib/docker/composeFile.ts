@@ -1,3 +1,5 @@
+import { BitcoinNode, CommonNode, LndNode } from 'shared/types';
+import { getContainerName } from 'utils/network';
 /* eslint-disable @typescript-eslint/camelcase */
 import { bitcoind, lnd } from './nodeTemplates';
 
@@ -29,18 +31,21 @@ class ComposeFile {
     };
   }
 
-  addBitcoind(name: string, version: string, rpcPort: number) {
-    this.content.services[name] = bitcoind(name, version, rpcPort);
+  addBitcoind(node: BitcoinNode) {
+    const { name, version, ports } = node;
+    const container = getContainerName(node);
+    this.content.services[name] = bitcoind(name, container, version, ports.rpc);
   }
 
-  addLnd(
-    name: string,
-    version: string,
-    backendName: string,
-    restPort: number,
-    grpcPort: number,
-  ) {
-    this.content.services[name] = lnd(name, version, backendName, restPort, grpcPort);
+  addLnd(node: LndNode, backend: CommonNode) {
+    const {
+      name,
+      version,
+      ports: { rest, grpc },
+    } = node;
+    const container = getContainerName(node);
+    const backendName = getContainerName(backend);
+    this.content.services[name] = lnd(name, container, version, backendName, rest, grpc);
   }
 }
 
