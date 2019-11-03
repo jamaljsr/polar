@@ -1,19 +1,26 @@
+/* exclude this function from test coverage because it pretty difficult to mock dependencies */
+/* istanbul ignore file */
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import { debug, info } from 'electron-log';
 import styled from '@emotion/styled';
 import 'xterm/css/xterm.css';
 import Docker from 'dockerode';
+import { usePrefixedTranslation } from 'hooks';
 import { ITerminalOptions, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { useStoreActions } from 'store';
+import { nord } from './themes';
 
 const docker = new Docker();
 const termOptions: ITerminalOptions = {
   fontFamily: "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace",
   fontSize: 12,
+  lineHeight: 1.2,
   cursorBlink: true,
   cursorStyle: 'bar',
+  allowTransparency: true,
+  theme: nord,
 };
 
 // exec command and options configuration
@@ -35,15 +42,33 @@ const execOptions = {
   hijack: true,
 };
 
+// I clearly got too carried away with this code here ;)
+const yellow = (text: string) => `\x1b[33m${text}\u001b[0m`;
+const green = (text: string) => `\x1b[32m${text}\u001b[0m`;
+const randColor = (text: string) =>
+  `\x1b[3${Math.floor(Math.random() * 6) + 1}m${text}\u001b[0m`;
+const polar = `
+   ____    U  ___ u   _        _       ____     
+U |  _"\\ u  \\/"_ \\/  |"|   U  /"\\  uU |  _"\\ u  
+ \\| |_) |/  | | | |U | | u  \\/ _ \\/  \\| |_) |/  
+  |  __/.-,_| |_| | \\| |/__ / ___ \\   |  _ <    
+  |_|    \\_)-\\___/   |_____|_/   \\_\\  |_| \\_\\   
+  ||>>_       \\\\     //  \\\\ \\\\    >>  //   \\\\_  
+ (__)__)     (__)   (_")("_)__)  (__)(__)  (__) 
+`
+  .split('')
+  .map(char => (['U', 'u'].includes(char) ? randColor(char) : char))
+  .join('');
+
 // differing configs based on the type of node
 const nodeConfig: Record<string, { user: string; alias: string }> = {
   LND: {
     user: 'lnd',
-    alias: 'alias lncli="`which lncli` --network regtest"',
+    alias: 'alias lncli="lncli --network regtest"',
   },
   bitcoind: {
     user: 'bitcoin',
-    alias: 'alias bitcoin-cli="`which bitcoin-cli` -regtest"',
+    alias: 'alias bitcoin-cli="bitcoin-cli -regtest"',
   },
 };
 
@@ -53,9 +78,9 @@ const nodeConfig: Record<string, { user: string; alias: string }> = {
  * @param name the name of the docker container
  * @param type the type of node
  */
-const connect = async (term: Terminal, name: string, type: string) => {
+const connectStreams = async (term: Terminal, name: string, type: string, l: any) => {
   const config = nodeConfig[type];
-  if (!config) throw new Error(`Invalid node type '${type}'`);
+  if (!config) throw new Error(l('nodeTypeErr', { type }));
 
   debug(`getting docker container with name '${name}'`);
   const containers = await docker.listContainers();
@@ -63,7 +88,7 @@ const connect = async (term: Terminal, name: string, type: string) => {
   const info = containers.find(c => c.Names.includes(`/${name}`));
   debug(`found: ${JSON.stringify(info, null, 2)}`);
   const container = info && docker.getContainer(info.Id);
-  if (!container) throw new Error(`Docker container '${name}' not found`);
+  if (!container) throw new Error(l('containerErr', { name }));
 
   // create an exec instance
   const exec = await container.exec({ ...execCommand, User: config.user });
@@ -75,7 +100,9 @@ const connect = async (term: Terminal, name: string, type: string) => {
   // close the window if the stream is closed (ex: 'exit' typed)
   stream.on('close', () => window.close());
   // run alias command
-  stream.write(`${config.alias}\n`);
+  const cli = /alias (.*)=/.exec(config.alias);
+  if (cli) term.writeln(green(l('cliUpdating', { cli: cli[1] })));
+  stream.write(`${config.alias}\n\n`);
   // close window if the container goes down while the terminal is open
   container.wait(() => window.close());
 };
@@ -84,7 +111,7 @@ const Styled = {
   Term: styled.div`
     width: 100%;
     height: 100%;
-    background-color: #000;
+    background-color: ${nord.background};
   `,
 };
 
@@ -94,9 +121,11 @@ interface RouteParams {
 }
 
 const DockerTerminal: React.FC = () => {
+  const { l } = usePrefixedTranslation('cmps.terminal.DockerTerminal');
   const { notify } = useStoreActions(s => s.app);
   const { type, name } = useParams<RouteParams>();
   const termEl = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     info('Rendering DockerTerminal component');
 
@@ -106,25 +135,32 @@ const DockerTerminal: React.FC = () => {
     term.loadAddon(fitAddon);
     term.open(termEl.current as HTMLDivElement);
     fitAddon.fit();
+    polar.split('\n').forEach(line => term.writeln(line));
+    term.writeln(l('connected', { type: yellow(type), name: yellow(name) }));
+    term.writeln('');
 
     // listen to resize events
     const resize = () => fitAddon.fit();
     window.addEventListener('resize', resize);
 
-    // connect to docker
-    connect(
-      term,
-      name,
-      type,
-    )
-      .then(() => term.focus())
-      .catch(error => notify({ message: 'Unable to connect to terminal', error }));
+    // to run async code in useEffect, you must wrap it in a function
+    const connect = async () => {
+      try {
+        await connectStreams(term, name, type, l);
+        term.focus();
+      } catch (error) {
+        notify({ message: l('connectErr'), error });
+      }
+    };
+    // connect to the docker container
+    connect();
 
+    // return a cleanup function
     return () => {
       term.dispose();
       window.removeEventListener('resize', resize);
     };
-  }, [notify, name, type]);
+  }, [notify, name, type, l]);
 
   return <Styled.Term ref={termEl} />;
 };
