@@ -4,7 +4,6 @@ import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
-import { createIpcSender } from 'lib/ipc/ipcService';
 import { DockerVersions, StoreInjections } from 'types';
 import { RootModel } from './';
 
@@ -83,9 +82,8 @@ const appModel: AppModel = {
   openInBrowser: action((state, url) => {
     shell.openExternal(url);
   }),
-  openWindow: thunk(async (actions, url) => {
-    const ipc = createIpcSender('AppModel', 'app');
-    await ipc(ipcChannels.openWindow, { url });
+  openWindow: thunk(async (actions, url, { injections }) => {
+    await injections.ipc(ipcChannels.openWindow, { url });
   }),
 };
 

@@ -1,8 +1,11 @@
-import { LndVersion } from 'shared/types';
+import { getNetwork } from 'utils/tests';
 import ComposeFile from './composeFile';
 
 describe('ComposeFile', () => {
   let composeFile = new ComposeFile();
+  const network = getNetwork();
+  const btcNode = network.nodes.bitcoin[0];
+  const lndNode = network.nodes.lightning[0];
 
   beforeEach(() => {
     composeFile = new ComposeFile();
@@ -17,35 +20,35 @@ describe('ComposeFile', () => {
   });
 
   it('should add multiple services', () => {
-    composeFile.addBitcoind('bitcoind1', '0.18.1', 18443);
-    composeFile.addLnd('lnd1', LndVersion.latest, 'bitcoind1', 8080, 10009);
+    composeFile.addBitcoind(btcNode);
+    composeFile.addLnd(lndNode, btcNode);
     expect(Object.keys(composeFile.content.services).length).toEqual(2);
   });
 
   it('should add a bitcoind config', () => {
-    composeFile.addBitcoind('bitcoind1', '0.18.1', 18443);
-    expect(composeFile.content.services.bitcoind1).not.toBeUndefined();
+    composeFile.addBitcoind(btcNode);
+    expect(composeFile.content.services['bitcoind-1']).not.toBeUndefined();
   });
 
   it('should create the correct bitcoind docker compose values', () => {
-    composeFile.addBitcoind('bitcoind1', '0.18.1', 18443);
-    const service = composeFile.content.services.bitcoind1;
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['bitcoind-1'];
     expect(service.image).toContain('bitcoind');
-    expect(service.container_name).toEqual('bitcoind1');
-    expect(service.volumes[0]).toContain('bitcoind1');
+    expect(service.container_name).toEqual('polar-n1-bitcoind-1');
+    expect(service.volumes[0]).toContain('/bitcoind-1:');
   });
 
   it('should add an lnd config', () => {
-    composeFile.addLnd('lnd1', LndVersion.latest, 'bitcoind1', 8080, 10009);
-    expect(composeFile.content.services.lnd1).not.toBeUndefined();
+    composeFile.addLnd(lndNode, btcNode);
+    expect(composeFile.content.services['lnd-1']).not.toBeUndefined();
   });
 
   it('should create the correct lnd docker compose values', () => {
-    composeFile.addLnd('lnd1', LndVersion.latest, 'bitcoind1', 8080, 10009);
-    const service = composeFile.content.services.lnd1;
+    composeFile.addLnd(lndNode, btcNode);
+    const service = composeFile.content.services['lnd-1'];
     expect(service.image).toContain('lnd');
-    expect(service.container_name).toEqual('lnd1');
-    expect(service.command).toContain('bitcoind1');
-    expect(service.volumes[0]).toContain('lnd1');
+    expect(service.container_name).toEqual('polar-n1-lnd-1');
+    expect(service.command).toContain('bitcoind-1');
+    expect(service.volumes[0]).toContain('/lnd-1:');
   });
 });

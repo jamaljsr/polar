@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, LndNode } from 'shared/types';
@@ -13,6 +14,7 @@ interface Props {
 const OpenTerminalButton: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.common.OpenTerminalButton');
   const { openWindow } = useStoreActions(s => s.app);
+  const openAsync = useAsyncCallback(openWindow);
 
   let cmd = '';
   switch (node.implementation) {
@@ -29,7 +31,10 @@ const OpenTerminalButton: React.FC<Props> = ({ node }) => {
         type="primary"
         icon="code"
         block
-        onClick={() => openWindow(TERMINAL(node.implementation, getContainerName(node)))}
+        loading={openAsync.loading}
+        onClick={() =>
+          openAsync.execute(TERMINAL(node.implementation, getContainerName(node)))
+        }
       >
         {l('btn')}
       </Button>
