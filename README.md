@@ -55,7 +55,7 @@ The current pre-release downloads can be found in the [GitHub releases](https://
 | `yarn test:e2e` | run e2e tests                                                     |
 | `yarn lint:all` | run typescript and eslint syntax checking                         |
 | `yarn langs`    | extract i18n language keys from code                              |
-| `yarn pacakge`  | package the app for your OS                                       |
+| `yarn package`  | package the app for your OS                                       |
 
 > Note: there is currently a bug in electron v6 on Windows with Dark Mode enabled.
 > Use `yarn win` instead of `yarn dev` to automatically disabled dark mode during
