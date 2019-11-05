@@ -176,7 +176,11 @@ const designerModel: DesignerModel = {
       } catch (error) {
         return showError(error);
       }
-      if (network.status !== Status.Started) {
+      if (
+        network.status !== Status.Started ||
+        fromNode.properties.status !== Status.Started ||
+        toNode.properties.status !== Status.Started
+      ) {
         return showError(new Error(l('linkErrNotStarted')));
       }
 

@@ -48,7 +48,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   // flag to show the deposit checkbox if the from node balance is less than the capacity
   let showDeposit = false;
   const selectedFrom = form.getFieldValue('from') || from;
-  if (selectedFrom && nodes[selectedFrom]) {
+  if (selectedFrom && nodes[selectedFrom] && !openChanAsync.loading) {
     const { confirmedBalance } = nodes[selectedFrom].walletBalance || {};
     const balance = parseInt(confirmedBalance || '0');
     const sats = form.getFieldValue('sats');
