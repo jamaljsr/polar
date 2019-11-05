@@ -165,7 +165,7 @@
   "store.models.designer.notFoundError": "Chart not found for network with id {{networkId}}",
   "store.models.designer.linkErrTitle": "Cannot open a channel",
   "store.models.designer.linkErrNodes": "Must be between two lightning nodes",
-  "store.models.designer.linkErrNotStarted": "The network must be Started first",
+  "store.models.designer.linkErrNotStarted": "The nodes must be Started first",
   "store.models.designer.dropErrTitle": "Failed to add node",
   "store.models.designer.dropErrMsg": "Cannot add a new node when the network is transitioning",
   "store.models.network.networkByIdErr": "Network with the id '{{networkId}}' was not found.",
