@@ -40,7 +40,6 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
         try {
           await closeChannel({ node: from as LndNode, channelPoint });
           notify({ message: l('closeChanSuccess') });
-          // no need to navigate away since it will be done by useEffect below
         } catch (error) {
           notify({ message: l('closeChanError'), error });
           throw error;
