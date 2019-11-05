@@ -3,6 +3,7 @@ import detectPort from 'detect-port';
 import { BitcoinNode, CommonNode, LndNode, LndVersion, Status } from 'shared/types';
 import { Network } from 'types';
 import { networksPath } from './config';
+import { getName } from './names';
 import { range } from './numbers';
 
 export const getContainerName = (node: CommonNode) =>
@@ -34,7 +35,7 @@ export const createLndNetworkNode = (
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
-  const name = `lnd-${id + 1}`;
+  const name = getName(id);
   return {
     id,
     networkId: network.id,
@@ -57,7 +58,7 @@ export const createBitcoindNetworkNode = (
   status: Status,
 ): BitcoinNode => {
   const index = network.nodes.bitcoin.length;
-  const name = `bitcoind-${index + 1}`;
+  const name = `backend${index ? index + 1 : ''}`;
   return {
     id: index,
     networkId: network.id,
