@@ -18,17 +18,19 @@ interface Props {
 const RemoveNode: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.RemoveNode');
   const { notify } = useStoreActions(s => s.app);
+  const { removeNode } = useStoreActions(s => s.network);
 
   const showRemoveModal = () => {
     const { name } = node;
     Modal.confirm({
-      title: l('confirmText', { name }),
+      title: l('confirmTitle', { name }),
+      content: l('confirmText'),
       okText: l('confirmBtn'),
       okType: 'danger',
       cancelText: l('cancelBtn'),
       onOk: async () => {
         try {
-          // await closeChannel({ node: from as LndNode, channelPoint });
+          await removeNode({ node });
           notify({ message: l('success', { name }) });
         } catch (error) {
           notify({ message: l('error'), error });

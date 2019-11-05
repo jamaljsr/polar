@@ -1,6 +1,6 @@
 import * as LND from '@radar/lnrpc';
 import { LndNode } from 'shared/types';
-import { LndLibrary, Network } from 'types';
+import { LndLibrary } from 'types';
 import { waitFor } from 'utils/async';
 import { getContainerName } from 'utils/network';
 import { lndProxyClient as proxy } from './';
@@ -68,8 +68,7 @@ class LndService implements LndLibrary {
     return await proxy.pendingChannels(node);
   }
 
-  async onNodesDeleted(network: Network): Promise<void> {
-    const nodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
+  async onNodesDeleted(nodes: LndNode[]): Promise<void> {
     return await proxy.onNodesDeleted(nodes);
   }
 

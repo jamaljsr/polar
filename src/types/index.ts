@@ -1,7 +1,7 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import { BitcoinNode, LndNode, Status } from 'shared/types';
+import { BitcoinNode, CommonNode, LndNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 
 export interface LocaleConfig {
@@ -33,6 +33,7 @@ export interface DockerLibrary {
   saveComposeFile: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
+  removeNode: (network: Network, node: CommonNode) => Promise<void>;
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
 }
@@ -54,7 +55,7 @@ export interface LndLibrary {
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
   pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
-  onNodesDeleted: (network: Network) => Promise<void>;
+  onNodesDeleted: (nodes: LndNode[]) => Promise<void>;
 }
 
 export interface StoreInjections {

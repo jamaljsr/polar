@@ -133,10 +133,16 @@ const designerModel: DesignerModel = {
     delete state.allCharts[state.activeId].links[linkId];
   }),
   removeNode: action((state, nodeId) => {
-    // this action is used when a node is dropped onto the canvas.
-    // remove the node created in the chart once the async loading
-    // has been completed
-    delete state.allCharts[state.activeId].nodes[nodeId];
+    const chart = state.allCharts[state.activeId];
+    if (chart.selected && chart.selected.id === nodeId) {
+      chart.selected = {};
+    }
+    delete chart.nodes[nodeId];
+    Object.values(chart.links).forEach(link => {
+      if ([link.to.nodeId, link.from.nodeId].includes(nodeId)) {
+        delete chart.links[link.id];
+      }
+    });
   }),
   addLndNode: action((state, { lndNode, position }) => {
     const chart = state.allCharts[state.activeId];

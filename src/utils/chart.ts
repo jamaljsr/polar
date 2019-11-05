@@ -222,10 +222,13 @@ export const updateChartFromLnd = (chart: IChart, lndData: LndNodeMapping): ICha
         ...waitingClose.map(pluckChan).map(mapPendingChannel('Waiting to Close')),
       ];
 
-      allChannels.forEach(channel => {
-        updateLinksAndPorts(channel, pubkeys, nodes, fromNode, links);
-        createdLinkIds.push(channel.uniqueId);
-      });
+      allChannels
+        // ignore channels to nodes that no longer exist in the network
+        .filter(c => !!pubkeys[c.pubkey])
+        .forEach(channel => {
+          updateLinksAndPorts(channel, pubkeys, nodes, fromNode, links);
+          createdLinkIds.push(channel.uniqueId);
+        });
 
       nodes[fromName] = {
         ...fromNode,
