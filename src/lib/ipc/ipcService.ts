@@ -27,7 +27,7 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
           `${serviceName}: received response "${uniqPayload.replyTo}"`,
           JSON.stringify(res, null, 2),
         );
-        if (res.err) {
+        if (res && res.err) {
           reject(new Error(res.err));
         } else {
           resolve(res);
