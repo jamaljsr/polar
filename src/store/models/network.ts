@@ -1,4 +1,5 @@
 import { info } from 'electron-log';
+import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { CommonNode, LndNode, LndVersion, Status } from 'shared/types';
@@ -139,11 +140,14 @@ const networkModel: NetworkModel = {
       network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
       getStoreActions().lnd.removeNode(node.name);
       await injections.dockerService.removeNode(network, node);
+      getStoreActions().designer.removeNode(node.name);
       actions.setNetworks([...networks]);
       await actions.save();
-      getStoreActions().designer.removeNode(node.name);
-      getStoreActions().designer.syncChart(network);
+      rm(join(network.path, 'volumes', 'lnd', node.name));
       await injections.lndService.onNodesDeleted([node, ...network.nodes.lightning]);
+      if (network.status === Status.Started) {
+        getStoreActions().designer.syncChart(network);
+      }
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {

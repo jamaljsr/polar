@@ -11,15 +11,16 @@ interface Props {
 const ActionsTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.ActionsTab');
 
-  if (node.status !== Status.Started) {
-    return <>{l('notStarted')}</>;
-  }
-
   return (
     <>
-      <Deposit node={node} />
-      <OpenChannelButtons node={node} />
-      <OpenTerminalButton node={node} />
+      {node.status !== Status.Started && l('notStarted')}
+      {node.status === Status.Started && (
+        <>
+          <Deposit node={node} />
+          <OpenChannelButtons node={node} />
+          <OpenTerminalButton node={node} />
+        </>
+      )}
       <RemoveNode node={node} />
     </>
   );
