@@ -4,7 +4,7 @@ import { join } from 'path';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
-import { LndNode } from 'shared/types';
+import { CommonNode, LndNode } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
@@ -84,7 +84,7 @@ class DockerService implements DockerLibrary {
     const yml = yaml.dump(file.content);
     const path = join(network.path, 'docker-compose.yml');
     await write(path, yml);
-    info(`created compose file for '${network.name}' at '${path}'`);
+    info(`saved compose file for '${network.name}' at '${path}'`);
   }
 
   /**
@@ -110,6 +110,24 @@ class DockerService implements DockerLibrary {
   }
 
   /**
+   * Removes a single service from the network using docker-compose
+   * @param network the network containing the node
+   * @param node the node to remove
+   */
+  async removeNode(network: Network, node: CommonNode) {
+    info(`Stopping docker container for ${node.name}`);
+    info(` - path: ${network.path}`);
+    let result = await this.execute(compose.stopOne, node.name, this.getArgs(network));
+    info(`Container stopped:\n ${result.out || result.err}`);
+
+    info(`Removing stopped docker containers`);
+    result = await this.execute(compose.rm, this.getArgs(network));
+    info(`Removed:\n ${result.out || result.err}`);
+
+    await this.saveComposeFile(network);
+  }
+
+  /**
    * Saves the given networks to disk
    * @param networks the list of networks to save
    */
@@ -127,9 +145,9 @@ class DockerService implements DockerLibrary {
     const path = join(networksPath, 'networks.json');
     if (await exists(path)) {
       const json = await read(path);
-      const networks = JSON.parse(json);
-      info(`loaded ${networks.length} networks from '${path}'`);
-      return networks;
+      const data = JSON.parse(json);
+      info(`loaded ${data.networks.length} networks from '${path}'`);
+      return data;
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
       return { networks: [], charts: {} };
@@ -141,12 +159,13 @@ class DockerService implements DockerLibrary {
    * @param cmd the compose function to call
    * @param args the arguments to the compose function
    */
-  private async execute<A>(
-    cmd: (args: A) => Promise<compose.IDockerComposeResult>,
-    args: A,
+  private async execute<A, B>(
+    cmd: (arg1: A, arg2?: B) => Promise<compose.IDockerComposeResult>,
+    arg1: A,
+    arg2?: B,
   ): Promise<compose.IDockerComposeResult> {
     try {
-      const result = await cmd(args);
+      const result = await cmd(arg1, arg2);
       result.out = stripAnsi(result.out);
       result.err = stripAnsi(result.err);
       return result;

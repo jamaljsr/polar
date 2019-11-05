@@ -37,6 +37,7 @@ export interface OpenChannelPayload {
 
 export interface LndModel {
   nodes: LndNodeMapping;
+  removeNode: Action<LndModel, string>;
   setInfo: Action<LndModel, { node: LndNode; info: LND.GetInfoResponse }>;
   getInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   setWalletBalance: Action<
@@ -61,6 +62,11 @@ const lndModel: LndModel = {
   // state properties
   nodes: {},
   // reducer actions (mutations allowed thx to immer)
+  removeNode: action((state, name) => {
+    if (state.nodes[name]) {
+      delete state.nodes[name];
+    }
+  }),
   setInfo: action((state, { node, info }) => {
     if (!state.nodes[node.name]) state.nodes[node.name] = {};
     state.nodes[node.name].info = info;

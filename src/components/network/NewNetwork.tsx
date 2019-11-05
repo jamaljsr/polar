@@ -53,7 +53,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
               <Form.Item label={l('lndNodesLabel')}>
                 {form.getFieldDecorator('lndNodes', {
                   rules: [{ required: true, message: l('cmps.forms.required') }],
-                  initialValue: 2,
+                  initialValue: 3,
                 })(<InputNumber min={1} max={10} />)}
               </Form.Item>
             </Col>

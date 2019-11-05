@@ -32,21 +32,22 @@ export const createLndNetworkNode = (
   version: LndVersion,
   status: Status,
 ): LndNode => {
-  const index = network.nodes.lightning.length;
-  const name = `lnd-${index + 1}`;
+  const { bitcoin, lightning } = network.nodes;
+  const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
+  const name = `lnd-${id + 1}`;
   return {
-    id: index,
+    id,
     networkId: network.id,
     name: name,
     type: 'lightning',
     implementation: 'LND',
     version,
     status,
-    backendName: network.nodes.bitcoin[0].name,
+    backendName: bitcoin[0].name,
     paths: getFilePaths(name, network),
     ports: {
-      rest: 8081 + index,
-      grpc: 10001 + index,
+      rest: 8081 + id,
+      grpc: 10001 + id,
     },
   };
 };

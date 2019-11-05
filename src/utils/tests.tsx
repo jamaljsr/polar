@@ -34,6 +34,7 @@ export const injections: StoreInjections = {
     saveComposeFile: jest.fn(),
     start: jest.fn(),
     stop: jest.fn(),
+    removeNode: jest.fn(),
     saveNetworks: jest.fn(),
     loadNetworks: jest.fn(),
   },

@@ -45,6 +45,7 @@ export interface NetworkModel {
     RootModel,
     Promise<LndNode>
   >;
+  removeNode: Thunk<NetworkModel, { node: LndNode }, StoreInjections, RootModel>;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean; error?: Error }
@@ -130,6 +131,21 @@ const networkModel: NetworkModel = {
     await injections.dockerService.saveComposeFile(network);
     return node;
   }),
+  removeNode: thunk(
+    async (actions, { node }, { getState, injections, getStoreActions }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
+      getStoreActions().lnd.removeNode(node.name);
+      await injections.dockerService.removeNode(network, node);
+      actions.setNetworks([...networks]);
+      await actions.save();
+      getStoreActions().designer.removeNode(node.name);
+      getStoreActions().designer.syncChart(network);
+      await injections.lndService.onNodesDeleted([node, ...network.nodes.lightning]);
+    },
+  ),
   setStatus: action((state, { id, status, only, all = true, error }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
@@ -246,7 +262,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     await actions.save();
-    await injections.lndService.onNodesDeleted(network);
+    await injections.lndService.onNodesDeleted(network.nodes.lightning);
   }),
 };
 
