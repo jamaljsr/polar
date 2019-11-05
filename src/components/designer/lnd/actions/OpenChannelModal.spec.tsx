@@ -113,59 +113,67 @@ describe('OpenChannelModal', () => {
     expect(btn).toBeInTheDocument();
   });
 
-  it('should open a channel successfully', async () => {
-    lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
-    lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
-    const { getByText, getByLabelText, store, network } = await renderComponent();
-    await wait(() => {
-      store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+  describe('with form submitted', () => {
+    beforeEach(() => {
+      lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
+      lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
+      lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+      lndServiceMock.getWalletBalance.mockResolvedValue({
+        confirmedBalance: '100',
+        unconfirmedBalance: '200',
+        totalBalance: '300',
+      });
+      bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
     });
-    fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-    fireEvent.click(getByText('Open Channel'));
-    await wait(() => {
-      expect(store.getState().modals.openChannel.visible).toBe(false);
-    });
-    const [node1, node2] = network.nodes.lightning;
-    expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
-    expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
-  });
 
-  it('should open a channel and deposit funds', async () => {
-    lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
-    lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
-    lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
-    lndServiceMock.getWalletBalance.mockResolvedValue({
-      confirmedBalance: '100',
-      unconfirmedBalance: '200',
-      totalBalance: '300',
+    it('should open a channel successfully', async () => {
+      const { getByText, getByLabelText, store, network } = await renderComponent();
+      await wait(() => {
+        store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+      });
+      fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
+      fireEvent.click(
+        getByLabelText('Deposit enough funds to lnd-2 to open the channel'),
+      );
+      fireEvent.click(getByText('Open Channel'));
+      await wait(() => {
+        expect(store.getState().modals.openChannel.visible).toBe(false);
+      });
+      const [node1, node2] = network.nodes.lightning;
+      expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
+      expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
-    bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
-    const { getByText, getByLabelText, store, network } = await renderComponent();
-    await wait(() => {
-      store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
-    });
-    fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-    fireEvent.click(getByLabelText('Deposit enough funds to lnd-2 to open the channel'));
-    fireEvent.click(getByText('Open Channel'));
-    await wait(() => {
-      expect(store.getState().modals.openChannel.visible).toBe(false);
-    });
-    const [node1, node2] = network.nodes.lightning;
-    expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
-    expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
-    expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
-    expect(lndServiceMock.getNewAddress).toBeCalledTimes(1);
-  });
 
-  it('should display an error when opening a channel fails', async () => {
-    lndServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
-    const { getByText, getByLabelText, store } = await renderComponent();
-    await wait(() => {
-      store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+    it('should open a channel and deposit funds', async () => {
+      const { getByText, getByLabelText, store, network } = await renderComponent();
+      await wait(() => {
+        store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+      });
+      fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
+      fireEvent.click(getByText('Open Channel'));
+      await wait(() => {
+        expect(store.getState().modals.openChannel.visible).toBe(false);
+      });
+      const [node1, node2] = network.nodes.lightning;
+      expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
+      expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+      expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
+      expect(lndServiceMock.getNewAddress).toBeCalledTimes(1);
     });
-    fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-    await wait(() => fireEvent.click(getByText('Open Channel')));
-    expect(getByText('Unable to open the channel')).toBeInTheDocument();
-    expect(getByText('error-msg')).toBeInTheDocument();
+
+    it('should display an error when opening a channel fails', async () => {
+      lndServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
+      const { getByText, getByLabelText, store } = await renderComponent();
+      await wait(() => {
+        store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+      });
+      fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
+      fireEvent.click(
+        getByLabelText('Deposit enough funds to lnd-2 to open the channel'),
+      );
+      await wait(() => fireEvent.click(getByText('Open Channel')));
+      expect(getByText('Unable to open the channel')).toBeInTheDocument();
+      expect(getByText('error-msg')).toBeInTheDocument();
+    });
   });
 });

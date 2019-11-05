@@ -102,7 +102,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         })}
       >
         {form.getFieldDecorator('sats', {
-          initialValue: 20000,
+          initialValue: 250000,
           rules: [{ required: true, message: l('cmps.forms.required') }],
         })(
           <InputNumber
@@ -118,8 +118,9 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         <Form.Item>
           {form.getFieldDecorator('autoFund', {
             valuePropName: 'checked',
+            initialValue: true,
           })(
-            <Checkbox>
+            <Checkbox disabled={openChanAsync.loading}>
               Deposit enough funds to {selectedFrom} to open the channel
             </Checkbox>,
           )}
