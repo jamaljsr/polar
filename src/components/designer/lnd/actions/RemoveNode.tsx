@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -20,9 +20,10 @@ const RemoveNode: React.FC<Props> = ({ node }) => {
   const { notify } = useStoreActions(s => s.app);
   const { removeNode } = useStoreActions(s => s.network);
 
+  let modal: any;
   const showRemoveModal = () => {
     const { name } = node;
-    Modal.confirm({
+    modal = Modal.confirm({
       title: l('confirmTitle', { name }),
       content: l('confirmText'),
       okText: l('confirmBtn'),
@@ -39,6 +40,9 @@ const RemoveNode: React.FC<Props> = ({ node }) => {
       },
     });
   };
+
+  // cleanup the modal when the component unmounts
+  useEffect(() => () => modal && modal.destroy(), [modal]);
 
   return (
     <Styled.FormItem label={l('title')}>

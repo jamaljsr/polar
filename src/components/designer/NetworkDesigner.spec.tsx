@@ -28,6 +28,11 @@ describe('NetworkDesigner Component', () => {
       designer: {
         allCharts,
       },
+      lnd: {
+        nodes: {
+          alice: {},
+        },
+      },
     };
     const cmp = <NetworkDesigner network={network} updateStateDelay={0} />;
     return renderWithProviders(cmp, { initialState });
@@ -83,5 +88,14 @@ describe('NetworkDesigner Component', () => {
     const { findByText, store } = renderComponent();
     await wait(() => store.getActions().modals.showOpenChannel({}));
     expect(await findByText('Capacity (sats)')).toBeInTheDocument();
+  });
+
+  it('should remove a node from the network', async () => {
+    const { getByText, findByText, queryByText } = renderComponent();
+    await wait(() => fireEvent.click(getByText('alice')));
+    fireEvent.click(await findByText('Actions'));
+    fireEvent.click(await findByText('Remove'));
+    await wait(() => fireEvent.click(getByText('Yes')));
+    expect(queryByText('alice')).toBeNull();
   });
 });
