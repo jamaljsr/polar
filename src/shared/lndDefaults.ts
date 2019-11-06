@@ -14,6 +14,7 @@ export const defaultInfo = (
   blockHeight: 0,
   blockHash: '',
   syncedToChain: false,
+  syncedToGraph: false,
   testnet: false,
   chains: [],
   uris: [],
@@ -71,6 +72,7 @@ export const defaultChannel = (value: Partial<LND.Channel>): LND.Channel => ({
   chanStatusFlags: '',
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
+  staticRemoteKey: false,
   ...value,
 });
 
