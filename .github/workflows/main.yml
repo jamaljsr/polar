@@ -3,11 +3,11 @@ name: CI
 on:
   push:
     branches:
-    - master
-    - renovate/*
+      - master
+      - renovate/*
   pull_request:
     types: [assigned, opened, synchronize, reopened]
-    
+
 jobs:
   test:
     name: Run tests on ${{ matrix.os }}
@@ -49,3 +49,5 @@ jobs:
         run: yarn package:ci
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          APPLE_DEV_USER: ${{ secrets.APPLE_DEV_USER }}
+          APPLE_DEV_PASS: ${{ secrets.APPLE_DEV_PASS }}
