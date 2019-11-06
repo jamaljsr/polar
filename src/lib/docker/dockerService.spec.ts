@@ -197,6 +197,7 @@ describe('DockerService', () => {
       await dockerService.start(network);
       expect(composeMock.upAll).toBeCalledWith(
         expect.objectContaining({ cwd: network.path }),
+        undefined,
       );
     });
 
@@ -205,6 +206,7 @@ describe('DockerService', () => {
       await dockerService.stop(network);
       expect(composeMock.down).toBeCalledWith(
         expect.objectContaining({ cwd: network.path }),
+        undefined,
       );
     });
 
@@ -225,6 +227,7 @@ describe('DockerService', () => {
       await dockerService.start(network);
       expect(composeMock.upAll).toBeCalledWith(
         expect.objectContaining({ cwd: network.path }),
+        undefined,
       );
       electronMock.remote.process = {};
     });

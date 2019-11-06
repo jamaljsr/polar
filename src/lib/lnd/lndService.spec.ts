@@ -51,7 +51,7 @@ describe('LndService', () => {
 
   it('should call onNodesDeleted', async () => {
     const network = getNetwork();
-    await lndService.onNodesDeleted(network);
+    await lndService.onNodesDeleted(network.nodes.lightning);
     const [n1, n2] = network.nodes.lightning;
     expect(lndProxyClient.onNodesDeleted).toBeCalledWith([n1, n2]);
   });

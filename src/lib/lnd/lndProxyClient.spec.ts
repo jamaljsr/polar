@@ -39,7 +39,7 @@ describe('LndService', () => {
   });
 
   it('should call the connectPeer ipc', () => {
-    const req = { addr: { pubkey: 'abcdef', host: 'lnd-1' } };
+    const req = { addr: { pubkey: 'abcdef', host: 'alice' } };
     lndProxyClient.connectPeer(node, req);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.connectPeer, { node, req });
   });

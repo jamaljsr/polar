@@ -25,7 +25,7 @@ describe('LinkDetails component', () => {
       direction: 'ltr',
       status: 'Open',
     };
-    const { getByText } = renderComponent('lnd-1', 'lnd-2', properties);
+    const { getByText } = renderComponent('alice', 'bob', properties);
     expect(getByText('Channel Details')).toBeInTheDocument();
   });
 
@@ -33,12 +33,12 @@ describe('LinkDetails component', () => {
     const properties = {
       type: 'backend',
     };
-    const { getByText } = renderComponent('lnd-1', 'bitcoind-1', properties);
+    const { getByText } = renderComponent('alice', 'backend', properties);
     expect(getByText('Blockchain Backend Connection')).toBeInTheDocument();
   });
 
   it('should display message for invalid properties', () => {
-    const { getByText } = renderComponent('lnd-1', 'fake', undefined);
+    const { getByText } = renderComponent('alice', 'fake', undefined);
     expect(getByText(/select an invalid link/)).toBeInTheDocument();
   });
 
@@ -50,7 +50,7 @@ describe('LinkDetails component', () => {
 
   it('should display message for invalid bitcoin node', () => {
     const properties = { type: 'backend' };
-    const { getByText } = renderComponent('lnd-1', 'fake', properties);
+    const { getByText } = renderComponent('alice', 'fake', properties);
     expect(getByText(/select an invalid link/)).toBeInTheDocument();
   });
 });

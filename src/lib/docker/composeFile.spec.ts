@@ -27,28 +27,28 @@ describe('ComposeFile', () => {
 
   it('should add a bitcoind config', () => {
     composeFile.addBitcoind(btcNode);
-    expect(composeFile.content.services['bitcoind-1']).not.toBeUndefined();
+    expect(composeFile.content.services['backend']).not.toBeUndefined();
   });
 
   it('should create the correct bitcoind docker compose values', () => {
     composeFile.addBitcoind(btcNode);
-    const service = composeFile.content.services['bitcoind-1'];
+    const service = composeFile.content.services['backend'];
     expect(service.image).toContain('bitcoind');
-    expect(service.container_name).toEqual('polar-n1-bitcoind-1');
-    expect(service.volumes[0]).toContain('/bitcoind-1:');
+    expect(service.container_name).toEqual('polar-n1-backend');
+    expect(service.volumes[0]).toContain('/backend:');
   });
 
   it('should add an lnd config', () => {
     composeFile.addLnd(lndNode, btcNode);
-    expect(composeFile.content.services['lnd-1']).not.toBeUndefined();
+    expect(composeFile.content.services['alice']).not.toBeUndefined();
   });
 
   it('should create the correct lnd docker compose values', () => {
     composeFile.addLnd(lndNode, btcNode);
-    const service = composeFile.content.services['lnd-1'];
+    const service = composeFile.content.services['alice'];
     expect(service.image).toContain('lnd');
-    expect(service.container_name).toEqual('polar-n1-lnd-1');
-    expect(service.command).toContain('bitcoind-1');
-    expect(service.volumes[0]).toContain('/lnd-1:');
+    expect(service.container_name).toEqual('polar-n1-alice');
+    expect(service.command).toContain('backend');
+    expect(service.volumes[0]).toContain('/alice:');
   });
 });

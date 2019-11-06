@@ -26,7 +26,7 @@ describe('OpenChannelModal', () => {
       modals: {
         openChannel: {
           visible: true,
-          from: 'lnd-1',
+          from: 'alice',
         },
       },
     };
@@ -78,10 +78,10 @@ describe('OpenChannelModal', () => {
     const linkId = 'xxxx';
     await wait(() => {
       const { designer } = store.getActions();
-      const link = { linkId, fromNodeId: 'lnd-1', fromPortId: 'p1' } as any;
+      const link = { linkId, fromNodeId: 'alice', fromPortId: 'p1' } as any;
       // create a new link which will open the modal
       designer.onLinkStart(link);
-      designer.onLinkComplete({ ...link, toNodeId: 'lnd-2', toPortId: 'p2' } as any);
+      designer.onLinkComplete({ ...link, toNodeId: 'bob', toPortId: 'p2' } as any);
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
     await wait(() => fireEvent.click(getByText('Cancel')));
@@ -129,12 +129,10 @@ describe('OpenChannelModal', () => {
     it('should open a channel successfully', async () => {
       const { getByText, getByLabelText, store, network } = await renderComponent();
       await wait(() => {
-        store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+        store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
       });
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-      fireEvent.click(
-        getByLabelText('Deposit enough funds to lnd-2 to open the channel'),
-      );
+      fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       fireEvent.click(getByText('Open Channel'));
       await wait(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
@@ -147,7 +145,7 @@ describe('OpenChannelModal', () => {
     it('should open a channel and deposit funds', async () => {
       const { getByText, getByLabelText, store, network } = await renderComponent();
       await wait(() => {
-        store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+        store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
       });
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByText('Open Channel'));
@@ -165,12 +163,10 @@ describe('OpenChannelModal', () => {
       lndServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
       const { getByText, getByLabelText, store } = await renderComponent();
       await wait(() => {
-        store.getActions().modals.showOpenChannel({ from: 'lnd-2', to: 'lnd-1' });
+        store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
       });
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-      fireEvent.click(
-        getByLabelText('Deposit enough funds to lnd-2 to open the channel'),
-      );
+      fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       await wait(() => fireEvent.click(getByText('Open Channel')));
       expect(getByText('Unable to open the channel')).toBeInTheDocument();
       expect(getByText('error-msg')).toBeInTheDocument();

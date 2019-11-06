@@ -81,8 +81,8 @@ describe('Channel component', () => {
   describe('LND Details', () => {
     it('should display Name', () => {
       const { getByText } = renderComponent();
-      expect(getByText('lnd-1')).toBeInTheDocument();
-      expect(getByText('lnd-2')).toBeInTheDocument();
+      expect(getByText('alice')).toBeInTheDocument();
+      expect(getByText('bob')).toBeInTheDocument();
     });
 
     it('should display Version', () => {
