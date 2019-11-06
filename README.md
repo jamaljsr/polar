@@ -57,10 +57,6 @@ The current pre-release downloads can be found in the [GitHub releases](https://
 | `yarn langs`    | extract i18n language keys from code                              |
 | `yarn package`  | package the app for your OS                                       |
 
-> Note: there is currently a bug in electron v6 on Windows with Dark Mode enabled.
-> Use `yarn win` instead of `yarn dev` to automatically disabled dark mode during
-> development. See [win-light.cmd](tools/win-light.cmd) for more details.
-
 ### Tips
 
 - install the [import-sorter](https://github.com/SoominHan/import-sorter) Visual Studio Code extension for automatic import statement sorting
