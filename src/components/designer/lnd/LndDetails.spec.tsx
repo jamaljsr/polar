@@ -1,4 +1,5 @@
 import React from 'react';
+import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { defaultInfo, defaultListChannels, defaultPendingChannels } from 'shared';
 import { Status } from 'shared/types';
@@ -186,6 +187,16 @@ describe('LndDetails', () => {
       await wait(() => getByText('Confirmed Balance'));
       expect(queryByText('Alias')).not.toBeInTheDocument();
       expect(queryByText('Pubkey')).not.toBeInTheDocument();
+    });
+
+    it('should open API Doc links in the browser', async () => {
+      shell.openExternal = jest.fn().mockResolvedValue(true);
+      const { getByText, findByText } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Connect'));
+      await wait(() => fireEvent.click(getByText('GRPC')));
+      expect(shell.openExternal).toBeCalledWith('https://api.lightning.community/');
+      await wait(() => fireEvent.click(getByText('REST')));
+      expect(shell.openExternal).toBeCalledWith('https://api.lightning.community/rest/');
     });
 
     it('should handle incoming open channel button click', async () => {

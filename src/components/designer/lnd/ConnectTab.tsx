@@ -1,13 +1,13 @@
 import React, { ReactNode, useState } from 'react';
 import styled from '@emotion/styled';
-import { Radio } from 'antd';
+import { Icon, Radio } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LndNode, Status } from 'shared/types';
-import { useStoreState } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
-import { FilePaths, LndConnect, EncodedStrings } from './connect';
+import { EncodedStrings, FilePaths, LndConnect } from './connect';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -15,6 +15,17 @@ const Styled = {
     justify-content: center;
     font-size: 12px;
     margin-bottom: 20px;
+  `,
+  Link: styled.a`
+    margin-left: 10px;
+    color: inherit;
+    &:hover {
+      opacity: 1;
+    }
+  `,
+  Icon: styled(Icon)`
+    margin-left: 5px;
+    color: #aaa;
   `,
 };
 
@@ -25,6 +36,7 @@ interface Props {
 const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.ConnectTab');
   const [authType, setAuthType] = useState<string>('paths');
+  const { openInBrowser } = useStoreActions(s => s.app);
   let lnUrl = '';
   const nodeState = useStoreState(s => s.lnd.nodes[node.name]);
   if (nodeState && nodeState.info) {
@@ -45,6 +57,22 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     label,
     value: <CopyIcon label={label} value={value} text={text} />,
   }));
+  hosts.push({
+    label: 'API Docs',
+    value: (
+      <>
+        <Styled.Link onClick={() => openInBrowser('https://api.lightning.community/')}>
+          GRPC
+        </Styled.Link>
+        <Styled.Link
+          onClick={() => openInBrowser('https://api.lightning.community/rest/')}
+        >
+          REST
+        </Styled.Link>
+        <Styled.Icon type="book" />
+      </>
+    ),
+  });
 
   const authCmps: Record<string, ReactNode> = {
     paths: <FilePaths node={node} />,
