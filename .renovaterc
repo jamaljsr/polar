@@ -12,6 +12,7 @@
     "eslint",
     "jest",
     "webpack",
-    "webpack-dev-server"
+    "webpack-dev-server",
+    "@radar/lnrpc"
   ]
 }
