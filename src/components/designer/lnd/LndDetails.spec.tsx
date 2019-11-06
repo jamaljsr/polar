@@ -67,12 +67,10 @@ describe('LndDetails', () => {
       expect(queryByText('GRPC Host')).toBeNull();
     });
 
-    it('should display start msg in Actions tab', async () => {
-      const { findByText } = renderComponent(Status.Starting);
-      fireEvent.click(await findByText('Actions'));
-      expect(
-        await findByText('Node needs to be started to perform actions on it'),
-      ).toBeInTheDocument();
+    it('should not display start msg in Actions tab', async () => {
+      const { queryByText, getByText } = renderComponent(Status.Starting);
+      await wait(() => fireEvent.click(getByText('Actions')));
+      expect(queryByText('Node needs to be started to perform actions on it')).toBeNull();
     });
 
     it('should display start msg in Connect tab', async () => {
