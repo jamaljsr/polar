@@ -13,6 +13,7 @@ import networkModel from './network';
 
 jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
+  rm: jest.fn(),
 }));
 const filesMock = files as jest.Mocked<typeof files>;
 const mockDetectPort = detectPort as jest.Mock;
@@ -106,10 +107,12 @@ describe('Network model', () => {
     });
 
     it('should add a network with the correct bitcoind nodes', async () => {
-      await store.getActions().network.addNetwork(addNetworkArgs);
+      await store
+        .getActions()
+        .network.addNetwork({ ...addNetworkArgs, bitcoindNodes: 2 });
       const { networks } = store.getState().network;
       const { bitcoin } = networks[0].nodes;
-      expect(bitcoin.length).toBe(1);
+      expect(bitcoin.length).toBe(2);
       bitcoin.forEach(node => {
         expect(node.type).toBe('bitcoin');
       });
@@ -160,6 +163,30 @@ describe('Network model', () => {
       const payload = { id: 999, version: LndVersion.latest };
       const { addLndNode } = store.getActions().network;
       await expect(addLndNode(payload)).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+  });
+
+  describe('Removing a Node', () => {
+    beforeEach(async () => {
+      await store.getActions().network.addNetwork(addNetworkArgs);
+    });
+
+    it('should remove a node from an existing network', async () => {
+      store.getActions().designer.setActiveId(1);
+      const node = firstNetwork().nodes.lightning[0];
+      store.getActions().network.removeNode({ node });
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning).toHaveLength(1);
+      expect(lightning[0].name).toBe('bob');
+    });
+
+    it('should throw an error if the network id is invalid', async () => {
+      const node = firstNetwork().nodes.lightning[0];
+      node.networkId = 999;
+      const { removeNode } = store.getActions().network;
+      await expect(removeNode({ node })).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
     });

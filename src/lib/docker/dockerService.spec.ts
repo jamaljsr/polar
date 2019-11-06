@@ -210,6 +210,21 @@ describe('DockerService', () => {
       );
     });
 
+    it('should call compose.stopOne and compose.rm when a node is removed', async () => {
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      composeMock.rm.mockResolvedValue(mockResult);
+      const node = network.nodes.lightning[0];
+      await dockerService.removeNode(network, node);
+      expect(composeMock.stopOne).toBeCalledWith(
+        node.name,
+        expect.objectContaining({ cwd: network.path }),
+      );
+      expect(composeMock.rm).toBeCalledWith(
+        expect.objectContaining({ cwd: network.path }),
+        undefined,
+      );
+    });
+
     it('should reformat thrown exceptions', async () => {
       const err = 'oops, didnt work';
       composeMock.upAll.mockRejectedValueOnce({ err });

@@ -270,7 +270,7 @@ describe('LndDetails', () => {
         expect(getByText(/lndconnect/)).toBeInTheDocument();
       });
 
-      it('should display and error if getting the LND Connect url failes', async () => {
+      it('should display and error if getting the LND Connect url fails', async () => {
         mockFiles.read.mockImplementation((p, e) =>
           e === 'hex'
             ? Promise.reject(new Error('lndc-error'))
