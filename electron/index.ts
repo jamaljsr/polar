@@ -1,5 +1,6 @@
 import electronDebug from 'electron-debug';
-import { debug, error } from 'electron-log';
+import log from 'electron-log';
+import { autoUpdater } from 'electron-updater';
 import { sync } from 'shell-env';
 import { IS_DEV } from './constants';
 import { initWindowsDarkHack } from './hacks/windows';
@@ -8,7 +9,7 @@ import WindowManager from './windowManager';
 // disable the Electron Security Warnings shown when access the dev url
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = `${IS_DEV}`;
 
-debug(`Starting Electron main process`);
+log.debug(`Starting Electron main process`);
 
 // add keyboard shortcuts and auto open dev tools for all windows
 electronDebug({ isEnabled: IS_DEV });
@@ -26,12 +27,16 @@ process.env = {
 // See https://github.com/electron/electron/issues/19468
 // TODO: remove win10 hack when electron bug is fixed
 if (IS_DEV && initWindowsDarkHack()) {
-  debug('*** Applied Windows 10 Dark Mode Hack ***');
+  log.debug('*** Applied Windows 10 Dark Mode Hack ***');
 }
+
+// check for updates
+autoUpdater.logger = log;
+autoUpdater.checkForUpdatesAndNotify();
 
 try {
   const windowManager = new WindowManager();
   windowManager.start();
 } catch (e) {
-  error('Unable to start WindowManager', e);
+  log.error('Unable to start WindowManager', e);
 }
