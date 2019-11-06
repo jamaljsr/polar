@@ -7,11 +7,17 @@
   "directories": {
     "buildResources": "assets"
   },
+  "afterSign": "./assets/mac/notarize.js",
   "mac": {
     "category": "public.app-category.utilities",
-    "target": ["dmg", "zip"]
+    "target": ["dmg", "zip"],
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "./assets/mac/entitlements.mac.plist",
+    "entitlementsInherit": "./assets/mac/entitlements.mac.plist"
   },
   "dmg": {
+    "sign": false,
     "contents": [
       {
         "x": 130,
