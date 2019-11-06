@@ -118,7 +118,7 @@
     "react-dom": "16.11.0",
     "react-hot-loader": "4.12.15",
     "react-i18next": "11.0.1",
-    "react-redux": "7.1.1",
+    "react-redux": "7.1.3",
     "react-router": "5.1.2",
     "react-router-dom": "5.1.2",
     "react-router-transition": "2.0.0",
