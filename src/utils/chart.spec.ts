@@ -91,65 +91,65 @@ describe('Chart Util', () => {
 
   describe('updateChartFromNetwork', () => {
     it('should create link for an open channel', () => {
-      addChannel('lnd-1', 'lnd2pubkey');
+      addChannel('alice', 'lnd2pubkey');
       const result = updateChartFromLnd(chart, lndData);
       expect(result.links['xxxxxxxxxx:0']).toBeDefined();
       const link = result.links['xxxxxxxxxx:0'];
-      expect(link.from.nodeId).toBe('lnd-1');
-      expect(link.to.nodeId).toBe('lnd-2');
+      expect(link.from.nodeId).toBe('alice');
+      expect(link.to.nodeId).toBe('bob');
       expect(link.properties.type).toBe('open-channel');
       expect(link.properties.status).toBe('Open');
       expect(link.properties.capacity).toBe('1000');
     });
 
     it('should create link for a pending channel', () => {
-      addChannel('lnd-1', 'lnd2pubkey', true);
+      addChannel('alice', 'lnd2pubkey', true);
       const result = updateChartFromLnd(chart, lndData);
       expect(result.links['xxxxxxxxxx:0']).toBeDefined();
       const link = result.links['xxxxxxxxxx:0'];
-      expect(link.from.nodeId).toBe('lnd-1');
-      expect(link.to.nodeId).toBe('lnd-2');
+      expect(link.from.nodeId).toBe('alice');
+      expect(link.to.nodeId).toBe('bob');
       expect(link.properties.type).toBe('pending-channel');
       expect(link.properties.status).toBe('Opening');
       expect(link.properties.capacity).toBe('1000');
     });
 
     it('should remove links for channels that do not exist', () => {
-      addChannel('lnd-1', 'lnd2pubkey');
+      addChannel('alice', 'lnd2pubkey');
       const result = updateChartFromLnd(chart, lndData);
       expect(result.links['xxxxxxxxxx:0']).toBeTruthy();
       // remove the channel
-      const { channels } = lndData['lnd-1'];
+      const { channels } = lndData['alice'];
       if (channels) channels.open = [];
       const result2 = updateChartFromLnd(result, lndData);
       expect(result2.links['xxxxxxxxxx:0']).toBeUndefined();
     });
 
     it('should make no changes if channels is undefined', () => {
-      lndData['lnd-1'].channels = undefined;
-      lndData['lnd-2'].channels = undefined;
+      lndData['alice'].channels = undefined;
+      lndData['bob'].channels = undefined;
       const result = updateChartFromLnd(chart, lndData);
       expect(result).toEqual(chart);
     });
 
     it('should point link right to left', () => {
-      chart.nodes['lnd-1'].position.x = 200;
-      chart.nodes['lnd-2'].position.x = 100;
-      addChannel('lnd-1', 'lnd2pubkey');
+      chart.nodes['alice'].position.x = 200;
+      chart.nodes['bob'].position.x = 100;
+      addChannel('alice', 'lnd2pubkey');
       const result = updateChartFromLnd(chart, lndData);
       const link = result.links['xxxxxxxxxx:0'];
       expect(link.properties.direction).toEqual('rtl');
     });
 
     it('should update the node sizes', () => {
-      chart.nodes['lnd-1'].size = { width: 100, height: 20 };
-      chart.nodes['lnd-2'].size = undefined;
-      addChannel('lnd-1', 'lnd2pubkey');
+      chart.nodes['alice'].size = { width: 100, height: 20 };
+      chart.nodes['bob'].size = undefined;
+      addChannel('alice', 'lnd2pubkey');
       const result = updateChartFromLnd(chart, lndData);
-      let size = result.nodes['lnd-1'].size;
+      let size = result.nodes['alice'].size;
       expect(size).toBeDefined();
       if (size) expect(size.height).toBe(60);
-      size = result.nodes['lnd-2'].size;
+      size = result.nodes['bob'].size;
       expect(size).toBeDefined();
       if (size) expect(size.height).toBe(60);
     });

@@ -153,7 +153,7 @@ describe('Network model', () => {
       store.getActions().network.addLndNode(payload);
       const { lightning } = firstNetwork().nodes;
       expect(lightning).toHaveLength(3);
-      expect(lightning[2].name).toBe('lnd-3');
+      expect(lightning[2].name).toBe('carol');
     });
 
     it('should throw an error if the network id is invalid', async () => {

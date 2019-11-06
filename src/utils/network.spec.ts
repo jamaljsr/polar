@@ -74,9 +74,9 @@ describe('Network Utils', () => {
       network.nodes.lightning[0].status = Status.Started;
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
-      // lnd-1 ports should not be changed
+      // alice ports should not be changed
       expect(ports[network.nodes.lightning[0].name]).toBeUndefined();
-      // lnd-2 ports should change
+      // bob ports should change
       const lnd2 = network.nodes.lightning[1];
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);

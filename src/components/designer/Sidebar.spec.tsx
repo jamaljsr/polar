@@ -43,13 +43,13 @@ describe('Sidebar Component', () => {
   });
 
   it('should display bitcoind details', async () => {
-    const { findByText } = renderComponent('node', 'bitcoind-1');
+    const { findByText } = renderComponent('node', 'backend');
     expect(await findByText('bitcoin')).toBeInTheDocument();
     expect(await findByText('bitcoind')).toBeInTheDocument();
   });
 
   it('should display lnd details', async () => {
-    const { findByText } = renderComponent('node', 'lnd-1');
+    const { findByText } = renderComponent('node', 'alice');
     expect(await findByText('lightning')).toBeInTheDocument();
     expect(await findByText('LND')).toBeInTheDocument();
   });
@@ -60,7 +60,7 @@ describe('Sidebar Component', () => {
   });
 
   it('should display link details', async () => {
-    const { findByText } = renderComponent('link', 'lnd-1-backend');
+    const { findByText } = renderComponent('link', 'alice-backend');
     expect(await findByText('Blockchain Backend Connection')).toBeInTheDocument();
   });
 });

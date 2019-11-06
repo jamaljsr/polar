@@ -21,7 +21,7 @@ describe('LndDetails', () => {
       },
       lnd: {
         nodes: {
-          'lnd-1': {},
+          alice: {},
         },
       },
     };

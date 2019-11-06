@@ -116,22 +116,22 @@ describe('Designer model', () => {
     it('should update node sizes when redrawn', () => {
       const { redrawChart, setActiveId } = store.getActions().designer;
       setActiveId(firstNetwork().id);
-      expect((firstChart().nodes['lnd-1'].size || {}).height).toBe(36);
+      expect((firstChart().nodes['alice'].size || {}).height).toBe(36);
       redrawChart();
-      expect((firstChart().nodes['lnd-1'].size || {}).height).toBe(36 + 1);
+      expect((firstChart().nodes['alice'].size || {}).height).toBe(36 + 1);
       redrawChart();
-      expect((firstChart().nodes['lnd-1'].size || {}).height).toBe(36);
+      expect((firstChart().nodes['alice'].size || {}).height).toBe(36);
     });
 
     it('should not update the chart if the size is undefined', () => {
       const { redrawChart, setActiveId, setAllCharts } = store.getActions().designer;
       setActiveId(firstNetwork().id);
       const charts = store.getState().designer.allCharts;
-      charts[firstNetwork().id].nodes['lnd-1'].size = undefined;
+      charts[firstNetwork().id].nodes['alice'].size = undefined;
       setAllCharts(charts);
-      expect((firstChart().nodes['lnd-1'].size || {}).height).toBeUndefined();
+      expect((firstChart().nodes['alice'].size || {}).height).toBeUndefined();
       redrawChart();
-      expect((firstChart().nodes['lnd-1'].size || {}).height).toBeUndefined();
+      expect((firstChart().nodes['alice'].size || {}).height).toBeUndefined();
     });
 
     describe('onLinkCompleteListener', () => {
@@ -142,9 +142,9 @@ describe('Designer model', () => {
         setActiveId(firstNetwork().id);
         payload = {
           linkId: 'newlink',
-          fromNodeId: 'lnd-1',
+          fromNodeId: 'alice',
           fromPortId: 'empty-right',
-          toNodeId: 'lnd-2',
+          toNodeId: 'bob',
           toPortId: 'empty-left',
           startEvent: {} as React.MouseEvent,
         };
@@ -164,7 +164,7 @@ describe('Designer model', () => {
       it('should not open modal if the link does not exist', () => {
         const { onLinkComplete } = store.getActions().designer;
         // a link from a node to itself will not be created
-        payload.toNodeId = 'lnd-1';
+        payload.toNodeId = 'alice';
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
         expect(mockNotification.error).not.toBeCalled();
@@ -173,7 +173,7 @@ describe('Designer model', () => {
       it('should not add link if the two nodes are not lightning', async () => {
         const { onLinkComplete, setAllCharts } = store.getActions().designer;
         const charts = store.getState().designer.allCharts;
-        charts[firstNetwork().id].nodes['lnd-1'].type = 'other';
+        charts[firstNetwork().id].nodes['alice'].type = 'other';
         setAllCharts(charts);
 
         onLinkComplete(payload);
@@ -206,7 +206,7 @@ describe('Designer model', () => {
         expect(firstChart().links[payload.linkId]).toBeUndefined();
         expect(mockNotification.error).toBeCalledWith(
           expect.objectContaining({
-            description: 'The network must be Started first',
+            description: 'The nodes must be Started first',
           }),
         );
       });
@@ -241,7 +241,7 @@ describe('Designer model', () => {
         onCanvasDrop({ data, position });
         await wait(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(4);
-          expect(firstChart().nodes['lnd-3']).toBeDefined();
+          expect(firstChart().nodes['carol']).toBeDefined();
         });
       });
 
@@ -252,7 +252,7 @@ describe('Designer model', () => {
         await wait(() => {
           expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
-          expect(firstNetwork().nodes.lightning[2].name).toBe('lnd-3');
+          expect(firstNetwork().nodes.lightning[2].name).toBe('carol');
         });
       });
 

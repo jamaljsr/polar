@@ -35,19 +35,20 @@ describe('NetworkDesigner Component', () => {
 
   it('should render the designer component', () => {
     const { getByText } = renderComponent();
-    expect(getByText('lnd-1')).toBeInTheDocument();
-    expect(getByText('lnd-2')).toBeInTheDocument();
-    expect(getByText('bitcoind-1')).toBeInTheDocument();
+    expect(getByText('alice')).toBeInTheDocument();
+    expect(getByText('bob')).toBeInTheDocument();
+    expect(getByText('backend')).toBeInTheDocument();
   });
 
   it('should render correct # of LND nodes', async () => {
-    const { findAllByText } = renderComponent();
-    expect(await findAllByText(/lnd-\d/)).toHaveLength(2);
+    const { findByText } = renderComponent();
+    expect(await findByText('alice')).toBeInTheDocument();
+    expect(await findByText('bob')).toBeInTheDocument();
   });
 
   it('should render correct # of bitcoind nodes', async () => {
-    const { findAllByText } = renderComponent();
-    expect(await findAllByText(/bitcoind-\d/)).toHaveLength(1);
+    const { findByText } = renderComponent();
+    expect(await findByText('backend')).toBeInTheDocument();
   });
 
   it('should display the default message in the sidebar', async () => {
@@ -58,7 +59,7 @@ describe('NetworkDesigner Component', () => {
   it('should update the redux state after a node is selected', async () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().designer.activeChart.selected.id).toBeFalsy();
-    await wait(() => fireEvent.click(getByText('lnd-1')));
+    await wait(() => fireEvent.click(getByText('alice')));
     expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
   });
 
@@ -70,17 +71,17 @@ describe('NetworkDesigner Component', () => {
 
   it('should display node details in the sidebar when a node is selected', async () => {
     const { getByText, queryByText } = renderComponent();
-    expect(getByText('bitcoind-1')).toBeInTheDocument();
+    expect(getByText('backend')).toBeInTheDocument();
     expect(queryByText('Node Type')).not.toBeInTheDocument();
     // click the bitcoind node in the chart
-    await wait(() => fireEvent.click(getByText('bitcoind-1')));
+    await wait(() => fireEvent.click(getByText('backend')));
     // ensure text from the sidebar is visible
     expect(getByText('Node Type')).toBeInTheDocument();
   });
 
   it('should display the OpenChannel modal', async () => {
-    const { getByText, store } = renderComponent();
+    const { findByText, store } = renderComponent();
     await wait(() => store.getActions().modals.showOpenChannel({}));
-    expect(getByText('Capacity (sats)')).toBeInTheDocument();
+    expect(await findByText('Capacity (sats)')).toBeInTheDocument();
   });
 });

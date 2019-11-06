@@ -69,7 +69,7 @@ describe('Deposit', () => {
     const amount = '250000';
     fireEvent.change(input, { target: { value: amount } });
     fireEvent.click(btn);
-    await waitForElement(() => getByText('Deposited 250,000 sats to lnd-1'));
+    await waitForElement(() => getByText('Deposited 250,000 sats to alice'));
     expect(lndServiceMock.getNewAddress).toBeCalledTimes(1);
     expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
       expect.anything(),
