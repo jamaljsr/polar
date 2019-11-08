@@ -112,7 +112,7 @@
     "prettier": "1.18.2",
     "react": "16.11.0",
     "react-async-hook": "3.6.1",
-    "react-copy-to-clipboard": "5.0.1",
+    "react-copy-to-clipboard": "5.0.2",
     "react-dom": "16.11.0",
     "react-hot-loader": "4.12.16",
     "react-i18next": "11.1.0",
