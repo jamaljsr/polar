@@ -7,8 +7,8 @@
 
 <p align="center">
   <img src="./assets/screen.png" />
-  <a href="https://youtu.be/ynlmq_3LVeA" target="_blank">
-  View a short video demo
+  <a href="https://youtu.be/HInI_G3oYpc" target="_blank">
+    View a short video demo
   </a>
 </p>
 
@@ -20,6 +20,7 @@ With Polar you can:
 
 - Create a regtest Lightning Network in just a few clicks
 - Connect from your app to the lightning nodes via RPC
+- Launch a terminal in each bitcoin/lightning node
 - Add more nodes using drag & drop
 - Open & Close Channels
 - Manually mine new blocks
@@ -41,7 +42,7 @@ Polar requires that you have Docker installed to create the local networks
 
 ## Download
 
-The current pre-release downloads can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
+The most current downloads for Mac, Windows & Linux can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
 ## Development
 
@@ -85,3 +86,7 @@ The current pre-release downloads can be found in the [GitHub releases](https://
 ## Recognition
 
 Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/joule-extension), [Zap Wallet](https://github.com/LN-Zap/zap-desktop), [LND](https://github.com/lightningnetwork/lnd), [Bitcoin Core](https://github.com/bitcoin/bitcoin), along with many others for the amazing apps & libraries that gave this project inspiration, ideas & sometimes even a little code 😊.
+
+## Contact
+
+I plan to setup a website and email soon. The best place to reach me now is on Twitter @jamaljsr. I also lurk in the LND Slack server, so you can msg me there as well.
