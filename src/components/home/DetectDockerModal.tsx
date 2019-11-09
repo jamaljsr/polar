@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Button, Modal, Result } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
-import { platform, PolarPlatform } from 'utils/system';
+import { getPolarPlatform, PolarPlatform } from 'utils/system';
 import { DetailsList } from 'components/common';
 
 const Styled = {
@@ -42,6 +42,7 @@ const buttonIcons: Record<PolarPlatform, string> = {
 };
 
 const DetectDockerModal: React.FC = () => {
+  const platform = getPolarPlatform();
   const { l } = usePrefixedTranslation('cmps.home.DetectDockerModal');
   const {
     dockerVersions: { docker, compose },

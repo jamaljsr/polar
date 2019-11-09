@@ -1,7 +1,9 @@
 import * as electron from 'electron';
+import * as fs from 'fs-extra';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
+import os from 'os';
 import { dockerService } from 'lib/docker';
 import { Network } from 'types';
 import { DOCKER_REPO } from 'utils/constants';
@@ -10,12 +12,14 @@ import { createNetwork } from 'utils/network';
 import { getNetwork } from 'utils/tests';
 
 jest.mock('dockerode');
+jest.mock('os');
 jest.mock('utils/files', () => ({
   write: jest.fn(),
   read: jest.fn(),
   exists: jest.fn(),
 }));
 
+const mockOS = os as jest.Mocked<typeof os>;
 const filesMock = files as jest.Mocked<typeof files>;
 const composeMock = compose as jest.Mocked<typeof compose>;
 const electronMock = electron as jest.Mocked<typeof electron>;
@@ -28,6 +32,29 @@ describe('DockerService', () => {
 
   beforeEach(() => {
     network = getNetwork();
+  });
+
+  it('should populate env vars with compose commands', async () => {
+    electronMock.remote.process.env = { __TESTVAR: 'TESTVAL' };
+    await dockerService.getVersions();
+    expect(composeMock.version).toBeCalledWith(
+      expect.objectContaining({
+        env: expect.objectContaining({ __TESTVAR: 'TESTVAL' }),
+      }),
+      undefined,
+    );
+  });
+
+  it('should populate UID/GID env vars when runing on linux', async () => {
+    mockOS.platform.mockReturnValue('linux');
+    mockOS.userInfo.mockReturnValue({ uid: 999, gid: 999 } as any);
+    await dockerService.getVersions();
+    expect(composeMock.version).toBeCalledWith(
+      expect.objectContaining({
+        env: expect.objectContaining({ USERID: 999, GROUPID: 999 }),
+      }),
+      undefined,
+    );
   });
 
   describe('detecting versions', () => {
@@ -199,6 +226,19 @@ describe('DockerService', () => {
         expect.objectContaining({ cwd: network.path }),
         undefined,
       );
+    });
+
+    it('should create volume dirs when the network is started', async () => {
+      composeMock.upAll.mockResolvedValue(mockResult);
+      await dockerService.start(network);
+      expect(fs.ensureDir).toBeCalledTimes(3);
+    });
+
+    it('should not create volume dirs for unknown implementations', async () => {
+      network.nodes.lightning[0].implementation = 'c-lightning';
+      composeMock.upAll.mockResolvedValue(mockResult);
+      await dockerService.start(network);
+      expect(fs.ensureDir).toBeCalledTimes(2);
     });
 
     it('should call compose.down when a network is stopped', async () => {

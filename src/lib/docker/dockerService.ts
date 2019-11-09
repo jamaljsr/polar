@@ -202,9 +202,9 @@ class DockerService implements DockerLibrary {
       },
     };
 
-    if (isLinux) {
+    if (isLinux()) {
       const { uid, gid } = os.userInfo();
-      info(`env: uid=${uid} gid=${gid}`);
+      debug(`env: uid=${uid} gid=${gid}`);
       args.env = {
         ...args.env,
         // add user/group id's to env so that file permissions on the

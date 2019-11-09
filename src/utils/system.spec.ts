@@ -1,5 +1,5 @@
 import os from 'os';
-import { normalizePlatform } from './system';
+import { getPolarPlatform, isLinux, isMac, isWindows } from './system';
 
 jest.mock('os');
 
@@ -8,17 +8,17 @@ const mockOS = os as jest.Mocked<typeof os>;
 describe('System Util', () => {
   it('should return the correct platform on mac', () => {
     mockOS.platform.mockReturnValue('darwin');
-    expect(normalizePlatform()).toBe('mac');
+    expect(getPolarPlatform()).toBe('mac');
   });
 
   it('should return the correct platform on windows', () => {
     mockOS.platform.mockReturnValue('win32');
-    expect(normalizePlatform()).toBe('windows');
+    expect(getPolarPlatform()).toBe('windows');
   });
 
   it('should return the correct platform on linux', () => {
     mockOS.platform.mockReturnValue('linux');
-    expect(normalizePlatform()).toBe('linux');
+    expect(getPolarPlatform()).toBe('linux');
   });
 
   it('should return unknown platform for others', () => {
@@ -33,7 +33,28 @@ describe('System Util', () => {
     ];
     others.forEach(platform => {
       mockOS.platform.mockReturnValue(platform);
-      expect(normalizePlatform()).toBe('unknown');
+      expect(getPolarPlatform()).toBe('unknown');
     });
+  });
+
+  it('should return correct isMac value', () => {
+    mockOS.platform.mockReturnValue('aix');
+    expect(isMac()).toBe(false);
+    mockOS.platform.mockReturnValue('darwin');
+    expect(isMac()).toBe(true);
+  });
+
+  it('should return correct isWindows value', () => {
+    mockOS.platform.mockReturnValue('aix');
+    expect(isWindows()).toBe(false);
+    mockOS.platform.mockReturnValue('win32');
+    expect(isWindows()).toBe(true);
+  });
+
+  it('should return correct isLinux value', () => {
+    mockOS.platform.mockReturnValue('aix');
+    expect(isLinux()).toBe(false);
+    mockOS.platform.mockReturnValue('linux');
+    expect(isLinux()).toBe(true);
   });
 });
