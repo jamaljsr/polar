@@ -2,7 +2,10 @@ import os from 'os';
 
 export type PolarPlatform = 'mac' | 'windows' | 'linux' | 'unknown';
 
-export const normalizePlatform = () => {
+/**
+ * A wrapper function to simplify os detection throughout the app
+ */
+export const getPolarPlatform = () => {
   switch (os.platform()) {
     case 'darwin':
       return 'mac';
@@ -15,12 +18,10 @@ export const normalizePlatform = () => {
   }
 };
 
-export const platform: PolarPlatform = normalizePlatform();
+const is = (p: PolarPlatform) => p === getPolarPlatform();
 
-const is = (p: PolarPlatform) => p === platform;
+export const isMac = () => is('mac');
 
-export const isMac = is('mac');
+export const isWindows = () => is('windows');
 
-export const isWindows = is('windows');
-
-export const isLinux = is('linux');
+export const isLinux = () => is('linux');

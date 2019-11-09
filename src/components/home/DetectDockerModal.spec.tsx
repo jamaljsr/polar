@@ -1,12 +1,13 @@
 import React from 'react';
 import { shell } from 'electron';
 import { fireEvent } from '@testing-library/dom';
-import * as system from 'utils/system';
-import { injections, mockProperty, renderWithProviders } from 'utils/tests';
+import os from 'os';
+import { injections, renderWithProviders } from 'utils/tests';
 import DetectDockerModal, { dockerLinks } from './DetectDockerModal';
 
-jest.mock('utils/system');
+jest.mock('os');
 
+const mockOS = os as jest.Mocked<typeof os>;
 const mockDockerService = injections.dockerService as jest.Mocked<
   typeof injections.dockerService
 >;
@@ -23,6 +24,10 @@ describe('DetectDockerModal component', () => {
     };
     return renderWithProviders(<DetectDockerModal />, { initialState });
   };
+
+  beforeEach(() => {
+    mockOS.platform.mockReturnValue('darwin');
+  });
 
   it('should display UI elements', () => {
     const { getByText, getAllByText } = renderComponent();
@@ -50,7 +55,7 @@ describe('DetectDockerModal component', () => {
   });
 
   it('should display download button for mac', () => {
-    mockProperty(system, 'platform', 'mac');
+    mockOS.platform.mockReturnValue('darwin');
     const { getByText, getByLabelText } = renderComponent();
     expect(getByText('Download Docker Desktop')).toBeInTheDocument();
     expect(getByLabelText('icon: apple')).toBeInTheDocument();
@@ -58,7 +63,7 @@ describe('DetectDockerModal component', () => {
 
   it('should open browser when download button clicked on mac', () => {
     shell.openExternal = jest.fn().mockResolvedValue(true);
-    mockProperty(system, 'platform', 'mac');
+    mockOS.platform.mockReturnValue('darwin');
     const { getByText } = renderComponent();
     fireEvent.click(getByText('Download Docker Desktop'));
     expect(shell.openExternal).toBeCalledTimes(1);
@@ -66,7 +71,7 @@ describe('DetectDockerModal component', () => {
   });
 
   it('should display download button for windows', () => {
-    mockProperty(system, 'platform', 'windows');
+    mockOS.platform.mockReturnValue('win32');
     const { getByText, getByLabelText } = renderComponent();
     expect(getByText('Download Docker Desktop')).toBeInTheDocument();
     expect(getByLabelText('icon: windows')).toBeInTheDocument();
@@ -74,7 +79,7 @@ describe('DetectDockerModal component', () => {
 
   it('should open browser when download button clicked on windows', () => {
     shell.openExternal = jest.fn().mockResolvedValue(true);
-    mockProperty(system, 'platform', 'windows');
+    mockOS.platform.mockReturnValue('win32');
     const { getByText } = renderComponent();
     fireEvent.click(getByText('Download Docker Desktop'));
     expect(shell.openExternal).toBeCalledTimes(1);
@@ -82,7 +87,7 @@ describe('DetectDockerModal component', () => {
   });
 
   it('should display download button for linux', () => {
-    mockProperty(system, 'platform', 'linux');
+    mockOS.platform.mockReturnValue('linux');
     const { getByText, getAllByLabelText } = renderComponent();
     expect(getByText('Download Docker')).toBeInTheDocument();
     expect(getByText('Download Docker Compose')).toBeInTheDocument();
@@ -91,7 +96,7 @@ describe('DetectDockerModal component', () => {
 
   it('should open browser when download buttons clicked on linux', () => {
     shell.openExternal = jest.fn().mockResolvedValue(true);
-    mockProperty(system, 'platform', 'linux');
+    mockOS.platform.mockReturnValue('linux');
     const { getByText } = renderComponent();
     fireEvent.click(getByText('Download Docker'));
     expect(shell.openExternal).toBeCalledTimes(1);
