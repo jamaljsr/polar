@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable no-template-curly-in-string */
 import { ComposeService } from './composeFile';
 
 // simple function to remove all line-breaks and extra white-space inside of a string
@@ -12,6 +13,10 @@ export const bitcoind = (
 ): ComposeService => ({
   image: `polarlightning/bitcoind:${version}`,
   container_name: container,
+  environment: {
+    USERID: '${USERID:-1000}',
+    GROUPID: '${GROUPID:-1000}',
+  },
   hostname: name,
   // Note: escape ($) rpcauth with ($$)
   command: trimInside(`
@@ -51,6 +56,10 @@ export const lnd = (
 ): ComposeService => ({
   image: `polarlightning/lnd:${version}`,
   container_name: container,
+  environment: {
+    USERID: '${USERID:-1000}',
+    GROUPID: '${GROUPID:-1000}',
+  },
   hostname: name,
   command: trimInside(`
     lnd

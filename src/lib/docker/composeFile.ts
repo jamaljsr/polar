@@ -6,6 +6,7 @@ import { bitcoind, lnd } from './nodeTemplates';
 export interface ComposeService {
   image: string;
   container_name: string;
+  environment: Record<string, string>;
   hostname: string;
   command: string;
   volumes: string[];
