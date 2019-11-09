@@ -3,4 +3,5 @@ module.exports = {
   pathExists: jest.fn(),
   readFile: jest.fn(),
   remove: jest.fn(),
+  ensureDir: jest.fn(),
 };

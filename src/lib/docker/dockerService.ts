@@ -1,15 +1,18 @@
 import { remote } from 'electron';
 import { debug, info } from 'electron-log';
+import { ensureDir } from 'fs-extra';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
+import os from 'os';
 import { CommonNode, LndNode } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
 import { DOCKER_REPO } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
+import { isLinux } from 'utils/system';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
@@ -92,6 +95,20 @@ class DockerService implements DockerLibrary {
    * @param network the network to start
    */
   async start(network: Network) {
+    const { bitcoin, lightning } = network.nodes;
+
+    // create the directory so the owner is the current host user
+    // if this isn't done, then docker will create the folders
+    // owned by root and linux containers won't start up
+    for (const node of bitcoin) {
+      await ensureDir(join(network.path, 'volumes', 'bitcoind', node.name));
+    }
+    for (const node of lightning) {
+      if (node.implementation === 'LND') {
+        await ensureDir(join(network.path, 'volumes', 'lnd', node.name));
+      }
+    }
+
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.upAll, this.getArgs(network));
@@ -177,13 +194,28 @@ class DockerService implements DockerLibrary {
   }
 
   private getArgs(network?: Network) {
-    return {
+    const args = {
       cwd: network ? network.path : __dirname,
       env: {
         ...process.env,
         ...(remote && remote.process ? remote.process.env : {}),
       },
     };
+
+    if (isLinux) {
+      const { uid, gid } = os.userInfo();
+      info(`env: uid=${uid} gid=${gid}`);
+      args.env = {
+        ...args.env,
+        // add user/group id's to env so that file permissions on the
+        // docker volumes are set correctly. containers cannot write
+        // to disk on linux if permissions aren't set correctly
+        USERID: uid,
+        GROUPID: gid,
+      };
+    }
+
+    return args;
   }
 }
 
