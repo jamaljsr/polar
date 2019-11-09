@@ -3,8 +3,7 @@ FROM debian:stable-slim
 ARG LND_VERSION
 ENV PATH=/opt/lnd-linux-amd64-v${LND_VERSION}:$PATH
 
-RUN useradd -r lnd \
-  && apt-get update -y \
+RUN apt-get update -y \
   && apt-get install -y curl gosu wait-for-it \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -13,9 +12,9 @@ RUN curl -SLO https://github.com/lightningnetwork/lnd/releases/download/v${LND_V
   && tar -xzf *.tar.gz -C /opt \
   && rm *.tar.gz
 
-COPY --chown=lnd docker-entrypoint.sh /entrypoint.sh
+COPY docker-entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/lnd/.lnd"]
 
