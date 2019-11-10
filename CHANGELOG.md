@@ -17,4 +17,3 @@ This first stable release of Polar contains the following features:
 - Deposit regtest coins into each Lightning node
 - Multiple language support with English & Spanish (translations need improvement)
 - Multiple OS support for Mac, Windows & Linux
-  0
