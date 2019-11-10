@@ -2,8 +2,9 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { initAppIpcListener } from './appIpcListener';
-import { BASE_URL, IS_DEV } from './constants';
+import { BASE_URL, IS_DEV, APP_ROOT } from './constants';
 import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
+import { join } from 'path';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
@@ -31,6 +32,7 @@ class WindowManager {
       width: mainState.width,
       height: mainState.height,
       minWidth: 900,
+      icon: join(APP_ROOT, 'assets', 'icon.png'),
       webPreferences: {
         nodeIntegration: true,
       },

@@ -3,7 +3,7 @@
   "productName": "Polar",
   "copyright": "Copyright © 2019 ${author}",
   "artifactName": "polar-${os}-${arch}-v${version}.${ext}",
-  "files": ["build/**/*", "node_modules/**/*", "node_modules/**/*.proto"],
+  "files": ["build/**/*", "assets/**/*", "node_modules/**/*", "node_modules/**/*.proto"],
   "directories": {
     "buildResources": "assets"
   },

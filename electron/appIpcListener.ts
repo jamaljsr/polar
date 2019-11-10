@@ -2,7 +2,8 @@ import { BrowserWindow, IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import windowState from 'electron-window-state';
 import { ipcChannels } from '../src/shared';
-import { BASE_URL } from './constants';
+import { BASE_URL, APP_ROOT } from './constants';
+import { join } from 'path';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
   console.warn('opwnWindow', args);
@@ -17,12 +18,13 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
     width: winState.width,
     height: winState.height,
     minWidth: 400,
+    icon: join(APP_ROOT, 'assets', 'icon.png'),
     show: false,
     webPreferences: {
       nodeIntegration: true,
     },
   });
-  window.removeMenu();
+  window.setMenuBarVisibility(false);
   window.on('closed', () => {
     window = null;
   });
