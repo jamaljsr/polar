@@ -27,20 +27,24 @@ test('should should view new network after adding', async t => {
     .match(/.*#\/network\/1$/);
 });
 
-test('should display correct # of LND nodes after adding', async t => {
+test('should display all LND nodes after adding', async t => {
   await t
     .typeText(NewNetwork.nameInput, 'test network')
     .selectText(NewNetwork.lndNodesInput)
     .typeText(NewNetwork.lndNodesInput, '3')
     .click(NewNetwork.submitBtn)
-    .expect(NetworkView.getLndNodeCount())
-    .eql(3);
+    .expect(NetworkView.aliceNode())
+    .ok()
+    .expect(NetworkView.bobNode())
+    .ok()
+    .expect(NetworkView.carolNode())
+    .ok();
 });
 
-test('should display correct # of bitcoind nodes after adding', async t => {
+test('should display the backend node after adding', async t => {
   await t
     .typeText(NewNetwork.nameInput, 'test network')
     .click(NewNetwork.submitBtn)
-    .expect(NetworkView.getBitcoindNodeCount())
-    .eql(1);
+    .expect(NetworkView.backendNode())
+    .ok();
 });
