@@ -47,5 +47,6 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: electron build
         run: yarn package:ci
+        if: env.GH_TOKEN != ''
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
