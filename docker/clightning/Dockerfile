@@ -10,13 +10,23 @@ RUN apt-get update -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# download bitcoin binaries
 RUN curl -SLO https://bitcoin.org/bin/bitcoin-core-${BITCOIN_VERSION}/bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz \
   && tar -xzf *.tar.gz -C /opt \
   && rm *.tar.gz
 
+# download c-lightning binaries
 RUN curl -SLO https://github.com/ElementsProject/lightning/releases/download/v${CLN_VERSION}/clightning-v${CLN_VERSION}-Ubuntu-18.04.tar.xz  \
   && tar -xf *.tar.xz -C / \
   && rm *.tar.xz
+
+# download c-lightning-REST API plugin
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+  && apt-get install -y git nodejs \
+  && git clone https://github.com/saubyk/c-lightning-rest /opt/c-lightning-rest/ \
+  && cd /opt/c-lightning-rest && npm install \
+  && chmod -R a+rw /opt/c-lightning-rest
+
 
 COPY docker-entrypoint.sh /entrypoint.sh
 

@@ -11,9 +11,9 @@ if ! id clightning > /dev/null 2>&1; then
   echo "adding user clightning ($USERID:$GROUPID)"
   groupadd -f -g $GROUPID clightning
   useradd -r -u $USERID -g $GROUPID clightning
-  # create the .bitcoin dir for bitcoin-cli
-  mkdir -p /home/clightning/.bitcoin
-  chown clightning:clightning /home/clightning/.bitcoin
+  # ensure correct ownership of user home dir
+  mkdir -p /home/clightning
+  chown clightning:clightning /home/clightning
 fi
 
 if [ $(echo "$1" | cut -c1) = "-" ]; then
