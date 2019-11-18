@@ -41,6 +41,15 @@ export interface LndNode extends LightningNode {
   };
 }
 
+export interface LightningdNode extends LightningNode {
+  paths: {
+    macaroon: string;
+  };
+  ports: {
+    rest: number;
+  };
+}
+
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
   implementation: 'bitcoind' | 'btcd';

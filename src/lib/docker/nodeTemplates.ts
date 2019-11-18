@@ -91,3 +91,44 @@ export const lnd = (
     `${grpcPort}:10009`, // gRPC
   ],
 });
+
+export const lightningd = (
+  name: string,
+  container: string,
+  version: string,
+  backendName: string,
+  restPort: number,
+): ComposeService => ({
+  image: `polarlightning/clightning:${version}`,
+  container_name: container,
+  environment: {
+    USERID: '${USERID:-1000}',
+    GROUPID: '${GROUPID:-1000}',
+  },
+  hostname: name,
+  command: trimInside(`
+    lightningd
+      --alias=${name}
+      --network=regtest
+      --bitcoin-rpcuser=polaruser
+      --bitcoin-rpcpassword=polarpass
+      --bitcoin-rpcconnect=${backendName}
+      --bitcoin-rpcport=18443
+      --log-level=debug
+      --plugin=/opt/c-lightning-rest/plugin.js
+      --rest-port=8080
+      --rest-protocol=http
+  `),
+  restart: 'always',
+  volumes: [
+    `./volumes/clightning/${name}/lightning:/root/.lightning`,
+    `./volumes/clightning/${name}/rest-api:/opt/c-lightning-rest/certs`,
+  ],
+  expose: [
+    '8080', // REST
+    '9735', // p2p
+  ],
+  ports: [
+    `${restPort}:8080`, // REST
+  ],
+});

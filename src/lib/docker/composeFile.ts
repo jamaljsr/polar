@@ -1,7 +1,7 @@
-import { BitcoinNode, CommonNode, LndNode } from 'shared/types';
+import { BitcoinNode, CommonNode, LightningdNode, LndNode } from 'shared/types';
 import { getContainerName } from 'utils/network';
 /* eslint-disable @typescript-eslint/camelcase */
-import { bitcoind, lnd } from './nodeTemplates';
+import { bitcoind, lightningd, lnd } from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -47,6 +47,17 @@ class ComposeFile {
     const container = getContainerName(node);
     const backendName = getContainerName(backend);
     this.content.services[name] = lnd(name, container, version, backendName, rest, grpc);
+  }
+
+  addClightning(node: LightningdNode, backend: CommonNode) {
+    const {
+      name,
+      version,
+      ports: { rest },
+    } = node;
+    const container = getContainerName(node);
+    const backendName = getContainerName(backend);
+    this.content.services[name] = lightningd(name, container, version, backendName, rest);
   }
 }
 
