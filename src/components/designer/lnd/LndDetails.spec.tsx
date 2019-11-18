@@ -5,6 +5,7 @@ import { defaultInfo, defaultListChannels, defaultPendingChannels } from 'shared
 import { Status } from 'shared/types';
 import { LndLibrary } from 'types';
 import * as files from 'utils/files';
+import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import LndDetails from './LndDetails';
 
@@ -26,7 +27,7 @@ describe('LndDetails', () => {
         },
       },
     };
-    const node = network.nodes.lightning[0];
+    const node = groupNodes(network).lnd[0];
     const cmp = <LndDetails node={node} />;
     const result = renderWithProviders(cmp, { initialState });
     return {

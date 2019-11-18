@@ -1,6 +1,6 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
 import { Channel, PendingChannel } from '@radar/lnrpc';
-import { BitcoinNode, LndNode } from 'shared/types';
+import { BitcoinNode, LightningNode } from 'shared/types';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
@@ -34,7 +34,7 @@ export const snap = (position: IPosition, config?: IConfig) =>
     ? { x: Math.round(position.x / 20) * 20, y: Math.round(position.y / 20) * 20 }
     : position;
 
-export const createLndChartNode = (lnd: LndNode) => {
+export const createLndChartNode = (lnd: LightningNode) => {
   const node: INode = {
     id: lnd.name,
     type: 'lightning',

@@ -3,6 +3,7 @@ import { fireEvent, wait } from '@testing-library/dom';
 import { ipcChannels } from 'shared';
 import { BitcoinNode, LndNode } from 'shared/types';
 import { Network } from 'types';
+import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import OpenTerminalButton from './OpenTerminalButton';
 
@@ -29,7 +30,7 @@ describe('OpenTerminalButton', () => {
   });
 
   it('should render lnd help text', () => {
-    const { getByText } = renderComponent(n => n.nodes.lightning[0]);
+    const { getByText } = renderComponent(n => groupNodes(n).lnd[0]);
     const help = getByText("Run 'lncli' commands directly on the node");
     expect(help).toBeInTheDocument();
   });

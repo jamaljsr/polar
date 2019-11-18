@@ -4,6 +4,7 @@ import { ipcChannels, withDefaults } from 'shared';
 import { Status } from 'shared/types';
 import { DockerLibrary, LndLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { groupNodes } from 'utils/network';
 import {
   getNetwork,
   injections,
@@ -32,7 +33,8 @@ describe('RemoveNode', () => {
         activeId: 1,
       },
     };
-    const node = network.nodes.lightning[status === Status.Started ? 0 : 1];
+    const { lnd } = groupNodes(network);
+    const node = lnd[status === Status.Started ? 0 : 1];
     const cmp = <RemoveNode node={node} />;
     const result = renderWithProviders(cmp, { initialState });
     return {

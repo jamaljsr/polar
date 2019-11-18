@@ -1,5 +1,5 @@
 import detectPort from 'detect-port';
-import { Status } from 'shared/types';
+import { LndNode, Status } from 'shared/types';
 import { Network } from 'types';
 import { getOpenPortRange, getOpenPorts, OpenPorts } from './network';
 import { getNetwork } from './tests';
@@ -77,7 +77,7 @@ describe('Network Utils', () => {
       // alice ports should not be changed
       expect(ports[network.nodes.lightning[0].name]).toBeUndefined();
       // bob ports should change
-      const lnd2 = network.nodes.lightning[1];
+      const lnd2 = network.nodes.lightning[1] as LndNode;
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
     });

@@ -1,6 +1,13 @@
 import { join } from 'path';
 import detectPort from 'detect-port';
-import { BitcoinNode, CommonNode, LndNode, LndVersion, Status } from 'shared/types';
+import {
+  BitcoinNode,
+  CommonNode,
+  LightningdNode,
+  LndNode,
+  LndVersion,
+  Status,
+} from 'shared/types';
 import { Network } from 'types';
 import { networksPath } from './config';
 import { getName } from './names';
@@ -8,6 +15,18 @@ import { range } from './numbers';
 
 export const getContainerName = (node: CommonNode) =>
   `polar-n${node.networkId}-${node.name}`;
+
+export const groupNodes = (network: Network) => {
+  const { bitcoin, lightning } = network.nodes;
+  return {
+    bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
+    lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
+    lightningd: lightning.filter(
+      n => n.implementation === 'c-lightning',
+    ) as LightningdNode[],
+    eclair: lightning.filter(n => n.implementation === 'eclair'),
+  };
+};
 
 // long path games
 const getFilePaths = (name: string, network: Network) => {
@@ -176,25 +195,38 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
+  let { lnd, lightningd } = groupNodes(network);
+
   // filter out nodes that are already started since their ports are in use by themselves
-  const lightning = network.nodes.lightning.filter(n => n.status !== Status.Started);
-  if (lightning.length) {
-    let existingPorts = lightning.map(n => n.ports.grpc);
+  lnd = lnd.filter(n => n.status !== Status.Started);
+  if (lnd.length) {
+    let existingPorts = lnd.map(n => n.ports.grpc);
     let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[lightning[index].name] = { grpc: port };
+        ports[lnd[index].name] = { grpc: port };
       });
     }
 
-    existingPorts = lightning.map(n => n.ports.rest);
+    existingPorts = lnd.map(n => n.ports.rest);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[lightning[index].name] = {
-          ...(ports[lightning[index].name] || {}),
+        ports[lnd[index].name] = {
+          ...(ports[lnd[index].name] || {}),
           rest: port,
         };
+      });
+    }
+  }
+
+  lightningd = lightningd.filter(n => n.status !== Status.Started);
+  if (lightningd.length) {
+    const existingPorts = lightningd.map(n => n.ports.rest);
+    const openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[lightningd[index].name] = { rpc: port };
       });
     }
   }
