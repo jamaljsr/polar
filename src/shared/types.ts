@@ -21,6 +21,7 @@ export interface LightningNode extends CommonNode {
   type: 'lightning';
   implementation: 'LND' | 'c-lightning' | 'eclair';
   backendName: string;
+  ports: Record<string, number | undefined>;
 }
 
 export enum LndVersion {

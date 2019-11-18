@@ -1,7 +1,7 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import { BitcoinNode, CommonNode, LndNode, Status } from 'shared/types';
+import { BitcoinNode, CommonNode, LightningNode, LndNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 
 export interface LocaleConfig {
@@ -18,7 +18,7 @@ export interface Network {
   path: string;
   nodes: {
     bitcoin: BitcoinNode[];
-    lightning: LndNode[];
+    lightning: LightningNode[];
   };
 }
 

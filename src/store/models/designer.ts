@@ -15,6 +15,7 @@ import { LndNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { createLndChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
+import { groupNodes } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
@@ -97,8 +98,7 @@ const designerModel: DesignerModel = {
   syncChart: thunk(
     async (actions, network, { getState, getStoreState, getStoreActions }) => {
       // fetch data from all of the nodes
-      const lndNodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
-      await Promise.all(lndNodes.map(getStoreActions().lnd.getAllInfo));
+      await Promise.all(groupNodes(network).lnd.map(getStoreActions().lnd.getAllInfo));
 
       const nodesData = getStoreState().lnd.nodes;
       const { allCharts } = getState();

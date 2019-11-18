@@ -5,6 +5,7 @@ import BitcoindDetails from './bitcoind/BitcoindDetails';
 import DefaultSidebar from './default/DefaultSidebar';
 import LinkDetails from './link/LinkDetails';
 import LndDetails from './lnd/LndDetails';
+import { LndNode } from 'shared/types';
 
 interface Props {
   network: Network;
@@ -21,7 +22,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       if (node && node.implementation === 'bitcoind') {
         return <BitcoindDetails node={node} />;
       } else if (node && node.implementation === 'LND') {
-        return <LndDetails node={node} />;
+        return <LndDetails node={node as LndNode} />;
       }
     } else if (type === 'link' && id) {
       const link = chart.links[id];

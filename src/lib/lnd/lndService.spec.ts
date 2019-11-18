@@ -1,3 +1,4 @@
+import { groupNodes } from 'utils/network';
 import { getNetwork } from 'utils/tests';
 import lndProxyClient from './lndProxyClient';
 import lndService from './lndService';
@@ -5,7 +6,7 @@ import lndService from './lndService';
 jest.mock('./lndProxyClient');
 
 describe('LndService', () => {
-  const [node, node2] = getNetwork().nodes.lightning;
+  const [node, node2] = groupNodes(getNetwork()).lnd;
 
   it('should get node info', async () => {
     const expected = { identityPubkey: 'asdf' };
@@ -51,7 +52,7 @@ describe('LndService', () => {
 
   it('should call onNodesDeleted', async () => {
     const network = getNetwork();
-    await lndService.onNodesDeleted(network.nodes.lightning);
+    await lndService.onNodesDeleted(groupNodes(network).lnd);
     const [n1, n2] = network.nodes.lightning;
     expect(lndProxyClient.onNodesDeleted).toBeCalledWith([n1, n2]);
   });

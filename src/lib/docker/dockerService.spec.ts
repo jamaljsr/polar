@@ -180,7 +180,7 @@ describe('DockerService', () => {
     });
 
     it('should not save unknown lightning implementation', () => {
-      network.nodes.lightning[0].implementation = 'c-lightning';
+      network.nodes.lightning[0].implementation = 'eclair';
       dockerService.saveComposeFile(network);
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),

@@ -2,7 +2,7 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { CommonNode, LndNode, LndVersion, Status } from 'shared/types';
+import { CommonNode, LightningNode, LndNode, LndVersion, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
@@ -10,6 +10,7 @@ import {
   createLndNetworkNode,
   createNetwork,
   getOpenPorts,
+  groupNodes,
   OpenPorts,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -46,7 +47,7 @@ export interface NetworkModel {
     RootModel,
     Promise<LndNode>
   >;
-  removeNode: Thunk<NetworkModel, { node: LndNode }, StoreInjections, RootModel>;
+  removeNode: Thunk<NetworkModel, { node: LightningNode }, StoreInjections, RootModel>;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean; error?: Error }
@@ -138,13 +139,18 @@ const networkModel: NetworkModel = {
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
       network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
-      getStoreActions().lnd.removeNode(node.name);
+      if (node.implementation === 'LND') getStoreActions().lnd.removeNode(node.name);
       await injections.dockerService.removeNode(network, node);
       getStoreActions().designer.removeNode(node.name);
       actions.setNetworks([...networks]);
       await actions.save();
-      rm(join(network.path, 'volumes', 'lnd', node.name));
-      await injections.lndService.onNodesDeleted([node, ...network.nodes.lightning]);
+      if (node.implementation === 'LND') {
+        rm(join(network.path, 'volumes', 'lnd', node.name));
+        await injections.lndService.onNodesDeleted([
+          node as LndNode,
+          ...groupNodes(network).lnd,
+        ]);
+      }
       if (network.status === Status.Started) {
         getStoreActions().designer.syncChart(network);
       }
@@ -193,27 +199,28 @@ const networkModel: NetworkModel = {
       await getStoreActions().app.getDockerImages();
       // set the status of only the network to Started
       actions.setStatus({ id, status: Status.Started, all: false });
+      const { lnd } = groupNodes(network);
       // wait for lnd nodes to come online before updating their status
-      for (const lnd of network.nodes.lightning) {
+      for (const node of lnd) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.lndService
-          .waitUntilOnline(lnd)
-          .then(() => actions.setStatus({ id, status: Status.Started, only: lnd.name }))
+          .waitUntilOnline(node)
+          .then(() => actions.setStatus({ id, status: Status.Started, only: node.name }))
           .catch(error =>
-            actions.setStatus({ id, status: Status.Error, only: lnd.name, error }),
+            actions.setStatus({ id, status: Status.Error, only: node.name, error }),
           );
       }
       // wait for bitcoind nodes to come online before updating their status
-      for (const bitcoind of network.nodes.bitcoin) {
+      for (const node of network.nodes.bitcoin) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.bitcoindService
-          .waitUntilOnline(bitcoind.ports.rpc)
+          .waitUntilOnline(node.ports.rpc)
           .then(() => {
-            actions.setStatus({ id, status: Status.Started, only: bitcoind.name });
-            return getStoreActions().bitcoind.getInfo(bitcoind);
+            actions.setStatus({ id, status: Status.Started, only: node.name });
+            return getStoreActions().bitcoind.getInfo(node);
           })
           .catch(error =>
-            actions.setStatus({ id, status: Status.Error, only: bitcoind.name, error }),
+            actions.setStatus({ id, status: Status.Error, only: node.name, error }),
           );
       }
     } catch (e) {
@@ -266,7 +273,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     await actions.save();
-    await injections.lndService.onNodesDeleted(network.nodes.lightning);
+    await injections.lndService.onNodesDeleted(groupNodes(network).lnd);
   }),
 };
 

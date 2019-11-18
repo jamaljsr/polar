@@ -1,6 +1,7 @@
 import * as LND from '@radar/lnrpc';
 import { createStore } from 'easy-peasy';
 import { defaultInfo, ipcChannels, withDefaults } from 'shared';
+import { LndNode } from 'shared/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import { getNetwork, injections } from 'utils/tests';
@@ -24,7 +25,7 @@ describe('LND Model', () => {
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections, initialState });
-  const node = initialState.network.networks[0].nodes.lightning[0];
+  const node = initialState.network.networks[0].nodes.lightning[0] as LndNode;
 
   beforeEach(() => {
     // reset the store before each test run
