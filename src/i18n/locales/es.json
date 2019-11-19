@@ -153,6 +153,7 @@
   "cmps.network.NewNetwork.nameLabel": "Nombre de red",
   "cmps.network.NewNetwork.namePhldr": "Mi Lightning Simnet",
   "cmps.network.NewNetwork.lndNodesLabel": "¿Cuántos nodos de LND?",
+  "cmps.network.NewNetwork.lightningdNodesLabel": "¿Cuántos nodos de c-lightning?",
   "cmps.network.NewNetwork.bitcoindNodesLabel": "¿Cuántos nodos de bitcoind?",
   "cmps.network.NewNetwork.bitcoindNodesSoon": "Próximamente",
   "cmps.network.NewNetwork.btnCreate": "Crear",

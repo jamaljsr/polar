@@ -14,6 +14,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     id: networkId,
     name: name || 'my-test',
     lndNodes: 2,
+    lightningdNodes: 0,
     bitcoindNodes: 1,
     status,
   });

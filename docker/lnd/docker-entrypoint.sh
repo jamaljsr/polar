@@ -10,7 +10,7 @@ if ! id lnd > /dev/null 2>&1; then
 
   echo "adding user lnd ($USERID:$GROUPID)"
   groupadd -f -g $GROUPID lnd
-  useradd -r -u $USERID -g $GROUPID lnd 
+  useradd -r -u $USERID -g $GROUPID lnd
 fi
 
 if [ $(echo "$1" | cut -c1) = "-" ]; then
@@ -24,5 +24,5 @@ if [ "$1" = "lnd" ] || [ "$1" = "lncli" ]; then
   exec gosu lnd "$@"
 fi
 
-echo
+echo "$@"
 exec "$@"

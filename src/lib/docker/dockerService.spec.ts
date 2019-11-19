@@ -167,6 +167,7 @@ describe('DockerService', () => {
         id: 1,
         name: 'my network',
         lndNodes: 1,
+        lightningdNodes: 0,
         bitcoindNodes: 1,
       });
       net.nodes.lightning[0].backendName = 'invalid';

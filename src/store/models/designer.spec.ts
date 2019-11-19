@@ -58,7 +58,12 @@ describe('Designer model', () => {
 
     beforeEach(async () => {
       const { addNetwork } = store.getActions().network;
-      await addNetwork({ name: 'test', lndNodes: 2, bitcoindNodes: 1 });
+      await addNetwork({
+        name: 'test',
+        lndNodes: 2,
+        lightningdNodes: 0,
+        bitcoindNodes: 1,
+      });
     });
 
     it('should have a chart in state', () => {
@@ -89,7 +94,12 @@ describe('Designer model', () => {
 
     it('should remove an inactive chart', async () => {
       const { addNetwork } = store.getActions().network;
-      await addNetwork({ name: 'test 2', lndNodes: 2, bitcoindNodes: 1 });
+      await addNetwork({
+        name: 'test 2',
+        lndNodes: 2,
+        lightningdNodes: 0,
+        bitcoindNodes: 1,
+      });
       store.getActions().designer.setActiveId(firstNetwork().id);
       const { removeChart } = store.getActions().designer;
       const idToRemove = store.getState().network.networks[1].id;

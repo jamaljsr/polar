@@ -13,7 +13,7 @@ import {
 } from 'easy-peasy';
 import { LndNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
-import { createLndChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
+import { createLightningChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { groupNodes } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -146,7 +146,7 @@ const designerModel: DesignerModel = {
   }),
   addLndNode: action((state, { lndNode, position }) => {
     const chart = state.allCharts[state.activeId];
-    const { node, link } = createLndChartNode(lndNode);
+    const { node, link } = createLightningChartNode(lndNode);
     node.position = position;
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;

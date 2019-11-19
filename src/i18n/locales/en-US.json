@@ -153,6 +153,7 @@
   "cmps.network.NewNetwork.nameLabel": "Network Name",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
   "cmps.network.NewNetwork.lndNodesLabel": "How many LND nodes?",
+  "cmps.network.NewNetwork.lightningdNodesLabel": "How many c-lightning nodes?",
   "cmps.network.NewNetwork.bitcoindNodesLabel": "How many bitcoind nodes?",
   "cmps.network.NewNetwork.bitcoindNodesSoon": "Coming Soon",
   "cmps.network.NewNetwork.btnCreate": "Create",

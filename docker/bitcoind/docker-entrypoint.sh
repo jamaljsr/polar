@@ -10,7 +10,7 @@ if ! id bitcoin > /dev/null 2>&1; then
 
   echo "adding user bitcoin ($USERID:$GROUPID)"
   groupadd -f -g $GROUPID bitcoin
-  useradd -r -u $USERID -g $GROUPID bitcoin 
+  useradd -r -u $USERID -g $GROUPID bitcoin
 fi
 
 if [ $(echo "$1" | cut -c1) = "-" ]; then
@@ -19,10 +19,10 @@ if [ $(echo "$1" | cut -c1) = "-" ]; then
   set -- bitcoind "$@"
 fi
 
-if [ "$1" = "bitcoind" ] || [ "$1" = "bitcoin-cli" ] || [ "$1" = "bitcoin-tx" ]; then 
+if [ "$1" = "bitcoind" ] || [ "$1" = "bitcoin-cli" ] || [ "$1" = "bitcoin-tx" ]; then
   echo "Running as bitcoin user: $@"
   exec gosu bitcoin "$@"
 fi
 
-echo
+echo "$@"
 exec "$@"

@@ -22,6 +22,7 @@ const { l } = prefixTranslation('store.models.network');
 interface AddNetworkArgs {
   name: string;
   lndNodes: number;
+  lightningdNodes: number;
   bitcoindNodes: number;
 }
 
@@ -104,9 +105,15 @@ const networkModel: NetworkModel = {
     };
     await injections.dockerService.saveNetworks(data);
   }),
-  add: action((state, { name, lndNodes, bitcoindNodes }) => {
+  add: action((state, { name, lndNodes, lightningdNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
-    const network = createNetwork({ id: nextId, name, lndNodes, bitcoindNodes });
+    const network = createNetwork({
+      id: nextId,
+      name,
+      lndNodes,
+      lightningdNodes,
+      bitcoindNodes,
+    });
     state.networks.push(network);
     info(`Added new network '${network.name}' to redux state`);
   }),

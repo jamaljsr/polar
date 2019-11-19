@@ -22,3 +22,21 @@ export const denominationNames: { [key in Denomination]: string } = {
   SATOSHIS: 'Satoshis',
   BITCOIN: 'Bitcoin',
 };
+
+/**
+ * The starting port numbers for the different node types. These should
+ * be sufficiently spaced apart to allow a dozen or so numbers higher and
+ * not cause conflicts
+ */
+export const BasePorts = {
+  bitcoind: {
+    rest: 18443,
+  },
+  lnd: {
+    rest: 8081,
+    grpc: 10001,
+  },
+  lightningd: {
+    rest: 8181,
+  },
+};
