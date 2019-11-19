@@ -4,7 +4,8 @@ import { BitcoinNode, LightningNode } from 'shared/types';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
-import lndlogo from 'resources/lnd.png';
+import lightningdLogo from 'resources/lightningd.png';
+import lndLogo from 'resources/lnd.png';
 
 export interface LinkProperties {
   type: 'backend' | 'pending-channel' | 'open-channel';
@@ -34,11 +35,12 @@ export const snap = (position: IPosition, config?: IConfig) =>
     ? { x: Math.round(position.x / 20) * 20, y: Math.round(position.y / 20) * 20 }
     : position;
 
-export const createLndChartNode = (lnd: LightningNode) => {
+export const createLightningChartNode = (ln: LightningNode) => {
+  const logo = ln.implementation === 'c-lightning' ? lightningdLogo : lndLogo;
   const node: INode = {
-    id: lnd.name,
+    id: ln.name,
     type: 'lightning',
-    position: { x: lnd.id * 250 + 50, y: lnd.id % 2 === 0 ? 100 : 200 },
+    position: { x: ln.id * 250 + 50, y: ln.id % 2 === 0 ? 100 : 200 },
     ports: {
       'empty-left': { id: 'empty-left', type: 'left' },
       'empty-right': { id: 'empty-right', type: 'right' },
@@ -46,15 +48,15 @@ export const createLndChartNode = (lnd: LightningNode) => {
     },
     size: { width: 200, height: 36 },
     properties: {
-      status: lnd.status,
-      icon: lndlogo,
+      status: ln.status,
+      icon: logo,
     },
   };
 
   const link: ILink = {
-    id: `${lnd.name}-backend`,
-    from: { nodeId: lnd.name, portId: 'backend' },
-    to: { nodeId: lnd.backendName, portId: 'backend' },
+    id: `${ln.name}-backend`,
+    from: { nodeId: ln.name, portId: 'backend' },
+    to: { nodeId: ln.backendName, portId: 'backend' },
     properties: {
       type: 'backend',
     },
@@ -93,7 +95,7 @@ export const initChartFromNetwork = (network: Network): IChart => {
   });
 
   network.nodes.lightning.forEach(n => {
-    const { node, link } = createLndChartNode(n);
+    const { node, link } = createLightningChartNode(n);
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;
   });

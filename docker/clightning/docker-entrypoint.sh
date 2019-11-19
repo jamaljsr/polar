@@ -30,5 +30,5 @@ fi
 #   exec gosu clightning "$@"
 # fi
 
-echo
+echo "$@"
 exec "$@"

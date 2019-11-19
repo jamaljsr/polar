@@ -4,12 +4,14 @@ import {
   BitcoinNode,
   CommonNode,
   LightningdNode,
+  LightningdVersion,
   LndNode,
   LndVersion,
   Status,
 } from 'shared/types';
 import { Network } from 'types';
 import { networksPath } from './config';
+import { BasePorts } from './constants';
 import { getName } from './names';
 import { range } from './numbers';
 
@@ -29,7 +31,7 @@ export const groupNodes = (network: Network) => {
 };
 
 // long path games
-const getFilePaths = (name: string, network: Network) => {
+const getLndFilePaths = (name: string, network: Network) => {
   // returns /volumes/lnd/lnd-1
   const lndDataPath = (name: string) => join(network.path, 'volumes', 'lnd', name);
   // returns /volumes/lnd/lnd-1/tls.cert
@@ -64,10 +66,37 @@ export const createLndNetworkNode = (
     version,
     status,
     backendName: bitcoin[0].name,
-    paths: getFilePaths(name, network),
+    paths: getLndFilePaths(name, network),
     ports: {
-      rest: 8081 + id,
-      grpc: 10001 + id,
+      rest: BasePorts.lnd.rest + id,
+      grpc: BasePorts.lnd.grpc + id,
+    },
+  };
+};
+
+export const createLightningdNetworkNode = (
+  network: Network,
+  version: LightningdVersion,
+  status: Status,
+): LightningdNode => {
+  const { bitcoin, lightning } = network.nodes;
+  const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
+  const name = getName(id);
+  const nodePath = join(network.path, 'volumes', 'clightning', name);
+  return {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'lightning',
+    implementation: 'c-lightning',
+    version,
+    status,
+    backendName: bitcoin[0].name,
+    paths: {
+      macaroon: join(nodePath, 'rest-api', 'access.macaroon'),
+    },
+    ports: {
+      rest: BasePorts.lightningd.rest + id,
     },
   };
 };
@@ -86,7 +115,7 @@ export const createBitcoindNetworkNode = (
     implementation: 'bitcoind',
     version: '0.18.1',
     status,
-    ports: { rpc: 18443 },
+    ports: { rpc: BasePorts.bitcoind.rest + index },
   };
 };
 
@@ -94,10 +123,11 @@ export const createNetwork = (config: {
   id: number;
   name: string;
   lndNodes: number;
+  lightningdNodes: number;
   bitcoindNodes: number;
   status?: Status;
 }): Network => {
-  const { id, name, lndNodes, bitcoindNodes } = config;
+  const { id, name, lndNodes, lightningdNodes, bitcoindNodes } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
 
@@ -122,6 +152,12 @@ export const createNetwork = (config: {
     );
   });
 
+  range(lightningdNodes).forEach(() => {
+    network.nodes.lightning.push(
+      createLightningdNetworkNode(network, LightningdVersion.latest, status),
+    );
+  });
+
   return network;
 };
 
@@ -134,7 +170,7 @@ export const createNetwork = (config: {
 export const getMissingImages = (network: Network, pulled: string[]): string[] => {
   const { bitcoin, lightning } = network.nodes;
   const neededImages = [...bitcoin, ...lightning].map(
-    n => `${n.implementation.toLocaleLowerCase()}:${n.version}`,
+    n => `${n.implementation.toLocaleLowerCase().replace(/-/g, '')}:${n.version}`,
   );
   // exclude images already pulled
   const missing = neededImages.filter(i => !pulled.includes(i));

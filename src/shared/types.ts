@@ -30,6 +30,11 @@ export enum LndVersion {
   '0.7.1-beta' = '0.7.1-beta',
 }
 
+export enum LightningdVersion {
+  latest = '0.7.3',
+  '0.7.3' = '0.7.3',
+}
+
 export interface LndNode extends LightningNode {
   paths: {
     tlsCert: string;
