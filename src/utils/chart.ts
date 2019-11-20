@@ -4,7 +4,7 @@ import { BitcoinNode, LightningNode } from 'shared/types';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
-import lightningdLogo from 'resources/lightningd.png';
+import clightningLogo from 'resources/clightning.png';
 import lndLogo from 'resources/lnd.png';
 
 export interface LinkProperties {
@@ -36,7 +36,7 @@ export const snap = (position: IPosition, config?: IConfig) =>
     : position;
 
 export const createLightningChartNode = (ln: LightningNode) => {
-  const logo = ln.implementation === 'c-lightning' ? lightningdLogo : lndLogo;
+  const logo = ln.implementation === 'c-lightning' ? clightningLogo : lndLogo;
   const node: INode = {
     id: ln.name,
     type: 'lightning',

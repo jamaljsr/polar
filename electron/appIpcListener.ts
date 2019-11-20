@@ -1,9 +1,9 @@
 import { BrowserWindow, IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import windowState from 'electron-window-state';
-import { ipcChannels } from '../src/shared';
-import { BASE_URL, APP_ROOT } from './constants';
 import { join } from 'path';
+import { ipcChannels } from '../src/shared';
+import { APP_ROOT, BASE_URL } from './constants';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
   console.warn('opwnWindow', args);

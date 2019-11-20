@@ -14,7 +14,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     id: networkId,
     name: name || 'my-test',
     lndNodes: 2,
-    lightningdNodes: 0,
+    clightningNodes: 0,
     bitcoindNodes: 1,
     status,
   });
@@ -56,6 +56,10 @@ export const injections: StoreInjections = {
     closeChannel: jest.fn(),
     listChannels: jest.fn(),
     pendingChannels: jest.fn(),
+  },
+  clightningService: {
+    waitUntilOnline: jest.fn(),
+    getInfo: jest.fn(),
   },
 };
 

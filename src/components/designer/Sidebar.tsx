@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
+import { CLightningNode, LndNode } from 'shared/types';
 import { Network } from 'types';
 import BitcoindDetails from './bitcoind/BitcoindDetails';
+import CLightningDetails from './clightning/CLightningDetails';
 import DefaultSidebar from './default/DefaultSidebar';
 import LinkDetails from './link/LinkDetails';
 import LndDetails from './lnd/LndDetails';
-import { LndNode } from 'shared/types';
 
 interface Props {
   network: Network;
@@ -23,6 +24,8 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
         return <BitcoindDetails node={node} />;
       } else if (node && node.implementation === 'LND') {
         return <LndDetails node={node as LndNode} />;
+      } else if (node && node.implementation === 'c-lightning') {
+        return <CLightningDetails node={node as CLightningNode} />;
       }
     } else if (type === 'link' && id) {
       const link = chart.links[id];

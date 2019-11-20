@@ -2,9 +2,9 @@ import { join } from 'path';
 import detectPort from 'detect-port';
 import {
   BitcoinNode,
+  CLightningNode,
+  CLightningVersion,
   CommonNode,
-  LightningdNode,
-  LightningdVersion,
   LndNode,
   LndVersion,
   Status,
@@ -23,9 +23,9 @@ export const groupNodes = (network: Network) => {
   return {
     bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
     lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
-    lightningd: lightning.filter(
+    clightning: lightning.filter(
       n => n.implementation === 'c-lightning',
-    ) as LightningdNode[],
+    ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair'),
   };
 };
@@ -74,11 +74,11 @@ export const createLndNetworkNode = (
   };
 };
 
-export const createLightningdNetworkNode = (
+export const createCLightningNetworkNode = (
   network: Network,
-  version: LightningdVersion,
+  version: CLightningVersion,
   status: Status,
-): LightningdNode => {
+): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
@@ -96,7 +96,7 @@ export const createLightningdNetworkNode = (
       macaroon: join(nodePath, 'rest-api', 'access.macaroon'),
     },
     ports: {
-      rest: BasePorts.lightningd.rest + id,
+      rest: BasePorts.clightning.rest + id,
     },
   };
 };
@@ -123,11 +123,11 @@ export const createNetwork = (config: {
   id: number;
   name: string;
   lndNodes: number;
-  lightningdNodes: number;
+  clightningNodes: number;
   bitcoindNodes: number;
   status?: Status;
 }): Network => {
-  const { id, name, lndNodes, lightningdNodes, bitcoindNodes } = config;
+  const { id, name, lndNodes, clightningNodes, bitcoindNodes } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
 
@@ -152,9 +152,9 @@ export const createNetwork = (config: {
     );
   });
 
-  range(lightningdNodes).forEach(() => {
+  range(clightningNodes).forEach(() => {
     network.nodes.lightning.push(
-      createLightningdNetworkNode(network, LightningdVersion.latest, status),
+      createCLightningNetworkNode(network, CLightningVersion.latest, status),
     );
   });
 
@@ -231,7 +231,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  let { lnd, lightningd } = groupNodes(network);
+  let { lnd, clightning } = groupNodes(network);
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);
@@ -256,13 +256,13 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  lightningd = lightningd.filter(n => n.status !== Status.Started);
-  if (lightningd.length) {
-    const existingPorts = lightningd.map(n => n.ports.rest);
+  clightning = clightning.filter(n => n.status !== Status.Started);
+  if (clightning.length) {
+    const existingPorts = clightning.map(n => n.ports.rest);
     const openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[lightningd[index].name] = { rpc: port };
+        ports[clightning[index].name] = { rpc: port };
       });
     }
   }

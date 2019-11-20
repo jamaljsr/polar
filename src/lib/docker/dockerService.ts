@@ -6,7 +6,7 @@ import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
-import { CommonNode, LightningdNode, LndNode } from 'shared/types';
+import { CLightningNode, CommonNode, LndNode } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath } from 'utils/config';
@@ -83,7 +83,7 @@ class DockerService implements DockerLibrary {
         file.addLnd(lnd, backend);
       }
       if (node.implementation === 'c-lightning') {
-        const cln = node as LightningdNode;
+        const cln = node as CLightningNode;
         const backend = bitcoin.find(n => n.name === cln.backendName) || bitcoin[0];
         file.addClightning(cln, backend);
       }

@@ -22,7 +22,7 @@ const { l } = prefixTranslation('store.models.network');
 interface AddNetworkArgs {
   name: string;
   lndNodes: number;
-  lightningdNodes: number;
+  clightningNodes: number;
   bitcoindNodes: number;
 }
 
@@ -105,13 +105,13 @@ const networkModel: NetworkModel = {
     };
     await injections.dockerService.saveNetworks(data);
   }),
-  add: action((state, { name, lndNodes, lightningdNodes, bitcoindNodes }) => {
+  add: action((state, { name, lndNodes, clightningNodes, bitcoindNodes }) => {
     const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
     const network = createNetwork({
       id: nextId,
       name,
       lndNodes,
-      lightningdNodes,
+      clightningNodes,
       bitcoindNodes,
     });
     state.networks.push(network);
@@ -206,7 +206,8 @@ const networkModel: NetworkModel = {
       await getStoreActions().app.getDockerImages();
       // set the status of only the network to Started
       actions.setStatus({ id, status: Status.Started, all: false });
-      const { lnd } = groupNodes(network);
+
+      const { lnd, clightning, bitcoind } = groupNodes(network);
       // wait for lnd nodes to come online before updating their status
       for (const node of lnd) {
         // use .then() to continue execution while the promises are waiting to complete
@@ -217,8 +218,18 @@ const networkModel: NetworkModel = {
             actions.setStatus({ id, status: Status.Error, only: node.name, error }),
           );
       }
+      // wait for lnd nodes to come online before updating their status
+      for (const node of clightning) {
+        // use .then() to continue execution while the promises are waiting to complete
+        injections.clightningService
+          .waitUntilOnline(node)
+          .then(() => actions.setStatus({ id, status: Status.Started, only: node.name }))
+          .catch(error =>
+            actions.setStatus({ id, status: Status.Error, only: node.name, error }),
+          );
+      }
       // wait for bitcoind nodes to come online before updating their status
-      for (const node of network.nodes.bitcoin) {
+      for (const node of bitcoind) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.bitcoindService
           .waitUntilOnline(node.ports.rpc)

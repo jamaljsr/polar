@@ -19,7 +19,7 @@ const Styled = {
 interface FormProps {
   name: string;
   lndNodes: number;
-  lightningdNodes: number;
+  clightningNodes: number;
   bitcoindNodes: number;
 }
 
@@ -59,8 +59,8 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label={l('lightningdNodesLabel')}>
-                {form.getFieldDecorator('lightningdNodes', {
+              <Form.Item label={l('clightningNodesLabel')}>
+                {form.getFieldDecorator('clightningNodes', {
                   rules: [{ required: true, message: l('cmps.forms.required') }],
                   initialValue: 1,
                 })(<InputNumber min={0} max={10} />)}

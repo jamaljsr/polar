@@ -92,7 +92,7 @@ export const lnd = (
   ],
 });
 
-export const lightningd = (
+export const clightning = (
   name: string,
   container: string,
   version: string,
