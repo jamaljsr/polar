@@ -25,10 +25,10 @@ fi
 # TODO: investigate hsmd error on Windows
 # https://gist.github.com/jamaljsr/404c20f99be2f77fff2d834e2449158b
 
-# if [ "$1" = "lightningd" ] || [ "$1" = "lightning-cli" ]; then
-#   echo "Running as clightning user: $@"
-#   exec gosu clightning "$@"
-# fi
+if [ "$1" = "lightningd" ] || [ "$1" = "lightning-cli" ]; then
+  echo "Running as clightning user: $@"
+  exec gosu clightning "$@"
+fi
 
 echo "$@"
 exec "$@"
