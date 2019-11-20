@@ -61,7 +61,7 @@ describe('Designer model', () => {
       await addNetwork({
         name: 'test',
         lndNodes: 2,
-        lightningdNodes: 0,
+        clightningNodes: 0,
         bitcoindNodes: 1,
       });
     });
@@ -97,7 +97,7 @@ describe('Designer model', () => {
       await addNetwork({
         name: 'test 2',
         lndNodes: 2,
-        lightningdNodes: 0,
+        clightningNodes: 0,
         bitcoindNodes: 1,
       });
       store.getActions().designer.setActiveId(firstNetwork().id);

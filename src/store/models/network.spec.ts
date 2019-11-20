@@ -39,7 +39,7 @@ describe('Network model', () => {
   const addNetworkArgs = {
     name: 'test',
     lndNodes: 2,
-    lightningdNodes: 0,
+    clightningNodes: 0,
     bitcoindNodes: 1,
   };
 

@@ -36,7 +36,7 @@ export const BasePorts = {
     rest: 8081,
     grpc: 10001,
   },
-  lightningd: {
+  clightning: {
     rest: 8181,
   },
 };

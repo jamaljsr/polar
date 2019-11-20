@@ -30,7 +30,7 @@ export enum LndVersion {
   '0.7.1-beta' = '0.7.1-beta',
 }
 
-export enum LightningdVersion {
+export enum CLightningVersion {
   latest = '0.7.3',
   '0.7.3' = '0.7.3',
 }
@@ -47,7 +47,7 @@ export interface LndNode extends LightningNode {
   };
 }
 
-export interface LightningdNode extends LightningNode {
+export interface CLightningNode extends LightningNode {
   paths: {
     macaroon: string;
   };

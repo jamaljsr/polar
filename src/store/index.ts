@@ -3,6 +3,7 @@ import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
 import { bitcoindService } from 'lib/bitcoin';
+import { clightningService } from 'lib/clightning';
 import { dockerService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { lndService } from 'lib/lnd';
@@ -53,6 +54,7 @@ const injections: StoreInjections = {
   dockerService,
   bitcoindService,
   lndService,
+  clightningService,
 };
 
 const store = createReduxStore({ injections });
