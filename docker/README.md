@@ -59,10 +59,10 @@ $ docker push polarlightning/lnd:latest
 
 ```sh
 $ cd clightning
-$ docker build --build-arg CLN_VERSION=<version> --build-arg BITCOIN_VERSION=0.18.1 -t polarlightning/clightning:latest -t polarlightning/clightning:<version> .
+$ docker build --build-arg CLN_VERSION=<version>  -t polarlightning/clightning:latest -t polarlightning/clightning:<version> .
 ```
 
-Replace `<version>` with the desired c-lightning version (ex: `0.7.3`). c-lightning requires `bitcoin-cli` >= v0.16.1 on the same machine, so the bitcoin version can be specified as a build arg as well.
+Replace `<version>` with the desired c-lightning version (ex: `0.7.3`).
 
 **Push to Docker Hub**
 

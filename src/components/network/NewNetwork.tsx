@@ -55,7 +55,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
                 {form.getFieldDecorator('lndNodes', {
                   rules: [{ required: true, message: l('cmps.forms.required') }],
                   initialValue: 2,
-                })(<InputNumber min={1} max={10} />)}
+                })(<InputNumber min={0} max={10} />)}
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -63,7 +63,7 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
                 {form.getFieldDecorator('lightningdNodes', {
                   rules: [{ required: true, message: l('cmps.forms.required') }],
                   initialValue: 1,
-                })(<InputNumber min={1} max={10} />)}
+                })(<InputNumber min={0} max={10} />)}
               </Form.Item>
             </Col>
             <Col span={8}>
