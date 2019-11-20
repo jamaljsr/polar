@@ -48,11 +48,12 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   // flag to show the deposit checkbox if the from node balance is less than the capacity
   let showDeposit = false;
   const selectedFrom = form.getFieldValue('from') || from;
+  const areSameNodesSelected = selectedFrom === (form.getFieldValue('to') || to);
   if (selectedFrom && nodes[selectedFrom] && !openChanAsync.loading) {
     const { confirmedBalance } = nodes[selectedFrom].walletBalance || {};
     const balance = parseInt(confirmedBalance || '0');
     const sats = form.getFieldValue('sats');
-    showDeposit = balance <= sats;
+    showDeposit = balance <= sats && !areSameNodesSelected;
   }
 
   const handleSubmit = () => {
@@ -151,7 +152,10 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         destroyOnClose
         cancelText={l('cancelBtn')}
         okText={l('okBtn')}
-        okButtonProps={{ loading: openChanAsync.loading }}
+        okButtonProps={{
+          loading: openChanAsync.loading,
+          disabled: areSameNodesSelected,
+        }}
         onOk={handleSubmit}
       >
         {cmp}
