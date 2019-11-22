@@ -1,10 +1,12 @@
 import * as LND from '@radar/lnrpc';
 import { createStore } from 'easy-peasy';
-import { defaultInfo, ipcChannels, withDefaults } from 'shared';
+import { ipcChannels, withDefaults } from 'shared';
 import { LndNode } from 'shared/types';
+import { LightningNodeInfo } from 'lib/lightning/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import { getNetwork, injections } from 'utils/tests';
+import { defaultInfo } from 'utils/tests/nodeStateDefaults';
 import lndModel from './lnd';
 import networkModel from './network';
 
@@ -37,7 +39,7 @@ describe('LND Model', () => {
     lndServiceMock.getInfo.mockResolvedValue(
       defaultInfo({
         alias: 'my-node',
-        identityPubkey: 'abcdef',
+        pubkey: 'abcdef',
         syncedToChain: true,
       }),
     );
@@ -63,9 +65,9 @@ describe('LND Model', () => {
     await getInfo(node);
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.info).toBeDefined();
-    const info = nodeState.info as LND.GetInfoResponse;
+    const info = nodeState.info as LightningNodeInfo;
     expect(info.alias).toEqual('my-node');
-    expect(info.identityPubkey).toEqual('abcdef');
+    expect(info.pubkey).toEqual('abcdef');
     expect(info.syncedToChain).toEqual(true);
   });
 

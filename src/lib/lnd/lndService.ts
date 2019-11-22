@@ -1,13 +1,23 @@
 import * as LND from '@radar/lnrpc';
 import { LndNode } from 'shared/types';
+import { LightningNodeInfo } from 'lib/lightning/types';
 import { LndLibrary } from 'types';
 import { waitFor } from 'utils/async';
 import { getContainerName } from 'utils/network';
 import { lndProxyClient as proxy } from './';
 
 class LndService implements LndLibrary {
-  async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
-    return await proxy.getInfo(node);
+  async getInfo(node: LndNode): Promise<LightningNodeInfo> {
+    const info = await proxy.getInfo(node);
+    return {
+      pubkey: info.identityPubkey,
+      alias: info.alias,
+      rpcUrl: info.uris[0] || '',
+      syncedToChain: info.syncedToChain,
+      numActiveChannels: info.numActiveChannels,
+      numPendingChannels: info.numPendingChannels,
+      numInactiveChannels: info.numInactiveChannels,
+    };
   }
 
   async getWalletBalance(node: LndNode): Promise<LND.WalletBalanceResponse> {

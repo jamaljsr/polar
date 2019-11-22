@@ -199,8 +199,8 @@ export const updateChartFromLnd = (chart: IChart, lndData: LndNodeMapping): ICha
   // create a mapping of node name to pubkey for lookups
   const pubkeys: Record<string, string> = {};
   Object.entries(lndData).forEach(([name, data]) => {
-    if (!data.info || !data.info.identityPubkey) return;
-    pubkeys[data.info.identityPubkey] = name;
+    if (!data.info || !data.info.pubkey) return;
+    pubkeys[data.info.pubkey] = name;
   });
 
   const nodes = { ...chart.nodes };
