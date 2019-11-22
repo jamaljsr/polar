@@ -1,7 +1,7 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Alert, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { CLightningNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
@@ -10,12 +10,12 @@ import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 interface Props {
-  node: CLightningNode;
+  node: LightningNode;
 }
 
 const InfoTab: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.clightning.InfoTab');
-  const { nodes } = useStoreState(s => s.clightning);
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.InfoTab');
+  const { nodes } = useStoreState(s => s.lightning);
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
     { label: l('implementation'), value: node.implementation },
@@ -31,33 +31,33 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     },
   ];
 
-  let warning: ReactNode | undefined;
+  let synced = false;
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
-    if (nodeState.balance) {
-      const { confBalance, unconfBalance } = nodeState.balance;
+    if (nodeState.balances) {
+      const { confirmed, unconfirmed } = nodeState.balances;
       details.push({
         label: l('confirmedBalance'),
-        value: `${format(confBalance)} sats`,
+        value: `${format(confirmed)} sats`,
       });
       details.push({
         label: l('unconfirmedBalance'),
-        value: `${format(unconfBalance)} sats`,
+        value: `${format(unconfirmed)} sats`,
       });
     }
     if (nodeState.info) {
       const {
-        id,
+        pubkey,
         alias,
-        warningBitcoindSync,
+        syncedToChain,
         numPendingChannels,
         numActiveChannels,
         numInactiveChannels,
       } = nodeState.info;
-      const pubkey = (
+      const pubkeyCmp = (
         <>
-          {ellipseInner(id)}
-          <CopyIcon value={id} label="PubKey" />
+          {ellipseInner(pubkey)}
+          <CopyIcon value={pubkey} label="PubKey" />
         </>
       );
       const channels = (
@@ -67,22 +67,22 @@ const InfoTab: React.FC<Props> = ({ node }) => {
       );
       details.push(
         { label: l('alias'), value: alias },
-        { label: l('pubkey'), value: pubkey },
+        { label: l('pubkey'), value: pubkeyCmp },
         { label: l('channels'), value: channels },
       );
-      if (warningBitcoindSync) {
-        warning = warningBitcoindSync;
-      }
+      synced = syncedToChain;
     }
   }
 
   return (
     <>
-      {warning && <Alert type="warning" message={warning} closable={false} showIcon />}
+      {!synced && (
+        <Alert type="warning" message={l('syncWarning')} closable={false} showIcon />
+      )}
       {node.status === Status.Error && node.errorMsg && (
         <Alert
           type="error"
-          message={l('startError')}
+          message={l('startError', { implementation: node.implementation })}
           description={node.errorMsg}
           closable={false}
           showIcon

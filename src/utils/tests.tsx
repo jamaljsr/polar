@@ -57,10 +57,8 @@ export const injections: StoreInjections = {
     listChannels: jest.fn(),
     pendingChannels: jest.fn(),
   },
-  clightningService: {
-    waitUntilOnline: jest.fn(),
-    getInfo: jest.fn(),
-    getBalance: jest.fn(),
+  lightningFactory: {
+    getService: jest.fn(),
   },
 };
 

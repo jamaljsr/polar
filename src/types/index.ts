@@ -1,16 +1,9 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import {
-  BitcoinNode,
-  CLightningNode,
-  CommonNode,
-  LightningNode,
-  LndNode,
-  Status,
-} from 'shared/types';
-import * as CLN from 'lib/clightning/clightningTypes';
+import { BitcoinNode, CommonNode, LightningNode, LndNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
+import { LightningService } from 'lib/lightning/types';
 
 export interface LocaleConfig {
   fallbackLng: string;
@@ -66,18 +59,16 @@ export interface LndLibrary {
   onNodesDeleted: (nodes: LndNode[]) => Promise<void>;
 }
 
-export interface CLightningLibrary {
-  waitUntilOnline: (node: CLightningNode) => Promise<void>;
-  getInfo: (node: CLightningNode) => Promise<CLN.GetInfoResponse>;
-  getBalance: (node: CLightningNode) => Promise<CLN.GetBalanceResponse>;
+export interface LightningFactoryInjection {
+  getService: (node: LightningNode) => LightningService;
 }
 
 export interface StoreInjections {
   ipc: IpcSender;
   dockerService: DockerLibrary;
   bitcoindService: BitcoindLibrary;
+  lightningFactory: LightningFactoryInjection;
   lndService: LndLibrary;
-  clightningService: CLightningLibrary;
 }
 
 export interface NetworksFile {

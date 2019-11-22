@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { CLightningNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
@@ -10,31 +10,31 @@ import SidebarCard from '../SidebarCard';
 import { ActionsTab, ConnectTab, InfoTab } from './';
 
 interface Props {
-  node: CLightningNode;
+  node: LightningNode;
 }
 
-const CLightningDetails: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.clightning.CLightningDetails');
+const LightningDetails: React.FC<Props> = ({ node }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.LightningNodeDetails');
   const [activeTab, setActiveTab] = useState('info');
-  const { getInfo, getBalance } = useStoreActions(s => s.clightning);
+  const { getInfo, getBalances } = useStoreActions(s => s.lightning);
 
   const getInfoAsync = useAsync(
-    async (node: CLightningNode) => {
+    async (node: LightningNode) => {
       if (node.status === Status.Started) {
         await getInfo(node);
-        await getBalance(node);
+        await getBalances(node);
       }
     },
     [node],
   );
 
   let extra: ReactNode | undefined;
-  const { nodes } = useStoreState(s => s.clightning);
+  const { nodes } = useStoreState(s => s.lightning);
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
-    if (nodeState.balance) {
-      const { confBalance } = nodeState.balance;
-      extra = <strong>{abbreviate(confBalance)} sats</strong>;
+    if (nodeState.balances) {
+      const { confirmed } = nodeState.balances;
+      extra = <strong>{abbreviate(confirmed)} sats</strong>;
     }
   }
 
@@ -62,7 +62,7 @@ const CLightningDetails: React.FC<Props> = ({ node }) => {
           showIcon
           icon={<Icon type="loading" />}
           closable={false}
-          message={l('waitingNotice')}
+          message={l('waitingNotice', { implementation: node.implementation })}
         />
       )}
       {node.status !== Status.Started && !nodeState && getInfoAsync.loading && <Loader />}
@@ -79,4 +79,4 @@ const CLightningDetails: React.FC<Props> = ({ node }) => {
   );
 };
 
-export default CLightningDetails;
+export default LightningDetails;

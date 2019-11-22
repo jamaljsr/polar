@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
-import { CLightningNode, LndNode } from 'shared/types';
+import { LightningNode, LndNode } from 'shared/types';
 import { Network } from 'types';
 import BitcoindDetails from './bitcoind/BitcoindDetails';
-import CLightningDetails from './clightning/CLightningDetails';
 import DefaultSidebar from './default/DefaultSidebar';
+import LightningNodeDetails from './lightning/LightningNodeDetails';
 import LinkDetails from './link/LinkDetails';
 import LndDetails from './lnd/LndDetails';
 
@@ -25,7 +25,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       } else if (node && node.implementation === 'LND') {
         return <LndDetails node={node as LndNode} />;
       } else if (node && node.implementation === 'c-lightning') {
-        return <CLightningDetails node={node as CLightningNode} />;
+        return <LightningNodeDetails node={node as LightningNode} />;
       }
     } else if (type === 'link' && id) {
       const link = chart.links[id];
