@@ -10,6 +10,10 @@ class CLightningService implements CLightningLibrary {
     return await this.request(node, 'getinfo');
   }
 
+  async getBalance(node: CLightningNode): Promise<CLN.GetBalanceResponse> {
+    return await this.request(node, 'getBalance');
+  }
+
   /**
    * Helper function to continually query the node until a successful
    * response is received or it times out

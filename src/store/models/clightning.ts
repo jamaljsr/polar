@@ -10,6 +10,7 @@ export interface CLightningNodeMapping {
 
 export interface CLightningNodeModel {
   info?: CLN.GetInfoResponse;
+  balance?: CLN.GetBalanceResponse;
 }
 
 export interface CLightningModel {
@@ -17,6 +18,11 @@ export interface CLightningModel {
   removeNode: Action<CLightningModel, string>;
   setInfo: Action<CLightningModel, { node: CLightningNode; info: CLN.GetInfoResponse }>;
   getInfo: Thunk<CLightningModel, CLightningNode, StoreInjections, RootModel>;
+  setBalance: Action<
+    CLightningModel,
+    { node: CLightningNode; balance: CLN.GetBalanceResponse }
+  >;
+  getBalance: Thunk<CLightningModel, CLightningNode, StoreInjections, RootModel>;
 }
 
 const lndModel: CLightningModel = {
@@ -35,6 +41,14 @@ const lndModel: CLightningModel = {
   getInfo: thunk(async (actions, node, { injections }) => {
     const info = await injections.clightningService.getInfo(node);
     actions.setInfo({ node, info });
+  }),
+  setBalance: action((state, { node, balance }) => {
+    if (!state.nodes[node.name]) state.nodes[node.name] = {};
+    state.nodes[node.name].balance = balance;
+  }),
+  getBalance: thunk(async (actions, node, { injections }) => {
+    const balance = await injections.clightningService.getBalance(node);
+    actions.setBalance({ node, balance });
   }),
 };
 

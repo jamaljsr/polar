@@ -60,6 +60,7 @@ export const injections: StoreInjections = {
   clightningService: {
     waitUntilOnline: jest.fn(),
     getInfo: jest.fn(),
+    getBalance: jest.fn(),
   },
 };
 
