@@ -1,8 +1,8 @@
 import React from 'react';
-import { CLightningNode } from 'shared/types';
+import { LightningNode } from 'shared/types';
 
 interface Props {
-  node: CLightningNode;
+  node: LightningNode;
 }
 
 const ConnectTab: React.FC<Props> = ({ node }) => {

@@ -3,9 +3,9 @@ import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
 import { bitcoindService } from 'lib/bitcoin';
-import { clightningService } from 'lib/clightning';
 import { dockerService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
+import { LightningFactory } from 'lib/lightning';
 import { lndService } from 'lib/lnd';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
@@ -53,8 +53,8 @@ const injections: StoreInjections = {
   ipc: createIpcSender('AppModel', 'app'),
   dockerService,
   bitcoindService,
+  lightningFactory: new LightningFactory(),
   lndService,
-  clightningService,
 };
 
 const store = createReduxStore({ injections });

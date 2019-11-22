@@ -221,7 +221,8 @@ const networkModel: NetworkModel = {
       // wait for lnd nodes to come online before updating their status
       for (const node of clightning) {
         // use .then() to continue execution while the promises are waiting to complete
-        injections.clightningService
+        injections.lightningFactory
+          .getService(node)
           .waitUntilOnline(node)
           .then(() => actions.setStatus({ id, status: Status.Started, only: node.name }))
           .catch(error =>
