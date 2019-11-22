@@ -1,6 +1,7 @@
 import * as LND from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LndNode } from 'shared/types';
+import { LightningNodeInfo } from 'lib/lightning/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
@@ -12,7 +13,7 @@ export interface LndNodeMapping {
 }
 
 export interface LndNodeModel {
-  info?: LND.GetInfoResponse;
+  info?: LightningNodeInfo;
   walletBalance?: LND.WalletBalanceResponse;
   channels?: {
     open: LND.Channel[];
@@ -38,7 +39,7 @@ export interface OpenChannelPayload {
 export interface LndModel {
   nodes: LndNodeMapping;
   removeNode: Action<LndModel, string>;
-  setInfo: Action<LndModel, { node: LndNode; info: LND.GetInfoResponse }>;
+  setInfo: Action<LndModel, { node: LndNode; info: LightningNodeInfo }>;
   getInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   setWalletBalance: Action<
     LndModel,

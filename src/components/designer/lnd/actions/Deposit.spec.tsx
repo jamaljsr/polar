@@ -1,9 +1,10 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-import { defaultInfo } from 'shared';
+
 import { BitcoindLibrary, LndLibrary } from 'types';
 import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import { defaultInfo } from 'utils/tests/nodeStateDefaults';
 import { Deposit } from './';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
@@ -33,7 +34,7 @@ describe('Deposit', () => {
     lndServiceMock.getInfo.mockResolvedValue(
       defaultInfo({
         alias: 'my-node',
-        identityPubkey: 'abcdef',
+        pubkey: 'abcdef',
         syncedToChain: true,
       }),
     );

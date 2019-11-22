@@ -1,14 +1,10 @@
 import { IChart, IConfig } from '@mrblenny/react-flow-chart';
-import {
-  defaultChannel,
-  defaultInfo,
-  defaultPendingChannel,
-  defaultPendingOpenChannel,
-} from 'shared';
+import { defaultChannel, defaultPendingChannel, defaultPendingOpenChannel } from 'shared';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
 import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
 import { getNetwork } from './tests';
+import { defaultInfo } from './tests/nodeStateDefaults';
 
 describe('Chart Util', () => {
   let network: Network;
@@ -50,7 +46,7 @@ describe('Chart Util', () => {
     chart = initChartFromNetwork(network);
     lndData = {
       [network.nodes.lightning[0].name]: {
-        info: defaultInfo({ identityPubkey: 'lnd1pubkey' }),
+        info: defaultInfo({ pubkey: 'lnd1pubkey' }),
         channels: {
           open: [],
           opening: [],
@@ -60,7 +56,7 @@ describe('Chart Util', () => {
         },
       },
       [network.nodes.lightning[1].name]: {
-        info: defaultInfo({ identityPubkey: 'lnd2pubkey' }),
+        info: defaultInfo({ pubkey: 'lnd2pubkey' }),
         channels: {
           open: [],
           opening: [],

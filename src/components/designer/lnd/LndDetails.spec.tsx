@@ -1,12 +1,13 @@
 import React from 'react';
 import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
-import { defaultInfo, defaultListChannels, defaultPendingChannels } from 'shared';
+import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { Status } from 'shared/types';
 import { LndLibrary } from 'types';
 import * as files from 'utils/files';
 import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import { defaultInfo } from 'utils/tests/nodeStateDefaults';
 import LndDetails from './LndDetails';
 
 jest.mock('utils/files');
@@ -106,7 +107,7 @@ describe('LndDetails', () => {
       lndServiceMock.getInfo.mockResolvedValue(
         defaultInfo({
           alias: 'my-node',
-          identityPubkey: 'abcdef',
+          pubkey: 'abcdef',
           syncedToChain: true,
         }),
       );

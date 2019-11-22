@@ -46,17 +46,17 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     }
     if (nodeState.info) {
       const {
-        identityPubkey,
+        pubkey,
         alias,
         syncedToChain,
         numPendingChannels,
         numActiveChannels,
         numInactiveChannels,
       } = nodeState.info;
-      const pubkey = (
+      const pubkeyCmp = (
         <>
-          {ellipseInner(identityPubkey)}
-          <CopyIcon value={identityPubkey} label="PubKey" />
+          {ellipseInner(pubkey)}
+          <CopyIcon value={pubkey} label="PubKey" />
         </>
       );
       const channels = (
@@ -66,7 +66,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
       );
       details.push(
         { label: l('alias'), value: alias },
-        { label: l('pubkey'), value: pubkey },
+        { label: l('pubkey'), value: pubkeyCmp },
         { label: l('syncedToChain'), value: `${syncedToChain}` },
         { label: l('channels'), value: channels },
       );

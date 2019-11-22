@@ -40,7 +40,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   let lnUrl = '';
   const nodeState = useStoreState(s => s.lnd.nodes[node.name]);
   if (nodeState && nodeState.info) {
-    lnUrl = nodeState.info.uris[0];
+    lnUrl = nodeState.info.rpcUrl;
   }
 
   if (node.status !== Status.Started) {
