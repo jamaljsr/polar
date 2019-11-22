@@ -19,3 +19,9 @@ export interface GetInfoResponse {
   feesCollectedMsat: string;
   warningBitcoindSync: string;
 }
+
+export interface GetBalanceResponse {
+  totalBalance: number;
+  confBalance: number;
+  unconfBalance: number;
+}

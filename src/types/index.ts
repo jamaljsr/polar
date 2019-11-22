@@ -69,6 +69,7 @@ export interface LndLibrary {
 export interface CLightningLibrary {
   waitUntilOnline: (node: CLightningNode) => Promise<void>;
   getInfo: (node: CLightningNode) => Promise<CLN.GetInfoResponse>;
+  getBalance: (node: CLightningNode) => Promise<CLN.GetBalanceResponse>;
 }
 
 export interface StoreInjections {

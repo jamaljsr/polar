@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert, Icon, Tooltip } from 'antd';
+import { Alert, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CLightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { ellipseInner } from 'utils/strings';
-import { CopyIcon, DetailsList, Loader, StatusBadge } from 'components/common';
-import { DetailValues } from 'components/common/DetailsList';
+import { abbreviate } from 'utils/numbers';
+import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
+import { ActionsTab, ConnectTab, InfoTab } from './';
 
 interface Props {
   node: CLightningNode;
@@ -15,99 +15,66 @@ interface Props {
 
 const CLightningDetails: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.clightning.CLightningDetails');
-  const { getInfo } = useStoreActions(s => s.clightning);
-  const { nodes } = useStoreState(s => s.clightning);
+  const [activeTab, setActiveTab] = useState('info');
+  const { getInfo, getBalance } = useStoreActions(s => s.clightning);
 
   const getInfoAsync = useAsync(
     async (node: CLightningNode) => {
       if (node.status === Status.Started) {
-        return await getInfo(node);
+        await getInfo(node);
+        await getBalance(node);
       }
     },
     [node],
   );
 
-  const details: DetailValues = [
-    { label: l('nodeType'), value: node.type },
-    { label: l('implementation'), value: node.implementation },
-    { label: l('version'), value: `v${node.version}` },
-    {
-      label: l('status'),
-      value: (
-        <StatusBadge
-          status={node.status}
-          text={l(`enums.status.${Status[node.status]}`)}
-        />
-      ),
-    },
-  ];
-
+  let extra: ReactNode | undefined;
+  const { nodes } = useStoreState(s => s.clightning);
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
-    if (nodeState.info) {
-      const {
-        id,
-        alias,
-        warningBitcoindSync,
-        numPendingChannels,
-        numActiveChannels,
-        numInactiveChannels,
-      } = nodeState.info;
-      const pubkey = (
-        <>
-          {ellipseInner(id)}
-          <CopyIcon value={id} label="PubKey" />
-        </>
-      );
-      const channels = (
-        <Tooltip title={l('channelsTooltip')}>
-          {`${numActiveChannels} / ${numPendingChannels} / ${numInactiveChannels}`}
-        </Tooltip>
-      );
-      details.push(
-        { label: l('alias'), value: alias },
-        { label: l('pubkey'), value: pubkey },
-        { label: l('channels'), value: channels },
-      );
-      if (warningBitcoindSync) {
-        const synced = (
-          <Tooltip title={warningBitcoindSync}>{warningBitcoindSync}</Tooltip>
-        );
-        details.push({ label: l('syncedToChain'), value: synced });
-      }
+    if (nodeState.balance) {
+      const { confBalance } = nodeState.balance;
+      extra = <strong>{abbreviate(confBalance)} sats</strong>;
     }
   }
 
+  const tabHeaders = [
+    { key: 'info', tab: l('info') },
+    { key: 'connect', tab: l('connect') },
+    { key: 'actions', tab: l('actions') },
+  ];
+  const tabContents: Record<string, ReactNode> = {
+    info: <InfoTab node={node} />,
+    connect: <ConnectTab node={node} />,
+    actions: <ActionsTab node={node} />,
+  };
   return (
-    <SidebarCard title={node.name}>
-      {getInfoAsync.loading && <Loader />}
+    <SidebarCard
+      title={node.name}
+      extra={extra}
+      tabList={tabHeaders}
+      activeTabKey={activeTab}
+      onTabChange={setActiveTab}
+    >
       {node.status === Status.Starting && (
         <Alert
           type="info"
           showIcon
+          icon={<Icon type="loading" />}
           closable={false}
           message={l('waitingNotice')}
-          icon={<Icon type="loading" />}
         />
       )}
-      {node.status === Status.Error && node.errorMsg && (
-        <Alert
-          type="error"
-          message={l('startError')}
-          description={node.errorMsg}
-          closable={false}
-          showIcon
-        />
-      )}
-      {getInfoAsync.error && (
+      {node.status !== Status.Started && !nodeState && getInfoAsync.loading && <Loader />}
+      {getInfoAsync.error && node.status === Status.Started && (
         <Alert
           type="error"
           closable={false}
-          message={l('getInfoErr')}
+          message={l('connectError')}
           description={getInfoAsync.error.message}
         />
       )}
-      <DetailsList details={details} />
+      {tabContents[activeTab]}
     </SidebarCard>
   );
 };
