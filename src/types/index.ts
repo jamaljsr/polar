@@ -55,17 +55,17 @@ export interface BitcoindLibrary {
 }
 
 export interface LndLibrary {
-  waitUntilOnline: (node: LndNode) => Promise<void>;
-  getInfo: (node: LndNode) => Promise<LightningNodeInfo>;
-  getBalances: (node: LndNode) => Promise<LightningNodeBalances>;
-  getNewAddress: (node: LndNode) => Promise<LightningNodeAddress>;
-  getChannels: (node: LndNode) => Promise<LightningNodeChannel[]>;
+  waitUntilOnline: (node: LightningNode) => Promise<void>;
+  getInfo: (node: LightningNode) => Promise<LightningNodeInfo>;
+  getBalances: (node: LightningNode) => Promise<LightningNodeBalances>;
+  getNewAddress: (node: LightningNode) => Promise<LightningNodeAddress>;
+  getChannels: (node: LightningNode) => Promise<LightningNodeChannel[]>;
   openChannel: (
-    from: LndNode,
-    to: LndNode,
+    from: LightningNode,
+    to: LightningNode,
     amount: string,
   ) => Promise<LightningNodeChannelPoint>;
-  closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
+  closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
   pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
   onNodesDeleted: (nodes: LndNode[]) => Promise<void>;

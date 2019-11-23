@@ -55,6 +55,11 @@ class CLightningService implements LightningService {
     throw new Error(`openChannel is not implemented for ${from.implementation} nodes`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
+    throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
+  }
+
   /**
    * Helper function to continually query the node until a successful
    * response is received or it times out
