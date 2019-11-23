@@ -1,4 +1,12 @@
-import { defaultInfo, defaultWalletBalance } from 'shared';
+import {
+  defaultChannel,
+  defaultInfo,
+  defaultListChannels,
+  defaultPendingChannel,
+  defaultPendingChannels,
+  defaultPendingOpenChannel,
+  defaultWalletBalance,
+} from 'shared';
 import { groupNodes } from 'utils/network';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
 import lndProxyClient from './lndProxyClient';
@@ -33,16 +41,30 @@ describe('LndService', () => {
   });
 
   it('should get list channels', async () => {
-    const expected = { channels: [] };
-    lndProxyClient.listChannels = jest.fn().mockResolvedValue(expected);
-    const actual = await lndService.listChannels(node);
+    const mocked = defaultListChannels({
+      channels: [defaultChannel({ remotePubkey: 'xyz', initiator: true })],
+    });
+    const expected = [expect.objectContaining({ pubkey: 'xyz' })];
+    lndProxyClient.listChannels = jest.fn().mockResolvedValue(mocked);
+    lndProxyClient.pendingChannels = jest
+      .fn()
+      .mockResolvedValue(defaultPendingChannels({}));
+    const actual = await lndService.getChannels(node);
     expect(actual).toEqual(expected);
   });
 
   it('should get list pending channels', async () => {
-    const expected = { pendingOpenChannels: [] };
-    lndProxyClient.pendingChannels = jest.fn().mockResolvedValue(expected);
-    const actual = await lndService.pendingChannels(node);
+    const mocked = defaultPendingChannels({
+      pendingOpenChannels: [
+        defaultPendingOpenChannel({
+          channel: defaultPendingChannel({ remoteNodePub: 'xyz' }),
+        }),
+      ],
+    });
+    const expected = [expect.objectContaining({ pubkey: 'xyz' })];
+    lndProxyClient.listChannels = jest.fn().mockResolvedValue(defaultListChannels({}));
+    lndProxyClient.pendingChannels = jest.fn().mockResolvedValue(mocked);
+    const actual = await lndService.getChannels(node);
     expect(actual).toEqual(expected);
   });
 

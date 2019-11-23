@@ -1,12 +1,12 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-import { ipcChannels, withDefaults } from 'shared';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,
   injections,
+  lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
 } from 'utils/tests';
@@ -99,12 +99,7 @@ describe('Channel component', () => {
   describe('Close Channel', () => {
     beforeEach(() => {
       lndServiceMock.closeChannel.mockResolvedValue(true);
-      lndServiceMock.listChannels.mockResolvedValue(
-        withDefaults({}, ipcChannels.listChannels),
-      );
-      lndServiceMock.pendingChannels.mockResolvedValue(
-        withDefaults({}, ipcChannels.pendingChannels),
-      );
+      lightningServiceMock.getChannels.mockResolvedValue([]);
       bitcoindServiceMock.mine.mockResolvedValue(['txid']);
     });
 

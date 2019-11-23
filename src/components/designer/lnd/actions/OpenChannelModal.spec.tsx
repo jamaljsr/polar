@@ -1,10 +1,14 @@
 import React from 'react';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
-import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { Status } from 'shared/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import {
+  getNetwork,
+  injections,
+  lightningServiceMock,
+  renderWithProviders,
+} from 'utils/tests';
 import OpenChannelModal from './OpenChannelModal';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
@@ -115,8 +119,7 @@ describe('OpenChannelModal', () => {
 
   describe('with form submitted', () => {
     beforeEach(() => {
-      lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
-      lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
+      lightningServiceMock.getChannels.mockResolvedValue([]);
       lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
       lndServiceMock.getBalances.mockResolvedValue({
         confirmed: '100',

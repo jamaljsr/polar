@@ -107,14 +107,6 @@ class LndService implements LndLibrary {
     return await proxy.closeChannel(this.cast(node), req);
   }
 
-  async listChannels(node: LndNode): Promise<LND.ListChannelsResponse> {
-    return await proxy.listChannels(node, {});
-  }
-
-  async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
-    return await proxy.pendingChannels(node);
-  }
-
   async onNodesDeleted(nodes: LndNode[]): Promise<void> {
     return await proxy.onNodesDeleted(nodes);
   }

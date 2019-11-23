@@ -1,5 +1,4 @@
 import { createStore } from 'easy-peasy';
-import { ipcChannels, withDefaults } from 'shared';
 import { LndNode } from 'shared/types';
 import {
   LightningNodeBalances,
@@ -56,12 +55,6 @@ describe('LND Model', () => {
       total: '300',
     });
     lightningServiceMock.getChannels.mockResolvedValueOnce([]);
-    lndServiceMock.listChannels.mockResolvedValue(
-      withDefaults({}, ipcChannels.listChannels),
-    );
-    lndServiceMock.pendingChannels.mockResolvedValue(
-      withDefaults({}, ipcChannels.pendingChannels),
-    );
   });
 
   it('should have a valid initial state', () => {

@@ -1,5 +1,4 @@
 import { IChart } from '@mrblenny/react-flow-chart';
-import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { BitcoinNode, CommonNode, LightningNode, LndNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
@@ -66,8 +65,6 @@ export interface LndLibrary {
     amount: string,
   ) => Promise<LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
-  listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
-  pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
   onNodesDeleted: (nodes: LndNode[]) => Promise<void>;
 }
 
