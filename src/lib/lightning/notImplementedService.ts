@@ -3,6 +3,7 @@ import {
   LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeChannel,
+  LightningNodeChannelPoint,
   LightningNodeInfo,
   LightningService,
 } from './types';
@@ -27,6 +28,15 @@ class NotImplementedService implements LightningService {
   }
   getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
     throw new Error(`getChannels is not implemented for ${node.implementation} nodes`);
+  }
+  openChannel(
+    from: LightningNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    to: LightningNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    amount: string,
+  ): Promise<LightningNodeChannelPoint> {
+    throw new Error(`getChannels is not implemented for ${from.implementation} nodes`);
   }
 }
 

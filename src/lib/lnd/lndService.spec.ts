@@ -68,8 +68,9 @@ describe('LndService', () => {
       lndProxyClient.listPeers = jest.fn().mockResolvedValue({
         peers: [{ pubKey: 'asdf' }],
       });
-      const expected = { fundingTxidStr: 'xyz' };
-      lndProxyClient.openChannel = jest.fn().mockResolvedValue(expected);
+      const expected = { txid: 'xyz', index: 0 };
+      const mocked = { fundingTxidStr: 'xyz', outputIndex: 0 };
+      lndProxyClient.openChannel = jest.fn().mockResolvedValue(mocked);
       const actual = await lndService.openChannel(node, node2, '1000');
       expect(actual).toEqual(expected);
       expect(lndProxyClient.getInfo).toBeCalledTimes(1);
@@ -82,8 +83,9 @@ describe('LndService', () => {
       lndProxyClient.listPeers = jest.fn().mockResolvedValue({
         peers: [{ pubKey: 'fdsa' }],
       });
-      const expected = { fundingTxidStr: 'xyz' };
-      lndProxyClient.openChannel = jest.fn().mockResolvedValue(expected);
+      const expected = { txid: 'xyz', index: 0 };
+      const mocked = { fundingTxidStr: 'xyz', outputIndex: 0 };
+      lndProxyClient.openChannel = jest.fn().mockResolvedValue(mocked);
       const actual = await lndService.openChannel(node, node2, '1000');
       expect(actual).toEqual(expected);
       expect(lndProxyClient.getInfo).toBeCalledTimes(1);

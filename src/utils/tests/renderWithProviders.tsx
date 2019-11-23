@@ -13,6 +13,7 @@ export const lightningServiceMock: jest.Mocked<LightningService> = {
   getBalances: jest.fn(),
   getNewAddress: jest.fn(),
   getChannels: jest.fn(),
+  openChannel: jest.fn(),
   waitUntilOnline: jest.fn(),
 };
 // injections allow you to mock the dependencies of redux store actions

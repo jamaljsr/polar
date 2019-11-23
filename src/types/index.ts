@@ -7,6 +7,7 @@ import {
   LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeChannel,
+  LightningNodeChannelPoint,
   LightningNodeInfo,
   LightningService,
 } from 'lib/lightning/types';
@@ -59,7 +60,11 @@ export interface LndLibrary {
   getBalances: (node: LndNode) => Promise<LightningNodeBalances>;
   getNewAddress: (node: LndNode) => Promise<LightningNodeAddress>;
   getChannels: (node: LndNode) => Promise<LightningNodeChannel[]>;
-  openChannel: (from: LndNode, to: LndNode, amount: string) => Promise<LND.ChannelPoint>;
+  openChannel: (
+    from: LndNode,
+    to: LndNode,
+    amount: string,
+  ) => Promise<LightningNodeChannelPoint>;
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
   pendingChannels: (node: LndNode) => Promise<LND.PendingChannelsResponse>;
