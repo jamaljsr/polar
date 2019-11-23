@@ -8,6 +8,7 @@ import {
   injections,
   lightningServiceMock,
   renderWithProviders,
+  suppressConsoleErrors,
 } from 'utils/tests';
 import OpenChannelModal from './OpenChannelModal';
 
@@ -100,10 +101,12 @@ describe('OpenChannelModal', () => {
   });
 
   it('should display an error if form is not valid', async () => {
-    const { getAllByText, getByText, store } = await renderComponent();
-    await wait(() => store.getActions().modals.showOpenChannel({}));
-    await wait(() => fireEvent.click(getByText('Open Channel')));
-    expect(getAllByText('required')).toHaveLength(2);
+    await suppressConsoleErrors(async () => {
+      const { getAllByText, getByText, store } = await renderComponent();
+      await wait(() => store.getActions().modals.showOpenChannel({}));
+      await wait(() => fireEvent.click(getByText('Open Channel')));
+      expect(getAllByText('required')).toHaveLength(2);
+    });
   });
 
   it('should do nothing if an invalid node is selected', async () => {
