@@ -2,10 +2,14 @@ import { LightningNode } from 'shared/types';
 import {
   LightningNodeAddress,
   LightningNodeBalances,
+  LightningNodeChannel,
   LightningNodeInfo,
   LightningService,
 } from './types';
 
+/**
+ * A Lightning Service class whose functionas are not yet implemented
+ */
 class NotImplementedService implements LightningService {
   getInfo(node: LightningNode): Promise<LightningNodeInfo> {
     throw new Error(`getInfo is not implemented for ${node.implementation} nodes`);
@@ -20,6 +24,9 @@ class NotImplementedService implements LightningService {
   }
   getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
     throw new Error(`getNewAddress is not implemented for ${node.implementation} nodes`);
+  }
+  getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
+    throw new Error(`getChannels is not implemented for ${node.implementation} nodes`);
   }
 }
 

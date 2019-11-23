@@ -1,18 +1,20 @@
 import * as LND from '@radar/lnrpc';
-import { LndNode } from 'shared/types';
+import { LightningNode, LndNode } from 'shared/types';
 import {
   LightningNodeAddress,
   LightningNodeBalances,
+  LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
 import { LndLibrary } from 'types';
 import { waitFor } from 'utils/async';
 import { getContainerName } from 'utils/network';
 import { lndProxyClient as proxy } from './';
+import { mapOpenChannel, mapPendingChannel } from './mappers';
 
 class LndService implements LndLibrary {
   async getInfo(node: LndNode): Promise<LightningNodeInfo> {
-    const info = await proxy.getInfo(node);
+    const info = await proxy.getInfo(this.cast(node));
     return {
       pubkey: info.identityPubkey,
       alias: info.alias,
@@ -25,7 +27,7 @@ class LndService implements LndLibrary {
   }
 
   async getBalances(node: LndNode): Promise<LightningNodeBalances> {
-    const balances = await proxy.getWalletBalance(node);
+    const balances = await proxy.getWalletBalance(this.cast(node));
     return {
       total: balances.totalBalance,
       confirmed: balances.confirmedBalance,
@@ -33,8 +35,28 @@ class LndService implements LndLibrary {
     };
   }
 
-  async getNewAddress(node: LndNode): Promise<LightningNodeAddress> {
-    return await proxy.getNewAddress(node);
+  async getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
+    return await proxy.getNewAddress(this.cast(node));
+  }
+
+  async getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
+    const { channels: open } = await proxy.listChannels(this.cast(node), {});
+    const {
+      pendingOpenChannels: opening,
+      pendingClosingChannels: closing,
+      pendingForceClosingChannels: forceClosing,
+      waitingCloseChannels: waitingClose,
+    } = await proxy.pendingChannels(this.cast(node));
+
+    const pluckChan = (c: any) => c.channel as LND.PendingChannel;
+    // merge all of the channel types into one array
+    return [
+      ...open.filter(c => c.initiator).map(mapOpenChannel),
+      ...opening.map(pluckChan).map(mapPendingChannel('Opening')),
+      ...closing.map(pluckChan).map(mapPendingChannel('Closing')),
+      ...forceClosing.map(pluckChan).map(mapPendingChannel('Force Closing')),
+      ...waitingClose.map(pluckChan).map(mapPendingChannel('Waiting to Close')),
+    ];
   }
 
   async openChannel(
@@ -107,6 +129,13 @@ class LndService implements LndLibrary {
       interval,
       timeout,
     );
+  }
+
+  private cast(node: LightningNode): LndNode {
+    if (node.implementation !== 'LND')
+      throw new Error(`LndService cannot be used for '${node.implementation}' nodes`);
+
+    return node as LndNode;
   }
 }
 

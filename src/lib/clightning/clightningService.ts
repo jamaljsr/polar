@@ -2,6 +2,7 @@ import { CLightningNode, LightningNode } from 'shared/types';
 import {
   LightningNodeAddress,
   LightningNodeBalances,
+  LightningNodeChannel,
   LightningNodeInfo,
   LightningService,
 } from 'lib/lightning/types';
@@ -36,6 +37,10 @@ class CLightningService implements LightningService {
   async getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
     const address = await this.request<string>(node, 'getNewAddress');
     return { address };
+  }
+
+  async getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
+    throw new Error(`getChannels is not implemented for ${node.implementation} nodes`);
   }
 
   /**
