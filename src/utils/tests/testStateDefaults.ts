@@ -1,4 +1,8 @@
-import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
+import {
+  LightningNodeBalances,
+  LightningNodeChannel,
+  LightningNodeInfo,
+} from 'lib/lightning/types';
 
 export const defaultStateInfo = (
   value: Partial<LightningNodeInfo>,
@@ -19,5 +23,19 @@ export const defaultStateBalances = (
   confirmed: '0',
   total: '0',
   unconfirmed: '0',
+  ...value,
+});
+
+export const defaultStateChannel = (
+  value: Partial<LightningNodeChannel>,
+): LightningNodeChannel => ({
+  pending: false,
+  uniqueId: '',
+  channelPoint: '',
+  pubkey: '',
+  capacity: '',
+  localBalance: '',
+  remoteBalance: '',
+  status: 'Open',
   ...value,
 });

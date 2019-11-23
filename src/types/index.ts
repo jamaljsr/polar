@@ -6,6 +6,7 @@ import { IpcSender } from 'lib/ipc/ipcService';
 import {
   LightningNodeAddress,
   LightningNodeBalances,
+  LightningNodeChannel,
   LightningNodeInfo,
   LightningService,
 } from 'lib/lightning/types';
@@ -57,6 +58,7 @@ export interface LndLibrary {
   getInfo: (node: LndNode) => Promise<LightningNodeInfo>;
   getBalances: (node: LndNode) => Promise<LightningNodeBalances>;
   getNewAddress: (node: LndNode) => Promise<LightningNodeAddress>;
+  getChannels: (node: LndNode) => Promise<LightningNodeChannel[]>;
   openChannel: (from: LndNode, to: LndNode, amount: string) => Promise<LND.ChannelPoint>;
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;

@@ -1,10 +1,19 @@
 import { createStore } from 'easy-peasy';
 import { ipcChannels, withDefaults } from 'shared';
 import { LndNode } from 'shared/types';
-import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
+import {
+  LightningNodeBalances,
+  LightningNodeChannel,
+  LightningNodeInfo,
+} from 'lib/lightning/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
-import { defaultStateInfo, getNetwork, injections } from 'utils/tests';
+import {
+  defaultStateInfo,
+  getNetwork,
+  injections,
+  lightningServiceMock,
+} from 'utils/tests';
 import lndModel from './lnd';
 import networkModel from './network';
 
@@ -46,6 +55,7 @@ describe('LND Model', () => {
       unconfirmed: '200',
       total: '300',
     });
+    lightningServiceMock.getChannels.mockResolvedValueOnce([]);
     lndServiceMock.listChannels.mockResolvedValue(
       withDefaults({}, ipcChannels.listChannels),
     );
@@ -85,14 +95,8 @@ describe('LND Model', () => {
     await getChannels(node);
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.channels).toBeDefined();
-    const channels = nodeState.channels;
-    if (channels) {
-      expect(channels.open).toEqual([]);
-      expect(channels.opening).toEqual([]);
-      expect(channels.closing).toEqual([]);
-      expect(channels.forceClosing).toEqual([]);
-      expect(channels.waitingClose).toEqual([]);
-    }
+    const channels = nodeState.channels as LightningNodeChannel[];
+    expect(channels).toEqual([]);
   });
 
   it('should be able to deposit funds using the backend bitcoin node', async () => {

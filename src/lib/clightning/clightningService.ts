@@ -1,3 +1,4 @@
+import { debug } from 'electron-log';
 import { CLightningNode, LightningNode } from 'shared/types';
 import {
   LightningNodeAddress,
@@ -62,8 +63,10 @@ class CLightningService implements LightningService {
   }
 
   private async request<T>(node: LightningNode, path: string) {
+    debug(`c-lightning API Request`);
     const { paths, ports } = this.cast(node);
     const url = `http://127.0.0.1:${ports.rest}/v1/${path}`;
+    debug(` - url: ${url}`);
     const macaroon = await read(paths.macaroon, 'base64');
     const response = await fetch(url, {
       headers: {
@@ -71,7 +74,9 @@ class CLightningService implements LightningService {
         macaroon,
       },
     });
-    return snakeKeysToCamel(await response.json()) as T;
+    const json = await response.json();
+    debug(` - resp: ${JSON.stringify(json)}`);
+    return snakeKeysToCamel(json) as T;
   }
 
   private cast(node: LightningNode): CLightningNode {

@@ -1,5 +1,4 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
-import { Channel, PendingChannel } from '@radar/lnrpc';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LndNodeMapping } from 'store/models/lnd';
@@ -116,30 +115,6 @@ const updateNodeSize = (node: INode) => {
   };
 };
 
-const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
-  pending: false,
-  uniqueId: chan.channelPoint.slice(-12),
-  channelPoint: chan.channelPoint,
-  pubkey: chan.remotePubkey,
-  capacity: chan.capacity,
-  localBalance: chan.localBalance,
-  remoteBalance: chan.remoteBalance,
-  status: 'Open',
-});
-
-const mapPendingChannel = (status: string) => (
-  chan: PendingChannel,
-): LightningNodeChannel => ({
-  pending: true,
-  uniqueId: chan.channelPoint.slice(-12),
-  channelPoint: chan.channelPoint,
-  pubkey: chan.remoteNodePub,
-  capacity: chan.capacity,
-  localBalance: chan.localBalance,
-  remoteBalance: chan.remoteBalance,
-  status,
-});
-
 const updateLinksAndPorts = (
   chan: LightningNodeChannel,
   pubkeys: Record<string, string>,
@@ -204,19 +179,7 @@ export const updateChartFromLnd = (chart: IChart, lndData: LndNodeMapping): ICha
     const fromNode = nodes[fromName];
 
     if (data.channels) {
-      const { open, opening, closing, forceClosing, waitingClose } = data.channels;
-
-      // merge all of the channel types into one array
-      const pluckChan = (c: any) => c.channel as PendingChannel;
-      const allChannels = [
-        ...open.filter(c => c.initiator).map(mapOpenChannel),
-        ...opening.map(pluckChan).map(mapPendingChannel('Opening')),
-        ...closing.map(pluckChan).map(mapPendingChannel('Closing')),
-        ...forceClosing.map(pluckChan).map(mapPendingChannel('Force Closing')),
-        ...waitingClose.map(pluckChan).map(mapPendingChannel('Waiting to Close')),
-      ];
-
-      allChannels
+      data.channels
         // ignore channels to nodes that no longer exist in the network
         .filter(c => !!pubkeys[c.pubkey])
         .forEach(channel => {
