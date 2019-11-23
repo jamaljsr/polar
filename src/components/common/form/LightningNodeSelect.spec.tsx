@@ -2,8 +2,7 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { Form } from 'antd';
 import { LndNodeModel } from 'store/models/lnd';
-import { getNetwork } from 'utils/tests';
-import { defaultStateBalances } from 'utils/tests/nodeStateDefaults';
+import { defaultStateBalances, getNetwork } from 'utils/tests';
 import LightningNodeSelect, { Props } from './LightningNodeSelect';
 
 describe('LightningNodeSelect', () => {
