@@ -4,6 +4,7 @@ import {
   LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeChannel,
+  LightningNodeChannelPoint,
   LightningNodeInfo,
   LightningService,
 } from 'lib/lightning/types';
@@ -42,6 +43,16 @@ class CLightningService implements LightningService {
 
   async getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
     throw new Error(`getChannels is not implemented for ${node.implementation} nodes`);
+  }
+
+  async openChannel(
+    from: LightningNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    to: LightningNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    amount: string,
+  ): Promise<LightningNodeChannelPoint> {
+    throw new Error(`openChannel is not implemented for ${from.implementation} nodes`);
   }
 
   /**

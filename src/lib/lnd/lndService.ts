@@ -4,6 +4,7 @@ import {
   LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeChannel,
+  LightningNodeChannelPoint,
   LightningNodeInfo,
 } from 'lib/lightning/types';
 import { LndLibrary } from 'types';
@@ -13,7 +14,7 @@ import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
 class LndService implements LndLibrary {
-  async getInfo(node: LndNode): Promise<LightningNodeInfo> {
+  async getInfo(node: LightningNode): Promise<LightningNodeInfo> {
     const info = await proxy.getInfo(this.cast(node));
     return {
       pubkey: info.identityPubkey,
@@ -26,7 +27,7 @@ class LndService implements LndLibrary {
     };
   }
 
-  async getBalances(node: LndNode): Promise<LightningNodeBalances> {
+  async getBalances(node: LightningNode): Promise<LightningNodeBalances> {
     const balances = await proxy.getWalletBalance(this.cast(node));
     return {
       total: balances.totalBalance,
@@ -60,15 +61,16 @@ class LndService implements LndLibrary {
   }
 
   async openChannel(
-    from: LndNode,
-    to: LndNode,
+    from: LightningNode,
+    to: LightningNode,
     amount: string,
-  ): Promise<LND.ChannelPoint> {
+  ): Promise<LightningNodeChannelPoint> {
     // get pubkey of dest node
-    const { identityPubkey: toPubKey } = await proxy.getInfo(to);
+    const { pubkey: toPubKey } = await this.getInfo(to);
+    const lndFrom = this.cast(from);
 
     // get peers of source node
-    const { peers } = await proxy.listPeers(from);
+    const { peers } = await proxy.listPeers(lndFrom);
     // check if already connected
     const peer = peers.find(p => p.pubKey === toPubKey);
 
@@ -78,7 +80,7 @@ class LndService implements LndLibrary {
         pubkey: toPubKey,
         host: getContainerName(to),
       };
-      await proxy.connectPeer(from, { addr });
+      await proxy.connectPeer(lndFrom, { addr });
     }
 
     // open channel
@@ -86,7 +88,11 @@ class LndService implements LndLibrary {
       nodePubkeyString: toPubKey,
       localFundingAmount: amount,
     };
-    return await proxy.openChannel(from, req);
+    const res = await proxy.openChannel(lndFrom, req);
+    return {
+      txid: res.fundingTxidStr as string,
+      index: res.outputIndex,
+    };
   }
 
   async closeChannel(node: LndNode, channelPoint: string): Promise<any> {
