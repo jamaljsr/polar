@@ -47,7 +47,7 @@ export interface LightningService {
     to: LightningNode,
     amount: string,
   ) => Promise<LightningNodeChannelPoint>;
-  // closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
+  closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
   // listChannels: (node: LightningNode) => Promise<LND.ListChannelsResponse>;
   // pendingChannels: (node: LightningNode) => Promise<LND.PendingChannelsResponse>;
   // onNodesDeleted: (nodes: LightningNode[]) => Promise<void>;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { LightningNode } from 'shared/types';
 import {
   LightningNodeAddress,
@@ -31,12 +32,13 @@ class NotImplementedService implements LightningService {
   }
   openChannel(
     from: LightningNode,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     to: LightningNode,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     amount: string,
   ): Promise<LightningNodeChannelPoint> {
     throw new Error(`getChannels is not implemented for ${from.implementation} nodes`);
+  }
+  closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
+    throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
   }
 }
 

@@ -95,7 +95,7 @@ class LndService implements LndLibrary {
     };
   }
 
-  async closeChannel(node: LndNode, channelPoint: string): Promise<any> {
+  async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     const [txid, txindex] = channelPoint.split(':');
     const req: LND.CloseChannelRequest = {
       channelPoint: {
@@ -104,7 +104,7 @@ class LndService implements LndLibrary {
         outputIndex: parseInt(txindex),
       },
     };
-    return await proxy.closeChannel(node, req);
+    return await proxy.closeChannel(this.cast(node), req);
   }
 
   async listChannels(node: LndNode): Promise<LND.ListChannelsResponse> {
@@ -124,7 +124,7 @@ class LndService implements LndLibrary {
    * response is received or it times out
    */
   async waitUntilOnline(
-    node: LndNode,
+    node: LightningNode,
     interval = 3 * 1000, // check every 3 seconds
     timeout = 30 * 1000, // timeout after 30 seconds
   ): Promise<void> {
