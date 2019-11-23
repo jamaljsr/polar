@@ -1,7 +1,7 @@
 export default {
   // general app chnnels
   openWindow: 'open-Window',
-  onNodesDeleted: 'clear-cached-nodes',
+  clearCache: 'clear-cache',
   // LND proxy channels
   getInfo: 'get-info',
   walletBalance: 'wallet-balance',

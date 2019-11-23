@@ -27,6 +27,7 @@ export interface AppModel {
   navigateTo: Thunk<AppModel, string>;
   openInBrowser: Action<AppModel, string>;
   openWindow: Thunk<AppModel, string, StoreInjections, RootModel>;
+  clearAppCache: Thunk<AppModel, void, StoreInjections, RootModel>;
 }
 
 const appModel: AppModel = {
@@ -84,6 +85,9 @@ const appModel: AppModel = {
   }),
   openWindow: thunk(async (actions, url, { injections }) => {
     await injections.ipc(ipcChannels.openWindow, { url });
+  }),
+  clearAppCache: thunk(async (actions, payload, { injections }) => {
+    await injections.ipc(ipcChannels.clearCache);
   }),
 };
 

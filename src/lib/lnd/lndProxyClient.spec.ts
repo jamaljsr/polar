@@ -76,10 +76,4 @@ describe('LndService', () => {
     lndProxyClient.pendingChannels(node);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.pendingChannels, { node });
   });
-
-  it('should call the onNodesDeleted ipc', async () => {
-    const nodes = [node];
-    lndProxyClient.onNodesDeleted(nodes);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.onNodesDeleted, { nodes });
-  });
 });

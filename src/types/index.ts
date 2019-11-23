@@ -1,6 +1,6 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import { BitcoinNode, CommonNode, LightningNode, LndNode, Status } from 'shared/types';
+import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import {
   LightningNodeAddress,
@@ -65,7 +65,6 @@ export interface LndLibrary {
     amount: string,
   ) => Promise<LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
-  onNodesDeleted: (nodes: LndNode[]) => Promise<void>;
 }
 
 export interface LightningFactoryInjection {
