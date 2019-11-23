@@ -1,5 +1,10 @@
 import { LightningNode } from 'shared/types';
-import { LightningNodeBalances, LightningNodeInfo, LightningService } from './types';
+import {
+  LightningNodeAddress,
+  LightningNodeBalances,
+  LightningNodeInfo,
+  LightningService,
+} from './types';
 
 class NotImplementedService implements LightningService {
   getInfo(node: LightningNode): Promise<LightningNodeInfo> {
@@ -12,6 +17,9 @@ class NotImplementedService implements LightningService {
     throw new Error(
       `waitUntilOnline is not implemented for ${node.implementation} nodes`,
     );
+  }
+  getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
+    throw new Error(`getNewAddress is not implemented for ${node.implementation} nodes`);
   }
 }
 

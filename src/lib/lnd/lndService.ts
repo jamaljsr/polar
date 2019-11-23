@@ -1,6 +1,10 @@
 import * as LND from '@radar/lnrpc';
 import { LndNode } from 'shared/types';
-import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
+import {
+  LightningNodeAddress,
+  LightningNodeBalances,
+  LightningNodeInfo,
+} from 'lib/lightning/types';
 import { LndLibrary } from 'types';
 import { waitFor } from 'utils/async';
 import { getContainerName } from 'utils/network';
@@ -29,7 +33,7 @@ class LndService implements LndLibrary {
     };
   }
 
-  async getNewAddress(node: LndNode): Promise<LND.NewAddressResponse> {
+  async getNewAddress(node: LndNode): Promise<LightningNodeAddress> {
     return await proxy.getNewAddress(node);
   }
 
