@@ -153,10 +153,7 @@ const networkModel: NetworkModel = {
       await actions.save();
       if (node.implementation === 'LND') {
         rm(join(network.path, 'volumes', 'lnd', node.name));
-        await injections.lndService.onNodesDeleted([
-          node as LndNode,
-          ...groupNodes(network).lnd,
-        ]);
+        getStoreActions().app.clearAppCache();
       }
       if (network.status === Status.Started) {
         getStoreActions().designer.syncChart(network);
@@ -280,7 +277,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(networks);
     await actions.save();
   }),
-  remove: thunk(async (actions, networkId, { getState, getStoreActions, injections }) => {
+  remove: thunk(async (actions, networkId, { getState, getStoreActions }) => {
     const { networks } = getState();
     const network = networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
@@ -292,7 +289,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     await actions.save();
-    await injections.lndService.onNodesDeleted(groupNodes(network).lnd);
+    await getStoreActions().app.clearAppCache();
   }),
 };
 

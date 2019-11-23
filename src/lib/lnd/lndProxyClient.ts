@@ -51,10 +51,6 @@ class LndProxyClient {
   async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
     return await this.ipc(ipcChannels.pendingChannels, { node });
   }
-
-  async onNodesDeleted(nodes: LndNode[]): Promise<void> {
-    return await this.ipc(ipcChannels.onNodesDeleted, { nodes });
-  }
 }
 
 export default new LndProxyClient();

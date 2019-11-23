@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
 import { Status } from 'shared/types';
-import { DockerLibrary, LndLibrary } from 'types';
+import { DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { groupNodes } from 'utils/network';
 import {
@@ -13,7 +13,6 @@ import {
 } from 'utils/tests';
 import RemoveNode from './RemoveNode';
 
-const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
 const dockerServiceMock = injections.dockerService as jest.Mocked<DockerLibrary>;
 
 describe('RemoveNode', () => {
@@ -69,7 +68,6 @@ describe('RemoveNode', () => {
     expect(
       getByText('The node alice have been removed from the network'),
     ).toBeInTheDocument();
-    expect(lndServiceMock.onNodesDeleted).toBeCalledTimes(1);
     expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
   });
 
@@ -84,7 +82,6 @@ describe('RemoveNode', () => {
     expect(
       getByText('The node alice have been removed from the network'),
     ).toBeInTheDocument();
-    expect(lndServiceMock.onNodesDeleted).toBeCalledTimes(1);
     expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
   });
 

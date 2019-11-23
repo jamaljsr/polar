@@ -75,13 +75,6 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should call onNodesDeleted', async () => {
-    const network = getNetwork();
-    await lndService.onNodesDeleted(groupNodes(network).lnd);
-    const [n1, n2] = network.nodes.lightning;
-    expect(lndProxyClient.onNodesDeleted).toBeCalledWith([n1, n2]);
-  });
-
   describe('openChannel', () => {
     it('should open the channel successfully', async () => {
       lndProxyClient.getInfo = jest

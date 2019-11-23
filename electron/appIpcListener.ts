@@ -4,6 +4,7 @@ import windowState from 'electron-window-state';
 import { join } from 'path';
 import { ipcChannels } from '../src/shared';
 import { APP_ROOT, BASE_URL } from './constants';
+import { clearProxyCache } from './lnd/lndProxyServer';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
   console.warn('opwnWindow', args);
@@ -38,6 +39,16 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
 
   return true;
 };
+
+/**
+ * Clears the LND proxy cache of LND nodes. This must return a promise to be
+ * consistent with all the other listeners
+ */
+const clearCache = (): Promise<{ success: boolean }> => {
+  clearProxyCache();
+  return Promise.resolve({ success: true });
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
@@ -46,6 +57,7 @@ const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
   [ipcChannels.openWindow]: openWindow,
+  [ipcChannels.clearCache]: clearCache,
 };
 
 /**

@@ -38,7 +38,6 @@ export const injections: StoreInjections = {
     mine: jest.fn(),
   },
   lndService: {
-    onNodesDeleted: jest.fn(),
     waitUntilOnline: jest.fn(),
     getInfo: jest.fn(),
     getBalances: jest.fn(),
