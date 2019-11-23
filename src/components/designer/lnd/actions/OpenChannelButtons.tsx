@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Button, Form, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode } from 'shared/types';
+import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
 
 const Styled = {
@@ -12,7 +12,7 @@ const Styled = {
 };
 
 interface Props {
-  node: LndNode;
+  node: LightningNode;
 }
 
 const OpenChannelButtons: React.FC<Props> = ({ node }) => {

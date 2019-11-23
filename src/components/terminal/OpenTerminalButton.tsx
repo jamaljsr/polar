@@ -2,13 +2,13 @@ import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoinNode, LndNode } from 'shared/types';
+import { BitcoinNode, LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
 import { getContainerName } from 'utils/network';
 import { TERMINAL } from 'components/routing';
 
 interface Props {
-  node: LndNode | BitcoinNode;
+  node: LightningNode | BitcoinNode;
 }
 
 const OpenTerminalButton: React.FC<Props> = ({ node }) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
@@ -10,7 +10,7 @@ import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 interface Props {
-  node: LndNode;
+  node: LightningNode;
 }
 
 const InfoTab: React.FC<Props> = ({ node }) => {
