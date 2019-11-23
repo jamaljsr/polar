@@ -1,7 +1,10 @@
-import * as LND from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LndNode } from 'shared/types';
-import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
+import {
+  LightningNodeBalances,
+  LightningNodeChannel,
+  LightningNodeInfo,
+} from 'lib/lightning/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
@@ -15,13 +18,7 @@ export interface LndNodeMapping {
 export interface LndNodeModel {
   info?: LightningNodeInfo;
   walletBalance?: LightningNodeBalances;
-  channels?: {
-    open: LND.Channel[];
-    opening: LND.PendingOpenChannel[];
-    closing: LND.ClosedChannel[];
-    forceClosing: LND.ForceClosedChannel[];
-    waitingClose: LND.WaitingCloseChannel[];
-  };
+  channels?: LightningNodeChannel[];
 }
 
 export interface DepositFundsPayload {
@@ -86,15 +83,8 @@ const lndModel: LndModel = {
     state.nodes[node.name].channels = channels;
   }),
   getChannels: thunk(async (actions, node, { injections }) => {
-    const open = await injections.lndService.listChannels(node);
-    const pending = await injections.lndService.pendingChannels(node);
-    const channels = {
-      open: open.channels,
-      opening: pending.pendingOpenChannels,
-      closing: pending.pendingClosingChannels,
-      forceClosing: pending.pendingForceClosingChannels,
-      waitingClose: pending.waitingCloseChannels,
-    };
+    const api = injections.lightningFactory.getService(node);
+    const channels = await api.getChannels(node);
     actions.setChannels({ node, channels });
   }),
   getAllInfo: thunk(async (actions, node) => {

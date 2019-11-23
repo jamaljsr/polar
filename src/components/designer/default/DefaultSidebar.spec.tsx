@@ -1,7 +1,6 @@
 import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
-import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -9,6 +8,7 @@ import {
   defaultStateInfo,
   getNetwork,
   injections,
+  lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
 import DefaultSidebar from './DefaultSidebar';
@@ -70,8 +70,7 @@ describe('DefaultSidebar Component', () => {
     it('should sync the chart from LND nodes', async () => {
       lndServiceMock.getInfo.mockResolvedValue(defaultStateInfo({}));
       lndServiceMock.getBalances.mockResolvedValue(defaultStateBalances({}));
-      lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
-      lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
+      lightningServiceMock.getChannels.mockResolvedValue([]);
       const { getByLabelText, findByText } = renderComponent(Status.Started);
       fireEvent.click(getByLabelText('icon: reload'));
       expect(
@@ -79,8 +78,7 @@ describe('DefaultSidebar Component', () => {
       ).toBeInTheDocument();
       expect(lndServiceMock.getInfo).toBeCalledTimes(2);
       expect(lndServiceMock.getBalances).toBeCalledTimes(2);
-      expect(lndServiceMock.listChannels).toBeCalledTimes(2);
-      expect(lndServiceMock.pendingChannels).toBeCalledTimes(2);
+      expect(lightningServiceMock.getChannels).toBeCalledTimes(2);
     });
   });
 });

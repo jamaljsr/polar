@@ -1,8 +1,7 @@
 import { IChart, IConfig } from '@mrblenny/react-flow-chart';
-import { defaultChannel, defaultPendingChannel, defaultPendingOpenChannel } from 'shared';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
-import { defaultStateInfo, getNetwork } from 'utils/tests';
+import { defaultStateChannel, defaultStateInfo, getNetwork } from 'utils/tests';
 import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
 
 describe('Chart Util', () => {
@@ -13,30 +12,18 @@ describe('Chart Util', () => {
   const addChannel = (node: string, remotePubkey: string, pending?: boolean) => {
     const { channels } = lndData[node];
     if (channels) {
-      if (!pending) {
-        channels.open.push(
-          defaultChannel({
-            remotePubkey,
-            channelPoint: 'xxxxxxxxxxxxxxxx:0',
-            capacity: '1000',
-            localBalance: '400',
-            remoteBalance: '600',
-            initiator: true,
-          }),
-        );
-      } else {
-        channels.opening.push(
-          defaultPendingOpenChannel({
-            channel: defaultPendingChannel({
-              remoteNodePub: remotePubkey,
-              channelPoint: 'xxxxxxxxxxxxxxxx:0',
-              capacity: '1000',
-              localBalance: '400',
-              remoteBalance: '600',
-            }),
-          }),
-        );
-      }
+      channels.push(
+        defaultStateChannel({
+          pubkey: remotePubkey,
+          uniqueId: 'xxxxxxxxxx:0',
+          channelPoint: 'xxxxxxxxxxxxxxxx:0',
+          capacity: '1000',
+          localBalance: '400',
+          remoteBalance: '600',
+          status: pending ? 'Opening' : 'Open',
+          pending,
+        }),
+      );
     }
   };
 
@@ -46,23 +33,11 @@ describe('Chart Util', () => {
     lndData = {
       [network.nodes.lightning[0].name]: {
         info: defaultStateInfo({ pubkey: 'lnd1pubkey' }),
-        channels: {
-          open: [],
-          opening: [],
-          closing: [],
-          forceClosing: [],
-          waitingClose: [],
-        },
+        channels: [],
       },
       [network.nodes.lightning[1].name]: {
         info: defaultStateInfo({ pubkey: 'lnd2pubkey' }),
-        channels: {
-          open: [],
-          opening: [],
-          closing: [],
-          forceClosing: [],
-          waitingClose: [],
-        },
+        channels: [],
       },
     };
   });
@@ -114,8 +89,8 @@ describe('Chart Util', () => {
       const result = updateChartFromLnd(chart, lndData);
       expect(result.links['xxxxxxxxxx:0']).toBeTruthy();
       // remove the channel
-      const { channels } = lndData['alice'];
-      if (channels) channels.open = [];
+      const node = lndData['alice'];
+      if (node.channels) node.channels = [];
       const result2 = updateChartFromLnd(result, lndData);
       expect(result2.links['xxxxxxxxxx:0']).toBeUndefined();
     });

@@ -12,7 +12,7 @@ export const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
   status: 'Open',
 });
 
-export const mapPendingChannel = (status: string) => (
+export const mapPendingChannel = (status: LightningNodeChannel['status']) => (
   chan: PendingChannel,
 ): LightningNodeChannel => ({
   pending: true,

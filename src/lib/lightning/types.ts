@@ -28,7 +28,7 @@ export interface LightningNodeChannel {
   capacity: string;
   localBalance: string;
   remoteBalance: string;
-  status: string;
+  status: 'Open' | 'Opening' | 'Closing' | 'Force Closing' | 'Waiting to Close';
 }
 
 export interface LightningService {

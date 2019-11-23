@@ -4,9 +4,17 @@ import { render } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
+import { LightningService } from 'lib/lightning/types';
 import { createReduxStore } from 'store';
 import { StoreInjections } from 'types';
 
+export const lightningServiceMock: jest.Mocked<LightningService> = {
+  getInfo: jest.fn(),
+  getBalances: jest.fn(),
+  getNewAddress: jest.fn(),
+  getChannels: jest.fn(),
+  waitUntilOnline: jest.fn(),
+};
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
   ipc: jest.fn(),
@@ -33,13 +41,14 @@ export const injections: StoreInjections = {
     getInfo: jest.fn(),
     getBalances: jest.fn(),
     getNewAddress: jest.fn(),
+    getChannels: jest.fn(),
     openChannel: jest.fn(),
     closeChannel: jest.fn(),
     listChannels: jest.fn(),
     pendingChannels: jest.fn(),
   },
   lightningFactory: {
-    getService: jest.fn(),
+    getService: () => lightningServiceMock,
   },
 };
 
