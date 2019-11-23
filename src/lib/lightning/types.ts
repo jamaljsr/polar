@@ -36,6 +36,7 @@ export interface LightningService {
   getInfo: (node: LightningNode) => Promise<LightningNodeInfo>;
   getBalances: (node: LightningNode) => Promise<LightningNodeBalances>;
   getNewAddress: (node: LightningNode) => Promise<LightningNodeAddress>;
+  getChannels: (node: LightningNode) => Promise<LightningNodeChannel[]>;
   // openChannel: (from: LightningNode, to: LightningNode, amount: string) => Promise<LND.ChannelPoint>;
   // closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
   // listChannels: (node: LightningNode) => Promise<LND.ListChannelsResponse>;
