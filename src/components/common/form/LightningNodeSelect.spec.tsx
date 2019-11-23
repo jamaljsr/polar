@@ -1,9 +1,9 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { Form } from 'antd';
-import { ipcChannels, withDefaults } from 'shared';
 import { LndNodeModel } from 'store/models/lnd';
 import { getNetwork } from 'utils/tests';
+import { defaultStateBalances } from 'utils/tests/nodeStateDefaults';
 import LightningNodeSelect, { Props } from './LightningNodeSelect';
 
 describe('LightningNodeSelect', () => {
@@ -41,10 +41,7 @@ describe('LightningNodeSelect', () => {
   it('should display the initial nodes balance', () => {
     const nodes = {
       alice: {
-        walletBalance: withDefaults(
-          { confirmedBalance: '100' },
-          ipcChannels.walletBalance,
-        ),
+        walletBalance: defaultStateBalances({ confirmed: '100' }),
       },
     };
     const { getByText } = renderComponent(nodes, 'alice');
@@ -54,16 +51,10 @@ describe('LightningNodeSelect', () => {
   it('should display the selected nodes balance', async () => {
     const nodes = {
       alice: {
-        walletBalance: withDefaults(
-          { confirmedBalance: '100' },
-          ipcChannels.walletBalance,
-        ),
+        walletBalance: defaultStateBalances({ confirmed: '100' }),
       },
       bob: {
-        walletBalance: withDefaults(
-          { confirmedBalance: '200' },
-          ipcChannels.walletBalance,
-        ),
+        walletBalance: defaultStateBalances({ confirmed: '200' }),
       },
     };
     const { getByText, queryByText, getByLabelText } = renderComponent(nodes, 'alice');

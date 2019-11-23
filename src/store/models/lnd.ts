@@ -1,7 +1,7 @@
 import * as LND from '@radar/lnrpc';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { LndNode } from 'shared/types';
-import { LightningNodeInfo } from 'lib/lightning/types';
+import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
@@ -14,7 +14,7 @@ export interface LndNodeMapping {
 
 export interface LndNodeModel {
   info?: LightningNodeInfo;
-  walletBalance?: LND.WalletBalanceResponse;
+  walletBalance?: LightningNodeBalances;
   channels?: {
     open: LND.Channel[];
     opening: LND.PendingOpenChannel[];
@@ -41,10 +41,7 @@ export interface LndModel {
   removeNode: Action<LndModel, string>;
   setInfo: Action<LndModel, { node: LndNode; info: LightningNodeInfo }>;
   getInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
-  setWalletBalance: Action<
-    LndModel,
-    { node: LndNode; balance: LND.WalletBalanceResponse }
-  >;
+  setWalletBalance: Action<LndModel, { node: LndNode; balance: LightningNodeBalances }>;
   getWalletBalance: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
   setChannels: Action<LndModel, { node: LndNode; channels: LndNodeModel['channels'] }>;
   getChannels: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
@@ -81,7 +78,7 @@ const lndModel: LndModel = {
     state.nodes[node.name].walletBalance = balance;
   }),
   getWalletBalance: thunk(async (actions, node, { injections }) => {
-    const balance = await injections.lndService.getWalletBalance(node);
+    const balance = await injections.lndService.getBalances(node);
     actions.setWalletBalance({ node, balance });
   }),
   setChannels: action((state, { node, channels }) => {

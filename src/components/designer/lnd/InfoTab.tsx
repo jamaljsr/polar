@@ -34,14 +34,14 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
-      const { confirmedBalance, unconfirmedBalance } = nodeState.walletBalance;
+      const { confirmed, unconfirmed } = nodeState.walletBalance;
       details.push({
         label: l('confirmedBalance'),
-        value: `${format(confirmedBalance)} sats`,
+        value: `${format(confirmed)} sats`,
       });
       details.push({
         label: l('unconfirmedBalance'),
-        value: `${format(unconfirmedBalance)} sats`,
+        value: `${format(unconfirmed)} sats`,
       });
     }
     if (nodeState.info) {

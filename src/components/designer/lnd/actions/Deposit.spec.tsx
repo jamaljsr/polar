@@ -1,10 +1,9 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-
 import { BitcoindLibrary, LndLibrary } from 'types';
 import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
-import { defaultInfo } from 'utils/tests/nodeStateDefaults';
+import { defaultStateInfo } from 'utils/tests/nodeStateDefaults';
 import { Deposit } from './';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
@@ -32,16 +31,16 @@ describe('Deposit', () => {
     bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
     lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
     lndServiceMock.getInfo.mockResolvedValue(
-      defaultInfo({
+      defaultStateInfo({
         alias: 'my-node',
         pubkey: 'abcdef',
         syncedToChain: true,
       }),
     );
-    lndServiceMock.getWalletBalance.mockResolvedValue({
-      confirmedBalance: '100',
-      unconfirmedBalance: '200',
-      totalBalance: '300',
+    lndServiceMock.getBalances.mockResolvedValue({
+      confirmed: '100',
+      unconfirmed: '200',
+      total: '300',
     });
   });
 

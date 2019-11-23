@@ -7,7 +7,7 @@ import { LndLibrary } from 'types';
 import * as files from 'utils/files';
 import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
-import { defaultInfo } from 'utils/tests/nodeStateDefaults';
+import { defaultStateBalances, defaultStateInfo } from 'utils/tests/nodeStateDefaults';
 import LndDetails from './LndDetails';
 
 jest.mock('utils/files');
@@ -105,17 +105,19 @@ describe('LndDetails', () => {
 
     beforeEach(() => {
       lndServiceMock.getInfo.mockResolvedValue(
-        defaultInfo({
+        defaultStateInfo({
           alias: 'my-node',
           pubkey: 'abcdef',
           syncedToChain: true,
         }),
       );
-      lndServiceMock.getWalletBalance.mockResolvedValue({
-        confirmedBalance: '10',
-        unconfirmedBalance: '20',
-        totalBalance: '30',
-      });
+      lndServiceMock.getBalances.mockResolvedValue(
+        defaultStateBalances({
+          confirmed: '10',
+          unconfirmed: '20',
+          total: '30',
+        }),
+      );
       lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
       lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
     });
@@ -174,7 +176,7 @@ describe('LndDetails', () => {
     });
 
     it('should not display confirmed/unconfirmed balances', async () => {
-      lndServiceMock.getWalletBalance.mockResolvedValue(null as any);
+      lndServiceMock.getBalances.mockResolvedValue(null as any);
       const { getByText, queryByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));
       await wait(() => getByText('Alias'));

@@ -4,7 +4,7 @@ import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
 import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
 import { getNetwork } from './tests';
-import { defaultInfo } from './tests/nodeStateDefaults';
+import { defaultStateInfo } from './tests/nodeStateDefaults';
 
 describe('Chart Util', () => {
   let network: Network;
@@ -46,7 +46,7 @@ describe('Chart Util', () => {
     chart = initChartFromNetwork(network);
     lndData = {
       [network.nodes.lightning[0].name]: {
-        info: defaultInfo({ pubkey: 'lnd1pubkey' }),
+        info: defaultStateInfo({ pubkey: 'lnd1pubkey' }),
         channels: {
           open: [],
           opening: [],
@@ -56,7 +56,7 @@ describe('Chart Util', () => {
         },
       },
       [network.nodes.lightning[1].name]: {
-        info: defaultInfo({ pubkey: 'lnd2pubkey' }),
+        info: defaultStateInfo({ pubkey: 'lnd2pubkey' }),
         channels: {
           open: [],
           opening: [],

@@ -89,7 +89,7 @@ describe('OpenChannelModal', () => {
   });
 
   it('should display an error if unable to fetch node balances', async () => {
-    lndServiceMock.getWalletBalance.mockRejectedValue(new Error('error-msg'));
+    lndServiceMock.getBalances.mockRejectedValue(new Error('error-msg'));
     const { getByText } = await renderComponent();
     expect(getByText('Unable to fetch node balances')).toBeInTheDocument();
     expect(getByText('error-msg')).toBeInTheDocument();
@@ -118,10 +118,10 @@ describe('OpenChannelModal', () => {
       lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
       lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
       lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
-      lndServiceMock.getWalletBalance.mockResolvedValue({
-        confirmedBalance: '100',
-        unconfirmedBalance: '200',
-        totalBalance: '300',
+      lndServiceMock.getBalances.mockResolvedValue({
+        confirmed: '100',
+        unconfirmed: '200',
+        total: '300',
       });
       bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
     });
