@@ -8,7 +8,6 @@ import {
   LightningNodeChannel,
   LightningNodeChannelPoint,
   LightningNodeInfo,
-  LightningService,
 } from 'lib/lightning/types';
 
 export interface LocaleConfig {
@@ -53,7 +52,7 @@ export interface BitcoindLibrary {
   sendFunds: (node: BitcoinNode, addr: string, amount: number) => Promise<string>;
 }
 
-export interface LndLibrary {
+export interface LightningService {
   waitUntilOnline: (node: LightningNode) => Promise<void>;
   getInfo: (node: LightningNode) => Promise<LightningNodeInfo>;
   getBalances: (node: LightningNode) => Promise<LightningNodeBalances>;
@@ -76,7 +75,6 @@ export interface StoreInjections {
   dockerService: DockerLibrary;
   bitcoindService: BitcoindLibrary;
   lightningFactory: LightningFactoryInjection;
-  lndService: LndLibrary;
 }
 
 export interface NetworksFile {

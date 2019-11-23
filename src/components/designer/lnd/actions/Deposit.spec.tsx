@@ -1,16 +1,16 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-import { BitcoindLibrary, LndLibrary } from 'types';
+import { BitcoindLibrary } from 'types';
 import { groupNodes } from 'utils/network';
 import {
   defaultStateInfo,
   getNetwork,
   injections,
+  lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
 import { Deposit } from './';
 
-const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('Deposit', () => {
@@ -33,15 +33,15 @@ describe('Deposit', () => {
 
   beforeEach(() => {
     bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
-    lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
-    lndServiceMock.getInfo.mockResolvedValue(
+    lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+    lightningServiceMock.getInfo.mockResolvedValue(
       defaultStateInfo({
         alias: 'my-node',
         pubkey: 'abcdef',
         syncedToChain: true,
       }),
     );
-    lndServiceMock.getBalances.mockResolvedValue({
+    lightningServiceMock.getBalances.mockResolvedValue({
       confirmed: '100',
       unconfirmed: '200',
       total: '300',
@@ -76,7 +76,7 @@ describe('Deposit', () => {
     fireEvent.change(input, { target: { value: amount } });
     fireEvent.click(btn);
     await waitForElement(() => getByText('Deposited 250,000 sats to alice'));
-    expect(lndServiceMock.getNewAddress).toBeCalledTimes(1);
+    expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
     expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
       expect.anything(),
       'bc1aaaa',

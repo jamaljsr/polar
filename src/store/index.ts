@@ -6,7 +6,6 @@ import { bitcoindService } from 'lib/bitcoin';
 import { dockerService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { LightningFactory } from 'lib/lightning';
-import { lndService } from 'lib/lnd';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
 
@@ -54,7 +53,6 @@ const injections: StoreInjections = {
   dockerService,
   bitcoindService,
   lightningFactory: new LightningFactory(),
-  lndService,
 };
 
 const store = createReduxStore({ injections });

@@ -7,13 +7,10 @@ import {
   defaultStateBalances,
   defaultStateInfo,
   getNetwork,
-  injections,
   lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
 import DefaultSidebar from './DefaultSidebar';
-
-const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
 
 describe('DefaultSidebar Component', () => {
   const renderComponent = (status?: Status) => {
@@ -60,24 +57,24 @@ describe('DefaultSidebar Component', () => {
 
   describe('Sync Chart button', () => {
     it('should display an error if syncing the chart fails', async () => {
-      lndServiceMock.getInfo.mockRejectedValue(new Error('failed to get info'));
+      lightningServiceMock.getInfo.mockRejectedValue(new Error('failed to get info'));
       const { getByLabelText, findByText } = renderComponent(Status.Started);
       fireEvent.click(getByLabelText('icon: reload'));
       expect(await findByText('failed to get info')).toBeInTheDocument();
-      expect(lndServiceMock.getInfo).toBeCalledTimes(2);
+      expect(lightningServiceMock.getInfo).toBeCalledTimes(2);
     });
 
     it('should sync the chart from LND nodes', async () => {
-      lndServiceMock.getInfo.mockResolvedValue(defaultStateInfo({}));
-      lndServiceMock.getBalances.mockResolvedValue(defaultStateBalances({}));
+      lightningServiceMock.getInfo.mockResolvedValue(defaultStateInfo({}));
+      lightningServiceMock.getBalances.mockResolvedValue(defaultStateBalances({}));
       lightningServiceMock.getChannels.mockResolvedValue([]);
       const { getByLabelText, findByText } = renderComponent(Status.Started);
       fireEvent.click(getByLabelText('icon: reload'));
       expect(
         await findByText('The designer has been synced with the Lightning nodes'),
       ).toBeInTheDocument();
-      expect(lndServiceMock.getInfo).toBeCalledTimes(2);
-      expect(lndServiceMock.getBalances).toBeCalledTimes(2);
+      expect(lightningServiceMock.getInfo).toBeCalledTimes(2);
+      expect(lightningServiceMock.getBalances).toBeCalledTimes(2);
       expect(lightningServiceMock.getChannels).toBeCalledTimes(2);
     });
   });

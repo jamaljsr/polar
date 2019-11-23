@@ -12,7 +12,6 @@ import {
 } from 'utils/tests';
 import Channel from './Channel';
 
-const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
@@ -98,7 +97,7 @@ describe('Channel component', () => {
 
   describe('Close Channel', () => {
     beforeEach(() => {
-      lndServiceMock.closeChannel.mockResolvedValue(true);
+      lightningServiceMock.closeChannel.mockResolvedValue(true);
       lightningServiceMock.getChannels.mockResolvedValue([]);
       bitcoindServiceMock.mine.mockResolvedValue(['txid']);
     });
@@ -123,7 +122,7 @@ describe('Channel component', () => {
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('icon: check-circle-o'));
       expect(getByText('The channel has been closed')).toBeInTheDocument();
-      expect(lndServiceMock.closeChannel).toBeCalledTimes(1);
+      expect(lightningServiceMock.closeChannel).toBeCalledTimes(1);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
     });
 
@@ -131,7 +130,7 @@ describe('Channel component', () => {
       // antd Modal.confirm logs a console error when onOk fails
       // this supresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
-        lndServiceMock.closeChannel.mockRejectedValue(new Error('test error'));
+        lightningServiceMock.closeChannel.mockRejectedValue(new Error('test error'));
         const { getByText, getAllByText, getByLabelText } = renderComponent();
         expect(getByText('Close Channel')).toBeInTheDocument();
         fireEvent.click(getByText('Close Channel'));

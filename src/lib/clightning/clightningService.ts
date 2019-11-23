@@ -6,8 +6,8 @@ import {
   LightningNodeChannel,
   LightningNodeChannelPoint,
   LightningNodeInfo,
-  LightningService,
 } from 'lib/lightning/types';
+import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { read } from 'utils/files';
 import { snakeKeysToCamel } from 'utils/objects';

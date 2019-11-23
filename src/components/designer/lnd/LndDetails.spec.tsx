@@ -2,14 +2,12 @@ import React from 'react';
 import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { Status } from 'shared/types';
-import { LndLibrary } from 'types';
 import * as files from 'utils/files';
 import { groupNodes } from 'utils/network';
 import {
   defaultStateBalances,
   defaultStateInfo,
   getNetwork,
-  injections,
   lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
@@ -105,18 +103,17 @@ describe('LndDetails', () => {
   });
 
   describe('with node Started', () => {
-    const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
     const mockFiles = files as jest.Mocked<typeof files>;
 
     beforeEach(() => {
-      lndServiceMock.getInfo.mockResolvedValue(
+      lightningServiceMock.getInfo.mockResolvedValue(
         defaultStateInfo({
           alias: 'my-node',
           pubkey: 'abcdef',
           syncedToChain: true,
         }),
       );
-      lndServiceMock.getBalances.mockResolvedValue(
+      lightningServiceMock.getBalances.mockResolvedValue(
         defaultStateBalances({
           confirmed: '10',
           unconfirmed: '20',
@@ -174,13 +171,13 @@ describe('LndDetails', () => {
     });
 
     it('should display an error if data fetching fails', async () => {
-      lndServiceMock.getInfo.mockRejectedValue(new Error('connection failed'));
+      lightningServiceMock.getInfo.mockRejectedValue(new Error('connection failed'));
       const { findByText } = renderComponent(Status.Started);
       expect(await findByText('connection failed')).toBeInTheDocument();
     });
 
     it('should not display confirmed/unconfirmed balances', async () => {
-      lndServiceMock.getBalances.mockResolvedValue(null as any);
+      lightningServiceMock.getBalances.mockResolvedValue(null as any);
       const { getByText, queryByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));
       await wait(() => getByText('Alias'));
@@ -189,7 +186,7 @@ describe('LndDetails', () => {
     });
 
     it('should not display LND info if its undefined', async () => {
-      lndServiceMock.getInfo.mockResolvedValue(null as any);
+      lightningServiceMock.getInfo.mockResolvedValue(null as any);
       const { getByText, queryByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));
       await wait(() => getByText('Confirmed Balance'));

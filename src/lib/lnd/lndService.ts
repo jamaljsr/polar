@@ -7,13 +7,13 @@ import {
   LightningNodeChannelPoint,
   LightningNodeInfo,
 } from 'lib/lightning/types';
-import { LndLibrary } from 'types';
+import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { getContainerName } from 'utils/network';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
-class LndService implements LndLibrary {
+class LndService implements LightningService {
   async getInfo(node: LightningNode): Promise<LightningNodeInfo> {
     const info = await proxy.getInfo(this.cast(node));
     return {
