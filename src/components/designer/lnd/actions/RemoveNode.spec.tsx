@@ -1,6 +1,5 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-import { ipcChannels, withDefaults } from 'shared';
 import { Status } from 'shared/types';
 import { DockerLibrary, LndLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -8,6 +7,7 @@ import { groupNodes } from 'utils/network';
 import {
   getNetwork,
   injections,
+  lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
 } from 'utils/tests';
@@ -44,12 +44,7 @@ describe('RemoveNode', () => {
   };
 
   beforeEach(() => {
-    lndServiceMock.listChannels.mockResolvedValue(
-      withDefaults({}, ipcChannels.listChannels),
-    );
-    lndServiceMock.pendingChannels.mockResolvedValue(
-      withDefaults({}, ipcChannels.pendingChannels),
-    );
+    lightningServiceMock.getChannels.mockResolvedValue([]);
   });
 
   it('should show the remove node modal', async () => {

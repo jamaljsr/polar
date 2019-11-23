@@ -1,7 +1,6 @@
 import React from 'react';
 import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
-import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { Status } from 'shared/types';
 import { LndLibrary } from 'types';
 import * as files from 'utils/files';
@@ -11,6 +10,7 @@ import {
   defaultStateInfo,
   getNetwork,
   injections,
+  lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
 import LndDetails from './LndDetails';
@@ -123,8 +123,7 @@ describe('LndDetails', () => {
           total: '30',
         }),
       );
-      lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
-      lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
+      lightningServiceMock.getChannels.mockResolvedValue([]);
     });
 
     it('should display correct Status', async () => {

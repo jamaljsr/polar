@@ -46,8 +46,6 @@ export const injections: StoreInjections = {
     getChannels: jest.fn(),
     openChannel: jest.fn(),
     closeChannel: jest.fn(),
-    listChannels: jest.fn(),
-    pendingChannels: jest.fn(),
   },
   lightningFactory: {
     getService: () => lightningServiceMock,
