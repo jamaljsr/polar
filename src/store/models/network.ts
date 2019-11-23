@@ -10,7 +10,6 @@ import {
   createLndNetworkNode,
   createNetwork,
   getOpenPorts,
-  groupNodes,
   OpenPorts,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -204,19 +203,8 @@ const networkModel: NetworkModel = {
       // set the status of only the network to Started
       actions.setStatus({ id, status: Status.Started, all: false });
 
-      const { lnd, clightning, bitcoind } = groupNodes(network);
       // wait for lnd nodes to come online before updating their status
-      for (const node of lnd) {
-        // use .then() to continue execution while the promises are waiting to complete
-        injections.lndService
-          .waitUntilOnline(node)
-          .then(() => actions.setStatus({ id, status: Status.Started, only: node.name }))
-          .catch(error =>
-            actions.setStatus({ id, status: Status.Error, only: node.name, error }),
-          );
-      }
-      // wait for lnd nodes to come online before updating their status
-      for (const node of clightning) {
+      for (const node of network.nodes.lightning) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.lightningFactory
           .getService(node)
@@ -227,7 +215,7 @@ const networkModel: NetworkModel = {
           );
       }
       // wait for bitcoind nodes to come online before updating their status
-      for (const node of bitcoind) {
+      for (const node of network.nodes.bitcoin) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.bitcoindService
           .waitUntilOnline(node.ports.rpc)

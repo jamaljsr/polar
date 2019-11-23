@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
 import { Status } from 'shared/types';
-import { BitcoindLibrary, LndLibrary } from 'types';
+import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,
@@ -12,7 +12,6 @@ import {
 } from 'utils/tests';
 import OpenChannelModal from './OpenChannelModal';
 
-const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('OpenChannelModal', () => {
@@ -94,7 +93,7 @@ describe('OpenChannelModal', () => {
   });
 
   it('should display an error if unable to fetch node balances', async () => {
-    lndServiceMock.getBalances.mockRejectedValue(new Error('error-msg'));
+    lightningServiceMock.getBalances.mockRejectedValue(new Error('error-msg'));
     const { getByText } = await renderComponent();
     expect(getByText('Unable to fetch node balances')).toBeInTheDocument();
     expect(getByText('error-msg')).toBeInTheDocument();
@@ -123,8 +122,8 @@ describe('OpenChannelModal', () => {
   describe('with form submitted', () => {
     beforeEach(() => {
       lightningServiceMock.getChannels.mockResolvedValue([]);
-      lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
-      lndServiceMock.getBalances.mockResolvedValue({
+      lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+      lightningServiceMock.getBalances.mockResolvedValue({
         confirmed: '100',
         unconfirmed: '200',
         total: '300',
@@ -144,7 +143,7 @@ describe('OpenChannelModal', () => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const [node1, node2] = network.nodes.lightning;
-      expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
+      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
 
@@ -159,14 +158,14 @@ describe('OpenChannelModal', () => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const [node1, node2] = network.nodes.lightning;
-      expect(lndServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
+      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
       expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
-      expect(lndServiceMock.getNewAddress).toBeCalledTimes(1);
+      expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
     });
 
     it('should display an error when opening a channel fails', async () => {
-      lndServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
+      lightningServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
       const { getByText, getByLabelText, store } = await renderComponent();
       await wait(() => {
         store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });

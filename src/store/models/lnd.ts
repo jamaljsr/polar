@@ -1,5 +1,5 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { LndNode } from 'shared/types';
+import { LightningNode } from 'shared/types';
 import {
   LightningNodeBalances,
   LightningNodeChannel,
@@ -22,13 +22,13 @@ export interface LndNodeModel {
 }
 
 export interface DepositFundsPayload {
-  node: LndNode;
+  node: LightningNode;
   sats: string;
 }
 
 export interface OpenChannelPayload {
-  from: LndNode;
-  to: LndNode;
+  from: LightningNode;
+  to: LightningNode;
   sats: string;
   autoFund: boolean;
 }
@@ -36,18 +36,24 @@ export interface OpenChannelPayload {
 export interface LndModel {
   nodes: LndNodeMapping;
   removeNode: Action<LndModel, string>;
-  setInfo: Action<LndModel, { node: LndNode; info: LightningNodeInfo }>;
-  getInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
-  setWalletBalance: Action<LndModel, { node: LndNode; balance: LightningNodeBalances }>;
-  getWalletBalance: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
-  setChannels: Action<LndModel, { node: LndNode; channels: LndNodeModel['channels'] }>;
-  getChannels: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
-  getAllInfo: Thunk<LndModel, LndNode, StoreInjections, RootModel>;
+  setInfo: Action<LndModel, { node: LightningNode; info: LightningNodeInfo }>;
+  getInfo: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
+  setWalletBalance: Action<
+    LndModel,
+    { node: LightningNode; balance: LightningNodeBalances }
+  >;
+  getWalletBalance: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
+  setChannels: Action<
+    LndModel,
+    { node: LightningNode; channels: LndNodeModel['channels'] }
+  >;
+  getChannels: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
+  getAllInfo: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
   depositFunds: Thunk<LndModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<LndModel, OpenChannelPayload, StoreInjections, RootModel>;
   closeChannel: Thunk<
     LndModel,
-    { node: LndNode; channelPoint: string },
+    { node: LightningNode; channelPoint: string },
     StoreInjections,
     RootModel
   >;
@@ -67,7 +73,8 @@ const lndModel: LndModel = {
     state.nodes[node.name].info = info;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
-    const info = await injections.lndService.getInfo(node);
+    const api = injections.lightningFactory.getService(node);
+    const info = await api.getInfo(node);
     actions.setInfo({ node, info });
   }),
   setWalletBalance: action((state, { node, balance }) => {
@@ -75,7 +82,8 @@ const lndModel: LndModel = {
     state.nodes[node.name].walletBalance = balance;
   }),
   getWalletBalance: thunk(async (actions, node, { injections }) => {
-    const balance = await injections.lndService.getBalances(node);
+    const api = injections.lightningFactory.getService(node);
+    const balance = await api.getBalances(node);
     actions.setWalletBalance({ node, balance });
   }),
   setChannels: action((state, { node, channels }) => {
@@ -96,7 +104,8 @@ const lndModel: LndModel = {
     const { nodes } = getStoreState().network.networkById(node.networkId);
     const bitcoin =
       nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];
-    const { address } = await injections.lndService.getNewAddress(node);
+    const api = injections.lightningFactory.getService(node);
+    const { address } = await api.getNewAddress(node);
     const coins = fromSatsNumeric(sats);
     await injections.bitcoindService.sendFunds(bitcoin, address, coins);
     // add a small delay to allow LND to process the mined blocks
@@ -115,7 +124,8 @@ const lndModel: LndModel = {
         await actions.depositFunds({ node: from, sats: fund });
       }
       // open the channel via LND
-      await injections.lndService.openChannel(from, to, sats);
+      const api = injections.lightningFactory.getService(from);
+      await api.openChannel(from, to, sats);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(from.networkId);
       const node = network.nodes.bitcoin[0];
@@ -133,7 +143,8 @@ const lndModel: LndModel = {
       { node, channelPoint },
       { injections, getStoreState, getStoreActions },
     ) => {
-      await injections.lndService.closeChannel(node, channelPoint);
+      const api = injections.lightningFactory.getService(node);
+      await api.closeChannel(node, channelPoint);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(node.networkId);
       const bitcoinNode = network.nodes.bitcoin[0];

@@ -1,7 +1,8 @@
 import { LightningNode } from 'shared/types';
 import { clightningService } from 'lib/clightning';
+import { lndService } from 'lib/lnd';
+import { LightningService } from 'types';
 import notImplementedService from './notImplementedService';
-import { LightningService } from './types';
 
 /**
  * A factory class used to obtain a Lightning service based on
@@ -15,7 +16,7 @@ class LightningFactory {
 
   constructor() {
     this._services = {
-      LND: notImplementedService,
+      LND: lndService,
       'c-lightning': clightningService,
       eclair: notImplementedService,
     };

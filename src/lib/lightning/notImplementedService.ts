@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { LightningNode } from 'shared/types';
+import { LightningService } from 'types';
 import {
   LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeChannel,
   LightningNodeChannelPoint,
   LightningNodeInfo,
-  LightningService,
 } from './types';
 
 /**

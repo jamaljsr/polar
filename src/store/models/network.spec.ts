@@ -4,7 +4,7 @@ import { LndVersion, Status } from 'shared/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
-import { getNetwork, injections } from 'utils/tests';
+import { getNetwork, injections, lightningServiceMock } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
@@ -17,7 +17,6 @@ jest.mock('utils/files', () => ({
 }));
 const filesMock = files as jest.Mocked<typeof files>;
 const mockDetectPort = detectPort as jest.Mock;
-const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
@@ -48,7 +47,7 @@ describe('Network model', () => {
     store = createStore(rootModel, { injections });
     // always return true immediately
     filesMock.waitForFile.mockResolvedValue();
-    lndServiceMock.waitUntilOnline.mockResolvedValue();
+    lightningServiceMock.waitUntilOnline.mockResolvedValue();
     bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
   });
 
@@ -242,7 +241,7 @@ describe('Network model', () => {
     });
 
     it('should set LND node status to error if the node startup fails', async () => {
-      lndServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);

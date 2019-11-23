@@ -7,13 +7,13 @@ import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,
   injections,
+  lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
 } from 'utils/tests';
 import NetworkView from './NetworkView';
 
 const fsMock = fsExtra as jest.Mocked<typeof fsExtra>;
-const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
@@ -56,7 +56,7 @@ describe('NetworkView Component', () => {
   };
 
   beforeEach(() => {
-    lndServiceMock.waitUntilOnline.mockResolvedValue();
+    lightningServiceMock.waitUntilOnline.mockResolvedValue();
     bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
     dockerServiceMock.getImages.mockResolvedValue([]);
   });

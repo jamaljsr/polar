@@ -2,9 +2,9 @@ import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
-import { BitcoindLibrary, DockerLibrary, LndLibrary } from 'types';
+import { BitcoindLibrary, DockerLibrary } from 'types';
 import { LOADING_NODE_ID } from 'utils/constants';
-import { injections } from 'utils/tests';
+import { injections, lightningServiceMock } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
@@ -224,7 +224,6 @@ describe('Designer model', () => {
 
     describe('onCanvasDrop', () => {
       const mockDockerService = injections.dockerService as jest.Mocked<DockerLibrary>;
-      const mockLndService = injections.lndService as jest.Mocked<LndLibrary>;
       const mockBitcoindService = injections.bitcoindService as jest.Mocked<
         BitcoindLibrary
       >;
@@ -299,7 +298,7 @@ describe('Designer model', () => {
 
       it('should start the node if the network is running', async () => {
         mockBitcoindService.waitUntilOnline.mockResolvedValue();
-        mockLndService.waitUntilOnline.mockResolvedValue();
+        lightningServiceMock.waitUntilOnline.mockResolvedValue();
         mockDockerService.start.mockReset();
         const { setStatus } = store.getActions().network;
         setStatus({ id: firstNetwork().id, status: Status.Started });

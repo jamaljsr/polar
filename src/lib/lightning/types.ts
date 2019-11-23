@@ -1,5 +1,3 @@
-import { LightningNode } from 'shared/types';
-
 export interface LightningNodeInfo {
   pubkey: string;
   alias: string;
@@ -34,21 +32,4 @@ export interface LightningNodeChannel {
 export interface LightningNodeChannelPoint {
   txid: string;
   index: number;
-}
-
-export interface LightningService {
-  waitUntilOnline: (node: LightningNode) => Promise<void>;
-  getInfo: (node: LightningNode) => Promise<LightningNodeInfo>;
-  getBalances: (node: LightningNode) => Promise<LightningNodeBalances>;
-  getNewAddress: (node: LightningNode) => Promise<LightningNodeAddress>;
-  getChannels: (node: LightningNode) => Promise<LightningNodeChannel[]>;
-  openChannel: (
-    from: LightningNode,
-    to: LightningNode,
-    amount: string,
-  ) => Promise<LightningNodeChannelPoint>;
-  closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
-  // listChannels: (node: LightningNode) => Promise<LND.ListChannelsResponse>;
-  // pendingChannels: (node: LightningNode) => Promise<LND.PendingChannelsResponse>;
-  // onNodesDeleted: (nodes: LightningNode[]) => Promise<void>;
 }

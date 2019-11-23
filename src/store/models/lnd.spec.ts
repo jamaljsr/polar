@@ -5,7 +5,7 @@ import {
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
-import { BitcoindLibrary, LndLibrary } from 'types';
+import { BitcoindLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import {
   defaultStateInfo,
@@ -18,7 +18,6 @@ import networkModel from './network';
 
 jest.mock('utils/async');
 const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
-const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('LND Model', () => {
@@ -41,15 +40,15 @@ describe('LND Model', () => {
 
     asyncUtilMock.delay.mockResolvedValue(true);
     bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
-    lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
-    lndServiceMock.getInfo.mockResolvedValue(
+    lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+    lightningServiceMock.getInfo.mockResolvedValue(
       defaultStateInfo({
         alias: 'my-node',
         pubkey: 'abcdef',
         syncedToChain: true,
       }),
     );
-    lndServiceMock.getBalances.mockResolvedValue({
+    lightningServiceMock.getBalances.mockResolvedValue({
       confirmed: '100',
       unconfirmed: '200',
       total: '300',

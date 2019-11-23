@@ -4,9 +4,8 @@ import { render } from '@testing-library/react';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
-import { LightningService } from 'lib/lightning/types';
 import { createReduxStore } from 'store';
-import { StoreInjections } from 'types';
+import { LightningService, StoreInjections } from 'types';
 
 export const lightningServiceMock: jest.Mocked<LightningService> = {
   getInfo: jest.fn(),
@@ -36,15 +35,6 @@ export const injections: StoreInjections = {
     getWalletInfo: jest.fn(),
     sendFunds: jest.fn(),
     mine: jest.fn(),
-  },
-  lndService: {
-    waitUntilOnline: jest.fn(),
-    getInfo: jest.fn(),
-    getBalances: jest.fn(),
-    getNewAddress: jest.fn(),
-    getChannels: jest.fn(),
-    openChannel: jest.fn(),
-    closeChannel: jest.fn(),
   },
   lightningFactory: {
     getService: () => lightningServiceMock,
