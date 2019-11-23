@@ -4,8 +4,13 @@ import { createEvent, fireEvent } from '@testing-library/dom';
 import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
-import { defaultStateBalances, defaultStateInfo } from 'utils/tests/nodeStateDefaults';
+import {
+  defaultStateBalances,
+  defaultStateInfo,
+  getNetwork,
+  injections,
+  renderWithProviders,
+} from 'utils/tests';
 import DefaultSidebar from './DefaultSidebar';
 
 const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;

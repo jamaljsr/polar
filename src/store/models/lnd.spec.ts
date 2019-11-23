@@ -4,8 +4,7 @@ import { LndNode } from 'shared/types';
 import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
-import { getNetwork, injections } from 'utils/tests';
-import { defaultStateInfo } from 'utils/tests/nodeStateDefaults';
+import { defaultStateInfo, getNetwork, injections } from 'utils/tests';
 import lndModel from './lnd';
 import networkModel from './network';
 

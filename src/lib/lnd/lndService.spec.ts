@@ -1,7 +1,6 @@
 import { defaultInfo, defaultWalletBalance } from 'shared';
 import { groupNodes } from 'utils/network';
-import { getNetwork } from 'utils/tests';
-import { defaultStateBalances, defaultStateInfo } from 'utils/tests/nodeStateDefaults';
+import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
 import lndProxyClient from './lndProxyClient';
 import lndService from './lndService';
 

@@ -2,9 +2,9 @@ import { IChart, IConfig } from '@mrblenny/react-flow-chart';
 import { defaultChannel, defaultPendingChannel, defaultPendingOpenChannel } from 'shared';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
+import { defaultStateInfo } from 'utils/tests';
 import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
 import { getNetwork } from './tests';
-import { defaultStateInfo } from './tests/nodeStateDefaults';
 
 describe('Chart Util', () => {
   let network: Network;

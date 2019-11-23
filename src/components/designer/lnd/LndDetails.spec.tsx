@@ -6,8 +6,13 @@ import { Status } from 'shared/types';
 import { LndLibrary } from 'types';
 import * as files from 'utils/files';
 import { groupNodes } from 'utils/network';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
-import { defaultStateBalances, defaultStateInfo } from 'utils/tests/nodeStateDefaults';
+import {
+  defaultStateBalances,
+  defaultStateInfo,
+  getNetwork,
+  injections,
+  renderWithProviders,
+} from 'utils/tests';
 import LndDetails from './LndDetails';
 
 jest.mock('utils/files');

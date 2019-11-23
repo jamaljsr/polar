@@ -2,8 +2,12 @@ import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import { groupNodes } from 'utils/network';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
-import { defaultStateInfo } from 'utils/tests/nodeStateDefaults';
+import {
+  defaultStateInfo,
+  getNetwork,
+  injections,
+  renderWithProviders,
+} from 'utils/tests';
 import { Deposit } from './';
 
 const lndServiceMock = injections.lndService as jest.Mocked<LndLibrary>;
