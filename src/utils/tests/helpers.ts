@@ -31,7 +31,7 @@ export const suppressConsoleErrors = async (func: () => any | Promise<any>) => {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   console.error = () => {};
   const result = func();
-  if (typeof result.then === 'function') {
+  if (result && typeof result.then === 'function') {
     await result;
   }
   console.error = oldConsoleErr;

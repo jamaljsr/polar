@@ -1,6 +1,7 @@
 import React from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, waitForElementToBeRemoved } from '@testing-library/dom';
+import { act } from '@testing-library/react';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import NetworkDesigner from './NetworkDesigner';
@@ -34,15 +35,15 @@ describe('NetworkDesigner Component', () => {
         },
       },
     };
-    const cmp = <NetworkDesigner network={network} updateStateDelay={0} />;
+    const cmp = <NetworkDesigner network={network} updateStateDelay={3000} />;
     return renderWithProviders(cmp, { initialState });
   };
 
-  it('should render the designer component', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('alice')).toBeInTheDocument();
-    expect(getByText('bob')).toBeInTheDocument();
-    expect(getByText('backend')).toBeInTheDocument();
+  it('should render the designer component', async () => {
+    const { findByText } = renderComponent();
+    expect(await findByText('alice')).toBeInTheDocument();
+    expect(await findByText('bob')).toBeInTheDocument();
+    expect(await findByText('backend')).toBeInTheDocument();
   });
 
   it('should render correct # of LND nodes', async () => {
@@ -62,9 +63,12 @@ describe('NetworkDesigner Component', () => {
   });
 
   it('should update the redux state after a node is selected', async () => {
-    const { getByText, store } = renderComponent();
+    const { getByText, findByText, store } = renderComponent();
     expect(store.getState().designer.activeChart.selected.id).toBeFalsy();
-    await wait(() => fireEvent.click(getByText('alice')));
+    act(() => {
+      fireEvent.click(getByText('alice'));
+    });
+    expect(await findByText('Node Type')).toBeInTheDocument();
     expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
   });
 
@@ -75,27 +79,38 @@ describe('NetworkDesigner Component', () => {
   });
 
   it('should display node details in the sidebar when a node is selected', async () => {
-    const { getByText, queryByText } = renderComponent();
-    expect(getByText('backend')).toBeInTheDocument();
+    const { getByText, queryByText, findByText } = renderComponent();
+    expect(await findByText('backend')).toBeInTheDocument();
     expect(queryByText('Node Type')).not.toBeInTheDocument();
     // click the bitcoind node in the chart
-    await wait(() => fireEvent.click(getByText('backend')));
+    act(() => {
+      fireEvent.click(getByText('backend'));
+    });
     // ensure text from the sidebar is visible
-    expect(getByText('Node Type')).toBeInTheDocument();
+    expect(await findByText('Node Type')).toBeInTheDocument();
   });
 
   it('should display the OpenChannel modal', async () => {
     const { findByText, store } = renderComponent();
-    await wait(() => store.getActions().modals.showOpenChannel({}));
+    expect(await findByText('backend')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showOpenChannel({});
+    });
     expect(await findByText('Capacity (sats)')).toBeInTheDocument();
   });
 
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText } = renderComponent();
-    await wait(() => fireEvent.click(getByText('alice')));
+    expect(await findByText('alice')).toBeInTheDocument();
+    act(() => {
+      fireEvent.click(getByText('alice'));
+    });
     fireEvent.click(await findByText('Actions'));
     fireEvent.click(await findByText('Remove'));
-    await wait(() => fireEvent.click(getByText('Yes')));
+    act(() => {
+      fireEvent.click(getByText('Yes'));
+    });
+    await waitForElementToBeRemoved(() => queryByText('Yes'));
     expect(queryByText('alice')).toBeNull();
   });
 });

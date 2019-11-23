@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, waitForDomChange } from '@testing-library/react';
-import { renderWithProviders } from 'utils/tests';
+import { renderWithProviders, suppressConsoleErrors } from 'utils/tests';
 import { HOME, NETWORK_VIEW } from 'components/routing';
 import NewNetwork from './NewNetwork';
 
@@ -31,10 +31,13 @@ describe('NewNetwork component', () => {
     expect(history.location.pathname).toEqual(HOME);
   });
 
-  it('should display an error if empty name is submitted', () => {
-    const { getByText, createBtn } = renderComponent();
-    fireEvent.click(createBtn);
-    expect(getByText('required')).toBeInTheDocument();
+  it('should display an error if empty name is submitted', async () => {
+    await suppressConsoleErrors(async () => {
+      const { getByText, createBtn } = renderComponent();
+      fireEvent.click(createBtn);
+      await waitForDomChange();
+      expect(getByText('required')).toBeInTheDocument();
+    });
   });
 
   describe('with valid submission', () => {
