@@ -51,8 +51,8 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   const selectedFrom = form.getFieldValue('from') || from;
   const areSameNodesSelected = selectedFrom === (form.getFieldValue('to') || to);
   if (selectedFrom && nodes[selectedFrom] && !openChanAsync.loading) {
-    const { confirmedBalance } = nodes[selectedFrom].walletBalance || {};
-    const balance = parseInt(confirmedBalance || '0');
+    const { confirmed } = nodes[selectedFrom].walletBalance || {};
+    const balance = parseInt(confirmed || '0');
     const sats = form.getFieldValue('sats');
     showDeposit = balance <= sats && !areSameNodesSelected;
   }

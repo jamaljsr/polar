@@ -1,5 +1,7 @@
+import { defaultInfo, defaultWalletBalance } from 'shared';
 import { groupNodes } from 'utils/network';
 import { getNetwork } from 'utils/tests';
+import { defaultStateBalances, defaultStateInfo } from 'utils/tests/nodeStateDefaults';
 import lndProxyClient from './lndProxyClient';
 import lndService from './lndService';
 
@@ -9,16 +11,18 @@ describe('LndService', () => {
   const [node, node2] = groupNodes(getNetwork()).lnd;
 
   it('should get node info', async () => {
-    const expected = { identityPubkey: 'asdf' };
-    lndProxyClient.getInfo = jest.fn().mockResolvedValue(expected);
+    const apiResponse = defaultInfo({ identityPubkey: 'asdf' });
+    const expected = defaultStateInfo({ pubkey: 'asdf' });
+    lndProxyClient.getInfo = jest.fn().mockResolvedValue(apiResponse);
     const actual = await lndService.getInfo(node);
     expect(actual).toEqual(expected);
   });
 
   it('should get wallet balance', async () => {
-    const expected = { confirmedBalance: '1000' };
-    lndProxyClient.getWalletBalance = jest.fn().mockResolvedValue(expected);
-    const actual = await lndService.getWalletBalance(node);
+    const apiResponse = defaultWalletBalance({ confirmedBalance: '1000' });
+    const expected = defaultStateBalances({ confirmed: '1000' });
+    lndProxyClient.getWalletBalance = jest.fn().mockResolvedValue(apiResponse);
+    const actual = await lndService.getBalances(node);
     expect(actual).toEqual(expected);
   });
 
@@ -59,7 +63,9 @@ describe('LndService', () => {
 
   describe('openChannel', () => {
     it('should open the channel successfully', async () => {
-      lndProxyClient.getInfo = jest.fn().mockResolvedValue({ identityPubkey: 'asdf' });
+      lndProxyClient.getInfo = jest
+        .fn()
+        .mockResolvedValue(defaultInfo({ identityPubkey: 'asdf' }));
       lndProxyClient.listPeers = jest.fn().mockResolvedValue({
         peers: [{ pubKey: 'asdf' }],
       });
@@ -73,7 +79,7 @@ describe('LndService', () => {
     });
 
     it('should connect peer then open the channel', async () => {
-      lndProxyClient.getInfo = jest.fn().mockResolvedValue({ identityPubkey: 'asdf' });
+      lndProxyClient.getInfo = jest.fn().mockResolvedValue({ pubkey: 'asdf' });
       lndProxyClient.listPeers = jest.fn().mockResolvedValue({
         peers: [{ pubKey: 'fdsa' }],
       });

@@ -1,6 +1,6 @@
 import * as LND from '@radar/lnrpc';
 import { LndNode } from 'shared/types';
-import { LightningNodeInfo } from 'lib/lightning/types';
+import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
 import { LndLibrary } from 'types';
 import { waitFor } from 'utils/async';
 import { getContainerName } from 'utils/network';
@@ -12,7 +12,7 @@ class LndService implements LndLibrary {
     return {
       pubkey: info.identityPubkey,
       alias: info.alias,
-      rpcUrl: info.uris[0] || '',
+      rpcUrl: (info.uris && info.uris[0]) || '',
       syncedToChain: info.syncedToChain,
       numActiveChannels: info.numActiveChannels,
       numPendingChannels: info.numPendingChannels,
@@ -20,8 +20,13 @@ class LndService implements LndLibrary {
     };
   }
 
-  async getWalletBalance(node: LndNode): Promise<LND.WalletBalanceResponse> {
-    return await proxy.getWalletBalance(node);
+  async getBalances(node: LndNode): Promise<LightningNodeBalances> {
+    const balances = await proxy.getWalletBalance(node);
+    return {
+      total: balances.totalBalance,
+      confirmed: balances.confirmedBalance,
+      unconfirmed: balances.unconfirmedBalance,
+    };
   }
 
   async getNewAddress(node: LndNode): Promise<LND.NewAddressResponse> {

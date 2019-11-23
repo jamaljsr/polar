@@ -1,12 +1,11 @@
-import * as LND from '@radar/lnrpc';
 import { createStore } from 'easy-peasy';
 import { ipcChannels, withDefaults } from 'shared';
 import { LndNode } from 'shared/types';
-import { LightningNodeInfo } from 'lib/lightning/types';
+import { LightningNodeBalances, LightningNodeInfo } from 'lib/lightning/types';
 import { BitcoindLibrary, LndLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import { getNetwork, injections } from 'utils/tests';
-import { defaultInfo } from 'utils/tests/nodeStateDefaults';
+import { defaultStateInfo } from 'utils/tests/nodeStateDefaults';
 import lndModel from './lnd';
 import networkModel from './network';
 
@@ -37,16 +36,16 @@ describe('LND Model', () => {
     bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
     lndServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
     lndServiceMock.getInfo.mockResolvedValue(
-      defaultInfo({
+      defaultStateInfo({
         alias: 'my-node',
         pubkey: 'abcdef',
         syncedToChain: true,
       }),
     );
-    lndServiceMock.getWalletBalance.mockResolvedValue({
-      confirmedBalance: '100',
-      unconfirmedBalance: '200',
-      totalBalance: '300',
+    lndServiceMock.getBalances.mockResolvedValue({
+      confirmed: '100',
+      unconfirmed: '200',
+      total: '300',
     });
     lndServiceMock.listChannels.mockResolvedValue(
       withDefaults({}, ipcChannels.listChannels),
@@ -76,10 +75,10 @@ describe('LND Model', () => {
     await getWalletBalance(node);
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
-    const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
-    expect(balances.confirmedBalance).toEqual('100');
-    expect(balances.unconfirmedBalance).toEqual('200');
-    expect(balances.totalBalance).toEqual('300');
+    const balances = nodeState.walletBalance as LightningNodeBalances;
+    expect(balances.confirmed).toEqual('100');
+    expect(balances.unconfirmed).toEqual('200');
+    expect(balances.total).toEqual('300');
   });
 
   it('should update state with getChannels response', async () => {
@@ -102,10 +101,10 @@ describe('LND Model', () => {
     await depositFunds({ node, sats: '50000' });
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
-    const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
-    expect(balances.confirmedBalance).toEqual('100');
-    expect(balances.unconfirmedBalance).toEqual('200');
-    expect(balances.totalBalance).toEqual('300');
+    const balances = nodeState.walletBalance as LightningNodeBalances;
+    expect(balances.confirmed).toEqual('100');
+    expect(balances.unconfirmed).toEqual('200');
+    expect(balances.total).toEqual('300');
   });
 
   it('should be able to deposit funds using the first bitcoin node', async () => {
@@ -114,9 +113,9 @@ describe('LND Model', () => {
     await depositFunds({ node: modifiednode, sats: '50000' });
     const nodeState = store.getState().lnd.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
-    const balances = nodeState.walletBalance as LND.WalletBalanceResponse;
-    expect(balances.confirmedBalance).toEqual('100');
-    expect(balances.unconfirmedBalance).toEqual('200');
-    expect(balances.totalBalance).toEqual('300');
+    const balances = nodeState.walletBalance as LightningNodeBalances;
+    expect(balances.confirmed).toEqual('100');
+    expect(balances.unconfirmed).toEqual('200');
+    expect(balances.total).toEqual('300');
   });
 });

@@ -34,8 +34,8 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
-      const { confirmedBalance } = nodeState.walletBalance;
-      extra = <strong>{abbreviate(confirmedBalance)} sats</strong>;
+      const { confirmed } = nodeState.walletBalance;
+      extra = <strong>{abbreviate(confirmed)} sats</strong>;
     }
   }
 

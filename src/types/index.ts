@@ -3,7 +3,11 @@ import * as LND from '@radar/lnrpc';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { BitcoinNode, CommonNode, LightningNode, LndNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
-import { LightningNodeInfo, LightningService } from 'lib/lightning/types';
+import {
+  LightningNodeBalances,
+  LightningNodeInfo,
+  LightningService,
+} from 'lib/lightning/types';
 
 export interface LocaleConfig {
   fallbackLng: string;
@@ -50,7 +54,7 @@ export interface BitcoindLibrary {
 export interface LndLibrary {
   waitUntilOnline: (node: LndNode) => Promise<void>;
   getInfo: (node: LndNode) => Promise<LightningNodeInfo>;
-  getWalletBalance: (node: LndNode) => Promise<LND.WalletBalanceResponse>;
+  getBalances: (node: LndNode) => Promise<LightningNodeBalances>;
   getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;
   openChannel: (from: LndNode, to: LndNode, amount: string) => Promise<LND.ChannelPoint>;
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;

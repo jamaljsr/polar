@@ -50,7 +50,7 @@ export const injections: StoreInjections = {
     onNodesDeleted: jest.fn(),
     waitUntilOnline: jest.fn(),
     getInfo: jest.fn(),
-    getWalletBalance: jest.fn(),
+    getBalances: jest.fn(),
     getNewAddress: jest.fn(),
     openChannel: jest.fn(),
     closeChannel: jest.fn(),

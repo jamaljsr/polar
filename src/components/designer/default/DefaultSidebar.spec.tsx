@@ -1,15 +1,11 @@
 import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
-import {
-  defaultListChannels,
-  defaultPendingChannels,
-  defaultWalletBalance,
-} from 'shared';
+import { defaultListChannels, defaultPendingChannels } from 'shared';
 import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
-import { defaultInfo } from 'utils/tests/nodeStateDefaults';
+import { defaultStateBalances, defaultStateInfo } from 'utils/tests/nodeStateDefaults';
 import DefaultSidebar from './DefaultSidebar';
 
 const lndServiceMock = injections.lndService as jest.Mocked<typeof injections.lndService>;
@@ -67,8 +63,8 @@ describe('DefaultSidebar Component', () => {
     });
 
     it('should sync the chart from LND nodes', async () => {
-      lndServiceMock.getInfo.mockResolvedValue(defaultInfo({}));
-      lndServiceMock.getWalletBalance.mockResolvedValue(defaultWalletBalance({}));
+      lndServiceMock.getInfo.mockResolvedValue(defaultStateInfo({}));
+      lndServiceMock.getBalances.mockResolvedValue(defaultStateBalances({}));
       lndServiceMock.listChannels.mockResolvedValue(defaultListChannels({}));
       lndServiceMock.pendingChannels.mockResolvedValue(defaultPendingChannels({}));
       const { getByLabelText, findByText } = renderComponent(Status.Started);
@@ -77,7 +73,7 @@ describe('DefaultSidebar Component', () => {
         await findByText('The designer has been synced with the Lightning nodes'),
       ).toBeInTheDocument();
       expect(lndServiceMock.getInfo).toBeCalledTimes(2);
-      expect(lndServiceMock.getWalletBalance).toBeCalledTimes(2);
+      expect(lndServiceMock.getBalances).toBeCalledTimes(2);
       expect(lndServiceMock.listChannels).toBeCalledTimes(2);
       expect(lndServiceMock.pendingChannels).toBeCalledTimes(2);
     });

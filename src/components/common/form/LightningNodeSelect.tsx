@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { WalletBalanceResponse } from '@radar/lnrpc';
 import { Form, Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { usePrefixedTranslation } from 'hooks';
+import { LightningNodeBalances } from 'lib/lightning/types';
 import { LndNodeModel } from 'store/models/lnd';
 import { Network } from 'types';
 import { format } from 'utils/units';
@@ -33,8 +33,8 @@ const LightningNodeSelect: React.FC<Props> = ({
   const [initialized, setInitialized] = useState(false);
   const getBalance = (name: string): string | undefined => {
     if (nodes && nodes[name] && nodes[name].walletBalance) {
-      const balances = nodes[name].walletBalance as WalletBalanceResponse;
-      return `${l('balance')}: ${format(balances.confirmedBalance)} sats`;
+      const balances = nodes[name].walletBalance as LightningNodeBalances;
+      return `${l('balance')}: ${format(balances.confirmed)} sats`;
     }
   };
   if (initialValue && !initialized) {
