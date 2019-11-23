@@ -1,5 +1,6 @@
 import { CLightningNode, LightningNode } from 'shared/types';
 import {
+  LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeInfo,
   LightningService,
@@ -30,6 +31,11 @@ class CLightningService implements LightningService {
       confirmed: balances.confBalance.toString(),
       unconfirmed: balances.unconfBalance.toString(),
     };
+  }
+
+  async getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
+    const address = await this.request<string>(node, 'getNewAddress');
+    return { address };
   }
 
   /**

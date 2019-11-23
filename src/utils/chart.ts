@@ -1,6 +1,7 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
 import { Channel, PendingChannel } from '@radar/lnrpc';
 import { BitcoinNode, LightningNode } from 'shared/types';
+import { LightningNodeChannel } from 'lib/lightning/types';
 import { LndNodeMapping } from 'store/models/lnd';
 import { Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
@@ -115,18 +116,7 @@ const updateNodeSize = (node: INode) => {
   };
 };
 
-interface ChannelInfo {
-  pending: boolean;
-  uniqueId: string;
-  channelPoint: string;
-  pubkey: string;
-  capacity: string;
-  localBalance: string;
-  remoteBalance: string;
-  status: string;
-}
-
-const mapOpenChannel = (chan: Channel): ChannelInfo => ({
+const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
   pending: false,
   uniqueId: chan.channelPoint.slice(-12),
   channelPoint: chan.channelPoint,
@@ -137,7 +127,9 @@ const mapOpenChannel = (chan: Channel): ChannelInfo => ({
   status: 'Open',
 });
 
-const mapPendingChannel = (status: string) => (chan: PendingChannel): ChannelInfo => ({
+const mapPendingChannel = (status: string) => (
+  chan: PendingChannel,
+): LightningNodeChannel => ({
   pending: true,
   uniqueId: chan.channelPoint.slice(-12),
   channelPoint: chan.channelPoint,
@@ -149,15 +141,15 @@ const mapPendingChannel = (status: string) => (chan: PendingChannel): ChannelInf
 });
 
 const updateLinksAndPorts = (
-  info: ChannelInfo,
+  chan: LightningNodeChannel,
   pubkeys: Record<string, string>,
   nodes: { [x: string]: INode },
   fromNode: INode,
   links: { [x: string]: ILink },
 ) => {
   // use the channel point as a unique id since pending channels do not have a channel id yet
-  const chanId = info.uniqueId;
-  const toName = pubkeys[info.pubkey];
+  const chanId = chan.uniqueId;
+  const toName = pubkeys[chan.pubkey];
   const toNode = nodes[toName];
   const fromOnLeftSide = fromNode.position.x < toNode.position.x;
 
@@ -184,13 +176,13 @@ const updateLinksAndPorts = (
     from: { nodeId: fromNode.id, portId: chanId },
     to: { nodeId: toName, portId: chanId },
     properties: {
-      type: info.pending ? 'pending-channel' : 'open-channel',
-      channelPoint: info.channelPoint,
-      capacity: info.capacity,
-      fromBalance: info.localBalance,
-      toBalance: info.remoteBalance,
+      type: chan.pending ? 'pending-channel' : 'open-channel',
+      channelPoint: chan.channelPoint,
+      capacity: chan.capacity,
+      fromBalance: chan.localBalance,
+      toBalance: chan.remoteBalance,
       direction: fromOnLeftSide ? 'ltr' : 'rtl',
-      status: info.status,
+      status: chan.status,
     },
   };
 };

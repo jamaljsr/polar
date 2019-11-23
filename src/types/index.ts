@@ -4,6 +4,7 @@ import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { BitcoinNode, CommonNode, LightningNode, LndNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import {
+  LightningNodeAddress,
   LightningNodeBalances,
   LightningNodeInfo,
   LightningService,
@@ -55,7 +56,7 @@ export interface LndLibrary {
   waitUntilOnline: (node: LndNode) => Promise<void>;
   getInfo: (node: LndNode) => Promise<LightningNodeInfo>;
   getBalances: (node: LndNode) => Promise<LightningNodeBalances>;
-  getNewAddress: (node: LndNode) => Promise<LND.NewAddressResponse>;
+  getNewAddress: (node: LndNode) => Promise<LightningNodeAddress>;
   openChannel: (from: LndNode, to: LndNode, amount: string) => Promise<LND.ChannelPoint>;
   closeChannel: (node: LndNode, channelPoint: string) => Promise<any>;
   listChannels: (node: LndNode) => Promise<LND.ListChannelsResponse>;
