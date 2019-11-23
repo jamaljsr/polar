@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode } from 'shared/types';
+import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
 
 interface Props {
-  node: LndNode;
+  node: LightningNode;
 }
 
 const RemoveNode: React.FC<Props> = ({ node }) => {

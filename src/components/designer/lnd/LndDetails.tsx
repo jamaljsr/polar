@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
@@ -12,7 +12,7 @@ import ConnectTab from './ConnectTab';
 import InfoTab from './InfoTab';
 
 interface Props {
-  node: LndNode;
+  node: LightningNode;
 }
 
 const LndDetails: React.FC<Props> = ({ node }) => {
@@ -20,7 +20,7 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lnd);
   const getInfoAsync = useAsync(
-    async (node: LndNode) => {
+    async (node: LightningNode) => {
       if (node.status !== Status.Started) return;
       await getInfo(node);
       await getWalletBalance(node);

@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 import styled from '@emotion/styled';
 import { Icon, Radio } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode, Status } from 'shared/types';
+import { LightningNode, LndNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
@@ -30,7 +30,7 @@ const Styled = {
 };
 
 interface Props {
-  node: LndNode;
+  node: LightningNode;
 }
 
 const ConnectTab: React.FC<Props> = ({ node }) => {
@@ -46,6 +46,12 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;
   }
+
+  if (node.implementation !== 'LND') {
+    return <div>{`${node.implementation} coming soon..`}</div>;
+  }
+
+  const lndNode = node as LndNode;
 
   const grpcHost = `127.0.0.1:${node.ports.grpc}`;
   const restHost = `https://127.0.0.1:${node.ports.rest}`;
@@ -75,10 +81,10 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   });
 
   const authCmps: Record<string, ReactNode> = {
-    paths: <FilePaths node={node} />,
-    hex: <EncodedStrings node={node} encoding="hex" />,
-    base64: <EncodedStrings node={node} encoding="base64" />,
-    lndc: <LndConnect node={node} />,
+    paths: <FilePaths node={lndNode} />,
+    hex: <EncodedStrings node={lndNode} encoding="hex" />,
+    base64: <EncodedStrings node={lndNode} encoding="base64" />,
+    lndc: <LndConnect node={lndNode} />,
   };
 
   return (

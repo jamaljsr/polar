@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { LndNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { OpenTerminalButton } from 'components/terminal';
 import { Deposit, OpenChannelButtons, RemoveNode } from './actions';
 
@@ -11,7 +11,7 @@ const Styled = {
 };
 
 interface Props {
-  node: LndNode;
+  node: LightningNode;
 }
 
 const ActionsTab: React.FC<Props> = ({ node }) => {

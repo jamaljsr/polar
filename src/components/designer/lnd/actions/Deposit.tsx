@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LndNode } from 'shared/types';
+import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
 import { format } from 'utils/units';
 
 const InputGroup = Input.Group;
 
-const LndDeposit: React.FC<{ node: LndNode }> = ({ node }) => {
+const LndDeposit: React.FC<{ node: LightningNode }> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.Deposit');
   const [amount, setAmount] = useState(1000000);
   const { notify } = useStoreActions(s => s.app);
