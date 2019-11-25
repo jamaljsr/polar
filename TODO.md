@@ -2,7 +2,6 @@
 
 Small Stuff
 
-- fix open channel with auto-funding (throw errors from c-lightning api)
 - rename lnd in locale files
 - show notice about c-lightning 30 second delay
 
