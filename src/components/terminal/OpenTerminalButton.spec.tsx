@@ -1,14 +1,13 @@
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/dom';
 import { ipcChannels } from 'shared';
-import { BitcoinNode, LndNode } from 'shared/types';
+import { BitcoinNode, LightningNode } from 'shared/types';
 import { Network } from 'types';
-import { groupNodes } from 'utils/network';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import OpenTerminalButton from './OpenTerminalButton';
 
 describe('OpenTerminalButton', () => {
-  const renderComponent = (nodeSelector: (n: Network) => LndNode | BitcoinNode) => {
+  const renderComponent = (nodeSelector: (n: Network) => LightningNode | BitcoinNode) => {
     const network = getNetwork(1, 'test network');
     return renderWithProviders(<OpenTerminalButton node={nodeSelector(network)} />);
   };
@@ -30,7 +29,7 @@ describe('OpenTerminalButton', () => {
   });
 
   it('should render lnd help text', () => {
-    const { getByText } = renderComponent(n => groupNodes(n).lnd[0]);
+    const { getByText } = renderComponent(n => n.nodes.lightning[0]);
     const help = getByText("Run 'lncli' commands directly on the node");
     expect(help).toBeInTheDocument();
   });

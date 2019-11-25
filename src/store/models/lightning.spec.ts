@@ -20,7 +20,7 @@ jest.mock('utils/async');
 const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
-describe('LND Model', () => {
+describe('Lightning Model', () => {
   const rootModel = {
     network: networkModel,
     lightning: lightningModel,

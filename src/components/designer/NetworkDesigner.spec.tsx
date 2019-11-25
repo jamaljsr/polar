@@ -46,7 +46,7 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('backend')).toBeInTheDocument();
   });
 
-  it('should render correct # of LND nodes', async () => {
+  it('should render correct # of lightning nodes', async () => {
     const { findByText } = renderComponent();
     expect(await findByText('alice')).toBeInTheDocument();
     expect(await findByText('bob')).toBeInTheDocument();

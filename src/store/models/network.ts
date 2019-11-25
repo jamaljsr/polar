@@ -277,6 +277,7 @@ const networkModel: NetworkModel = {
     const newNetworks = networks.filter(n => n.id !== networkId);
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
+    network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),

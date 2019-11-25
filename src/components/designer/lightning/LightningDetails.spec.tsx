@@ -3,7 +3,6 @@ import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { Status } from 'shared/types';
 import * as files from 'utils/files';
-import { groupNodes } from 'utils/network';
 import {
   defaultStateBalances,
   defaultStateInfo,
@@ -15,7 +14,7 @@ import LightningDetails from './LightningDetails';
 
 jest.mock('utils/files');
 
-describe('LndDetails', () => {
+describe('LightningDetails', () => {
   const renderComponent = (status?: Status) => {
     const network = getNetwork(1, 'test network', status);
     if (status === Status.Error) {
@@ -31,7 +30,7 @@ describe('LndDetails', () => {
         },
       },
     };
-    const node = groupNodes(network).lnd[0];
+    const node = network.nodes.lightning[0];
     const cmp = <LightningDetails node={node} />;
     const result = renderWithProviders(cmp, { initialState });
     return {
@@ -185,7 +184,7 @@ describe('LndDetails', () => {
       expect(queryByText('Unconfirmed Balance')).not.toBeInTheDocument();
     });
 
-    it('should not display LND info if its undefined', async () => {
+    it('should not display node info if its undefined', async () => {
       lightningServiceMock.getInfo.mockResolvedValue(null as any);
       const { getByText, queryByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));

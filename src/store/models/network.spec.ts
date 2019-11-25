@@ -97,7 +97,7 @@ describe('Network model', () => {
       expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
     });
 
-    it('should add a network with the correct LND nodes', async () => {
+    it('should add a network with the correct lightning nodes', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
       const { lightning } = firstNetwork().nodes;
       expect(lightning.length).toBe(2);
@@ -240,7 +240,7 @@ describe('Network model', () => {
       );
     });
 
-    it('should set LND node status to error if the node startup fails', async () => {
+    it('should set lightning node status to error if the node startup fails', async () => {
       lightningServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
       const { start } = store.getActions().network;
       const network = firstNetwork();

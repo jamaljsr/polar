@@ -129,7 +129,7 @@ const lightningModel: LightningModel = {
       // cast because it should never be undefined after calling getInfo above
       const { rpcUrl } = getStoreState().lightning.nodes[to.name]
         .info as LightningNodeInfo;
-      // open the channel via LND
+      // open the channel via lightning node
       const api = injections.lightningFactory.getService(from);
       await api.openChannel(from, rpcUrl, sats);
       // mine some blocks to confirm the txn

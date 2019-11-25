@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
 import { BitcoindLibrary } from 'types';
-import { groupNodes } from 'utils/network';
 import {
   defaultStateInfo,
   getNetwork,
@@ -21,7 +20,7 @@ describe('Deposit', () => {
         networks: [network],
       },
     };
-    const node = groupNodes(network).lnd[0];
+    const node = network.nodes.lightning[0];
     const cmp = <Deposit node={node} />;
     const result = renderWithProviders(cmp, { initialState });
     return {

@@ -13,7 +13,12 @@ import {
 } from 'easy-peasy';
 import { LndNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
-import { createLightningChartNode, rotate, snap, updateChartFromLnd } from 'utils/chart';
+import {
+  createLightningChartNode,
+  rotate,
+  snap,
+  updateChartFromNodes,
+} from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
@@ -104,7 +109,7 @@ const designerModel: DesignerModel = {
       const nodesData = getStoreState().lightning.nodes;
       const { allCharts } = getState();
       // sync the chart with data from all of the nodes
-      const chart = updateChartFromLnd(allCharts[network.id], nodesData);
+      const chart = updateChartFromNodes(allCharts[network.id], nodesData);
       actions.setAllCharts({
         ...allCharts,
         [network.id]: chart,
