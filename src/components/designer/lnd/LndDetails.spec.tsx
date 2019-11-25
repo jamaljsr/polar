@@ -219,9 +219,9 @@ describe('LndDetails', () => {
 
     describe('connect options', () => {
       const toggle = (container: HTMLElement, value: string) => {
-        fireEvent.click(container.querySelector(
-          `input[name=authType][value=${value}]`,
-        ) as Element);
+        fireEvent.click(
+          container.querySelector(`input[name=authType][value=${value}]`) as Element,
+        );
       };
 
       it('should display hex values for paths', async () => {
