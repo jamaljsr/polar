@@ -29,6 +29,11 @@ const request = async <T>(
   const json = await response.json();
   debug(` - resp: ${JSON.stringify(json, null, 2)}`);
 
+  if (!response.ok && typeof json.error === 'object') {
+    const { code, message } = json.error;
+    throw new Error(`lightningd ${code}: ${message}`);
+  }
+
   return snakeKeysToCamel(json) as T;
 };
 
