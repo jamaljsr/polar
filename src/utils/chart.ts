@@ -208,6 +208,7 @@ export const updateChartFromLnd = (
 
   // remove ports for channels that no longer exist
   Object.values(nodes).forEach(node => {
+    if (!node) return;
     Object.keys(node.ports).forEach(portId => {
       // don't remove special ports
       if (['empty-left', 'empty-right', 'backend'].includes(portId)) return;

@@ -1,6 +1,6 @@
 import { LightningNode } from 'shared/types';
-import { clightningService } from 'lib/clightning';
-import { lndService } from 'lib/lnd';
+import { clightningService } from 'lib/lightning/clightning';
+import { lndService } from 'lib/lightning/lnd';
 import { LightningService } from 'types';
 import notImplementedService from './notImplementedService';
 
