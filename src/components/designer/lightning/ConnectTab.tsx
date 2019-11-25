@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
-import { Icon, Radio } from 'antd';
+import { Icon, Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CLightningNode, LightningNode, LndNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -71,7 +71,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       const cln = node as CLightningNode;
       return {
         restUrl: `https://127.0.0.1:${cln.ports.rest}`,
-        restDocsUrl: 'https://api.lightning.community/rest/',
+        restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
         credentials: {
           admin: cln.paths.macaroon,
         },
@@ -103,11 +103,15 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     value: (
       <>
         {info.grpcDocsUrl && (
-          <Styled.Link onClick={() => openInBrowser(info.grpcDocsUrl as string)}>
-            GRPC
-          </Styled.Link>
+          <Tooltip title={info.grpcDocsUrl}>
+            <Styled.Link onClick={() => openInBrowser(info.grpcDocsUrl as string)}>
+              GRPC
+            </Styled.Link>
+          </Tooltip>
         )}
-        <Styled.Link onClick={() => openInBrowser(info.restDocsUrl)}>REST</Styled.Link>
+        <Tooltip title={info.restDocsUrl}>
+          <Styled.Link onClick={() => openInBrowser(info.restDocsUrl)}>REST</Styled.Link>
+        </Tooltip>
         <Styled.Icon type="book" />
       </>
     ),
