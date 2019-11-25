@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { usePrefixedTranslation } from 'hooks';
-import { LndVersion } from 'shared/types';
+import { CLightningVersion, LndVersion } from 'shared/types';
 import { Network } from 'types';
+import clightningLogo from 'resources/clightning.png';
 import lndLogo from 'resources/lnd.png';
 import SidebarCard from '../SidebarCard';
 import SyncButton from '../SyncButton';
@@ -38,6 +39,16 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
             label={`LND v${version}`}
             icon={lndLogo}
             properties={{ type: 'lnd', version }}
+          />
+        ))}
+      {Object.keys(CLightningVersion)
+        .filter(v => v !== 'latest')
+        .map(version => (
+          <DraggableNode
+            key={version}
+            label={`c-lightning v${version}`}
+            icon={clightningLogo}
+            properties={{ type: 'c-lightning', version }}
           />
         ))}
     </SidebarCard>

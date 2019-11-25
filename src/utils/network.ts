@@ -52,7 +52,7 @@ const getLndFilePaths = (name: string, network: Network) => {
 export const createLndNetworkNode = (
   network: Network,
   version: LndVersion,
-  status: Status,
+  status = Status.Stopped,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
@@ -77,7 +77,7 @@ export const createLndNetworkNode = (
 export const createCLightningNetworkNode = (
   network: Network,
   version: CLightningVersion,
-  status: Status,
+  status = Status.Stopped,
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;

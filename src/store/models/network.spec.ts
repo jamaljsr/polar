@@ -152,16 +152,16 @@ describe('Network model', () => {
     });
 
     it('should add a node to an existing network', async () => {
-      const payload = { id: firstNetwork().id, version: LndVersion.latest };
-      store.getActions().network.addLndNode(payload);
+      const payload = { id: firstNetwork().id, type: 'lnd', version: LndVersion.latest };
+      store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
       expect(lightning).toHaveLength(3);
       expect(lightning[2].name).toBe('carol');
     });
 
     it('should throw an error if the network id is invalid', async () => {
-      const payload = { id: 999, version: LndVersion.latest };
-      const { addLndNode } = store.getActions().network;
+      const payload = { id: 999, type: 'lnd', version: LndVersion.latest };
+      const { addNode: addLndNode } = store.getActions().network;
       await expect(addLndNode(payload)).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
