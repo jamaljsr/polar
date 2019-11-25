@@ -9,7 +9,6 @@ import {
 } from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
-import { getContainerName } from 'utils/network';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
@@ -62,24 +61,19 @@ class LndService implements LightningService {
 
   async openChannel(
     from: LightningNode,
-    to: LightningNode,
+    toRpcUrl: string,
     amount: string,
   ): Promise<LightningNodeChannelPoint> {
-    // get pubkey of dest node
-    const { pubkey: toPubKey } = await this.getInfo(to);
-    const lndFrom = this.cast(from);
-
     // get peers of source node
+    const lndFrom = this.cast(from);
     const { peers } = await proxy.listPeers(lndFrom);
-    // check if already connected
-    const peer = peers.find(p => p.pubKey === toPubKey);
 
+    // get pubkey of dest node
+    const [toPubKey, host] = toRpcUrl.split('@');
     // add peer if not connected
+    const peer = peers.find(p => p.pubKey === toPubKey);
     if (!peer) {
-      const addr: LND.LightningAddress = {
-        pubkey: toPubKey,
-        host: getContainerName(to),
-      };
+      const addr: LND.LightningAddress = { pubkey: toPubKey, host };
       await proxy.connectPeer(lndFrom, { addr });
     }
 

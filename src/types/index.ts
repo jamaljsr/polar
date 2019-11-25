@@ -60,7 +60,7 @@ export interface LightningService {
   getChannels: (node: LightningNode) => Promise<LightningNodeChannel[]>;
   openChannel: (
     from: LightningNode,
-    to: LightningNode,
+    toRpcUrl: string,
     amount: string,
   ) => Promise<LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;

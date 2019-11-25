@@ -4,6 +4,7 @@ import { Status } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
+  defaultStateInfo,
   getNetwork,
   injections,
   lightningServiceMock,
@@ -121,6 +122,9 @@ describe('OpenChannelModal', () => {
 
   describe('with form submitted', () => {
     beforeEach(() => {
+      lightningServiceMock.getInfo.mockResolvedValue(
+        defaultStateInfo({ rpcUrl: 'asdf@host' }),
+      );
       lightningServiceMock.getChannels.mockResolvedValue([]);
       lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
       lightningServiceMock.getBalances.mockResolvedValue({
@@ -142,8 +146,8 @@ describe('OpenChannelModal', () => {
       await wait(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
-      const [node1, node2] = network.nodes.lightning;
-      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
+      const node2 = network.nodes.lightning[1];
+      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
 
@@ -157,8 +161,8 @@ describe('OpenChannelModal', () => {
       await wait(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
-      const [node1, node2] = network.nodes.lightning;
-      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, node1, 1000);
+      const node2 = network.nodes.lightning[1];
+      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
       expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
       expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);

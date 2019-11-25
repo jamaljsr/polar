@@ -32,7 +32,7 @@ class NotImplementedService implements LightningService {
   }
   openChannel(
     from: LightningNode,
-    to: LightningNode,
+    toRpcUrl: string,
     amount: string,
   ): Promise<LightningNodeChannelPoint> {
     throw new Error(`getChannels is not implemented for ${from.implementation} nodes`);
