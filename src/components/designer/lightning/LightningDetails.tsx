@@ -15,7 +15,7 @@ interface Props {
   node: LightningNode;
 }
 
-const LndDetails: React.FC<Props> = ({ node }) => {
+const LightningDetails: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.LndDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lnd);
@@ -80,4 +80,4 @@ const LndDetails: React.FC<Props> = ({ node }) => {
   );
 };
 
-export default LndDetails;
+export default LightningDetails;
