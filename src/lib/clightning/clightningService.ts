@@ -31,7 +31,9 @@ class CLightningService implements LightningService {
     return {
       pubkey: info.id,
       alias: info.alias,
-      rpcUrl: '',
+      rpcUrl: info.binding
+        .filter(b => b.type === 'ipv4')
+        .reduce((v, b) => `${info.id}@${b.address}:${b.port}`, ''),
       syncedToChain: !info.warningBitcoindSync && !info.warningLightningdSync,
       numActiveChannels: info.numActiveChannels,
       numPendingChannels: info.numPendingChannels,
@@ -78,7 +80,7 @@ class CLightningService implements LightningService {
   async openChannel(
     from: LightningNode,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    to: LightningNode,
+    toRpcUrl: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     amount: string,
   ): Promise<LightningNodeChannelPoint> {

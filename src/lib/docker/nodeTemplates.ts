@@ -109,6 +109,7 @@ export const clightning = (
   command: trimInside(`
     lightningd
       --alias=${name}
+      --addr=${name}
       --network=regtest
       --bitcoin-rpcuser=polaruser
       --bitcoin-rpcpassword=polarpass

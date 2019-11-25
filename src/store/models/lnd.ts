@@ -123,9 +123,15 @@ const lndModel: LndModel = {
         const fund = (parseInt(sats) * 2).toString();
         await actions.depositFunds({ node: from, sats: fund });
       }
+      // get the rpcUrl of the destination node
+      const toNode = getStoreState().lnd.nodes[to.name];
+      if (!toNode || !toNode.info) {
+        await actions.getInfo(to);
+      }
+      const { rpcUrl } = getStoreState().lnd.nodes[to.name].info as LightningNodeInfo;
       // open the channel via LND
       const api = injections.lightningFactory.getService(from);
-      await api.openChannel(from, to, sats);
+      await api.openChannel(from, rpcUrl, sats);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(from.networkId);
       const node = network.nodes.bitcoin[0];
