@@ -125,9 +125,8 @@ const lndModel: LndModel = {
       }
       // get the rpcUrl of the destination node
       const toNode = getStoreState().lnd.nodes[to.name];
-      if (!toNode || !toNode.info) {
-        await actions.getInfo(to);
-      }
+      if (!toNode || !toNode.info) await actions.getInfo(to);
+      // cast because it should never be undefined after calling getInfo above
       const { rpcUrl } = getStoreState().lnd.nodes[to.name].info as LightningNodeInfo;
       // open the channel via LND
       const api = injections.lightningFactory.getService(from);

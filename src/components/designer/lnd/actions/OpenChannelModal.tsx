@@ -6,7 +6,6 @@ import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { OpenChannelPayload } from 'store/models/lnd';
 import { Network } from 'types';
-import { groupNodes } from 'utils/network';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
@@ -31,8 +30,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
 
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
-    const { lnd } = groupNodes(network);
-    for (const node of lnd) {
+    for (const node of network.nodes.lightning) {
       await getWalletBalance(node);
     }
   }, [network.nodes, visible]);
@@ -61,9 +59,9 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
     form.validateFields((err, values: FormFields) => {
       if (err) return;
 
-      const { lnd } = groupNodes(network);
-      const fromNode = lnd.find(n => n.name === values.from);
-      const toNode = lnd.find(n => n.name === values.to);
+      const { lightning } = network.nodes;
+      const fromNode = lightning.find(n => n.name === values.from);
+      const toNode = lightning.find(n => n.name === values.to);
       if (!fromNode || !toNode) return;
       const autoFund = showDeposit && values.autoFund;
       openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats, autoFund });

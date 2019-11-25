@@ -1,10 +1,8 @@
-import { debug } from 'electron-log';
 import { CLightningNode, LightningNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
-import { read } from 'utils/files';
-import { snakeKeysToCamel } from 'utils/objects';
+import { httpGet, httpPost } from './clightningApi';
 import * as CLN from './types';
 
 const ChannelStateToStatus: Record<
@@ -24,7 +22,7 @@ const ChannelStateToStatus: Record<
 
 class CLightningService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
-    const info = await this.request<CLN.GetInfoResponse>(node, 'getinfo');
+    const info = await httpGet<CLN.GetInfoResponse>(this.cast(node), 'getinfo');
     return {
       pubkey: info.id,
       alias: info.alias,
@@ -39,7 +37,7 @@ class CLightningService implements LightningService {
   }
 
   async getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
-    const balances = await this.request<CLN.GetBalanceResponse>(node, 'getBalance');
+    const balances = await httpGet<CLN.GetBalanceResponse>(this.cast(node), 'getBalance');
     return {
       total: balances.totalBalance.toString(),
       confirmed: balances.confBalance.toString(),
@@ -48,23 +46,25 @@ class CLightningService implements LightningService {
   }
 
   async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    const address = await this.request<PLN.LightningNodeAddress>(node, 'newaddr');
+    const address = await httpGet<PLN.LightningNodeAddress>(this.cast(node), 'newaddr');
     return address;
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
-    const channels = await this.request<CLN.GetChannelsResponse[]>(
-      node,
+    const channels = await httpGet<CLN.GetChannelsResponse[]>(
+      this.cast(node),
       'channel/listChannels',
     );
     return channels
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
         const status = ChannelStateToStatus[c.state];
+        // c-lightning doesn't return the output index. hard-code to 0
+        const channelPoint = `${c.fundingTxid}:0`;
         return {
           pending: status !== 'Open',
-          uniqueId: c.fundingTxid.slice(-12),
-          channelPoint: c.fundingTxid,
+          uniqueId: channelPoint.slice(-12),
+          channelPoint,
           pubkey: c.id,
           capacity: this.toSats(c.msatoshiTotal),
           localBalance: this.toSats(c.msatoshiToUs),
@@ -75,7 +75,7 @@ class CLightningService implements LightningService {
   }
 
   async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
-    const peers = await this.request<CLN.Peer[]>(node, 'peer/listPeers');
+    const peers = await httpGet<CLN.Peer[]>(this.cast(node), 'peer/listPeers');
     return peers
       .filter(p => p.connected)
       .map(p => ({
@@ -84,21 +84,40 @@ class CLightningService implements LightningService {
       }));
   }
 
+  async connectPeer(node: LightningNode, toRpcUrl: string): Promise<void> {
+    const body = { id: toRpcUrl };
+    await httpPost<{ id: string }>(this.cast(node), 'peer/connect', body);
+  }
+
   async openChannel(
     from: LightningNode,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     toRpcUrl: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     amount: string,
   ): Promise<PLN.LightningNodeChannelPoint> {
-    /* Sample output
-      {
-        "tx": "020000000001018375970adb157e76bdf1214d7b874dd7870fc29fc7797be37965ffd2dc534d4f0100000000ffffffff0290d0030000000000220020af14c0deff170638da0652d69766cbe38cfc1e9653f5297723ea717379ed6fc116710b000000000016001406586c3ae5327631466f3db75f949416c2c03e8502483045022100f6066c5a93363b0888aaf6abf02e77ffcb590f2bf2d6a7d9ee6dc6984332a3760220310ef982ccc6f8d04905863dba9e850f5e77af4c935ee624d9bda385da134b83012103016ad498f69789e2fb373fdedaa06c1a3acde26c4e810509357677e91d91aaf100000000",
-        "txid": "2b15604898e54dd0157d01a08b8f4cd1862b621506e80eb078b92c7259033bcd",
-        "channel_id": "cd3b0359722cb978b00ee80615622b86d14c8f8ba0017d15d04de5984860152b"
-      }    
-    */
-    throw new Error(`openChannel is not implemented for ${from.implementation} nodes`);
+    // get peers of source node
+    const clnFrom = this.cast(from);
+    const peers = await this.getPeers(clnFrom);
+
+    // get pubkey of dest node
+    const [toPubKey] = toRpcUrl.split('@');
+    // add peer if not connected
+    if (!peers.some(p => p.pubkey === toPubKey)) {
+      await this.connectPeer(clnFrom, toRpcUrl);
+    }
+
+    // open the channel
+    const body: CLN.OpenChannelRequest = { id: toPubKey, satoshis: amount };
+    const res = await httpPost<CLN.OpenChannelResponse>(
+      this.cast(from),
+      'channel/openChannel',
+      body,
+    );
+
+    return {
+      txid: res.txid,
+      // c-lightning doesn't return the output index. hard-code to 0
+      index: 0,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -129,23 +148,6 @@ class CLightningService implements LightningService {
       interval,
       timeout,
     );
-  }
-
-  private async request<T>(node: LightningNode, path: string) {
-    debug(`c-lightning API Request`);
-    const { paths, ports } = this.cast(node);
-    const url = `http://127.0.0.1:${ports.rest}/v1/${path}`;
-    debug(` - url: ${url}`);
-    const macaroon = await read(paths.macaroon, 'base64');
-    const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        macaroon,
-      },
-    });
-    const json = await response.json();
-    debug(` - resp: ${JSON.stringify(json, null, 2)}`);
-    return snakeKeysToCamel(json) as T;
   }
 
   private toSats(msats: number): string {
