@@ -2,7 +2,7 @@ import { CLightningNode, LightningNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
-import { httpGet, httpPost } from './clightningApi';
+import { httpDelete, httpGet, httpPost } from './clightningApi';
 import * as CLN from './types';
 
 const ChannelStateToStatus: Record<
@@ -59,12 +59,10 @@ class CLightningService implements LightningService {
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
         const status = ChannelStateToStatus[c.state];
-        // c-lightning doesn't return the output index. hard-code to 0
-        const channelPoint = `${c.fundingTxid}:0`;
         return {
           pending: status !== 'Open',
-          uniqueId: channelPoint.slice(-12),
-          channelPoint,
+          uniqueId: c.shortChannelId,
+          channelPoint: c.channelId,
           pubkey: c.id,
           capacity: this.toSats(c.msatoshiTotal),
           localBalance: this.toSats(c.msatoshiToUs),
@@ -122,14 +120,10 @@ class CLightningService implements LightningService {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
-    /* - sample response
-      {
-        "tx": "0200000001c1c2feecdd65ad005f97879c31a78fa2570ba7c2182358ee1016730e3e38cb920000000000ffffffff013949020000000000160014548e6cc35fa2e56dd33b7c072c88eb9da155a7f600000000",
-        "txid": "bdcd0bde6f4bfbb7bd9f69387583c3273cecbe897c237c8a7893e67c215be671",
-        "type": "mutual"
-      }
-    */
-    throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
+    await httpDelete<CLN.CloseChannelResponse>(
+      this.cast(node),
+      `channel/closeChannel/${channelPoint}`,
+    );
   }
 
   /**
