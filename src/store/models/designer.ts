@@ -11,7 +11,7 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { LndNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createLightningChartNode,
@@ -39,7 +39,7 @@ export interface DesignerModel {
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   removeNode: Action<DesignerModel, string>;
-  addLndNode: Action<DesignerModel, { lndNode: LndNode; position: IPosition }>;
+  addNode: Action<DesignerModel, { lnNode: LightningNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   // Flowchart component callbacks
@@ -150,9 +150,9 @@ const designerModel: DesignerModel = {
       }
     });
   }),
-  addLndNode: action((state, { lndNode, position }) => {
+  addNode: action((state, { lnNode, position }) => {
     const chart = state.allCharts[state.activeId];
-    const { node, link } = createLightningChartNode(lndNode);
+    const { node, link } = createLightningChartNode(lnNode);
     node.position = position;
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;
@@ -209,10 +209,14 @@ const designerModel: DesignerModel = {
           message: l('dropErrTitle'),
           error: new Error(l('dropErrMsg')),
         });
-      } else if (data.type === 'lnd') {
-        const { addLndNode, start } = getStoreActions().network;
-        const lndNode = await addLndNode({ id: activeId, version: data.version });
-        actions.addLndNode({ lndNode, position });
+      } else if (['lnd', 'c-lightning'].includes(data.type)) {
+        const { addNode, start } = getStoreActions().network;
+        const lnNode = await addNode({
+          id: activeId,
+          type: data.type,
+          version: data.version,
+        });
+        actions.addNode({ lnNode, position });
         actions.redrawChart();
         if (network.status === Status.Started) {
           await start(activeId);

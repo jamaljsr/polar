@@ -2,11 +2,18 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { CommonNode, LightningNode, LndNode, LndVersion, Status } from 'shared/types';
+import {
+  CLightningVersion,
+  CommonNode,
+  LightningNode,
+  LndVersion,
+  Status,
+} from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
 import {
+  createCLightningNetworkNode,
   createLndNetworkNode,
   createNetwork,
   getOpenPorts,
@@ -40,12 +47,12 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
-  addLndNode: Thunk<
+  addNode: Thunk<
     NetworkModel,
-    { id: number; version: LndVersion },
+    { id: number; type: string; version: LndVersion | CLightningVersion },
     StoreInjections,
     RootModel,
-    Promise<LndNode>
+    Promise<LightningNode>
   >;
   removeNode: Thunk<NetworkModel, { node: LightningNode }, StoreInjections, RootModel>;
   setStatus: Action<
@@ -128,11 +135,14 @@ const networkModel: NetworkModel = {
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },
   ),
-  addLndNode: thunk(async (actions, { id, version }, { getState, injections }) => {
+  addNode: thunk(async (actions, { id, type, version }, { getState, injections }) => {
     const networks = getState().networks;
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-    const node = createLndNetworkNode(network, version, Status.Stopped);
+    const node =
+      type === 'c-lightning'
+        ? createCLightningNetworkNode(network, version as CLightningVersion)
+        : createLndNetworkNode(network, version as LndVersion);
     network.nodes.lightning.push(node);
     actions.setNetworks([...networks]);
     await actions.save();
