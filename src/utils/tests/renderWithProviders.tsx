@@ -13,6 +13,7 @@ export const lightningServiceMock: jest.Mocked<LightningService> = {
   getNewAddress: jest.fn(),
   getChannels: jest.fn(),
   getPeers: jest.fn(),
+  connectPeer: jest.fn(),
   openChannel: jest.fn(),
   closeChannel: jest.fn(),
   waitUntilOnline: jest.fn(),

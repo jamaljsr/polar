@@ -74,3 +74,14 @@ export interface Peer {
   localfeatures: string;
   globalfeatures: string;
 }
+
+export interface OpenChannelRequest {
+  id: string;
+  satoshis: string;
+}
+
+export interface OpenChannelResponse {
+  tx: string;
+  txid: string;
+  channelId: string;
+}

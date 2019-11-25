@@ -61,6 +61,12 @@ class LndService implements LightningService {
     }));
   }
 
+  async connectPeer(node: LightningNode, toRpcUrl: string): Promise<void> {
+    const [toPubKey, host] = toRpcUrl.split('@');
+    const addr: LND.LightningAddress = { pubkey: toPubKey, host };
+    await proxy.connectPeer(this.cast(node), { addr });
+  }
+
   async openChannel(
     from: LightningNode,
     toRpcUrl: string,
@@ -71,11 +77,10 @@ class LndService implements LightningService {
     const peers = await this.getPeers(lndFrom);
 
     // get pubkey of dest node
-    const [toPubKey, host] = toRpcUrl.split('@');
+    const [toPubKey] = toRpcUrl.split('@');
     // add peer if not connected
     if (!peers.some(p => p.pubkey === toPubKey)) {
-      const addr: LND.LightningAddress = { pubkey: toPubKey, host };
-      await proxy.connectPeer(lndFrom, { addr });
+      await this.connectPeer(lndFrom, toRpcUrl);
     }
 
     // open channel
