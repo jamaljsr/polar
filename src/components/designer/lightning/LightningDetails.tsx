@@ -16,7 +16,7 @@ interface Props {
 }
 
 const LightningDetails: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.LndDetails');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.LightningDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lightning);
   const getInfoAsync = useAsync(
@@ -63,7 +63,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
           showIcon
           icon={<Icon type="loading" />}
           closable={false}
-          message={l('waitingNotice')}
+          message={l('waitingNotice', { implementation: node.implementation })}
         />
       )}
       {node.status !== Status.Started && !nodeState && getInfoAsync.loading && <Loader />}
@@ -71,7 +71,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
         <Alert
           type="error"
           closable={false}
-          message={l('connectError')}
+          message={l('connectError', { implementation: node.implementation })}
           description={getInfoAsync.error.message}
         />
       )}

@@ -14,7 +14,7 @@ interface Props {
 }
 
 const InfoTab: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.InfoTab');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.InfoTab');
   const { nodes } = useStoreState(s => s.lightning);
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
@@ -31,6 +31,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     },
   ];
 
+  let showSyncWarning = false;
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
@@ -70,15 +71,19 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         { label: l('syncedToChain'), value: `${syncedToChain}` },
         { label: l('channels'), value: channels },
       );
+      showSyncWarning = !syncedToChain;
     }
   }
 
   return (
     <>
+      {showSyncWarning && (
+        <Alert type="warning" message={l('syncWarning')} closable={false} showIcon />
+      )}
       {node.status === Status.Error && node.errorMsg && (
         <Alert
           type="error"
-          message={l('startError')}
+          message={l('startError', { implementation: node.implementation })}
           description={node.errorMsg}
           closable={false}
           showIcon

@@ -16,7 +16,9 @@ interface Props {
 }
 
 const OpenChannelButtons: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.OpenChannelButtons');
+  const { l } = usePrefixedTranslation(
+    'cmps.designer.lightning.actions.OpenChannelButtons',
+  );
   const { showOpenChannel } = useStoreActions(s => s.modals);
 
   return (

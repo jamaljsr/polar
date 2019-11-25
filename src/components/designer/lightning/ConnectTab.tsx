@@ -46,7 +46,7 @@ interface Props {
 }
 
 const ConnectTab: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.ConnectTab');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.ConnectTab');
   const [authType, setAuthType] = useState<string>('paths');
   const { openInBrowser } = useStoreActions(s => s.app);
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
