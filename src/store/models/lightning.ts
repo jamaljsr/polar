@@ -1,4 +1,4 @@
-import { Action, action, Thunk, thunk } from 'easy-peasy';
+import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { LightningNode } from 'shared/types';
 import {
   LightningNodeBalances,
@@ -57,6 +57,7 @@ export interface LightningModel {
     StoreInjections,
     RootModel
   >;
+  mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
 }
 
 const lightningModel: LightningModel = {
@@ -163,6 +164,14 @@ const lightningModel: LightningModel = {
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
       getStoreActions().designer.redrawChart();
+    },
+  ),
+  mineListener: thunkOn(
+    (actions, storeActions) => storeActions.bitcoind.mine,
+    async (actions, { payload }, { getStoreState }) => {
+      // update all lightning nodes info when a block in mined
+      const network = getStoreState().network.networkById(payload.node.networkId);
+      await Promise.all(network.nodes.lightning.map(actions.getAllInfo));
     },
   ),
 };

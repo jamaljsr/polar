@@ -13,6 +13,7 @@ import {
   injections,
   lightningServiceMock,
 } from 'utils/tests';
+import bitcoindModel from './bitcoind';
 import lightningModel from './lightning';
 import networkModel from './network';
 
@@ -24,6 +25,7 @@ describe('Lightning Model', () => {
   const rootModel = {
     network: networkModel,
     lightning: lightningModel,
+    bitcoind: bitcoindModel,
   };
   const initialState = {
     network: {
