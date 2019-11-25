@@ -2,43 +2,40 @@ import React, { useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { LndNode } from 'shared/types';
 import { read } from 'utils/files';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
+import { ConnectionInfo } from '../ConnectTab';
 
 interface Props {
   encoding: 'hex' | 'base64';
-  node: LndNode;
+  credentials: ConnectionInfo['credentials'];
 }
 
-const EncodedStrings: React.FC<Props> = ({ encoding, node }) => {
+const EncodedStrings: React.FC<Props> = ({ encoding, credentials }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.EncodedStrings');
   const { notify } = useStoreActions(s => s.app);
   const [encodedValues, setEncodedValues] = useState<Record<string, string>>({});
   useAsync(async () => {
-    const { tlsCert, adminMacaroon, readonlyMacaroon } = node.paths;
+    const { cert, admin, readOnly } = credentials;
     try {
-      setEncodedValues({
-        tlsCert: await read(tlsCert, encoding),
-        adminMacaroon: await read(adminMacaroon, encoding),
-        readonlyMacaroon: await read(readonlyMacaroon, encoding),
-      });
+      const values: Record<string, string> = {};
+      if (cert) values[l('tlsCert')] = await read(cert, encoding);
+      if (admin) values[l('adminMacaroon')] = await read(admin, encoding);
+      if (readOnly) values[l('readOnlyMacaroon')] = await read(readOnly, encoding);
+      setEncodedValues(values);
     } catch (error) {
       notify({ message: l('error'), error });
     }
-  }, [node.paths, node.status, encoding]);
+  }, [credentials, encoding]);
 
-  const { tlsCert, adminMacaroon: admin, readonlyMacaroon: readonly } = encodedValues;
-  const auth: DetailValues = [
-    [l('tlsCert'), tlsCert, ellipseInner(tlsCert, 14)],
-    [l('adminMacaroon'), admin, ellipseInner(admin, 14)],
-    [l('readOnlyMacaroon'), readonly, ellipseInner(readonly, 14)],
-  ].map(([label, value, text]) => ({
-    label,
-    value: <CopyIcon label={label} value={value} text={text} />,
-  }));
+  const auth: DetailValues = Object.entries(encodedValues).map(([label, val]) => {
+    return {
+      label: label,
+      value: <CopyIcon label={label} value={val} text={ellipseInner(val, 14)} />,
+    };
+  });
 
   return <DetailsList details={auth} oneCol />;
 };

@@ -1,8 +1,8 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { Icon, Radio } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LightningNode, LndNode, Status } from 'shared/types';
+import { CLightningNode, LightningNode, LndNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
@@ -29,6 +29,18 @@ const Styled = {
   `,
 };
 
+export interface ConnectionInfo {
+  restUrl: string;
+  restDocsUrl: string;
+  grpcUrl?: string;
+  grpcDocsUrl?: string;
+  credentials: {
+    admin: string;
+    readOnly?: string;
+    cert?: string;
+  };
+}
+
 interface Props {
   node: LightningNode;
 }
@@ -37,54 +49,75 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.ConnectTab');
   const [authType, setAuthType] = useState<string>('paths');
   const { openInBrowser } = useStoreActions(s => s.app);
-  let lnUrl = '';
   const nodeState = useStoreState(s => s.lnd.nodes[node.name]);
-  if (nodeState && nodeState.info) {
-    lnUrl = nodeState.info.rpcUrl;
-  }
+
+  const lnUrl = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
+  const info = useMemo((): ConnectionInfo | undefined => {
+    if (node.status !== Status.Started) return;
+    if (node.implementation === 'LND') {
+      const lnd = node as LndNode;
+      return {
+        restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
+        restDocsUrl: 'https://api.lightning.community/rest/',
+        grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
+        grpcDocsUrl: 'https://api.lightning.community/',
+        credentials: {
+          admin: lnd.paths.adminMacaroon,
+          readOnly: lnd.paths.readonlyMacaroon,
+          cert: lnd.paths.tlsCert,
+        },
+      };
+    } else if (node.implementation === 'c-lightning') {
+      const cln = node as CLightningNode;
+      return {
+        restUrl: `https://127.0.0.1:${cln.ports.rest}`,
+        restDocsUrl: 'https://api.lightning.community/rest/',
+        credentials: {
+          admin: cln.paths.macaroon,
+        },
+      };
+    }
+  }, [node]);
 
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;
   }
 
-  if (node.implementation !== 'LND') {
-    return <div>{`${node.implementation} coming soon..`}</div>;
+  if (!info) {
+    return <>{l('unsupported', { implementation: node.implementation })}</>;
   }
 
-  const lndNode = node as LndNode;
-
-  const grpcHost = `127.0.0.1:${node.ports.grpc}`;
-  const restHost = `https://127.0.0.1:${node.ports.rest}`;
+  const { restUrl, grpcUrl, credentials } = info;
   const hosts: DetailValues = [
-    [l('grpcHost'), grpcHost, grpcHost],
-    [l('restHost'), restHost, restHost],
+    [l('grpcHost'), grpcUrl, grpcUrl],
+    [l('restHost'), restUrl, restUrl],
     [l('p2pLnUrl'), lnUrl, ellipseInner(lnUrl, 3, 19)],
-  ].map(([label, value, text]) => ({
-    label,
-    value: <CopyIcon label={label} value={value} text={text} />,
-  }));
+  ]
+    .filter(h => !!h[1]) // exclude empty values
+    .map(([label, value, text]) => ({
+      label,
+      value: <CopyIcon label={label} value={value as string} text={text} />,
+    }));
   hosts.push({
-    label: 'API Docs',
+    label: l('apiDocs'),
     value: (
       <>
-        <Styled.Link onClick={() => openInBrowser('https://api.lightning.community/')}>
-          GRPC
-        </Styled.Link>
-        <Styled.Link
-          onClick={() => openInBrowser('https://api.lightning.community/rest/')}
-        >
-          REST
-        </Styled.Link>
+        {info.grpcDocsUrl && (
+          <Styled.Link onClick={() => openInBrowser(info.grpcDocsUrl as string)}>
+            GRPC
+          </Styled.Link>
+        )}
+        <Styled.Link onClick={() => openInBrowser(info.restDocsUrl)}>REST</Styled.Link>
         <Styled.Icon type="book" />
       </>
     ),
   });
 
   const authCmps: Record<string, ReactNode> = {
-    paths: <FilePaths node={lndNode} />,
-    hex: <EncodedStrings node={lndNode} encoding="hex" />,
-    base64: <EncodedStrings node={lndNode} encoding="base64" />,
-    lndc: <LndConnect node={lndNode} />,
+    paths: <FilePaths credentials={credentials} />,
+    hex: <EncodedStrings credentials={credentials} encoding="hex" />,
+    base64: <EncodedStrings credentials={credentials} encoding="base64" />,
+    lndc: node.implementation === 'LND' && <LndConnect node={node as LndNode} />,
   };
 
   return (
@@ -99,7 +132,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         <Radio.Button value="paths">{l('filePaths')}</Radio.Button>
         <Radio.Button value="hex">{l('hexStrings')}</Radio.Button>
         <Radio.Button value="base64">{l('base64Strings')}</Radio.Button>
-        <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
+        {node.implementation === 'LND' && (
+          <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
+        )}
       </Styled.RadioGroup>
       {authCmps[authType]}
     </>
