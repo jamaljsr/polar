@@ -85,3 +85,9 @@ export interface OpenChannelResponse {
   txid: string;
   channelId: string;
 }
+
+export interface CloseChannelResponse {
+  tx: string;
+  txid: string;
+  type: string;
+}

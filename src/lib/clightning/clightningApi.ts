@@ -43,3 +43,7 @@ export const httpPost = async <T>(
 ): Promise<T> => {
   return request<T>(node, 'POST', path, body);
 };
+
+export const httpDelete = async <T>(node: CLightningNode, path: string): Promise<T> => {
+  return request<T>(node, 'DELETE', path);
+};
