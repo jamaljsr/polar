@@ -11,7 +11,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
-import LndDetails from './LndDetails';
+import LightningDetails from './LightningDetails';
 
 jest.mock('utils/files');
 
@@ -32,7 +32,7 @@ describe('LndDetails', () => {
       },
     };
     const node = groupNodes(network).lnd[0];
-    const cmp = <LndDetails node={node} />;
+    const cmp = <LightningDetails node={node} />;
     const result = renderWithProviders(cmp, { initialState });
     return {
       ...result,
