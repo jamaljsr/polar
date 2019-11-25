@@ -235,13 +235,6 @@ describe('DockerService', () => {
       expect(fs.ensureDir).toBeCalledTimes(3);
     });
 
-    it('should not create volume dirs for unknown implementations', async () => {
-      network.nodes.lightning[0].implementation = 'c-lightning';
-      composeMock.upAll.mockResolvedValue(mockResult);
-      await dockerService.start(network);
-      expect(fs.ensureDir).toBeCalledTimes(2);
-    });
-
     it('should call compose.down when a network is stopped', async () => {
       composeMock.down.mockResolvedValue(mockResult);
       await dockerService.stop(network);

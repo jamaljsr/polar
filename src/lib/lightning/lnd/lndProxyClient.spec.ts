@@ -1,11 +1,11 @@
 import { ipcChannels } from 'shared';
+import { LndNode } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
-import { groupNodes } from 'utils/network';
 import { getNetwork } from 'utils/tests';
 import lndProxyClient from './lndProxyClient';
 
 describe('LndService', () => {
-  const node = groupNodes(getNetwork()).lnd[0];
+  const node = getNetwork().nodes.lightning[0] as LndNode;
   let actualIpc: IpcSender;
 
   beforeEach(() => {

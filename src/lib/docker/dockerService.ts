@@ -109,9 +109,8 @@ class DockerService implements DockerLibrary {
       await ensureDir(join(network.path, 'volumes', 'bitcoind', node.name));
     }
     for (const node of lightning) {
-      if (node.implementation === 'LND') {
-        await ensureDir(join(network.path, 'volumes', 'lnd', node.name));
-      }
+      const volDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      await ensureDir(join(network.path, 'volumes', volDir, node.name));
     }
 
     info(`Starting docker containers for ${network.name}`);

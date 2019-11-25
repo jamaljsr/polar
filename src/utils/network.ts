@@ -18,7 +18,7 @@ import { range } from './numbers';
 export const getContainerName = (node: CommonNode) =>
   `polar-n${node.networkId}-${node.name}`;
 
-export const groupNodes = (network: Network) => {
+const groupNodes = (network: Network) => {
   const { bitcoin, lightning } = network.nodes;
   return {
     bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],

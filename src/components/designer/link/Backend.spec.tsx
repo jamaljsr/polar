@@ -8,37 +8,37 @@ describe('Backend component', () => {
   const renderComponent = () => {
     const network = getNetwork();
     const bitcoind = network.nodes.bitcoin[0];
-    const lnd = network.nodes.lightning[0];
-    const result = render(<Backend bitcoinNode={bitcoind} lightningNode={lnd} />);
+    const lightning = network.nodes.lightning[0];
+    const result = render(<Backend bitcoinNode={bitcoind} lightningNode={lightning} />);
     return {
       ...result,
       bitcoind,
-      lnd,
+      lightning,
     };
   };
 
-  describe('LND Details', () => {
+  describe('Lightning Details', () => {
     it('should display Name', () => {
-      const { getByText, lnd } = renderComponent();
-      expect(getByText(lnd.name)).toBeInTheDocument();
+      const { getByText, lightning } = renderComponent();
+      expect(getByText(lightning.name)).toBeInTheDocument();
     });
 
     it('should display Implementation', () => {
-      const { getByText, getAllByText, lnd } = renderComponent();
+      const { getByText, getAllByText, lightning } = renderComponent();
       expect(getAllByText('Implementation')).toHaveLength(2);
-      expect(getByText(lnd.implementation)).toBeInTheDocument();
+      expect(getByText(lightning.implementation)).toBeInTheDocument();
     });
 
     it('should display Version', () => {
-      const { getByText, getAllByText, lnd } = renderComponent();
+      const { getByText, getAllByText, lightning } = renderComponent();
       expect(getAllByText('Version')).toHaveLength(2);
-      expect(getByText(`v${lnd.version}`)).toBeInTheDocument();
+      expect(getByText(`v${lightning.version}`)).toBeInTheDocument();
     });
 
     it('should display Status', () => {
-      const { getAllByText, lnd } = renderComponent();
+      const { getAllByText, lightning } = renderComponent();
       expect(getAllByText('Status')).toHaveLength(2);
-      expect(getAllByText(Status[lnd.status])).toHaveLength(2);
+      expect(getAllByText(Status[lightning.status])).toHaveLength(2);
     });
   });
 

@@ -162,13 +162,13 @@ const updateLinksAndPorts = (
   };
 };
 
-export const updateChartFromLnd = (
+export const updateChartFromNodes = (
   chart: IChart,
-  lndData: LightningNodeMapping,
+  nodesData: LightningNodeMapping,
 ): IChart => {
   // create a mapping of node name to pubkey for lookups
   const pubkeys: Record<string, string> = {};
-  Object.entries(lndData).forEach(([name, data]) => {
+  Object.entries(nodesData).forEach(([name, data]) => {
     if (!data.info || !data.info.pubkey) return;
     pubkeys[data.info.pubkey] = name;
   });
@@ -178,7 +178,7 @@ export const updateChartFromLnd = (
   const createdLinkIds: string[] = [];
 
   // update the node and links for each node
-  Object.entries(lndData).forEach(([fromName, data]) => {
+  Object.entries(nodesData).forEach(([fromName, data]) => {
     const fromNode = nodes[fromName];
 
     if (data.channels) {
@@ -208,7 +208,6 @@ export const updateChartFromLnd = (
 
   // remove ports for channels that no longer exist
   Object.values(nodes).forEach(node => {
-    if (!node) return;
     Object.keys(node.ports).forEach(portId => {
       // don't remove special ports
       if (['empty-left', 'empty-right', 'backend'].includes(portId)) return;
@@ -220,7 +219,7 @@ export const updateChartFromLnd = (
   });
 
   // resize chart nodes if necessary to fit new ports
-  Object.keys(lndData).forEach(name => updateNodeSize(nodes[name]));
+  Object.keys(nodesData).forEach(name => updateNodeSize(nodes[name]));
 
   return {
     ...chart,

@@ -2,15 +2,15 @@ import { IChart, IConfig } from '@mrblenny/react-flow-chart';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
 import { defaultStateChannel, defaultStateInfo, getNetwork } from 'utils/tests';
-import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
+import { initChartFromNetwork, snap, updateChartFromNodes } from './chart';
 
 describe('Chart Util', () => {
   let network: Network;
   let chart: IChart;
-  let lndData: LightningNodeMapping;
+  let nodesData: LightningNodeMapping;
 
   const addChannel = (node: string, remotePubkey: string, pending?: boolean) => {
-    const { channels } = lndData[node];
+    const { channels } = nodesData[node];
     if (channels) {
       channels.push(
         defaultStateChannel({
@@ -30,13 +30,13 @@ describe('Chart Util', () => {
   beforeEach(() => {
     network = getNetwork();
     chart = initChartFromNetwork(network);
-    lndData = {
+    nodesData = {
       [network.nodes.lightning[0].name]: {
-        info: defaultStateInfo({ pubkey: 'lnd1pubkey' }),
+        info: defaultStateInfo({ pubkey: 'ln1pubkey' }),
         channels: [],
       },
       [network.nodes.lightning[1].name]: {
-        info: defaultStateInfo({ pubkey: 'lnd2pubkey' }),
+        info: defaultStateInfo({ pubkey: 'ln2pubkey' }),
         channels: [],
       },
     };
@@ -61,8 +61,8 @@ describe('Chart Util', () => {
 
   describe('updateChartFromNetwork', () => {
     it('should create link for an open channel', () => {
-      addChannel('alice', 'lnd2pubkey');
-      const result = updateChartFromLnd(chart, lndData);
+      addChannel('alice', 'ln2pubkey');
+      const result = updateChartFromNodes(chart, nodesData);
       expect(result.links['xxxxxxxxxx:0']).toBeDefined();
       const link = result.links['xxxxxxxxxx:0'];
       expect(link.from.nodeId).toBe('alice');
@@ -73,8 +73,8 @@ describe('Chart Util', () => {
     });
 
     it('should create link for a pending channel', () => {
-      addChannel('alice', 'lnd2pubkey', true);
-      const result = updateChartFromLnd(chart, lndData);
+      addChannel('alice', 'ln2pubkey', true);
+      const result = updateChartFromNodes(chart, nodesData);
       expect(result.links['xxxxxxxxxx:0']).toBeDefined();
       const link = result.links['xxxxxxxxxx:0'];
       expect(link.from.nodeId).toBe('alice');
@@ -85,28 +85,28 @@ describe('Chart Util', () => {
     });
 
     it('should remove links for channels that do not exist', () => {
-      addChannel('alice', 'lnd2pubkey');
-      const result = updateChartFromLnd(chart, lndData);
+      addChannel('alice', 'ln2pubkey');
+      const result = updateChartFromNodes(chart, nodesData);
       expect(result.links['xxxxxxxxxx:0']).toBeTruthy();
       // remove the channel
-      const node = lndData['alice'];
+      const node = nodesData['alice'];
       if (node.channels) node.channels = [];
-      const result2 = updateChartFromLnd(result, lndData);
+      const result2 = updateChartFromNodes(result, nodesData);
       expect(result2.links['xxxxxxxxxx:0']).toBeUndefined();
     });
 
     it('should make no changes if channels is undefined', () => {
-      lndData['alice'].channels = undefined;
-      lndData['bob'].channels = undefined;
-      const result = updateChartFromLnd(chart, lndData);
+      nodesData['alice'].channels = undefined;
+      nodesData['bob'].channels = undefined;
+      const result = updateChartFromNodes(chart, nodesData);
       expect(result).toEqual(chart);
     });
 
     it('should point link right to left', () => {
       chart.nodes['alice'].position.x = 200;
       chart.nodes['bob'].position.x = 100;
-      addChannel('alice', 'lnd2pubkey');
-      const result = updateChartFromLnd(chart, lndData);
+      addChannel('alice', 'ln2pubkey');
+      const result = updateChartFromNodes(chart, nodesData);
       const link = result.links['xxxxxxxxxx:0'];
       expect(link.properties.direction).toEqual('rtl');
     });
@@ -114,8 +114,8 @@ describe('Chart Util', () => {
     it('should update the node sizes', () => {
       chart.nodes['alice'].size = { width: 100, height: 20 };
       chart.nodes['bob'].size = undefined;
-      addChannel('alice', 'lnd2pubkey');
-      const result = updateChartFromLnd(chart, lndData);
+      addChannel('alice', 'ln2pubkey');
+      const result = updateChartFromNodes(chart, nodesData);
       let size = result.nodes['alice'].size;
       expect(size).toBeDefined();
       if (size) expect(size.height).toBe(60);

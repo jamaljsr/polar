@@ -1,4 +1,4 @@
-import { groupNodes } from 'utils/network';
+import { LndNode } from 'shared/types';
 import { getNetwork } from 'utils/tests';
 import ComposeFile from './composeFile';
 
@@ -6,7 +6,7 @@ describe('ComposeFile', () => {
   let composeFile = new ComposeFile();
   const network = getNetwork();
   const btcNode = network.nodes.bitcoin[0];
-  const lndNode = groupNodes(network).lnd[0];
+  const lndNode = network.nodes.lightning[0] as LndNode;
 
   beforeEach(() => {
     composeFile = new ComposeFile();

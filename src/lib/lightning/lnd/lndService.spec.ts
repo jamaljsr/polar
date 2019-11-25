@@ -7,7 +7,6 @@ import {
   defaultPendingOpenChannel,
   defaultWalletBalance,
 } from 'shared';
-import { groupNodes } from 'utils/network';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
 import lndProxyClient from './lndProxyClient';
 import lndService from './lndService';
@@ -15,7 +14,7 @@ import lndService from './lndService';
 jest.mock('./lndProxyClient');
 
 describe('LndService', () => {
-  const node = groupNodes(getNetwork()).lnd[0];
+  const node = getNetwork().nodes.lightning[0];
 
   it('should get node info', async () => {
     const apiResponse = defaultInfo({ identityPubkey: 'asdf' });

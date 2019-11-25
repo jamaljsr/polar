@@ -2,7 +2,7 @@ import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { Button, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LightningNode, LndNode, Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
 import { LinkProperties } from 'utils/chart';
 import { ellipseInner } from 'utils/strings';
@@ -38,7 +38,7 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
       cancelText: l('closeChanCancelBtn'),
       onOk: async () => {
         try {
-          await closeChannel({ node: from as LndNode, channelPoint });
+          await closeChannel({ node: from, channelPoint });
           notify({ message: l('closeChanSuccess') });
         } catch (error) {
           notify({ message: l('closeChanError'), error });
