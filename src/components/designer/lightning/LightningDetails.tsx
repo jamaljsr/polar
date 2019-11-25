@@ -18,7 +18,7 @@ interface Props {
 const LightningDetails: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.LndDetails');
   const [activeTab, setActiveTab] = useState('info');
-  const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lnd);
+  const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lightning);
   const getInfoAsync = useAsync(
     async (node: LightningNode) => {
       if (node.status !== Status.Started) return;
@@ -30,7 +30,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
   );
 
   let extra: ReactNode | undefined;
-  const { nodes } = useStoreState(s => s.lnd);
+  const { nodes } = useStoreState(s => s.lightning);
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {

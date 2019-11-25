@@ -29,7 +29,7 @@ describe('NetworkDesigner Component', () => {
       designer: {
         allCharts,
       },
-      lnd: {
+      lightning: {
         nodes: {
           alice: {},
         },

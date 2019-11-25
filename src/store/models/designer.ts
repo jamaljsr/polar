@@ -97,9 +97,11 @@ const designerModel: DesignerModel = {
   syncChart: thunk(
     async (actions, network, { getState, getStoreState, getStoreActions }) => {
       // fetch data from all of the nodes
-      await Promise.all(network.nodes.lightning.map(getStoreActions().lnd.getAllInfo));
+      await Promise.all(
+        network.nodes.lightning.map(getStoreActions().lightning.getAllInfo),
+      );
 
-      const nodesData = getStoreState().lnd.nodes;
+      const nodesData = getStoreState().lightning.nodes;
       const { allCharts } = getState();
       // sync the chart with data from all of the nodes
       const chart = updateChartFromLnd(allCharts[network.id], nodesData);

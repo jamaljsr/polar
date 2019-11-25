@@ -25,7 +25,7 @@ describe('LndDetails', () => {
       network: {
         networks: [network],
       },
-      lnd: {
+      lightning: {
         nodes: {
           alice: {},
         },

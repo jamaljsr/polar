@@ -4,7 +4,7 @@ import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
-import { OpenChannelPayload } from 'store/models/lnd';
+import { OpenChannelPayload } from 'store/models/lightning';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
@@ -22,10 +22,10 @@ interface Props extends FormComponentProps<FormFields> {
 
 const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.OpenChannelModal');
-  const { nodes } = useStoreState(s => s.lnd);
+  const { nodes } = useStoreState(s => s.lightning);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
-  const { getWalletBalance, openChannel } = useStoreActions(s => s.lnd);
+  const { getWalletBalance, openChannel } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
 
   const getBalancesAsync = useAsync(async () => {

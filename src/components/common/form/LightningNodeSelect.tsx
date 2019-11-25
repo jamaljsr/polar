@@ -3,7 +3,7 @@ import { Form, Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNodeBalances } from 'lib/lightning/types';
-import { LndNodeModel } from 'store/models/lnd';
+import { LightningNodeModel } from 'store/models/lightning';
 import { Network } from 'types';
 import { format } from 'utils/units';
 
@@ -15,7 +15,7 @@ export interface Props {
   disabled?: boolean;
   initialValue?: string;
   nodes?: {
-    [key: string]: LndNodeModel;
+    [key: string]: LightningNodeModel;
   };
 }
 

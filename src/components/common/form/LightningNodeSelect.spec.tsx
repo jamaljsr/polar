@@ -1,13 +1,13 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { Form } from 'antd';
-import { LndNodeModel } from 'store/models/lnd';
+import { LightningNodeModel } from 'store/models/lightning';
 import { defaultStateBalances, getNetwork } from 'utils/tests';
 import LightningNodeSelect, { Props } from './LightningNodeSelect';
 
 describe('LightningNodeSelect', () => {
   const renderComponent = (
-    initialNodes?: { [key: string]: LndNodeModel },
+    initialNodes?: { [key: string]: LightningNodeModel },
     initialValue?: string,
   ) => {
     const network = getNetwork(1, 'test network');

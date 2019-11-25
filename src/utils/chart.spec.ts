@@ -1,5 +1,5 @@
 import { IChart, IConfig } from '@mrblenny/react-flow-chart';
-import { LndNodeMapping } from 'store/models/lnd';
+import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
 import { defaultStateChannel, defaultStateInfo, getNetwork } from 'utils/tests';
 import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
@@ -7,7 +7,7 @@ import { initChartFromNetwork, snap, updateChartFromLnd } from './chart';
 describe('Chart Util', () => {
   let network: Network;
   let chart: IChart;
-  let lndData: LndNodeMapping;
+  let lndData: LightningNodeMapping;
 
   const addChannel = (node: string, remotePubkey: string, pending?: boolean) => {
     const { channels } = lndData[node];

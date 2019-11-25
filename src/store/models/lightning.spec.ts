@@ -13,7 +13,7 @@ import {
   injections,
   lightningServiceMock,
 } from 'utils/tests';
-import lndModel from './lnd';
+import lightningModel from './lightning';
 import networkModel from './network';
 
 jest.mock('utils/async');
@@ -23,7 +23,7 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLi
 describe('LND Model', () => {
   const rootModel = {
     network: networkModel,
-    lnd: lndModel,
+    lightning: lightningModel,
   };
   const initialState = {
     network: {
@@ -57,13 +57,13 @@ describe('LND Model', () => {
   });
 
   it('should have a valid initial state', () => {
-    expect(store.getState().lnd.nodes).toEqual({});
+    expect(store.getState().lightning.nodes).toEqual({});
   });
 
   it('should update state with getInfo response', async () => {
-    const { getInfo } = store.getActions().lnd;
+    const { getInfo } = store.getActions().lightning;
     await getInfo(node);
-    const nodeState = store.getState().lnd.nodes[node.name];
+    const nodeState = store.getState().lightning.nodes[node.name];
     expect(nodeState.info).toBeDefined();
     const info = nodeState.info as LightningNodeInfo;
     expect(info.alias).toEqual('my-node');
@@ -72,9 +72,9 @@ describe('LND Model', () => {
   });
 
   it('should update state with getBalance response', async () => {
-    const { getWalletBalance } = store.getActions().lnd;
+    const { getWalletBalance } = store.getActions().lightning;
     await getWalletBalance(node);
-    const nodeState = store.getState().lnd.nodes[node.name];
+    const nodeState = store.getState().lightning.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LightningNodeBalances;
     expect(balances.confirmed).toEqual('100');
@@ -83,18 +83,18 @@ describe('LND Model', () => {
   });
 
   it('should update state with getChannels response', async () => {
-    const { getChannels } = store.getActions().lnd;
+    const { getChannels } = store.getActions().lightning;
     await getChannels(node);
-    const nodeState = store.getState().lnd.nodes[node.name];
+    const nodeState = store.getState().lightning.nodes[node.name];
     expect(nodeState.channels).toBeDefined();
     const channels = nodeState.channels as LightningNodeChannel[];
     expect(channels).toEqual([]);
   });
 
   it('should be able to deposit funds using the backend bitcoin node', async () => {
-    const { depositFunds } = store.getActions().lnd;
+    const { depositFunds } = store.getActions().lightning;
     await depositFunds({ node, sats: '50000' });
-    const nodeState = store.getState().lnd.nodes[node.name];
+    const nodeState = store.getState().lightning.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LightningNodeBalances;
     expect(balances.confirmed).toEqual('100');
@@ -103,10 +103,10 @@ describe('LND Model', () => {
   });
 
   it('should be able to deposit funds using the first bitcoin node', async () => {
-    const { depositFunds } = store.getActions().lnd;
+    const { depositFunds } = store.getActions().lightning;
     const modifiednode = { ...node, backendName: 'not-valid' };
     await depositFunds({ node: modifiednode, sats: '50000' });
-    const nodeState = store.getState().lnd.nodes[node.name];
+    const nodeState = store.getState().lightning.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LightningNodeBalances;
     expect(balances.confirmed).toEqual('100');
