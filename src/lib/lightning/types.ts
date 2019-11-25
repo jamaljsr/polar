@@ -26,7 +26,13 @@ export interface LightningNodeChannel {
   capacity: string;
   localBalance: string;
   remoteBalance: string;
-  status: 'Open' | 'Opening' | 'Closing' | 'Force Closing' | 'Waiting to Close';
+  status:
+    | 'Open'
+    | 'Opening'
+    | 'Closing'
+    | 'Force Closing'
+    | 'Waiting to Close'
+    | 'Closed';
 }
 
 export interface LightningNodeChannelPoint {
