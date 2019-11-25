@@ -1,3 +1,8 @@
+/*
+ * Shared types to normalize interfaces between the different
+ * lightning implementations
+ */
+
 export interface LightningNodeInfo {
   pubkey: string;
   alias: string;
@@ -38,4 +43,9 @@ export interface LightningNodeChannel {
 export interface LightningNodeChannelPoint {
   txid: string;
   index: number;
+}
+
+export interface LightningNodePeer {
+  pubkey: string;
+  address: string;
 }

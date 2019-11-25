@@ -65,3 +65,12 @@ export interface GetChannelsResponse {
   state: ChannelState;
   theirChannelReserveSatoshis: number;
 }
+
+export interface Peer {
+  id: string;
+  alias: string;
+  connected: boolean;
+  netaddr: string[];
+  localfeatures: string;
+  globalfeatures: string;
+}

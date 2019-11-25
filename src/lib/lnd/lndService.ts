@@ -1,19 +1,13 @@
 import * as LND from '@radar/lnrpc';
 import { LightningNode, LndNode } from 'shared/types';
-import {
-  LightningNodeAddress,
-  LightningNodeBalances,
-  LightningNodeChannel,
-  LightningNodeChannelPoint,
-  LightningNodeInfo,
-} from 'lib/lightning/types';
+import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
 class LndService implements LightningService {
-  async getInfo(node: LightningNode): Promise<LightningNodeInfo> {
+  async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await proxy.getInfo(this.cast(node));
     return {
       pubkey: info.identityPubkey,
@@ -26,7 +20,7 @@ class LndService implements LightningService {
     };
   }
 
-  async getBalances(node: LightningNode): Promise<LightningNodeBalances> {
+  async getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
     const balances = await proxy.getWalletBalance(this.cast(node));
     return {
       total: balances.totalBalance,
@@ -35,11 +29,11 @@ class LndService implements LightningService {
     };
   }
 
-  async getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
+  async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
     return await proxy.getNewAddress(this.cast(node));
   }
 
-  async getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
+  async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
     const { channels: open } = await proxy.listChannels(this.cast(node), {});
     const {
       pendingOpenChannels: opening,
@@ -59,20 +53,27 @@ class LndService implements LightningService {
     ];
   }
 
+  async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
+    const { peers } = await proxy.listPeers(this.cast(node));
+    return peers.map(p => ({
+      pubkey: p.pubKey,
+      address: p.address,
+    }));
+  }
+
   async openChannel(
     from: LightningNode,
     toRpcUrl: string,
     amount: string,
-  ): Promise<LightningNodeChannelPoint> {
+  ): Promise<PLN.LightningNodeChannelPoint> {
     // get peers of source node
     const lndFrom = this.cast(from);
-    const { peers } = await proxy.listPeers(lndFrom);
+    const peers = await this.getPeers(lndFrom);
 
     // get pubkey of dest node
     const [toPubKey, host] = toRpcUrl.split('@');
     // add peer if not connected
-    const peer = peers.find(p => p.pubKey === toPubKey);
-    if (!peer) {
+    if (!peers.some(p => p.pubkey === toPubKey)) {
       const addr: LND.LightningAddress = { pubkey: toPubKey, host };
       await proxy.connectPeer(lndFrom, { addr });
     }

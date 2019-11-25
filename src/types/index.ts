@@ -2,13 +2,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
-import {
-  LightningNodeAddress,
-  LightningNodeBalances,
-  LightningNodeChannel,
-  LightningNodeChannelPoint,
-  LightningNodeInfo,
-} from 'lib/lightning/types';
+import * as PLN from 'lib/lightning/types';
 
 export interface LocaleConfig {
   fallbackLng: string;
@@ -54,15 +48,16 @@ export interface BitcoindLibrary {
 
 export interface LightningService {
   waitUntilOnline: (node: LightningNode) => Promise<void>;
-  getInfo: (node: LightningNode) => Promise<LightningNodeInfo>;
-  getBalances: (node: LightningNode) => Promise<LightningNodeBalances>;
-  getNewAddress: (node: LightningNode) => Promise<LightningNodeAddress>;
-  getChannels: (node: LightningNode) => Promise<LightningNodeChannel[]>;
+  getInfo: (node: LightningNode) => Promise<PLN.LightningNodeInfo>;
+  getBalances: (node: LightningNode) => Promise<PLN.LightningNodeBalances>;
+  getNewAddress: (node: LightningNode) => Promise<PLN.LightningNodeAddress>;
+  getChannels: (node: LightningNode) => Promise<PLN.LightningNodeChannel[]>;
+  getPeers: (node: LightningNode) => Promise<PLN.LightningNodePeer[]>;
   openChannel: (
     from: LightningNode,
     toRpcUrl: string,
     amount: string,
-  ) => Promise<LightningNodeChannelPoint>;
+  ) => Promise<PLN.LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
 }
 
