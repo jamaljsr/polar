@@ -9,7 +9,7 @@ interface Props {
 }
 
 const RemoveNode: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.RemoveNode');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.RemoveNode');
   const { notify } = useStoreActions(s => s.app);
   const { removeNode } = useStoreActions(s => s.network);
 

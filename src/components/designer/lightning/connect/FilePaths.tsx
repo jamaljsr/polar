@@ -10,7 +10,7 @@ interface Props {
 }
 
 const FilePaths: React.FC<Props> = ({ credentials }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.FilePaths');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.connect.FilePaths');
   const { cert, admin, readOnly } = credentials;
 
   const auth: DetailValues = [

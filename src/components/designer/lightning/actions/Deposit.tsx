@@ -9,7 +9,7 @@ import { format } from 'utils/units';
 const InputGroup = Input.Group;
 
 const Deposit: React.FC<{ node: LightningNode }> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.Deposit');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.Deposit');
   const [amount, setAmount] = useState(1000000);
   const { notify } = useStoreActions(s => s.app);
   const { depositFunds } = useStoreActions(s => s.lightning);

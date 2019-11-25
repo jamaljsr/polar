@@ -21,7 +21,9 @@ interface Props extends FormComponentProps<FormFields> {
 }
 
 const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.OpenChannelModal');
+  const { l } = usePrefixedTranslation(
+    'cmps.designer.lightning.actions.OpenChannelModal',
+  );
   const { nodes } = useStoreState(s => s.lightning);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const { hideOpenChannel } = useStoreActions(s => s.modals);

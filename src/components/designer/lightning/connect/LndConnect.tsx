@@ -14,7 +14,7 @@ interface Props {
 }
 
 const LndConnect: React.FC<Props> = ({ node }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.LndConnect');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.connect.LndConnect');
   const { notify } = useStoreActions(s => s.app);
   const [connectUrl, setConnectUrl] = useState('');
   useAsync(async () => {

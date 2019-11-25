@@ -14,7 +14,7 @@ interface Props {
 }
 
 const EncodedStrings: React.FC<Props> = ({ encoding, credentials }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.lnd.connect.EncodedStrings');
+  const { l } = usePrefixedTranslation('cmps.designer.lightning.connect.EncodedStrings');
   const { notify } = useStoreActions(s => s.app);
   const [encodedValues, setEncodedValues] = useState<Record<string, string>>({});
   useAsync(async () => {
