@@ -1,19 +1,16 @@
 import { debug } from 'electron-log';
 import { CLightningNode, LightningNode } from 'shared/types';
-import {
-  LightningNodeAddress,
-  LightningNodeBalances,
-  LightningNodeChannel,
-  LightningNodeChannelPoint,
-  LightningNodeInfo,
-} from 'lib/lightning/types';
+import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { read } from 'utils/files';
 import { snakeKeysToCamel } from 'utils/objects';
 import * as CLN from './types';
 
-const ChannelStateToStatus: Record<CLN.ChannelState, LightningNodeChannel['status']> = {
+const ChannelStateToStatus: Record<
+  CLN.ChannelState,
+  PLN.LightningNodeChannel['status']
+> = {
   CHANNELD_AWAITING_LOCKIN: 'Opening',
   CHANNELD_NORMAL: 'Open',
   CHANNELD_SHUTTING_DOWN: 'Closing',
@@ -26,7 +23,7 @@ const ChannelStateToStatus: Record<CLN.ChannelState, LightningNodeChannel['statu
 };
 
 class CLightningService implements LightningService {
-  async getInfo(node: LightningNode): Promise<LightningNodeInfo> {
+  async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await this.request<CLN.GetInfoResponse>(node, 'getinfo');
     return {
       pubkey: info.id,
@@ -41,7 +38,7 @@ class CLightningService implements LightningService {
     };
   }
 
-  async getBalances(node: LightningNode): Promise<LightningNodeBalances> {
+  async getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
     const balances = await this.request<CLN.GetBalanceResponse>(node, 'getBalance');
     return {
       total: balances.totalBalance.toString(),
@@ -50,12 +47,12 @@ class CLightningService implements LightningService {
     };
   }
 
-  async getNewAddress(node: LightningNode): Promise<LightningNodeAddress> {
-    const address = await this.request<LightningNodeAddress>(node, 'newaddr');
+  async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
+    const address = await this.request<PLN.LightningNodeAddress>(node, 'newaddr');
     return address;
   }
 
-  async getChannels(node: LightningNode): Promise<LightningNodeChannel[]> {
+  async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
     const channels = await this.request<CLN.GetChannelsResponse[]>(
       node,
       'channel/listChannels',
@@ -77,13 +74,23 @@ class CLightningService implements LightningService {
       });
   }
 
+  async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
+    const peers = await this.request<CLN.Peer[]>(node, 'peer/listPeers');
+    return peers
+      .filter(p => p.connected)
+      .map(p => ({
+        pubkey: p.id,
+        address: (p.netaddr && p.netaddr[0]) || '',
+      }));
+  }
+
   async openChannel(
     from: LightningNode,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     toRpcUrl: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     amount: string,
-  ): Promise<LightningNodeChannelPoint> {
+  ): Promise<PLN.LightningNodeChannelPoint> {
     /* Sample output
       {
         "tx": "020000000001018375970adb157e76bdf1214d7b874dd7870fc29fc7797be37965ffd2dc534d4f0100000000ffffffff0290d0030000000000220020af14c0deff170638da0652d69766cbe38cfc1e9653f5297723ea717379ed6fc116710b000000000016001406586c3ae5327631466f3db75f949416c2c03e8502483045022100f6066c5a93363b0888aaf6abf02e77ffcb590f2bf2d6a7d9ee6dc6984332a3760220310ef982ccc6f8d04905863dba9e850f5e77af4c935ee624d9bda385da134b83012103016ad498f69789e2fb373fdedaa06c1a3acde26c4e810509357677e91d91aaf100000000",
