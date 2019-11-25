@@ -29,7 +29,7 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
   } = link.properties as LinkProperties;
 
   const { notify } = useStoreActions(s => s.app);
-  const { closeChannel } = useStoreActions(s => s.lnd);
+  const { closeChannel } = useStoreActions(s => s.lightning);
   const showCloseChanModal = () => {
     Modal.confirm({
       title: l('closeChanModalTitle'),

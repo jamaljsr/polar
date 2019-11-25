@@ -12,7 +12,7 @@ const LndDeposit: React.FC<{ node: LightningNode }> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.actions.Deposit');
   const [amount, setAmount] = useState(1000000);
   const { notify } = useStoreActions(s => s.app);
-  const { depositFunds } = useStoreActions(s => s.lnd);
+  const { depositFunds } = useStoreActions(s => s.lightning);
   const depositAsync = useAsyncCallback(async () => {
     try {
       await depositFunds({ node, sats: amount.toString() });

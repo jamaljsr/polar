@@ -11,11 +11,11 @@ import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
-export interface LndNodeMapping {
-  [key: string]: LndNodeModel;
+export interface LightningNodeMapping {
+  [key: string]: LightningNodeModel;
 }
 
-export interface LndNodeModel {
+export interface LightningNodeModel {
   info?: LightningNodeInfo;
   walletBalance?: LightningNodeBalances;
   channels?: LightningNodeChannel[];
@@ -33,33 +33,33 @@ export interface OpenChannelPayload {
   autoFund: boolean;
 }
 
-export interface LndModel {
-  nodes: LndNodeMapping;
-  removeNode: Action<LndModel, string>;
-  setInfo: Action<LndModel, { node: LightningNode; info: LightningNodeInfo }>;
-  getInfo: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
+export interface LightningModel {
+  nodes: LightningNodeMapping;
+  removeNode: Action<LightningModel, string>;
+  setInfo: Action<LightningModel, { node: LightningNode; info: LightningNodeInfo }>;
+  getInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   setWalletBalance: Action<
-    LndModel,
+    LightningModel,
     { node: LightningNode; balance: LightningNodeBalances }
   >;
-  getWalletBalance: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
+  getWalletBalance: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   setChannels: Action<
-    LndModel,
-    { node: LightningNode; channels: LndNodeModel['channels'] }
+    LightningModel,
+    { node: LightningNode; channels: LightningNodeModel['channels'] }
   >;
-  getChannels: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
-  getAllInfo: Thunk<LndModel, LightningNode, StoreInjections, RootModel>;
-  depositFunds: Thunk<LndModel, DepositFundsPayload, StoreInjections, RootModel>;
-  openChannel: Thunk<LndModel, OpenChannelPayload, StoreInjections, RootModel>;
+  getChannels: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
+  getAllInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
+  depositFunds: Thunk<LightningModel, DepositFundsPayload, StoreInjections, RootModel>;
+  openChannel: Thunk<LightningModel, OpenChannelPayload, StoreInjections, RootModel>;
   closeChannel: Thunk<
-    LndModel,
+    LightningModel,
     { node: LightningNode; channelPoint: string },
     StoreInjections,
     RootModel
   >;
 }
 
-const lndModel: LndModel = {
+const lightningModel: LightningModel = {
   // state properties
   nodes: {},
   // reducer actions (mutations allowed thx to immer)
@@ -124,10 +124,11 @@ const lndModel: LndModel = {
         await actions.depositFunds({ node: from, sats: fund });
       }
       // get the rpcUrl of the destination node
-      const toNode = getStoreState().lnd.nodes[to.name];
+      const toNode = getStoreState().lightning.nodes[to.name];
       if (!toNode || !toNode.info) await actions.getInfo(to);
       // cast because it should never be undefined after calling getInfo above
-      const { rpcUrl } = getStoreState().lnd.nodes[to.name].info as LightningNodeInfo;
+      const { rpcUrl } = getStoreState().lightning.nodes[to.name]
+        .info as LightningNodeInfo;
       // open the channel via LND
       const api = injections.lightningFactory.getService(from);
       await api.openChannel(from, rpcUrl, sats);
@@ -166,4 +167,4 @@ const lndModel: LndModel = {
   ),
 };
 
-export default lndModel;
+export default lightningModel;

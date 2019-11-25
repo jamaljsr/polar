@@ -145,7 +145,8 @@ const networkModel: NetworkModel = {
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
       network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
-      if (node.implementation === 'LND') getStoreActions().lnd.removeNode(node.name);
+      if (node.implementation === 'LND')
+        getStoreActions().lightning.removeNode(node.name);
       await injections.dockerService.removeNode(network, node);
       getStoreActions().designer.removeNode(node.name);
       actions.setNetworks([...networks]);

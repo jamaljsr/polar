@@ -1,7 +1,7 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
-import { LndNodeMapping } from 'store/models/lnd';
+import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
 import btclogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
@@ -162,7 +162,10 @@ const updateLinksAndPorts = (
   };
 };
 
-export const updateChartFromLnd = (chart: IChart, lndData: LndNodeMapping): IChart => {
+export const updateChartFromLnd = (
+  chart: IChart,
+  lndData: LightningNodeMapping,
+): IChart => {
   // create a mapping of node name to pubkey for lookups
   const pubkeys: Record<string, string> = {};
   Object.entries(lndData).forEach(([name, data]) => {

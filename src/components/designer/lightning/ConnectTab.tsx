@@ -49,7 +49,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lnd.ConnectTab');
   const [authType, setAuthType] = useState<string>('paths');
   const { openInBrowser } = useStoreActions(s => s.app);
-  const nodeState = useStoreState(s => s.lnd.nodes[node.name]);
+  const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
 
   const lnUrl = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
   const info = useMemo((): ConnectionInfo | undefined => {

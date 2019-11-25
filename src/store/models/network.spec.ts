@@ -8,7 +8,7 @@ import { getNetwork, injections, lightningServiceMock } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
-import lndModel from './lnd';
+import lightningModel from './lightning';
 import networkModel from './network';
 
 jest.mock('utils/files', () => ({
@@ -25,7 +25,7 @@ describe('Network model', () => {
   const rootModel = {
     app: appModel,
     network: networkModel,
-    lnd: lndModel,
+    lightning: lightningModel,
     bitcoind: bitcoindModel,
     designer: designerModel,
   };
