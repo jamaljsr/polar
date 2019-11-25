@@ -155,14 +155,16 @@ const networkModel: NetworkModel = {
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
       network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
-      if (node.implementation === 'LND')
+      if (node.type === 'lightning') {
         getStoreActions().lightning.removeNode(node.name);
+      }
       await injections.dockerService.removeNode(network, node);
       getStoreActions().designer.removeNode(node.name);
       actions.setNetworks([...networks]);
       await actions.save();
+      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      rm(join(network.path, 'volumes', volumeDir, node.name));
       if (node.implementation === 'LND') {
-        rm(join(network.path, 'volumes', 'lnd', node.name));
         getStoreActions().app.clearAppCache();
       }
       if (network.status === Status.Started) {

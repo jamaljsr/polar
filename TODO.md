@@ -2,10 +2,9 @@
 
 Small Stuff
 
-- in network.ts update removeNode for c-lightning
 - fix open channel with auto-funding (throw errors from c-lightning api)
 - rename lnd in locale files
-- show notice about c-lightnign 30 second delay
+- show notice about c-lightning 30 second delay
 
 - implement real-time channel updates from LND via GRPC streams
 - implement option to auto-mine every X minutes
