@@ -68,6 +68,8 @@
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "Capacity",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "Minimum: {{min}} - Maximum {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Deposit enough funds to {selectedFrom} to open the channel",
+  "cmps.designer.lightning.actions.OpenChannelModal.clightningWarnMsg": "c-lightning nodes cannot be auto-funded due to 30s chain sync delay",
+  "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "Cannot open a channel from a node to itself",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "Cancel",
   "cmps.designer.lightning.actions.OpenChannelModal.okBtn": "Open Channel",
   "cmps.designer.lightning.actions.OpenChannelModal.balancesError": "Unable to fetch node balances",
@@ -172,6 +174,9 @@
   "store.models.designer.linkErrNotStarted": "The nodes must be Started first",
   "store.models.designer.dropErrTitle": "Failed to add node",
   "store.models.designer.dropErrMsg": "Cannot add a new node when the network is transitioning",
+  "store.models.lightning.clightningDelayMsg": "Waiting for {{name}}'s c-lightning node to sync with the chain...",
+  "store.models.lightning.clightningDepositMsg": "{{name}}'s balances have been updated",
+  "store.models.lightning.clightningOpenChanMsg": "{{name}}'s channels have been updated",
   "store.models.network.networkByIdErr": "Network with the id '{{networkId}}' was not found.",
   "store.models.network.renameErr": "The network name '{{name}}' is not valid"
 }

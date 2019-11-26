@@ -1,10 +1,11 @@
 import { shell } from 'electron';
-import { notification } from 'antd';
+import { message, notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
 import { DockerVersions, StoreInjections } from 'types';
+import { delay } from 'utils/async';
 import { RootModel } from './';
 
 export interface NotifyOptions {
@@ -24,6 +25,12 @@ export interface AppModel {
   setDockerImages: Action<AppModel, string[]>;
   getDockerImages: Thunk<AppModel, any, StoreInjections, RootModel>;
   notify: Action<AppModel, NotifyOptions>;
+  delayedMessage: Thunk<
+    AppModel,
+    { msg: string; delaySecs: number; callback: () => Promise<string> },
+    StoreInjections,
+    RootModel
+  >;
   navigateTo: Thunk<AppModel, string>;
   openInBrowser: Action<AppModel, string>;
   openWindow: Thunk<AppModel, string, StoreInjections, RootModel>;
@@ -76,6 +83,33 @@ const appModel: AppModel = {
         description: description || error.message,
       });
     }
+  }),
+  /**
+   * The purpose of this function is to display a countdown notification in
+   * the UI that will execute a supplied callback when the countdown expires.
+   */
+  delayedMessage: thunk(async (actions, { msg, delaySecs, callback }) => {
+    // get a unique key to support multiple messages
+    const key = new Date().getTime();
+    // set the initial duration to the delay supplied
+    let duration = delaySecs;
+    // display the message in the ui
+    message.loading({ key, content: `${msg} (${duration}s)`, duration });
+    // update the content of the message every second
+    const interval = setInterval(() => {
+      duration -= 1;
+      if (duration > 0) {
+        message.loading({ key, content: `${msg} (${duration}s)`, duration });
+      }
+    }, 1000);
+    // halt execution of the rest of this function until the delay is reached
+    await delay(duration * 1000);
+    // clear the interval
+    clearInterval(interval);
+    // execute the callback function to receive a success message
+    const result = await callback();
+    // display a success message in the ui
+    message.success(result, 3);
   }),
   navigateTo: thunk((actions, route, { dispatch }) => {
     dispatch(push(route));

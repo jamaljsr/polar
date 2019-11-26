@@ -70,7 +70,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     } else if (node.implementation === 'c-lightning') {
       const cln = node as CLightningNode;
       return {
-        restUrl: `https://127.0.0.1:${cln.ports.rest}`,
+        restUrl: `http://127.0.0.1:${cln.ports.rest}`,
         restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
         credentials: {
           admin: cln.paths.macaroon,
