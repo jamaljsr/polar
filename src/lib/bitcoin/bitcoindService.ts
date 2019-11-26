@@ -2,7 +2,7 @@ import BitcoinCore from 'bitcoin-core';
 import { BitcoinNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { waitFor } from 'utils/async';
-import { BLOCKS_TIL_COMFIRMED, COINBASE_MATURITY_HEIGHT } from 'utils/constants';
+import { COINBASE_MATURITY_HEIGHT } from 'utils/constants';
 
 class BitcoindService implements BitcoindLibrary {
   creatClient(port = 18433) {
@@ -37,8 +37,6 @@ class BitcoindService implements BitcoindLibrary {
       await this.mine(this.getBlocksToMine(amount - balance), port);
     }
     const txid = await client.sendToAddress(toAddress, amount);
-    // mine more blocks to confirm the txn
-    await this.mine(BLOCKS_TIL_COMFIRMED, port);
     return txid;
   }
 

@@ -6,7 +6,7 @@ const txid = (channelPoint: string) => channelPoint.split(':')[0];
 export const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
   pending: false,
   uniqueId: txid(chan.channelPoint).slice(-12),
-  channelPoint: txid(chan.channelPoint),
+  channelPoint: chan.channelPoint,
   pubkey: chan.remotePubkey,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
@@ -19,7 +19,7 @@ export const mapPendingChannel = (status: LightningNodeChannel['status']) => (
 ): LightningNodeChannel => ({
   pending: true,
   uniqueId: txid(chan.channelPoint).slice(-12),
-  channelPoint: txid(chan.channelPoint),
+  channelPoint: chan.channelPoint,
   pubkey: chan.remoteNodePub,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
