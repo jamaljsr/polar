@@ -1,10 +1,12 @@
 import { Channel, PendingChannel } from '@radar/lnrpc';
 import { LightningNodeChannel } from 'lib/lightning/types';
 
+const txid = (channelPoint: string) => channelPoint.split(':')[0];
+
 export const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
   pending: false,
-  uniqueId: chan.channelPoint.slice(-12),
-  channelPoint: chan.channelPoint,
+  uniqueId: txid(chan.channelPoint).slice(-12),
+  channelPoint: txid(chan.channelPoint),
   pubkey: chan.remotePubkey,
   capacity: chan.capacity,
   localBalance: chan.localBalance,
@@ -16,8 +18,8 @@ export const mapPendingChannel = (status: LightningNodeChannel['status']) => (
   chan: PendingChannel,
 ): LightningNodeChannel => ({
   pending: true,
-  uniqueId: chan.channelPoint.slice(-12),
-  channelPoint: chan.channelPoint,
+  uniqueId: txid(chan.channelPoint).slice(-12),
+  channelPoint: txid(chan.channelPoint),
   pubkey: chan.remoteNodePub,
   capacity: chan.capacity,
   localBalance: chan.localBalance,

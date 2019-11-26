@@ -1,9 +1,12 @@
 # TODO List
 
-Small Stuff
-
+- run bitcoind.getinfo when depositing funds
+- check if nodes are started before getinfo after a mine
 - fix unknown channel initiator producing an incorrect graph
 - add persisted storage for lang, openChan c-ln notice
+
+Small Stuff
+
 - implement real-time channel updates from LND via GRPC streams
 - implement option to auto-mine every X minutes
 - switch renovatebot to dependabot and use automatic security fixes
