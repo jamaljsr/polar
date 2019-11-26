@@ -1,5 +1,5 @@
 import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
-import { LightningNode } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import {
   LightningNodeBalances,
   LightningNodeChannel,
@@ -107,12 +107,16 @@ const lightningModel: LightningModel = {
   depositFunds: thunk(
     async (actions, { node, sats }, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(node.networkId);
-      const bitcoin =
+      const btcNode =
         nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];
       const api = injections.lightningFactory.getService(node);
       const { address } = await api.getNewAddress(node);
       const coins = fromSatsNumeric(sats);
-      await injections.bitcoindService.sendFunds(bitcoin, address, coins);
+      await injections.bitcoindService.sendFunds(btcNode, address, coins);
+      await getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_COMFIRMED,
+        node: btcNode,
+      });
       // add a small delay to allow LND to process the mined blocks
       await delay(250);
       await actions.getWalletBalance(node);
@@ -153,8 +157,10 @@ const lightningModel: LightningModel = {
       await api.openChannel(from, rpcUrl, sats);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(from.networkId);
-      const { ports } = network.nodes.bitcoin[0];
-      await injections.bitcoindService.mine(BLOCKS_TIL_COMFIRMED, ports.rpc);
+      await getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_COMFIRMED,
+        node: network.nodes.bitcoin[0],
+      });
       // add a small delay to allow LND to process the mined blocks
       await delay(250);
       // synchronize the chart with the new channel
@@ -187,12 +193,9 @@ const lightningModel: LightningModel = {
       await api.closeChannel(node, channelPoint);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(node.networkId);
-      const bitcoinNode = network.nodes.bitcoin[0];
-      await injections.bitcoindService.mine(1, bitcoinNode.ports.rpc);
-      // TODO: remove these delays once LND streaming updates are implemented
-      await delay(250);
-      await injections.bitcoindService.mine(1, bitcoinNode.ports.rpc);
-      // add a small delay to allow LND to process the mined blocks
+      const btcNode = network.nodes.bitcoin[0];
+      await getStoreActions().bitcoind.mine({ blocks: 1, node: btcNode });
+      // add a small delay to allow the LN node to process the mined blocks
       await delay(250);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
@@ -204,7 +207,11 @@ const lightningModel: LightningModel = {
     async (actions, { payload }, { getStoreState }) => {
       // update all lightning nodes info when a block in mined
       const network = getStoreState().network.networkById(payload.node.networkId);
-      await Promise.all(network.nodes.lightning.map(actions.getAllInfo));
+      await Promise.all(
+        network.nodes.lightning
+          .filter(n => n.status === Status.Started)
+          .map(actions.getAllInfo),
+      );
     },
   ),
 };
