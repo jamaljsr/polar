@@ -6,7 +6,7 @@ export const delay = async (timeout: number) =>
   new Promise(resolve => setTimeout(resolve, timeout));
 
 /**
- * Returns a promise that will ressolve when the return value of the conditionFunc is true
+ * Returns a promise that will ressolve when execution of the conditionFunc does not throw an error
  * @param conditionFunc the function to execute which determines when the call succeeds. Must return a Promise
  * @param interval the number of ms between each execution of the conditionFunc
  * @param timeout the absolute timeout to abort checking the codition and return false
@@ -36,6 +36,7 @@ export const waitFor = async (
         return resolve(result);
       } catch (error) {
         // only reject when the timeout expires, otherwise ignore the error
+        // and retry on the next interval
         if (timesToCheck <= 0) {
           clearInterval(timer);
           return reject(error);
