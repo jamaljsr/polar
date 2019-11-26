@@ -61,8 +61,8 @@ class CLightningService implements LightningService {
         const status = ChannelStateToStatus[c.state];
         return {
           pending: status !== 'Open',
-          uniqueId: c.shortChannelId,
-          channelPoint: c.channelId,
+          uniqueId: c.fundingTxid.slice(-12),
+          channelPoint: c.fundingTxid,
           pubkey: c.id,
           capacity: this.toSats(c.msatoshiTotal),
           localBalance: this.toSats(c.msatoshiToUs),
