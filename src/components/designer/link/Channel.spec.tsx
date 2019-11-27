@@ -123,7 +123,7 @@ describe('Channel component', () => {
       await waitForElement(() => getByLabelText('icon: check-circle-o'));
       expect(getByText('The channel has been closed')).toBeInTheDocument();
       expect(lightningServiceMock.closeChannel).toBeCalledTimes(1);
-      expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
+      expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
 
     it('should display an error if closing the channel fails', async () => {
