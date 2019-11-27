@@ -56,7 +56,7 @@ class DockerService implements DockerLibrary {
       debug(`All Images: ${JSON.stringify(allImages)}`);
       const prefix = `${DOCKER_REPO}/`;
       const polarImages = ([] as string[])
-        .concat(...allImages.map(i => i.RepoTags))
+        .concat(...allImages.map(i => i.RepoTags || []))
         .filter(i => i.startsWith(prefix))
         .map(i => i.substr(prefix.length));
       debug(`Polar Images: ${JSON.stringify(polarImages)}`);
