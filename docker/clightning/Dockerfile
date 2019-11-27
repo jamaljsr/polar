@@ -13,7 +13,7 @@ RUN apt-get update -y \
 # install c-lightning-REST API plugin
 RUN git clone https://github.com/saubyk/c-lightning-rest /opt/c-lightning-rest/ \
   && cd /opt/c-lightning-rest \
-  && npm install \
+  && npm install \ 
   && chmod -R a+rw /opt/c-lightning-rest
 
 COPY docker-entrypoint.sh /entrypoint.sh

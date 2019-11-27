@@ -1,6 +1,5 @@
 # TODO List
 
-- fix unknown channel initiator producing an incorrect graph
 - add persisted storage for lang, openChan c-ln notice
 
 Small Stuff

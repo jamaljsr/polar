@@ -56,13 +56,14 @@ class CLightningService implements LightningService {
       'channel/listChannels',
     );
     return channels
+      .filter(c => c.initiator === 1)
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
         const status = ChannelStateToStatus[c.state];
         return {
           pending: status !== 'Open',
           uniqueId: c.fundingTxid.slice(-12),
-          channelPoint: c.fundingTxid,
+          channelPoint: c.channelId,
           pubkey: c.id,
           capacity: this.toSats(c.msatoshiTotal),
           localBalance: this.toSats(c.msatoshiToUs),

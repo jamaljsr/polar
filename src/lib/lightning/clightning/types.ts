@@ -64,6 +64,7 @@ export interface GetChannelsResponse {
   spendableMsatoshi: number;
   state: ChannelState;
   theirChannelReserveSatoshis: number;
+  initiator?: number;
 }
 
 export interface Peer {
