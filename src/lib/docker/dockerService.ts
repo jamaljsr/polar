@@ -9,7 +9,7 @@ import os from 'os';
 import { CLightningNode, CommonNode, LndNode } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
-import { networksPath } from 'utils/config';
+import { networksPath, nodePath } from 'utils/config';
 import { DOCKER_REPO } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { isLinux } from 'utils/system';
@@ -106,11 +106,10 @@ class DockerService implements DockerLibrary {
     // if this isn't done, then docker will create the folders
     // owned by root and linux containers won't start up
     for (const node of bitcoin) {
-      await ensureDir(join(network.path, 'volumes', 'bitcoind', node.name));
+      await ensureDir(nodePath(network, node.implementation, node.name));
     }
     for (const node of lightning) {
-      const volDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      await ensureDir(join(network.path, 'volumes', volDir, node.name));
+      await ensureDir(nodePath(network, node.implementation, node.name));
     }
 
     info(`Starting docker containers for ${network.name}`);

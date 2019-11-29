@@ -1,10 +1,13 @@
 # TODO List
 
+- compile c-lightning with DEVELOPER=1 and execute with --dev-bitcoind-poll=1 (https://github.com/ElementsProject/lightning/blob/master/lightningd/options.c#L457)
 - add persisted storage for lang, openChan c-ln notice
 
 Small Stuff
 
 - fix pasting text in terminal
+- display bitcoin rpc user/pass in sidebar
+- start/stop individual nodes
 - implement real-time channel updates from LND via GRPC streams
 - implement option to auto-mine every X minutes
 - switch renovatebot to dependabot and use automatic security fixes

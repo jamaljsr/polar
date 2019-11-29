@@ -2,14 +2,14 @@ import BitcoinCore from 'bitcoin-core';
 import { BitcoinNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { waitFor } from 'utils/async';
-import { COINBASE_MATURITY_HEIGHT } from 'utils/constants';
+import { bitcoinCredentials, COINBASE_MATURITY_HEIGHT } from 'utils/constants';
 
 class BitcoindService implements BitcoindLibrary {
   creatClient(port = 18433) {
     return new BitcoinCore({
       port: `${port}`,
-      username: 'polaruser',
-      password: 'polarpass',
+      username: bitcoinCredentials.user,
+      password: bitcoinCredentials.pass,
     });
   }
 
