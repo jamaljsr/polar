@@ -63,3 +63,11 @@ export interface BitcoinNode extends CommonNode {
     rpc: number;
   };
 }
+
+export type NodeImplementation =
+  | BitcoinNode['implementation']
+  | LightningNode['implementation'];
+
+export interface DockerConfig {
+  volumeDirName: string;
+}

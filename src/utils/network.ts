@@ -10,7 +10,7 @@ import {
   Status,
 } from 'shared/types';
 import { Network } from 'types';
-import { networksPath } from './config';
+import { networksPath, nodePath } from './config';
 import { BasePorts } from './constants';
 import { getName } from './names';
 import { range } from './numbers';
@@ -33,7 +33,7 @@ const groupNodes = (network: Network) => {
 // long path games
 const getLndFilePaths = (name: string, network: Network) => {
   // returns /volumes/lnd/lnd-1
-  const lndDataPath = (name: string) => join(network.path, 'volumes', 'lnd', name);
+  const lndDataPath = (name: string) => nodePath(network, 'LND', name);
   // returns /volumes/lnd/lnd-1/tls.cert
   const lndCertPath = (name: string) => join(lndDataPath(name), 'tls.cert');
   // returns /data/chain/bitcoin/regtest
@@ -82,7 +82,7 @@ export const createCLightningNetworkNode = (
   const { bitcoin, lightning } = network.nodes;
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
-  const nodePath = join(network.path, 'volumes', 'clightning', name);
+  const path = nodePath(network, 'c-lightning', name);
   return {
     id,
     networkId: network.id,
@@ -93,7 +93,7 @@ export const createCLightningNetworkNode = (
     status,
     backendName: bitcoin[0].name,
     paths: {
-      macaroon: join(nodePath, 'rest-api', 'access.macaroon'),
+      macaroon: join(path, 'rest-api', 'access.macaroon'),
     },
     ports: {
       rest: BasePorts.clightning.rest + id,

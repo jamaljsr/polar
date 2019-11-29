@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
+import { bitcoinCredentials, dockerConfigs } from 'utils/constants';
 /* eslint-disable no-template-curly-in-string */
 import { ComposeService } from './composeFile';
 
@@ -23,7 +24,7 @@ export const bitcoind = (
     bitcoind
       -server=1
       -regtest=1
-      -rpcauth=polaruser:5e5e98c21f5c814568f8b55d83b23c1c$$066b03f92df30b11de8e4b1b1cd5b1b4281aa25205bd57df9be82caf97a05526
+      -rpcauth=${bitcoinCredentials.user}:${bitcoinCredentials.rpcauth}
       -debug=0
       -zmqpubrawblock=tcp://0.0.0.0:28334
       -zmqpubrawtx=tcp://0.0.0.0:28335
@@ -34,7 +35,9 @@ export const bitcoind = (
       -rpcallowip=0.0.0.0/0
       -rpcport=18443
   `),
-  volumes: [`./volumes/bitcoind/${name}:/home/bitcoin/.bitcoin`],
+  volumes: [
+    `./volumes/${dockerConfigs['bitcoind'].volumeDirName}/${name}:/home/bitcoin/.bitcoin`,
+  ],
   expose: [
     '18443', // RPC
     '18444', // p2p
@@ -74,13 +77,13 @@ export const lnd = (
       --bitcoin.regtest
       --bitcoin.node=bitcoind
       --bitcoind.rpchost=${backendName}
-      --bitcoind.rpcuser=polaruser
-      --bitcoind.rpcpass=polarpass
+      --bitcoind.rpcuser=${bitcoinCredentials.user}
+      --bitcoind.rpcpass=${bitcoinCredentials.pass}
       --bitcoind.zmqpubrawblock=tcp://${backendName}:28334
       --bitcoind.zmqpubrawtx=tcp://${backendName}:28335
   `),
   restart: 'always',
-  volumes: [`./volumes/lnd/${name}:/home/lnd/.lnd`],
+  volumes: [`./volumes/${dockerConfigs['LND'].volumeDirName}/${name}:/home/lnd/.lnd`],
   expose: [
     '8080', // REST
     '10009', // gRPC
@@ -111,8 +114,8 @@ export const clightning = (
       --alias=${name}
       --addr=${name}
       --network=regtest
-      --bitcoin-rpcuser=polaruser
-      --bitcoin-rpcpassword=polarpass
+      --bitcoin-rpcuser=${bitcoinCredentials.user}
+      --bitcoin-rpcpassword=${bitcoinCredentials.pass}
       --bitcoin-rpcconnect=${backendName}
       --bitcoin-rpcport=18443
       --log-level=debug
@@ -122,8 +125,8 @@ export const clightning = (
   `),
   restart: 'always',
   volumes: [
-    `./volumes/clightning/${name}/lightning:/root/.lightning`,
-    `./volumes/clightning/${name}/rest-api:/opt/c-lightning-rest/certs`,
+    `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/data:/home/clightning/.lightning`,
+    `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/rest-api:/opt/c-lightning-rest/certs`,
   ],
   expose: [
     '8080', // REST
