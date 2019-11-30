@@ -14252,10 +14252,10 @@ react-hot-loader@4.12.18:
     shallowequal "^1.1.0"
     source-map "^0.7.3"
 
-react-i18next@11.2.4:
-  version "11.2.4"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.2.4.tgz#103f7664620374f83a0e576aae849aea77901414"
-  integrity sha512-VX2uEmsp4YLf4bNaF8ohpc+A443JcPfk5bEaFauQHWFQ6y4QUE4De96y7C6kBbexh40xvGzOJwiBmoZKtTbIbQ==
+react-i18next@11.2.5:
+  version "11.2.5"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-11.2.5.tgz#b2b3cfde63cc46be8f1f99218e90425aa483ce8f"
+  integrity sha512-1vUDLEZ/PSoiyt2CDitreyb6OG4PP/XHXtMHX1akC0I1vgUfZY77DuCugtnMEfl4rQtP7g2KC+bRu3U3pebFRg==
   dependencies:
     "@babel/runtime" "^7.3.1"
     html-parse-stringify2 "2.0.1"
