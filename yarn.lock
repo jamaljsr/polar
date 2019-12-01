@@ -2603,10 +2603,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@3.25.3:
-  version "3.25.3"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-3.25.3.tgz#284cbf83cf5ab6c26dffb6066576f202ea60af50"
-  integrity sha512-qTegXllFsswzfSUyZHS8hebfUSqJ7uriDRcbE4Iwsa+/+IioHwDqha8cSzdbqrUqdjnozVV2vFDiGvRrI5fwEA==
+antd@3.26.0:
+  version "3.26.0"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-3.26.0.tgz#0a6a43fdd8577e61708932b7bc34ba0234d0f138"
+  integrity sha512-sx8Tmg1o3yQhYhodxG2sc+awlpdmY0Qf3PHCUdWAdvmiSzkRIyx1vAfqnQ30tF1EF90pKXgy8+MJ8DhC9UCjbg==
   dependencies:
     "@ant-design/create-react-context" "^0.2.4"
     "@ant-design/icons" "~2.1.1"
@@ -2625,7 +2625,7 @@ antd@3.25.3:
     prop-types "^15.7.2"
     raf "^3.4.1"
     rc-animate "^2.10.2"
-    rc-calendar "~9.15.5"
+    rc-calendar "~9.15.7"
     rc-cascader "~0.17.4"
     rc-checkbox "~2.1.6"
     rc-collapse "~1.11.3"
@@ -2638,7 +2638,7 @@ antd@3.25.3:
     rc-mentions "~0.4.0"
     rc-menu "~7.5.1"
     rc-notification "~3.3.1"
-    rc-pagination "~1.20.5"
+    rc-pagination "~1.20.11"
     rc-progress "~2.5.0"
     rc-rate "~2.5.0"
     rc-resize-observer "^0.1.0"
@@ -13706,7 +13706,7 @@ rc-animate@^3.0.0-rc.1:
     rc-util "^4.5.0"
     react-lifecycles-compat "^3.0.4"
 
-rc-calendar@~9.15.5:
+rc-calendar@~9.15.7:
   version "9.15.8"
   resolved "https://registry.yarnpkg.com/rc-calendar/-/rc-calendar-9.15.8.tgz#6a3dbc2716c5297b46c8442dc2c748a17346111d"
   integrity sha512-x3zVaZSRX7FkRNKw7nz3tutwrlIrU1aqMn5GtRUmlf84GnXLtd9fuuydxeNkFWfcHry3BPSto7+r9TK2al0h+g==
@@ -13884,7 +13884,7 @@ rc-notification@~3.3.1:
     rc-animate "2.x"
     rc-util "^4.0.4"
 
-rc-pagination@~1.20.5:
+rc-pagination@~1.20.11:
   version "1.20.11"
   resolved "https://registry.yarnpkg.com/rc-pagination/-/rc-pagination-1.20.11.tgz#ff8ccbf422e229b0e36039bd33b5c9b619d74ad2"
   integrity sha512-2wKO5kO+ELx1/zlqTY8TwGBruzofi+1BcZ7Z4xalMlLbDMTuUU4FDljbBBP/n9D2llK+NtgWA619PMBhInozZw==
