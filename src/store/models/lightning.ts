@@ -192,6 +192,7 @@ const lightningModel: LightningModel = {
     async (actions, { payload }, { getStoreState }) => {
       // update all lightning nodes info when a block in mined
       const network = getStoreState().network.networkById(payload.node.networkId);
+      await actions.waitForNodes(network.nodes.lightning);
       await Promise.all(
         network.nodes.lightning
           .filter(n => n.status === Status.Started)

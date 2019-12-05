@@ -2,7 +2,7 @@ import * as logger from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
 import { BitcoinNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
-import { waitFor } from 'utils/async';
+import { delay, waitFor } from 'utils/async';
 import { bitcoinCredentials, COINBASE_MATURITY_HEIGHT } from 'utils/constants';
 
 class BitcoindService implements BitcoindLibrary {
@@ -75,6 +75,9 @@ class BitcoindService implements BitcoindLibrary {
     if (blocks < COINBASE_MATURITY_HEIGHT) {
       const blocksLeft = COINBASE_MATURITY_HEIGHT - blocks;
       await this.mine(blocksLeft, port);
+      // this usually mines up to 100 blocks at once, so add a couple second
+      // delay to allow the LN nodes to process all of the new blocks
+      await delay(2 * 1000);
     }
   }
 

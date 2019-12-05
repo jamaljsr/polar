@@ -51,26 +51,30 @@ class CLightningService implements LightningService {
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
+    const { pubkey } = await this.getInfo(node);
     const channels = await httpGet<CLN.GetChannelsResponse[]>(
       this.cast(node),
       'channel/listChannels',
     );
-    return channels
-      .filter(c => c.initiator === 1)
-      .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
-      .map(c => {
-        const status = ChannelStateToStatus[c.state];
-        return {
-          pending: status !== 'Open',
-          uniqueId: c.fundingTxid.slice(-12),
-          channelPoint: c.channelId,
-          pubkey: c.id,
-          capacity: this.toSats(c.msatoshiTotal),
-          localBalance: this.toSats(c.msatoshiToUs),
-          remoteBalance: this.toSats(c.msatoshiTotal - c.msatoshiToUs),
-          status,
-        };
-      });
+    return (
+      channels
+        // only include the channels that were initiated by this node
+        .filter(chan => chan.fundingAllocationMsat[pubkey] > 0)
+        .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
+        .map(c => {
+          const status = ChannelStateToStatus[c.state];
+          return {
+            pending: status !== 'Open',
+            uniqueId: c.fundingTxid.slice(-12),
+            channelPoint: c.channelId,
+            pubkey: c.id,
+            capacity: this.toSats(c.msatoshiTotal),
+            localBalance: this.toSats(c.msatoshiToUs),
+            remoteBalance: this.toSats(c.msatoshiTotal - c.msatoshiToUs),
+            status,
+          };
+        })
+    );
   }
 
   async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
