@@ -97,6 +97,7 @@ export const renderWithProviders = (
  */
 export const suppressConsoleErrors = async (func: () => any | Promise<any>) => {
   const oldConsoleErr = console.error;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   console.error = () => {};
   const result = func();
   if (typeof result.then === 'function') {
