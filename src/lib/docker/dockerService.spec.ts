@@ -232,7 +232,7 @@ describe('DockerService', () => {
     it('should create volume dirs when the network is started', async () => {
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
-      expect(fs.ensureDir).toBeCalledTimes(3);
+      expect(fs.ensureDir).toBeCalledTimes(4);
     });
 
     it('should call compose.down when a network is stopped', async () => {
