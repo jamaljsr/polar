@@ -119,6 +119,7 @@ export const clightning = (
       --bitcoin-rpcconnect=${backendName}
       --bitcoin-rpcport=18443
       --log-level=debug
+      --dev-bitcoind-poll=2
       --plugin=/opt/c-lightning-rest/plugin.js
       --rest-port=8080
       --rest-protocol=http

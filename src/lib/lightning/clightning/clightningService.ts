@@ -105,7 +105,11 @@ class CLightningService implements LightningService {
     }
 
     // open the channel
-    const body: CLN.OpenChannelRequest = { id: toPubKey, satoshis: amount };
+    const body: CLN.OpenChannelRequest = {
+      id: toPubKey,
+      satoshis: amount,
+      feeRate: '253perkw', // min relay fee for bitcoind
+    };
     const res = await httpPost<CLN.OpenChannelResponse>(
       this.cast(from),
       'channel/openChannel',
@@ -146,7 +150,7 @@ class CLightningService implements LightningService {
   }
 
   private toSats(msats: number): string {
-    return (msats / 1000).toString();
+    return (msats / 1000).toFixed(0).toString();
   }
 
   private cast(node: LightningNode): CLightningNode {
