@@ -136,7 +136,7 @@ describe('NetworkView Component', () => {
   });
 
   it('should display a message if the docker images are not downloaded', async () => {
-    const images = ['bitcoind:0.18.1', 'lnd:0.8.0-beta'];
+    const images = ['bitcoind:0.18.1', 'lnd:0.8.0-beta', 'clightning:0.7.3'];
     const { queryByText } = renderComponent('1', Status.Stopped, images);
     expect(
       queryByText(

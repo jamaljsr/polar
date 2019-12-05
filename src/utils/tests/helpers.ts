@@ -7,7 +7,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     id: networkId,
     name: name || 'my-test',
     lndNodes: 2,
-    clightningNodes: 0,
+    clightningNodes: 1,
     bitcoindNodes: 1,
     status,
   });

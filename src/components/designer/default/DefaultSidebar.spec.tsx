@@ -61,7 +61,7 @@ describe('DefaultSidebar Component', () => {
       const { getByLabelText, findByText } = renderComponent(Status.Started);
       fireEvent.click(getByLabelText('icon: reload'));
       expect(await findByText('failed to get info')).toBeInTheDocument();
-      expect(lightningServiceMock.getInfo).toBeCalledTimes(2);
+      expect(lightningServiceMock.getInfo).toBeCalledTimes(3);
     });
 
     it('should sync the chart from LND nodes', async () => {
@@ -73,9 +73,9 @@ describe('DefaultSidebar Component', () => {
       expect(
         await findByText('The designer has been synced with the Lightning nodes'),
       ).toBeInTheDocument();
-      expect(lightningServiceMock.getInfo).toBeCalledTimes(2);
-      expect(lightningServiceMock.getBalances).toBeCalledTimes(2);
-      expect(lightningServiceMock.getChannels).toBeCalledTimes(2);
+      expect(lightningServiceMock.getInfo).toBeCalledTimes(3);
+      expect(lightningServiceMock.getBalances).toBeCalledTimes(3);
+      expect(lightningServiceMock.getChannels).toBeCalledTimes(3);
     });
   });
 });
