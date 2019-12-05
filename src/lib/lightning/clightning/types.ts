@@ -64,6 +64,7 @@ export interface GetChannelsResponse {
   spendableMsatoshi: number;
   state: ChannelState;
   theirChannelReserveSatoshis: number;
+  fundingAllocationMsat: Record<string, number>;
   initiator?: number;
 }
 
