@@ -8,11 +8,8 @@ import {
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
-import { prefixTranslation } from 'utils/translate';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
-
-const { l } = prefixTranslation('store.models.lightning');
 
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
@@ -60,6 +57,7 @@ export interface LightningModel {
     StoreInjections,
     RootModel
   >;
+  waitForNodes: Thunk<LightningModel, LightningNode[], StoreInjections, RootModel>;
   mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
 }
 
@@ -117,22 +115,9 @@ const lightningModel: LightningModel = {
         blocks: BLOCKS_TIL_COMFIRMED,
         node: btcNode,
       });
-      // add a small delay to allow LND to process the mined blocks
-      await delay(250);
+      // add a small delay to allow nodes to process the mined blocks
+      await actions.waitForNodes([node]);
       await actions.getWalletBalance(node);
-      if (node.implementation === 'c-lightning') {
-        // c-lightning syncs with the blockchain once every 30 seconds.
-        // use the delayedMessage action to update the UI with a countdown
-        // and fetch new balances after it expires
-        getStoreActions().app.delayedMessage({
-          msg: l('clightningDelayMsg', { name: node.name }),
-          delaySecs: 30,
-          callback: async () => {
-            await actions.getWalletBalance(node);
-            return l('clightningDepositMsg', { name: node.name });
-          },
-        });
-      }
     },
   ),
   openChannel: thunk(
@@ -161,26 +146,11 @@ const lightningModel: LightningModel = {
         blocks: BLOCKS_TIL_COMFIRMED,
         node: network.nodes.bitcoin[0],
       });
-      // add a small delay to allow LND to process the mined blocks
-      await delay(250);
+      // add a small delay to allow nodes to process the mined blocks
+      await actions.waitForNodes([from, to]);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
       getStoreActions().designer.redrawChart();
-      if (from.implementation === 'c-lightning') {
-        // c-lightning syncs with the blockchain once every 30 seconds.
-        // use the delayedMessage action to update the UI with a countdown
-        // and fetch new balances after it expires
-        getStoreActions().app.delayedMessage({
-          msg: l('clightningDelayMsg', { name: from.name }),
-          delaySecs: 30,
-          callback: async () => {
-            // synchronize the chart with the new channel
-            await getStoreActions().designer.syncChart(network);
-            getStoreActions().designer.redrawChart();
-            return l('clightningOpenChanMsg', { name: from.name });
-          },
-        });
-      }
     },
   ),
   closeChannel: thunk(
@@ -195,13 +165,28 @@ const lightningModel: LightningModel = {
       const network = getStoreState().network.networkById(node.networkId);
       const btcNode = network.nodes.bitcoin[0];
       await getStoreActions().bitcoind.mine({ blocks: 1, node: btcNode });
-      // add a small delay to allow the LN node to process the mined blocks
-      await delay(250);
+      // add a small delay to allow nodes to process the mined blocks
+      await actions.waitForNodes([node]);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
       getStoreActions().designer.redrawChart();
     },
   ),
+  waitForNodes: thunk(async (actions, nodes) => {
+    // mapping of the number of seconds to wait for each implementation
+    const nodeDelays: Record<LightningNode['implementation'], number> = {
+      LND: 1,
+      'c-lightning': 3,
+      eclair: 1,
+    };
+    // determine the highest delay of all implementations
+    const longestDelay = nodes.reduce(
+      (d, node) => Math.max(d, nodeDelays[node.implementation]),
+      0,
+    );
+
+    await delay(longestDelay * 1000);
+  }),
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,
     async (actions, { payload }, { getStoreState }) => {

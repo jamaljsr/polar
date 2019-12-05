@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import styled from '@emotion/styled';
 import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
@@ -9,12 +8,6 @@ import { OpenChannelPayload } from 'store/models/lightning';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
-
-const Styled = {
-  Alert: styled(Alert)`
-    margin-top: 10px;
-  `,
-};
 
 interface FormFields {
   from: string;
@@ -57,10 +50,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   let showDeposit = false;
   const selectedFrom = form.getFieldValue('from') || from;
   const areSameNodesSelected = selectedFrom === (form.getFieldValue('to') || to);
-  const isCLightning = network.nodes.lightning.some(
-    n => n.name === selectedFrom && n.implementation === 'c-lightning',
-  );
-  if (selectedFrom && nodes[selectedFrom] && !openChanAsync.loading && !isCLightning) {
+  if (selectedFrom && nodes[selectedFrom] && !openChanAsync.loading) {
     const { confirmed } = nodes[selectedFrom].walletBalance || {};
     const balance = parseInt(confirmed || '0');
     const sats = form.getFieldValue('sats');
@@ -139,7 +129,6 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
           )}
         </Form.Item>
       )}
-      {isCLightning && <Styled.Alert type="info" message={l('clightningWarnMsg')} />}
     </Form>
   );
 

@@ -1,3 +1,4 @@
+import * as logger from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
 import { BitcoinNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
@@ -10,6 +11,7 @@ class BitcoindService implements BitcoindLibrary {
       port: `${port}`,
       username: bitcoinCredentials.user,
       password: bitcoinCredentials.pass,
+      logger: logger as any,
     });
   }
 

@@ -79,6 +79,9 @@ export interface Peer {
 export interface OpenChannelRequest {
   id: string;
   satoshis: string;
+  feeRate?: number | string;
+  announce?: boolean;
+  minConf?: number;
 }
 
 export interface OpenChannelResponse {
