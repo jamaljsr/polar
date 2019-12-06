@@ -125,6 +125,14 @@ describe('DockerService', () => {
       dockerListImages.mockRejectedValue(new Error('test-error'));
       expect(await dockerService.getImages()).toEqual([]);
     });
+
+    it('should handle untagged images', async () => {
+      dockerListImages.mockResolvedValue([
+        ...mapResponse([polar('aaa'), polar('bbb')]),
+        { RepoTags: undefined },
+      ]);
+      expect(await dockerService.getImages()).toEqual(['aaa', 'bbb']);
+    });
   });
 
   describe('saving data', () => {
@@ -168,6 +176,24 @@ describe('DockerService', () => {
         name: 'my network',
         lndNodes: 1,
         clightningNodes: 0,
+        bitcoindNodes: 1,
+      });
+      net.nodes.lightning[0].backendName = 'invalid';
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(
+          `container_name: polar-n1-${network.nodes.lightning[0].name}`,
+        ),
+      );
+    });
+
+    it('should save the c-lightning node with the first bitcoin node as backend', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 0,
+        clightningNodes: 1,
         bitcoindNodes: 1,
       });
       net.nodes.lightning[0].backendName = 'invalid';

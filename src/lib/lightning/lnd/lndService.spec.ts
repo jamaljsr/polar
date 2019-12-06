@@ -39,7 +39,7 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should get list channels', async () => {
+  it('should get list of channels', async () => {
     const mocked = defaultListChannels({
       channels: [defaultChannel({ remotePubkey: 'xyz', initiator: true })],
     });
@@ -52,7 +52,7 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should get list pending channels', async () => {
+  it('should get list of pending channels', async () => {
     const mocked = defaultPendingChannels({
       pendingOpenChannels: [
         defaultPendingOpenChannel({
@@ -72,6 +72,13 @@ describe('LndService', () => {
     lndProxyClient.closeChannel = jest.fn().mockResolvedValue(expected);
     const actual = await lndService.closeChannel(node, 'chanPoint');
     expect(actual).toEqual(expected);
+  });
+
+  it('should throw an error for an incorrect node', async () => {
+    const cln = getNetwork().nodes.lightning[2];
+    await expect(lndService.getInfo(cln)).rejects.toThrow(
+      "LndService cannot be used for 'c-lightning' nodes",
+    );
   });
 
   describe('openChannel', () => {
