@@ -46,8 +46,7 @@ class CLightningService implements LightningService {
   }
 
   async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    const address = await httpGet<PLN.LightningNodeAddress>(this.cast(node), 'newaddr');
-    return address;
+    return await httpGet<PLN.LightningNodeAddress>(this.cast(node), 'newaddr');
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
@@ -129,7 +128,7 @@ class CLightningService implements LightningService {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
-    await httpDelete<CLN.CloseChannelResponse>(
+    return await httpDelete<CLN.CloseChannelResponse>(
       this.cast(node),
       `channel/closeChannel/${channelPoint}`,
     );

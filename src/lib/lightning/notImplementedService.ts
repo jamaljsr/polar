@@ -35,7 +35,7 @@ class NotImplementedService implements LightningService {
     toRpcUrl: string,
     amount: string,
   ): Promise<PLN.LightningNodeChannelPoint> {
-    throw new Error(`getChannels is not implemented for ${from.implementation} nodes`);
+    throw new Error(`openChannel is not implemented for ${from.implementation} nodes`);
   }
   closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
