@@ -1,4 +1,4 @@
-import { defaultInfo } from 'shared';
+import { defaultLndInfo } from 'shared';
 import { LightningNode } from 'shared/types';
 import { getNetwork } from 'utils/tests';
 import { LightningFactory } from './';
@@ -15,7 +15,7 @@ describe('LightningFactory', () => {
   const factory = new LightningFactory();
 
   it('should return a working LND service', async () => {
-    const apiResponse = defaultInfo({ identityPubkey: 'asdf' });
+    const apiResponse = defaultLndInfo({ identityPubkey: 'asdf' });
     lndProxyClient.getInfo = jest.fn().mockResolvedValue(apiResponse);
     const node = network.nodes.lightning[0];
     const service = factory.getService(node);

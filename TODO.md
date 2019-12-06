@@ -1,7 +1,5 @@
 # TODO List
 
-- refactor lndDefaults defaultInfo to defaultLndInfo
-
 Small Stuff
 
 - fix pasting text in terminal
