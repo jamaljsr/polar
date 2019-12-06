@@ -62,7 +62,7 @@
     "@testing-library/jest-dom": "4.2.4",
     "@testing-library/react": "9.3.2",
     "@types/detect-port": "1.1.0",
-    "@types/dockerode": "2.5.20",
+    "@types/dockerode": "2.5.21",
     "@types/fs-extra": "8.0.1",
     "@types/jest": "24.0.23",
     "@types/js-yaml": "3.12.1",
