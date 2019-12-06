@@ -134,7 +134,7 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # install c-lightning-REST API plugin
-RUN git clone https://github.com/jamaljsr/c-lightning-rest /opt/c-lightning-rest/ \
+RUN git clone --branch=feat/funding-allocation-msat https://github.com/jamaljsr/c-lightning-rest /opt/c-lightning-rest/ \
   && cd /opt/c-lightning-rest \
   && npm install \ 
   && chmod -R a+rw /opt/c-lightning-rest
