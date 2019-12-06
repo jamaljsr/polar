@@ -3,7 +3,7 @@ import { ipcChannels } from './';
 
 const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
 
-export const defaultInfo = (
+export const defaultLndInfo = (
   value: Partial<LND.GetInfoResponse>,
 ): LND.GetInfoResponse => ({
   identityPubkey: '',
@@ -25,7 +25,7 @@ export const defaultInfo = (
   ...value,
 });
 
-export const defaultWalletBalance = (
+export const defaultLndWalletBalance = (
   value: Partial<LND.WalletBalanceResponse>,
 ): LND.WalletBalanceResponse => ({
   confirmedBalance: '0',
@@ -34,14 +34,14 @@ export const defaultWalletBalance = (
   ...value,
 });
 
-export const defaultListPeers = (
+export const defaultLndListPeers = (
   value: Partial<LND.ListPeersResponse>,
 ): LND.ListPeersResponse => ({
   peers: [],
   ...value,
 });
 
-export const defaultChannelPoint = (
+export const defaultLndChannelPoint = (
   value: Partial<LND.ChannelPoint>,
 ): LND.ChannelPoint => ({
   fundingTxidBytes: '',
@@ -50,7 +50,7 @@ export const defaultChannelPoint = (
   ...value,
 });
 
-export const defaultChannel = (value: Partial<LND.Channel>): LND.Channel => ({
+export const defaultLndChannel = (value: Partial<LND.Channel>): LND.Channel => ({
   active: false,
   remotePubkey: '',
   channelPoint: '',
@@ -76,13 +76,13 @@ export const defaultChannel = (value: Partial<LND.Channel>): LND.Channel => ({
   ...value,
 });
 
-export const defaultListChannels = (
+export const defaultLndListChannels = (
   value: Partial<LND.ListChannelsResponse>,
 ): LND.ListChannelsResponse => ({
-  channels: mapArray(value.channels || [], defaultChannel),
+  channels: mapArray(value.channels || [], defaultLndChannel),
 });
 
-export const defaultPendingChannel = (
+export const defaultLndPendingChannel = (
   value: Partial<LND.PendingChannel>,
 ): LND.PendingChannel => ({
   remoteNodePub: '',
@@ -95,12 +95,12 @@ export const defaultPendingChannel = (
   ...value,
 });
 
-export const defaultPendingOpenChannel = (
+export const defaultLndPendingOpenChannel = (
   value: Partial<LND.PendingOpenChannel>,
 ): LND.PendingOpenChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
     confirmationHeight: 0,
     commitFee: '0',
     commitWeight: '0',
@@ -109,23 +109,23 @@ export const defaultPendingOpenChannel = (
   };
 };
 
-export const defaultClosedChannel = (
+export const defaultLndClosedChannel = (
   value: Partial<LND.ClosedChannel>,
 ): LND.ClosedChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
     closingTxid: '',
     ...rest,
   };
 };
 
-export const defaultForceClosedChannel = (
+export const defaultLndForceClosedChannel = (
   value: Partial<LND.ForceClosedChannel>,
 ): LND.ForceClosedChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
     closingTxid: '',
     limboBalance: '0',
     maturityHeight: 0,
@@ -136,47 +136,47 @@ export const defaultForceClosedChannel = (
   };
 };
 
-export const defaultWaitingCloseChannel = (
+export const defaultLndWaitingCloseChannel = (
   value: Partial<LND.WaitingCloseChannel>,
 ): LND.WaitingCloseChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
     limboBalance: '0',
     ...rest,
   };
 };
 
-export const defaultPendingChannels = (
+export const defaultLndPendingChannels = (
   value: Partial<LND.PendingChannelsResponse>,
 ): LND.PendingChannelsResponse => ({
   totalLimboBalance: '',
   pendingOpenChannels: mapArray(
     value.pendingOpenChannels || [],
-    defaultPendingOpenChannel,
+    defaultLndPendingOpenChannel,
   ),
   pendingClosingChannels: mapArray(
     value.pendingClosingChannels || [],
-    defaultClosedChannel,
+    defaultLndClosedChannel,
   ),
   pendingForceClosingChannels: mapArray(
     value.pendingForceClosingChannels || [],
-    defaultForceClosedChannel,
+    defaultLndForceClosedChannel,
   ),
   waitingCloseChannels: mapArray(
     value.waitingCloseChannels || [],
-    defaultWaitingCloseChannel,
+    defaultLndWaitingCloseChannel,
   ),
   ...value,
 });
 
 const defaults = {
-  [ipcChannels.getInfo]: defaultInfo,
-  [ipcChannels.walletBalance]: defaultWalletBalance,
-  [ipcChannels.listPeers]: defaultListPeers,
-  [ipcChannels.openChannel]: defaultChannelPoint,
-  [ipcChannels.listChannels]: defaultListChannels,
-  [ipcChannels.pendingChannels]: defaultPendingChannels,
+  [ipcChannels.getInfo]: defaultLndInfo,
+  [ipcChannels.walletBalance]: defaultLndWalletBalance,
+  [ipcChannels.listPeers]: defaultLndListPeers,
+  [ipcChannels.openChannel]: defaultLndChannelPoint,
+  [ipcChannels.listChannels]: defaultLndListChannels,
+  [ipcChannels.pendingChannels]: defaultLndPendingChannels,
 };
 
 export type DefaultsKey = keyof typeof defaults;
