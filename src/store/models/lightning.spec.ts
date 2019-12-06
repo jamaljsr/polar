@@ -7,6 +7,7 @@ import {
 } from 'lib/lightning/types';
 import { BitcoindLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
+import { initChartFromNetwork } from 'utils/chart';
 import {
   defaultStateInfo,
   getNetwork,
@@ -14,6 +15,7 @@ import {
   lightningServiceMock,
 } from 'utils/tests';
 import bitcoindModel from './bitcoind';
+import designerModel from './designer';
 import lightningModel from './lightning';
 import networkModel from './network';
 
@@ -26,10 +28,18 @@ describe('Lightning Model', () => {
     network: networkModel,
     lightning: lightningModel,
     bitcoind: bitcoindModel,
+    designer: designerModel,
   };
+  const network = getNetwork();
   const initialState = {
     network: {
-      networks: [getNetwork()],
+      networks: [network],
+    },
+    designer: {
+      activeId: 1,
+      allCharts: {
+        1: initChartFromNetwork(network),
+      },
     },
   };
   // initialize store for type inference
@@ -114,5 +124,24 @@ describe('Lightning Model', () => {
     expect(balances.confirmed).toEqual('100');
     expect(balances.unconfirmed).toEqual('200');
     expect(balances.total).toEqual('300');
+  });
+
+  it('should open a channel successfully', async () => {
+    lightningServiceMock.getInfo.mockResolvedValueOnce(
+      defaultStateInfo({
+        pubkey: 'abcdef',
+        syncedToChain: true,
+        rpcUrl: 'abcdef@1.1.1.1:9735',
+      }),
+    );
+
+    const [from, to] = store.getState().network.networks[0].nodes.lightning;
+    const sats = '1000';
+    const { openChannel, getInfo } = store.getActions().lightning;
+    await getInfo(to);
+    await openChannel({ from, to, sats, autoFund: false });
+    expect(lightningServiceMock.getInfo).toBeCalledTimes(4);
+    expect(lightningServiceMock.openChannel).toBeCalledTimes(1);
+    expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
   });
 });

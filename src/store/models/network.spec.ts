@@ -1,6 +1,6 @@
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { LndVersion, Status } from 'shared/types';
+import { CLightningVersion, LndVersion, Status } from 'shared/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
@@ -38,7 +38,7 @@ describe('Network model', () => {
   const addNetworkArgs = {
     name: 'test',
     lndNodes: 2,
-    clightningNodes: 0,
+    clightningNodes: 1,
     bitcoindNodes: 1,
   };
 
@@ -100,7 +100,7 @@ describe('Network model', () => {
     it('should add a network with the correct lightning nodes', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning.length).toBe(2);
+      expect(lightning.length).toBe(3);
       lightning.forEach(node => {
         expect(node.type).toBe('lightning');
       });
@@ -155,7 +155,19 @@ describe('Network model', () => {
       const payload = { id: firstNetwork().id, type: 'lnd', version: LndVersion.latest };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(3);
+      expect(lightning).toHaveLength(4);
+      expect(lightning[2].name).toBe('carol');
+    });
+
+    it('should add a c-lightning node to an existing network', async () => {
+      const payload = {
+        id: firstNetwork().id,
+        type: 'c-lightning',
+        version: CLightningVersion.latest,
+      };
+      store.getActions().network.addNode(payload);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning).toHaveLength(4);
       expect(lightning[2].name).toBe('carol');
     });
 
@@ -178,8 +190,16 @@ describe('Network model', () => {
       const node = firstNetwork().nodes.lightning[0];
       store.getActions().network.removeNode({ node });
       const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(1);
+      expect(lightning).toHaveLength(2);
       expect(lightning[0].name).toBe('bob');
+    });
+
+    it('should remove a c-lightning node from an existing network', async () => {
+      store.getActions().designer.setActiveId(1);
+      const node = firstNetwork().nodes.lightning[2];
+      store.getActions().network.removeNode({ node });
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning).toHaveLength(2);
     });
 
     it('should throw an error if the network id is invalid', async () => {
