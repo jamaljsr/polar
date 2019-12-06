@@ -109,7 +109,12 @@ class DockerService implements DockerLibrary {
       await ensureDir(nodePath(network, node.implementation, node.name));
     }
     for (const node of lightning) {
-      await ensureDir(nodePath(network, node.implementation, node.name));
+      const nodeDir = nodePath(network, node.implementation, node.name);
+      await ensureDir(nodeDir);
+      if (node.implementation === 'c-lightning') {
+        await ensureDir(join(nodeDir, 'data'));
+        await ensureDir(join(nodeDir, 'rest-api'));
+      }
     }
 
     info(`Starting docker containers for ${network.name}`);
