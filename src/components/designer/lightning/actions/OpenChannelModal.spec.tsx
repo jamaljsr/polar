@@ -111,13 +111,12 @@ describe('OpenChannelModal', () => {
 
   it('should do nothing if an invalid node is selected', async () => {
     const { getByText, getByLabelText, store } = await renderComponent();
-    const btn = getByText('Open Channel');
     await wait(() => {
-      store.getActions().modals.showOpenChannel({ from: 'invalid', to: 'invalid' });
+      store.getActions().modals.showOpenChannel({ from: 'invalid', to: 'invalid2' });
     });
     fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-    await wait(() => fireEvent.click(btn));
-    expect(btn).toBeInTheDocument();
+    await wait(() => fireEvent.click(getByText('Open Channel')));
+    expect(getByText('Open Channel')).toBeInTheDocument();
   });
 
   describe('with form submitted', () => {

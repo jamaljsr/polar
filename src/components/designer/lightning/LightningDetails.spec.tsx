@@ -1,7 +1,8 @@
 import React from 'react';
 import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
-import { Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
+import { Network } from 'types';
 import * as files from 'utils/files';
 import {
   defaultStateBalances,
@@ -15,10 +16,17 @@ import LightningDetails from './LightningDetails';
 jest.mock('utils/files');
 
 describe('LightningDetails', () => {
+  let network: Network;
+  let node: LightningNode;
+
   const renderComponent = (status?: Status) => {
-    const network = getNetwork(1, 'test network', status);
-    if (status === Status.Error) {
-      network.nodes.lightning.forEach(n => (n.errorMsg = 'test-error'));
+    if (status !== undefined) {
+      network.status = status;
+      network.nodes.bitcoin.forEach(n => (n.status = status));
+      network.nodes.lightning.forEach(n => {
+        n.status = status;
+        n.errorMsg = status === Status.Error ? 'test-error' : undefined;
+      });
     }
     const initialState = {
       network: {
@@ -30,7 +38,6 @@ describe('LightningDetails', () => {
         },
       },
     };
-    const node = network.nodes.lightning[0];
     const cmp = <LightningDetails node={node} />;
     const result = renderWithProviders(cmp, { initialState });
     return {
@@ -38,6 +45,11 @@ describe('LightningDetails', () => {
       node,
     };
   };
+
+  beforeEach(() => {
+    network = getNetwork(1, 'test network');
+    node = network.nodes.lightning[0];
+  });
 
   describe('with node Stopped', () => {
     it('should display Node Type', async () => {
@@ -120,6 +132,21 @@ describe('LightningDetails', () => {
         }),
       );
       lightningServiceMock.getChannels.mockResolvedValue([]);
+    });
+
+    it('should display the sync warning', async () => {
+      lightningServiceMock.getInfo.mockResolvedValue(
+        defaultStateInfo({
+          alias: 'my-node',
+          pubkey: 'abcdef',
+          syncedToChain: false,
+        }),
+      );
+      const { findByText } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Info'));
+      expect(
+        await findByText('Not in sync with then chain. Mine a block'),
+      ).toBeInTheDocument();
     });
 
     it('should display correct Status', async () => {
@@ -221,12 +248,42 @@ describe('LightningDetails', () => {
       expect(from).toEqual(node.name);
     });
 
+    describe('c-lightning', () => {
+      beforeEach(() => {
+        node = network.nodes.lightning[2];
+      });
+
+      it('should display the REST Host', async () => {
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(getByText('REST Host')).toBeInTheDocument();
+        expect(getByText('http://127.0.0.1:8183')).toBeInTheDocument();
+      });
+
+      it('should open API Doc links in the browser', async () => {
+        shell.openExternal = jest.fn().mockResolvedValue(true);
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        await wait(() => fireEvent.click(getByText('REST')));
+        expect(shell.openExternal).toBeCalledWith(
+          'https://github.com/Ride-The-Lightning/c-lightning-REST',
+        );
+      });
+    });
+
     describe('connect options', () => {
       const toggle = (container: HTMLElement, value: string) => {
         fireEvent.click(
           container.querySelector(`input[name=authType][value=${value}]`) as Element,
         );
       };
+
+      it('should not fail with undefined node state', async () => {
+        lightningServiceMock.getInfo.mockResolvedValue(undefined as any);
+        const { queryByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(queryByText('http://127.0.0.1:8183')).toBeNull();
+      });
 
       it('should display hex values for paths', async () => {
         mockFiles.read.mockResolvedValue('test-hex');
@@ -296,6 +353,17 @@ describe('LightningDetails', () => {
         await waitForElement(() => getByText('LND Connect Url'));
         expect(getByText('Unable to create LND Connect url')).toBeInTheDocument();
         expect(getByText('lndc-error')).toBeInTheDocument();
+      });
+
+      it('should properly handle an unknown implementation', async () => {
+        node.implementation = '' as any;
+        const { getByText, queryByText, findByText, container } = renderComponent(
+          Status.Started,
+        );
+        fireEvent.click(await findByText('Connect'));
+        await wait(() => toggle(container, 'base64'));
+        expect(getByText('API Docs')).toBeInTheDocument();
+        expect(queryByText('TLS Cert')).not.toBeInTheDocument();
       });
     });
   });
