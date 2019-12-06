@@ -34,6 +34,12 @@ describe('OpenTerminalButton', () => {
     expect(help).toBeInTheDocument();
   });
 
+  it('should render c-lightning help text', () => {
+    const { getByText } = renderComponent(n => n.nodes.lightning[2]);
+    const help = getByText("Run 'lightning-cli' commands directly on the node");
+    expect(help).toBeInTheDocument();
+  });
+
   it('should send an ipc message when the button is clicked', async () => {
     const ipcMock = injections.ipc as jest.Mock;
     ipcMock.mockResolvedValue(true);

@@ -52,39 +52,42 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
 
   const lnUrl = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
-  const info = useMemo((): ConnectionInfo | undefined => {
-    if (node.status !== Status.Started) return;
-    if (node.implementation === 'LND') {
-      const lnd = node as LndNode;
-      return {
-        restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
-        restDocsUrl: 'https://api.lightning.community/rest/',
-        grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
-        grpcDocsUrl: 'https://api.lightning.community/',
-        credentials: {
-          admin: lnd.paths.adminMacaroon,
-          readOnly: lnd.paths.readonlyMacaroon,
-          cert: lnd.paths.tlsCert,
-        },
-      };
-    } else if (node.implementation === 'c-lightning') {
-      const cln = node as CLightningNode;
-      return {
-        restUrl: `http://127.0.0.1:${cln.ports.rest}`,
-        restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
-        credentials: {
-          admin: cln.paths.macaroon,
-        },
-      };
+  const info = useMemo((): ConnectionInfo => {
+    if (node.status === Status.Started) {
+      if (node.implementation === 'LND') {
+        const lnd = node as LndNode;
+        return {
+          restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
+          restDocsUrl: 'https://api.lightning.community/rest/',
+          grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
+          grpcDocsUrl: 'https://api.lightning.community/',
+          credentials: {
+            admin: lnd.paths.adminMacaroon,
+            readOnly: lnd.paths.readonlyMacaroon,
+            cert: lnd.paths.tlsCert,
+          },
+        };
+      } else if (node.implementation === 'c-lightning') {
+        const cln = node as CLightningNode;
+        return {
+          restUrl: `http://127.0.0.1:${cln.ports.rest}`,
+          restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
+          credentials: {
+            admin: cln.paths.macaroon,
+          },
+        };
+      }
     }
+
+    return {
+      restUrl: '',
+      restDocsUrl: '',
+      credentials: {},
+    } as ConnectionInfo;
   }, [node]);
 
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;
-  }
-
-  if (!info) {
-    return <>{l('unsupported', { implementation: node.implementation })}</>;
   }
 
   const { restUrl, grpcUrl, credentials } = info;
