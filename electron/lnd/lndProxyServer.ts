@@ -101,6 +101,22 @@ const createInvoice = async (args: {
   return await rpc.addInvoice(args.req);
 };
 
+const payInvoice = async (args: {
+  node: LndNode;
+  req: LND.SendRequest;
+}): Promise<LND.SendResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.sendPaymentSync(args.req);
+};
+
+const decodeInvoice = async (args: {
+  node: LndNode;
+  req: LND.PayReqString;
+}): Promise<LND.PayReq> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.decodePayReq(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
@@ -118,6 +134,8 @@ const listeners: {
   [ipcChannels.listChannels]: listChannels,
   [ipcChannels.pendingChannels]: pendingChannels,
   [ipcChannels.createInvoice]: createInvoice,
+  [ipcChannels.payInvoice]: payInvoice,
+  [ipcChannels.decodeInvoice]: decodeInvoice,
 };
 
 /**
