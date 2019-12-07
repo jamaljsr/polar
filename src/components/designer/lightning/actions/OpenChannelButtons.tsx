@@ -22,16 +22,13 @@ const OpenChannelButtons: React.FC<Props> = ({ node }) => {
   const { showOpenChannel } = useStoreActions(s => s.modals);
 
   return (
-    <Form.Item label={l('openChannelTitle')}>
+    <Form.Item label={l('openChannelTitle')} colon={false}>
       <Button.Group style={{ width: '100%' }}>
-        <Styled.Button type="primary" onClick={() => showOpenChannel({ to: node.name })}>
+        <Styled.Button onClick={() => showOpenChannel({ to: node.name })}>
           <Icon type="download" />
           {l('incoming')}
         </Styled.Button>
-        <Styled.Button
-          type="primary"
-          onClick={() => showOpenChannel({ from: node.name })}
-        >
+        <Styled.Button onClick={() => showOpenChannel({ from: node.name })}>
           <Icon type="upload" />
           {l('outgoing')}
         </Styled.Button>

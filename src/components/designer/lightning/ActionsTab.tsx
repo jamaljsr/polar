@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { LightningNode, Status } from 'shared/types';
 import { OpenTerminalButton } from 'components/terminal';
-import { Deposit, OpenChannelButtons, RemoveNode } from './actions';
+import { Deposit, OpenChannelButtons, PaymentButtons, RemoveNode } from './actions';
 
 const Styled = {
   Spacer: styled.div`
@@ -21,6 +21,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         <>
           <Deposit node={node} />
           <OpenChannelButtons node={node} />
+          <PaymentButtons node={node} />
           <OpenTerminalButton node={node} />
           <Styled.Spacer />
         </>

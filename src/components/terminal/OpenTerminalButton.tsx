@@ -29,9 +29,8 @@ const OpenTerminalButton: React.FC<Props> = ({ node }) => {
       break;
   }
   return (
-    <Form.Item label={l('title')} help={l('info', { cmd })}>
+    <Form.Item label={l('title')} help={l('info', { cmd })} colon={false}>
       <Button
-        type="primary"
         icon="code"
         block
         loading={openAsync.loading}

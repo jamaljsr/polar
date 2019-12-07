@@ -38,7 +38,7 @@ const RemoveNode: React.FC<Props> = ({ node }) => {
   useEffect(() => () => modal && modal.destroy(), [modal]);
 
   return (
-    <Form.Item label={l('title')}>
+    <Form.Item label={l('title')} colon={false}>
       <Button type="danger" block ghost onClick={showRemoveModal}>
         {l('btnText')}
       </Button>
