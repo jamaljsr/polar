@@ -13,7 +13,7 @@ interface CreateInvoiceModel {
   visible: boolean;
   nodeName?: string;
   invoice?: string;
-  amount?: string;
+  amount?: number;
 }
 
 export interface ModalsModel {

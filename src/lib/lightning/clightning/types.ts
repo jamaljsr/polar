@@ -96,3 +96,18 @@ export interface CloseChannelResponse {
   txid: string;
   type: string;
 }
+
+export interface InvoiceRequest {
+  amount: number;
+  label: string;
+  description: string;
+  expiry?: number | string;
+  private?: boolean;
+}
+
+export interface InvoiceResponse {
+  paymentHash: string;
+  expiresAt: string;
+  bolt11: string;
+  warningCapacity?: string;
+}

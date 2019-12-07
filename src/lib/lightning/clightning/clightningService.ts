@@ -126,12 +126,31 @@ class CLightningService implements LightningService {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     return await httpDelete<CLN.CloseChannelResponse>(
       this.cast(node),
       `channel/closeChannel/${channelPoint}`,
     );
+  }
+
+  async createInvoice(
+    node: LightningNode,
+    amount: number,
+    memo?: string,
+  ): Promise<string> {
+    const body: CLN.InvoiceRequest = {
+      amount: amount * 1000,
+      label: new Date().getTime().toString(),
+      description: memo || `Polar Invoice for ${node.name} on ${new Date()}`,
+    };
+
+    const res = await httpPost<CLN.InvoiceResponse>(
+      this.cast(node),
+      'invoice/genInvoice',
+      body,
+    );
+
+    return res.bolt11;
   }
 
   /**

@@ -40,6 +40,9 @@ class NotImplementedService implements LightningService {
   closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
   }
+  createInvoice(node: LightningNode, amount: number, memo?: string): Promise<string> {
+    throw new Error(`createInvoice is not implemented for ${node.implementation} nodes`);
+  }
 }
 
 export default new NotImplementedService();

@@ -33,6 +33,12 @@ export interface OpenChannelPayload {
   autoFund: boolean;
 }
 
+export interface CreateInvoicePayload {
+  node: LightningNode;
+  amount: number;
+  memo?: string;
+}
+
 export interface LightningModel {
   nodes: LightningNodeMapping;
   removeNode: Action<LightningModel, string>;
@@ -56,6 +62,13 @@ export interface LightningModel {
     { node: LightningNode; channelPoint: string },
     StoreInjections,
     RootModel
+  >;
+  createInvoice: Thunk<
+    LightningModel,
+    CreateInvoicePayload,
+    StoreInjections,
+    RootModel,
+    Promise<string>
   >;
   waitForNodes: Thunk<LightningModel, LightningNode[], StoreInjections, RootModel>;
   mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
@@ -172,6 +185,10 @@ const lightningModel: LightningModel = {
       getStoreActions().designer.redrawChart();
     },
   ),
+  createInvoice: thunk(async (actions, { node, amount, memo }, { injections }) => {
+    const api = injections.lightningFactory.getService(node);
+    return await api.createInvoice(node, amount, memo);
+  }),
   waitForNodes: thunk(async (actions, nodes) => {
     // mapping of the number of seconds to wait for each implementation
     const nodeDelays: Record<LightningNode['implementation'], number> = {
