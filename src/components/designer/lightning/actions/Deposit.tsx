@@ -25,7 +25,7 @@ const Deposit: React.FC<{ node: LightningNode }> = ({ node }) => {
   });
 
   return (
-    <Form.Item label={l('title')}>
+    <Form.Item label={l('title')} colon={false}>
       <InputGroup compact>
         <InputNumber
           value={amount}
