@@ -107,10 +107,17 @@ class LndService implements LightningService {
     return await proxy.closeChannel(this.cast(node), req);
   }
 
-  createInvoice(node: LightningNode, amount: number, memo?: string): Promise<string> {
-    throw new Error(
-      `createInvoice is not implemented for ${node.implementation} nodes. ${amount} ${memo}`,
-    );
+  async createInvoice(
+    node: LightningNode,
+    amount: number,
+    memo?: string,
+  ): Promise<string> {
+    const req: LND.Invoice = {
+      value: amount.toString(),
+      memo,
+    };
+    const res = await proxy.createInvoice(this.cast(node), req);
+    return res.paymentRequest;
   }
 
   /**
