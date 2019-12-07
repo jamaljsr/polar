@@ -16,15 +16,24 @@ interface CreateInvoiceModel {
   amount?: number;
 }
 
+interface PayInvoiceModel {
+  visible: boolean;
+  nodeName?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   createInvoice: CreateInvoiceModel;
+  payInvoice: PayInvoiceModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, any, StoreInjections, RootModel>;
   setCreateInvoice: Action<ModalsModel, CreateInvoiceModel>;
   showCreateInvoice: Thunk<ModalsModel, Partial<CreateInvoiceModel>, StoreInjections>;
   hideCreateInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  setPayInvoice: Action<ModalsModel, PayInvoiceModel>;
+  showPayInvoice: Thunk<ModalsModel, Partial<PayInvoiceModel>, StoreInjections>;
+  hidePayInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -35,6 +44,9 @@ const modalsModel: ModalsModel = {
     linkId: undefined,
   },
   createInvoice: {
+    visible: false,
+  },
+  payInvoice: {
     visible: false,
   },
   setOpenChannel: action((state, payload) => {
@@ -74,6 +86,21 @@ const modalsModel: ModalsModel = {
       nodeName: undefined,
       invoice: undefined,
       amount: undefined,
+    });
+  }),
+  setPayInvoice: action((state, payload) => {
+    state.payInvoice = {
+      ...state.payInvoice,
+      ...payload,
+    };
+  }),
+  showPayInvoice: thunk((actions, { nodeName }) => {
+    actions.setPayInvoice({ visible: true, nodeName });
+  }),
+  hidePayInvoice: thunk(actions => {
+    actions.setPayInvoice({
+      visible: false,
+      nodeName: undefined,
     });
   }),
 };

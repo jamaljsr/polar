@@ -11,7 +11,7 @@ import CopyableInput from 'components/common/form/CopyableInput';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 interface FormFields {
-  nodeName?: string;
+  node?: string;
   amount?: string;
 }
 
@@ -44,7 +44,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
       if (err) return;
 
       const { lightning } = network.nodes;
-      const node = lightning.find(n => n.name === values.nodeName);
+      const node = lightning.find(n => n.name === values.node);
       if (!node || !values.amount) return;
       createAsync.execute(node, parseInt(values.amount));
     });
@@ -58,7 +58,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
           <Col span={12}>
             <LightningNodeSelect
               network={network}
-              id="nodeName"
+              id="node"
               form={form}
               label={l('nodeLabel')}
               disabled={createAsync.loading}
