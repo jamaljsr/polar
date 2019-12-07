@@ -1,8 +1,13 @@
 import React from 'react';
 import { fireEvent, waitForDomChange } from '@testing-library/react';
+import os from 'os';
 import { renderWithProviders, suppressConsoleErrors } from 'utils/tests';
 import { HOME, NETWORK_VIEW } from 'components/routing';
 import NewNetwork from './NewNetwork';
+
+jest.mock('os');
+
+const mockOS = os as jest.Mocked<typeof os>;
 
 describe('NewNetwork component', () => {
   const renderComponent = () => {
@@ -38,6 +43,22 @@ describe('NewNetwork component', () => {
       await waitForDomChange();
       expect(getByText('required')).toBeInTheDocument();
     });
+  });
+
+  it('should have the correct default nodes', () => {
+    mockOS.platform.mockReturnValue('darwin');
+    const { getByLabelText } = renderComponent();
+    expect(getByLabelText('How many LND nodes?')).toHaveValue('2');
+    expect(getByLabelText('How many c-lightning nodes?')).toHaveValue('1');
+    expect(getByLabelText('How many bitcoind nodes?')).toHaveValue('1');
+  });
+
+  it('should disable c-lightning input on Windows', () => {
+    mockOS.platform.mockReturnValue('win32');
+    const { getByLabelText, getByText } = renderComponent();
+    expect(getByLabelText('How many c-lightning nodes?')).toHaveValue('0');
+    expect(getByLabelText('How many LND nodes?')).toHaveValue('3');
+    expect(getByText('Not supported on Windows yet.')).toBeInTheDocument();
   });
 
   describe('with valid submission', () => {
