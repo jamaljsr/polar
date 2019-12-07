@@ -6,7 +6,6 @@ import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { delay } from 'utils/async';
 import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
@@ -28,17 +27,13 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
     s => s.modals.createInvoice,
   );
   const { showCreateInvoice, hideCreateInvoice } = useStoreActions(s => s.modals);
+  const { createInvoice } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
 
-  const createAsync = useAsyncCallback(async (node: LightningNode, amount: string) => {
+  const createAsync = useAsyncCallback(async (node: LightningNode, amount: number) => {
     try {
-      await delay(500);
-      showCreateInvoice({
-        nodeName: node.name,
-        amount,
-        invoice:
-          'lnbc2m1pw7k8zmpp5az7tf6matv8ntaanmsdrkaq48xwl7a8gg4q2j0f2rpvqx5cxpj6qdqqcqzpgxqyz5vqj5pp20l7uhpvx3lvqqenjud365c8nmsmnu37ffza8e4lftr5k69z38aptdcjwh6ms5hc992g5dxwckulvwm7gly88ukhsy3f0hqc2yqp2guv38',
-      });
+      const invoice = await createInvoice({ node, amount, memo: '' });
+      showCreateInvoice({ nodeName: node.name, amount, invoice });
     } catch (error) {
       notify({ message: l('submitError'), error });
     }
@@ -51,7 +46,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
       const { lightning } = network.nodes;
       const node = lightning.find(n => n.name === values.nodeName);
       if (!node || !values.amount) return;
-      createAsync.execute(node, values.amount);
+      createAsync.execute(node, parseInt(values.amount));
     });
   };
 

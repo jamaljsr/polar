@@ -107,6 +107,12 @@ class LndService implements LightningService {
     return await proxy.closeChannel(this.cast(node), req);
   }
 
+  createInvoice(node: LightningNode, amount: number, memo?: string): Promise<string> {
+    throw new Error(
+      `createInvoice is not implemented for ${node.implementation} nodes. ${amount} ${memo}`,
+    );
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out
