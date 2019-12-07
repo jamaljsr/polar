@@ -7,6 +7,7 @@ import { Network } from 'types';
 import { Loader } from 'components/common';
 import { Link, NodeInner, Port, Ports } from './custom';
 import { OpenChannelModal } from './lightning/actions';
+import CreateInvoiceModal from './lightning/actions/CreateInvoiceModal';
 import Sidebar from './Sidebar';
 
 const Styled = {
@@ -27,7 +28,7 @@ interface Props {
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
   const { allCharts, activeId } = useStoreState(s => s.designer);
-  const { openChannel } = useStoreState(s => s.modals);
+  const { openChannel, createInvoice } = useStoreState(s => s.modals);
   // update the redux store with the current network's chart
   useEffect(() => {
     if (allCharts[network.id] && activeId !== network.id) setActiveId(network.id);
@@ -60,6 +61,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       />
       <Sidebar network={network} chart={chart} />
       {openChannel.visible && <OpenChannelModal network={network} />}
+      {createInvoice.visible && <CreateInvoiceModal network={network} />}
     </Styled.Designer>
   );
 };
