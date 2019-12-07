@@ -7537,7 +7537,7 @@ fd-slicer@~1.0.1:
   dependencies:
     pend "~1.2.0"
 
-fetch-mock@^8.0.1:
+fetch-mock@8.0.1:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/fetch-mock/-/fetch-mock-8.0.1.tgz#1ff298eef949c167a1a121294d647f25a080874e"
   integrity sha512-omxXRmQJDWLbOpA907JMFNdjLkHAfOGIqcyS/1dJ/0EEyi19iIyYjT2nveT+4Nwmuh/HgRSsNwRl+HP690ZdGQ==
