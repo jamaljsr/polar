@@ -5,6 +5,7 @@ import { Button, Card, Col, Form, Input, InputNumber, PageHeader, Row } from 'an
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
+import { isWindows } from 'utils/system';
 import { HOME } from 'components/routing';
 
 const Styled = {
@@ -54,16 +55,19 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
               <Form.Item label={l('lndNodesLabel')}>
                 {form.getFieldDecorator('lndNodes', {
                   rules: [{ required: true, message: l('cmps.forms.required') }],
-                  initialValue: 2,
+                  initialValue: isWindows() ? 3 : 2,
                 })(<InputNumber min={0} max={10} />)}
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label={l('clightningNodesLabel')}>
+              <Form.Item
+                label={l('clightningNodesLabel')}
+                help={isWindows() ? l('clightningWindows') : ''}
+              >
                 {form.getFieldDecorator('clightningNodes', {
                   rules: [{ required: true, message: l('cmps.forms.required') }],
-                  initialValue: 1,
-                })(<InputNumber min={0} max={10} />)}
+                  initialValue: isWindows() ? 0 : 1,
+                })(<InputNumber min={0} max={10} disabled={isWindows()} />)}
               </Form.Item>
             </Col>
             <Col span={8}>
