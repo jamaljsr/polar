@@ -2,6 +2,8 @@
 
 Small Stuff
 
+- add Copy & Close button to CreateInvoiceModal
+- refactor: add redraw param to designer.syncChart()
 - fix pasting text in terminal
 - display bitcoin rpc user/pass in sidebar
 - start/stop individual nodes

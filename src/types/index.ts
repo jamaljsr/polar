@@ -61,6 +61,11 @@ export interface LightningService {
   ) => Promise<PLN.LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
   createInvoice: (node: LightningNode, amount: number, memo?: string) => Promise<string>;
+  payInvoice: (
+    node: LightningNode,
+    invoice: string,
+    amount?: number,
+  ) => Promise<PLN.LightningNodePayReceipt>;
 }
 
 export interface LightningFactoryInjection {

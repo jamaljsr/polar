@@ -49,3 +49,9 @@ export interface LightningNodePeer {
   pubkey: string;
   address: string;
 }
+
+export interface LightningNodePayReceipt {
+  preimage: string;
+  amount: number;
+  destination: string;
+}

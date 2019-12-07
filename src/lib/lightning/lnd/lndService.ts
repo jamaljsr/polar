@@ -120,6 +120,16 @@ class LndService implements LightningService {
     return res.paymentRequest;
   }
 
+  payInvoice(
+    node: LightningNode,
+    invoice: string,
+    amount?: number,
+  ): Promise<PLN.LightningNodePayReceipt> {
+    throw new Error(
+      `payInvoice is not implemented for ${node.implementation} nodes ${invoice} ${amount}`,
+    );
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out

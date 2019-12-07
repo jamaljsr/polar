@@ -1,10 +1,6 @@
 import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { LightningNode, Status } from 'shared/types';
-import {
-  LightningNodeBalances,
-  LightningNodeChannel,
-  LightningNodeInfo,
-} from 'lib/lightning/types';
+import * as PLN from 'lib/lightning/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
@@ -16,9 +12,9 @@ export interface LightningNodeMapping {
 }
 
 export interface LightningNodeModel {
-  info?: LightningNodeInfo;
-  walletBalance?: LightningNodeBalances;
-  channels?: LightningNodeChannel[];
+  info?: PLN.LightningNodeInfo;
+  walletBalance?: PLN.LightningNodeBalances;
+  channels?: PLN.LightningNodeChannel[];
 }
 
 export interface DepositFundsPayload {
@@ -39,14 +35,20 @@ export interface CreateInvoicePayload {
   memo?: string;
 }
 
+export interface PayInvoicePayload {
+  node: LightningNode;
+  invoice: string;
+  amount?: number;
+}
+
 export interface LightningModel {
   nodes: LightningNodeMapping;
   removeNode: Action<LightningModel, string>;
-  setInfo: Action<LightningModel, { node: LightningNode; info: LightningNodeInfo }>;
+  setInfo: Action<LightningModel, { node: LightningNode; info: PLN.LightningNodeInfo }>;
   getInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   setWalletBalance: Action<
     LightningModel,
-    { node: LightningNode; balance: LightningNodeBalances }
+    { node: LightningNode; balance: PLN.LightningNodeBalances }
   >;
   getWalletBalance: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   setChannels: Action<
@@ -69,6 +71,13 @@ export interface LightningModel {
     StoreInjections,
     RootModel,
     Promise<string>
+  >;
+  payInvoice: Thunk<
+    LightningModel,
+    PayInvoicePayload,
+    StoreInjections,
+    RootModel,
+    Promise<PLN.LightningNodePayReceipt>
   >;
   waitForNodes: Thunk<LightningModel, LightningNode[], StoreInjections, RootModel>;
   mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
@@ -149,7 +158,7 @@ const lightningModel: LightningModel = {
       if (!toNode || !toNode.info) await actions.getInfo(to);
       // cast because it should never be undefined after calling getInfo above
       const { rpcUrl } = getStoreState().lightning.nodes[to.name]
-        .info as LightningNodeInfo;
+        .info as PLN.LightningNodeInfo;
       // open the channel via lightning node
       const api = injections.lightningFactory.getService(from);
       await api.openChannel(from, rpcUrl, sats);
@@ -189,6 +198,23 @@ const lightningModel: LightningModel = {
     const api = injections.lightningFactory.getService(node);
     return await api.createInvoice(node, amount, memo);
   }),
+  payInvoice: thunk(
+    async (
+      actions,
+      { node, invoice, amount },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      const api = injections.lightningFactory.getService(node);
+      const receipt = await api.payInvoice(node, invoice, amount);
+
+      const network = getStoreState().network.networkById(node.networkId);
+      // synchronize the chart with the new channel
+      await getStoreActions().designer.syncChart(network);
+      getStoreActions().designer.redrawChart();
+
+      return receipt;
+    },
+  ),
   waitForNodes: thunk(async (actions, nodes) => {
     // mapping of the number of seconds to wait for each implementation
     const nodeDelays: Record<LightningNode['implementation'], number> = {

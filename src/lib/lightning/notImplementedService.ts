@@ -43,6 +43,13 @@ class NotImplementedService implements LightningService {
   createInvoice(node: LightningNode, amount: number, memo?: string): Promise<string> {
     throw new Error(`createInvoice is not implemented for ${node.implementation} nodes`);
   }
+  payInvoice(
+    node: LightningNode,
+    invoice: string,
+    amount?: number,
+  ): Promise<PLN.LightningNodePayReceipt> {
+    throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
+  }
 }
 
 export default new NotImplementedService();
