@@ -120,14 +120,26 @@ class LndService implements LightningService {
     return res.paymentRequest;
   }
 
-  payInvoice(
+  async payInvoice(
     node: LightningNode,
     invoice: string,
     amount?: number,
   ): Promise<PLN.LightningNodePayReceipt> {
-    throw new Error(
-      `payInvoice is not implemented for ${node.implementation} nodes ${invoice} ${amount}`,
-    );
+    const req: LND.SendRequest = {
+      paymentRequest: invoice,
+      amt: amount ? amount.toString() : undefined,
+    };
+    const res = await proxy.payInvoice(this.cast(node), req);
+    // handle errors manually
+    if (res.paymentError) throw new Error(res.paymentError);
+
+    const payReq = await proxy.decodeInvoice(this.cast(node), { payReq: invoice });
+
+    return {
+      amount: parseInt(payReq.numSatoshis),
+      preimage: res.paymentPreimage.toString(),
+      destination: payReq.destination,
+    };
   }
 
   /**

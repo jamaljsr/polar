@@ -13,4 +13,6 @@ export default {
   listChannels: 'list-channels',
   pendingChannels: 'pending-channels',
   createInvoice: 'create-invoice',
+  payInvoice: 'pay-invoice',
+  decodeInvoice: 'decode-invoice',
 };
