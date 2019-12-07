@@ -12,4 +12,5 @@ export default {
   closeChannel: 'close-channel',
   listChannels: 'list-channels',
   pendingChannels: 'pending-channels',
+  createInvoice: 'create-invoice',
 };

@@ -93,6 +93,14 @@ const pendingChannels = async (args: {
   return await rpc.pendingChannels();
 };
 
+const createInvoice = async (args: {
+  node: LndNode;
+  req: LND.Invoice;
+}): Promise<LND.AddInvoiceResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.addInvoice(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are recieved
@@ -109,6 +117,7 @@ const listeners: {
   [ipcChannels.closeChannel]: closeChannel,
   [ipcChannels.listChannels]: listChannels,
   [ipcChannels.pendingChannels]: pendingChannels,
+  [ipcChannels.createInvoice]: createInvoice,
 };
 
 /**

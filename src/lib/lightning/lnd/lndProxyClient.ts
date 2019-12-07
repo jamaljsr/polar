@@ -51,6 +51,10 @@ class LndProxyClient {
   async pendingChannels(node: LndNode): Promise<LND.PendingChannelsResponse> {
     return await this.ipc(ipcChannels.pendingChannels, { node });
   }
+
+  async createInvoice(node: LndNode, req: LND.Invoice): Promise<LND.AddInvoiceResponse> {
+    return await this.ipc(ipcChannels.createInvoice, { node, req });
+  }
 }
 
 export default new LndProxyClient();
