@@ -6,7 +6,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { delay } from 'utils/async';
+import { format } from 'utils/units';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 interface FormFields {
@@ -22,14 +22,18 @@ const PayInvoiceModal: React.FC<Props> = ({ network, form }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.PayInvoiceModal');
   const { visible, nodeName } = useStoreState(s => s.modals.payInvoice);
   const { hidePayInvoice } = useStoreActions(s => s.modals);
-  // const { createInvoice } = useStoreActions(s => s.lightning);
+  const { payInvoice } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
 
   const payAsync = useAsyncCallback(async (node: LightningNode, invoice: string) => {
     try {
-      await delay(500);
+      const { amount } = await payInvoice({ node, invoice });
+      const nodeName = form.getFieldsValue().node;
+      notify({
+        message: l('successTitle'),
+        description: l('successDesc', { amount: format(amount), nodeName }),
+      });
       hidePayInvoice();
-      notify({ message: l('successMsg') });
     } catch (error) {
       notify({ message: l('submitError'), error });
     }

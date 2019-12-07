@@ -68,6 +68,7 @@ const appModel: AppModel = {
       notification.success({
         ...options,
         message: message,
+        description,
       });
     } else {
       notification.error({

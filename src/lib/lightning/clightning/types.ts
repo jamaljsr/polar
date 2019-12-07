@@ -111,3 +111,22 @@ export interface InvoiceResponse {
   bolt11: string;
   warningCapacity?: string;
 }
+
+export interface PayRequest {
+  invoice: string;
+  amount?: number;
+}
+
+export interface PayResponse {
+  id: string;
+  paymentHash: string;
+  destination: string;
+  msatoshi: number;
+  amountMsat: string;
+  msatoshiSent: number;
+  amountSentMsat: string;
+  createdAt: number;
+  status: string;
+  paymentPreimage: string;
+  bolt11: string;
+}

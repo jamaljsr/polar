@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { Col, Form, InputNumber, Modal, Result, Row } from 'antd';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { Button, Col, Form, InputNumber, message, Modal, Result, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
@@ -50,6 +51,11 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
     });
   };
 
+  const handleCopy = () => {
+    message.success(l('copied'), 2);
+    hideCreateInvoice();
+  };
+
   let cmp: ReactNode;
   if (!invoice) {
     cmp = (
@@ -90,7 +96,18 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
         status="success"
         title={l('successTitle')}
         subTitle={l('successDesc', { nodeName, amount: format(`${amount}`) })}
-        extra={<CopyableInput label="Invoice" value={invoice} />}
+        extra={
+          <>
+            <Form.Item>
+              <CopyableInput label="Invoice" value={invoice} />
+            </Form.Item>
+            <Form.Item>
+              <CopyToClipboard text={invoice} onCopy={handleCopy}>
+                <Button type="primary">{l('copyClose')}</Button>
+              </CopyToClipboard>
+            </Form.Item>
+          </>
+        }
       />
     );
   }

@@ -153,6 +153,22 @@ class CLightningService implements LightningService {
     return res.bolt11;
   }
 
+  async payInvoice(
+    node: LightningNode,
+    invoice: string,
+    amount?: number,
+  ): Promise<PLN.LightningNodePayReceipt> {
+    const body: CLN.PayRequest = { invoice, amount };
+
+    const res = await httpPost<CLN.PayResponse>(this.cast(node), 'pay', body);
+
+    return {
+      preimage: res.paymentPreimage,
+      amount: res.msatoshi / 1000,
+      destination: res.destination,
+    };
+  }
+
   /**
    * Helper function to continually query the node until a successful
    * response is received or it times out
