@@ -22,11 +22,11 @@ const PaymentButtons: React.FC<Props> = ({ node }) => {
   return (
     <Form.Item label={l('paymentsTitle')} colon={false}>
       <Button.Group style={{ width: '100%' }}>
-        <Styled.Button onClick={() => showCreateInvoice({ node })}>
+        <Styled.Button onClick={() => showCreateInvoice({ nodeName: node.name })}>
           <Icon type="thunderbolt" />
           {l('payInvoice')}
         </Styled.Button>
-        <Styled.Button onClick={() => showCreateInvoice({ node })}>
+        <Styled.Button onClick={() => showCreateInvoice({ nodeName: node.name })}>
           <Icon type="file-protect" />
           {l('createInvoice')}
         </Styled.Button>

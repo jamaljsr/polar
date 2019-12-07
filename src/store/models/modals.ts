@@ -1,5 +1,4 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { LightningNode } from 'shared/types';
 import { StoreInjections } from 'types';
 import { RootModel } from './';
 
@@ -12,7 +11,9 @@ interface OpenChannelModel {
 
 interface CreateInvoiceModel {
   visible: boolean;
-  node?: LightningNode;
+  nodeName?: string;
+  invoice?: string;
+  amount?: string;
 }
 
 export interface ModalsModel {
@@ -22,7 +23,7 @@ export interface ModalsModel {
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, any, StoreInjections, RootModel>;
   setCreateInvoice: Action<ModalsModel, CreateInvoiceModel>;
-  showCreateInvoice: Thunk<ModalsModel, { node: LightningNode }, StoreInjections>;
+  showCreateInvoice: Thunk<ModalsModel, Partial<CreateInvoiceModel>, StoreInjections>;
   hideCreateInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
 }
 
@@ -64,13 +65,15 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  showCreateInvoice: thunk((actions, { node }) => {
-    actions.setCreateInvoice({ visible: true, node });
+  showCreateInvoice: thunk((actions, { nodeName, invoice, amount }) => {
+    actions.setCreateInvoice({ visible: true, nodeName, invoice, amount });
   }),
   hideCreateInvoice: thunk(actions => {
     actions.setCreateInvoice({
       visible: false,
-      node: undefined,
+      nodeName: undefined,
+      invoice: undefined,
+      amount: undefined,
     });
   }),
 };
