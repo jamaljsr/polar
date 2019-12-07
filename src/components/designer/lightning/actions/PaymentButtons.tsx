@@ -17,12 +17,12 @@ interface Props {
 
 const PaymentButtons: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.PaymentButtons');
-  const { showCreateInvoice } = useStoreActions(s => s.modals);
+  const { showPayInvoice, showCreateInvoice } = useStoreActions(s => s.modals);
 
   return (
     <Form.Item label={l('paymentsTitle')} colon={false}>
       <Button.Group style={{ width: '100%' }}>
-        <Styled.Button onClick={() => showCreateInvoice({ nodeName: node.name })}>
+        <Styled.Button onClick={() => showPayInvoice({ nodeName: node.name })}>
           <Icon type="thunderbolt" />
           {l('payInvoice')}
         </Styled.Button>
