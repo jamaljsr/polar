@@ -172,7 +172,6 @@ const lightningModel: LightningModel = {
       await actions.waitForNodes([from, to]);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
-      getStoreActions().designer.redrawChart();
     },
   ),
   closeChannel: thunk(
@@ -191,7 +190,6 @@ const lightningModel: LightningModel = {
       await actions.waitForNodes([node]);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
-      getStoreActions().designer.redrawChart();
     },
   ),
   createInvoice: thunk(async (actions, { node, amount, memo }, { injections }) => {
@@ -210,7 +208,6 @@ const lightningModel: LightningModel = {
       const network = getStoreState().network.networkById(node.networkId);
       // synchronize the chart with the new channel
       await getStoreActions().designer.syncChart(network);
-      getStoreActions().designer.redrawChart();
 
       return receipt;
     },

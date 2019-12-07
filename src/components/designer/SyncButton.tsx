@@ -2,9 +2,9 @@ import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { Status } from 'shared/types';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
-import { Status } from 'shared/types';
 
 interface Props {
   network: Network;
@@ -13,11 +13,10 @@ interface Props {
 const SyncButton: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.SyncButton');
   const { notify } = useStoreActions(s => s.app);
-  const { syncChart, redrawChart } = useStoreActions(s => s.designer);
+  const { syncChart } = useStoreActions(s => s.designer);
   const syncChartAsync = useAsyncCallback(async () => {
     try {
       await syncChart(network);
-      redrawChart();
       notify({
         message: l('syncSuccess'),
       });
