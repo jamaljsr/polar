@@ -114,6 +114,7 @@ const designerModel: DesignerModel = {
         ...allCharts,
         [network.id]: chart,
       });
+      actions.redrawChart();
     },
   ),
   onNetworkSetStatus: actionOn(
