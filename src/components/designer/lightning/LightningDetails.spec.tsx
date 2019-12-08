@@ -248,6 +248,24 @@ describe('LightningDetails', () => {
       expect(from).toEqual(node.name);
     });
 
+    it('should handle pay invoice button click', async () => {
+      const { findByText, node, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Pay Invoice'));
+      const { visible, nodeName } = store.getState().modals.payInvoice;
+      expect(visible).toEqual(true);
+      expect(nodeName).toEqual(node.name);
+    });
+
+    it('should handle create invoice button click', async () => {
+      const { findByText, node, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Create Invoice'));
+      const { visible, nodeName } = store.getState().modals.createInvoice;
+      expect(visible).toEqual(true);
+      expect(nodeName).toEqual(node.name);
+    });
+
     describe('c-lightning', () => {
       beforeEach(() => {
         node = network.nodes.lightning[2];
