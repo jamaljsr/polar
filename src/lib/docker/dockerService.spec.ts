@@ -35,7 +35,11 @@ describe('DockerService', () => {
   });
 
   it('should populate env vars with compose commands', async () => {
-    electronMock.remote.process.env = { __TESTVAR: 'TESTVAL' };
+    Object.defineProperty(electronMock.remote.process, 'env', {
+      get: () => ({
+        __TESTVAR: 'TESTVAL',
+      }),
+    });
     await dockerService.getVersions();
     expect(composeMock.version).toBeCalledWith(
       expect.objectContaining({
@@ -297,14 +301,14 @@ describe('DockerService', () => {
     });
 
     it('should not fail if electron.remote is undefined', async () => {
-      electronMock.remote.process = undefined;
+      Object.defineProperty(electronMock.remote, 'process', { get: () => undefined });
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
       expect(composeMock.upAll).toBeCalledWith(
         expect.objectContaining({ cwd: network.path }),
         undefined,
       );
-      electronMock.remote.process = {};
+      Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
     });
   });
 });
