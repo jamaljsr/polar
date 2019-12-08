@@ -42,7 +42,18 @@ Polar requires that you have Docker installed to create the local networks
 
 ## Download
 
-The most current downloads for Mac, Windows & Linux can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
+The most current Polar downloads for Mac, Windows & Linux can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
+
+## Polar's Future
+
+The overall goal of Polar is to minimize the time & effort needed for a developer new to Lightning to get started building their next killer app. In addition, Polar aims to be a useful tool for experienced Lightning App developers to iterate faster on their projects. Less time setting up nodes, more time building your app.
+
+Here's a short list of ideas for features that may be beneficial to add in future releases (in no particular order):
+
+- Network snapshots with the ability to import/export them. These could also be used as templates to quickly boot up a network with predefined nodes and channels. The templates could be hosted github to allow community contributions. This may require a scripting system built-in.
+- Sample app projects/code in different languages (Python, Typescript/JS, Go, C#) showing how to connect to the Lightning/Bitcoin nodes from an external app.
+- Bitcoin Block Explorer & GRPC/REST API Explorers to have access to all of the node RPC API's graphically, without needing to fallback to the Terminal.
+- A branded website with download links and getting started guides to make Polar a bit easier to find via search engines
 
 ## Development
 
