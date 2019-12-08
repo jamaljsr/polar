@@ -1,10 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
-import { initAppIpcListener } from './appIpcListener';
-import { BASE_URL, IS_DEV, APP_ROOT } from './constants';
-import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
 import { join } from 'path';
+import { initAppIpcListener } from './appIpcListener';
+import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
+import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
@@ -20,6 +20,8 @@ class WindowManager {
   }
 
   async createMainWindow() {
+    Menu.setApplicationMenu(null);
+
     const mainState = windowState({
       defaultWidth: 900,
       defaultHeight: 600,
@@ -37,7 +39,6 @@ class WindowManager {
         nodeIntegration: true,
       },
     });
-    this.mainWindow.setMenuBarVisibility(false);
 
     if (IS_DEV) {
       await this.setupDevEnv();
