@@ -99,6 +99,24 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('Capacity (sats)')).toBeInTheDocument();
   });
 
+  it('should display the CreateInvoice modal', async () => {
+    const { findByText, store } = renderComponent();
+    expect(await findByText('backend')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showCreateInvoice({});
+    });
+    expect(await findByText('Amount (sats)')).toBeInTheDocument();
+  });
+
+  it('should display the PayInvoice modal', async () => {
+    const { findByText, store } = renderComponent();
+    expect(await findByText('backend')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showPayInvoice({});
+    });
+    expect(await findByText('BOLT 11 Invoice')).toBeInTheDocument();
+  });
+
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText } = renderComponent();
     expect(await findByText('alice')).toBeInTheDocument();
