@@ -132,6 +132,7 @@ const DockerTerminal: React.FC = () => {
 
   useEffect(() => {
     info('Rendering DockerTerminal component');
+    document.title = `Polar Terminal | ${name} (${type})`;
 
     // load the terminal UI
     const term = new Terminal(termOptions);
