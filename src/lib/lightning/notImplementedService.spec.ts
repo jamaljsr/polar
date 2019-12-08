@@ -15,5 +15,7 @@ describe('NotImplementedService', () => {
     expect(() => service.connectPeer(node, '')).toThrow(msg('connectPeer'));
     expect(() => service.openChannel(node, '', '')).toThrow(msg('openChannel'));
     expect(() => service.closeChannel(node, '')).toThrow(msg('closeChannel'));
+    expect(() => service.createInvoice(node, 0, '')).toThrow(msg('createInvoice'));
+    expect(() => service.payInvoice(node, '')).toThrow(msg('payInvoice'));
   });
 });

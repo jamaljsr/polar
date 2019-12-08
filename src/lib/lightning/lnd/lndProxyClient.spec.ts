@@ -76,4 +76,22 @@ describe('LndService', () => {
     lndProxyClient.pendingChannels(node);
     expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.pendingChannels, { node });
   });
+
+  it('should call the createInvoice ipc', () => {
+    const req = {};
+    lndProxyClient.createInvoice(node, req);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.createInvoice, { node, req });
+  });
+
+  it('should call the payInvoice ipc', () => {
+    const req = {};
+    lndProxyClient.payInvoice(node, req);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.payInvoice, { node, req });
+  });
+
+  it('should call the decodeInvoice ipc', () => {
+    const req = { payReq: 'lnbc1invoice' };
+    lndProxyClient.decodeInvoice(node, req);
+    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.decodeInvoice, { node, req });
+  });
 });

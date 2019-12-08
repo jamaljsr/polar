@@ -74,6 +74,50 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should create an invoice', async () => {
+    const expected = 'lnbc1invoice';
+    const mocked = { paymentRequest: expected };
+    lndProxyClient.createInvoice = jest.fn().mockResolvedValue(mocked);
+    const actual = await lndService.createInvoice(node, 1000);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should pay an invoice', async () => {
+    const payResponse = { paymentPreimage: 'preimage' };
+    const decodeResponse = {
+      paymentPreimage: 'preimage',
+      numSatoshis: '1000',
+      destination: 'asdf',
+    };
+    lndProxyClient.payInvoice = jest.fn().mockResolvedValue(payResponse);
+    lndProxyClient.decodeInvoice = jest.fn().mockResolvedValue(decodeResponse);
+    const actual = await lndService.payInvoice(node, 'lnbc1invoice');
+    expect(actual.preimage).toEqual('preimage');
+    expect(actual.amount).toEqual(1000);
+    expect(actual.destination).toEqual('asdf');
+  });
+
+  it('should pay an invoice with an amount', async () => {
+    const payResponse = { paymentPreimage: 'preimage' };
+    const decodeResponse = {
+      paymentPreimage: 'preimage',
+      numSatoshis: '1000',
+      destination: 'asdf',
+    };
+    lndProxyClient.payInvoice = jest.fn().mockResolvedValue(payResponse);
+    lndProxyClient.decodeInvoice = jest.fn().mockResolvedValue(decodeResponse);
+    const actual = await lndService.payInvoice(node, 'lnbc1invoice', 1000);
+    expect(actual.preimage).toEqual('preimage');
+    expect(actual.amount).toEqual(1000);
+    expect(actual.destination).toEqual('asdf');
+  });
+
+  it('should throw an error if paying the invoice fails', async () => {
+    const payResponse = { paymentError: 'pay-err' };
+    lndProxyClient.payInvoice = jest.fn().mockResolvedValue(payResponse);
+    await expect(lndService.payInvoice(node, 'lnbc1invoice')).rejects.toThrow('pay-err');
+  });
+
   it('should throw an error for an incorrect node', async () => {
     const cln = getNetwork().nodes.lightning[2];
     await expect(lndService.getInfo(cln)).rejects.toThrow(
