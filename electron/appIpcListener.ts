@@ -25,7 +25,6 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
       nodeIntegration: true,
     },
   });
-  window.setMenuBarVisibility(false);
   window.on('closed', () => {
     window = null;
   });
