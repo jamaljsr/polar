@@ -78,6 +78,29 @@ describe('CLightningService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should create an invoice', async () => {
+    const expected = 'lnbc1invoice';
+    const invResponse: Partial<CLN.InvoiceResponse> = {
+      bolt11: expected,
+    };
+    clightningApiMock.httpPost.mockResolvedValue(invResponse);
+    const actual = await clightningService.createInvoice(node, 1000);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should pay an invoice', async () => {
+    const payResponse: Partial<CLN.PayResponse> = {
+      paymentPreimage: 'preimage',
+      msatoshi: 123000,
+      destination: 'asdf',
+    };
+    clightningApiMock.httpPost.mockResolvedValue(payResponse);
+    const actual = await clightningService.payInvoice(node, 'lnbc1invoice');
+    expect(actual.preimage).toEqual('preimage');
+    expect(actual.amount).toEqual(123);
+    expect(actual.destination).toEqual('asdf');
+  });
+
   it('should throw an error for an incorrect node', async () => {
     const lnd = getNetwork().nodes.lightning[0];
     await expect(clightningService.getInfo(lnd)).rejects.toThrow(

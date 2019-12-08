@@ -141,7 +141,7 @@ class CLightningService implements LightningService {
     const body: CLN.InvoiceRequest = {
       amount: amount * 1000,
       label: new Date().getTime().toString(),
-      description: memo || `Polar Invoice for ${node.name} on ${new Date()}`,
+      description: memo || `Polar Invoice for ${node.name}}`,
     };
 
     const res = await httpPost<CLN.InvoiceResponse>(
