@@ -2631,10 +2631,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@3.26.0:
-  version "3.26.0"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-3.26.0.tgz#0a6a43fdd8577e61708932b7bc34ba0234d0f138"
-  integrity sha512-sx8Tmg1o3yQhYhodxG2sc+awlpdmY0Qf3PHCUdWAdvmiSzkRIyx1vAfqnQ30tF1EF90pKXgy8+MJ8DhC9UCjbg==
+antd@3.26.1:
+  version "3.26.1"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-3.26.1.tgz#ebeed1f658f82f47b1be94812c7d5297923e9260"
+  integrity sha512-4dsBs4CkwsJXQ1KPcReimAQs4Z36IiD+glIZfk3nCxPP4FovRGzqbyPAyOHTOqFr0lXXxEGsPHRxd2ctLmS6Sg==
   dependencies:
     "@ant-design/create-react-context" "^0.2.4"
     "@ant-design/icons" "~2.1.1"
@@ -2674,7 +2674,7 @@ antd@3.26.0:
     rc-slider "~8.7.1"
     rc-steps "~3.5.0"
     rc-switch "~1.9.0"
-    rc-table "~6.9.4"
+    rc-table "~6.10.5"
     rc-tabs "~9.7.0"
     rc-time-picker "~3.7.1"
     rc-tooltip "~3.7.3"
@@ -14059,10 +14059,10 @@ rc-switch@~1.9.0:
     prop-types "^15.5.6"
     react-lifecycles-compat "^3.0.4"
 
-rc-table@~6.9.4:
-  version "6.9.5"
-  resolved "https://registry.yarnpkg.com/rc-table/-/rc-table-6.9.5.tgz#b7394c3780d4ad2398d08d2059aba454f195273f"
-  integrity sha512-STL6387A/izVh6r9F1WDiIIZ0QeubCdTgIlzMeGTSl/bXhB0VqjAZEikvoijPoauTjJIkIzVuQEIDjOhAWbpkQ==
+rc-table@~6.10.5:
+  version "6.10.5"
+  resolved "https://registry.yarnpkg.com/rc-table/-/rc-table-6.10.5.tgz#5adb55839f90f7fcc17f08eb703d8f1feedec921"
+  integrity sha512-W4a41mFR83RxOrQe1I83g7PZdp48dhEg1ffWmvt5n4IeR4f3Trn509WVHZmmdfpca8fSW6cT32dX1DztPnCttA==
   dependencies:
     classnames "^2.2.5"
     component-classes "^1.2.6"
