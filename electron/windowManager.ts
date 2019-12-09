@@ -3,6 +3,7 @@ import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
 import { initAppIpcListener } from './appIpcListener';
+import { appMenuTemplate } from './appMenu';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
 import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
 
@@ -20,7 +21,8 @@ class WindowManager {
   }
 
   async createMainWindow() {
-    Menu.setApplicationMenu(null);
+    const menu = Menu.buildFromTemplate(appMenuTemplate());
+    Menu.setApplicationMenu(menu);
 
     const mainState = windowState({
       defaultWidth: 900,
@@ -39,6 +41,7 @@ class WindowManager {
         nodeIntegration: true,
       },
     });
+    this.mainWindow.removeMenu();
 
     if (IS_DEV) {
       await this.setupDevEnv();
