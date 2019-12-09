@@ -7,7 +7,7 @@ import { APP_ROOT, BASE_URL } from './constants';
 import { clearProxyCache } from './lnd/lndProxyServer';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
-  console.warn('opwnWindow', args);
+  debug('opwnWindow', args);
   const winState = windowState({
     defaultWidth: 800,
     defaultHeight: 600,
@@ -25,6 +25,7 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
       nodeIntegration: true,
     },
   });
+  window.setMenuBarVisibility(false);
   window.on('closed', () => {
     window = null;
   });
