@@ -41,7 +41,7 @@ class WindowManager {
         nodeIntegration: true,
       },
     });
-    this.mainWindow.removeMenu();
+    this.mainWindow.setMenuBarVisibility(false);
 
     if (IS_DEV) {
       await this.setupDevEnv();
