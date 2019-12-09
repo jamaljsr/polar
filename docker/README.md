@@ -14,7 +14,7 @@ _Warning: These images are not hardened and shouldn't be used to store real bitc
 
 ```sh
 $ cd bitcoind
-$ docker build --build-arg BITCOIN_VERSION=<version> -t polarlightning/bitcoind:latest -t polarlightning/bitcoind:<version> .
+$ docker build --build-arg BITCOIN_VERSION=<version> -t polarlightning/bitcoind:<version> .
 ```
 
 Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
@@ -23,7 +23,6 @@ Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
 ```sh
 $ docker push polarlightning/bitcoind:<version>
-$ docker push polarlightning/bitcoind:latest
 ```
 
 ## LND
@@ -37,7 +36,7 @@ $ docker push polarlightning/bitcoind:latest
 
 ```sh
 $ cd lnd
-$ docker build --build-arg LND_VERSION=<version> -t polarlightning/lnd:latest -t polarlightning/lnd:<version> .
+$ docker build --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> .
 ```
 
 Replace `<version>` with the desired LND version (ex: `0.8.0-beta`)
@@ -46,7 +45,6 @@ Replace `<version>` with the desired LND version (ex: `0.8.0-beta`)
 
 ```sh
 $ docker push polarlightning/lnd:<version>
-$ docker push polarlightning/lnd:latest
 ```
 
 ## c-lightning
@@ -59,7 +57,7 @@ $ docker push polarlightning/lnd:latest
 
 ```sh
 $ cd clightning
-$ docker build --build-arg CLN_VERSION=<version>  -t polarlightning/clightning:latest -t polarlightning/clightning:<version> .
+$ docker build --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version> .
 ```
 
 Replace `<version>` with the desired c-lightning version (ex: `0.7.3`).
@@ -68,5 +66,4 @@ Replace `<version>` with the desired c-lightning version (ex: `0.7.3`).
 
 ```sh
 $ docker push polarlightning/clightning:<version>
-$ docker push polarlightning/clightning:latest
 ```
