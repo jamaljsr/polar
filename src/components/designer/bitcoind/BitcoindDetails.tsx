@@ -1,19 +1,18 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
 import { Alert, Icon } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { ellipseInner } from 'utils/strings';
-import { toSats } from 'utils/units';
-import { CopyIcon, DetailsList, Loader, StatusBadge } from 'components/common';
-import { DetailValues } from 'components/common/DetailsList';
-import { OpenTerminalButton } from 'components/terminal';
+import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
-import MineBlocksInput from './MineBlocksInput';
+import ActionsTab from './ActionsTab';
+import ConnectTab from './ConnectTab';
+import InfoTab from './InfoTab';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.BitcoinDetails');
+  const [activeTab, setActiveTab] = useState('info');
   const { getInfo } = useStoreActions(s => s.bitcoind);
   const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
   const getInfoAsync = useAsync(
@@ -25,43 +24,30 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     [node],
   );
 
-  const details: DetailValues = [
-    { label: l('nodeType'), value: node.type },
-    { label: l('implementation'), value: node.implementation },
-    { label: l('version'), value: `v${node.version}` },
-    {
-      label: l('status'),
-      value: (
-        <StatusBadge
-          status={node.status}
-          text={l(`enums.status.${Status[node.status]}`)}
-        />
-      ),
-    },
-  ];
-
   let extra: ReactNode | undefined;
   if (node.status === Status.Started && chainInfo && walletInfo) {
-    details.push(
-      { label: l('rpcHost'), value: `127.0.0.1:${node.ports.rpc}` },
-      { label: l('walletBalance'), value: `${walletInfo.balance} BTC` },
-      { label: l('blockHeight'), value: chainInfo.blocks },
-      {
-        label: l('blockHash'),
-        value: (
-          <CopyIcon
-            label={l('blockHash')}
-            value={chainInfo.bestblockhash}
-            text={ellipseInner(chainInfo.bestblockhash)}
-          />
-        ),
-      },
-    );
-    extra = <strong>{toSats(walletInfo.balance, true)} sats</strong>;
+    extra = <strong>{walletInfo.balance} BTC</strong>;
   }
 
+  const tabHeaders = [
+    { key: 'info', tab: l('info') },
+    { key: 'connect', tab: l('connect') },
+    { key: 'actions', tab: l('actions') },
+  ];
+  const tabContents: Record<string, ReactNode> = {
+    info: <InfoTab node={node} />,
+    connect: <ConnectTab node={node} />,
+    actions: <ActionsTab node={node} />,
+  };
+
   return (
-    <SidebarCard title={node.name} extra={extra}>
+    <SidebarCard
+      title={node.name}
+      extra={extra}
+      tabList={tabHeaders}
+      activeTabKey={activeTab}
+      onTabChange={setActiveTab}
+    >
       {getInfoAsync.loading && <Loader />}
       {node.status === Status.Starting && (
         <Alert
@@ -72,15 +58,6 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           icon={<Icon type="loading" />}
         />
       )}
-      {node.status === Status.Error && node.errorMsg && (
-        <Alert
-          type="error"
-          message={l('startError')}
-          description={node.errorMsg}
-          closable={false}
-          showIcon
-        />
-      )}
       {getInfoAsync.error && (
         <Alert
           type="error"
@@ -89,13 +66,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           description={getInfoAsync.error.message}
         />
       )}
-      <DetailsList details={details} />
-      {node.status === Status.Started && (
-        <>
-          <MineBlocksInput node={node} />
-          <OpenTerminalButton node={node} />
-        </>
-      )}
+      {tabContents[activeTab]}
     </SidebarCard>
   );
 };

@@ -9,9 +9,6 @@ import { useStoreActions } from 'store';
 const InputGroup = Input.Group;
 
 const Styled = {
-  FormItem: styled(Form.Item)`
-    margin-top: 30px;
-  `,
   InputNumber: styled(InputNumber)`
     width: 65%;
   `,
@@ -35,7 +32,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
 
   return (
     <>
-      <Styled.FormItem label={l('label')}>
+      <Form.Item label={l('label')}>
         <InputGroup compact>
           <Styled.InputNumber
             value={value}
@@ -51,7 +48,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
             {l('btn')}
           </Styled.Button>
         </InputGroup>
-      </Styled.FormItem>
+      </Form.Item>
     </>
   );
 };
