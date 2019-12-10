@@ -6,31 +6,40 @@ import { prefixTranslation } from 'utils/translate';
 
 const { l } = prefixTranslation('store.models.bitcoind');
 
+export interface BitcoindNodeMapping {
+  [key: string]: BitcoindNodeModel;
+}
+
+export interface BitcoindNodeModel {
+  chainInfo?: ChainInfo;
+  walletInfo?: WalletInfo;
+}
+
 export interface BitcoindModel {
-  chainInfo: ChainInfo | undefined;
-  walletInfo: WalletInfo | undefined;
-  setChainInfo: Action<BitcoindModel, ChainInfo>;
-  setWalletinfo: Action<BitcoindModel, WalletInfo>;
+  nodes: BitcoindNodeMapping;
+  setChainInfo: Action<BitcoindModel, { node: BitcoinNode; chainInfo: ChainInfo }>;
+  setWalletinfo: Action<BitcoindModel, { node: BitcoinNode; walletInfo: WalletInfo }>;
   getInfo: Thunk<BitcoindModel, BitcoinNode, StoreInjections>;
   mine: Thunk<BitcoindModel, { blocks: number; node: BitcoinNode }, StoreInjections>;
 }
 
 const bitcoindModel: BitcoindModel = {
   // computed properties/functions
-  chainInfo: undefined,
-  walletInfo: undefined,
+  nodes: {},
   // reducer actions (mutations allowed thx to immer)
-  setChainInfo: action((state, chainInfo) => {
-    state.chainInfo = chainInfo;
+  setChainInfo: action((state, { node, chainInfo }) => {
+    if (!state.nodes[node.name]) state.nodes[node.name] = {};
+    state.nodes[node.name].chainInfo = chainInfo;
   }),
-  setWalletinfo: action((state, walletInfo) => {
-    state.walletInfo = walletInfo;
+  setWalletinfo: action((state, { node, walletInfo }) => {
+    if (!state.nodes[node.name]) state.nodes[node.name] = {};
+    state.nodes[node.name].walletInfo = walletInfo;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
-    actions.setChainInfo(
-      await injections.bitcoindService.getBlockchainInfo(node.ports.rpc),
-    );
-    actions.setWalletinfo(await injections.bitcoindService.getWalletInfo(node.ports.rpc));
+    const chainInfo = await injections.bitcoindService.getBlockchainInfo(node.ports.rpc);
+    actions.setChainInfo({ node, chainInfo });
+    const walletInfo = await injections.bitcoindService.getWalletInfo(node.ports.rpc);
+    actions.setWalletinfo({ node, walletInfo });
   }),
   mine: thunk(async (actions, { blocks, node }, { injections }) => {
     if (blocks < 0) {

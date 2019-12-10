@@ -8,7 +8,7 @@ import clightningLogo from 'resources/clightning.png';
 import lndLogo from 'resources/lnd.png';
 
 export interface LinkProperties {
-  type: 'backend' | 'pending-channel' | 'open-channel';
+  type: 'backend' | 'pending-channel' | 'open-channel' | 'btcpeer';
   channelPoint: string;
   capacity: string;
   fromBalance: string;
@@ -44,7 +44,7 @@ export const createLightningChartNode = (ln: LightningNode) => {
     ports: {
       'empty-left': { id: 'empty-left', type: 'left' },
       'empty-right': { id: 'empty-right', type: 'right' },
-      backend: { id: 'backend', type: 'output' },
+      backend: { id: 'backend', type: 'bottom' },
     },
     size: { width: 200, height: 36 },
     properties: {
@@ -65,20 +65,36 @@ export const createLightningChartNode = (ln: LightningNode) => {
   return { node, link };
 };
 
-export const createBitcoinChartNode = (node: BitcoinNode): INode => {
-  return {
-    id: node.name,
+export const createBitcoinChartNode = (btc: BitcoinNode) => {
+  const node: INode = {
+    id: btc.name,
     type: 'bitcoin',
-    position: { x: node.id * 250 + 200, y: 400 },
+    position: { x: btc.id * 250 + 200, y: btc.id % 2 === 0 ? 400 : 500 },
     ports: {
-      backend: { id: 'backend', type: 'input' },
+      backend: { id: 'backend', type: 'top' },
+      'peer-left': { id: 'peer-left', type: 'left' },
+      'peer-right': { id: 'peer-right', type: 'right' },
     },
     size: { width: 200, height: 36 },
     properties: {
-      status: node.status,
+      status: btc.status,
       icon: btclogo,
     },
   };
+
+  const peer = btc.peerNames[btc.peerNames.length - 1];
+  const link: ILink | undefined = !peer
+    ? undefined
+    : {
+        id: `${peer}-${btc.name}`,
+        from: { nodeId: peer, portId: 'peer-right' },
+        to: { nodeId: btc.name, portId: 'peer-left' },
+        properties: {
+          type: 'btcpeer',
+        },
+      };
+
+  return { node, link };
 };
 
 export const initChartFromNetwork = (network: Network): IChart => {
@@ -91,7 +107,9 @@ export const initChartFromNetwork = (network: Network): IChart => {
   };
 
   network.nodes.bitcoin.forEach(n => {
-    chart.nodes[n.name] = createBitcoinChartNode(n);
+    const { node, link } = createBitcoinChartNode(n);
+    chart.nodes[node.id] = node;
+    if (link) chart.links[link.id] = link;
   });
 
   network.nodes.lightning.forEach(n => {

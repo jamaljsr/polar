@@ -13,7 +13,7 @@ interface Props {
 
 const InfoTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.InfoTab');
-  const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
+  const { nodes } = useStoreState(s => s.bitcoind);
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
     { label: l('implementation'), value: node.implementation },
@@ -29,7 +29,14 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     },
   ];
 
-  if (node.status === Status.Started && chainInfo && walletInfo) {
+  const nodeState = nodes[node.name];
+  if (
+    node.status === Status.Started &&
+    nodeState &&
+    nodeState.chainInfo &&
+    nodeState.walletInfo
+  ) {
+    const { chainInfo, walletInfo } = nodeState;
     details.push(
       { label: l('spendableBalance'), value: `${walletInfo.balance} BTC` },
       { label: l('immatureBalance'), value: `${walletInfo.immature_balance} BTC` },
