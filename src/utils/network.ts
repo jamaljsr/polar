@@ -1,3 +1,4 @@
+import { debug } from 'electron-log';
 import { join } from 'path';
 import detectPort from 'detect-port';
 import {
@@ -65,7 +66,8 @@ export const createLndNetworkNode = (
     implementation: 'LND',
     version,
     status,
-    backendName: bitcoin[0].name,
+    // alternate between backend nodes
+    backendName: bitcoin[id % bitcoin.length].name,
     paths: getLndFilePaths(name, network),
     ports: {
       rest: BasePorts.lnd.rest + id,
@@ -91,7 +93,8 @@ export const createCLightningNetworkNode = (
     implementation: 'c-lightning',
     version,
     status,
-    backendName: bitcoin[0].name,
+    // alternate between backend nodes
+    backendName: bitcoin[id % bitcoin.length].name,
     paths: {
       macaroon: join(path, 'rest-api', 'access.macaroon'),
     },
@@ -105,17 +108,20 @@ export const createBitcoindNetworkNode = (
   network: Network,
   status: Status,
 ): BitcoinNode => {
-  const index = network.nodes.bitcoin.length;
-  const name = `backend${index ? index + 1 : ''}`;
+  const { bitcoin } = network.nodes;
+  const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
+  const name = `backend${id + 1}`;
   return {
-    id: index,
+    id,
     networkId: network.id,
     name: name,
     type: 'bitcoin',
     implementation: 'bitcoind',
     version: '0.18.1',
+    // peer with the prev bitcoin node
+    peerNames: bitcoin.length ? [bitcoin[bitcoin.length - 1].name] : [],
     status,
-    ports: { rpc: BasePorts.bitcoind.rest + index },
+    ports: { rpc: BasePorts.bitcoind.rest + id },
   };
 };
 
@@ -175,7 +181,10 @@ export const getMissingImages = (network: Network, pulled: string[]): string[] =
   // exclude images already pulled
   const missing = neededImages.filter(i => !pulled.includes(i));
   // filter out duplicates
-  return missing.filter((image, index) => missing.indexOf(image) === index);
+  const unique = missing.filter((image, index) => missing.indexOf(image) === index);
+  if (unique.length)
+    debug(`The network '${network.name}' is missing docker images`, unique);
+  return unique;
 };
 
 /**

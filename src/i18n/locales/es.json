@@ -189,7 +189,6 @@
   "cmps.network.NewNetwork.clightningNodesLabel": "¿Cuántos nodos de c-lightning?",
   "cmps.network.NewNetwork.clightningWindows": "Todavía no es compatible con Windows.",
   "cmps.network.NewNetwork.bitcoindNodesLabel": "¿Cuántos nodos de bitcoind?",
-  "cmps.network.NewNetwork.bitcoindNodesSoon": "Próximamente",
   "cmps.network.NewNetwork.btnCreate": "Crear",
   "cmps.terminal.DockerTerminal.connected": "Conectado al {{type}} contenedor acoplable {{name}} ...",
   "cmps.terminal.DockerTerminal.connectErr": "No se puede conectar a la terminal",

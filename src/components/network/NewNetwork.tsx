@@ -71,14 +71,11 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item
-                label={l('bitcoindNodesLabel')}
-                help={l('bitcoindNodesSoon') + '...'}
-              >
+              <Form.Item label={l('bitcoindNodesLabel')}>
                 {form.getFieldDecorator('bitcoindNodes', {
                   rules: [{ required: true, message: 'required' }],
                   initialValue: 1,
-                })(<InputNumber min={1} max={10} disabled />)}
+                })(<InputNumber min={1} max={10} />)}
               </Form.Item>
             </Col>
           </Row>

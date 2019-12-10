@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, Icon, Menu, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
+import { node } from 'prop-types';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
@@ -72,7 +73,7 @@ const NetworkActions: React.FC<Props> = ({
   const started = status === Status.Started;
   const { label, type, icon } = config[status];
 
-  const { chainInfo } = useStoreState(s => s.bitcoind);
+  const nodeState = useStoreState(s => s.bitcoind.nodes[node.name]);
   const { notify } = useStoreActions(s => s.app);
   const { mine } = useStoreActions(s => s.bitcoind);
   const mineAsync = useAsyncCallback(async () => {
@@ -98,9 +99,9 @@ const NetworkActions: React.FC<Props> = ({
 
   return (
     <>
-      {bitcoinNode.status === Status.Started && chainInfo && (
+      {bitcoinNode.status === Status.Started && nodeState && nodeState.chainInfo && (
         <>
-          <Tag>height: {chainInfo.blocks}</Tag>
+          <Tag>height: {nodeState.chainInfo.blocks}</Tag>
           <Button onClick={mineAsync.execute} loading={mineAsync.loading} icon="tool">
             {l('mineBtn')}
           </Button>

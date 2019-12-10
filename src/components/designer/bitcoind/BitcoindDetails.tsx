@@ -14,19 +14,20 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.BitcoinDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo } = useStoreActions(s => s.bitcoind);
-  const { chainInfo, walletInfo } = useStoreState(s => s.bitcoind);
+  const { nodes } = useStoreState(s => s.bitcoind);
   const getInfoAsync = useAsync(
     async (node: BitcoinNode) => {
       if (node.status === Status.Started) {
-        return await getInfo(node);
+        await getInfo(node);
       }
     },
     [node],
   );
 
   let extra: ReactNode | undefined;
-  if (node.status === Status.Started && chainInfo && walletInfo) {
-    extra = <strong>{walletInfo.balance} BTC</strong>;
+  const nodeState = nodes[node.name];
+  if (node.status === Status.Started && nodeState && nodeState.walletInfo) {
+    extra = <strong>{nodeState.walletInfo.balance} BTC</strong>;
   }
 
   const tabHeaders = [
