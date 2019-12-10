@@ -1,5 +1,6 @@
 import React from 'react';
-import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
+import { fireEvent, wait } from '@testing-library/dom';
+import { message, Modal, notification } from 'antd';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -38,6 +39,12 @@ describe('CreateInvoiceModal', () => {
     };
   };
 
+  afterEach(() => {
+    message.destroy();
+    notification.destroy();
+    Modal.destroyAll();
+  });
+
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
     expect(getByText('Node')).toBeInTheDocument();
@@ -58,15 +65,12 @@ describe('CreateInvoiceModal', () => {
   });
 
   it('should hide modal when cancel is clicked', async () => {
-    jest.useFakeTimers();
-    const { getByText, queryByText } = await renderComponent();
+    const { getByText, store } = await renderComponent();
     const btn = getByText('Cancel');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     await wait(() => fireEvent.click(getByText('Cancel')));
-    jest.runAllTimers();
-    expect(queryByText('Cancel')).not.toBeInTheDocument();
-    jest.useRealTimers();
+    expect(store.getState().modals.createInvoice.visible).toBe(false);
   });
 
   it('should display an error if form is not valid', async () => {
@@ -118,7 +122,6 @@ describe('CreateInvoiceModal', () => {
       await wait(() => fireEvent.click(getByText('Create Invoice')));
       await wait(() => fireEvent.click(getByText('Copy & Close')));
       expect(store.getState().modals.createInvoice.visible).toBe(false);
-      await waitForElementToBeRemoved(() => getByText('Create Lightning Invoice'));
       expect(getByText('Copied Invoice to the clipboard')).toBeInTheDocument();
     });
 
