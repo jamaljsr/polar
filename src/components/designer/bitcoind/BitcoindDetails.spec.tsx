@@ -1,5 +1,6 @@
 import React from 'react';
-import { waitForElement } from '@testing-library/dom';
+import { shell } from 'electron';
+import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { Status } from 'shared/types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import BitcoindDetails from './BitcoindDetails';
@@ -69,6 +70,22 @@ describe('BitcoindDetails', () => {
       const { findByText } = renderComponent(Status.Starting);
       expect(await findByText('Waiting for bitcoind to come online')).toBeInTheDocument();
     });
+
+    it('should display start msg in Actions tab', async () => {
+      const { getByText } = renderComponent(Status.Starting);
+      await wait(() => fireEvent.click(getByText('Actions')));
+      expect(
+        getByText('Node needs to be started to perform actions on it'),
+      ).toBeInTheDocument();
+    });
+
+    it('should display start msg in Connect tab', async () => {
+      const { getByText } = renderComponent(Status.Starting);
+      await wait(() => fireEvent.click(getByText('Connect')));
+      expect(
+        getByText('Node needs to be started to view connection info'),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('with node Started', () => {
@@ -77,7 +94,8 @@ describe('BitcoindDetails', () => {
 
     beforeEach(() => {
       chainMock.mockResolvedValue({ blocks: 123, bestblockhash: 'abcdef' });
-      walletMock.mockResolvedValue({ balance: 10 });
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      walletMock.mockResolvedValue({ balance: 10, immature_balance: 20 });
     });
 
     it('should display correct Status', async () => {
@@ -86,16 +104,16 @@ describe('BitcoindDetails', () => {
       expect(await findByText(Status[node.status])).toBeInTheDocument();
     });
 
-    it('should display RPC Host', async () => {
-      const { findByText, node } = renderComponent(Status.Started);
-      expect(await findByText('RPC Host')).toBeInTheDocument();
-      expect(await findByText(`127.0.0.1:${node.ports.rpc}`)).toBeInTheDocument();
+    it('should display Spendable Balance', async () => {
+      const { findByText, findAllByText } = renderComponent(Status.Started);
+      expect(await findByText('Spendable Balance')).toBeInTheDocument();
+      expect(await findAllByText('10 BTC')).toHaveLength(2);
     });
 
-    it('should display Wallet Balance', async () => {
+    it('should display Immature Balance', async () => {
       const { findByText } = renderComponent(Status.Started);
-      expect(await findByText('Wallet Balance')).toBeInTheDocument();
-      expect(await findByText('10 BTC')).toBeInTheDocument();
+      expect(await findByText('Immature Balance')).toBeInTheDocument();
+      expect(await findByText('20 BTC')).toBeInTheDocument();
     });
 
     it('should display Block Height', async () => {
@@ -116,9 +134,47 @@ describe('BitcoindDetails', () => {
       expect(await findByText('connection failed')).toBeInTheDocument();
     });
 
-    it('should display the wallet balance of a selected bitcoin node', async () => {
+    it('should display RPC Host', async () => {
+      const { findByText, node } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Connect'));
+      expect(await findByText('RPC Host')).toBeInTheDocument();
+      expect(await findByText(`http://127.0.0.1:${node.ports.rpc}`)).toBeInTheDocument();
+    });
+
+    it('should display RPC User', async () => {
       const { findByText } = renderComponent(Status.Started);
-      expect(await findByText('1,000,000,000 sats')).toBeInTheDocument();
+      fireEvent.click(await findByText('Connect'));
+      expect(await findByText('Username')).toBeInTheDocument();
+      expect(await findByText(`polaruser`)).toBeInTheDocument();
+    });
+
+    it('should display RPC Password', async () => {
+      const { findByText } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Connect'));
+      expect(await findByText('Password')).toBeInTheDocument();
+      expect(await findByText(`polarpass`)).toBeInTheDocument();
+    });
+
+    it('should open API Doc links in the browser', async () => {
+      shell.openExternal = jest.fn().mockResolvedValue(true);
+      const { getByText, findByText } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Connect'));
+      await wait(() => fireEvent.click(getByText('REST')));
+      expect(shell.openExternal).toBeCalledWith(
+        'https://bitcoin.org/en/developer-reference#remote-procedure-calls-rpcs',
+      );
+    });
+
+    it('should not display start msg in Actions tab', async () => {
+      const { getByText, queryByText } = renderComponent(Status.Started);
+      await wait(() => fireEvent.click(getByText('Actions')));
+      expect(queryByText('Node needs to be started to perform actions on it')).toBeNull();
+    });
+
+    it('should not display start msg in Connect tab', async () => {
+      const { getByText, queryByText } = renderComponent(Status.Started);
+      await wait(() => fireEvent.click(getByText('Connect')));
+      expect(queryByText('Node needs to be started to view connection info')).toBeNull();
     });
   });
 
