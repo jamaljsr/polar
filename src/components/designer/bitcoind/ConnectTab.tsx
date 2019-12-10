@@ -4,6 +4,7 @@ import { Icon, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
+import { bitcoinCredentials } from 'utils/constants';
 import { CopyIcon, DetailsList } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 
@@ -35,8 +36,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   const details: DetailValues = [
     { label: l('rpcHost'), value: `http://127.0.0.1:${node.ports.rpc}` },
-    { label: l('rpcUser'), value: 'polaruser' },
-    { label: l('rpcPass'), value: 'polarpass' },
+    { label: l('rpcUser'), value: bitcoinCredentials.user },
+    { label: l('rpcPass'), value: bitcoinCredentials.pass },
   ].map(({ label, value }) => ({
     label,
     value: <CopyIcon label={label} value={value} text={value} />,

@@ -2,6 +2,7 @@ import React from 'react';
 import { shell } from 'electron';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { Status } from 'shared/types';
+import { bitcoinCredentials } from 'utils/constants';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import BitcoindDetails from './BitcoindDetails';
 
@@ -145,14 +146,14 @@ describe('BitcoindDetails', () => {
       const { findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
       expect(await findByText('Username')).toBeInTheDocument();
-      expect(await findByText(`polaruser`)).toBeInTheDocument();
+      expect(await findByText(bitcoinCredentials.user)).toBeInTheDocument();
     });
 
     it('should display RPC Password', async () => {
       const { findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
       expect(await findByText('Password')).toBeInTheDocument();
-      expect(await findByText(`polarpass`)).toBeInTheDocument();
+      expect(await findByText(bitcoinCredentials.pass)).toBeInTheDocument();
     });
 
     it('should open API Doc links in the browser', async () => {

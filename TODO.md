@@ -3,7 +3,6 @@
 Small Stuff
 
 - fix pasting text in terminal
-- display bitcoin rpc user/pass in sidebar
 - start/stop individual nodes
 - add persisted storage for lang
 - implement real-time channel updates from LND via GRPC streams
