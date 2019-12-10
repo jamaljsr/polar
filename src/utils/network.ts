@@ -262,7 +262,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     const openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[clightning[index].name] = { rpc: port };
+        ports[clightning[index].name] = { rest: port };
       });
     }
   }
