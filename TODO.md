@@ -1,7 +1,5 @@
 # TODO List
 
-- add peer nodes after waitUntilOnline()
-
 Small Stuff
 
 - fix pasting text in terminal

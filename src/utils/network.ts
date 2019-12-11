@@ -2,6 +2,7 @@ import { debug } from 'electron-log';
 import { join } from 'path';
 import detectPort from 'detect-port';
 import {
+  BitcoindVersion,
   BitcoinNode,
   CLightningNode,
   CLightningVersion,
@@ -106,22 +107,32 @@ export const createCLightningNetworkNode = (
 
 export const createBitcoindNetworkNode = (
   network: Network,
-  status: Status,
+  version: BitcoindVersion,
+  status = Status.Stopped,
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
   const name = `backend${id + 1}`;
-  return {
+  const node: BitcoinNode = {
     id,
     networkId: network.id,
     name: name,
     type: 'bitcoin',
     implementation: 'bitcoind',
-    version: '0.18.1',
+    version,
     peers: [],
     status,
     ports: { rpc: BasePorts.bitcoind.rest + id },
   };
+
+  // peer up with the previous node in both directions
+  if (bitcoin.length > 0) {
+    const prev = bitcoin[bitcoin.length - 1];
+    node.peers.push(prev.name);
+    prev.peers.push(node.name);
+  }
+
+  return node;
 };
 
 export const createNetwork = (config: {
@@ -150,12 +161,7 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
 
   range(bitcoindNodes).forEach(() => {
-    bitcoin.push(createBitcoindNetworkNode(network, status));
-  });
-  // peer with the nodes immediately before and after
-  bitcoin.forEach((n, i) => {
-    if (i > 0) n.peers.push(bitcoin[i - 1].name);
-    if (i < bitcoin.length - 1) n.peers.push(bitcoin[i + 1].name);
+    bitcoin.push(createBitcoindNetworkNode(network, BitcoindVersion.latest, status));
   });
 
   // add lightning nodes in an alternating pattern

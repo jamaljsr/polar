@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { usePrefixedTranslation } from 'hooks';
-import { CLightningVersion, LndVersion } from 'shared/types';
+import { BitcoindVersion, CLightningVersion, LndVersion } from 'shared/types';
 import { Network } from 'types';
+import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import lndLogo from 'resources/lnd.png';
 import SidebarCard from '../SidebarCard';
@@ -49,6 +50,16 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
             label={`c-lightning v${version}`}
             icon={clightningLogo}
             properties={{ type: 'c-lightning', version }}
+          />
+        ))}
+      {Object.keys(BitcoindVersion)
+        .filter(v => v !== 'latest')
+        .map(version => (
+          <DraggableNode
+            key={version}
+            label={`Bitcoin Core v${version}`}
+            icon={bitcoindLogo}
+            properties={{ type: 'bitcoind', version }}
           />
         ))}
     </SidebarCard>

@@ -83,13 +83,14 @@ export const createBitcoinChartNode = (btc: BitcoinNode) => {
   };
 
   let link: ILink | undefined;
-  const peer = btc.peers[btc.peers.length - 1];
-  if (peer && btc.name < peer) {
+  // the first peer is always the prev node unless this is the first node in the network
+  const peer = btc.peers[0];
+  if (peer && btc.name > peer) {
     // only add one link from left to right (ex: 'backend2' < 'backend3')
     link = {
-      id: `${btc.name}-${peer}`,
-      from: { nodeId: btc.name, portId: 'peer-right' },
-      to: { nodeId: peer, portId: 'peer-left' },
+      id: `${peer}-${btc.name}`,
+      from: { nodeId: peer, portId: 'peer-right' },
+      to: { nodeId: btc.name, portId: 'peer-left' },
       properties: {
         type: 'btcpeer',
       },

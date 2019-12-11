@@ -11,9 +11,10 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { LightningNode, Status } from 'shared/types';
+import { BitcoinNode, LightningNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
+  createBitcoinChartNode,
   createLightningChartNode,
   rotate,
   snap,
@@ -39,7 +40,10 @@ export interface DesignerModel {
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   removeNode: Action<DesignerModel, string>;
-  addNode: Action<DesignerModel, { lnNode: LightningNode; position: IPosition }>;
+  addNode: Action<
+    DesignerModel,
+    { newNode: LightningNode | BitcoinNode; position: IPosition }
+  >;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   // Flowchart component callbacks
@@ -151,12 +155,15 @@ const designerModel: DesignerModel = {
       }
     });
   }),
-  addNode: action((state, { lnNode, position }) => {
+  addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];
-    const { node, link } = createLightningChartNode(lnNode);
+    const { node, link } =
+      newNode.type === 'lightning'
+        ? createLightningChartNode(newNode)
+        : createBitcoinChartNode(newNode);
     node.position = position;
     chart.nodes[node.id] = node;
-    chart.links[link.id] = link;
+    if (link) chart.links[link.id] = link;
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
@@ -210,14 +217,14 @@ const designerModel: DesignerModel = {
           message: l('dropErrTitle'),
           error: new Error(l('dropErrMsg')),
         });
-      } else if (['lnd', 'c-lightning'].includes(data.type)) {
+      } else if (['lnd', 'c-lightning', 'bitcoind'].includes(data.type)) {
         const { addNode, start } = getStoreActions().network;
-        const lnNode = await addNode({
+        const newNode = await addNode({
           id: activeId,
           type: data.type,
           version: data.version,
         });
-        actions.addNode({ lnNode, position });
+        actions.addNode({ newNode, position });
         actions.redrawChart();
         if (network.status === Status.Started) {
           await start(activeId);

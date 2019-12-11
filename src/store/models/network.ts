@@ -3,6 +3,8 @@ import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
+  BitcoindVersion,
+  BitcoinNode,
   CLightningVersion,
   CommonNode,
   LightningNode,
@@ -13,6 +15,7 @@ import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
 import {
+  createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createLndNetworkNode,
   createNetwork,
@@ -49,10 +52,14 @@ export interface NetworkModel {
   >;
   addNode: Thunk<
     NetworkModel,
-    { id: number; type: string; version: LndVersion | CLightningVersion },
+    {
+      id: number;
+      type: string;
+      version: LndVersion | CLightningVersion | BitcoindVersion;
+    },
     StoreInjections,
     RootModel,
-    Promise<LightningNode>
+    Promise<LightningNode | BitcoinNode>
   >;
   removeNode: Thunk<NetworkModel, { node: LightningNode }, StoreInjections, RootModel>;
   setStatus: Action<
@@ -139,11 +146,23 @@ const networkModel: NetworkModel = {
     const networks = getState().networks;
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-    const node =
-      type === 'c-lightning'
-        ? createCLightningNetworkNode(network, version as CLightningVersion)
-        : createLndNetworkNode(network, version as LndVersion);
-    network.nodes.lightning.push(node);
+    let node: LightningNode | BitcoinNode;
+    switch (type) {
+      case 'lnd':
+        node = createLndNetworkNode(network, version as LndVersion);
+        network.nodes.lightning.push(node);
+        break;
+      case 'c-lightning':
+        node = createCLightningNetworkNode(network, version as CLightningVersion);
+        network.nodes.lightning.push(node);
+        break;
+      case 'bitcoind':
+        node = createBitcoindNetworkNode(network, version as BitcoindVersion);
+        network.nodes.bitcoin.push(node);
+        break;
+      default:
+        throw new Error(`Cannot add uknown node type '${type}' to the network`);
+    }
     actions.setNetworks([...networks]);
     await actions.save();
     await injections.dockerService.saveComposeFile(network);
@@ -288,6 +307,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
+    network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),
