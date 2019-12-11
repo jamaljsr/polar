@@ -35,6 +35,11 @@ export enum CLightningVersion {
   '0.7.3' = '0.7.3',
 }
 
+export enum BitcoindVersion {
+  latest = '0.18.1',
+  '0.18.1' = '0.18.1',
+}
+
 export interface LndNode extends LightningNode {
   paths: {
     tlsCert: string;
