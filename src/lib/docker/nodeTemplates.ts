@@ -11,6 +11,7 @@ export const bitcoind = (
   container: string,
   version: string,
   rpcPort: number,
+  peers: string[],
 ): ComposeService => ({
   image: `polarlightning/bitcoind:${version}`,
   container_name: container,
@@ -25,6 +26,7 @@ export const bitcoind = (
       -server=1
       -regtest=1
       -rpcauth=${bitcoinCredentials.user}:${bitcoinCredentials.rpcauth}
+      ${peers.map(p => `-addnode=${p}`).join(' ')}
       -debug=0
       -zmqpubrawblock=tcp://0.0.0.0:28334
       -zmqpubrawtx=tcp://0.0.0.0:28335
@@ -34,6 +36,8 @@ export const bitcoind = (
       -rpcbind=0.0.0.0
       -rpcallowip=0.0.0.0/0
       -rpcport=18443
+      -listen=1
+      -listenonion=0
   `),
   volumes: [
     `./volumes/${dockerConfigs['bitcoind'].volumeDirName}/${name}:/home/bitcoin/.bitcoin`,

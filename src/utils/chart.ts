@@ -82,17 +82,19 @@ export const createBitcoinChartNode = (btc: BitcoinNode) => {
     },
   };
 
-  const peer = btc.peerNames[btc.peerNames.length - 1];
-  const link: ILink | undefined = !peer
-    ? undefined
-    : {
-        id: `${peer}-${btc.name}`,
-        from: { nodeId: peer, portId: 'peer-right' },
-        to: { nodeId: btc.name, portId: 'peer-left' },
-        properties: {
-          type: 'btcpeer',
-        },
-      };
+  let link: ILink | undefined;
+  const peer = btc.peers[btc.peers.length - 1];
+  if (peer && btc.name < peer) {
+    // only add one link from left to right (ex: 'backend2' < 'backend3')
+    link = {
+      id: `${btc.name}-${peer}`,
+      from: { nodeId: btc.name, portId: 'peer-right' },
+      to: { nodeId: peer, portId: 'peer-left' },
+      properties: {
+        type: 'btcpeer',
+      },
+    };
+  }
 
   return { node, link };
 };
