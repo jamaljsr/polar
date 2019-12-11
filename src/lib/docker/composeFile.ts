@@ -33,9 +33,9 @@ class ComposeFile {
   }
 
   addBitcoind(node: BitcoinNode) {
-    const { name, version, ports } = node;
+    const { name, version, ports, peers } = node;
     const container = getContainerName(node);
-    this.content.services[name] = bitcoind(name, container, version, ports.rpc);
+    this.content.services[name] = bitcoind(name, container, version, ports.rpc, peers);
   }
 
   addLnd(node: LndNode, backend: CommonNode) {

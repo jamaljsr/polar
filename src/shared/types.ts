@@ -59,7 +59,7 @@ export interface CLightningNode extends LightningNode {
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
   implementation: 'bitcoind' | 'btcd';
-  peerNames: string[];
+  peers: string[];
   ports: {
     rpc: number;
   };
