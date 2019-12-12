@@ -1,5 +1,12 @@
 # TODO List
 
+- refactor network model removeNode -> removeLightningNode
+- update chart to reflect new backend connection
+- add new versions of LND and bitcoind
+- add toggle to default sidebar to hide/show older versions
+- display compatibility warnings with LND + bitcoind
+- connect bitcoin peers after they all start up
+
 Small Stuff
 
 - fix pasting text in terminal

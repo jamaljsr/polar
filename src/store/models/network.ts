@@ -62,6 +62,12 @@ export interface NetworkModel {
     Promise<LightningNode | BitcoinNode>
   >;
   removeNode: Thunk<NetworkModel, { node: LightningNode }, StoreInjections, RootModel>;
+  removeBitcoinNode: Thunk<
+    NetworkModel,
+    { node: BitcoinNode },
+    StoreInjections,
+    RootModel
+  >;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean; error?: Error }
@@ -173,19 +179,84 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      // remove the node from the network
       network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
+      // remove the node's data from the lightning redux state
       getStoreActions().lightning.removeNode(node.name);
-      await injections.dockerService.removeNode(network, node);
+      // remove the node rom the running docker network
+      if (network.status === Status.Started) {
+        await injections.dockerService.removeNode(network, node);
+      }
+      // clear cached RPC data
+      if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
+      // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
+      // update the network in the redux state and save to disk
       actions.setNetworks([...networks]);
       await actions.save();
+      // delete the docker volume data from disk
       const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
       rm(join(network.path, 'volumes', volumeDir, node.name));
-      if (node.implementation === 'LND') {
-        getStoreActions().app.clearAppCache();
-      }
+      // sync the chart
       if (network.status === Status.Started) {
-        getStoreActions().designer.syncChart(network);
+        await getStoreActions().designer.syncChart(network);
+      }
+    },
+  ),
+  removeBitcoinNode: thunk(
+    async (actions, { node }, { getState, injections, getStoreActions }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const { dockerService, lightningFactory } = injections;
+      const { bitcoind, designer } = getStoreActions();
+      const { bitcoin, lightning } = network.nodes;
+
+      if (bitcoin.length === 1) throw new Error('Cannot remove the only bitcoin node');
+      const index = bitcoin.indexOf(node);
+      // update LN nodes to use a different backend
+      lightning
+        .filter(n => n.backendName === node.name)
+        .forEach(n => (n.backendName = bitcoin[0].name));
+
+      // bitcoin nodes are peer'd with the nodes immediately before and after. if the
+      // node being removed is in between two nodes, then connect those two nodes
+      // together. Otherwise, the network will be operating on two different chains
+      if (index > 0 && index < bitcoin.length - 1) {
+        // make prev & next nodes peers
+        const [prev, curr, next] = bitcoin.slice(index - 1, index + 2);
+        // remove curr and add next to prev peers
+        prev.peers = [...prev.peers.filter(p => p !== curr.name), next.name];
+        // remove curr and add prev to next peers
+        next.peers = [prev.name, ...next.peers.filter(p => p !== curr.name)];
+      }
+      // remove the node from the network
+      network.nodes.bitcoin = bitcoin.filter(n => n !== node);
+      // remove the node's data from the bitcoind redux state
+      bitcoind.removeNode(node.name);
+      if (network.status === Status.Started) {
+        // restart the whole network if it is running
+        await actions.stop(network.id);
+        await dockerService.saveComposeFile(network);
+        await actions.start(network.id);
+      } else {
+        // save compose file if the network is not running
+        await dockerService.saveComposeFile(network);
+      }
+      // remove the node from the chart's redux state
+      designer.removeNode(node.name);
+      // update the network in the redux state and save to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      // delete the docker volume data from disk
+      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      rm(join(network.path, 'volumes', volumeDir, node.name));
+      if (network.status === Status.Started) {
+        // wait for the LN nodes to come back online then update the chart
+        await Promise.all(
+          lightning.map(n => lightningFactory.getService(n).waitUntilOnline(n)),
+        );
+        await designer.syncChart(network);
       }
     },
   ),
