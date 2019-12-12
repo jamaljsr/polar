@@ -1,8 +1,10 @@
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { BitcoinNode } from 'shared/types';
+import { BitcoinNode, Status } from 'shared/types';
 import { StoreInjections } from 'types';
+import { delay } from 'utils/async';
 import { prefixTranslation } from 'utils/translate';
+import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.bitcoind');
 
@@ -21,7 +23,12 @@ export interface BitcoindModel {
   setChainInfo: Action<BitcoindModel, { node: BitcoinNode; chainInfo: ChainInfo }>;
   setWalletinfo: Action<BitcoindModel, { node: BitcoinNode; walletInfo: WalletInfo }>;
   getInfo: Thunk<BitcoindModel, BitcoinNode, StoreInjections>;
-  mine: Thunk<BitcoindModel, { blocks: number; node: BitcoinNode }, StoreInjections>;
+  mine: Thunk<
+    BitcoindModel,
+    { blocks: number; node: BitcoinNode },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const bitcoindModel: BitcoindModel = {
@@ -47,11 +54,17 @@ const bitcoindModel: BitcoindModel = {
     const walletInfo = await injections.bitcoindService.getWalletInfo(node.ports.rpc);
     actions.setWalletinfo({ node, walletInfo });
   }),
-  mine: thunk(async (actions, { blocks, node }, { injections }) => {
+  mine: thunk(async (actions, { blocks, node }, { injections, getStoreState }) => {
     if (blocks < 0) {
       throw new Error(l('mineError'));
     }
     await injections.bitcoindService.mine(blocks, node.ports.rpc);
+    await delay(500);
+    // update info for all bitcoin nodes
+    const network = getStoreState().network.networkById(node.networkId);
+    await Promise.all(
+      network.nodes.bitcoin.filter(n => n.status === Status.Started).map(actions.getInfo),
+    );
     await actions.getInfo(node);
   }),
 };

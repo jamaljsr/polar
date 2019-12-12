@@ -222,7 +222,8 @@ export const updateChartFromNodes = (
     // don't remove links for existing channels
     if (createdLinkIds.includes(linkId)) return;
     // don't remove links to bitcoin nodes
-    if (linkId.endsWith('-backend')) return;
+    const { type } = links[linkId].properties;
+    if (['backend', 'btcpeer'].includes(type)) return;
     // delete all other links
     delete links[linkId];
   });
@@ -231,7 +232,8 @@ export const updateChartFromNodes = (
   Object.values(nodes).forEach(node => {
     Object.keys(node.ports).forEach(portId => {
       // don't remove special ports
-      if (['empty-left', 'empty-right', 'backend'].includes(portId)) return;
+      const special = ['empty-left', 'empty-right', 'backend', 'peer-left', 'peer-right'];
+      if (special.includes(portId)) return;
       // don't remove ports for existing channels
       if (createdLinkIds.includes(portId)) return;
       // delete all other ports
