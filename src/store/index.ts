@@ -25,8 +25,13 @@ export const createReduxStore = (options?: {
   if (process.env.NODE_ENV !== 'test') {
     // Logging Middleware
     const logger = createLogger({
-      level: 'info',
       collapsed: true,
+      diff: true,
+      predicate: (getState, action) => {
+        // don't show thunk success asctions in the console.
+        // they can still be viewed in Redux DevTools if necessary
+        return !/.*\(success\)/.test(action.type);
+      },
     });
 
     middleware.push(logger);
