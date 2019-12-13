@@ -105,15 +105,17 @@ const designerModel: DesignerModel = {
   }),
   syncChart: thunk(
     async (actions, network, { getState, getStoreState, getStoreActions }) => {
-      // fetch data from all of the nodes
-      await Promise.all(
-        network.nodes.lightning.map(getStoreActions().lightning.getAllInfo),
-      );
+      if (network.status === Status.Started) {
+        // fetch data from all of the nodes
+        await Promise.all(
+          network.nodes.lightning.map(getStoreActions().lightning.getAllInfo),
+        );
+      }
 
       const nodesData = getStoreState().lightning.nodes;
       const { allCharts } = getState();
       // sync the chart with data from all of the nodes
-      const chart = updateChartFromNodes(allCharts[network.id], nodesData);
+      const chart = updateChartFromNodes(allCharts[network.id], network, nodesData);
       actions.setAllCharts({
         ...allCharts,
         [network.id]: chart,
@@ -269,6 +271,9 @@ const designerModel: DesignerModel = {
           portId: fromPortId,
         },
         to: {},
+        properties: {
+          type: 'link-start',
+        },
       };
     },
   ),

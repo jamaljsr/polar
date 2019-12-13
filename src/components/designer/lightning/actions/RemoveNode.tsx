@@ -11,7 +11,7 @@ interface Props {
 const RemoveNode: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.RemoveNode');
   const { notify } = useStoreActions(s => s.app);
-  const { removeNode } = useStoreActions(s => s.network);
+  const { removeLightningNode } = useStoreActions(s => s.network);
 
   let modal: any;
   const showRemoveModal = () => {
@@ -24,7 +24,7 @@ const RemoveNode: React.FC<Props> = ({ node }) => {
       cancelText: l('cancelBtn'),
       onOk: async () => {
         try {
-          await removeNode({ node });
+          await removeLightningNode({ node });
           notify({ message: l('success', { name }) });
         } catch (error) {
           notify({ message: l('error'), error });

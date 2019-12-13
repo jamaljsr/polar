@@ -188,7 +188,7 @@ describe('Network model', () => {
     it('should remove a node from an existing network', async () => {
       store.getActions().designer.setActiveId(1);
       const node = firstNetwork().nodes.lightning[0];
-      store.getActions().network.removeNode({ node });
+      store.getActions().network.removeLightningNode({ node });
       const { lightning } = firstNetwork().nodes;
       expect(lightning).toHaveLength(2);
       expect(lightning[0].name).toBe('bob');
@@ -197,7 +197,7 @@ describe('Network model', () => {
     it('should remove a c-lightning node from an existing network', async () => {
       store.getActions().designer.setActiveId(1);
       const node = firstNetwork().nodes.lightning[2];
-      store.getActions().network.removeNode({ node });
+      store.getActions().network.removeLightningNode({ node });
       const { lightning } = firstNetwork().nodes;
       expect(lightning).toHaveLength(2);
     });
@@ -205,8 +205,8 @@ describe('Network model', () => {
     it('should throw an error if the network id is invalid', async () => {
       const node = firstNetwork().nodes.lightning[0];
       node.networkId = 999;
-      const { removeNode } = store.getActions().network;
-      await expect(removeNode({ node })).rejects.toThrow(
+      const { removeLightningNode } = store.getActions().network;
+      await expect(removeLightningNode({ node })).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
     });
