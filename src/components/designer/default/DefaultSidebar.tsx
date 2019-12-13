@@ -69,7 +69,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
       <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
       <Styled.Toggle>
-        <span>Show All Versions</span>
+        <span>{l('showVersions')}</span>
         <Switch checked={showAllNodeVersions} onClick={toggle} />
       </Styled.Toggle>
       {nodes.map(({ name, logo, version, latest, type }) => (

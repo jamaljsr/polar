@@ -14,6 +14,7 @@ class LndService implements LightningService {
       alias: info.alias,
       rpcUrl: (info.uris && info.uris[0]) || '',
       syncedToChain: info.syncedToChain,
+      blockHeight: info.blockHeight,
       numActiveChannels: info.numActiveChannels,
       numPendingChannels: info.numPendingChannels,
       numInactiveChannels: info.numInactiveChannels,

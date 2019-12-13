@@ -7,6 +7,7 @@ export interface LightningNodeInfo {
   pubkey: string;
   alias: string;
   syncedToChain: boolean;
+  blockHeight: number;
   numPendingChannels: number;
   numActiveChannels: number;
   numInactiveChannels: number;
