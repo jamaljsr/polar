@@ -7,6 +7,10 @@ import { ipcChannels } from 'shared';
 import { DockerVersions, StoreInjections } from 'types';
 import { RootModel } from './';
 
+export interface AppSettings {
+  showAllNodeVersions: boolean;
+}
+
 export interface NotifyOptions {
   message: string;
   description?: string;
@@ -15,9 +19,11 @@ export interface NotifyOptions {
 
 export interface AppModel {
   initialized: boolean;
+  settings: AppSettings;
   dockerVersions: DockerVersions;
   dockerImages: string[];
   setInitialized: Action<AppModel, boolean>;
+  setSettings: Action<AppModel, Partial<AppSettings>>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
@@ -33,6 +39,9 @@ export interface AppModel {
 const appModel: AppModel = {
   // state properties
   initialized: false,
+  settings: {
+    showAllNodeVersions: false,
+  },
   dockerVersions: { docker: '', compose: '' },
   dockerImages: [],
   // reducer actions (mutations allowed thx to immer)
@@ -44,6 +53,12 @@ const appModel: AppModel = {
     await actions.getDockerVersions({});
     await actions.getDockerImages();
     actions.setInitialized(true);
+  }),
+  setSettings: action((state, settings) => {
+    state.settings = {
+      ...state.settings,
+      ...settings,
+    };
   }),
   setDockerVersions: action((state, versions) => {
     state.dockerVersions = versions;
