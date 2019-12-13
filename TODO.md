@@ -1,6 +1,5 @@
 # TODO List
 
-- fix broken peer link when a middle btc node is removed
 - investigate c-lightning pending channel after opening
 - drag to link LN node to new backend
 - prompt for the new backend
