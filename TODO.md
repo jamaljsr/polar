@@ -1,9 +1,9 @@
 # TODO List
 
-- investigate c-lightning pending channel after opening
 - drag to link LN node to new backend
 - prompt for the new backend
 - display compatibility warnings with LND + bitcoind
+- refresh sidebar every second when a node is selected
 
 Small Stuff
 

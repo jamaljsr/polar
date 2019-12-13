@@ -31,7 +31,11 @@ class BitcoindService implements BitcoindLibrary {
   async connectPeers(node: BitcoinNode) {
     const client = this.creatClient(node);
     for (const peer of node.peers) {
-      await client.addNode(peer, 'add');
+      try {
+        await client.addNode(peer, 'add');
+      } catch (error) {
+        logger.debug('Failed to add peer', error);
+      }
     }
   }
 

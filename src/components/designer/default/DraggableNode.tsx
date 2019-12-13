@@ -20,7 +20,7 @@ const Styled = {
     &.hide {
       opacity: 0;
       height: 0;
-      padding: 0;
+      padding: 0 10px;
       margin-top: 0;
     }
   `,

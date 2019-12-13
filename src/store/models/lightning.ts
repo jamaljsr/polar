@@ -161,11 +161,16 @@ const lightningModel: LightningModel = {
       // open the channel via lightning node
       const api = injections.lightningFactory.getService(from);
       await api.openChannel(from, rpcUrl, sats);
+      // wait for the unconfirmed tx to be processed by the bitcoin node
+      await delay(500);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(from.networkId);
+      const btcNode =
+        network.nodes.bitcoin.find(n => n.name === from.backendName) ||
+        network.nodes.bitcoin[0];
       await getStoreActions().bitcoind.mine({
         blocks: BLOCKS_TIL_COMFIRMED,
-        node: network.nodes.bitcoin[0],
+        node: btcNode,
       });
       // add a small delay to allow nodes to process the mined blocks
       await actions.waitForNodes([from, to]);
@@ -215,7 +220,7 @@ const lightningModel: LightningModel = {
     // mapping of the number of seconds to wait for each implementation
     const nodeDelays: Record<LightningNode['implementation'], number> = {
       LND: 1,
-      'c-lightning': 3,
+      'c-lightning': 2,
       eclair: 1,
     };
     // determine the highest delay of all implementations
