@@ -1,6 +1,5 @@
 # TODO List
 
-- display LN node chain height in sidebar
 - connect bitcoin peers after they all start up
 - investigate c-lightning pending channel after opening
 - drag to link LN node to new backend

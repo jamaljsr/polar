@@ -50,6 +50,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         pubkey,
         alias,
         syncedToChain,
+        blockHeight,
         numPendingChannels,
         numActiveChannels,
         numInactiveChannels,
@@ -69,6 +70,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         { label: l('alias'), value: alias },
         { label: l('pubkey'), value: pubkeyCmp },
         { label: l('syncedToChain'), value: `${syncedToChain}` },
+        { label: l('blockHeight'), value: `${blockHeight}` },
         { label: l('channels'), value: channels },
       );
       showSyncWarning = !syncedToChain;

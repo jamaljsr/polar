@@ -11,6 +11,7 @@ export const defaultStateInfo = (
   alias: '',
   rpcUrl: '',
   syncedToChain: false,
+  blockHeight: 0,
   numPendingChannels: 0,
   numInactiveChannels: 0,
   numActiveChannels: 0,

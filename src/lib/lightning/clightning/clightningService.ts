@@ -30,6 +30,7 @@ class CLightningService implements LightningService {
         .filter(b => b.type === 'ipv4')
         .reduce((v, b) => `${info.id}@${b.address}:${b.port}`, ''),
       syncedToChain: !info.warningBitcoindSync && !info.warningLightningdSync,
+      blockHeight: info.blockheight,
       numActiveChannels: info.numActiveChannels,
       numPendingChannels: info.numPendingChannels,
       numInactiveChannels: info.numInactiveChannels,
