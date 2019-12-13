@@ -25,7 +25,8 @@ export interface LightningNode extends CommonNode {
 }
 
 export enum LndVersion {
-  latest = '0.8.0-beta',
+  latest = '0.8.2-beta',
+  '0.8.2-beta' = '0.8.2-beta',
   '0.8.0-beta' = '0.8.0-beta',
   '0.7.1-beta' = '0.7.1-beta',
 }
@@ -36,7 +37,8 @@ export enum CLightningVersion {
 }
 
 export enum BitcoindVersion {
-  latest = '0.18.1',
+  latest = '0.19.0.1',
+  '0.19.0.1' = '0.19.0.1',
   '0.18.1' = '0.18.1',
 }
 
