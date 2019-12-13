@@ -1,12 +1,12 @@
 # TODO List
 
-- fix deposit funds error
 - add new versions of LND and bitcoind
 - add toggle to default sidebar to hide/show older versions
 - connect bitcoin peers after they all start up
 - investigate c-lightning pending channel after opening
 - drag to link LN node to new backend
 - prompt for the new backend
+- refactor BitcoindService to use node as args instead of port
 - display compatibility warnings with LND + bitcoind
 
 Small Stuff
