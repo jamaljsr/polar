@@ -185,6 +185,7 @@ const updateLinksAndPorts = (
 
 export const updateChartFromNodes = (
   chart: IChart,
+  network: Network,
   nodesData: LightningNodeMapping,
 ): IChart => {
   // create a mapping of node name to pubkey for lookups
@@ -213,6 +214,22 @@ export const updateChartFromNodes = (
 
       nodes[fromName] = {
         ...fromNode,
+      };
+    }
+  });
+
+  // ensure all lightning -> bitcoin backend links exist. one may have
+  // been deleted if a bitcoin node was removed
+  network.nodes.lightning.forEach(ln => {
+    const id = `${ln.name}-backend`;
+    if (!links[id]) {
+      links[id] = {
+        id: `${ln.name}-backend`,
+        from: { nodeId: ln.name, portId: 'backend' },
+        to: { nodeId: ln.backendName, portId: 'backend' },
+        properties: {
+          type: 'backend',
+        },
       };
     }
   });

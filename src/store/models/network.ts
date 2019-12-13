@@ -61,7 +61,12 @@ export interface NetworkModel {
     RootModel,
     Promise<LightningNode | BitcoinNode>
   >;
-  removeNode: Thunk<NetworkModel, { node: LightningNode }, StoreInjections, RootModel>;
+  removeLightningNode: Thunk<
+    NetworkModel,
+    { node: LightningNode },
+    StoreInjections,
+    RootModel
+  >;
   removeBitcoinNode: Thunk<
     NetworkModel,
     { node: BitcoinNode },
@@ -174,7 +179,7 @@ const networkModel: NetworkModel = {
     await injections.dockerService.saveComposeFile(network);
     return node;
   }),
-  removeNode: thunk(
+  removeLightningNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
@@ -214,10 +219,11 @@ const networkModel: NetworkModel = {
 
       if (bitcoin.length === 1) throw new Error('Cannot remove the only bitcoin node');
       const index = bitcoin.indexOf(node);
-      // update LN nodes to use a different backend
+      // update LN nodes to use a different backend. Use the first bitcoin node unless
+      // it is the one being removed
       lightning
         .filter(n => n.backendName === node.name)
-        .forEach(n => (n.backendName = bitcoin[0].name));
+        .forEach(n => (n.backendName = bitcoin[index === 0 ? 1 : 0].name));
 
       // bitcoin nodes are peer'd with the nodes immediately before and after. if the
       // node being removed is in between two nodes, then connect those two nodes
@@ -243,8 +249,6 @@ const networkModel: NetworkModel = {
         // save compose file if the network is not running
         await dockerService.saveComposeFile(network);
       }
-      // remove the node from the chart's redux state
-      designer.removeNode(node.name);
       // update the network in the redux state and save to disk
       actions.setNetworks([...networks]);
       await actions.save();
@@ -256,8 +260,10 @@ const networkModel: NetworkModel = {
         await Promise.all(
           lightning.map(n => lightningFactory.getService(n).waitUntilOnline(n)),
         );
-        await designer.syncChart(network);
       }
+      // remove the node from the chart's redux state
+      designer.removeNode(node.name);
+      await designer.syncChart(network);
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {

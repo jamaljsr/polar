@@ -55,17 +55,16 @@ const bitcoindModel: BitcoindModel = {
     actions.setWalletinfo({ node, walletInfo });
   }),
   mine: thunk(async (actions, { blocks, node }, { injections, getStoreState }) => {
-    if (blocks < 0) {
-      throw new Error(l('mineError'));
-    }
+    if (blocks < 0) throw new Error(l('mineError'));
+
     await injections.bitcoindService.mine(blocks, node.ports.rpc);
+    // add a small delay to allow the block to propagate to all nodes
     await delay(500);
     // update info for all bitcoin nodes
     const network = getStoreState().network.networkById(node.networkId);
     await Promise.all(
       network.nodes.bitcoin.filter(n => n.status === Status.Started).map(actions.getInfo),
     );
-    await actions.getInfo(node);
   }),
 };
 
