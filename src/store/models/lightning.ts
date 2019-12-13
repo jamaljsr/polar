@@ -127,8 +127,7 @@ const lightningModel: LightningModel = {
   depositFunds: thunk(
     async (actions, { node, sats }, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(node.networkId);
-      const btcNode =
-        nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];
+      const btcNode = nodes.bitcoin[0];
       const api = injections.lightningFactory.getService(node);
       const { address } = await api.getNewAddress(node);
       const coins = fromSatsNumeric(sats);
