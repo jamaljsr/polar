@@ -11,22 +11,28 @@ import {
 } from 'utils/constants';
 
 class BitcoindService implements BitcoindLibrary {
-  creatClient(port = 18433) {
+  creatClient(node: BitcoinNode) {
     return new BitcoinCore({
-      port: `${port}`,
+      port: `${node.ports.rpc}`,
       username: bitcoinCredentials.user,
       password: bitcoinCredentials.pass,
       logger: logger as any,
     });
   }
 
-  async getBlockchainInfo(port?: number) {
-    await this.creatClient(port).listUnspent();
-    return await this.creatClient(port).getBlockchainInfo();
+  async getBlockchainInfo(node: BitcoinNode) {
+    return await this.creatClient(node).getBlockchainInfo();
   }
 
-  async getWalletInfo(port?: number) {
-    return await this.creatClient(port).getWalletInfo();
+  async getWalletInfo(node: BitcoinNode) {
+    return await this.creatClient(node).getWalletInfo();
+  }
+
+  async connectPeers(node: BitcoinNode) {
+    const client = this.creatClient(node);
+    for (const peer of node.peers) {
+      await client.addNode(peer, 'add');
+    }
   }
 
   /**
@@ -36,22 +42,21 @@ class BitcoindService implements BitcoindLibrary {
    * @param amount the amount denominated in bitcoin
    */
   async sendFunds(node: BitcoinNode, toAddress: string, amount: number) {
-    const port = node.ports.rpc;
-    const client = this.creatClient(port);
+    const client = this.creatClient(node);
 
-    const { blocks } = await this.getBlockchainInfo(port);
+    const { blocks } = await this.getBlockchainInfo(node);
     const { balance } = await client.getWalletInfo();
     // if the bitcoin node doesn't have enough coins then mine more
     if (balance <= amount) {
-      await this.mineUntilMaturity(port);
-      await this.mine(this.getBlocksToMine(blocks, amount - balance), port);
+      await this.mineUntilMaturity(node);
+      await this.mine(this.getBlocksToMine(blocks, amount - balance), node);
     }
     const txid = await client.sendToAddress(toAddress, amount);
     return txid;
   }
 
-  async mine(numBlocks: number, port?: number) {
-    const client = this.creatClient(port);
+  async mine(numBlocks: number, node: BitcoinNode) {
+    const client = this.creatClient(node);
     const addr = await client.getNewAddress();
     return await client.generateToAddress(numBlocks, addr);
   }
@@ -61,13 +66,13 @@ class BitcoindService implements BitcoindLibrary {
    * response is received or it times out
    */
   async waitUntilOnline(
-    port?: number,
+    node: BitcoinNode,
     interval = 3 * 1000, // check every 3 seconds
     timeout = 30 * 1000, // timeout after 30 seconds
   ): Promise<void> {
     return waitFor(
       async () => {
-        await this.getBlockchainInfo(port);
+        await this.getBlockchainInfo(node);
       },
       interval,
       timeout,
@@ -78,15 +83,15 @@ class BitcoindService implements BitcoindLibrary {
    * will mine up to block #100 if necessary in order for
    * fresh coins to be spendable
    */
-  private async mineUntilMaturity(port?: number) {
+  private async mineUntilMaturity(node: BitcoinNode) {
     // get all of this node's utxos
-    const utxos = await this.creatClient(port).listTransactions();
+    const utxos = await this.creatClient(node).listTransactions();
     // determine the highest # of confirmations of all utxos. this is
     // the utxo we'd like to spend from
     const confs = Math.max(0, ...utxos.map(u => u.confirmations));
     const neededConfs = Math.max(0, COINBASE_MATURITY_DELAY - confs);
     if (neededConfs > 0) {
-      await this.mine(neededConfs, port);
+      await this.mine(neededConfs, node);
       // this may mines up to 100 blocks at once, so add a couple second
       // delay to allow the other nodes to process all of the new blocks
       await delay(2 * 1000);

@@ -1,10 +1,9 @@
 # TODO List
 
-- connect bitcoin peers after they all start up
+- fix broken peer link when a middle btc node is removed
 - investigate c-lightning pending channel after opening
 - drag to link LN node to new backend
 - prompt for the new backend
-- refactor BitcoindService to use node as args instead of port
 - display compatibility warnings with LND + bitcoind
 
 Small Stuff
