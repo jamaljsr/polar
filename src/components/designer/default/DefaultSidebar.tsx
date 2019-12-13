@@ -22,7 +22,6 @@ const Styled = {
   `,
   Toggle: styled.div`
     display: flex;
-    align-items: center;
     justify-content: space-between;
     margin: 10px 5px;
   `,
@@ -61,7 +60,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
     ...Object.entries(BitcoindVersion).map(
       mapVersion('Bitcoin Core', bitcoindLogo, 'bitcoind'),
     ),
-  ].filter(n => showAllNodeVersions || n.latest);
+  ];
 
   return (
     <SidebarCard title={l('title')} extra={<SyncButton network={network} />}>
@@ -79,6 +78,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
           desc={showAllNodeVersions && latest ? 'latest' : ''}
           icon={logo}
           properties={{ type, version }}
+          visible={showAllNodeVersions || latest}
         />
       ))}
     </SidebarCard>
