@@ -325,10 +325,11 @@ const networkModel: NetworkModel = {
       for (const node of network.nodes.bitcoin) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.bitcoindService
-          .waitUntilOnline(node.ports.rpc)
-          .then(() => {
+          .waitUntilOnline(node)
+          .then(async () => {
+            await injections.bitcoindService.connectPeers(node);
             actions.setStatus({ id, status: Status.Started, only: node.name });
-            return getStoreActions().bitcoind.getInfo(node);
+            await getStoreActions().bitcoind.getInfo(node);
           })
           .catch(error =>
             actions.setStatus({ id, status: Status.Error, only: node.name, error }),
