@@ -90,7 +90,7 @@
     "docker-compose": "0.23.1",
     "dockerode": "3.0.2",
     "easy-peasy": "3.2.3",
-    "electron": "7.1.4",
+    "electron": "7.1.5",
     "electron-builder": "22.2.0",
     "electron-devtools-installer": "2.2.4",
     "eslint": "6.2.0",
