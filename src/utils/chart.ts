@@ -234,6 +234,27 @@ export const updateChartFromNodes = (
     }
   });
 
+  // ensure all bitcoin -> bitcoin peer links exist. they are deleted
+  // when a bitcoin node in between two other nodes is removed
+  network.nodes.bitcoin.forEach((btc, i) => {
+    // do nothing for the first node
+    if (i === 0) return;
+    // the prev node should always be the first peer
+    const peer = btc.peers[0];
+    // link the curr node to the prev node
+    const id = `${peer}-${btc.name}`;
+    if (!links[id]) {
+      links[id] = {
+        id,
+        from: { nodeId: peer, portId: 'peer-right' },
+        to: { nodeId: btc.name, portId: 'peer-left' },
+        properties: {
+          type: 'btcpeer',
+        },
+      };
+    }
+  });
+
   // remove links for channels that no longer exist
   Object.keys(links).forEach(linkId => {
     // don't remove links for existing channels
