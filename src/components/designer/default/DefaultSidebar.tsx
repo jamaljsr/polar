@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { Switch } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoindVersion, CLightningVersion, LndVersion } from 'shared/types';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
@@ -18,6 +20,12 @@ const Styled = {
     opacity: 0.5;
     font-size: 12px;
   `,
+  Toggle: styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 5px;
+  `,
 };
 
 interface Props {
@@ -27,41 +35,52 @@ interface Props {
 const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
+  const { showAllNodeVersions } = useStoreState(s => s.app.settings);
+  const { setSettings } = useStoreActions(s => s.app);
+
+  const toggle = () => {
+    setSettings({ showAllNodeVersions: !showAllNodeVersions });
+  };
+
+  const mapVersion = (name: string, logo: string, type: string) => ([key, version]: [
+    string,
+    string,
+  ]) => ({
+    name,
+    logo,
+    version,
+    type,
+    latest: key === 'latest',
+  });
+
+  const nodes = [
+    ...Object.entries(LndVersion).map(mapVersion('LND', lndLogo, 'lnd')),
+    ...Object.entries(CLightningVersion).map(
+      mapVersion('c-lightning', clightningLogo, 'c-lightning'),
+    ),
+    ...Object.entries(BitcoindVersion).map(
+      mapVersion('Bitcoin Core', bitcoindLogo, 'bitcoind'),
+    ),
+  ].filter(n => showAllNodeVersions || n.latest);
+
   return (
     <SidebarCard title={l('title')} extra={<SyncButton network={network} />}>
       <p>{l('mainDesc')}</p>
       <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
-      {Object.keys(LndVersion)
-        .filter(v => v !== 'latest')
-        .map(version => (
-          <DraggableNode
-            key={version}
-            label={`LND v${version}`}
-            icon={lndLogo}
-            properties={{ type: 'lnd', version }}
-          />
-        ))}
-      {Object.keys(CLightningVersion)
-        .filter(v => v !== 'latest')
-        .map(version => (
-          <DraggableNode
-            key={version}
-            label={`c-lightning v${version}`}
-            icon={clightningLogo}
-            properties={{ type: 'c-lightning', version }}
-          />
-        ))}
-      {Object.keys(BitcoindVersion)
-        .filter(v => v !== 'latest')
-        .map(version => (
-          <DraggableNode
-            key={version}
-            label={`Bitcoin Core v${version}`}
-            icon={bitcoindLogo}
-            properties={{ type: 'bitcoind', version }}
-          />
-        ))}
+      <Styled.Toggle>
+        <span>Show All Versions</span>
+        <Switch checked={showAllNodeVersions} onClick={toggle} />
+      </Styled.Toggle>
+      {nodes.map(({ name, logo, version, latest, type }) => (
+        <DraggableNode
+          key={version}
+          label={`${name} v${version}`}
+          desc={showAllNodeVersions && latest ? 'latest' : ''}
+          icon={logo}
+          properties={{ type, version }}
+        />
+      ))}
     </SidebarCard>
   );
 };

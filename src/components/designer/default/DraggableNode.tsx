@@ -19,6 +19,10 @@ const Styled = {
     padding-left: 10px;
     font-weight: bold;
   `,
+  Desc: styled.sup`
+    font-weight: normal;
+    opacity: 0.7;
+  `,
   Logo: styled.img`
     width: 24px;
     height: 24px;
@@ -27,11 +31,12 @@ const Styled = {
 
 interface Props {
   label: string;
+  desc?: string;
   icon: string;
   properties: any;
 }
 
-const DraggableNode: React.FC<Props> = ({ label, icon, properties }) => {
+const DraggableNode: React.FC<Props> = ({ label, desc, icon, properties }) => {
   return (
     <Styled.Node
       draggable
@@ -39,7 +44,9 @@ const DraggableNode: React.FC<Props> = ({ label, icon, properties }) => {
         event.dataTransfer.setData(REACT_FLOW_CHART, JSON.stringify(properties));
       }}
     >
-      <Styled.Label>{label}</Styled.Label>
+      <Styled.Label>
+        {label} {desc && <Styled.Desc>{desc}</Styled.Desc>}
+      </Styled.Label>
       <Styled.Logo src={icon} alt={label} />
     </Styled.Node>
   );
