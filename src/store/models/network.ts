@@ -311,24 +311,34 @@ const networkModel: NetworkModel = {
       actions.setStatus({ id, status: Status.Started, all: false });
 
       // wait for lnd nodes to come online before updating their status
+      const allNodesOnline: Promise<void>[] = [];
       for (const node of network.nodes.lightning) {
         // use .then() to continue execution while the promises are waiting to complete
-        injections.lightningFactory
+        const promise = injections.lightningFactory
           .getService(node)
           .waitUntilOnline(node)
-          .then(() => actions.setStatus({ id, status: Status.Started, only: node.name }))
+          .then(async () => {
+            actions.setStatus({ id, status: Status.Started, only: node.name });
+          })
           .catch(error =>
             actions.setStatus({ id, status: Status.Error, only: node.name, error }),
           );
+        allNodesOnline.push(promise);
       }
+      // after all LN nodes are online, connect each of them to eachother. This helps
+      // ensure that each node is aware of the entire graph and can route payments properly
+      Promise.all(allNodesOnline).then(async () => {
+        await getStoreActions().lightning.connectAllPeers(network as Network);
+      });
       // wait for bitcoind nodes to come online before updating their status
       for (const node of network.nodes.bitcoin) {
         // use .then() to continue execution while the promises are waiting to complete
         injections.bitcoindService
           .waitUntilOnline(node)
           .then(async () => {
-            await injections.bitcoindService.connectPeers(node);
             actions.setStatus({ id, status: Status.Started, only: node.name });
+            // connect each bitcoin node to it's peers so tx & block propagation is fast
+            await injections.bitcoindService.connectPeers(node);
             await getStoreActions().bitcoind.getInfo(node);
           })
           .catch(error =>

@@ -1,3 +1,4 @@
+import { debug } from 'electron-log';
 import { CLightningNode, LightningNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
@@ -87,9 +88,15 @@ class CLightningService implements LightningService {
       }));
   }
 
-  async connectPeer(node: LightningNode, toRpcUrl: string): Promise<void> {
-    const body = { id: toRpcUrl };
-    await httpPost<{ id: string }>(this.cast(node), 'peer/connect', body);
+  async connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
+    for (const toRpcUrl of rpcUrls) {
+      try {
+        const body = { id: toRpcUrl };
+        await httpPost<{ id: string }>(this.cast(node), 'peer/connect', body);
+      } catch (error) {
+        debug(`Failed to connect peer '${toRpcUrl}' to LND node ${node.name}`, error);
+      }
+    }
   }
 
   async openChannel(
@@ -105,7 +112,7 @@ class CLightningService implements LightningService {
     const [toPubKey] = toRpcUrl.split('@');
     // add peer if not connected
     if (!peers.some(p => p.pubkey === toPubKey)) {
-      await this.connectPeer(clnFrom, toRpcUrl);
+      await this.connectPeers(clnFrom, [toRpcUrl]);
     }
 
     // open the channel

@@ -27,8 +27,8 @@ class NotImplementedService implements LightningService {
   getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
     throw new Error(`getPeers is not implemented for ${node.implementation} nodes`);
   }
-  connectPeer(node: LightningNode, toRpcUrl: string): Promise<void> {
-    throw new Error(`connectPeer is not implemented for ${node.implementation} nodes`);
+  connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
+    throw new Error(`connectPeers is not implemented for ${node.implementation} nodes`);
   }
   openChannel(
     from: LightningNode,

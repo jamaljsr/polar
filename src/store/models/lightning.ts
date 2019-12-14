@@ -1,7 +1,7 @@
 import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { LightningNode, Status } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
-import { StoreInjections } from 'types';
+import { Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
@@ -57,6 +57,7 @@ export interface LightningModel {
   >;
   getChannels: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
+  connectAllPeers: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   depositFunds: Thunk<LightningModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<LightningModel, OpenChannelPayload, StoreInjections, RootModel>;
   closeChannel: Thunk<
@@ -123,6 +124,21 @@ const lightningModel: LightningModel = {
     await actions.getInfo(node);
     await actions.getWalletBalance(node);
     await actions.getChannels(node);
+  }),
+  connectAllPeers: thunk(async (actions, network, { injections, getState }) => {
+    // fetch info for each ln node
+    for (const node of network.nodes.lightning) {
+      await actions.getInfo(node);
+    }
+    const { nodes } = getState();
+    // get a list of rpcUrls
+    const rpcUrls = Object.values(nodes)
+      .map(n => (n.info && n.info.rpcUrl) || '')
+      .filter(n => !!n);
+
+    for (const node of network.nodes.lightning) {
+      await injections.lightningFactory.getService(node).connectPeers(node, rpcUrls);
+    }
   }),
   depositFunds: thunk(
     async (actions, { node, sats }, { injections, getStoreState, getStoreActions }) => {
