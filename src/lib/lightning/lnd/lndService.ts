@@ -1,3 +1,4 @@
+import { debug } from 'electron-log';
 import * as LND from '@radar/lnrpc';
 import { LightningNode, LndNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
@@ -62,10 +63,16 @@ class LndService implements LightningService {
     }));
   }
 
-  async connectPeer(node: LightningNode, toRpcUrl: string): Promise<void> {
-    const [toPubKey, host] = toRpcUrl.split('@');
-    const addr: LND.LightningAddress = { pubkey: toPubKey, host };
-    await proxy.connectPeer(this.cast(node), { addr });
+  async connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
+    for (const toRpcUrl of rpcUrls) {
+      try {
+        const [toPubKey, host] = toRpcUrl.split('@');
+        const addr: LND.LightningAddress = { pubkey: toPubKey, host };
+        await proxy.connectPeer(this.cast(node), { addr });
+      } catch (error) {
+        debug(`Failed to connect peer '${toRpcUrl}' to LND node ${node.name}`, error);
+      }
+    }
   }
 
   async openChannel(
@@ -81,7 +88,7 @@ class LndService implements LightningService {
     const [toPubKey] = toRpcUrl.split('@');
     // add peer if not connected
     if (!peers.some(p => p.pubkey === toPubKey)) {
-      await this.connectPeer(lndFrom, toRpcUrl);
+      await this.connectPeers(lndFrom, [toRpcUrl]);
     }
 
     // open channel

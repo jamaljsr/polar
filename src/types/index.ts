@@ -54,7 +54,7 @@ export interface LightningService {
   getNewAddress: (node: LightningNode) => Promise<PLN.LightningNodeAddress>;
   getChannels: (node: LightningNode) => Promise<PLN.LightningNodeChannel[]>;
   getPeers: (node: LightningNode) => Promise<PLN.LightningNodePeer[]>;
-  connectPeer: (node: LightningNode, toRpcUrl: string) => Promise<void>;
+  connectPeers: (node: LightningNode, rpcUrls: string[]) => Promise<void>;
   openChannel: (
     from: LightningNode,
     toRpcUrl: string,

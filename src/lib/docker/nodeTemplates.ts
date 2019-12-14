@@ -69,6 +69,7 @@ export const lnd = (
   command: trimInside(`
     lnd
       --noseedbackup
+      --trickledelay=5000
       --alias=${name}
       --externalip=${name}
       --tlsextradomain=${name}
@@ -122,6 +123,7 @@ export const clightning = (
       --bitcoin-rpcport=18443
       --log-level=debug
       --dev-bitcoind-poll=2
+      --dev-fast-gossip
       --plugin=/opt/c-lightning-rest/plugin.js
       --rest-port=8080
       --rest-protocol=http
