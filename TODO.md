@@ -4,6 +4,7 @@
 - prompt for the new backend
 - display compatibility warnings with LND + bitcoind
 - refresh sidebar every second when a node is selected
+- display backend connection details in the sidebar when selected
 
 Small Stuff
 

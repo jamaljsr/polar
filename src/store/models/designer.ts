@@ -33,7 +33,7 @@ export interface DesignerModel {
   activeChart: Computed<DesignerModel, IChart>;
   setActiveId: Action<DesignerModel, number>;
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
-  addChart: Action<DesignerModel, { id: number; chart: IChart }>;
+  setChart: Action<DesignerModel, { id: number; chart: IChart }>;
   removeChart: Action<DesignerModel, number>;
   redrawChart: Action<DesignerModel>;
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
@@ -79,7 +79,7 @@ const designerModel: DesignerModel = {
   setAllCharts: action((state, charts) => {
     state.allCharts = charts;
   }),
-  addChart: action((state, { id, chart }) => {
+  setChart: action((state, { id, chart }) => {
     state.allCharts[id] = chart;
   }),
   removeChart: action((state, id) => {
@@ -169,42 +169,80 @@ const designerModel: DesignerModel = {
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
-    (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
+    async (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
       const { activeId, activeChart } = getState();
-      const { linkId, fromNodeId, toNodeId } = payload;
+      const { linkId, fromNodeId, toNodeId, fromPortId, toPortId } = payload;
       if (!activeChart.links[linkId]) return;
       const fromNode = activeChart.nodes[fromNodeId];
       const toNode = activeChart.nodes[toNodeId];
 
-      const showError = (error: Error) => {
+      const showError = (errorMsg: string) => {
         actions.removeLink(linkId);
         getStoreActions().app.notify({
           message: l('linkErrTitle'),
-          error,
+          error: new Error(errorMsg),
         });
       };
-      if (fromNode.type !== 'lightning' || toNode.type !== 'lightning') {
-        return showError(new Error(l('linkErrNodes')));
-      }
       let network: Network;
       try {
         network = getStoreState().network.networkById(activeId);
       } catch (error) {
         return showError(error);
       }
-      if (
-        network.status !== Status.Started ||
-        fromNode.properties.status !== Status.Started ||
-        toNode.properties.status !== Status.Started
-      ) {
-        return showError(new Error(l('linkErrNotStarted')));
-      }
+      if (fromNode.type === 'lightning' && toNode.type === 'lightning') {
+        // opening a channel
+        if (
+          network.status !== Status.Started ||
+          fromNode.properties.status !== Status.Started ||
+          toNode.properties.status !== Status.Started
+        ) {
+          return showError(l('linkErrNotStarted'));
+        }
 
-      getStoreActions().modals.showOpenChannel({
-        to: toNodeId,
-        from: fromNodeId,
-        linkId: linkId,
-      });
+        getStoreActions().modals.showOpenChannel({
+          to: toNodeId,
+          from: fromNodeId,
+          linkId: linkId,
+        });
+      } else if (fromNode.type === 'bitcoin' && toNode.type === 'bitcoin') {
+        // connecting bitcoin to bitcoin isn't supported
+        return showError(l('linkErrBitcoin'));
+      } else {
+        // connecting an LN node to a bitcoin node
+        if (fromPortId !== 'backend' || toPortId !== 'backend') {
+          return showError(l('linkErrPorts'));
+        }
+
+        try {
+          const lnName = fromNode.type === 'lightning' ? fromNodeId : toNodeId;
+          const backendName = fromNode.type === 'lightning' ? toNodeId : fromNodeId;
+          await getStoreActions().network.updateBackendNode({
+            id: network.id,
+            lnName,
+            backendName,
+          });
+          // remove the old ln -> backend link
+          const prevLink = Object.values(activeChart.links).find(
+            l => l.from.nodeId === lnName && l.from.portId === 'backend',
+          );
+          if (prevLink) delete activeChart.links[prevLink.id];
+          // create a new link using the standard naming convention and remove the temp
+          // link created by dragging since it has an auto-generated id
+          const newId = `${lnName}-backend`;
+          activeChart.links[newId] = {
+            id: newId,
+            from: { nodeId: lnName, portId: 'backend' },
+            to: { nodeId: backendName, portId: 'backend' },
+            properties: {
+              type: 'backend',
+            },
+          };
+          delete activeChart.links[linkId];
+          actions.setChart({ id: network.id, chart: activeChart });
+        } catch (error) {
+          return showError(error.message);
+        }
+      }
     },
   ),
   onCanvasDropListener: thunkOn(
@@ -239,7 +277,7 @@ const designerModel: DesignerModel = {
   ),
   // TODO: add unit tests for the actions below
   // These actions are excluded from test coverage analysis because
-  // they were copied no modifications from
+  // they were copied with no modifications from
   // https://github.com/MrBlenny/react-flow-chart/blob/master/src/container/actions.ts
   onDragNode: action(
     /* istanbul ignore next */
@@ -279,7 +317,8 @@ const designerModel: DesignerModel = {
   ),
   onLinkMove: action(
     /* istanbul ignore next */
-    (state, { linkId, toPosition }) => {
+    (state, { linkId, toPosition, startEvent }) => {
+      startEvent.persist();
       const chart = state.allCharts[state.activeId];
       const link = chart.links[linkId];
       link.to.position = toPosition;
@@ -289,6 +328,7 @@ const designerModel: DesignerModel = {
   onLinkComplete: action(
     /* istanbul ignore next */
     (state, args) => {
+      args.startEvent.persist();
       const chart = state.allCharts[state.activeId];
       const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
       if (
@@ -307,7 +347,8 @@ const designerModel: DesignerModel = {
   ),
   onLinkCancel: action(
     /* istanbul ignore next */
-    (state, { linkId }) => {
+    (state, { linkId, startEvent }) => {
+      startEvent.persist();
       const chart = state.allCharts[state.activeId];
       delete chart.links[linkId];
     },
@@ -365,20 +406,6 @@ const designerModel: DesignerModel = {
     /* istanbul ignore next */
     state => {
       const chart = state.allCharts[state.activeId];
-      if (chart.selected.type === 'node' && chart.selected.id) {
-        const node = chart.nodes[chart.selected.id];
-        // Delete the connected links
-        Object.keys(chart.links).forEach(linkId => {
-          const link = chart.links[linkId];
-          if (link.from.nodeId === node.id || link.to.nodeId === node.id) {
-            delete chart.links[link.id];
-          }
-        });
-        // Delete the node
-        delete chart.nodes[chart.selected.id];
-      } else if (chart.selected.type === 'link' && chart.selected.id) {
-        delete chart.links[chart.selected.id];
-      }
       if (chart.selected) {
         chart.selected = {};
       }
