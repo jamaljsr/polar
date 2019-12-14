@@ -7,6 +7,7 @@ import { Network } from 'types';
 import { Loader } from 'components/common';
 import { Link, NodeInner, Port, Ports } from './custom';
 import {
+  ChangeBackendModal,
   CreateInvoiceModal,
   OpenChannelModal,
   PayInvoiceModal,
@@ -31,7 +32,9 @@ interface Props {
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
   const { allCharts, activeId } = useStoreState(s => s.designer);
-  const { openChannel, createInvoice, payInvoice } = useStoreState(s => s.modals);
+  const { openChannel, createInvoice, payInvoice, changeBackend } = useStoreState(
+    s => s.modals,
+  );
   // update the redux store with the current network's chart
   useEffect(() => {
     if (allCharts[network.id] && activeId !== network.id) setActiveId(network.id);
@@ -66,6 +69,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {openChannel.visible && <OpenChannelModal network={network} />}
       {createInvoice.visible && <CreateInvoiceModal network={network} />}
       {payInvoice.visible && <PayInvoiceModal network={network} />}
+      {changeBackend.visible && <ChangeBackendModal network={network} />}
     </Styled.Designer>
   );
 };

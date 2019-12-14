@@ -54,7 +54,7 @@ export const createLightningChartNode = (ln: LightningNode) => {
   };
 
   const link: ILink = {
-    id: `${ln.name}-backend`,
+    id: `${ln.name}-${ln.backendName}`,
     from: { nodeId: ln.name, portId: 'backend' },
     to: { nodeId: ln.backendName, portId: 'backend' },
     properties: {
@@ -197,7 +197,7 @@ export const updateChartFromNodes = (
 
   const nodes = { ...chart.nodes };
   const links = { ...chart.links };
-  const createdLinkIds: string[] = [];
+  const linksToKeep: string[] = [];
 
   // update the node and links for each node
   Object.entries(nodesData).forEach(([fromName, data]) => {
@@ -209,7 +209,7 @@ export const updateChartFromNodes = (
         .filter(c => !!pubkeys[c.pubkey])
         .forEach(channel => {
           updateLinksAndPorts(channel, pubkeys, nodes, fromNode, links);
-          createdLinkIds.push(channel.uniqueId);
+          linksToKeep.push(channel.uniqueId);
         });
 
       nodes[fromName] = {
@@ -221,10 +221,10 @@ export const updateChartFromNodes = (
   // ensure all lightning -> bitcoin backend links exist. one may have
   // been deleted if a bitcoin node was removed
   network.nodes.lightning.forEach(ln => {
-    const id = `${ln.name}-backend`;
+    const id = `${ln.name}-${ln.backendName}`;
     if (!links[id]) {
       links[id] = {
-        id: `${ln.name}-backend`,
+        id,
         from: { nodeId: ln.name, portId: 'backend' },
         to: { nodeId: ln.backendName, portId: 'backend' },
         properties: {
@@ -232,6 +232,7 @@ export const updateChartFromNodes = (
         },
       };
     }
+    linksToKeep.push(id);
   });
 
   // ensure all bitcoin -> bitcoin peer links exist. they are deleted
@@ -253,15 +254,13 @@ export const updateChartFromNodes = (
         },
       };
     }
+    linksToKeep.push(id);
   });
 
   // remove links for channels that no longer exist
   Object.keys(links).forEach(linkId => {
     // don't remove links for existing channels
-    if (createdLinkIds.includes(linkId)) return;
-    // don't remove links to bitcoin nodes
-    const { type } = links[linkId].properties;
-    if (['backend', 'btcpeer'].includes(type)) return;
+    if (linksToKeep.includes(linkId)) return;
     // delete all other links
     delete links[linkId];
   });
@@ -273,7 +272,7 @@ export const updateChartFromNodes = (
       const special = ['empty-left', 'empty-right', 'backend', 'peer-left', 'peer-right'];
       if (special.includes(portId)) return;
       // don't remove ports for existing channels
-      if (createdLinkIds.includes(portId)) return;
+      if (linksToKeep.includes(portId)) return;
       // delete all other ports
       delete node.ports[portId];
     });

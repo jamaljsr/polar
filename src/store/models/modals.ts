@@ -9,6 +9,13 @@ interface OpenChannelModel {
   linkId?: string;
 }
 
+interface ChangeBackendModel {
+  visible: boolean;
+  lnName?: string;
+  backendName?: string;
+  linkId?: string;
+}
+
 interface CreateInvoiceModel {
   visible: boolean;
   nodeName?: string;
@@ -23,11 +30,15 @@ interface PayInvoiceModel {
 
 export interface ModalsModel {
   openChannel: OpenChannelModel;
+  changeBackend: ChangeBackendModel;
   createInvoice: CreateInvoiceModel;
   payInvoice: PayInvoiceModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  setChangeBackend: Action<ModalsModel, ChangeBackendModel>;
+  showChangeBackend: Thunk<ModalsModel, Partial<ChangeBackendModel>, StoreInjections>;
+  hideChangeBackend: Thunk<ModalsModel, any, StoreInjections, RootModel>;
   setCreateInvoice: Action<ModalsModel, CreateInvoiceModel>;
   showCreateInvoice: Thunk<ModalsModel, Partial<CreateInvoiceModel>, StoreInjections>;
   hideCreateInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
@@ -37,18 +48,10 @@ export interface ModalsModel {
 }
 
 const modalsModel: ModalsModel = {
-  openChannel: {
-    visible: false,
-    to: undefined,
-    from: undefined,
-    linkId: undefined,
-  },
-  createInvoice: {
-    visible: false,
-  },
-  payInvoice: {
-    visible: false,
-  },
+  openChannel: { visible: false },
+  changeBackend: { visible: false },
+  createInvoice: { visible: false },
+  payInvoice: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -61,13 +64,35 @@ const modalsModel: ModalsModel = {
   hideOpenChannel: thunk((actions, payload, { getStoreActions, getState }) => {
     const { linkId } = getState().openChannel;
     if (linkId) {
-      // remove the link on the chart it the channel was not opened
+      // remove the link on the chart if the channel was not opened
       getStoreActions().designer.removeLink(linkId);
     }
     actions.setOpenChannel({
       visible: false,
       to: undefined,
       from: undefined,
+      linkId: undefined,
+    });
+  }),
+  setChangeBackend: action((state, payload) => {
+    state.changeBackend = {
+      ...state.changeBackend,
+      ...payload,
+    };
+  }),
+  showChangeBackend: thunk((actions, { lnName, backendName, linkId }) => {
+    actions.setChangeBackend({ visible: true, lnName, backendName, linkId });
+  }),
+  hideChangeBackend: thunk((actions, payload, { getStoreActions, getState }) => {
+    const { linkId } = getState().changeBackend;
+    if (linkId) {
+      // remove the link on the chart if the backend wasn't changed
+      getStoreActions().designer.removeLink(linkId);
+    }
+    actions.setChangeBackend({
+      visible: false,
+      lnName: undefined,
+      backendName: undefined,
       linkId: undefined,
     });
   }),

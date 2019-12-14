@@ -39,6 +39,7 @@ export interface DesignerModel {
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
+  updateBackendLink: Action<DesignerModel, { lnName: string; backendName: string }>;
   removeNode: Action<DesignerModel, string>;
   addNode: Action<
     DesignerModel,
@@ -140,10 +141,28 @@ const designerModel: DesignerModel = {
     },
   ),
   removeLink: action((state, linkId) => {
-    // this action is used when the OpenChannel modal is closed.
-    // remove the link created in the chart since a new one will
-    // be created when the channels are fetched
+    // this action is used when the OpenChannel/ChangeBackend modals are closed.
+    // remove the link created in the chart since a new one will be created
+    // when the channels are fetched
     delete state.allCharts[state.activeId].links[linkId];
+  }),
+  updateBackendLink: action((state, { lnName, backendName }) => {
+    const chart = state.allCharts[state.activeId];
+    // remove the old ln -> backend link
+    const prevLink = Object.values(chart.links).find(
+      l => l.from.nodeId === lnName && l.from.portId === 'backend',
+    );
+    if (prevLink) delete chart.links[prevLink.id];
+    // create a new link using the standard naming convention
+    const newId = `${lnName}-${backendName}`;
+    chart.links[newId] = {
+      id: newId,
+      from: { nodeId: lnName, portId: 'backend' },
+      to: { nodeId: backendName, portId: 'backend' },
+      properties: {
+        type: 'backend',
+      },
+    };
   }),
   removeNode: action((state, nodeId) => {
     const chart = state.allCharts[state.activeId];
@@ -216,29 +235,7 @@ const designerModel: DesignerModel = {
         try {
           const lnName = fromNode.type === 'lightning' ? fromNodeId : toNodeId;
           const backendName = fromNode.type === 'lightning' ? toNodeId : fromNodeId;
-          await getStoreActions().network.updateBackendNode({
-            id: network.id,
-            lnName,
-            backendName,
-          });
-          // remove the old ln -> backend link
-          const prevLink = Object.values(activeChart.links).find(
-            l => l.from.nodeId === lnName && l.from.portId === 'backend',
-          );
-          if (prevLink) delete activeChart.links[prevLink.id];
-          // create a new link using the standard naming convention and remove the temp
-          // link created by dragging since it has an auto-generated id
-          const newId = `${lnName}-backend`;
-          activeChart.links[newId] = {
-            id: newId,
-            from: { nodeId: lnName, portId: 'backend' },
-            to: { nodeId: backendName, portId: 'backend' },
-            properties: {
-              type: 'backend',
-            },
-          };
-          delete activeChart.links[linkId];
-          actions.setChart({ id: network.id, chart: activeChart });
+          getStoreActions().modals.showChangeBackend({ lnName, backendName, linkId });
         } catch (error) {
           return showError(error.message);
         }
@@ -317,8 +314,7 @@ const designerModel: DesignerModel = {
   ),
   onLinkMove: action(
     /* istanbul ignore next */
-    (state, { linkId, toPosition, startEvent }) => {
-      startEvent.persist();
+    (state, { linkId, toPosition }) => {
       const chart = state.allCharts[state.activeId];
       const link = chart.links[linkId];
       link.to.position = toPosition;
@@ -328,7 +324,6 @@ const designerModel: DesignerModel = {
   onLinkComplete: action(
     /* istanbul ignore next */
     (state, args) => {
-      args.startEvent.persist();
       const chart = state.allCharts[state.activeId];
       const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
       if (
@@ -347,8 +342,7 @@ const designerModel: DesignerModel = {
   ),
   onLinkCancel: action(
     /* istanbul ignore next */
-    (state, { linkId, startEvent }) => {
-      startEvent.persist();
+    (state, { linkId }) => {
       const chart = state.allCharts[state.activeId];
       delete chart.links[linkId];
     },

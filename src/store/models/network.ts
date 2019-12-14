@@ -274,14 +274,20 @@ const networkModel: NetworkModel = {
     },
   ),
   updateBackendNode: thunk(
-    async (actions, { id, lnName, backendName }, { getState, injections }) => {
+    async (
+      actions,
+      { id, lnName, backendName },
+      { injections, getState, getStoreActions },
+    ) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
       const lnNode = network.nodes.lightning.find(n => n.name === lnName);
-      if (!lnNode) throw new Error(`The node '${lnName}' was not found`);
+      if (!lnNode) throw new Error(l('nodeByNameErr', { name: lnName }));
       const btcNode = network.nodes.bitcoin.find(n => n.name === backendName);
-      if (!btcNode) throw new Error(`The node '${backendName}' was not found`);
+      if (!btcNode) throw new Error(l('nodeByNameErr', { name: backendName }));
+      if (lnNode.backendName === backendName)
+        throw new Error(l('connectedErr', { lnName, backendName }));
 
       if (network.status === Status.Started) {
         // stop the LN node container
@@ -304,6 +310,9 @@ const networkModel: NetworkModel = {
         await injections.dockerService.startNode(network, lnNode);
         await actions.monitorStartup(network.id);
       }
+
+      // update the link in the chart
+      getStoreActions().designer.updateBackendLink({ lnName, backendName });
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {
