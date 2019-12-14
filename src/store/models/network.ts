@@ -73,6 +73,12 @@ export interface NetworkModel {
     StoreInjections,
     RootModel
   >;
+  updateBackendNode: Thunk<
+    NetworkModel,
+    { id: number; lnName: string; backendName: string },
+    StoreInjections,
+    RootModel
+  >;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean; error?: Error }
@@ -80,6 +86,7 @@ export interface NetworkModel {
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  monitorStartup: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   rename: Thunk<
     NetworkModel,
     { id: number; name: string },
@@ -148,7 +155,7 @@ const networkModel: NetworkModel = {
       const newNetwork = networks[networks.length - 1];
       await injections.dockerService.saveComposeFile(newNetwork);
       const chart = initChartFromNetwork(newNetwork);
-      getStoreActions().designer.addChart({ id: newNetwork.id, chart });
+      getStoreActions().designer.setChart({ id: newNetwork.id, chart });
       await actions.save();
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },
@@ -266,6 +273,39 @@ const networkModel: NetworkModel = {
       await designer.syncChart(network);
     },
   ),
+  updateBackendNode: thunk(
+    async (actions, { id, lnName, backendName }, { getState, injections }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      const lnNode = network.nodes.lightning.find(n => n.name === lnName);
+      if (!lnNode) throw new Error(`The node '${lnName}' was not found`);
+      const btcNode = network.nodes.bitcoin.find(n => n.name === backendName);
+      if (!btcNode) throw new Error(`The node '${backendName}' was not found`);
+
+      if (network.status === Status.Started) {
+        // stop the LN node container
+        actions.setStatus({ id: network.id, status: Status.Stopping, only: lnName });
+        await injections.dockerService.stopNode(network, lnNode);
+        actions.setStatus({ id: network.id, status: Status.Stopped, only: lnName });
+      }
+
+      // update the backend
+      lnNode.backendName = btcNode.name;
+      // update the network in the redux state and save to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      // save the updated compose file
+      await injections.dockerService.saveComposeFile(network);
+
+      if (network.status === Status.Started) {
+        // start the LN node container
+        actions.setStatus({ id: network.id, status: Status.Starting, only: lnName });
+        await injections.dockerService.startNode(network, lnNode);
+        await actions.monitorStartup(network.id);
+      }
+    },
+  ),
   setStatus: action((state, { id, status, only, all = true, error }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
@@ -309,7 +349,41 @@ const networkModel: NetworkModel = {
       await getStoreActions().app.getDockerImages();
       // set the status of only the network to Started
       actions.setStatus({ id, status: Status.Started, all: false });
-
+      // wait for nodes to startup before updating their status
+      await actions.monitorStartup(network.id);
+    } catch (e) {
+      actions.setStatus({ id, status: Status.Error });
+      info(`unable to start network '${network.name}'`, e.message);
+      throw e;
+    }
+  }),
+  stop: thunk(async (actions, networkId, { getState, injections }) => {
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    actions.setStatus({ id: network.id, status: Status.Stopping });
+    try {
+      await injections.dockerService.stop(network);
+      actions.setStatus({ id: network.id, status: Status.Stopped });
+    } catch (e) {
+      actions.setStatus({ id: network.id, status: Status.Error });
+      info(`unable to stop network '${network.name}'`, e.message);
+      throw e;
+    }
+  }),
+  toggle: thunk(async (actions, networkId, { getState }) => {
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    if (network.status === Status.Stopped || network.status === Status.Error) {
+      await actions.start(network.id);
+    } else if (network.status === Status.Started) {
+      await actions.stop(network.id);
+    }
+    await actions.save();
+  }),
+  monitorStartup: thunk(
+    async (actions, id, { injections, getState, getStoreActions }) => {
+      const network = getState().networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
       // wait for lnd nodes to come online before updating their status
       const allNodesOnline: Promise<void>[] = [];
       for (const node of network.nodes.lightning) {
@@ -345,35 +419,8 @@ const networkModel: NetworkModel = {
             actions.setStatus({ id, status: Status.Error, only: node.name, error }),
           );
       }
-    } catch (e) {
-      actions.setStatus({ id, status: Status.Error });
-      info(`unable to start network '${network.name}'`, e.message);
-      throw e;
-    }
-  }),
-  stop: thunk(async (actions, networkId, { getState, injections }) => {
-    const network = getState().networks.find(n => n.id === networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId }));
-    actions.setStatus({ id: network.id, status: Status.Stopping });
-    try {
-      await injections.dockerService.stop(network);
-      actions.setStatus({ id: network.id, status: Status.Stopped });
-    } catch (e) {
-      actions.setStatus({ id: network.id, status: Status.Error });
-      info(`unable to stop network '${network.name}'`, e.message);
-      throw e;
-    }
-  }),
-  toggle: thunk(async (actions, networkId, { getState }) => {
-    const network = getState().networks.find(n => n.id === networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId }));
-    if (network.status === Status.Stopped || network.status === Status.Error) {
-      await actions.start(network.id);
-    } else if (network.status === Status.Started) {
-      await actions.stop(network.id);
-    }
-    await actions.save();
-  }),
+    },
+  ),
   rename: thunk(async (actions, { id, name }, { getState }) => {
     if (!name) throw new Error(l('renameErr', { name }));
     const { networks } = getState();

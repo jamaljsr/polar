@@ -135,6 +135,30 @@ class DockerService implements DockerLibrary {
   }
 
   /**
+   * Starts a single service using docker-compose
+   * @param network the network containing the node
+   * @param node the node to start
+   */
+  async startNode(network: Network, node: CommonNode) {
+    info(`Starting docker container for ${node.name}`);
+    info(` - path: ${network.path}`);
+    const result = await this.execute(compose.upOne, node.name, this.getArgs(network));
+    info(`Container started:\n ${result.out || result.err}`);
+  }
+
+  /**
+   * Stops a single service using docker-compose
+   * @param network the network containing the node
+   * @param node the node to stop
+   */
+  async stopNode(network: Network, node: CommonNode) {
+    info(`Stopping docker container for ${node.name}`);
+    info(` - path: ${network.path}`);
+    const result = await this.execute(compose.stopOne, node.name, this.getArgs(network));
+    info(`Container stopped:\n ${result.out || result.err}`);
+  }
+
+  /**
    * Removes a single service from the network using docker-compose
    * @param network the network containing the node
    * @param node the node to remove
