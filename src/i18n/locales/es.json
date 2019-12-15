@@ -228,5 +228,7 @@
   "store.models.network.nodeByNameErr": "No se encontró el nodo '{{name}}'.",
   "store.models.network.connectedErr": "El nodo '{{lnName}}' ya está conectado a '{{backendName}}'",
   "store.models.network.renameErr": "El nombre de red '{{name}}' no es válido",
+  "store.models.network.removeLastErr": "No se puede eliminar el único nodo bitcoin",
+  "store.models.network.removeCompatErr": "No hay otros backends compatibles para {{lnName}} para conectarse. Primero debe eliminar el nodo {{lnName}}",
   "utils.network.backendCompatError": "Esta red no contiene un nodo Bitcoin Core v{{requiredVersion}} (o inferior) que se requiere para {{implementation}} v{{version}}"
 }
