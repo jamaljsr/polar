@@ -7,6 +7,7 @@ import SidebarCard from '../SidebarCard';
 import SyncButton from '../SyncButton';
 import Backend from './Backend';
 import Channel from './Channel';
+import Peer from './Peer';
 
 interface Props {
   link: ILink;
@@ -40,6 +41,12 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
         cmp = <Channel link={link} from={from} to={to} />;
       }
       break;
+    case 'btcpeer':
+      const fromPeer = bitcoin.find(n => n.name === link.from.nodeId);
+      const toPeer = bitcoin.find(n => n.name === link.to.nodeId);
+      if (fromPeer && toPeer) {
+        cmp = <Peer from={fromPeer} to={toPeer} />;
+      }
   }
 
   return cmp;
