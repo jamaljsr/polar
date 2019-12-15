@@ -247,29 +247,38 @@ const designerModel: DesignerModel = {
     async (actions, { payload }, { getStoreState, getStoreActions }) => {
       const { data, position } = payload;
       const { activeId } = getStoreState().designer;
-      const { networkById } = getStoreState().network;
-      const network = networkById(activeId);
+      const network = getStoreState().network.networkById(activeId);
       if (![Status.Started, Status.Stopped].includes(network.status)) {
         getStoreActions().app.notify({
           message: l('dropErrTitle'),
           error: new Error(l('dropErrMsg')),
         });
+        // remove the loading node added in onCanvasDrop
+        actions.removeNode(LOADING_NODE_ID);
       } else if (['lnd', 'c-lightning', 'bitcoind'].includes(data.type)) {
         const { addNode, start } = getStoreActions().network;
-        const newNode = await addNode({
-          id: activeId,
-          type: data.type,
-          version: data.version,
-        });
-        actions.addNode({ newNode, position });
+        try {
+          const newNode = await addNode({
+            id: activeId,
+            type: data.type,
+            version: data.version,
+          });
+          actions.addNode({ newNode, position });
+        } catch (error) {
+          getStoreActions().app.notify({
+            message: l('dropErrTitle'),
+            error,
+          });
+          return;
+        } finally {
+          // remove the loading node added in onCanvasDrop
+          actions.removeNode(LOADING_NODE_ID);
+        }
         actions.redrawChart();
         if (network.status === Status.Started) {
           await start(activeId);
         }
       }
-
-      // remove the loading node added in onCanvasDrop
-      actions.removeNode(LOADING_NODE_ID);
     },
   ),
   // TODO: add unit tests for the actions below

@@ -1,4 +1,4 @@
-import { ellipseInner } from './strings';
+import { ellipseInner, isVersionCompatible } from './strings';
 
 describe('strings util', () => {
   describe('ellipseInner', () => {
@@ -26,6 +26,33 @@ describe('strings util', () => {
       expect(ellipseInner((undefined as unknown) as string)).toBeUndefined();
       expect(ellipseInner((null as unknown) as string)).toBeNull();
       expect(ellipseInner('')).toEqual('');
+    });
+  });
+
+  describe('isVersionCompatible', () => {
+    it('should return true for compatible versions', () => {
+      expect(isVersionCompatible('0.18.1', '0.18.1')).toBe(true);
+      expect(isVersionCompatible('0.18.0', '0.18.1')).toBe(true);
+      expect(isVersionCompatible('0.17.0', '0.18.1')).toBe(true);
+      expect(isVersionCompatible('0.17.2', '0.18.1')).toBe(true);
+      expect(isVersionCompatible('0.18.0.1', '0.18.1')).toBe(true);
+    });
+
+    it('should return false for incompatible versions', () => {
+      expect(isVersionCompatible('0.19.0', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('0.18.2', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('1.18.1', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('0.18.1.1', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('0.19.0.1', '0.18.1')).toBe(false);
+    });
+
+    it('should return false for garbage input', () => {
+      expect(isVersionCompatible('123', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('asdf', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('0.18.asds', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('asf.18.0', '0.18.1')).toBe(false);
+      expect(isVersionCompatible(undefined as any, '0.18.1')).toBe(false);
     });
   });
 });

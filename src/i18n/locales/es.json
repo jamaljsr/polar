@@ -91,6 +91,7 @@
   "cmps.designer.lightning.actions.ChangeBackendModal.cancelBtn": "Cancelar",
   "cmps.designer.lightning.actions.ChangeBackendModal.okBtn": "Cambiar backend",
   "cmps.designer.lightning.actions.ChangeBackendModal.submitError": "No se puede cambiar el nodo de fondo",
+  "cmps.designer.lightning.actions.ChangeBackendModal.compatWarning": "{{ln.name}} está ejecutando {{ln.implementation}} v {{ln.version}} que es compatible con Bitcoin Core v {{requiredVersion}} y versiones anteriores. {{backend.name}} está ejecutando v {{backend.version}} por lo que no se puede usar.",
   "cmps.designer.lightning.actions.ChangeBackendModal.successTitle": "Se actualizó correctamente el nodo de fondo",
   "cmps.designer.lightning.actions.ChangeBackendModal.successDesc": "El nodo {{ln}} extraerá los datos de la cadena desde {{backend}}",
   "cmps.designer.lightning.actions.Deposit.title": "Fondos de depósito",
@@ -226,5 +227,6 @@
   "store.models.network.networkByIdErr": "No se encontró la red con el ID '{{networkId}}'.",
   "store.models.network.nodeByNameErr": "No se encontró el nodo '{{name}}'.",
   "store.models.network.connectedErr": "El nodo '{{lnName}}' ya está conectado a '{{backendName}}'",
-  "store.models.network.renameErr": "El nombre de red '{{name}}' no es válido"
+  "store.models.network.renameErr": "El nombre de red '{{name}}' no es válido",
+  "utils.network.backendCompatError": "Esta red no contiene un nodo Bitcoin Core v{{requiredVersion}} (o inferior) que se requiere para {{implementation}} v{{version}}"
 }

@@ -210,9 +210,7 @@ const networkModel: NetworkModel = {
       const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
       rm(join(network.path, 'volumes', volumeDir, node.name));
       // sync the chart
-      if (network.status === Status.Started) {
-        await getStoreActions().designer.syncChart(network);
-      }
+      await getStoreActions().designer.syncChart(network);
     },
   ),
   removeBitcoinNode: thunk(

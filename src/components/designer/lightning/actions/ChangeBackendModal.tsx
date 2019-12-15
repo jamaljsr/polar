@@ -1,12 +1,14 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Col, Form, Icon, Modal, Row, Select } from 'antd';
+import { Alert, Col, Form, Icon, Modal, Row, Select } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
+import { getRequiredBackendVersion } from 'utils/network';
+import { isVersionCompatible } from 'utils/strings';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 const Styled = {
@@ -56,13 +58,23 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
     }
   });
 
+  const lnSelected: string = form.getFieldValue('lnNode') || lnName;
+  const backendSelected: string = form.getFieldValue('backendNode') || backendName;
+  const { lightning, bitcoin } = network.nodes;
+  const ln = lightning.find(n => n.name === lnSelected);
+  const backend = bitcoin.find(n => n.name === backendSelected);
+  let compatWarning: string | undefined;
+  if (ln && backend) {
+    const requiredVersion = getRequiredBackendVersion(ln.implementation, ln.version);
+    if (!isVersionCompatible(backend.version, requiredVersion)) {
+      compatWarning = l('compatWarning', { ln, backend, requiredVersion });
+    }
+  }
+
   const handleSubmit = () => {
-    form.validateFields((err, values: FormFields) => {
+    form.validateFields(err => {
       if (err) return;
 
-      const { lightning, bitcoin } = network.nodes;
-      const ln = lightning.find(n => n.name === values.lnNode);
-      const backend = bitcoin.find(n => n.name === values.backendNode);
       if (!ln || !backend) return;
       changeAsync.execute(ln.name, backend.name);
     });
@@ -79,6 +91,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
         okText={l('okBtn')}
         okButtonProps={{
           loading: changeAsync.loading,
+          disabled: !!compatWarning,
         }}
         onOk={handleSubmit}
       >
@@ -117,8 +130,11 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
           </Row>
           {network.status === Status.Started && (
             <Styled.Restart>
-              {l('restartNotice', { name: form.getFieldValue('lnNode') })}
+              {l('restartNotice', { name: form.getFieldValue('lnNode') || lnName })}
             </Styled.Restart>
+          )}
+          {compatWarning && (
+            <Alert type="warning" message={compatWarning} closable={false} showIcon />
           )}
         </Form>
       </Modal>

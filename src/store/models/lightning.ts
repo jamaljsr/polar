@@ -128,7 +128,10 @@ const lightningModel: LightningModel = {
   connectAllPeers: thunk(async (actions, network, { injections, getState }) => {
     // fetch info for each ln node
     for (const node of network.nodes.lightning) {
-      await actions.getInfo(node);
+      // swallow any error when connecting peers in case a singl enode fails to start
+      try {
+        await actions.getInfo(node);
+      } catch {}
     }
     const { nodes } = getState();
     // get a list of rpcUrls
