@@ -19,6 +19,7 @@ import {
   createCLightningNetworkNode,
   createLndNetworkNode,
   createNetwork,
+  filterCompatibleBackends,
   getOpenPorts,
   OpenPorts,
 } from 'utils/network';
@@ -222,13 +223,25 @@ const networkModel: NetworkModel = {
       const { bitcoind, designer } = getStoreActions();
       const { bitcoin, lightning } = network.nodes;
 
-      if (bitcoin.length === 1) throw new Error('Cannot remove the only bitcoin node');
+      if (bitcoin.length === 1) throw new Error(l('removeLastErr'));
       const index = bitcoin.indexOf(node);
+      const remaining = bitcoin.filter(n => n !== node);
       // update LN nodes to use a different backend. Use the first bitcoin node unless
       // it is the one being removed
       lightning
         .filter(n => n.backendName === node.name)
-        .forEach(n => (n.backendName = bitcoin[index === 0 ? 1 : 0].name));
+        .forEach(n => {
+          try {
+            const backends = filterCompatibleBackends(
+              n.implementation,
+              n.version,
+              remaining,
+            );
+            n.backendName = backends[0].name;
+          } catch (error) {
+            throw new Error(l('removeCompatErr', { lnName: n.name }));
+          }
+        });
 
       // bitcoin nodes are peer'd with the nodes immediately before and after. if the
       // node being removed is in between two nodes, then connect those two nodes

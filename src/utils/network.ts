@@ -77,7 +77,7 @@ export const getRequiredBackendVersion = (
   return required;
 };
 
-const filterCompatibleBackends = (
+export const filterCompatibleBackends = (
   implementation: LightningNode['implementation'],
   version: string,
   backends: BitcoinNode[],

@@ -1,8 +1,7 @@
 # TODO List
 
-- prevent removing bitcoin node if no other compatable backend exists
-- refresh sidebar every second when a node is selected
 - display backend connection details in the sidebar when selected
+- refresh sidebar every second when a node is selected
 - investigate synthetic event console errors
 
 Small Stuff
