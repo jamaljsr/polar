@@ -1,6 +1,6 @@
 # TODO List
 
-- display compatibility warnings with LND + bitcoind
+- prevent removing bitcoin node if no other compatable backend exists
 - refresh sidebar every second when a node is selected
 - display backend connection details in the sidebar when selected
 - investigate synthetic event console errors

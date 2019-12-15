@@ -76,7 +76,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network, form }) => {
           <Form.Item label={l('invoiceLabel')}>
             {form.getFieldDecorator('invoice', {
               rules: [{ required: true, message: l('cmps.forms.required') }],
-            })(<Input.TextArea rows={6} />)}
+            })(<Input.TextArea rows={6} disabled={payAsync.loading} />)}
           </Form.Item>
         </Form>
       </Modal>

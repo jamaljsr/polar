@@ -24,6 +24,11 @@ export interface LightningNode extends CommonNode {
   ports: Record<string, number | undefined>;
 }
 
+export enum BitcoindVersion {
+  latest = '0.19.0.1',
+  '0.18.1' = '0.18.1',
+}
+
 export enum LndVersion {
   latest = '0.8.2-beta',
   '0.8.0-beta' = '0.8.0-beta',
@@ -34,10 +39,17 @@ export enum CLightningVersion {
   latest = '0.7.3',
 }
 
-export enum BitcoindVersion {
-  latest = '0.19.0.1',
-  '0.18.1' = '0.18.1',
-}
+// the highest version of bitcoind that each LND version works with
+export const LndCompatibility: Record<LndVersion, BitcoindVersion> = {
+  '0.8.2-beta': BitcoindVersion.latest,
+  '0.8.0-beta': BitcoindVersion['0.18.1'],
+  '0.7.1-beta': BitcoindVersion['0.18.1'],
+};
+
+// the highest version of bitcoind that each c-lightning version works with
+export const CLightningCompatibility: Record<CLightningVersion, BitcoindVersion> = {
+  '0.7.3': BitcoindVersion.latest,
+};
 
 export interface LndNode extends LightningNode {
   paths: {

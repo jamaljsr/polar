@@ -281,10 +281,11 @@ export const updateChartFromNodes = (
   // resize chart nodes if necessary to fit new ports
   Object.keys(nodesData).forEach(name => updateNodeSize(nodes[name]));
 
+  const selected = chart.selected && chart.selected.type === 'node' ? chart.selected : {};
   return {
     ...chart,
     nodes,
     links,
-    selected: {},
+    selected,
   };
 };

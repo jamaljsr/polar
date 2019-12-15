@@ -4,9 +4,12 @@ import detectPort from 'detect-port';
 import {
   BitcoindVersion,
   BitcoinNode,
+  CLightningCompatibility,
   CLightningNode,
   CLightningVersion,
   CommonNode,
+  LightningNode,
+  LndCompatibility,
   LndNode,
   LndVersion,
   Status,
@@ -16,6 +19,10 @@ import { networksPath, nodePath } from './config';
 import { BasePorts } from './constants';
 import { getName } from './names';
 import { range } from './numbers';
+import { isVersionCompatible } from './strings';
+import { prefixTranslation } from './translate';
+
+const { l } = prefixTranslation('utils.network');
 
 export const getContainerName = (node: CommonNode) =>
   `polar-n${node.networkId}-${node.name}`;
@@ -51,12 +58,50 @@ const getLndFilePaths = (name: string, network: Network) => {
   };
 };
 
+export const getRequiredBackendVersion = (
+  implementation: LightningNode['implementation'],
+  version: string,
+): BitcoindVersion => {
+  let required: BitcoindVersion;
+  switch (implementation) {
+    case 'LND':
+      required = LndCompatibility[version as LndVersion];
+      break;
+    case 'c-lightning':
+      required = CLightningCompatibility[version as CLightningVersion];
+      break;
+    default:
+      required = BitcoindVersion.latest;
+      break;
+  }
+  return required;
+};
+
+const filterCompatibleBackends = (
+  implementation: LightningNode['implementation'],
+  version: string,
+  backends: BitcoinNode[],
+): BitcoinNode[] => {
+  const requiredVersion = getRequiredBackendVersion(implementation, version);
+  const compatibleBackends = backends.filter(n =>
+    isVersionCompatible(n.version, requiredVersion),
+  );
+  if (compatibleBackends.length === 0) {
+    throw new Error(
+      l('backendCompatError', { requiredVersion, implementation, version }),
+    );
+  }
+  return compatibleBackends;
+};
+
 export const createLndNetworkNode = (
   network: Network,
   version: LndVersion,
   status = Status.Stopped,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
+  const implementation: LndNode['implementation'] = 'LND';
+  const backends = filterCompatibleBackends(implementation, version, bitcoin);
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   return {
@@ -64,11 +109,11 @@ export const createLndNetworkNode = (
     networkId: network.id,
     name: name,
     type: 'lightning',
-    implementation: 'LND',
+    implementation,
     version,
     status,
     // alternate between backend nodes
-    backendName: bitcoin[id % bitcoin.length].name,
+    backendName: backends[id % backends.length].name,
     paths: getLndFilePaths(name, network),
     ports: {
       rest: BasePorts.lnd.rest + id,
@@ -83,6 +128,8 @@ export const createCLightningNetworkNode = (
   status = Status.Stopped,
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
+  const implementation: LndNode['implementation'] = 'c-lightning';
+  const backends = filterCompatibleBackends(implementation, version, bitcoin);
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   const path = nodePath(network, 'c-lightning', name);
@@ -95,7 +142,7 @@ export const createCLightningNetworkNode = (
     version,
     status,
     // alternate between backend nodes
-    backendName: bitcoin[id % bitcoin.length].name,
+    backendName: backends[id % backends.length].name,
     paths: {
       macaroon: join(path, 'rest-api', 'access.macaroon'),
     },
