@@ -64,5 +64,8 @@
       "regex": "^[.]",
       "orderLevel": 80
     }
-  ]
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }
