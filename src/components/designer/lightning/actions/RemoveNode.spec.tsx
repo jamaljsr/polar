@@ -1,11 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {
-  fireEvent,
-  waitForElement,
-  waitForElementToBeRemoved,
-} from '@testing-library/dom';
-import { Modal, notification } from 'antd';
+import { fireEvent, waitForElement } from '@testing-library/dom';
 import { Status } from 'shared/types';
 import { DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -49,14 +43,6 @@ describe('RemoveNode', () => {
 
   beforeEach(() => {
     lightningServiceMock.getChannels.mockResolvedValue([]);
-  });
-
-  afterEach(async () => {
-    Modal.destroyAll();
-    notification.destroy();
-    // wait for the modal to be removed before starting the next test
-    const getModal = () => document.querySelector('.ant-modal-root');
-    if (getModal()) await waitForElementToBeRemoved(getModal);
   });
 
   it('should show the remove node modal', async () => {

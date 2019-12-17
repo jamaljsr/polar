@@ -190,15 +190,10 @@ describe('NetworkView Component', () => {
   });
 
   describe('delete network', () => {
-    beforeEach(jest.useFakeTimers);
-    afterEach(jest.useRealTimers);
-
     it('should show the confirm modal', async () => {
-      const { getByLabelText, getByText } = renderComponent('1');
+      const { getByLabelText, getByText, findByText } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('icon: more'));
-      await wait(() => jest.runOnlyPendingTimers());
-      fireEvent.click(getByText('Delete'));
-      await wait(() => jest.runOnlyPendingTimers());
+      fireEvent.click(await findByText('Delete'));
       expect(
         getByText('Are you sure you want to delete this network?'),
       ).toBeInTheDocument();
@@ -207,17 +202,14 @@ describe('NetworkView Component', () => {
     });
 
     it('should delete the network', async () => {
-      const { getByLabelText, getByText, getAllByText, store } = renderComponent(
+      const { getByLabelText, getByText, findByText, store } = renderComponent(
         '1',
         Status.Started,
       );
       const path = store.getState().network.networks[0].path;
       fireEvent.mouseOver(getByLabelText('icon: more'));
-      await wait(() => jest.runOnlyPendingTimers());
-      fireEvent.click(getByText('Delete'));
-      await wait(() => jest.runOnlyPendingTimers());
-      // antd creates two modals in the DOM for some silly reason. Need to click one
-      fireEvent.click(getAllByText('Yes')[0]);
+      fireEvent.click(await findByText('Delete'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('icon: check-circle-o'));
       expect(
@@ -231,13 +223,10 @@ describe('NetworkView Component', () => {
       // this supresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         fsMock.remove = jest.fn().mockRejectedValue(new Error('cannot delete'));
-        const { getByLabelText, getByText, getAllByText, store } = renderComponent('1');
+        const { getByLabelText, getByText, findByText, store } = renderComponent('1');
         fireEvent.mouseOver(getByLabelText('icon: more'));
-        await wait(() => jest.runOnlyPendingTimers());
-        fireEvent.click(getByText('Delete'));
-        await wait(() => jest.runOnlyPendingTimers());
-        // antd creates two modals in the DOM for some silly reason. Need to click one
-        fireEvent.click(getAllByText('Yes')[0]);
+        fireEvent.click(await findByText('Delete'));
+        fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
         await waitForElement(() => getByLabelText('icon: close-circle-o'));
         expect(getByText('cannot delete')).toBeInTheDocument();
