@@ -1,3 +1,5 @@
+import { message, Modal, notification } from 'antd';
+import { waitForElementToBeRemoved } from '@testing-library/dom';
 import './i18n';
 // this adds jest-dom's custom assertions
 import '@testing-library/jest-dom/extend-expect';
@@ -19,3 +21,15 @@ console.warn = (...args) => {
   }
   originalConsoleWarning(...args);
 };
+
+afterEach(async () => {
+  // these antd components are rendered outside of the DOM tree of the component being tested,
+  // so they are not automatically cleaned up by the testing-library's cleanup function. This
+  // code below destroys those components before the next test is run
+  message.destroy();
+  notification.destroy();
+  Modal.destroyAll();
+  // wait for the modal to be removed before starting the next test. it uses a short animation
+  const getModal = () => document.querySelector('.ant-modal-root');
+  if (getModal()) await waitForElementToBeRemoved(getModal);
+});

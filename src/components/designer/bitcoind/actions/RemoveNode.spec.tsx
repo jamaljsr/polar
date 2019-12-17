@@ -1,7 +1,5 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-import { waitForElementToBeRemoved } from '@testing-library/react';
-import { Modal, notification } from 'antd';
 import { BitcoindVersion, Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -51,14 +49,6 @@ describe('RemoveNode', () => {
     lightningServiceMock.getChannels.mockResolvedValue([]);
     lightningServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
     bitcoindServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
-  });
-
-  afterEach(async () => {
-    Modal.destroyAll();
-    notification.destroy();
-    // wait for the modal to be removed before starting the next test
-    const getModal = () => document.querySelector('.ant-modal-root');
-    if (getModal()) await waitForElementToBeRemoved(getModal);
   });
 
   it('should show the remove node modal', async () => {

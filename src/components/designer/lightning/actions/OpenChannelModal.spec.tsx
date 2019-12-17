@@ -1,7 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
-import { Modal, notification } from 'antd';
 import { Status } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -47,11 +46,6 @@ describe('OpenChannelModal', () => {
     };
   };
 
-  afterEach(async () => {
-    Modal.destroyAll();
-    notification.destroy();
-  });
-
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
     expect(getByText('Source')).toBeInTheDocument();
@@ -74,29 +68,30 @@ describe('OpenChannelModal', () => {
   });
 
   it('should hide modal when cancel is clicked', async () => {
-    jest.useFakeTimers();
     const { getByText, queryByText } = await renderComponent();
     const btn = getByText('Cancel');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
-    await wait(() => fireEvent.click(getByText('Cancel')));
-    jest.runAllTimers();
+    fireEvent.click(getByText('Cancel'));
+    await wait();
     expect(queryByText('Cancel')).not.toBeInTheDocument();
-    jest.useRealTimers();
   });
 
   it('should remove chart link when cancel is clicked', async () => {
     const { getByText, store } = await renderComponent(Status.Started);
     const linkId = 'xxxx';
-    await wait(() => {
-      const { designer } = store.getActions();
-      const link = { linkId, fromNodeId: 'alice', fromPortId: 'p1' } as any;
-      // create a new link which will open the modal
+    const { designer } = store.getActions();
+    const link = { linkId, fromNodeId: 'alice', fromPortId: 'p1' } as any;
+    // create a new link which will open the modal
+    act(() => {
       designer.onLinkStart(link);
+    });
+    act(() => {
       designer.onLinkComplete({ ...link, toNodeId: 'bob', toPortId: 'p2' } as any);
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
-    await wait(() => fireEvent.click(getByText('Cancel')));
+    fireEvent.click(getByText('Cancel'));
+    await wait();
     expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
   });
 
@@ -110,19 +105,20 @@ describe('OpenChannelModal', () => {
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
       const { getAllByText, getByText, store } = await renderComponent();
-      await wait(() => store.getActions().modals.showOpenChannel({}));
-      await wait(() => fireEvent.click(getByText('Open Channel')));
+      act(() => store.getActions().modals.showOpenChannel({}));
+      fireEvent.click(getByText('Open Channel'));
       expect(getAllByText('required')).toHaveLength(2);
     });
   });
 
   it('should do nothing if an invalid node is selected', async () => {
     const { getByText, getByLabelText, store } = await renderComponent();
-    await wait(() => {
-      store.getActions().modals.showOpenChannel({ from: 'invalid', to: 'invalid2' });
-    });
+    act(() =>
+      store.getActions().modals.showOpenChannel({ from: 'invalid', to: 'invalid2' }),
+    );
     fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-    await wait(() => fireEvent.click(getByText('Open Channel')));
+    fireEvent.click(getByText('Open Channel'));
+    await wait();
     expect(getByText('Open Channel')).toBeInTheDocument();
   });
 
@@ -143,15 +139,12 @@ describe('OpenChannelModal', () => {
 
     it('should open a channel successfully', async () => {
       const { getByText, getByLabelText, store, network } = await renderComponent();
-      await wait(() => {
-        store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
-      });
+      act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       fireEvent.click(getByText('Open Channel'));
-      await wait(() => {
-        expect(store.getState().modals.openChannel.visible).toBe(false);
-      });
+      await wait();
+      expect(store.getState().modals.openChannel.visible).toBe(false);
       const node2 = network.nodes.lightning[1];
       expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
@@ -159,16 +152,11 @@ describe('OpenChannelModal', () => {
 
     it('should open a channel and deposit funds', async () => {
       const { getByText, getByLabelText, store, network } = await renderComponent();
-      await wait(() => {
-        store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
-      });
+      act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-      act(() => {
-        fireEvent.click(getByText('Open Channel'));
-      });
-      await wait(() => {
-        expect(store.getState().modals.openChannel.visible).toBe(false);
-      });
+      fireEvent.click(getByText('Open Channel'));
+      await wait();
+      expect(store.getState().modals.openChannel.visible).toBe(false);
       const node2 = network.nodes.lightning[1];
       expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
@@ -179,12 +167,11 @@ describe('OpenChannelModal', () => {
     it('should display an error when opening a channel fails', async () => {
       lightningServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
       const { getByText, getByLabelText, store } = await renderComponent();
-      await wait(() => {
-        store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
-      });
+      act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
-      await wait(() => fireEvent.click(getByText('Open Channel')));
+      fireEvent.click(getByText('Open Channel'));
+      await wait();
       expect(getByText('Unable to open the channel')).toBeInTheDocument();
       expect(getByText('error-msg')).toBeInTheDocument();
     });

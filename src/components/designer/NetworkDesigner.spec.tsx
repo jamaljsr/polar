@@ -117,6 +117,15 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('BOLT 11 Invoice')).toBeInTheDocument();
   });
 
+  it('should display the ChangeBackend modal', async () => {
+    const { findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showChangeBackend({});
+    });
+    expect(await findByText('Lightning Node')).toBeInTheDocument();
+  });
+
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText } = renderComponent();
     expect(await findByText('alice')).toBeInTheDocument();
