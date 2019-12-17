@@ -119,7 +119,7 @@ describe('LndService', () => {
   });
 
   it('should throw an error for an incorrect node', async () => {
-    const cln = getNetwork().nodes.lightning[2];
+    const cln = getNetwork().nodes.lightning[1];
     await expect(lndService.getInfo(cln)).rejects.toThrow(
       "LndService cannot be used for 'c-lightning' nodes",
     );

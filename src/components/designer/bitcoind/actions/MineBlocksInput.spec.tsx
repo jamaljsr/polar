@@ -50,8 +50,8 @@ describe('MineBlocksInput', () => {
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
     await waitForDomChange();
-    const port = store.getState().network.networks[0].nodes.bitcoin[0].ports.rpc;
-    expect(mineMock).toBeCalledWith(numBlocks, port);
+    const node = store.getState().network.networks[0].nodes.bitcoin[0];
+    expect(mineMock).toBeCalledWith(numBlocks, node);
   });
 
   it('should display an error if mining fails', async () => {

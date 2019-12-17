@@ -2,6 +2,7 @@
 
 - refresh sidebar every second when a node is selected
 - investigate synthetic event console errors
+- fix c-lightning routing after restart
 
 Small Stuff
 

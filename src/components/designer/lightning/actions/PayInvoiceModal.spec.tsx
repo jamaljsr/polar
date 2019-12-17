@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/dom';
+import { Modal, notification } from 'antd';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -37,6 +38,11 @@ describe('PayInvoiceModal', () => {
       network,
     };
   };
+
+  afterEach(async () => {
+    Modal.destroyAll();
+    notification.destroy();
+  });
 
   it('should render labels', async () => {
     const { getByText } = await renderComponent();

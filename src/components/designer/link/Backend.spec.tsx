@@ -1,7 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
 import { Status } from 'shared/types';
-import { getNetwork } from 'utils/tests';
+import { getNetwork, renderWithProviders } from 'utils/tests';
 import Backend from './Backend';
 
 describe('Backend component', () => {
@@ -9,7 +8,9 @@ describe('Backend component', () => {
     const network = getNetwork();
     const bitcoind = network.nodes.bitcoin[0];
     const lightning = network.nodes.lightning[0];
-    const result = render(<Backend bitcoinNode={bitcoind} lightningNode={lightning} />);
+    const result = renderWithProviders(
+      <Backend bitcoinNode={bitcoind} lightningNode={lightning} />,
+    );
     return {
       ...result,
       bitcoind,

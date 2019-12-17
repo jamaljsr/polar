@@ -33,8 +33,8 @@ describe('LinkDetails component', () => {
     const properties = {
       type: 'backend',
     };
-    const { getByText } = renderComponent('alice', 'backend', properties);
-    expect(getByText('Blockchain Backend Connection')).toBeInTheDocument();
+    const { getByText } = renderComponent('alice', 'backend1', properties);
+    expect(getByText('Chain Backend Connection')).toBeInTheDocument();
   });
 
   it('should display message for invalid properties', () => {

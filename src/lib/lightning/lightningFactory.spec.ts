@@ -28,7 +28,7 @@ describe('LightningFactory', () => {
       id: 'asdf',
       binding: [],
     });
-    const node = network.nodes.lightning[2];
+    const node = network.nodes.lightning[1];
     const service = factory.getService(node);
     await service.getInfo(node);
     expect(clightningApiMock.httpGet).toBeCalledTimes(1);

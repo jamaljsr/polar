@@ -28,15 +28,15 @@ describe('ComposeFile', () => {
 
   it('should add a bitcoind config', () => {
     composeFile.addBitcoind(btcNode);
-    expect(composeFile.content.services['backend']).not.toBeUndefined();
+    expect(composeFile.content.services['backend1']).not.toBeUndefined();
   });
 
   it('should create the correct bitcoind docker compose values', () => {
     composeFile.addBitcoind(btcNode);
-    const service = composeFile.content.services['backend'];
+    const service = composeFile.content.services['backend1'];
     expect(service.image).toContain('bitcoind');
-    expect(service.container_name).toEqual('polar-n1-backend');
-    expect(service.volumes[0]).toContain('/backend:');
+    expect(service.container_name).toEqual('polar-n1-backend1');
+    expect(service.volumes[0]).toContain('/backend1:');
   });
 
   it('should add an lnd config', () => {

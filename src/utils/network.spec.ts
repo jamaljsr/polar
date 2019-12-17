@@ -44,7 +44,7 @@ describe('Network Utils', () => {
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].grpc).toBe(10002);
-      expect(ports[network.nodes.lightning[1].name].grpc).toBe(10003);
+      expect(ports[network.nodes.lightning[2].name].grpc).toBe(10003);
     });
 
     it('should update the rest ports for lightning nodes', async () => {
@@ -56,7 +56,7 @@ describe('Network Utils', () => {
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].rest).toBe(8082);
-      expect(ports[network.nodes.lightning[1].name].rest).toBe(8083);
+      expect(ports[network.nodes.lightning[2].name].rest).toBe(8083);
     });
 
     it('should not update ports if none are in use', async () => {
@@ -77,7 +77,7 @@ describe('Network Utils', () => {
       // alice ports should not be changed
       expect(ports[network.nodes.lightning[0].name]).toBeUndefined();
       // bob ports should change
-      const lnd2 = network.nodes.lightning[1] as LndNode;
+      const lnd2 = network.nodes.lightning[2] as LndNode;
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
     });

@@ -1,13 +1,14 @@
 import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
-import { Status } from 'shared/types';
+import { LndVersion, Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { injections, lightningServiceMock } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
+import lightningModel from './lightning';
 import modalsModel from './modals';
 import networkModel from './network';
 
@@ -25,6 +26,7 @@ describe('Designer model', () => {
   const rootModel = {
     app: appModel,
     network: networkModel,
+    lightning: lightningModel,
     bitcoind: bitcoindModel,
     designer: designerModel,
     modals: modalsModel,
@@ -61,7 +63,7 @@ describe('Designer model', () => {
       await addNetwork({
         name: 'test',
         lndNodes: 2,
-        clightningNodes: 0,
+        clightningNodes: 1,
         bitcoindNodes: 1,
       });
     });
@@ -72,7 +74,7 @@ describe('Designer model', () => {
       expect(activeId).toBe(-1);
       expect(activeChart).toBeUndefined();
       expect(chart).not.toBeUndefined();
-      expect(Object.keys(chart.nodes)).toHaveLength(3);
+      expect(Object.keys(chart.nodes)).toHaveLength(4);
     });
 
     it('should set the active chart', () => {
@@ -80,7 +82,7 @@ describe('Designer model', () => {
       const { activeId, activeChart } = store.getState().designer;
       expect(activeId).toBe(firstNetwork().id);
       expect(activeChart).toBeDefined();
-      expect(Object.keys(activeChart.nodes)).toHaveLength(3);
+      expect(Object.keys(activeChart.nodes)).toHaveLength(4);
     });
 
     it('should remove the active chart', () => {
@@ -190,7 +192,7 @@ describe('Designer model', () => {
         expect(firstChart().links[payload.linkId]).toBeUndefined();
         expect(mockNotification.error).toBeCalledWith(
           expect.objectContaining({
-            message: 'Cannot open a channel',
+            message: 'Cannot connect nodes',
           }),
         );
       });
@@ -205,7 +207,7 @@ describe('Designer model', () => {
         ).toBeUndefined();
         expect(mockNotification.error).toBeCalledWith(
           expect.objectContaining({
-            message: 'Cannot open a channel',
+            message: 'Cannot connect nodes',
           }),
         );
       });
@@ -227,7 +229,7 @@ describe('Designer model', () => {
       const mockBitcoindService = injections.bitcoindService as jest.Mocked<
         BitcoindLibrary
       >;
-      const data = { type: 'lnd' };
+      const data = { type: 'lnd', version: LndVersion.latest };
       const position = { x: 10, y: 10 };
 
       beforeEach(() => {
@@ -237,19 +239,19 @@ describe('Designer model', () => {
 
       it('should add a new node to the network', async () => {
         const { onCanvasDrop } = store.getActions().designer;
-        expect(firstNetwork().nodes.lightning).toHaveLength(2);
+        expect(firstNetwork().nodes.lightning).toHaveLength(3);
         onCanvasDrop({ data, position });
         await wait(() => {
-          expect(firstNetwork().nodes.lightning).toHaveLength(3);
+          expect(firstNetwork().nodes.lightning).toHaveLength(4);
         });
       });
 
       it('should add a new node to the chart', async () => {
         const { onCanvasDrop } = store.getActions().designer;
-        expect(Object.keys(firstChart().nodes)).toHaveLength(3);
+        expect(Object.keys(firstChart().nodes)).toHaveLength(4);
         onCanvasDrop({ data, position });
         await wait(() => {
-          expect(Object.keys(firstChart().nodes)).toHaveLength(4);
+          expect(Object.keys(firstChart().nodes)).toHaveLength(5);
           expect(firstChart().nodes['carol']).toBeDefined();
         });
       });
@@ -260,7 +262,7 @@ describe('Designer model', () => {
         onCanvasDrop({ data, position });
         await wait(() => {
           expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
-          expect(firstNetwork().nodes.lightning).toHaveLength(3);
+          expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[2].name).toBe('carol');
         });
       });
@@ -271,7 +273,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data, position });
         await wait(() => {
-          expect(firstNetwork().nodes.lightning).toHaveLength(2);
+          expect(firstNetwork().nodes.lightning).toHaveLength(3);
           expect(mockNotification.error).toBeCalledWith(
             expect.objectContaining({ message: 'Failed to add node' }),
           );
@@ -282,7 +284,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data: { type: 'other' }, position });
         await wait(() => {
-          expect(firstNetwork().nodes.lightning).toHaveLength(2);
+          expect(firstNetwork().nodes.lightning).toHaveLength(3);
         });
       });
 
@@ -309,7 +311,7 @@ describe('Designer model', () => {
           expect(mockDockerService.start).toBeCalledWith(
             expect.objectContaining({ name: firstNetwork().name }),
           );
-          expect(firstNetwork().nodes.lightning).toHaveLength(3);
+          expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[2].status).toBe(Status.Started);
         });
       });

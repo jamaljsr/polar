@@ -17,8 +17,12 @@ describe('NetworkActions Component', () => {
         networks: [network],
       },
       bitcoind: {
-        chainInfo: {
-          blocks: 10,
+        nodes: {
+          backend1: {
+            chainInfo: {
+              blocks: 10,
+            },
+          },
         },
       },
     };
@@ -107,8 +111,8 @@ describe('NetworkActions Component', () => {
     const { getByText, store } = renderComponent(Status.Started);
     fireEvent.click(getByText('Quick Mine'));
     await wait(() => {
-      const port = store.getState().network.networks[0].nodes.bitcoin[0].ports.rpc;
-      expect(mineMock).toBeCalledWith(1, port);
+      const node = store.getState().network.networks[0].nodes.bitcoin[0];
+      expect(mineMock).toBeCalledWith(1, node);
     });
   });
 

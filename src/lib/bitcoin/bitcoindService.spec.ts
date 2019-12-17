@@ -21,19 +21,19 @@ describe('BitcoindService', () => {
   });
 
   it('should get blockchain info', async () => {
-    const info = await bitcoindService.getBlockchainInfo();
+    const info = await bitcoindService.getBlockchainInfo(node);
     expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
     expect(info.blocks).toEqual(10);
   });
 
   it('should get wallet info', async () => {
-    const info = await bitcoindService.getWalletInfo();
+    const info = await bitcoindService.getWalletInfo(node);
     expect(mockBitcoin.mock.instances[0].getWalletInfo).toBeCalledTimes(1);
     expect(info.balance).toEqual(5);
   });
 
   it('should mine new blocks', async () => {
-    const result = await bitcoindService.mine(2);
+    const result = await bitcoindService.mine(2, node);
     expect(getInst().getNewAddress).toBeCalledTimes(1);
     expect(getInst().generateToAddress).toBeCalledTimes(1);
     expect(getInst().generateToAddress).toBeCalledWith(2, 'abcdef');
@@ -50,6 +50,7 @@ describe('BitcoindService', () => {
 
     it('should send funds with insufficient balance', async () => {
       mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
+      mockProto.listTransactions = jest.fn().mockResolvedValue([]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
       expect(getInst().getWalletInfo).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);
@@ -59,6 +60,7 @@ describe('BitcoindService', () => {
     it('should send funds with insufficient balance above maturity height', async () => {
       mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 110 });
       mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
+      mockProto.listTransactions = jest.fn().mockResolvedValue([]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
       expect(getInst().getWalletInfo).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);
@@ -68,13 +70,13 @@ describe('BitcoindService', () => {
 
   describe('waitUntilOnline', () => {
     it('should wait successfully', async () => {
-      await expect(bitcoindService.waitUntilOnline()).resolves.not.toThrow();
+      await expect(bitcoindService.waitUntilOnline(node)).resolves.not.toThrow();
       expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
       mockProto.getBlockchainInfo = jest.fn().mockRejectedValue(new Error('test-error'));
-      await expect(bitcoindService.waitUntilOnline(18443, 0.5, 1)).rejects.toThrow(
+      await expect(bitcoindService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
       expect(getInst().getBlockchainInfo).toBeCalledTimes(1);

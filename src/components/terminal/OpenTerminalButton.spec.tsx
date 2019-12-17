@@ -35,7 +35,7 @@ describe('OpenTerminalButton', () => {
   });
 
   it('should render c-lightning help text', () => {
-    const { getByText } = renderComponent(n => n.nodes.lightning[2]);
+    const { getByText } = renderComponent(n => n.nodes.lightning[1]);
     const help = getByText("Run 'lightning-cli' commands directly on the node");
     expect(help).toBeInTheDocument();
   });
@@ -45,7 +45,7 @@ describe('OpenTerminalButton', () => {
     ipcMock.mockResolvedValue(true);
     const { getByText } = renderComponent(n => n.nodes.bitcoin[0]);
     await wait(() => fireEvent.click(getByText('Launch')));
-    const url = '/terminal/bitcoind/polar-n1-backend';
+    const url = '/terminal/bitcoind/polar-n1-backend1';
     expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
   });
 });

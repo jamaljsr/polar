@@ -1,5 +1,7 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
+import { Modal, notification } from 'antd';
 import { Status } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -44,6 +46,11 @@ describe('OpenChannelModal', () => {
       network,
     };
   };
+
+  afterEach(async () => {
+    Modal.destroyAll();
+    notification.destroy();
+  });
 
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
@@ -156,7 +163,9 @@ describe('OpenChannelModal', () => {
         store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' });
       });
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-      fireEvent.click(getByText('Open Channel'));
+      act(() => {
+        fireEvent.click(getByText('Open Channel'));
+      });
       await wait(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });

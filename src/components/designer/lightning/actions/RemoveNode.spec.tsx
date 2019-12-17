@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, waitForElement } from '@testing-library/dom';
+import ReactDOM from 'react-dom';
+import {
+  fireEvent,
+  waitForElement,
+  waitForElementToBeRemoved,
+} from '@testing-library/dom';
+import { Modal, notification } from 'antd';
 import { Status } from 'shared/types';
 import { DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -45,6 +51,14 @@ describe('RemoveNode', () => {
     lightningServiceMock.getChannels.mockResolvedValue([]);
   });
 
+  afterEach(async () => {
+    Modal.destroyAll();
+    notification.destroy();
+    // wait for the modal to be removed before starting the next test
+    const getModal = () => document.querySelector('.ant-modal-root');
+    if (getModal()) await waitForElementToBeRemoved(getModal);
+  });
+
   it('should show the remove node modal', async () => {
     const { getByText } = renderComponent(Status.Started);
     expect(getByText('Remove')).toBeInTheDocument();
@@ -57,11 +71,10 @@ describe('RemoveNode', () => {
   });
 
   it('should remove the node with the network stopped', async () => {
-    const { getByText, getAllByText, getByLabelText } = renderComponent(Status.Stopped);
+    const { getByText, getByLabelText } = renderComponent(Status.Started);
     expect(getByText('Remove')).toBeInTheDocument();
     fireEvent.click(getByText('Remove'));
-    // antd creates two modals in the DOM for some silly reason. Need to click one
-    fireEvent.click(getAllByText('Yes')[0]);
+    fireEvent.click(getByText('Yes'));
     // wait for the error notification to be displayed
     await waitForElement(() => getByLabelText('icon: check-circle-o'));
     expect(
@@ -71,11 +84,10 @@ describe('RemoveNode', () => {
   });
 
   it('should remove the node with the network started', async () => {
-    const { getByText, getAllByText, getByLabelText } = renderComponent(Status.Started);
+    const { getByText, getByLabelText } = renderComponent(Status.Started);
     expect(getByText('Remove')).toBeInTheDocument();
     fireEvent.click(getByText('Remove'));
-    // antd creates two modals in the DOM for some silly reason. Need to click one
-    fireEvent.click(getAllByText('Yes')[0]);
+    fireEvent.click(getByText('Yes'));
     // wait for the error notification to be displayed
     await waitForElement(() => getByLabelText('icon: check-circle-o'));
     expect(
@@ -89,11 +101,10 @@ describe('RemoveNode', () => {
     // this supresses those errors from being displayed in test runs
     await suppressConsoleErrors(async () => {
       dockerServiceMock.removeNode.mockRejectedValue(new Error('test error'));
-      const { getByText, getAllByText, getByLabelText } = renderComponent();
+      const { getByText, getByLabelText } = renderComponent(Status.Started);
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
-      // antd creates two modals in the DOM for some silly reason. Need to click one
-      fireEvent.click(getAllByText('Yes')[0]);
+      fireEvent.click(getByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('icon: close-circle-o'));
       expect(getByText('Unable to remove the node')).toBeInTheDocument();
