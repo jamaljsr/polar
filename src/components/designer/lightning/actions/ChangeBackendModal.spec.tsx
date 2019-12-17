@@ -1,0 +1,138 @@
+import React from 'react';
+import { act, fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/react';
+import { BitcoindVersion, LndVersion, Status } from 'shared/types';
+import { initChartFromNetwork } from 'utils/chart';
+import { createBitcoindNetworkNode, createLndNetworkNode } from 'utils/network';
+import {
+  getNetwork,
+  injections,
+  renderWithProviders,
+  suppressConsoleErrors,
+} from 'utils/tests';
+import ChangeBackendModal from './ChangeBackendModal';
+
+describe('ChangeBackendModal', () => {
+  const renderComponent = async (status?: Status, lnName = 'alice') => {
+    const network = getNetwork(1, 'test network', status);
+    const oldBitcoind = createBitcoindNetworkNode(
+      network,
+      BitcoindVersion['0.18.1'],
+      status,
+    );
+    network.nodes.bitcoin.push(oldBitcoind);
+    const oldLnd = createLndNetworkNode(network, LndVersion['0.7.1-beta'], status);
+    network.nodes.lightning.push(oldLnd);
+    const initialState = {
+      network: {
+        networks: [network],
+      },
+      designer: {
+        activeId: network.id,
+        allCharts: {
+          [network.id]: initChartFromNetwork(network),
+        },
+      },
+      modals: {
+        changeBackend: {
+          visible: true,
+          lnName,
+          backendName: 'backend1',
+        },
+      },
+    };
+    const cmp = <ChangeBackendModal network={network} />;
+    const result = renderWithProviders(cmp, { initialState });
+    return {
+      ...result,
+      network,
+    };
+  };
+
+  it('should render labels', async () => {
+    const { getByText } = await renderComponent();
+    expect(getByText('Lightning Node')).toBeInTheDocument();
+    expect(getByText('Bitcoin Node')).toBeInTheDocument();
+  });
+
+  it('should render form inputs', async () => {
+    const { getByLabelText } = await renderComponent();
+    expect(getByLabelText('Lightning Node')).toBeInTheDocument();
+    expect(getByLabelText('Bitcoin Node')).toBeInTheDocument();
+  });
+
+  it('should render button', async () => {
+    const { getByText } = await renderComponent();
+    const btn = getByText('Change Backend');
+    expect(btn).toBeInTheDocument();
+    expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('should render the restart notice', async () => {
+    const { getByText } = await renderComponent(Status.Started);
+    expect(
+      getByText('The alice node will be restarted automatically to apply the change.'),
+    ).toBeInTheDocument();
+  });
+
+  it('should hide modal when cancel is clicked', async () => {
+    const { getByText, queryByText } = await renderComponent();
+    const btn = getByText('Cancel');
+    expect(btn).toBeInTheDocument();
+    expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
+    fireEvent.click(getByText('Cancel'));
+    await waitForElementToBeRemoved(() => getByText('Cancel'));
+    expect(queryByText('Cancel')).not.toBeInTheDocument();
+  });
+
+  it('should display the compatibility warning for older bitcoin node', async () => {
+    const { getByText, queryByText, getByLabelText } = await renderComponent();
+    const warning =
+      'dave is running LND v0.7.1-beta which is compatible with Bitcoin Core v0.18.1 and older.' +
+      ' backend1 is running v0.19.0.1 so it cannot be used.';
+    expect(queryByText(warning)).not.toBeInTheDocument();
+    expect(getByText('Cancel')).toBeInTheDocument();
+    fireEvent.click(getByLabelText('Lightning Node'));
+    fireEvent.click(getByText('dave'));
+    expect(getByText(warning)).toBeInTheDocument();
+  });
+
+  it('should display an error if form is not valid', async () => {
+    await suppressConsoleErrors(async () => {
+      const { getAllByText, getByText, store } = await renderComponent();
+      act(() => store.getActions().modals.showChangeBackend({}));
+      fireEvent.click(getByText('Change Backend'));
+      expect(getAllByText('required')).toHaveLength(2);
+    });
+  });
+
+  it('should do nothing if an invalid node is selected', async () => {
+    const { getByText } = await renderComponent(Status.Stopped, 'invalid');
+    fireEvent.click(getByText('Change Backend'));
+    await wait();
+    expect(getByText('Change Backend')).toBeInTheDocument();
+  });
+
+  describe('with form submitted', () => {
+    it('should update the backend successfully', async () => {
+      const { getByText, getByLabelText, store } = await renderComponent();
+      fireEvent.click(getByLabelText('Bitcoin Node'));
+      fireEvent.click(getByText('backend2'));
+      fireEvent.click(getByText('Change Backend'));
+      await wait();
+      expect(store.getState().modals.changeBackend.visible).toBe(false);
+      expect(
+        getByText('The alice node will pull chain data from backend2'),
+      ).toBeInTheDocument();
+    });
+
+    it('should restart containers when backend is updated', async () => {
+      const { getByText, getByLabelText } = await renderComponent(Status.Started);
+      fireEvent.click(getByLabelText('Bitcoin Node'));
+      fireEvent.click(getByText('backend2'));
+      fireEvent.click(getByText('Change Backend'));
+      await wait();
+      expect(injections.dockerService.stopNode).toBeCalledTimes(1);
+      expect(injections.dockerService.startNode).toBeCalledTimes(1);
+    });
+  });
+});

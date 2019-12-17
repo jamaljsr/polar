@@ -1,4 +1,5 @@
 import React from 'react';
+import { fireEvent, wait } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import Backend from './Backend';
@@ -58,5 +59,13 @@ describe('Backend component', () => {
       const { getByText, bitcoind } = renderComponent();
       expect(getByText(`v${bitcoind.version}`)).toBeInTheDocument();
     });
+  });
+
+  it('should display the ChangeBackend modal', async () => {
+    const { getByText, store } = renderComponent();
+    expect(store.getState().modals.changeBackend.visible).toBe(false);
+    fireEvent.click(getByText('Change Backend'));
+    await wait();
+    expect(store.getState().modals.changeBackend.visible).toBe(true);
   });
 });

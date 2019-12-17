@@ -18,12 +18,7 @@ const RemoveNode: React.FC<Props> = ({ node }) => {
     const { name } = node;
     modal = Modal.confirm({
       title: l('confirmTitle', { name }),
-      content: (
-        <>
-          {l('confirmText')}
-          <a onClick={() => Modal.destroyAll()}>destroyAll</a>
-        </>
-      ),
+      content: l('confirmText'),
       okText: l('confirmBtn'),
       okType: 'danger',
       cancelText: l('cancelBtn'),
