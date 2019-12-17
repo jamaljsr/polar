@@ -268,14 +268,14 @@ describe('LightningDetails', () => {
 
     describe('c-lightning', () => {
       beforeEach(() => {
-        node = network.nodes.lightning[2];
+        node = network.nodes.lightning[1];
       });
 
       it('should display the REST Host', async () => {
         const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
         expect(getByText('REST Host')).toBeInTheDocument();
-        expect(getByText('http://127.0.0.1:8183')).toBeInTheDocument();
+        expect(getByText('http://127.0.0.1:8182')).toBeInTheDocument();
       });
 
       it('should open API Doc links in the browser', async () => {

@@ -289,7 +289,7 @@ describe('Network model', () => {
       await start(network.id);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[0].ports.grpc).toBe(10001);
-      expect(lightning[1].ports.grpc).toBe(10002);
+      expect(lightning[2].ports.grpc).toBe(10003);
       expect(injections.dockerService.saveComposeFile).toBeCalledTimes(0);
       expect(injections.dockerService.saveNetworks).toBeCalledTimes(0);
     });
@@ -312,7 +312,7 @@ describe('Network model', () => {
       await start(network.id);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[0].ports.grpc).toBe(10002);
-      expect(lightning[1].ports.grpc).toBe(10003);
+      expect(lightning[2].ports.grpc).toBe(10003);
       expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
       expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
     });

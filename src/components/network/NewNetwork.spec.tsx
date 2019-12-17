@@ -32,7 +32,6 @@ describe('NewNetwork component', () => {
   it('should handle back button click', async () => {
     const { getByLabelText, history } = renderComponent();
     fireEvent.click(getByLabelText('icon: arrow-left'));
-    await waitForDomChange();
     expect(history.location.pathname).toEqual(HOME);
   });
 

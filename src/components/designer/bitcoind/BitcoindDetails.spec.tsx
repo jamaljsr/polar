@@ -72,14 +72,6 @@ describe('BitcoindDetails', () => {
       expect(await findByText('Waiting for bitcoind to come online')).toBeInTheDocument();
     });
 
-    it('should display start msg in Actions tab', async () => {
-      const { getByText } = renderComponent(Status.Starting);
-      await wait(() => fireEvent.click(getByText('Actions')));
-      expect(
-        getByText('Node needs to be started to perform actions on it'),
-      ).toBeInTheDocument();
-    });
-
     it('should display start msg in Connect tab', async () => {
       const { getByText } = renderComponent(Status.Starting);
       await wait(() => fireEvent.click(getByText('Connect')));

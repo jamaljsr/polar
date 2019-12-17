@@ -9,7 +9,7 @@ jest.mock('fs-extra');
 const fsMock = fs as jest.Mocked<typeof fs>;
 
 describe('CLightningApi', () => {
-  const node = getNetwork().nodes.lightning[2] as CLightningNode;
+  const node = getNetwork().nodes.lightning[1] as CLightningNode;
 
   beforeEach(() => {
     fsMock.readFile.mockResolvedValue(Buffer.from('macaroon-content'));

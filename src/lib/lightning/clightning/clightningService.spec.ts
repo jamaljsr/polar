@@ -8,13 +8,14 @@ jest.mock('./clightningApi');
 const clightningApiMock = clightningApi as jest.Mocked<typeof clightningApi>;
 
 describe('CLightningService', () => {
-  const node = getNetwork().nodes.lightning[2];
+  const node = getNetwork().nodes.lightning[1];
 
   it('should get node info', async () => {
     const infoResponse: Partial<CLN.GetInfoResponse> = {
       id: 'asdf',
       alias: '',
       binding: [{ type: 'ipv4', address: '1.1.1.1', port: 9735 }],
+      blockheight: 0,
       numActiveChannels: 0,
       numPendingChannels: 0,
       numInactiveChannels: 0,

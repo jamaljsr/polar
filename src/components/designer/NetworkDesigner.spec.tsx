@@ -43,7 +43,7 @@ describe('NetworkDesigner Component', () => {
     const { findByText } = renderComponent();
     expect(await findByText('alice')).toBeInTheDocument();
     expect(await findByText('bob')).toBeInTheDocument();
-    expect(await findByText('backend')).toBeInTheDocument();
+    expect(await findByText('backend1')).toBeInTheDocument();
   });
 
   it('should render correct # of lightning nodes', async () => {
@@ -54,7 +54,7 @@ describe('NetworkDesigner Component', () => {
 
   it('should render correct # of bitcoind nodes', async () => {
     const { findByText } = renderComponent();
-    expect(await findByText('backend')).toBeInTheDocument();
+    expect(await findByText('backend1')).toBeInTheDocument();
   });
 
   it('should display the default message in the sidebar', async () => {
@@ -80,11 +80,11 @@ describe('NetworkDesigner Component', () => {
 
   it('should display node details in the sidebar when a node is selected', async () => {
     const { getByText, queryByText, findByText } = renderComponent();
-    expect(await findByText('backend')).toBeInTheDocument();
+    expect(await findByText('backend1')).toBeInTheDocument();
     expect(queryByText('Node Type')).not.toBeInTheDocument();
     // click the bitcoind node in the chart
     act(() => {
-      fireEvent.click(getByText('backend'));
+      fireEvent.click(getByText('backend1'));
     });
     // ensure text from the sidebar is visible
     expect(await findByText('Node Type')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('NetworkDesigner Component', () => {
 
   it('should display the OpenChannel modal', async () => {
     const { findByText, store } = renderComponent();
-    expect(await findByText('backend')).toBeInTheDocument();
+    expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showOpenChannel({});
     });
@@ -101,7 +101,7 @@ describe('NetworkDesigner Component', () => {
 
   it('should display the CreateInvoice modal', async () => {
     const { findByText, store } = renderComponent();
-    expect(await findByText('backend')).toBeInTheDocument();
+    expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showCreateInvoice({});
     });
@@ -110,7 +110,7 @@ describe('NetworkDesigner Component', () => {
 
   it('should display the PayInvoice modal', async () => {
     const { findByText, store } = renderComponent();
-    expect(await findByText('backend')).toBeInTheDocument();
+    expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showPayInvoice({});
     });

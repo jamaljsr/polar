@@ -140,7 +140,7 @@ describe('Lightning Model', () => {
     const { openChannel, getInfo } = store.getActions().lightning;
     await getInfo(to);
     await openChannel({ from, to, sats, autoFund: false });
-    expect(lightningServiceMock.getInfo).toBeCalledTimes(4);
+    expect(lightningServiceMock.getInfo).toBeCalledTimes(1);
     expect(lightningServiceMock.openChannel).toBeCalledTimes(1);
     expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
   });

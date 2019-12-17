@@ -2,8 +2,10 @@
  * Returns a promise that will be reolved after the specified timeout
  * @param timeout the amount of ms to wait
  */
-export const delay = async (timeout: number) =>
+export const delay = async (timeout: number) => {
+  if (process.env.NODE_ENV === 'test') timeout = 10;
   new Promise(resolve => setTimeout(resolve, timeout));
+};
 
 /**
  * Returns a promise that will ressolve when execution of the conditionFunc does not throw an error

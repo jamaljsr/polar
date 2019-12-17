@@ -236,6 +236,8 @@ const lightningModel: LightningModel = {
     },
   ),
   waitForNodes: thunk(async (actions, nodes) => {
+    // TODO: move this check into the delay() func
+    if (process.env.NODE_ENV === 'test') return;
     // mapping of the number of seconds to wait for each implementation
     const nodeDelays: Record<LightningNode['implementation'], number> = {
       LND: 1,
