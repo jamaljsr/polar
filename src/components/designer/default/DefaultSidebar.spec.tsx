@@ -37,7 +37,19 @@ describe('DefaultSidebar Component', () => {
     };
   };
 
-  it('should render display a draggable LND node', () => {
+  it('should display the version toggle', () => {
+    const { getByText } = renderComponent();
+    expect(getByText('Show All Versions')).toBeInTheDocument();
+  });
+
+  it('should display old versions when the toggle is clicked', () => {
+    const { getByText, getAllByText, getByRole } = renderComponent();
+    fireEvent.click(getByRole('switch'));
+    expect(getByText(`LND v${LndVersion['0.8.0-beta']}`)).toBeInTheDocument();
+    expect(getAllByText('latest')).toHaveLength(3);
+  });
+
+  it('should display a draggable LND node', () => {
     const { getByText } = renderComponent();
     expect(getByText(`LND v${LndVersion.latest}`)).toBeInTheDocument();
   });
