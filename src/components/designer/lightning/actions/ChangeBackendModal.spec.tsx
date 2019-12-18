@@ -102,8 +102,9 @@ describe('ChangeBackendModal', () => {
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
     fireEvent.click(getByText('Cancel'));
-    await wait();
-    expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
+    await wait(() => {
+      expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
+    });
   });
 
   it('should display the compatibility warning for older bitcoin node', async () => {
@@ -130,8 +131,9 @@ describe('ChangeBackendModal', () => {
   it('should do nothing if an invalid node is selected', async () => {
     const { getByText } = await renderComponent(Status.Stopped, 'invalid');
     fireEvent.click(getByText('Change Backend'));
-    await wait();
-    expect(getByText('Change Backend')).toBeInTheDocument();
+    await wait(() => {
+      expect(getByText('Change Backend')).toBeInTheDocument();
+    });
   });
 
   describe('with form submitted', () => {
@@ -140,8 +142,9 @@ describe('ChangeBackendModal', () => {
       fireEvent.click(getByLabelText('Bitcoin Node'));
       fireEvent.click(getByText('backend2'));
       fireEvent.click(getByText('Change Backend'));
-      await wait();
-      expect(store.getState().modals.changeBackend.visible).toBe(false);
+      await wait(() => {
+        expect(store.getState().modals.changeBackend.visible).toBe(false);
+      });
       expect(
         getByText('The alice node will pull chain data from backend2'),
       ).toBeInTheDocument();
@@ -153,8 +156,9 @@ describe('ChangeBackendModal', () => {
       fireEvent.click(getByLabelText('Bitcoin Node'));
       fireEvent.click(getByText('backend2'));
       fireEvent.click(getByText('Change Backend'));
-      await wait();
-      expect(store.getState().modals.changeBackend.visible).toBe(false);
+      await wait(() => {
+        expect(store.getState().modals.changeBackend.visible).toBe(false);
+      });
       expect(
         getByText('The alice node will pull chain data from backend2'),
       ).toBeInTheDocument();
@@ -165,9 +169,10 @@ describe('ChangeBackendModal', () => {
       fireEvent.click(getByLabelText('Bitcoin Node'));
       fireEvent.click(getByText('backend2'));
       fireEvent.click(getByText('Change Backend'));
-      await wait();
-      expect(injections.dockerService.stopNode).toBeCalledTimes(1);
-      expect(injections.dockerService.startNode).toBeCalledTimes(1);
+      await wait(() => {
+        expect(injections.dockerService.stopNode).toBeCalledTimes(1);
+        expect(injections.dockerService.startNode).toBeCalledTimes(1);
+      });
     });
   });
 });

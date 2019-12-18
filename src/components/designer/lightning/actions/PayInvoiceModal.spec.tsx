@@ -63,8 +63,9 @@ describe('PayInvoiceModal', () => {
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     fireEvent.click(getByText('Cancel'));
-    await wait();
-    expect(queryByText('Cancel')).not.toBeInTheDocument();
+    await wait(() => {
+      expect(queryByText('Cancel')).not.toBeInTheDocument();
+    });
   });
 
   it('should display an error if form is not valid', async () => {

@@ -16,6 +16,11 @@ describe('BitcoindDetails', () => {
       network: {
         networks: [network],
       },
+      bitcoind: {
+        nodes: {
+          backend1: {},
+        },
+      },
     };
     const node = network.nodes.bitcoin[0];
     const cmp = <BitcoindDetails node={node} />;
