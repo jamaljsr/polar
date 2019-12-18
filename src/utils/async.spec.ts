@@ -12,13 +12,13 @@ describe('Async Util', () => {
     });
 
     it('should use timeout passed in args', async () => {
-      mockProperty(process.env, 'NODE_ENV', 'production');
+      mockProperty(process, 'env', { NODE_ENV: 'production' } as any);
 
       const spy = jest.spyOn(window, 'setTimeout').mockImplementation(cb => cb() as any);
       await delay(123);
       expect(spy).toHaveBeenCalledWith(expect.any(Function), 123);
 
-      mockProperty(process.env, 'NODE_ENV', 'test');
+      mockProperty(process, 'env', { NODE_ENV: 'test' } as any);
     });
   });
 

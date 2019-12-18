@@ -173,12 +173,12 @@ describe('Lightning Model', () => {
   });
 
   it('should cause some delay waiting for nodes', async () => {
-    mockProperty(process.env, 'NODE_ENV', 'production');
+    mockProperty(process, 'env', { NODE_ENV: 'production' } as any);
 
     const { waitForNodes } = store.getActions().lightning;
     await waitForNodes(network.nodes.lightning);
     expect(asyncUtilMock.delay).toBeCalledWith(2000);
 
-    mockProperty(process.env, 'NODE_ENV', 'test');
+    mockProperty(process, 'env', { NODE_ENV: 'test' } as any);
   });
 });
