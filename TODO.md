@@ -1,11 +1,8 @@
 # TODO List
 
-- refresh sidebar every second when a node is selected
-- investigate synthetic event console errors
-- fix c-lightning routing after restart
-
 Small Stuff
 
+- fix c-lightning routing after restart
 - fix pasting text in terminal
 - start/stop individual nodes
 - add persisted storage for lang
