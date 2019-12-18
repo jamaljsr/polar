@@ -59,7 +59,7 @@ describe('Chart Util', () => {
     });
   });
 
-  describe('updateChartFromNetwork', () => {
+  describe('updateChartFromNodes', () => {
     it('should create link for an open channel', () => {
       addChannel('alice', 'ln2pubkey');
       const result = updateChartFromNodes(chart, network, nodesData);
@@ -122,6 +122,14 @@ describe('Chart Util', () => {
       size = result.nodes['bob'].size;
       expect(size).toBeDefined();
       if (size) expect(size.height).toBe(60);
+    });
+
+    it('should keep the node selected', () => {
+      addChannel('alice', 'ln2pubkey');
+      chart.selected = { type: 'node', id: 'alice' };
+      const result = updateChartFromNodes(chart, network, nodesData);
+      expect(result.selected.id).toEqual('alice');
+      expect(result.selected.type).toEqual('node');
     });
   });
 });

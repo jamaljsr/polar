@@ -1,4 +1,6 @@
 import BitcoinCore from 'bitcoin-core';
+import { BitcoindVersion } from 'shared/types';
+import { createBitcoindNetworkNode } from 'utils/network';
 import { getNetwork } from 'utils/tests';
 import bitcoindService from './bitcoindService';
 
@@ -6,7 +8,11 @@ jest.mock('bitcoin-core');
 const mockBitcoin = (BitcoinCore as unknown) as jest.Mock<BitcoinCore>;
 
 describe('BitcoindService', () => {
-  const node = getNetwork().nodes.bitcoin[0];
+  const network = getNetwork();
+  network.nodes.bitcoin.push(
+    createBitcoindNetworkNode(network, BitcoindVersion['0.18.1']),
+  );
+  const node = network.nodes.bitcoin[0];
   const mockProto = BitcoinCore.prototype;
   // helper func to get the first instance created during the test
   const getInst = () => mockBitcoin.mock.instances[0];
@@ -30,6 +36,17 @@ describe('BitcoindService', () => {
     const info = await bitcoindService.getWalletInfo(node);
     expect(mockBitcoin.mock.instances[0].getWalletInfo).toBeCalledTimes(1);
     expect(info.balance).toEqual(5);
+  });
+
+  it('should connect peers', async () => {
+    await bitcoindService.connectPeers(node);
+    expect(mockBitcoin.mock.instances[0].addNode).toBeCalledTimes(1);
+  });
+
+  it('should not throw error if connect peers fails', async () => {
+    mockProto.addNode = jest.fn().mockRejectedValue('add-error');
+    await bitcoindService.connectPeers(node);
+    await expect(bitcoindService.connectPeers(node)).resolves.not.toThrow();
   });
 
   it('should mine new blocks', async () => {
@@ -57,10 +74,20 @@ describe('BitcoindService', () => {
       expect(txid).toEqual('txid');
     });
 
+    it('should send funds with sufficient balance above maturity height', async () => {
+      mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 110 });
+      mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
+      mockProto.listTransactions = jest.fn().mockResolvedValue([{ confirmations: 101 }]);
+      const txid = await bitcoindService.sendFunds(node, 'destaddr', 100);
+      expect(getInst().getWalletInfo).toBeCalledTimes(1);
+      expect(getInst().sendToAddress).toBeCalledWith('destaddr', 100);
+      expect(txid).toEqual('txid');
+    });
+
     it('should send funds with insufficient balance above maturity height', async () => {
       mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 110 });
       mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
-      mockProto.listTransactions = jest.fn().mockResolvedValue([]);
+      mockProto.listTransactions = jest.fn().mockResolvedValue([{ confirmations: 10 }]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
       expect(getInst().getWalletInfo).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);

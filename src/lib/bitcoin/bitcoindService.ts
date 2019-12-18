@@ -96,7 +96,7 @@ class BitcoindService implements BitcoindLibrary {
     const neededConfs = Math.max(0, COINBASE_MATURITY_DELAY - confs);
     if (neededConfs > 0) {
       await this.mine(neededConfs, node);
-      // this may mines up to 100 blocks at once, so add a couple second
+      // this may mine up to 100 blocks at once, so add a couple second
       // delay to allow the other nodes to process all of the new blocks
       await delay(2 * 1000);
     }

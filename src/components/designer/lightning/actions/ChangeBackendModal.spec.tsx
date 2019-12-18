@@ -84,6 +84,28 @@ describe('ChangeBackendModal', () => {
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
 
+  it('should remove chart link when cancel is clicked', async () => {
+    const { getByText, store } = await renderComponent();
+    const { designer } = store.getActions();
+    const linkId = 'xxxx';
+    const link = { linkId, fromNodeId: 'alice', fromPortId: 'backend' } as any;
+    // create a new link which will open the modal
+    act(() => {
+      designer.onLinkStart(link);
+    });
+    act(() => {
+      designer.onLinkComplete({
+        ...link,
+        toNodeId: 'backend2',
+        toPortId: 'backend',
+      } as any);
+    });
+    expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
+    fireEvent.click(getByText('Cancel'));
+    await wait();
+    expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
+  });
+
   it('should display the compatibility warning for older bitcoin node', async () => {
     const { getByText, queryByText, getByLabelText } = await renderComponent();
     const warning =
@@ -115,6 +137,19 @@ describe('ChangeBackendModal', () => {
   describe('with form submitted', () => {
     it('should update the backend successfully', async () => {
       const { getByText, getByLabelText, store } = await renderComponent();
+      fireEvent.click(getByLabelText('Bitcoin Node'));
+      fireEvent.click(getByText('backend2'));
+      fireEvent.click(getByText('Change Backend'));
+      await wait();
+      expect(store.getState().modals.changeBackend.visible).toBe(false);
+      expect(
+        getByText('The alice node will pull chain data from backend2'),
+      ).toBeInTheDocument();
+    });
+
+    it('should succeed if a previous link does not exist', async () => {
+      const { getByText, getByLabelText, store } = await renderComponent();
+      store.getActions().designer.removeLink('alice-backend1');
       fireEvent.click(getByLabelText('Bitcoin Node'));
       fireEvent.click(getByText('backend2'));
       fireEvent.click(getByText('Change Backend'));

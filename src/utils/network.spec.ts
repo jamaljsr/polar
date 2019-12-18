@@ -1,12 +1,51 @@
 import detectPort from 'detect-port';
-import { LndNode, Status } from 'shared/types';
+import {
+  BitcoindVersion,
+  CLightningVersion,
+  LightningNode,
+  LndNode,
+  LndVersion,
+  Status,
+} from 'shared/types';
 import { Network } from 'types';
-import { getOpenPortRange, getOpenPorts, OpenPorts } from './network';
+import {
+  getOpenPortRange,
+  getOpenPorts,
+  getRequiredBackendVersion,
+  OpenPorts,
+} from './network';
 import { getNetwork } from './tests';
 
 const mockDetectPort = detectPort as jest.Mock;
 
 describe('Network Utils', () => {
+  describe('getRequiredBackendVersion', () => {
+    it('should return the correct version for LND', () => {
+      expect(getRequiredBackendVersion('LND', LndVersion['0.7.1-beta'])).toEqual(
+        BitcoindVersion['0.18.1'],
+      );
+      expect(getRequiredBackendVersion('LND', LndVersion['0.8.0-beta'])).toEqual(
+        BitcoindVersion['0.18.1'],
+      );
+      expect(getRequiredBackendVersion('LND', LndVersion.latest)).toEqual(
+        BitcoindVersion.latest,
+      );
+    });
+
+    it('should return the correct version for c-lightning', () => {
+      expect(getRequiredBackendVersion('c-lightning', CLightningVersion.latest)).toEqual(
+        BitcoindVersion.latest,
+      );
+    });
+
+    it('should return the latest version for unknown implementations', () => {
+      const unknown = 'asdf' as LightningNode['implementation'];
+      expect(getRequiredBackendVersion(unknown, CLightningVersion.latest)).toEqual(
+        BitcoindVersion.latest,
+      );
+    });
+  });
+
   describe('getOpenPortRange', () => {
     beforeEach(() => {
       let port = 10003;

@@ -1,7 +1,7 @@
 import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
-import { LndVersion, Status } from 'shared/types';
+import { BitcoindVersion, LndVersion, Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { injections, lightningServiceMock } from 'utils/tests';
@@ -64,7 +64,7 @@ describe('Designer model', () => {
         name: 'test',
         lndNodes: 2,
         clightningNodes: 1,
-        bitcoindNodes: 1,
+        bitcoindNodes: 2,
       });
     });
 
@@ -74,7 +74,7 @@ describe('Designer model', () => {
       expect(activeId).toBe(-1);
       expect(activeChart).toBeUndefined();
       expect(chart).not.toBeUndefined();
-      expect(Object.keys(chart.nodes)).toHaveLength(4);
+      expect(Object.keys(chart.nodes)).toHaveLength(5);
     });
 
     it('should set the active chart', () => {
@@ -82,7 +82,7 @@ describe('Designer model', () => {
       const { activeId, activeChart } = store.getState().designer;
       expect(activeId).toBe(firstNetwork().id);
       expect(activeChart).toBeDefined();
-      expect(Object.keys(activeChart.nodes)).toHaveLength(4);
+      expect(Object.keys(activeChart.nodes)).toHaveLength(5);
     });
 
     it('should remove the active chart', () => {
@@ -222,6 +222,80 @@ describe('Designer model', () => {
           }),
         );
       });
+
+      it('should throw an error for bitcoin to bitcoin node links', () => {
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'backend1',
+          fromPortId: 'peer-right',
+          toNodeId: 'backend2',
+          toPortId: 'peer-left',
+        };
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        onLinkStart(data);
+        onLinkComplete(data);
+        expect(spy).toBeCalledWith(
+          expect.objectContaining({
+            message: 'Cannot connect nodes',
+            error: new Error(
+              'Connections between bitcoin nodes are managed automatically',
+            ),
+          }),
+        );
+      });
+
+      it('should throw an error for LN -> backend if backend ports are not used', () => {
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice',
+          fromPortId: 'empty-right',
+          toNodeId: 'backend2',
+          toPortId: 'backend',
+        };
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        onLinkStart(data);
+        onLinkComplete(data);
+        expect(spy).toBeCalledWith(
+          expect.objectContaining({
+            message: 'Cannot connect nodes',
+            error: new Error(
+              'Use the top & bottom ports to connect between bitcoin and lightning nodes',
+            ),
+          }),
+        );
+      });
+
+      it('should show the ChangeBackend modal when dragging from LN -> backend', () => {
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice',
+          fromPortId: 'backend',
+          toNodeId: 'backend2',
+          toPortId: 'backend',
+        };
+        expect(store.getState().modals.changeBackend.visible).toBe(false);
+        onLinkStart(data);
+        onLinkComplete(data);
+        expect(store.getState().modals.changeBackend.visible).toBe(true);
+      });
+
+      it('should show the ChangeBackend modal when dragging from backend -> LN', () => {
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'backend2',
+          fromPortId: 'backend',
+          toNodeId: 'alice',
+          toPortId: 'backend',
+        };
+        expect(store.getState().modals.changeBackend.visible).toBe(false);
+        onLinkStart(data);
+        onLinkComplete(data);
+        expect(store.getState().modals.changeBackend.visible).toBe(true);
+      });
     });
 
     describe('onCanvasDrop', () => {
@@ -246,13 +320,46 @@ describe('Designer model', () => {
         });
       });
 
-      it('should add a new node to the chart', async () => {
+      it('should add a new LN node to the chart', async () => {
         const { onCanvasDrop } = store.getActions().designer;
-        expect(Object.keys(firstChart().nodes)).toHaveLength(4);
+        expect(Object.keys(firstChart().nodes)).toHaveLength(5);
         onCanvasDrop({ data, position });
         await wait(() => {
-          expect(Object.keys(firstChart().nodes)).toHaveLength(5);
+          expect(Object.keys(firstChart().nodes)).toHaveLength(6);
           expect(firstChart().nodes['carol']).toBeDefined();
+        });
+      });
+
+      it('should add a new bitcoin node to the chart', async () => {
+        const { onCanvasDrop } = store.getActions().designer;
+        expect(Object.keys(firstChart().nodes)).toHaveLength(5);
+        const bitcoinData = { type: 'bitcoind', version: BitcoindVersion.latest };
+        onCanvasDrop({ data: bitcoinData, position });
+        await wait(() => {
+          expect(Object.keys(firstChart().nodes)).toHaveLength(6);
+          expect(firstChart().nodes['backend2']).toBeDefined();
+        });
+      });
+
+      it('should add a new bitcoin node without a link', async () => {
+        const { addNetwork } = store.getActions().network;
+        const { onCanvasDrop, setActiveId } = store.getActions().designer;
+        await addNetwork({
+          name: 'test 3',
+          lndNodes: 0,
+          clightningNodes: 0,
+          bitcoindNodes: 0,
+        });
+        const newId = store.getState().network.networks[1].id;
+        setActiveId(newId);
+        const getChart = () => store.getState().designer.allCharts[newId];
+        expect(Object.keys(getChart().nodes)).toHaveLength(0);
+        const bitcoinData = { type: 'bitcoind', version: BitcoindVersion.latest };
+        onCanvasDrop({ data: bitcoinData, position });
+        await wait(() => {
+          expect(Object.keys(getChart().nodes)).toHaveLength(1);
+          expect(Object.keys(getChart().links)).toHaveLength(0);
+          expect(getChart().nodes['backend1']).toBeDefined();
         });
       });
 
@@ -264,6 +371,23 @@ describe('Designer model', () => {
           expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[2].name).toBe('carol');
+        });
+      });
+
+      it('should throw an error when adding an incompatible LN node', async () => {
+        const { onCanvasDrop } = store.getActions().designer;
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        const data = { type: 'lnd', version: LndVersion['0.7.1-beta'] };
+        onCanvasDrop({ data, position });
+        await wait(() => {
+          expect(spy).toBeCalledWith(
+            expect.objectContaining({
+              message: 'Failed to add node',
+              error: new Error(
+                'This network does not contain a Bitcoin Core v0.18.1 (or lower) node which is required for LND v0.7.1-beta',
+              ),
+            }),
+          );
         });
       });
 

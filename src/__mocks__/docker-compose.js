@@ -1,5 +1,6 @@
 module.exports = {
   upAll: jest.fn(),
+  upOne: jest.fn(),
   stop: jest.fn(),
   stopOne: jest.fn(),
   down: jest.fn(),

@@ -1,4 +1,5 @@
 import { delay, waitFor } from './async';
+import { mockProperty } from './tests';
 
 describe('Async Util', () => {
   describe('delay', () => {
@@ -8,6 +9,16 @@ describe('Async Util', () => {
       expect(spy).not.toBeCalled();
       await expect(promise).resolves.toBeTruthy();
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should use timeout passed in args', async () => {
+      mockProperty(process.env, 'NODE_ENV', 'production');
+
+      const spy = jest.spyOn(window, 'setTimeout').mockImplementation(cb => cb() as any);
+      await delay(123);
+      expect(spy).toHaveBeenCalledWith(expect.any(Function), 123);
+
+      mockProperty(process.env, 'NODE_ENV', 'test');
     });
   });
 
