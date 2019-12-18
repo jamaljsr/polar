@@ -20,8 +20,10 @@ export interface BitcoindNodeModel {
 export interface BitcoindModel {
   nodes: BitcoindNodeMapping;
   removeNode: Action<BitcoindModel, string>;
-  setChainInfo: Action<BitcoindModel, { node: BitcoinNode; chainInfo: ChainInfo }>;
-  setWalletinfo: Action<BitcoindModel, { node: BitcoinNode; walletInfo: WalletInfo }>;
+  setInfo: Action<
+    BitcoindModel,
+    { node: BitcoinNode; chainInfo: ChainInfo; walletInfo: WalletInfo }
+  >;
   getInfo: Thunk<BitcoindModel, BitcoinNode, StoreInjections>;
   mine: Thunk<
     BitcoindModel,
@@ -36,23 +38,17 @@ const bitcoindModel: BitcoindModel = {
   nodes: {},
   // reducer actions (mutations allowed thx to immer)
   removeNode: action((state, name) => {
-    if (state.nodes[name]) {
-      delete state.nodes[name];
-    }
+    delete state.nodes[name];
   }),
-  setChainInfo: action((state, { node, chainInfo }) => {
+  setInfo: action((state, { node, chainInfo, walletInfo }) => {
     if (!state.nodes[node.name]) state.nodes[node.name] = {};
     state.nodes[node.name].chainInfo = chainInfo;
-  }),
-  setWalletinfo: action((state, { node, walletInfo }) => {
-    if (!state.nodes[node.name]) state.nodes[node.name] = {};
     state.nodes[node.name].walletInfo = walletInfo;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
     const chainInfo = await injections.bitcoindService.getBlockchainInfo(node);
-    actions.setChainInfo({ node, chainInfo });
     const walletInfo = await injections.bitcoindService.getWalletInfo(node);
-    actions.setWalletinfo({ node, walletInfo });
+    actions.setInfo({ node, chainInfo, walletInfo });
   }),
   mine: thunk(async (actions, { blocks, node }, { injections, getStoreState }) => {
     if (blocks < 0) throw new Error(l('mineError'));

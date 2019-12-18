@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, wait } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -58,15 +58,13 @@ describe('PayInvoiceModal', () => {
   });
 
   it('should hide modal when cancel is clicked', async () => {
-    jest.useFakeTimers();
     const { getByText, queryByText } = await renderComponent();
     const btn = getByText('Cancel');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
-    await wait(() => fireEvent.click(getByText('Cancel')));
-    jest.runAllTimers();
+    fireEvent.click(getByText('Cancel'));
+    await wait();
     expect(queryByText('Cancel')).not.toBeInTheDocument();
-    jest.useRealTimers();
   });
 
   it('should display an error if form is not valid', async () => {

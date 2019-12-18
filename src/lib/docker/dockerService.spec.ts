@@ -274,6 +274,26 @@ describe('DockerService', () => {
       );
     });
 
+    it('should call compose.upOne when a node is started', async () => {
+      composeMock.upOne.mockResolvedValue(mockResult);
+      const node = network.nodes.lightning[0];
+      await dockerService.startNode(network, node);
+      expect(composeMock.upOne).toBeCalledWith(
+        node.name,
+        expect.objectContaining({ cwd: network.path }),
+      );
+    });
+
+    it('should call compose.stopOne when a node is stopped', async () => {
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      const node = network.nodes.lightning[0];
+      await dockerService.stopNode(network, node);
+      expect(composeMock.stopOne).toBeCalledWith(
+        node.name,
+        expect.objectContaining({ cwd: network.path }),
+      );
+    });
+
     it('should call compose.stopOne and compose.rm when a node is removed', async () => {
       composeMock.stopOne.mockResolvedValue(mockResult);
       composeMock.rm.mockResolvedValue(mockResult);

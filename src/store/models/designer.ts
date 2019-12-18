@@ -188,7 +188,7 @@ const designerModel: DesignerModel = {
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
-    async (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
+    (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
       const { activeId, activeChart } = getState();
       const { linkId, fromNodeId, toNodeId, fromPortId, toPortId } = payload;
       if (!activeChart.links[linkId]) return;
@@ -232,13 +232,9 @@ const designerModel: DesignerModel = {
           return showError(l('linkErrPorts'));
         }
 
-        try {
-          const lnName = fromNode.type === 'lightning' ? fromNodeId : toNodeId;
-          const backendName = fromNode.type === 'lightning' ? toNodeId : fromNodeId;
-          getStoreActions().modals.showChangeBackend({ lnName, backendName, linkId });
-        } catch (error) {
-          return showError(error.message);
-        }
+        const lnName = fromNode.type === 'lightning' ? fromNodeId : toNodeId;
+        const backendName = fromNode.type === 'lightning' ? toNodeId : fromNodeId;
+        getStoreActions().modals.showChangeBackend({ lnName, backendName, linkId });
       }
     },
   ),

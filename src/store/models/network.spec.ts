@@ -1,6 +1,6 @@
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { CLightningVersion, LndVersion, Status } from 'shared/types';
+import { BitcoindVersion, CLightningVersion, LndVersion, Status } from 'shared/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
@@ -178,36 +178,144 @@ describe('Network model', () => {
         "Network with the id '999' was not found.",
       );
     });
+
+    it('should throw an error if the node type is invalid', async () => {
+      const payload = { id: firstNetwork().id, type: 'abcd', version: LndVersion.latest };
+      const { addNode: addLndNode } = store.getActions().network;
+      await expect(addLndNode(payload)).rejects.toThrow(
+        "Cannot add uknown node type 'abcd' to the network",
+      );
+    });
   });
 
   describe('Removing a Node', () => {
     beforeEach(async () => {
-      await store.getActions().network.addNetwork(addNetworkArgs);
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 2,
+      });
+      store.getActions().designer.setActiveId(1);
     });
 
     it('should remove a node from an existing network', async () => {
-      store.getActions().designer.setActiveId(1);
       const node = firstNetwork().nodes.lightning[0];
-      store.getActions().network.removeLightningNode({ node });
+      await store.getActions().network.removeLightningNode({ node });
       const { lightning } = firstNetwork().nodes;
       expect(lightning).toHaveLength(2);
       expect(lightning[0].name).toBe('bob');
     });
 
     it('should remove a c-lightning node from an existing network', async () => {
-      store.getActions().designer.setActiveId(1);
-      const node = firstNetwork().nodes.lightning[2];
-      store.getActions().network.removeLightningNode({ node });
-      const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(2);
+      const node = firstNetwork().nodes.lightning[1];
+      await store.getActions().network.removeLightningNode({ node });
+      expect(firstNetwork().nodes.lightning).toHaveLength(2);
     });
 
-    it('should throw an error if the network id is invalid', async () => {
+    it('should throw an error if the lightning node network id is invalid', async () => {
       const node = firstNetwork().nodes.lightning[0];
       node.networkId = 999;
       const { removeLightningNode } = store.getActions().network;
       await expect(removeLightningNode({ node })).rejects.toThrow(
         "Network with the id '999' was not found.",
+      );
+    });
+
+    it('should remove a bitcoin node from an existing network', async () => {
+      const node = firstNetwork().nodes.bitcoin[0];
+      await store.getActions().network.removeBitcoinNode({ node });
+      expect(firstNetwork().nodes.bitcoin).toHaveLength(1);
+    });
+
+    it('should throw an error if the bitcoin node network id is invalid', async () => {
+      const node = firstNetwork().nodes.bitcoin[0];
+      node.networkId = 999;
+      const { removeBitcoinNode } = store.getActions().network;
+      await expect(removeBitcoinNode({ node })).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+
+    it('should throw an error if only one bitcoin node is in the network', async () => {
+      const { removeBitcoinNode } = store.getActions().network;
+      await removeBitcoinNode({ node: firstNetwork().nodes.bitcoin[0] });
+      const node = firstNetwork().nodes.bitcoin[0];
+      await expect(removeBitcoinNode({ node })).rejects.toThrow(
+        'Cannot remove the only bitcoin node',
+      );
+    });
+
+    it('should throw an error if a LN node depends on the bitcoin node being removed', async () => {
+      const { removeBitcoinNode, addNode } = store.getActions().network;
+      const { id } = firstNetwork();
+      // add old bitcoin and LN nodes
+      await addNode({ id, type: 'bitcoind', version: BitcoindVersion['0.18.1'] });
+      await addNode({ id, type: 'lnd', version: LndVersion['0.7.1-beta'] });
+      // try to remove the old bitcoind version
+      const node = firstNetwork().nodes.bitcoin[2];
+      await expect(removeBitcoinNode({ node })).rejects.toThrow(
+        'There are no other compatible backends for dave to connect to. You must remove the dave node first',
+      );
+    });
+
+    it('should update peers of surrounding bitcoin nodes', async () => {
+      const { removeBitcoinNode, addNode } = store.getActions().network;
+      const { id } = firstNetwork();
+      await addNode({ id, type: 'bitcoind', version: BitcoindVersion.latest });
+      const node = firstNetwork().nodes.bitcoin[1];
+      await removeBitcoinNode({ node });
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin).toHaveLength(2);
+      expect(bitcoin[0].peers).toEqual(['backend3']);
+      expect(bitcoin[1].peers).toEqual(['backend1']);
+    });
+  });
+
+  describe('Updating Backend', () => {
+    beforeEach(async () => {
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 2,
+      });
+      store.getActions().designer.setActiveId(1);
+    });
+
+    it('should update the backend node', async () => {
+      const { updateBackendNode } = store.getActions().network;
+      expect(firstNetwork().nodes.lightning[0].backendName).toBe('backend1');
+      const { id } = firstNetwork();
+      await updateBackendNode({ id, lnName: 'alice', backendName: 'backend2' });
+      expect(firstNetwork().nodes.lightning[0].backendName).toBe('backend2');
+    });
+
+    it('should throw an error if the network id is not valid', async () => {
+      const { updateBackendNode } = store.getActions().network;
+      const args = { id: 999, lnName: 'alice', backendName: 'backend2' };
+      await expect(updateBackendNode(args)).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+
+    it('should throw an error if the LN node name is not valid', async () => {
+      const { updateBackendNode } = store.getActions().network;
+      const args = { id: firstNetwork().id, lnName: 'xxx', backendName: 'backend2' };
+      await expect(updateBackendNode(args)).rejects.toThrow(
+        "The node 'xxx' was not found.",
+      );
+    });
+
+    it('should throw an error if the bitcoin node name is not valid', async () => {
+      const { updateBackendNode } = store.getActions().network;
+      const args = { id: firstNetwork().id, lnName: 'alice', backendName: 'xxx' };
+      await expect(updateBackendNode(args)).rejects.toThrow(
+        "The node 'xxx' was not found.",
+      );
+    });
+
+    it('should throw an error if the backend node name is already set on the LN node', async () => {
+      const { updateBackendNode } = store.getActions().network;
+      const args = { id: firstNetwork().id, lnName: 'alice', backendName: 'backend1' };
+      await expect(updateBackendNode(args)).rejects.toThrow(
+        "The node 'alice' is already connected to 'backend1'",
       );
     });
   });
@@ -429,6 +537,11 @@ describe('Network model', () => {
     it('should fail to remove with an invalid id', async () => {
       const { remove } = store.getActions().network;
       await expect(remove(10)).rejects.toThrow();
+    });
+
+    it('should fail to monitor nodes startup with an invalid id', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await expect(monitorStartup(10)).rejects.toThrow();
     });
   });
 });

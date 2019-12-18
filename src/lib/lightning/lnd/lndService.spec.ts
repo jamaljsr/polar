@@ -67,6 +67,11 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should not throw error when connecting to peers', async () => {
+    lndProxyClient.connectPeer = jest.fn().mockRejectedValue(new Error('peer-error'));
+    await expect(lndService.connectPeers(node, ['asdf'])).resolves.not.toThrow();
+  });
+
   it('should close the channel', async () => {
     const expected = true;
     lndProxyClient.closeChannel = jest.fn().mockResolvedValue(expected);

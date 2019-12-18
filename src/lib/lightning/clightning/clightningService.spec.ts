@@ -72,6 +72,11 @@ describe('CLightningService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should not throw error when connecting to peers', async () => {
+    clightningApiMock.httpPost.mockRejectedValue(new Error('peer-error'));
+    await expect(clightningService.connectPeers(node, ['asdf'])).resolves.not.toThrow();
+  });
+
   it('should close the channel', async () => {
     const expected = true;
     clightningApiMock.httpDelete.mockResolvedValue(expected);

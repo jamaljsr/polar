@@ -13,6 +13,7 @@ import {
   getNetwork,
   injections,
   lightningServiceMock,
+  mockProperty,
 } from 'utils/tests';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
@@ -50,7 +51,7 @@ describe('Lightning Model', () => {
     // reset the store before each test run
     store = createStore(rootModel, { injections, initialState });
 
-    asyncUtilMock.delay.mockResolvedValue(true);
+    asyncUtilMock.delay.mockResolvedValue(Promise.resolve());
     bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
     lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
     lightningServiceMock.getInfo.mockResolvedValue(
@@ -126,6 +127,13 @@ describe('Lightning Model', () => {
     expect(balances.total).toEqual('300');
   });
 
+  it('should not throw an error when connecting peers', async () => {
+    const { connectAllPeers } = store.getActions().lightning;
+    lightningServiceMock.getInfo.mockResolvedValue(defaultStateInfo({ rpcUrl: 'asdf' }));
+    lightningServiceMock.getInfo.mockRejectedValueOnce(new Error('getInfo-error'));
+    await expect(connectAllPeers(network)).resolves.not.toThrow();
+  });
+
   it('should open a channel successfully', async () => {
     lightningServiceMock.getInfo.mockResolvedValueOnce(
       defaultStateInfo({
@@ -143,5 +151,34 @@ describe('Lightning Model', () => {
     expect(lightningServiceMock.getInfo).toBeCalledTimes(1);
     expect(lightningServiceMock.openChannel).toBeCalledTimes(1);
     expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+  });
+
+  it('should open a channel and mine on the first bitcoin node', async () => {
+    lightningServiceMock.getInfo.mockResolvedValueOnce(
+      defaultStateInfo({
+        pubkey: 'abcdef',
+        syncedToChain: true,
+        rpcUrl: 'abcdef@1.1.1.1:9735',
+      }),
+    );
+
+    const [from, to] = store.getState().network.networks[0].nodes.lightning;
+    from.backendName = 'invalid';
+    const sats = '1000';
+    const { openChannel, getInfo } = store.getActions().lightning;
+    await getInfo(to);
+    await openChannel({ from, to, sats, autoFund: false });
+    const btcNode = store.getState().network.networks[0].nodes.bitcoin[0];
+    expect(bitcoindServiceMock.mine).toBeCalledWith(6, btcNode);
+  });
+
+  it('should cause some delay waiting for nodes', async () => {
+    mockProperty(process.env, 'NODE_ENV', 'production');
+
+    const { waitForNodes } = store.getActions().lightning;
+    await waitForNodes(network.nodes.lightning);
+    expect(asyncUtilMock.delay).toBeCalledWith(2000);
+
+    mockProperty(process.env, 'NODE_ENV', 'test');
   });
 });

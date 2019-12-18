@@ -172,7 +172,7 @@ export const createBitcoindNetworkNode = (
     ports: { rpc: BasePorts.bitcoind.rest + id },
   };
 
-  // peer up with the previous node in both directions
+  // peer up with the previous node on both sides
   if (bitcoin.length > 0) {
     const prev = bitcoin[bitcoin.length - 1];
     node.peers.push(prev.name);
