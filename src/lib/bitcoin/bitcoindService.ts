@@ -13,6 +13,7 @@ import {
 class BitcoindService implements BitcoindLibrary {
   creatClient(node: BitcoinNode) {
     return new BitcoinCore({
+      host: '127.0.0.1',
       port: `${node.ports.rpc}`,
       username: bitcoinCredentials.user,
       password: bitcoinCredentials.pass,

@@ -6,7 +6,13 @@ import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
-import { CLightningNode, CommonNode, LndNode } from 'shared/types';
+import {
+  BitcoinNode,
+  CLightningNode,
+  CommonNode,
+  LightningNode,
+  LndNode,
+} from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath, nodePath } from 'utils/config';
@@ -101,21 +107,7 @@ class DockerService implements DockerLibrary {
    */
   async start(network: Network) {
     const { bitcoin, lightning } = network.nodes;
-
-    // create the directory so the owner is the current host user
-    // if this isn't done, then docker will create the folders
-    // owned by root and linux containers won't start up
-    for (const node of bitcoin) {
-      await ensureDir(nodePath(network, node.implementation, node.name));
-    }
-    for (const node of lightning) {
-      const nodeDir = nodePath(network, node.implementation, node.name);
-      await ensureDir(nodeDir);
-      if (node.implementation === 'c-lightning') {
-        await ensureDir(join(nodeDir, 'data'));
-        await ensureDir(join(nodeDir, 'rest-api'));
-      }
-    }
+    this.ensureDirs(network, [...bitcoin, ...lightning]);
 
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
@@ -140,6 +132,7 @@ class DockerService implements DockerLibrary {
    * @param node the node to start
    */
   async startNode(network: Network, node: CommonNode) {
+    this.ensureDirs(network, [node]);
     info(`Starting docker container for ${node.name}`);
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.upOne, node.name, this.getArgs(network));
@@ -248,6 +241,24 @@ class DockerService implements DockerLibrary {
     }
 
     return args;
+  }
+
+  private async ensureDirs(network: Network, nodes: CommonNode[]) {
+    // create the directory so the owner is the current host user
+    // if this isn't done, then docker will create the folders
+    // owned by root and linux containers won't start up due to
+    // permission errors
+    for (const commonNode of nodes) {
+      // need to cast so typescript doesn't complain about 'implementation'
+      const node = commonNode as LightningNode | BitcoinNode;
+      const nodeDir = nodePath(network, node.implementation, node.name);
+      console.warn('ensureDirs', nodeDir);
+      await ensureDir(nodeDir);
+      if (node.implementation === 'c-lightning') {
+        await ensureDir(join(nodeDir, 'data'));
+        await ensureDir(join(nodeDir, 'rest-api'));
+      }
+    }
   }
 }
 
