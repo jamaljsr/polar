@@ -252,7 +252,6 @@ class DockerService implements DockerLibrary {
       // need to cast so typescript doesn't complain about 'implementation'
       const node = commonNode as LightningNode | BitcoinNode;
       const nodeDir = nodePath(network, node.implementation, node.name);
-      console.warn('ensureDirs', nodeDir);
       await ensureDir(nodeDir);
       if (node.implementation === 'c-lightning') {
         await ensureDir(join(nodeDir, 'data'));
