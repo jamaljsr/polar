@@ -65,7 +65,8 @@ describe('Backend component', () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().modals.changeBackend.visible).toBe(false);
     fireEvent.click(getByText('Change Backend'));
-    await wait();
-    expect(store.getState().modals.changeBackend.visible).toBe(true);
+    await wait(() => {
+      expect(store.getState().modals.changeBackend.visible).toBe(true);
+    });
   });
 });

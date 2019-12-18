@@ -249,7 +249,6 @@ const lightningModel: LightningModel = {
       (d, node) => Math.max(d, nodeDelays[node.implementation]),
       0,
     );
-
     await delay(longestDelay * 1000);
   }),
   mineListener: thunkOn(

@@ -73,8 +73,9 @@ describe('OpenChannelModal', () => {
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     fireEvent.click(getByText('Cancel'));
-    await wait();
-    expect(queryByText('Cancel')).not.toBeInTheDocument();
+    await wait(() => {
+      expect(queryByText('Cancel')).not.toBeInTheDocument();
+    });
   });
 
   it('should remove chart link when cancel is clicked', async () => {
@@ -91,8 +92,9 @@ describe('OpenChannelModal', () => {
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
     fireEvent.click(getByText('Cancel'));
-    await wait();
-    expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
+    await wait(() => {
+      expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
+    });
   });
 
   it('should display an error if unable to fetch node balances', async () => {
@@ -118,8 +120,9 @@ describe('OpenChannelModal', () => {
     );
     fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
     fireEvent.click(getByText('Open Channel'));
-    await wait();
-    expect(getByText('Open Channel')).toBeInTheDocument();
+    await wait(() => {
+      expect(getByText('Open Channel')).toBeInTheDocument();
+    });
   });
 
   describe('with form submitted', () => {
@@ -143,8 +146,9 @@ describe('OpenChannelModal', () => {
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       fireEvent.click(getByText('Open Channel'));
-      await wait();
-      expect(store.getState().modals.openChannel.visible).toBe(false);
+      await wait(() => {
+        expect(store.getState().modals.openChannel.visible).toBe(false);
+      });
       const node2 = network.nodes.lightning[1];
       expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
@@ -155,8 +159,9 @@ describe('OpenChannelModal', () => {
       act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByText('Open Channel'));
-      await wait();
-      expect(store.getState().modals.openChannel.visible).toBe(false);
+      await wait(() => {
+        expect(store.getState().modals.openChannel.visible).toBe(false);
+      });
       const node2 = network.nodes.lightning[1];
       expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
@@ -171,8 +176,9 @@ describe('OpenChannelModal', () => {
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       fireEvent.click(getByText('Open Channel'));
-      await wait();
-      expect(getByText('Unable to open the channel')).toBeInTheDocument();
+      await wait(() => {
+        expect(getByText('Unable to open the channel')).toBeInTheDocument();
+      });
       expect(getByText('error-msg')).toBeInTheDocument();
     });
   });
