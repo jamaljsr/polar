@@ -253,14 +253,21 @@ const lightningModel: LightningModel = {
   }),
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,
-    async (actions, { payload }, { getStoreState }) => {
+    async (actions, { payload }, { getStoreState, getStoreActions }) => {
+      const { notify } = getStoreActions().app;
       // update all lightning nodes info when a block in mined
       const network = getStoreState().network.networkById(payload.node.networkId);
       await actions.waitForNodes(network.nodes.lightning);
       await Promise.all(
         network.nodes.lightning
           .filter(n => n.status === Status.Started)
-          .map(actions.getAllInfo),
+          .map(async n => {
+            try {
+              await actions.getAllInfo(n);
+            } catch (error) {
+              notify({ message: `Unable to retrieve node info from ${n.name}`, error });
+            }
+          }),
       );
     },
   ),

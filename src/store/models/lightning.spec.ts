@@ -15,6 +15,7 @@ import {
   lightningServiceMock,
   mockProperty,
 } from 'utils/tests';
+import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import lightningModel from './lightning';
@@ -26,6 +27,7 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLi
 
 describe('Lightning Model', () => {
   const rootModel = {
+    app: appModel,
     network: networkModel,
     lightning: lightningModel,
     bitcoind: bitcoindModel,

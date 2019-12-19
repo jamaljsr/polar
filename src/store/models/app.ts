@@ -88,6 +88,7 @@ const appModel: AppModel = {
     } else {
       notification.error({
         ...options,
+        duration: 10,
         message: message,
         description: description || error.message,
       });
