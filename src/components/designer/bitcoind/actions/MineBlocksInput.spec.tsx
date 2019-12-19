@@ -1,11 +1,17 @@
 import React from 'react';
 import { fireEvent, waitForDomChange } from '@testing-library/dom';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import { Status } from 'shared/types';
+import {
+  getNetwork,
+  injections,
+  lightningServiceMock,
+  renderWithProviders,
+} from 'utils/tests';
 import MineBlocksInput from './MineBlocksInput';
 
 describe('MineBlocksInput', () => {
-  const renderComponent = () => {
-    const network = getNetwork(1, 'test network');
+  const renderComponent = (status?: Status) => {
+    const network = getNetwork(1, 'test network', status);
     const initialState = {
       network: {
         networks: [network],
@@ -70,5 +76,16 @@ describe('MineBlocksInput', () => {
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
     expect(await findByText(/must be a positve number/)).toBeInTheDocument();
+  });
+
+  it('should display an error if lightning nodes cannot update after mining', async () => {
+    const mineMock = injections.bitcoindService.mine as jest.Mock;
+    mineMock.mockResolvedValue(true);
+    lightningServiceMock.getInfo.mockRejectedValueOnce(new Error('info-error'));
+    const { input, btn, findByText } = renderComponent(Status.Started);
+    const numBlocks = 5;
+    fireEvent.change(input, { target: { value: numBlocks } });
+    fireEvent.click(btn);
+    expect(await findByText('info-error')).toBeInTheDocument();
   });
 });
