@@ -425,18 +425,18 @@ describe('Designer model', () => {
       it('should start the node if the network is running', async () => {
         mockBitcoindService.waitUntilOnline.mockResolvedValue();
         lightningServiceMock.waitUntilOnline.mockResolvedValue();
-        mockDockerService.start.mockReset();
         const { setStatus } = store.getActions().network;
         setStatus({ id: firstNetwork().id, status: Status.Started });
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data, position });
         await wait(() => {
-          expect(mockDockerService.start).toBeCalledTimes(1);
-          expect(mockDockerService.start).toBeCalledWith(
+          expect(mockDockerService.startNode).toBeCalledTimes(1);
+          expect(mockDockerService.startNode).toBeCalledWith(
             expect.objectContaining({ name: firstNetwork().name }),
+            expect.objectContaining({ name: firstNetwork().nodes.lightning[3].name }),
           );
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
-          expect(firstNetwork().nodes.lightning[2].status).toBe(Status.Started);
+          expect(firstNetwork().nodes.lightning[3].status).toBe(Status.Started);
         });
       });
     });

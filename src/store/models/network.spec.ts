@@ -1,3 +1,4 @@
+import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
 import { BitcoindVersion, CLightningVersion, LndVersion, Status } from 'shared/types';
@@ -523,6 +524,103 @@ describe('Network model', () => {
     });
   });
 
+  describe('Toggle Node', () => {
+    const firstNode = () => firstNetwork().nodes.lightning[0];
+
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
+    it('should start node if its currently stopped', async () => {
+      const { toggleNode } = store.getActions().network;
+      await toggleNode(firstNode());
+      expect(firstNode().status).toBe(Status.Started);
+    });
+
+    it('should restart node if its currently error', async () => {
+      const { setStatus, toggleNode } = store.getActions().network;
+      setStatus({ id: firstNetwork().id, status: Status.Error });
+      await toggleNode(firstNode());
+      expect(firstNode().status).toBe(Status.Started);
+    });
+
+    it('should stop node if its currently started', async () => {
+      const { setStatus, toggleNode } = store.getActions().network;
+      setStatus({ id: firstNetwork().id, status: Status.Started });
+      await toggleNode(firstNode());
+      expect(firstNode().status).toBe(Status.Stopped);
+    });
+
+    it('should do nothing node if its currently starting', async () => {
+      const { setStatus, toggleNode } = store.getActions().network;
+      setStatus({ id: firstNetwork().id, status: Status.Starting });
+      await toggleNode(firstNode());
+      expect(firstNode().status).toBe(Status.Starting);
+    });
+
+    it('should do nothing node if its currently stopping', async () => {
+      const { setStatus, toggleNode } = store.getActions().network;
+      setStatus({ id: firstNetwork().id, status: Status.Stopping });
+      await toggleNode(firstNode());
+      expect(firstNode().status).toBe(Status.Stopping);
+    });
+
+    it('should fail to toggle a node with an invalid id', async () => {
+      const { toggleNode } = store.getActions().network;
+      const node = firstNode();
+      node.networkId = 10;
+      await expect(toggleNode(node)).rejects.toThrow();
+    });
+  });
+
+  describe('Monitor Status', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
+    it('should do nothing if no nodes are provided', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup([]);
+      expect(lightningServiceMock.waitUntilOnline).not.toBeCalled();
+      expect(bitcoindServiceMock.waitUntilOnline).not.toBeCalled();
+    });
+
+    it('should fail with an invalid network id', async () => {
+      const { monitorStartup } = store.getActions().network;
+      const node = firstNetwork().nodes.lightning[0];
+      node.networkId = 10;
+      await expect(monitorStartup([node])).rejects.toThrow();
+    });
+
+    it('should wait for lightning nodes then connect peers', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await wait(() => {
+        expect(lightningServiceMock.waitUntilOnline).toBeCalled();
+        expect(lightningServiceMock.connectPeers).toBeCalled();
+      });
+    });
+
+    it('should wait for bitcoin nodes then connect peers', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.bitcoin);
+      await wait(() => {
+        expect(bitcoindServiceMock.waitUntilOnline).toBeCalled();
+        expect(bitcoindServiceMock.connectPeers).toBeCalled();
+      });
+    });
+
+    it('should do nothing for unknown node type', async () => {
+      const { monitorStartup } = store.getActions().network;
+      const { bitcoin } = firstNetwork().nodes;
+      bitcoin[0].type = 'asdf' as any;
+      await monitorStartup(bitcoin);
+      expect(bitcoindServiceMock.waitUntilOnline).not.toBeCalled();
+    });
+  });
+
   describe('Other actions', () => {
     it('should fail to set the status with an invalid id', () => {
       const { setStatus: setNetworkStatus } = store.getActions().network;
@@ -537,11 +635,6 @@ describe('Network model', () => {
     it('should fail to remove with an invalid id', async () => {
       const { remove } = store.getActions().network;
       await expect(remove(10)).rejects.toThrow();
-    });
-
-    it('should fail to monitor nodes startup with an invalid id', async () => {
-      const { monitorStartup } = store.getActions().network;
-      await expect(monitorStartup(10)).rejects.toThrow();
     });
   });
 });
