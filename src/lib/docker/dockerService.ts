@@ -165,8 +165,6 @@ class DockerService implements DockerLibrary {
     info(`Removing stopped docker containers`);
     result = await this.execute(compose.rm, this.getArgs(network));
     info(`Removed:\n ${result.out || result.err}`);
-
-    await this.saveComposeFile(network);
   }
 
   /**
