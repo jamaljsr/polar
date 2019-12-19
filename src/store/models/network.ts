@@ -494,7 +494,12 @@ const networkModel: NetworkModel = {
     const { networks } = getState();
     const network = networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
-    if (network.status !== Status.Stopped) {
+    const statuses = [
+      network.status,
+      ...network.nodes.lightning.map(n => n.status),
+      ...network.nodes.bitcoin.map(n => n.status),
+    ];
+    if (statuses.find(n => n !== Status.Stopped)) {
       await actions.stop(networkId);
     }
     await rm(network.path);
