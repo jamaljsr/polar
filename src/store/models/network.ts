@@ -87,7 +87,14 @@ export interface NetworkModel {
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
-  monitorStartup: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  toggleNode: Thunk<NetworkModel, CommonNode, StoreInjections, RootModel, Promise<void>>;
+  monitorStartup: Thunk<
+    NetworkModel,
+    CommonNode[],
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
   rename: Thunk<
     NetworkModel,
     { id: number; name: string },
@@ -200,6 +207,7 @@ const networkModel: NetworkModel = {
       if (network.status === Status.Started) {
         await injections.dockerService.removeNode(network, node);
       }
+      await injections.dockerService.saveComposeFile(network);
       // clear cached RPC data
       if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
@@ -319,7 +327,10 @@ const networkModel: NetworkModel = {
         // start the LN node container
         actions.setStatus({ id: network.id, status: Status.Starting, only: lnName });
         await injections.dockerService.startNode(network, lnNode);
-        await actions.monitorStartup(network.id);
+        await actions.monitorStartup([
+          ...network.nodes.lightning,
+          ...network.nodes.bitcoin,
+        ]);
       }
 
       // update the link in the chart
@@ -370,7 +381,10 @@ const networkModel: NetworkModel = {
       // set the status of only the network to Started
       actions.setStatus({ id, status: Status.Started, all: false });
       // wait for nodes to startup before updating their status
-      await actions.monitorStartup(network.id);
+      await actions.monitorStartup([
+        ...network.nodes.lightning,
+        ...network.nodes.bitcoin,
+      ]);
     } catch (e) {
       actions.setStatus({ id, status: Status.Error });
       info(`unable to start network '${network.name}'`, e.message);
@@ -400,44 +414,70 @@ const networkModel: NetworkModel = {
     }
     await actions.save();
   }),
+  toggleNode: thunk(async (actions, node, { getState, injections }) => {
+    const { networkId } = node;
+    const network = getState().networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    const only = node.name;
+    if (node.status === Status.Stopped || node.status === Status.Error) {
+      // start the node container
+      actions.setStatus({ id: network.id, status: Status.Starting, only });
+      await injections.dockerService.startNode(network, node);
+      await actions.monitorStartup([node]);
+    } else if (node.status === Status.Started) {
+      // stop the node container
+      actions.setStatus({ id: network.id, status: Status.Stopping, only });
+      await injections.dockerService.stopNode(network, node);
+      actions.setStatus({ id: network.id, status: Status.Stopped, only });
+    }
+    await actions.save();
+  }),
   monitorStartup: thunk(
-    async (actions, id, { injections, getState, getStoreActions }) => {
+    async (actions, nodes, { injections, getState, getStoreActions }) => {
+      if (!nodes.length) return;
+      const id = nodes[0].networkId;
       const network = getState().networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-      // wait for lnd nodes to come online before updating their status
+
       const allNodesOnline: Promise<void>[] = [];
-      for (const node of network.nodes.lightning) {
-        // use .then() to continue execution while the promises are waiting to complete
-        const promise = injections.lightningFactory
-          .getService(node)
-          .waitUntilOnline(node)
-          .then(async () => {
-            actions.setStatus({ id, status: Status.Started, only: node.name });
-          })
-          .catch(error =>
-            actions.setStatus({ id, status: Status.Error, only: node.name, error }),
-          );
-        allNodesOnline.push(promise);
+      for (const node of nodes) {
+        // wait for lnd nodes to come online before updating their status
+        if (node.type === 'lightning') {
+          const ln = node as LightningNode;
+          // use .then() to continue execution while the promises are waiting to complete
+          const promise = injections.lightningFactory
+            .getService(ln)
+            .waitUntilOnline(ln)
+            .then(async () => {
+              actions.setStatus({ id, status: Status.Started, only: ln.name });
+            })
+            .catch(error =>
+              actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
+            );
+          allNodesOnline.push(promise);
+        } else if (node.type === 'bitcoin') {
+          const btc = node as BitcoinNode;
+          // wait for bitcoind nodes to come online before updating their status
+          // use .then() to continue execution while the promises are waiting to complete
+          injections.bitcoindService
+            .waitUntilOnline(btc)
+            .then(async () => {
+              actions.setStatus({ id, status: Status.Started, only: btc.name });
+              // connect each bitcoin node to it's peers so tx & block propagation is fast
+              await injections.bitcoindService.connectPeers(btc);
+              await getStoreActions().bitcoind.getInfo(btc);
+            })
+            .catch(error =>
+              actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
+            );
+        }
       }
       // after all LN nodes are online, connect each of them to eachother. This helps
       // ensure that each node is aware of the entire graph and can route payments properly
-      Promise.all(allNodesOnline).then(async () => {
-        await getStoreActions().lightning.connectAllPeers(network as Network);
-      });
-      // wait for bitcoind nodes to come online before updating their status
-      for (const node of network.nodes.bitcoin) {
-        // use .then() to continue execution while the promises are waiting to complete
-        injections.bitcoindService
-          .waitUntilOnline(node)
-          .then(async () => {
-            actions.setStatus({ id, status: Status.Started, only: node.name });
-            // connect each bitcoin node to it's peers so tx & block propagation is fast
-            await injections.bitcoindService.connectPeers(node);
-            await getStoreActions().bitcoind.getInfo(node);
-          })
-          .catch(error =>
-            actions.setStatus({ id, status: Status.Error, only: node.name, error }),
-          );
+      if (allNodesOnline.length) {
+        Promise.all(allNodesOnline).then(async () => {
+          await getStoreActions().lightning.connectAllPeers(network);
+        });
       }
     },
   ),

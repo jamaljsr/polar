@@ -109,7 +109,9 @@ const designerModel: DesignerModel = {
       if (network.status === Status.Started) {
         // fetch data from all of the nodes
         await Promise.all(
-          network.nodes.lightning.map(getStoreActions().lightning.getAllInfo),
+          network.nodes.lightning
+            .filter(n => n.status === Status.Started)
+            .map(getStoreActions().lightning.getAllInfo),
         );
       }
 
@@ -252,7 +254,7 @@ const designerModel: DesignerModel = {
         // remove the loading node added in onCanvasDrop
         actions.removeNode(LOADING_NODE_ID);
       } else if (['lnd', 'c-lightning', 'bitcoind'].includes(data.type)) {
-        const { addNode, start } = getStoreActions().network;
+        const { addNode, toggleNode } = getStoreActions().network;
         try {
           const newNode = await addNode({
             id: activeId,
@@ -260,6 +262,9 @@ const designerModel: DesignerModel = {
             version: data.version,
           });
           actions.addNode({ newNode, position });
+          if (network.status === Status.Started) {
+            await toggleNode(newNode);
+          }
         } catch (error) {
           getStoreActions().app.notify({
             message: l('dropErrTitle'),
@@ -271,9 +276,6 @@ const designerModel: DesignerModel = {
           actions.removeNode(LOADING_NODE_ID);
         }
         actions.redrawChart();
-        if (network.status === Status.Started) {
-          await start(activeId);
-        }
       }
     },
   ),

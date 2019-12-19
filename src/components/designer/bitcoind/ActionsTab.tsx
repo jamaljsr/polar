@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { BitcoinNode, Status } from 'shared/types';
+import { RestartNode } from 'components/common';
 import { OpenTerminalButton } from 'components/terminal';
 import MineBlocksInput from './actions/MineBlocksInput';
 import RemoveNode from './actions/RemoveNode';
@@ -25,6 +26,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
           <Styled.Spacer />
         </>
       )}
+      <RestartNode node={node} />
       <RemoveNode node={node} />
     </>
   );
