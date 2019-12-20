@@ -25,7 +25,7 @@
   "cmps.designer.bitcoind.actions.RemoveNode.title": "Remove Node From Network",
   "cmps.designer.bitcoind.actions.RemoveNode.btnText": "Remove",
   "cmps.designer.bitcoind.actions.RemoveNode.confirmTitle": "Are you sure you want to remove {{name}} from the network?",
-  "cmps.designer.bitcoind.actions.RemoveNode.confirmText": "Any lightning nodes using this node as a backend will be connected to the first bitcoin node.",
+  "cmps.designer.bitcoind.actions.RemoveNode.confirmText": "Alle Blitzknoten, die diesen Knoten als Backend verwenden, werden mit dem ersten Bitcoin Knoten verbunden.",
   "cmps.designer.bitcoind.actions.RemoveNode.restartText": "The network will be restarted to connect LN nodes to another backend and bitcoin nodes to other peers. This can take up to a minute to complete.",
   "cmps.designer.bitcoind.actions.RemoveNode.confirmBtn": "Yes",
   "cmps.designer.bitcoind.actions.RemoveNode.cancelBtn": "Cancel",
