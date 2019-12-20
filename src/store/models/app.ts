@@ -1,15 +1,13 @@
+import { getI18n } from 'react-i18next';
 import { shell } from 'electron';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
-import { DockerVersions, StoreInjections } from 'types';
+import { localeConfig } from 'i18n';
+import { AppSettings, DockerVersions, StoreInjections } from 'types';
 import { RootModel } from './';
-
-export interface AppSettings {
-  showAllNodeVersions: boolean;
-}
 
 export interface NotifyOptions {
   message: string;
@@ -24,6 +22,8 @@ export interface AppModel {
   dockerImages: string[];
   setInitialized: Action<AppModel, boolean>;
   setSettings: Action<AppModel, Partial<AppSettings>>;
+  loadSettings: Thunk<AppModel, any, StoreInjections, RootModel>;
+  updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
@@ -40,6 +40,7 @@ const appModel: AppModel = {
   // state properties
   initialized: false,
   settings: {
+    lang: localeConfig.fallbackLng,
     showAllNodeVersions: false,
   },
   dockerVersions: { docker: '', compose: '' },
@@ -48,7 +49,8 @@ const appModel: AppModel = {
   setInitialized: action((state, initialized) => {
     state.initialized = initialized;
   }),
-  initialize: thunk(async (actions, payload, { getStoreActions }) => {
+  initialize: thunk(async (actions, _, { getStoreActions }) => {
+    await actions.loadSettings();
     await getStoreActions().network.load();
     await actions.getDockerVersions({});
     await actions.getDockerImages();
@@ -59,6 +61,19 @@ const appModel: AppModel = {
       ...state.settings,
       ...settings,
     };
+  }),
+  loadSettings: thunk(async (actions, _, { injections }) => {
+    const settings = await injections.settingsService.load();
+    if (settings) {
+      actions.setSettings(settings);
+      await getI18n().changeLanguage(settings.lang);
+    }
+  }),
+  updateSettings: thunk(async (actions, updates, { injections, getState }) => {
+    actions.setSettings(updates);
+    const { settings } = getState();
+    await injections.settingsService.save(settings);
+    if (updates.lang) await getI18n().changeLanguage(settings.lang);
   }),
   setDockerVersions: action((state, versions) => {
     state.dockerVersions = versions;

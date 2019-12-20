@@ -1,9 +1,10 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
 import { Button, Dropdown, Icon, Menu } from 'antd';
 import { ClickParam } from 'antd/lib/menu';
+import { useStoreState } from 'easy-peasy';
 import { localeConfig } from 'i18n';
+import { useStoreActions } from 'store';
 
 const Styled = {
   Button: styled(Button)`
@@ -12,13 +13,14 @@ const Styled = {
 };
 
 const LocaleSwitch: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { settings } = useStoreState(s => s.app);
+  const { updateSettings } = useStoreActions(s => s.app);
   const changeLanguage = (e: ClickParam) => {
-    i18n.changeLanguage(e.key);
+    updateSettings({ lang: e.key });
   };
 
   const menu = (
-    <Menu onClick={changeLanguage} selectedKeys={[i18n.language]}>
+    <Menu onClick={changeLanguage} selectedKeys={[settings.lang]}>
       {Object.entries(localeConfig.languages).map(([key, lang]) => (
         <Menu.Item key={key}>
           {lang} ({key})
@@ -32,7 +34,7 @@ const LocaleSwitch: React.FC = () => {
       <Dropdown overlay={menu} placement="topRight">
         <Styled.Button type="link">
           <Icon type="global" />
-          {localeConfig.languages[i18n.language]}
+          {localeConfig.languages[settings.lang]}
         </Styled.Button>
       </Dropdown>
     </>
