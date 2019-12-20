@@ -136,7 +136,7 @@ describe('NetworkView Component', () => {
   });
 
   it('should not display a message if the docker images are found', async () => {
-    const images = ['bitcoind:0.19.0.1', 'lnd:0.8.2-beta', 'clightning:0.7.3'];
+    const images = ['bitcoind:0.19.0.1', 'lnd:0.8.2-beta', 'clightning:0.8.0'];
     const { queryByText } = renderComponent('1', Status.Stopped, images);
     expect(
       queryByText(
