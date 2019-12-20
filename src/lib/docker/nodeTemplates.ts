@@ -130,8 +130,8 @@ export const clightning = (
   `),
   restart: 'always',
   volumes: [
-    `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/data:/home/clightning/.lightning`,
-    `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/rest-api:/opt/c-lightning-rest/certs`,
+    `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/${dockerConfigs['c-lightning'].dataDir}:/home/clightning/.lightning`,
+    `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/${dockerConfigs['c-lightning'].apiDir}:/opt/c-lightning-rest/certs`,
   ],
   expose: [
     '8080', // REST

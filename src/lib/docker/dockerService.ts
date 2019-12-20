@@ -16,7 +16,7 @@ import {
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath, nodePath } from 'utils/config';
-import { DOCKER_REPO } from 'utils/constants';
+import { DOCKER_REPO, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { isLinux } from 'utils/system';
 import ComposeFile from './composeFile';
@@ -252,8 +252,9 @@ class DockerService implements DockerLibrary {
       const nodeDir = nodePath(network, node.implementation, node.name);
       await ensureDir(nodeDir);
       if (node.implementation === 'c-lightning') {
-        await ensureDir(join(nodeDir, 'data'));
-        await ensureDir(join(nodeDir, 'rest-api'));
+        const { dataDir, apiDir } = dockerConfigs['c-lightning'];
+        await ensureDir(join(nodeDir, dataDir as string));
+        await ensureDir(join(nodeDir, apiDir as string));
       }
     }
   }

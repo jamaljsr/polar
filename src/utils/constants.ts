@@ -58,7 +58,9 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     volumeDirName: 'lnd',
   },
   'c-lightning': {
-    volumeDirName: 'cln',
+    volumeDirName: 'c-lightning',
+    dataDir: 'lightningd',
+    apiDir: 'rest-api',
   },
   eclair: {
     volumeDirName: 'eclair',
