@@ -6,8 +6,8 @@ on:
     - master
     - renovate/*
   pull_request:
-    branches: 
-      - '!translations'
+    branches-ignore: 
+      - translations
     types: [assigned, opened, synchronize, reopened]
     
 jobs:
