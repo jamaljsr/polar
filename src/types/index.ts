@@ -4,13 +4,6 @@ import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
 
-export interface LocaleConfig {
-  fallbackLng: string;
-  languages: {
-    [key: string]: string;
-  };
-}
-
 export interface Network {
   id: number;
   name: string;
