@@ -4,8 +4,6 @@ Small Stuff
 
 - fix c-lightning routing after restart
 - fix pasting text in terminal
-- start/stop individual nodes
-- add persisted storage for lang
 - implement real-time channel updates from LND via GRPC streams
 - implement option to auto-mine every X minutes
 - switch renovatebot to dependabot and use automatic security fixes

@@ -1,5 +1,6 @@
 import { initReactI18next } from 'react-i18next';
 import { app, remote } from 'electron';
+import { debug } from 'electron-log';
 import i18n from 'i18next';
 
 const defaultLanguage = 'en-US';
@@ -25,15 +26,24 @@ const resources = Object.keys(languages).reduce((acc: { [key: string]: any }, la
 }, Object);
 
 const detectLang = () => {
+  debug('Detecting language to use');
   const lang = (app || remote.app).getLocale();
+  debug('  detected from Electron:', lang);
   // look for an exact match
   const exact = languages[lang] && lang;
-  if (exact) return exact;
+  if (exact) {
+    debug('  found an exact language match');
+    return exact;
+  }
   // look for a match of the first two chars
   const prefix = lang.slice(0, 2);
   const partial = Object.keys(languages).find(l => l.slice(0, 2) === prefix);
-  if (partial) return partial;
+  if (partial) {
+    debug('  found a partial language match:', partial);
+    return partial;
+  }
   // return the fallback language for no matches
+  debug('  no match found, using default language:', defaultLanguage);
   return defaultLanguage;
 };
 
