@@ -60,7 +60,7 @@ $ cd clightning
 $ docker build --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version> .
 ```
 
-Replace `<version>` with the desired c-lightning version (ex: `0.7.3`).
+Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
 
 **Push to Docker Hub**
 

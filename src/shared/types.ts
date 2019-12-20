@@ -36,7 +36,8 @@ export enum LndVersion {
 }
 
 export enum CLightningVersion {
-  latest = '0.7.3',
+  latest = '0.8.0',
+  '0.7.3' = '0.7.3',
 }
 
 // the highest version of bitcoind that each LND version works with
@@ -48,6 +49,7 @@ export const LndCompatibility: Record<LndVersion, BitcoindVersion> = {
 
 // the highest version of bitcoind that each c-lightning version works with
 export const CLightningCompatibility: Record<CLightningVersion, BitcoindVersion> = {
+  '0.8.0': BitcoindVersion.latest,
   '0.7.3': BitcoindVersion.latest,
 };
 
