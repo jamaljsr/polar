@@ -46,9 +46,9 @@ describe('AppLayout component', () => {
       expect(getByText("Let's get started!")).toBeInTheDocument();
       fireEvent.mouseEnter(getByText('English'));
       fireEvent.click(await findByText('Español (es-ES)'));
-      expect(getByText('¡Empecemos!')).toBeInTheDocument();
+      expect(await findByText('¡Empecemos!')).toBeInTheDocument();
       fireEvent.click(getByText('English (en-US)'));
-      expect(getByText("Let's get started!")).toBeInTheDocument();
+      expect(await findByText("Let's get started!")).toBeInTheDocument();
     });
 
     it('should set language to Spanish', async () => {
@@ -56,7 +56,7 @@ describe('AppLayout component', () => {
       expect(getByText("Let's get started!")).toBeInTheDocument();
       fireEvent.mouseEnter(getByText('English'));
       fireEvent.click(await findByText('Español (es-ES)'));
-      expect(getByText('¡Empecemos!')).toBeInTheDocument();
+      expect(await findByText('¡Empecemos!')).toBeInTheDocument();
     });
   });
 });

@@ -22,6 +22,16 @@ export interface Network {
   };
 }
 
+export interface AppSettings {
+  lang: string;
+  showAllNodeVersions: boolean;
+}
+
+export interface SettingsInjection {
+  save: (settings: AppSettings) => Promise<void>;
+  load: () => Promise<AppSettings | undefined>;
+}
+
 export interface DockerVersions {
   docker: string;
   compose: string;
@@ -77,6 +87,7 @@ export interface LightningFactoryInjection {
 
 export interface StoreInjections {
   ipc: IpcSender;
+  settingsService: SettingsInjection;
   dockerService: DockerLibrary;
   bitcoindService: BitcoindLibrary;
   lightningFactory: LightningFactoryInjection;

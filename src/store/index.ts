@@ -6,6 +6,7 @@ import { bitcoindService } from 'lib/bitcoin';
 import { dockerService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { LightningFactory } from 'lib/lightning';
+import { settingsService } from 'lib/settings';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
 
@@ -55,6 +56,7 @@ export const createReduxStore = (options?: {
 // see https://easy-peasy.now.sh/docs/testing/testing-components.html#mocking-calls-to-services
 const injections: StoreInjections = {
   ipc: createIpcSender('AppModel', 'app'),
+  settingsService,
   dockerService,
   bitcoindService,
   lightningFactory: new LightningFactory(),
