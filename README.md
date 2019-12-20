@@ -4,6 +4,7 @@
 
 [![Actions Status](https://github.com/jamaljsr/polar/workflows/CI/badge.svg)](https://github.com/jamaljsr/polar/actions)
 [![codecov](https://codecov.io/gh/jamaljsr/polar/branch/master/graph/badge.svg)](https://codecov.io/gh/jamaljsr/polar)
+[![Crowdin](https://badges.crowdin.net/polar/localized.svg)](https://crowdin.com/project/polar)
 
 <p align="center">
   <img src="./assets/screen.png" />
@@ -54,6 +55,10 @@ Here's a short list of ideas for features that may be beneficial to add in futur
 - Sample app projects/code in different languages (Python, Typescript/JS, Go, C#) showing how to connect to the Lightning/Bitcoin nodes from an external app.
 - Bitcoin Block Explorer & GRPC/REST API Explorers to have access to all of the node RPC API's graphically, without needing to fallback to the Terminal.
 - A branded website with download links and getting started guides to make Polar a bit easier to find via search engines
+
+## Help Translate
+
+Polar's translations are managed on [Crowdin](https://crowdin.com/project/polar). The initial translations of 10 languages were done by machine (Google Translate) and are likely to not be 100% accurate. If you speak multiple languages and wish to help with translations, please feel free to head over to the [project page](https://crowdin.com/project/polar) on Crowdin and submit updated strings. This assistance would be greatly appreciated.
 
 ## Development
 

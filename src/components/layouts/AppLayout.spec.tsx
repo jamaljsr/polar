@@ -1,6 +1,7 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { getI18n, useTranslation } from 'react-i18next';
 import { fireEvent } from '@testing-library/react';
+import { localeConfig } from 'i18n';
 import { renderWithProviders } from 'utils/tests';
 import AppLayout from './AppLayout';
 
@@ -18,6 +19,10 @@ describe('AppLayout component', () => {
     };
     return renderWithProviders(<LangWrapper />, { route });
   };
+
+  beforeEach(async () => {
+    await getI18n().changeLanguage(localeConfig.fallbackLng);
+  });
 
   it('should contain the text of child components', () => {
     const { getByText } = renderComponent();
@@ -40,8 +45,8 @@ describe('AppLayout component', () => {
       const { getByText, findByText } = renderComponent();
       expect(getByText("Let's get started!")).toBeInTheDocument();
       fireEvent.mouseEnter(getByText('English'));
-      fireEvent.click(await findByText('Español (es)'));
-      expect(getByText('Empecemos')).toBeInTheDocument();
+      fireEvent.click(await findByText('Español (es-ES)'));
+      expect(getByText('¡Empecemos!')).toBeInTheDocument();
       fireEvent.click(getByText('English (en-US)'));
       expect(getByText("Let's get started!")).toBeInTheDocument();
     });
@@ -50,8 +55,8 @@ describe('AppLayout component', () => {
       const { getByText, findByText } = renderComponent();
       expect(getByText("Let's get started!")).toBeInTheDocument();
       fireEvent.mouseEnter(getByText('English'));
-      fireEvent.click(await findByText('Español (es)'));
-      expect(getByText('Empecemos')).toBeInTheDocument();
+      fireEvent.click(await findByText('Español (es-ES)'));
+      expect(getByText('¡Empecemos!')).toBeInTheDocument();
     });
   });
 });
