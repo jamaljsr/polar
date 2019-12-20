@@ -89,4 +89,6 @@ export type NodeImplementation =
 
 export interface DockerConfig {
   volumeDirName: string;
+  dataDir?: string;
+  apiDir?: string;
 }
