@@ -5,7 +5,6 @@ import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
-import { localeConfig } from 'i18n';
 import { AppSettings, DockerVersions, StoreInjections } from 'types';
 import { RootModel } from './';
 
@@ -40,7 +39,7 @@ const appModel: AppModel = {
   // state properties
   initialized: false,
   settings: {
-    lang: localeConfig.fallbackLng,
+    lang: getI18n().language,
     showAllNodeVersions: false,
   },
   dockerVersions: { docker: '', compose: '' },

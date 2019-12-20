@@ -1,7 +1,6 @@
 import React from 'react';
 import { getI18n, useTranslation } from 'react-i18next';
 import { fireEvent } from '@testing-library/react';
-import { localeConfig } from 'i18n';
 import { renderWithProviders } from 'utils/tests';
 import AppLayout from './AppLayout';
 
@@ -21,7 +20,7 @@ describe('AppLayout component', () => {
   };
 
   beforeEach(async () => {
-    await getI18n().changeLanguage(localeConfig.fallbackLng);
+    await getI18n().changeLanguage('en-US');
   });
 
   it('should contain the text of child components', () => {
