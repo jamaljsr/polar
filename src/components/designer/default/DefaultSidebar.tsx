@@ -5,6 +5,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { BitcoindVersion, CLightningVersion, LndVersion } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
+import { isWindows } from 'utils/system';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import lndLogo from 'resources/lnd.png';
@@ -54,9 +55,12 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
 
   const nodes = [
     ...Object.entries(LndVersion).map(mapVersion('LND', lndLogo, 'lnd')),
-    ...Object.entries(CLightningVersion).map(
-      mapVersion('c-lightning', clightningLogo, 'c-lightning'),
-    ),
+    // do not display c-lightning nodes on Windows yet :(
+    ...(isWindows()
+      ? []
+      : Object.entries(CLightningVersion).map(
+          mapVersion('c-lightning', clightningLogo, 'c-lightning'),
+        )),
     ...Object.entries(BitcoindVersion).map(
       mapVersion('Bitcoin Core', bitcoindLogo, 'bitcoind'),
     ),

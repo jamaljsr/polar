@@ -1,6 +1,7 @@
 import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
+import os from 'os';
 import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -11,6 +12,16 @@ import {
   renderWithProviders,
 } from 'utils/tests';
 import DefaultSidebar from './DefaultSidebar';
+
+jest.mock('os', () => {
+  const actualOS = jest.requireActual('os');
+  return {
+    ...actualOS,
+    platform: jest.fn().mockReturnValue('darwin'),
+  };
+});
+
+const mockOS = os as jest.Mocked<typeof os>;
 
 describe('DefaultSidebar Component', () => {
   const renderComponent = (status?: Status) => {
@@ -47,6 +58,14 @@ describe('DefaultSidebar Component', () => {
     fireEvent.click(getByRole('switch'));
     expect(getByText(`LND v${LndVersion['0.8.0-beta']}`)).toBeInTheDocument();
     expect(getAllByText('latest')).toHaveLength(3);
+  });
+
+  it('should not display c-lightning nodes on Windows', () => {
+    mockOS.platform.mockReturnValue('win32');
+    const { queryByText, getAllByText, getByRole } = renderComponent();
+    expect(queryByText('c-lightning')).not.toBeInTheDocument();
+    fireEvent.click(getByRole('switch'));
+    expect(getAllByText('latest')).toHaveLength(2);
   });
 
   it('should display a draggable LND node', () => {
