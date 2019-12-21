@@ -54,7 +54,7 @@ jobs:
 
       - name: add node_modules to path
         if: steps.yarn-cache.outputs.cache-hit == 'true'
-        run: echo "::add-path::node_modules/.bin"
+        run: ls -al
 
       - name: install dependencies
         if: steps.yarn-cache.outputs.cache-hit != 'true'
