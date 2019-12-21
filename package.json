@@ -93,7 +93,7 @@
     "electron": "7.1.7",
     "electron-builder": "22.2.0",
     "electron-devtools-installer": "2.2.4",
-    "eslint": "6.2.0",
+    "eslint": "6.6.0",
     "eslint-config-prettier": "6.7.0",
     "eslint-plugin-prettier": "3.1.2",
     "eslint-plugin-react": "7.17.0",
@@ -135,7 +135,7 @@
     "ts-node": "8.5.4",
     "typescript": "3.7.4",
     "wait-on": "3.3.0",
-    "webpack": "4.41.0"
+    "webpack": "4.41.2"
   },
   "husky": {
     "hooks": {
