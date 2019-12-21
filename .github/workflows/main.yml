@@ -7,7 +7,7 @@ on:
     - renovate/*
   pull_request:
     branches-ignore: 
-      - translations
+    - translations
     types: [assigned, opened, synchronize, reopened]
     
 jobs:
