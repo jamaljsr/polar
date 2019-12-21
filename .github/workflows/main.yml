@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        node_version: [10.x]
+        node_version: [12.x]
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
@@ -52,12 +52,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: add node_modules to path
-        if: steps.yarn-cache.outputs.cache-hit == 'true'
-        run: ls -al
-
       - name: install dependencies
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn
 
       - name: lint code
