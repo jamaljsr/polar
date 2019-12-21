@@ -77,8 +77,3 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/release/')
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
