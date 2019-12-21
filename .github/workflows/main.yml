@@ -5,9 +5,12 @@ on:
     branches:
       - master
       - renovate/*
+      - release/*
   pull_request:
     branches-ignore:
       - translations
+      - renovate/*
+      - release/*
     types: [assigned, opened, synchronize, reopened]
 
 jobs:
@@ -71,7 +74,7 @@ jobs:
 
       - name: electron build
         run: yarn package:ci
-        if: env.GH_TOKEN != ''
+        if: startsWith(github.ref, 'refs/heads/release/')
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -79,23 +82,3 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo "$RUNNER_CONTEXT"
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-        run: echo "$STRATEGY_CONTEXT"
-      - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
