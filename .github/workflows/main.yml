@@ -3,13 +3,13 @@ name: CI
 on:
   push:
     branches:
-    - master
-    - renovate/*
+      - master
+      - renovate/*
   pull_request:
-    branches-ignore: 
-    - translations
+    branches-ignore:
+      - translations
     types: [assigned, opened, synchronize, reopened]
-    
+
 jobs:
   test:
     name: Run tests on ${{ matrix.os }}
@@ -25,19 +25,25 @@ jobs:
         run: |
           git config --global core.eol lf
           git config --global core.autocrlf false
+
       - name: ubuntu file watcher tweak
         if: matrix.os == 'ubuntu-latest'
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
       - uses: actions/checkout@v1
+
       - name: setup nodejs
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node_version }}
+
       - name: install yarn
         run: npm install -g yarn
+
       - name: get yarn cache dir
         id: yarn-cache-dir
         run: echo "::set-output name=dir::$(yarn cache dir)"
+
       - uses: actions/cache@v1
         id: yarn-cache
         with:
@@ -45,19 +51,29 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
+      - name: add node_modules to path
+        if: steps.yarn-cache.outputs.cache-hit == 'true'
+        run: echo "::add-path::node_modules/.bin"
+
       - name: install dependencies
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn
+
       - name: lint code
         run: yarn lint
+
       - name: typescript compile
         run: yarn tsc
+
       - name: unit tests
         run: yarn test:ci
+
       - name: coverage
         run: yarn test:codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: electron build
         run: yarn package:ci
         if: env.GH_TOKEN != ''
