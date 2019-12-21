@@ -36,15 +36,17 @@ jobs:
       - name: install yarn
         run: npm install -g yarn
       - name: get yarn cache dir
-        id: yarn-cache
+        id: yarn-cache-dir
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - uses: actions/cache@v1
+        id: yarn-cache
         with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
+          path: ${{ steps.yarn-cache-dir.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
       - name: install dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn
       - name: lint code
         run: yarn lint
