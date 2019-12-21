@@ -13,6 +13,7 @@
     "jest",
     "webpack",
     "webpack-dev-server",
-    "@radar/lnrpc"
+    "@radar/lnrpc",
+    "electron"
   ]
 }
