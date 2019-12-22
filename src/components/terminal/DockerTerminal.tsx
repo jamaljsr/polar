@@ -68,7 +68,7 @@ const nodeConfig: Record<string, { user: string; alias: string }> = {
   },
   'c-lightning': {
     user: 'clightning',
-    alias: '',
+    alias: 'alias lightning-cli="lightning-cli --network regtest"',
   },
   bitcoind: {
     user: 'bitcoin',
