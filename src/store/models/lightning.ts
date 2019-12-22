@@ -205,10 +205,15 @@ const lightningModel: LightningModel = {
     ) => {
       const api = injections.lightningFactory.getService(node);
       await api.closeChannel(node, channelPoint);
+      // add a small delay to allow nodes to create the closing txn and broadcast it
+      await actions.waitForNodes([node]);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(node.networkId);
       const btcNode = network.nodes.bitcoin[0];
-      await getStoreActions().bitcoind.mine({ blocks: 1, node: btcNode });
+      await getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_COMFIRMED,
+        node: btcNode,
+      });
       // add a small delay to allow nodes to process the mined blocks
       await actions.waitForNodes([node]);
       // synchronize the chart with the new channel
