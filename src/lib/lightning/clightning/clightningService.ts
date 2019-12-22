@@ -60,7 +60,9 @@ class CLightningService implements LightningService {
     return (
       channels
         // only include the channels that were initiated by this node
-        .filter(chan => chan.fundingAllocationMsat[pubkey] > 0)
+        .filter(
+          chan => chan.fundingAllocationMsat && chan.fundingAllocationMsat[pubkey] > 0,
+        )
         .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
         .map(c => {
           const status = ChannelStateToStatus[c.state];
