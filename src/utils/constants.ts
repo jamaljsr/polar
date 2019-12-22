@@ -5,7 +5,7 @@ export const DOCKER_REPO = 'polarlightning';
 
 // bitcoind
 export const INITIAL_BLOCK_REWARD = 50;
-export const BLOCKS_TIL_COMFIRMED = 6;
+export const BLOCKS_TIL_CONFIRMED = 6;
 export const COINBASE_MATURITY_DELAY = 100;
 // https://github.com/bitcoin/bitcoin/blob/v0.19.0.1/src/chainparams.cpp#L258
 export const HALVING_INTERVAL = 150;
