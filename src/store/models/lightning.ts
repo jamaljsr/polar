@@ -3,7 +3,7 @@ import { LightningNode, Status } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
-import { BLOCKS_TIL_COMFIRMED } from 'utils/constants';
+import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
@@ -152,7 +152,7 @@ const lightningModel: LightningModel = {
       const coins = fromSatsNumeric(sats);
       await injections.bitcoindService.sendFunds(btcNode, address, coins);
       await getStoreActions().bitcoind.mine({
-        blocks: BLOCKS_TIL_COMFIRMED,
+        blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
       // add a small delay to allow nodes to process the mined blocks
@@ -188,7 +188,7 @@ const lightningModel: LightningModel = {
         network.nodes.bitcoin.find(n => n.name === from.backendName) ||
         network.nodes.bitcoin[0];
       await getStoreActions().bitcoind.mine({
-        blocks: BLOCKS_TIL_COMFIRMED,
+        blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
       // add a small delay to allow nodes to process the mined blocks
@@ -211,7 +211,7 @@ const lightningModel: LightningModel = {
       const network = getStoreState().network.networkById(node.networkId);
       const btcNode = network.nodes.bitcoin[0];
       await getStoreActions().bitcoind.mine({
-        blocks: BLOCKS_TIL_COMFIRMED,
+        blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
       // add a small delay to allow nodes to process the mined blocks
