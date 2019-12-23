@@ -2517,10 +2517,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@3.26.3:
-  version "3.26.3"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-3.26.3.tgz#046747567d25e381b1b298c3a5c5b970ed716a0d"
-  integrity sha512-1/0yyEfLWK1/hfE8ir9aWYu/iQEYIuUmkQDz0oj5PtDavGNB0yM5TyYRpwzk/06fS6Riop3uDBy2giUlsMFCmA==
+antd@3.26.4:
+  version "3.26.4"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-3.26.4.tgz#7caef11896eb9b1ec2b1d8c41c92f7c60ef8e52b"
+  integrity sha512-3kv0jpOPw/HzIGUAQO9wpoF0KZiGJa/jz5KC2ICkjaU1p9mlpq/ZkbW7cFY5P/iWrMvaa1rFYjcU6To4ietNKw==
   dependencies:
     "@ant-design/create-react-context" "^0.2.4"
     "@ant-design/icons" "~2.1.1"
@@ -2533,6 +2533,7 @@ antd@3.26.3:
     css-animation "^1.5.0"
     dom-closest "^0.2.0"
     enquire.js "^2.1.6"
+    is-mobile "^2.1.0"
     lodash "^4.17.13"
     moment "^2.24.0"
     omit.js "^1.0.2"
@@ -9406,6 +9407,11 @@ is-jquery-obj@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/is-jquery-obj/-/is-jquery-obj-0.1.1.tgz#e8d9cc9737b1ab0733b50303e33a38ed7cc2f60b"
   integrity sha512-18toSebUVF7y717dgw/Dzn6djOCqrkiDp3MhB8P6TdKyCVkbD1ZwE7Uz8Hwx6hUPTvKjbyYH9ncXT4ts4qLaSA==
+
+is-mobile@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-2.1.0.tgz#4c0cab72f3358dd9986007389b30729fae80da0b"
+  integrity sha512-M5OhlZwh+aTlmRUvDg0Wq3uWVNa+w4DyZ2SjbrS+BhSLu9Po+JXHendC305ZEu+Hh7lywb19Zu4kYXu3L1Oo8A==
 
 is-negated-glob@^1.0.0:
   version "1.0.0"
