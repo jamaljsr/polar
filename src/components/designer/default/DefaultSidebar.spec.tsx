@@ -2,7 +2,7 @@ import React from 'react';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
 import os from 'os';
-import { LndVersion, Status } from 'shared/types';
+import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import {
@@ -25,6 +25,8 @@ jest.mock('os', () => {
 const mockOS = os as jest.Mocked<typeof os>;
 
 describe('DefaultSidebar Component', () => {
+  const lndLatest = defaultRepoState.images.LND.latest;
+
   const renderComponent = (status?: Status) => {
     const network = getNetwork(1, 'test network', status);
     const chart = initChartFromNetwork(network);
@@ -64,7 +66,7 @@ describe('DefaultSidebar Component', () => {
   it('should display old versions when the toggle is clicked', () => {
     const { getByText, getAllByText, getByRole } = renderComponent();
     fireEvent.click(getByRole('switch'));
-    expect(getByText(`LND v${LndVersion['0.8.0-beta']}`)).toBeInTheDocument();
+    expect(getByText(`LND v0.8.0-beta`)).toBeInTheDocument();
     expect(getAllByText('latest')).toHaveLength(3);
   });
 
@@ -78,19 +80,19 @@ describe('DefaultSidebar Component', () => {
 
   it('should display a draggable LND node', () => {
     const { getByText } = renderComponent();
-    expect(getByText(`LND v${LndVersion.latest}`)).toBeInTheDocument();
+    expect(getByText(`LND v${lndLatest}`)).toBeInTheDocument();
   });
 
   it('should allow dragging a node', async () => {
     const { getByText } = renderComponent();
-    const lnd = getByText(`LND v${LndVersion.latest}`);
+    const lnd = getByText(`LND v${lndLatest}`);
     const setData = jest.fn();
     const dragEvent = createEvent.dragStart(lnd);
     Object.defineProperty(dragEvent, 'dataTransfer', { value: { setData } });
     fireEvent(lnd, dragEvent);
     expect(setData).toBeCalledWith(
       REACT_FLOW_CHART,
-      JSON.stringify({ type: 'LND', version: LndVersion.latest }),
+      JSON.stringify({ type: 'LND', version: lndLatest }),
     );
   });
 
