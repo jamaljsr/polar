@@ -1,4 +1,8 @@
-import { DockerConfig, NodeImplementation } from 'shared/types';
+import { NodeImplementation } from 'shared/types';
+import { DockerConfig, DockerRepoState } from 'types';
+import bitcoindLogo from 'resources/bitcoin.svg';
+import clightningLogo from 'resources/clightning.png';
+import lndLogo from 'resources/lnd.png';
 
 // Docker
 export const DOCKER_REPO = 'polarlightning';
@@ -13,6 +17,7 @@ export const HALVING_INTERVAL = 150;
 // designer chart
 export const LOADING_NODE_ID = 'loading_id';
 
+// currency
 export enum Denomination {
   SATOSHIS = 'SATOSHIS',
   BITCOIN = 'BITCOIN',
@@ -55,20 +60,71 @@ export const bitcoinCredentials = {
 
 export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
   LND: {
+    name: 'LND',
+    logo: lndLogo,
+    platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'lnd',
   },
   'c-lightning': {
+    name: 'c-lightning',
+    logo: clightningLogo,
+    platforms: ['mac', 'linux'],
     volumeDirName: 'c-lightning',
     dataDir: 'lightningd',
     apiDir: 'rest-api',
   },
   eclair: {
+    name: 'Eclair',
+    logo: '',
+    platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'eclair',
   },
   bitcoind: {
+    name: 'Bitcoin Core',
+    logo: bitcoindLogo,
+    platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'bitcoind',
   },
   btcd: {
+    name: 'btcd',
+    logo: '',
+    platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'btcd',
+  },
+};
+
+/**
+ * this defines the list of docker images available on Docker Hub.
+ */
+export const defaultRepoImages: DockerRepoState = {
+  lastUpdated: new Date(2019, 12, 31, 0, 0, 0, 0).getTime(),
+  images: {
+    LND: {
+      latest: '0.8.2-beta',
+      versions: ['0.8.2-beta', '0.8.0-beta', '0.7.3-beta'],
+      // not all LND versions are compatible with all bitcoind versions.
+      // this mapping specifies the highest compatible bitcoind for each LND version
+      compatibility: {
+        '0.8.2-beta': '0.19.0.1',
+        '0.8.0-beta': '0.18.1',
+        '0.7.3-beta': '0.18.1',
+      },
+    },
+    'c-lightning': {
+      latest: '0.8.0',
+      versions: ['0.8.0', '0.7.3'],
+    },
+    eclair: {
+      latest: '',
+      versions: [],
+    },
+    bitcoind: {
+      latest: '0.19.0.1',
+      versions: ['0.19.0.1', '0.18.1'],
+    },
+    btcd: {
+      latest: '',
+      versions: [],
+    },
   },
 };

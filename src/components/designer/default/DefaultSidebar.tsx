@@ -2,13 +2,11 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Switch } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoindVersion, CLightningVersion, LndVersion } from 'shared/types';
+import { NodeImplementation } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { isWindows } from 'utils/system';
-import bitcoindLogo from 'resources/bitcoin.svg';
-import clightningLogo from 'resources/clightning.png';
-import lndLogo from 'resources/lnd.png';
+import { dockerConfigs } from 'utils/constants';
+import { getPolarPlatform } from 'utils/system';
 import SidebarCard from '../SidebarCard';
 import SyncButton from '../SyncButton';
 import DraggableNode from './DraggableNode';
@@ -35,36 +33,31 @@ interface Props {
 const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
-  const { showAllNodeVersions } = useStoreState(s => s.app.settings);
-  const { setSettings } = useStoreActions(s => s.app);
+  const { updateSettings } = useStoreActions(s => s.app);
+  const { settings, dockerRepoImages } = useStoreState(s => s.app);
+  const showAll = settings.showAllNodeVersions;
+  const currPlatform = getPolarPlatform();
 
   const toggle = () => {
-    setSettings({ showAllNodeVersions: !showAllNodeVersions });
+    updateSettings({ showAllNodeVersions: !showAll });
   };
 
-  const mapVersion = (name: string, logo: string, type: string) => ([key, version]: [
-    string,
-    string,
-  ]) => ({
-    name,
-    logo,
-    version,
-    type,
-    latest: key === 'latest',
-  });
+  const nodes: {
+    name: string;
+    logo: string;
+    version: string;
+    type: string;
+    latest: boolean;
+  }[] = [];
 
-  const nodes = [
-    ...Object.entries(LndVersion).map(mapVersion('LND', lndLogo, 'lnd')),
-    // do not display c-lightning nodes on Windows yet :(
-    ...(isWindows()
-      ? []
-      : Object.entries(CLightningVersion).map(
-          mapVersion('c-lightning', clightningLogo, 'c-lightning'),
-        )),
-    ...Object.entries(BitcoindVersion).map(
-      mapVersion('Bitcoin Core', bitcoindLogo, 'bitcoind'),
-    ),
-  ];
+  Object.entries(dockerRepoImages.images).forEach(([type, entry]) => {
+    const { name, logo, platforms } = dockerConfigs[type as NodeImplementation];
+    if (!platforms.includes(currPlatform)) return;
+    entry.versions.forEach(version => {
+      const latest = version === entry.latest;
+      nodes.push({ name, logo, version, type, latest });
+    });
+  });
 
   return (
     <SidebarCard title={l('title')} extra={<SyncButton network={network} />}>
@@ -73,16 +66,16 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
       <Styled.Toggle>
         <span>{l('showVersions')}</span>
-        <Switch checked={showAllNodeVersions} onClick={toggle} />
+        <Switch checked={showAll} onClick={toggle} />
       </Styled.Toggle>
       {nodes.map(({ name, logo, version, latest, type }) => (
         <DraggableNode
           key={version}
           label={`${name} v${version}`}
-          desc={showAllNodeVersions && latest ? 'latest' : ''}
+          desc={showAll && latest ? 'latest' : ''}
           icon={logo}
           properties={{ type, version }}
-          visible={showAllNodeVersions || latest}
+          visible={showAll || latest}
         />
       ))}
     </SidebarCard>

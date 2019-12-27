@@ -1,8 +1,15 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
+import {
+  BitcoinNode,
+  CommonNode,
+  LightningNode,
+  NodeImplementation,
+  Status,
+} from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
+import { PolarPlatform } from 'utils/system';
 
 export interface Network {
   id: number;
@@ -28,6 +35,29 @@ export interface SettingsInjection {
 export interface DockerVersions {
   docker: string;
   compose: string;
+}
+
+export interface DockerConfig {
+  name: string;
+  logo: string;
+  platforms: PolarPlatform[];
+  volumeDirName: string;
+  dataDir?: string;
+  apiDir?: string;
+}
+
+export interface DockerRepoImage {
+  latest: string;
+  versions: string[];
+  /**
+   * a mapping of the image version to the highest compatible bitcoind version
+   */
+  compatibility?: Record<string, string>;
+}
+
+export interface DockerRepoState {
+  lastUpdated: number;
+  images: Record<NodeImplementation, DockerRepoImage>;
 }
 
 export interface DockerLibrary {
