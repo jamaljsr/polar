@@ -96,7 +96,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
 /**
  * this defines the list of docker images available on Docker Hub.
  */
-export const defaultRepoImages: DockerRepoState = {
+export const defaultRepoState: DockerRepoState = {
   lastUpdated: new Date(2019, 12, 31, 0, 0, 0, 0).getTime(),
   images: {
     LND: {
@@ -107,7 +107,7 @@ export const defaultRepoImages: DockerRepoState = {
       compatibility: {
         '0.8.2-beta': '0.19.0.1',
         '0.8.0-beta': '0.18.1',
-        '0.7.3-beta': '0.18.1',
+        '0.7.1-beta': '0.18.1',
       },
     },
     'c-lightning': {

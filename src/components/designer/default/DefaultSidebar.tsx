@@ -34,7 +34,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
   const { updateSettings } = useStoreActions(s => s.app);
-  const { settings, dockerRepoImages } = useStoreState(s => s.app);
+  const { settings, dockerRepoState } = useStoreState(s => s.app);
   const showAll = settings.showAllNodeVersions;
   const currPlatform = getPolarPlatform();
 
@@ -50,7 +50,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
     latest: boolean;
   }[] = [];
 
-  Object.entries(dockerRepoImages.images).forEach(([type, entry]) => {
+  Object.entries(dockerRepoState.images).forEach(([type, entry]) => {
     const { name, logo, platforms } = dockerConfigs[type as NodeImplementation];
     if (!platforms.includes(currPlatform)) return;
     entry.versions.forEach(version => {

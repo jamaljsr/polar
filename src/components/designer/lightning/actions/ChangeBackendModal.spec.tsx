@@ -20,7 +20,7 @@ describe('ChangeBackendModal', () => {
       status,
     );
     network.nodes.bitcoin.push(oldBitcoind);
-    const oldLnd = createLndNetworkNode(network, LndVersion['0.7.1-beta'], status);
+    const oldLnd = createLndNetworkNode(network, LndVersion['0.7.1-beta'], {}, status);
     network.nodes.lightning.push(oldLnd);
     const initialState = {
       network: {

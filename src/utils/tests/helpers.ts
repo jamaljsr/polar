@@ -1,5 +1,6 @@
 import { Status } from 'shared/types';
 import { Network } from 'types';
+import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from '../network';
 
 export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
@@ -10,6 +11,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     clightningNodes: 1,
     bitcoindNodes: 1,
     status,
+    repoState: defaultRepoState,
   });
 
 export const mockProperty = <T extends {}, K extends keyof T>(
@@ -23,7 +25,7 @@ export const mockProperty = <T extends {}, K extends keyof T>(
 /**
  * Suppresses console errors when executing some code.
  * For example: antd Modal.confirm logs a console error when onOk fails
- * this supresses those errors from being displayed in test runs
+ * this suppresses those errors from being displayed in test runs
  * @param func the code to run
  */
 export const suppressConsoleErrors = async (func: () => any | Promise<any>) => {

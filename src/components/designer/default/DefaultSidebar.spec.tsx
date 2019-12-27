@@ -4,6 +4,7 @@ import { createEvent, fireEvent } from '@testing-library/dom';
 import os from 'os';
 import { LndVersion, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
 import {
   defaultStateBalances,
   defaultStateInfo,
@@ -28,6 +29,9 @@ describe('DefaultSidebar Component', () => {
     const network = getNetwork(1, 'test network', status);
     const chart = initChartFromNetwork(network);
     const initialState = {
+      app: {
+        dockerRepoState: defaultRepoState,
+      },
       network: {
         networks: [network],
       },
@@ -47,6 +51,10 @@ describe('DefaultSidebar Component', () => {
       network,
     };
   };
+
+  beforeEach(() => {
+    mockOS.platform.mockReturnValue('darwin');
+  });
 
   it('should display the version toggle', () => {
     const { getByText } = renderComponent();
@@ -82,7 +90,7 @@ describe('DefaultSidebar Component', () => {
     fireEvent(lnd, dragEvent);
     expect(setData).toBeCalledWith(
       REACT_FLOW_CHART,
-      JSON.stringify({ type: 'lnd', version: LndVersion.latest }),
+      JSON.stringify({ type: 'LND', version: LndVersion.latest }),
     );
   });
 

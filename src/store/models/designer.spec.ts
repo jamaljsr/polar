@@ -1,9 +1,9 @@
 import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
-import { BitcoindVersion, LndVersion, Status } from 'shared/types';
+import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
-import { LOADING_NODE_ID } from 'utils/constants';
+import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
 import { injections, lightningServiceMock } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
@@ -303,7 +303,9 @@ describe('Designer model', () => {
       const mockBitcoindService = injections.bitcoindService as jest.Mocked<
         BitcoindLibrary
       >;
-      const data = { type: 'lnd', version: LndVersion.latest };
+      const lndLatest = defaultRepoState.images.LND.latest;
+      const btcLatest = defaultRepoState.images.bitcoind.latest;
+      const data = { type: 'LND', version: lndLatest };
       const position = { x: 10, y: 10 };
 
       beforeEach(() => {
@@ -333,7 +335,7 @@ describe('Designer model', () => {
       it('should add a new bitcoin node to the chart', async () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(Object.keys(firstChart().nodes)).toHaveLength(5);
-        const bitcoinData = { type: 'bitcoind', version: BitcoindVersion.latest };
+        const bitcoinData = { type: 'bitcoind', version: btcLatest };
         onCanvasDrop({ data: bitcoinData, position });
         await wait(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(6);
@@ -354,7 +356,7 @@ describe('Designer model', () => {
         setActiveId(newId);
         const getChart = () => store.getState().designer.allCharts[newId];
         expect(Object.keys(getChart().nodes)).toHaveLength(0);
-        const bitcoinData = { type: 'bitcoind', version: BitcoindVersion.latest };
+        const bitcoinData = { type: 'bitcoind', version: btcLatest };
         onCanvasDrop({ data: bitcoinData, position });
         await wait(() => {
           expect(Object.keys(getChart().nodes)).toHaveLength(1);
@@ -377,7 +379,7 @@ describe('Designer model', () => {
       it('should throw an error when adding an incompatible LN node', async () => {
         const { onCanvasDrop } = store.getActions().designer;
         const spy = jest.spyOn(store.getActions().app, 'notify');
-        const data = { type: 'lnd', version: LndVersion['0.7.1-beta'] };
+        const data = { type: 'LND', version: '0.7.1-beta' };
         onCanvasDrop({ data, position });
         await wait(() => {
           expect(spy).toBeCalledWith(

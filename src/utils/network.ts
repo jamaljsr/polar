@@ -2,19 +2,14 @@ import { debug } from 'electron-log';
 import { join } from 'path';
 import detectPort from 'detect-port';
 import {
-  BitcoindVersion,
   BitcoinNode,
-  CLightningCompatibility,
   CLightningNode,
-  CLightningVersion,
   CommonNode,
   LightningNode,
-  LndCompatibility,
   LndNode,
-  LndVersion,
   Status,
 } from 'shared/types';
-import { Network } from 'types';
+import { DockerRepoImage, DockerRepoState, Network } from 'types';
 import { networksPath, nodePath } from './config';
 import { BasePorts } from './constants';
 import { getName } from './names';
@@ -47,7 +42,7 @@ const getLndFilePaths = (name: string, network: Network) => {
   const lndCertPath = (name: string) => join(lndDataPath(name), 'tls.cert');
   // returns /data/chain/bitcoin/regtest
   const macaroonPath = join('data', 'chain', 'bitcoin', 'regtest');
-  // returns /volumes/lnd/lnd-1/data/chain/bitcoin/regtest/admin.amacaroon
+  // returns /volumes/lnd/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
   const lndMacaroonPath = (name: string, macaroon: string) =>
     join(lndDataPath(name), macaroonPath, `${macaroon}.macaroon`);
 
@@ -58,31 +53,15 @@ const getLndFilePaths = (name: string, network: Network) => {
   };
 };
 
-export const getRequiredBackendVersion = (
-  implementation: LightningNode['implementation'],
-  version: string,
-): BitcoindVersion => {
-  let required: BitcoindVersion;
-  switch (implementation) {
-    case 'LND':
-      required = LndCompatibility[version as LndVersion];
-      break;
-    case 'c-lightning':
-      required = CLightningCompatibility[version as CLightningVersion];
-      break;
-    default:
-      required = BitcoindVersion.latest;
-      break;
-  }
-  return required;
-};
-
 export const filterCompatibleBackends = (
   implementation: LightningNode['implementation'],
   version: string,
+  compatibility: DockerRepoImage['compatibility'],
   backends: BitcoinNode[],
 ): BitcoinNode[] => {
-  const requiredVersion = getRequiredBackendVersion(implementation, version);
+  // if compatibility is not defined, then allow all backend versions
+  if (!compatibility || !compatibility[version]) return backends;
+  const requiredVersion = compatibility[version];
   const compatibleBackends = backends.filter(n =>
     isVersionCompatible(n.version, requiredVersion),
   );
@@ -96,12 +75,18 @@ export const filterCompatibleBackends = (
 
 export const createLndNetworkNode = (
   network: Network,
-  version: LndVersion,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
   status = Status.Stopped,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'LND';
-  const backends = filterCompatibleBackends(implementation, version, bitcoin);
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   return {
@@ -124,12 +109,18 @@ export const createLndNetworkNode = (
 
 export const createCLightningNetworkNode = (
   network: Network,
-  version: CLightningVersion,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
   status = Status.Stopped,
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'c-lightning';
-  const backends = filterCompatibleBackends(implementation, version, bitcoin);
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   const path = nodePath(network, 'c-lightning', name);
@@ -154,7 +145,7 @@ export const createCLightningNetworkNode = (
 
 export const createBitcoindNetworkNode = (
   network: Network,
-  version: BitcoindVersion,
+  version: string,
   status = Status.Stopped,
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
@@ -188,9 +179,10 @@ export const createNetwork = (config: {
   lndNodes: number;
   clightningNodes: number;
   bitcoindNodes: number;
+  repoState: DockerRepoState;
   status?: Status;
 }): Network => {
-  const { id, name, lndNodes, clightningNodes, bitcoindNodes } = config;
+  const { id, name, lndNodes, clightningNodes, bitcoindNodes, repoState } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
 
@@ -208,18 +200,20 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
 
   range(bitcoindNodes).forEach(() => {
-    bitcoin.push(createBitcoindNetworkNode(network, BitcoindVersion.latest, status));
+    bitcoin.push(
+      createBitcoindNetworkNode(network, repoState.images.bitcoind.latest, status),
+    );
   });
 
   // add lightning nodes in an alternating pattern
   range(Math.max(lndNodes, clightningNodes)).forEach(i => {
     if (i < lndNodes) {
-      lightning.push(createLndNetworkNode(network, LndVersion.latest, status));
+      const { latest, compatibility } = repoState.images.LND;
+      lightning.push(createLndNetworkNode(network, latest, compatibility, status));
     }
     if (i < clightningNodes) {
-      lightning.push(
-        createCLightningNetworkNode(network, CLightningVersion.latest, status),
-      );
+      const { latest, compatibility } = repoState.images['c-lightning'];
+      lightning.push(createCLightningNetworkNode(network, latest, compatibility, status));
     }
   });
 

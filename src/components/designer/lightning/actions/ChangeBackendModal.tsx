@@ -7,7 +7,6 @@ import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { getRequiredBackendVersion } from 'utils/network';
 import { isVersionCompatible } from 'utils/strings';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
@@ -37,6 +36,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
     'cmps.designer.lightning.actions.ChangeBackendModal',
   );
   const { visible, lnName, backendName } = useStoreState(s => s.modals.changeBackend);
+  const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeBackend } = useStoreActions(s => s.modals);
   const { updateBackendNode } = useStoreActions(s => s.network);
   const { notify } = useStoreActions(s => s.app);
@@ -65,9 +65,12 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
   const backend = bitcoin.find(n => n.name === backendSelected);
   let compatWarning: string | undefined;
   if (ln && backend) {
-    const requiredVersion = getRequiredBackendVersion(ln.implementation, ln.version);
-    if (!isVersionCompatible(backend.version, requiredVersion)) {
-      compatWarning = l('compatWarning', { ln, backend, requiredVersion });
+    const { compatibility } = dockerRepoState.images[ln.implementation];
+    if (compatibility) {
+      const requiredVersion = compatibility[ln.version];
+      if (!isVersionCompatible(backend.version, requiredVersion)) {
+        compatWarning = l('compatWarning', { ln, backend, requiredVersion });
+      }
     }
   }
 
