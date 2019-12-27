@@ -44,7 +44,7 @@
     "dockerode": "3.0.2",
     "electron-debug": "3.0.1",
     "electron-is-dev": "1.1.0",
-    "electron-log": "4.0.1",
+    "electron-log": "4.0.2",
     "electron-window-state": "5.0.3",
     "shell-env": "3.0.0",
     "xterm": "4.3.0",
