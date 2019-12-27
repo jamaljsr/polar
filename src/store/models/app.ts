@@ -5,7 +5,8 @@ import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
-import { AppSettings, DockerVersions, StoreInjections } from 'types';
+import { AppSettings, DockerRepoState, DockerVersions, StoreInjections } from 'types';
+import { defaultRepoImages } from 'utils/constants';
 import { RootModel } from './';
 
 export interface NotifyOptions {
@@ -18,7 +19,10 @@ export interface AppModel {
   initialized: boolean;
   settings: AppSettings;
   dockerVersions: DockerVersions;
+  // images that have been pulled/downloaded from Docker Hub
   dockerImages: string[];
+  // all images that are available on Docker Hub
+  dockerRepoImages: DockerRepoState;
   setInitialized: Action<AppModel, boolean>;
   setSettings: Action<AppModel, Partial<AppSettings>>;
   loadSettings: Thunk<AppModel, any, StoreInjections, RootModel>;
@@ -44,6 +48,7 @@ const appModel: AppModel = {
   },
   dockerVersions: { docker: '', compose: '' },
   dockerImages: [],
+  dockerRepoImages: defaultRepoImages,
   // reducer actions (mutations allowed thx to immer)
   setInitialized: action((state, initialized) => {
     state.initialized = initialized;
