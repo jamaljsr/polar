@@ -2,15 +2,7 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import {
-  BitcoindVersion,
-  BitcoinNode,
-  CLightningVersion,
-  CommonNode,
-  LightningNode,
-  LndVersion,
-  Status,
-} from 'shared/types';
+import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { rm } from 'utils/files';
@@ -43,7 +35,7 @@ export interface NetworkModel {
   updateNodePorts: Action<NetworkModel, { id: number; ports: OpenPorts }>;
   load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   save: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
-  add: Action<NetworkModel, AddNetworkArgs>;
+  add: Action<NetworkModel, Network>;
   addNetwork: Thunk<
     NetworkModel,
     AddNetworkArgs,
@@ -56,7 +48,7 @@ export interface NetworkModel {
     {
       id: number;
       type: string;
-      version: LndVersion | CLightningVersion | BitcoindVersion;
+      version: string;
     },
     StoreInjections,
     RootModel,
@@ -144,21 +136,28 @@ const networkModel: NetworkModel = {
     };
     await injections.dockerService.saveNetworks(data);
   }),
-  add: action((state, { name, lndNodes, clightningNodes, bitcoindNodes }) => {
-    const nextId = Math.max(0, ...state.networks.map(n => n.id)) + 1;
-    const network = createNetwork({
-      id: nextId,
-      name,
-      lndNodes,
-      clightningNodes,
-      bitcoindNodes,
-    });
+  add: action((state, network) => {
     state.networks.push(network);
     info(`Added new network '${network.name}' to redux state`);
   }),
   addNetwork: thunk(
-    async (actions, payload, { dispatch, getState, injections, getStoreActions }) => {
-      actions.add(payload);
+    async (
+      actions,
+      payload,
+      { dispatch, getState, injections, getStoreState, getStoreActions },
+    ) => {
+      const { dockerRepoState } = getStoreState().app;
+      const nextId = Math.max(0, ...getState().networks.map(n => n.id)) + 1;
+      const { name, lndNodes, clightningNodes, bitcoindNodes } = payload;
+      const network = createNetwork({
+        id: nextId,
+        name,
+        lndNodes,
+        clightningNodes,
+        bitcoindNodes,
+        repoState: dockerRepoState,
+      });
+      actions.add(network);
       const { networks } = getState();
       const newNetwork = networks[networks.length - 1];
       await injections.dockerService.saveComposeFile(newNetwork);
@@ -168,32 +167,43 @@ const networkModel: NetworkModel = {
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },
   ),
-  addNode: thunk(async (actions, { id, type, version }, { getState, injections }) => {
-    const networks = getState().networks;
-    const network = networks.find(n => n.id === id);
-    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-    let node: LightningNode | BitcoinNode;
-    switch (type) {
-      case 'lnd':
-        node = createLndNetworkNode(network, version as LndVersion);
-        network.nodes.lightning.push(node);
-        break;
-      case 'c-lightning':
-        node = createCLightningNetworkNode(network, version as CLightningVersion);
-        network.nodes.lightning.push(node);
-        break;
-      case 'bitcoind':
-        node = createBitcoindNetworkNode(network, version as BitcoindVersion);
-        network.nodes.bitcoin.push(node);
-        break;
-      default:
-        throw new Error(`Cannot add uknown node type '${type}' to the network`);
-    }
-    actions.setNetworks([...networks]);
-    await actions.save();
-    await injections.dockerService.saveComposeFile(network);
-    return node;
-  }),
+  addNode: thunk(
+    async (actions, { id, type, version }, { getState, getStoreState, injections }) => {
+      const { dockerRepoState } = getStoreState().app;
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      let node: LightningNode | BitcoinNode;
+      switch (type) {
+        case 'LND':
+          node = createLndNetworkNode(
+            network,
+            version,
+            dockerRepoState.images.LND.compatibility,
+          );
+          network.nodes.lightning.push(node);
+          break;
+        case 'c-lightning':
+          node = createCLightningNetworkNode(
+            network,
+            version,
+            dockerRepoState.images['c-lightning'].compatibility,
+          );
+          network.nodes.lightning.push(node);
+          break;
+        case 'bitcoind':
+          node = createBitcoindNetworkNode(network, version);
+          network.nodes.bitcoin.push(node);
+          break;
+        default:
+          throw new Error(`Cannot add unknown node type '${type}' to the network`);
+      }
+      actions.setNetworks([...networks]);
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
+      return node;
+    },
+  ),
   removeLightningNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
       const networks = getState().networks;
@@ -223,10 +233,15 @@ const networkModel: NetworkModel = {
     },
   ),
   removeBitcoinNode: thunk(
-    async (actions, { node }, { getState, injections, getStoreActions }) => {
+    async (
+      actions,
+      { node },
+      { getState, injections, getStoreState, getStoreActions },
+    ) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const { dockerRepoState } = getStoreState().app;
       const { dockerService, lightningFactory } = injections;
       const { bitcoind, designer } = getStoreActions();
       const { bitcoin, lightning } = network.nodes;
@@ -243,6 +258,7 @@ const networkModel: NetworkModel = {
             const backends = filterCompatibleBackends(
               n.implementation,
               n.version,
+              dockerRepoState.images[n.implementation].compatibility,
               remaining,
             );
             n.backendName = backends[0].name;
@@ -251,7 +267,7 @@ const networkModel: NetworkModel = {
           }
         });
 
-      // bitcoin nodes are peer'd with the nodes immediately before and after. if the
+      // bitcoin nodes are peered with the nodes immediately before and after. if the
       // node being removed is in between two nodes, then connect those two nodes
       // together. Otherwise, the network will be operating on two different chains
       if (index > 0 && index < bitcoin.length - 1) {
@@ -369,7 +385,7 @@ const networkModel: NetworkModel = {
       if (ports) {
         // at least one port was updated. save the network & composeFile
         actions.updateNodePorts({ id, ports });
-        // refetch the network with the updated ports
+        // re-fetch the network with the updated ports
         network = getState().networks.find(n => n.id === networkId) as Network;
         await actions.save();
         await injections.dockerService.saveComposeFile(network);
@@ -472,7 +488,7 @@ const networkModel: NetworkModel = {
             );
         }
       }
-      // after all LN nodes are online, connect each of them to eachother. This helps
+      // after all LN nodes are online, connect each of them to each other. This helps
       // ensure that each node is aware of the entire graph and can route payments properly
       if (allNodesOnline.length) {
         Promise.all(allNodesOnline).then(async () => {

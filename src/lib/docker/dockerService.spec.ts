@@ -6,7 +6,7 @@ import Dockerode from 'dockerode';
 import os from 'os';
 import { dockerService } from 'lib/docker';
 import { Network } from 'types';
-import { DOCKER_REPO } from 'utils/constants';
+import { defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { createNetwork } from 'utils/network';
 import { getNetwork } from 'utils/tests';
@@ -49,7 +49,7 @@ describe('DockerService', () => {
     );
   });
 
-  it('should populate UID/GID env vars when runing on linux', async () => {
+  it('should populate UID/GID env vars when running on linux', async () => {
     mockOS.platform.mockReturnValue('linux');
     mockOS.userInfo.mockReturnValue({ uid: 999, gid: 999 } as any);
     await dockerService.getVersions();
@@ -181,6 +181,7 @@ describe('DockerService', () => {
         lndNodes: 1,
         clightningNodes: 0,
         bitcoindNodes: 1,
+        repoState: defaultRepoState,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -199,6 +200,7 @@ describe('DockerService', () => {
         lndNodes: 0,
         clightningNodes: 1,
         bitcoindNodes: 1,
+        repoState: defaultRepoState,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);

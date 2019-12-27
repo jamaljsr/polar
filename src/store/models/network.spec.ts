@@ -1,9 +1,10 @@
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { BitcoindVersion, CLightningVersion, LndVersion, Status } from 'shared/types';
+import { Status } from 'shared/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
 import * as files from 'utils/files';
 import { getNetwork, injections, lightningServiceMock } from 'utils/tests';
 import appModel from './app';
@@ -69,7 +70,7 @@ describe('Network model', () => {
 
   describe('Fetching', () => {
     it('should be able to fetch a node by id', () => {
-      store.getActions().network.add(addNetworkArgs);
+      store.getActions().network.addNetwork(addNetworkArgs);
       const network = store.getState().network.networkById('1') as Network;
       expect(network).not.toBeNull();
       expect(network.id).toBe(1);
@@ -77,7 +78,7 @@ describe('Network model', () => {
     });
 
     it('should fail to fetch a node with invalid id', () => {
-      store.getActions().network.add(addNetworkArgs);
+      store.getActions().network.addNetwork(addNetworkArgs);
       [99, '99', 'asdf', undefined, (null as unknown) as string].forEach(v => {
         expect(() => store.getState().network.networkById(v)).toThrow();
       });
@@ -148,12 +149,15 @@ describe('Network model', () => {
   });
 
   describe('Adding a Node', () => {
+    const lndLatest = defaultRepoState.images.LND.latest;
+    const clnLatest = defaultRepoState.images['c-lightning'].latest;
+
     beforeEach(async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
     });
 
     it('should add a node to an existing network', async () => {
-      const payload = { id: firstNetwork().id, type: 'lnd', version: LndVersion.latest };
+      const payload = { id: firstNetwork().id, type: 'LND', version: lndLatest };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
       expect(lightning).toHaveLength(4);
@@ -164,7 +168,7 @@ describe('Network model', () => {
       const payload = {
         id: firstNetwork().id,
         type: 'c-lightning',
-        version: CLightningVersion.latest,
+        version: clnLatest,
       };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
@@ -173,7 +177,7 @@ describe('Network model', () => {
     });
 
     it('should throw an error if the network id is invalid', async () => {
-      const payload = { id: 999, type: 'lnd', version: LndVersion.latest };
+      const payload = { id: 999, type: 'LND', version: lndLatest };
       const { addNode: addLndNode } = store.getActions().network;
       await expect(addLndNode(payload)).rejects.toThrow(
         "Network with the id '999' was not found.",
@@ -181,10 +185,10 @@ describe('Network model', () => {
     });
 
     it('should throw an error if the node type is invalid', async () => {
-      const payload = { id: firstNetwork().id, type: 'abcd', version: LndVersion.latest };
+      const payload = { id: firstNetwork().id, type: 'abcd', version: lndLatest };
       const { addNode: addLndNode } = store.getActions().network;
       await expect(addLndNode(payload)).rejects.toThrow(
-        "Cannot add uknown node type 'abcd' to the network",
+        "Cannot add unknown node type 'abcd' to the network",
       );
     });
   });
@@ -249,8 +253,8 @@ describe('Network model', () => {
       const { removeBitcoinNode, addNode } = store.getActions().network;
       const { id } = firstNetwork();
       // add old bitcoin and LN nodes
-      await addNode({ id, type: 'bitcoind', version: BitcoindVersion['0.18.1'] });
-      await addNode({ id, type: 'lnd', version: LndVersion['0.7.1-beta'] });
+      await addNode({ id, type: 'bitcoind', version: '0.18.1' });
+      await addNode({ id, type: 'LND', version: '0.7.1-beta' });
       // try to remove the old bitcoind version
       const node = firstNetwork().nodes.bitcoin[2];
       await expect(removeBitcoinNode({ node })).rejects.toThrow(
@@ -261,7 +265,8 @@ describe('Network model', () => {
     it('should update peers of surrounding bitcoin nodes', async () => {
       const { removeBitcoinNode, addNode } = store.getActions().network;
       const { id } = firstNetwork();
-      await addNode({ id, type: 'bitcoind', version: BitcoindVersion.latest });
+      const { latest } = defaultRepoState.images.bitcoind;
+      await addNode({ id, type: 'bitcoind', version: latest });
       const node = firstNetwork().nodes.bitcoin[1];
       await removeBitcoinNode({ node });
       const { bitcoin } = firstNetwork().nodes;
