@@ -1,4 +1,4 @@
-import { LndVersion } from 'shared/types';
+import { defaultRepoState } from 'utils/constants';
 import { bitcoind, lnd } from './nodeTemplates';
 
 describe('nodeTemplates', () => {
@@ -13,7 +13,7 @@ describe('nodeTemplates', () => {
     const node = lnd(
       'mynode',
       'polar-mynode',
-      LndVersion.latest,
+      defaultRepoState.images.LND.latest,
       'btcnode1',
       8080,
       10009,

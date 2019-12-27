@@ -1,5 +1,4 @@
 import React from 'react';
-import { BitcoindVersion } from 'shared/types';
 import { createBitcoindNetworkNode } from 'utils/network';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import Peer from './Peer';
@@ -7,9 +6,7 @@ import Peer from './Peer';
 describe('Peer component', () => {
   const renderComponent = () => {
     const network = getNetwork();
-    network.nodes.bitcoin.push(
-      createBitcoindNetworkNode(network, BitcoindVersion['0.18.1']),
-    );
+    network.nodes.bitcoin.push(createBitcoindNetworkNode(network, '0.18.1'));
     const [peer1, peer2] = network.nodes.bitcoin;
     const result = renderWithProviders(<Peer from={peer1} to={peer2} />);
     return {

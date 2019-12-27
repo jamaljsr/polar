@@ -1,8 +1,9 @@
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/dom';
-import { BitcoindVersion, Status } from 'shared/types';
+import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
 import { createBitcoindNetworkNode } from 'utils/network';
 import {
   getNetwork,
@@ -22,9 +23,8 @@ describe('RemoveNode', () => {
     if (status === Status.Error) {
       network.nodes.lightning.forEach(n => (n.errorMsg = 'test-error'));
     }
-    network.nodes.bitcoin.push(
-      createBitcoindNetworkNode(network, BitcoindVersion.latest),
-    );
+    const btcLatest = defaultRepoState.images.bitcoind.latest;
+    network.nodes.bitcoin.push(createBitcoindNetworkNode(network, btcLatest));
     const initialState = {
       network: {
         networks: [network],

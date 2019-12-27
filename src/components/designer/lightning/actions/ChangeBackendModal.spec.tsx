@@ -1,7 +1,8 @@
 import React from 'react';
 import { act, fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/react';
-import { BitcoindVersion, LndVersion, Status } from 'shared/types';
+import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
 import { createBitcoindNetworkNode, createLndNetworkNode } from 'utils/network';
 import {
   getNetwork,
@@ -14,13 +15,10 @@ import ChangeBackendModal from './ChangeBackendModal';
 describe('ChangeBackendModal', () => {
   const renderComponent = async (status?: Status, lnName = 'alice') => {
     const network = getNetwork(1, 'test network', status);
-    const oldBitcoind = createBitcoindNetworkNode(
-      network,
-      BitcoindVersion['0.18.1'],
-      status,
-    );
+    const oldBitcoind = createBitcoindNetworkNode(network, '0.18.1', status);
     network.nodes.bitcoin.push(oldBitcoind);
-    const oldLnd = createLndNetworkNode(network, LndVersion['0.7.1-beta'], {}, status);
+    const { compatibility } = defaultRepoState.images.LND;
+    const oldLnd = createLndNetworkNode(network, '0.7.1-beta', compatibility, status);
     network.nodes.lightning.push(oldLnd);
     const initialState = {
       network: {
