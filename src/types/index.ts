@@ -56,7 +56,7 @@ export interface DockerRepoImage {
 }
 
 export interface DockerRepoState {
-  lastUpdated: number;
+  updated: number;
   images: Record<NodeImplementation, DockerRepoImage>;
 }
 

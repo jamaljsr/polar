@@ -97,7 +97,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
  * this defines the list of docker images available on Docker Hub.
  */
 export const defaultRepoState: DockerRepoState = {
-  lastUpdated: new Date(2019, 12, 31, 0, 0, 0, 0).getTime(),
+  updated: new Date(2019, 12, 31, 0, 0, 0, 0).getTime(),
   images: {
     LND: {
       latest: '0.8.2-beta',
