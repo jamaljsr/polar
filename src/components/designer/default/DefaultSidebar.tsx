@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Switch } from 'antd';
+import { Button, Switch } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -10,6 +10,7 @@ import { getPolarPlatform } from 'utils/system';
 import SidebarCard from '../SidebarCard';
 import SyncButton from '../SyncButton';
 import DraggableNode from './DraggableNode';
+import ImageUpdatesModal from './ImageUpdatesModal';
 
 const Styled = {
   AddNodes: styled.h3`
@@ -24,6 +25,9 @@ const Styled = {
     justify-content: space-between;
     margin: 10px 5px;
   `,
+  UpdatesButton: styled(Button)`
+    margin-top: 30px;
+  `,
 };
 
 interface Props {
@@ -33,14 +37,14 @@ interface Props {
 const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
+  const [showUpdatesModal, setShowUpdatesModal] = useState(false);
   const { updateSettings } = useStoreActions(s => s.app);
   const { settings, dockerRepoState } = useStoreState(s => s.app);
   const showAll = settings.showAllNodeVersions;
   const currPlatform = getPolarPlatform();
 
-  const toggle = () => {
-    updateSettings({ showAllNodeVersions: !showAll });
-  };
+  const toggleVersions = () => updateSettings({ showAllNodeVersions: !showAll });
+  const toggleModal = () => setShowUpdatesModal(!showUpdatesModal);
 
   const nodes: {
     name: string;
@@ -66,7 +70,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
       <Styled.Toggle>
         <span>{l('showVersions')}</span>
-        <Switch checked={showAll} onClick={toggle} />
+        <Switch checked={showAll} onClick={toggleVersions} />
       </Styled.Toggle>
       {nodes.map(({ name, logo, version, latest, type }) => (
         <DraggableNode
@@ -78,6 +82,12 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
           visible={showAll || latest}
         />
       ))}
+      {showAll && (
+        <Styled.UpdatesButton type="link" block icon="cloud-sync" onClick={toggleModal}>
+          {l('checkUpdates')}
+        </Styled.UpdatesButton>
+      )}
+      {showUpdatesModal && <ImageUpdatesModal onClose={toggleModal} />}
     </SidebarCard>
   );
 };
