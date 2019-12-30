@@ -67,3 +67,24 @@ Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
 ```sh
 $ docker push polarlightning/clightning:<version>
 ```
+
+# Out-of-Band Image Updates
+
+These docker images can be updated in-between Polar releases. This allows developers to use the latest Bitcoin & Lightning versions shortly after they are released, without needing to download and install a new version of Polar.
+
+To make new docker image versions available:
+
+1. Build the new docker image using the commands above
+1. Push the image to Docker Hub
+1. Update the [`/docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) file
+   - add the new version to the `versions` array of the associated implementation
+   - update the `latest` property of the implementation if necessary
+   - increment the root-level `version` number by `1`
+
+Once the updated `nodes.json` file is committed to master, the new images can be used in Polar by following these steps:
+
+1. Create a Network or view an existing Network
+1. In the Network Designer sidebar, click on the **Show All Versions** toggle
+1. At the bottom of the node list, click on the **Check for new Node Versions** link
+1. A dialog will open displaying the new versions available
+1. Click the **Add New Versions** button to begin using them
