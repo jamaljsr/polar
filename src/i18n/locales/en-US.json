@@ -63,7 +63,7 @@
   "cmps.designer.default.ImageUpdatesModal.updatesTitle": "There are new node versions available",
   "cmps.designer.default.ImageUpdatesModal.updatesDesc": "Add the new versions to begin using them in your Lightning networks.",
   "cmps.designer.default.ImageUpdatesModal.successTitle": "You are up to date!",
-  "cmps.designer.default.ImageUpdatesModal.successDesc": "There are currently no new node versions available. Check again when new versions are released. We aim to have them available to use within 48 hours of release.",
+  "cmps.designer.default.ImageUpdatesModal.successDesc": "Check again when new Bitcoin & Lightning node versions are released. We aim to have them available in Polar within 48 hours.",
   "cmps.designer.default.ImageUpdatesModal.errorTitle": "Failed to check for updates!",
   "cmps.designer.default.ImageUpdatesModal.closeBtn": "Close",
   "cmps.designer.default.ImageUpdatesModal.okBtn": "Add New Versions",
