@@ -29,7 +29,7 @@ class RepoService implements RepoServiceInjection {
     if (await exists(this.filePath)) {
       const json = await read(this.filePath);
       const data = JSON.parse(json);
-      debug(`loaded repo state from '${this.filePath}'`, data);
+      debug(`loaded repo state from '${this.filePath}'`, json);
       return data;
     } else {
       debug(

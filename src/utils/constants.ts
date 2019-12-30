@@ -102,14 +102,15 @@ export const REPO_STATE_URL =
   'https://raw.githubusercontent.com/jamaljsr/polar/feat/update-images/docker/nodes.json';
 
 /**
- * this defines the default list of docker images available on Docker Hub.
+ * this defines the hard-coded list of docker images available in the Polar app. When new images
+ * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 2.0,
+  version: 2,
   images: {
     LND: {
       latest: '0.8.2-beta',
-      versions: ['0.8.2-beta', '0.8.0-beta', '0.7.3-beta'],
+      versions: ['0.8.2-beta', '0.8.0-beta', '0.7.1-beta'],
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
@@ -120,7 +121,7 @@ export const defaultRepoState: DockerRepoState = {
     },
     'c-lightning': {
       latest: '0.8.0',
-      versions: ['0.8.0', '0.7.3'],
+      versions: ['0.8.0'],
     },
     eclair: {
       latest: '',
