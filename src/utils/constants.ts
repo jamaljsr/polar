@@ -94,7 +94,15 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
 };
 
 /**
- * this defines the list of docker images available on Docker Hub.
+ * The URL containing the metadata for the images available on Docker Hub. If the contents of
+ * this URL is newer than the state defined below, then the user can update their local list of
+ * images and use new versions without needing to update the Polar app
+ */
+export const REPO_STATE_URL =
+  'https://raw.githubusercontent.com/jamaljsr/polar/feat/update-images/docker/nodes.json';
+
+/**
+ * this defines the default list of docker images available on Docker Hub.
  */
 export const defaultRepoState: DockerRepoState = {
   updated: new Date(2019, 12, 31, 0, 0, 0, 0).getTime(),

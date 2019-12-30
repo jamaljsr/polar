@@ -56,8 +56,16 @@ export interface DockerRepoImage {
 }
 
 export interface DockerRepoState {
+  /**
+   * the last time the docker images were updated using `new Date().getTime()`
+   */
   updated: number;
   images: Record<NodeImplementation, DockerRepoImage>;
+}
+
+export interface DockerRepoUpdates {
+  state: DockerRepoState;
+  updates?: Record<NodeImplementation, string[]>;
 }
 
 export interface DockerLibrary {
@@ -71,6 +79,12 @@ export interface DockerLibrary {
   removeNode: (network: Network, node: CommonNode) => Promise<void>;
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
+}
+
+export interface RepoServiceInjection {
+  save: (settings: DockerRepoState) => Promise<void>;
+  load: () => Promise<DockerRepoState | undefined>;
+  checkForUpdates: (currState: DockerRepoState) => Promise<DockerRepoUpdates>;
 }
 
 export interface BitcoindLibrary {
@@ -112,6 +126,7 @@ export interface StoreInjections {
   ipc: IpcSender;
   settingsService: SettingsInjection;
   dockerService: DockerLibrary;
+  repoService: RepoServiceInjection;
   bitcoindService: BitcoindLibrary;
   lightningFactory: LightningFactoryInjection;
 }

@@ -5,7 +5,13 @@ import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
-import { AppSettings, DockerRepoState, DockerVersions, StoreInjections } from 'types';
+import {
+  AppSettings,
+  DockerRepoState,
+  DockerRepoUpdates,
+  DockerVersions,
+  StoreInjections,
+} from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { RootModel } from './';
 
@@ -32,6 +38,16 @@ export interface AppModel {
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
   setDockerImages: Action<AppModel, string[]>;
   getDockerImages: Thunk<AppModel, any, StoreInjections, RootModel>;
+  setRepoState: Action<AppModel, DockerRepoState>;
+  loadRepoState: Thunk<AppModel, any, StoreInjections, RootModel>;
+  saveRepoState: Thunk<AppModel, DockerRepoState, StoreInjections, RootModel>;
+  checkForRepoUpdates: Thunk<
+    AppModel,
+    any,
+    StoreInjections,
+    RootModel,
+    Promise<DockerRepoUpdates>
+  >;
   notify: Action<AppModel, NotifyOptions>;
   navigateTo: Thunk<AppModel, string>;
   openInBrowser: Action<AppModel, string>;
@@ -55,6 +71,7 @@ const appModel: AppModel = {
   }),
   initialize: thunk(async (actions, _, { getStoreActions }) => {
     await actions.loadSettings();
+    await actions.loadRepoState();
     await getStoreActions().network.load();
     await actions.getDockerVersions({});
     await actions.getDockerImages();
@@ -92,6 +109,23 @@ const appModel: AppModel = {
   getDockerImages: thunk(async (actions, payload, { injections }) => {
     const images = await injections.dockerService.getImages();
     actions.setDockerImages(images);
+  }),
+  setRepoState: action((state, repoState) => {
+    state.dockerRepoState = repoState;
+  }),
+  loadRepoState: thunk(async (actions, _, { injections }) => {
+    const repoState = await injections.repoService.load();
+    if (repoState) {
+      actions.setRepoState(repoState);
+    }
+  }),
+  saveRepoState: thunk(async (actions, repoState, { injections }) => {
+    await injections.repoService.save(repoState);
+    actions.setRepoState(repoState);
+  }),
+  checkForRepoUpdates: thunk(async (actions, payload, { injections, getState }) => {
+    const { dockerRepoState } = getState();
+    return injections.repoService.checkForUpdates(dockerRepoState);
   }),
   notify: action((state, { message, description, error }) => {
     const options = {

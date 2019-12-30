@@ -39,6 +39,11 @@ export const injections: StoreInjections = {
     saveNetworks: jest.fn(),
     loadNetworks: jest.fn(),
   },
+  repoService: {
+    load: jest.fn(),
+    save: jest.fn(),
+    checkForUpdates: jest.fn(),
+  },
   bitcoindService: {
     waitUntilOnline: jest.fn(),
     getBlockchainInfo: jest.fn(),
