@@ -57,9 +57,9 @@ export interface DockerRepoImage {
 
 export interface DockerRepoState {
   /**
-   * the last time the docker images were updated using `new Date().getTime()`
+   * the version of the repo state file. Used to quickly identify updates
    */
-  updated: number;
+  version: number;
   images: Record<NodeImplementation, DockerRepoImage>;
 }
 

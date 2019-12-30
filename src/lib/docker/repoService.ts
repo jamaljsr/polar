@@ -46,10 +46,10 @@ class RepoService implements RepoServiceInjection {
     debug('Checking for new versions of docker images');
     debug(` - local state: \n${JSON.stringify(localState)}`);
     const remoteState = await this.fetchRemote();
-    debug(` - local date: ${new Date(localState.updated)}`);
-    debug(` - remote date: ${new Date(remoteState.updated)}`);
+    debug(` - local version: ${localState.version}`);
+    debug(` - remote version: ${remoteState.version}`);
     // don't return any updates if the remote state is older
-    if (remoteState.updated <= localState.updated) {
+    if (remoteState.version <= localState.version) {
       debug('No image updates found');
       return { state: localState };
     }
