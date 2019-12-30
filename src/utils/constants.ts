@@ -105,7 +105,7 @@ export const REPO_STATE_URL =
  * this defines the default list of docker images available on Docker Hub.
  */
 export const defaultRepoState: DockerRepoState = {
-  updated: new Date(2019, 12, 31, 0, 0, 0, 0).getTime(),
+  version: 2.0,
   images: {
     LND: {
       latest: '0.8.2-beta',

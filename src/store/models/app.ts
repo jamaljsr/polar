@@ -113,10 +113,12 @@ const appModel: AppModel = {
   setRepoState: action((state, repoState) => {
     state.dockerRepoState = repoState;
   }),
-  loadRepoState: thunk(async (actions, _, { injections }) => {
-    const repoState = await injections.repoService.load();
-    if (repoState) {
-      actions.setRepoState(repoState);
+  loadRepoState: thunk(async (actions, _, { injections, getState }) => {
+    const defaultState = getState().dockerRepoState;
+    const fileState = await injections.repoService.load();
+    // only use the file version if it is greater than the default hard-coded version
+    if (fileState && fileState.version > defaultState.version) {
+      actions.setRepoState(fileState);
     }
   }),
   saveRepoState: thunk(async (actions, repoState, { injections }) => {
