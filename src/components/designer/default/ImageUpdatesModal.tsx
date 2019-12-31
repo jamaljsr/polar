@@ -20,19 +20,17 @@ const Styled = {
   `,
 };
 
-const mapUpdatesToDetails = (repoUpdates: DockerRepoUpdates) => {
+const mapUpdatesToDetails = (updates: Record<NodeImplementation, string[]>) => {
   const details: DetailValues = [];
-  if (repoUpdates && repoUpdates.updates) {
-    Object.entries(repoUpdates.updates).forEach(([name, versions]) => {
-      const config = dockerConfigs[name as NodeImplementation];
-      details.push(
-        ...versions.map(version => ({
-          label: config.name,
-          value: `v${version}`,
-        })),
-      );
-    });
-  }
+  Object.entries(updates).forEach(([name, versions]) => {
+    const config = dockerConfigs[name as NodeImplementation];
+    details.push(
+      ...versions.map(version => ({
+        label: config.name,
+        value: `v${version}`,
+      })),
+    );
+  });
   return details;
 };
 
@@ -81,11 +79,12 @@ const ImageUpdatesModal: React.FC<Props> = ({ onClose }) => {
       />
     );
   } else if (repoUpdates && repoUpdates.updates) {
+    const { updates } = repoUpdates;
     cmp = (
       <>
         <Result title={l('updatesTitle')} subTitle={l('updatesDesc')} />
         <Styled.Details>
-          <DetailsList details={mapUpdatesToDetails(repoUpdates)} />
+          <DetailsList details={mapUpdatesToDetails(updates)} />
         </Styled.Details>
       </>
     );

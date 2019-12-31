@@ -117,6 +117,12 @@ describe('ChangeBackendModal', () => {
     expect(getByText(warning)).toBeInTheDocument();
   });
 
+  it('should not display the compatibility warning', async () => {
+    const { queryByLabelText } = await renderComponent(Status.Stopped, 'bob');
+    const warning = queryByLabelText('icon: exclamation-circle');
+    expect(warning).not.toBeInTheDocument();
+  });
+
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
       const { getAllByText, getByText, store } = await renderComponent();

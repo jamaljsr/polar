@@ -99,7 +99,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
  * images and use new versions without needing to update the Polar app
  */
 export const REPO_STATE_URL =
-  'https://raw.githubusercontent.com/jamaljsr/polar/feat/update-images/docker/nodes.json';
+  'https://raw.githubusercontent.com/jamaljsr/polar/master/docker/nodes.json';
 
 /**
  * this defines the hard-coded list of docker images available in the Polar app. When new images

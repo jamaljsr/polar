@@ -9,6 +9,7 @@ import {
   defaultStateBalances,
   defaultStateInfo,
   getNetwork,
+  injections,
   lightningServiceMock,
   renderWithProviders,
 } from 'utils/tests';
@@ -23,6 +24,10 @@ jest.mock('os', () => {
 });
 
 const mockOS = os as jest.Mocked<typeof os>;
+
+const mockRepoService = injections.repoService as jest.Mocked<
+  typeof injections.repoService
+>;
 
 describe('DefaultSidebar Component', () => {
   const lndLatest = defaultRepoState.images.LND.latest;
@@ -68,6 +73,17 @@ describe('DefaultSidebar Component', () => {
     fireEvent.click(getByRole('switch'));
     expect(getByText(`LND v0.8.0-beta`)).toBeInTheDocument();
     expect(getAllByText('latest')).toHaveLength(3);
+  });
+
+  it('should display the Image Updates Modal', async () => {
+    mockRepoService.checkForUpdates.mockResolvedValue({
+      state: defaultRepoState,
+    });
+    const { getByText, findByText, getByRole } = renderComponent();
+    fireEvent.click(getByRole('switch'));
+    expect(getByText('Check for new Node Versions')).toBeInTheDocument();
+    fireEvent.click(getByText('Check for new Node Versions'));
+    expect(await findByText('You are up to date!')).toBeInTheDocument();
   });
 
   it('should not display c-lightning nodes on Windows', () => {
