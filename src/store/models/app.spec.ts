@@ -1,4 +1,5 @@
 import { createStore } from 'easy-peasy';
+import { defaultRepoState } from 'utils/constants';
 import { injections } from 'utils/tests';
 import appModel from './app';
 import designerModel from './designer';
@@ -9,6 +10,10 @@ const mockDockerService = injections.dockerService as jest.Mocked<
 >;
 const mockSettingsService = injections.settingsService as jest.Mocked<
   typeof injections.settingsService
+>;
+
+const mockRepoService = injections.repoService as jest.Mocked<
+  typeof injections.repoService
 >;
 
 describe('App model', () => {
@@ -28,6 +33,10 @@ describe('App model', () => {
     mockSettingsService.load.mockResolvedValue({
       lang: 'en-US',
       showAllNodeVersions: true,
+    });
+    mockRepoService.load.mockResolvedValue({
+      ...defaultRepoState,
+      version: defaultRepoState.version + 1,
     });
   });
 
