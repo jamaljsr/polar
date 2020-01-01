@@ -4,6 +4,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { Network, NetworksFile } from 'types';
 import { networksPath } from './config';
+import { APP_VERSION } from './constants';
 import { getLndFilePaths } from './network';
 
 /**
@@ -83,8 +84,12 @@ const migrateNetworks = (networks: Network[]): Network[] => {
  * @param file the data from the `networks.json` file
  */
 export const migrateNetworksFile = (file: NetworksFile): NetworksFile => {
-  return {
+  debug(`Upgrading networks file to v${APP_VERSION}`);
+  const migrated = {
+    version: APP_VERSION,
     networks: migrateNetworks(file.networks),
     charts: migrateCharts(file.charts),
   };
+  debug('migrations complete');
+  return migrated;
 };
