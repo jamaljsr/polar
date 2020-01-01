@@ -1,8 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { info } from 'electron-log';
 import { css, Global } from '@emotion/core';
 import './i18n';
+import { initLogger } from 'shared/utils';
 import App from './components/App';
+
+// set global configuration for logging
+initLogger();
+info(`Starting React App in renderer process`);
 
 const Root: React.FC = () => (
   <>

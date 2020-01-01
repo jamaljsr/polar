@@ -1,9 +1,13 @@
 import electronDebug from 'electron-debug';
 import { debug, error } from 'electron-log';
 import { sync } from 'shell-env';
+import { initLogger } from '../src/shared/utils';
 import { IS_DEV } from './constants';
 import { initWindowsDarkHack } from './hacks/windows';
 import WindowManager from './windowManager';
+
+// set global configuration for logging
+initLogger();
 
 // disable the Electron Security Warnings shown when access the dev url
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = `${IS_DEV}`;
