@@ -278,7 +278,18 @@ describe('DockerService', () => {
       expect(networks.length).toBe(0);
     });
 
-    it('should migrate from an older version', async () => {
+    it('should copy networks folder from an older version', async () => {
+      filesMock.exists.mockResolvedValueOnce(true); // legacy path
+      filesMock.exists.mockResolvedValueOnce(false); // current path before copy
+      filesMock.exists.mockResolvedValueOnce(true); // current path after copy
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile());
+      const { networks, version } = await dockerService.loadNetworks();
+      expect(version).toEqual(APP_VERSION);
+      expect(networks.length).toBe(1);
+      expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
+    });
+
+    it('should migrate network data from an older version', async () => {
       filesMock.exists.mockResolvedValue(true);
       filesMock.read.mockResolvedValue(createLegacyNetworksFile());
       const { networks, charts, version } = await dockerService.loadNetworks();

@@ -10,6 +10,11 @@ import { dockerConfigs } from './constants';
 export const dataPath = join(remote.app.getPath('home'), '.polar');
 
 /**
+ * legacy path where application data was stored in v0.1.0
+ */
+export const legacyDataPath = join(remote.app.getPath('userData'), 'data');
+
+/**
  * path where networks data is stored
  */
 export const networksPath = join(dataPath, 'networks');

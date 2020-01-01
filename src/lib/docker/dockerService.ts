@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 import { debug, info } from 'electron-log';
-import { ensureDir } from 'fs-extra';
+import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
@@ -15,7 +15,7 @@ import {
 } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
-import { networksPath, nodePath } from 'utils/config';
+import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
@@ -184,6 +184,13 @@ class DockerService implements DockerLibrary {
    */
   async loadNetworks(): Promise<NetworksFile> {
     const path = join(networksPath, 'networks.json');
+
+    // copy network data from previous version path if necessary
+    const legacyNetworksExist = await exists(join(legacyDataPath, 'networks'));
+    if (!(await exists(path)) && legacyNetworksExist) {
+      await this.copyLegacyData();
+    }
+
     if (await exists(path)) {
       const json = await read(path);
       const data = JSON.parse(json);
@@ -192,6 +199,19 @@ class DockerService implements DockerLibrary {
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
       return { version: APP_VERSION, networks: [], charts: {} };
+    }
+  }
+
+  /**
+   * copies the network data from the v0.1.0 path to the new path
+   */
+  async copyLegacyData(): Promise<void> {
+    const legacyPath = join(legacyDataPath, 'networks');
+    try {
+      info(`copying data from v0.1.0 app dir '${legacyPath}' to '${networksPath}'`);
+      await copy(legacyPath, networksPath);
+    } catch (error) {
+      info(`failed to copy folder\nfrom: ${legacyPath}\nto: ${networksPath}\n`, error);
     }
   }
 
