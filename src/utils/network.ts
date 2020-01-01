@@ -35,7 +35,7 @@ const groupNodes = (network: Network) => {
 };
 
 // long path games
-const getLndFilePaths = (name: string, network: Network) => {
+export const getLndFilePaths = (name: string, network: Network) => {
   // returns /volumes/lnd/lnd-1
   const lndDataPath = (name: string) => nodePath(network, 'LND', name);
   // returns /volumes/lnd/lnd-1/tls.cert
