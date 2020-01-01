@@ -5,8 +5,10 @@ import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
 import { dockerService } from 'lib/docker';
-import { Network } from 'types';
-import { defaultRepoState, DOCKER_REPO } from 'utils/constants';
+import { Network, NetworksFile } from 'types';
+import { initChartFromNetwork } from 'utils/chart';
+import { networksPath } from 'utils/config';
+import { APP_VERSION, defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { createNetwork } from 'utils/network';
 import { getNetwork } from 'utils/tests';
@@ -224,7 +226,7 @@ describe('DockerService', () => {
     });
 
     it('should save a list of networks to disk', () => {
-      dockerService.saveNetworks({ networks: [network], charts: {} });
+      dockerService.saveNetworks({ version: '0.1.0', networks: [network], charts: {} });
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
         expect.stringContaining(`"name": "${network.name}"`),
@@ -233,9 +235,35 @@ describe('DockerService', () => {
   });
 
   describe('loading data', () => {
+    const createLegacyNetworksFile = () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 2,
+        clightningNodes: 1,
+        bitcoindNodes: 1,
+        repoState: defaultRepoState,
+      });
+      const chart = initChartFromNetwork(net);
+      net.path = 'ELECTRON_PATH[userData]/data/networks/1';
+      delete net.nodes.bitcoin[0].peers;
+      const { name } = net.nodes.bitcoin[0];
+      delete chart.nodes[name].ports['peer-left'];
+      delete chart.nodes[name].ports['peer-right'];
+      const fileData: NetworksFile = {
+        version: '0.0.0',
+        networks: [net],
+        charts: {
+          [network.id]: chart,
+        },
+      };
+      return JSON.stringify(fileData);
+    };
+
     it('should load the list of networks from disk', async () => {
       filesMock.exists.mockResolvedValue(true);
-      filesMock.read.mockResolvedValue('{ "networks": [], "charts": {} }');
+      const fileData = `{ "version": "${APP_VERSION}", "networks": [], "charts": {} }`;
+      filesMock.read.mockResolvedValue(fileData);
       const { networks } = await dockerService.loadNetworks();
       expect(networks.length).toBe(0);
       expect(filesMock.read).toBeCalledWith(
@@ -248,6 +276,19 @@ describe('DockerService', () => {
       const { networks } = await dockerService.loadNetworks();
       expect(Array.isArray(networks)).toBe(true);
       expect(networks.length).toBe(0);
+    });
+
+    it('should migrate from an older version', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile());
+      const { networks, charts, version } = await dockerService.loadNetworks();
+      expect(version).toEqual(APP_VERSION);
+      expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
+      const btcNode = networks[0].nodes.bitcoin[0];
+      expect(btcNode.peers).toEqual([]);
+      const chart = charts[networks[0].id];
+      expect(chart.nodes[btcNode.name].ports['peer-left']).toBeDefined();
+      expect(chart.nodes[btcNode.name].ports['peer-right']).toBeDefined();
     });
   });
 
