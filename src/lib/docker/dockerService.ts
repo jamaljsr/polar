@@ -18,6 +18,7 @@ import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath, nodePath } from 'utils/config';
 import { DOCKER_REPO, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
+import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux } from 'utils/system';
 import ComposeFile from './composeFile';
 
@@ -187,7 +188,7 @@ class DockerService implements DockerLibrary {
       const json = await read(path);
       const data = JSON.parse(json);
       info(`loaded ${data.networks.length} networks from '${path}'`);
-      return data;
+      return migrateNetworksFile(data);
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
       return { networks: [], charts: {} };
