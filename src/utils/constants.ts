@@ -3,6 +3,10 @@ import { DockerConfig, DockerRepoState } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import lndLogo from 'resources/lnd.png';
+import packageJson from '../../package.json';
+
+// App
+export const APP_VERSION = packageJson.version;
 
 // Docker
 export const DOCKER_REPO = 'polarlightning';

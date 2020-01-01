@@ -16,7 +16,7 @@ import {
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { networksPath, nodePath } from 'utils/config';
-import { DOCKER_REPO, dockerConfigs } from 'utils/constants';
+import { APP_VERSION, DOCKER_REPO, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux } from 'utils/system';
@@ -188,10 +188,10 @@ class DockerService implements DockerLibrary {
       const json = await read(path);
       const data = JSON.parse(json);
       info(`loaded ${data.networks.length} networks from '${path}'`);
-      return migrateNetworksFile(data);
+      return data.version === APP_VERSION ? data : migrateNetworksFile(data);
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
-      return { networks: [], charts: {} };
+      return { version: APP_VERSION, networks: [], charts: {} };
     }
   }
 

@@ -5,6 +5,7 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { APP_VERSION } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
@@ -131,6 +132,7 @@ const networkModel: NetworkModel = {
   }),
   save: thunk(async (actions, payload, { getState, injections, getStoreState }) => {
     const data = {
+      version: APP_VERSION,
       networks: getState().networks,
       charts: getStoreState().designer.allCharts,
     };

@@ -132,6 +132,7 @@ export interface StoreInjections {
 }
 
 export interface NetworksFile {
+  version: string;
   networks: Network[];
   charts: Record<number, IChart>;
 }
