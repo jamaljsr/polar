@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { useStoreState } from 'store';
+import { APP_VERSION } from 'utils/constants';
 
 const Styled = {
   DockerStatus: styled.div`
@@ -23,6 +24,7 @@ const DockerStatus: React.FC = () => {
 
   return (
     <Styled.DockerStatus>
+      <span>Polar v{APP_VERSION}</span>
       {docker && <span>Docker v{docker}</span>}
       {compose && <span>Compose v{compose}</span>}
     </Styled.DockerStatus>
