@@ -2,7 +2,6 @@
 
 Small Stuff
 
-- fix c-lightning routing after restart
 - fix pasting text in terminal
 - implement real-time channel updates from LND via GRPC streams
 - implement option to auto-mine every X minutes

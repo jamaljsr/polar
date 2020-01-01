@@ -29,7 +29,11 @@ describe('App model', () => {
     // reset the store before each test run
     store = createStore(rootModel, { injections });
     mockDockerService.getVersions.mockResolvedValue({ docker: '', compose: '' });
-    mockDockerService.loadNetworks.mockResolvedValue({ networks: [], charts: {} });
+    mockDockerService.loadNetworks.mockResolvedValue({
+      version: '0.0.0',
+      networks: [],
+      charts: {},
+    });
     mockSettingsService.load.mockResolvedValue({
       lang: 'en-US',
       showAllNodeVersions: true,

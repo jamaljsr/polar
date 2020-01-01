@@ -18,14 +18,10 @@ const migrateCharts = (charts: Record<number, IChart>): Record<number, IChart> =
     Object.values(chart.nodes).forEach(node => {
       if (node.type === 'bitcoin') {
         debug(`Migrating chart for network ID #${id}`);
-        if (!node.ports['peer-left']) {
-          debug(`adding peer-left port to ${node.id}`);
-          node.ports['peer-left'] = { id: 'peer-left', type: 'left' };
-        }
-        if (!node.ports['peer-right']) {
-          debug(`adding peer-right port to ${node.id}`);
-          node.ports['peer-right'] = { id: 'peer-right', type: 'right' };
-        }
+        debug(`adding peer-left port to ${node.id}`);
+        node.ports['peer-left'] = { id: 'peer-left', type: 'left' };
+        debug(`adding peer-right port to ${node.id}`);
+        node.ports['peer-right'] = { id: 'peer-right', type: 'right' };
       }
     });
   });
@@ -42,14 +38,11 @@ const migrateCharts = (charts: Record<number, IChart>): Record<number, IChart> =
 const migrateNetworks = (networks: Network[]): Network[] => {
   const migrateBitcoinNodes = (network: Network): BitcoinNode[] => {
     return network.nodes.bitcoin.map(node => {
-      if (!node.peers) {
-        debug(`updated Bitcoin node peers for ${node.name}`);
-        return {
-          ...node,
-          peers: [],
-        };
-      }
-      return node;
+      debug(`updated Bitcoin node peers for ${node.name}`);
+      return {
+        ...node,
+        peers: [],
+      };
     });
   };
   const migrateLightningNodes = (network: Network): LightningNode[] => {
@@ -66,7 +59,6 @@ const migrateNetworks = (networks: Network[]): Network[] => {
   };
 
   return networks.map(n => {
-    if (n.path.startsWith(networksPath)) return n;
     debug(`Migrating paths in network ${n.name} #${n.id}`);
     const network = {
       ...n,
