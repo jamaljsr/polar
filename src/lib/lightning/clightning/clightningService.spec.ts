@@ -73,8 +73,12 @@ describe('CLightningService', () => {
   });
 
   it('should not throw error when connecting to peers', async () => {
+    const listPeersResponse: Partial<CLN.Peer>[] = [
+      { id: 'asdf', connected: true, netaddr: ['1.1.1.1:9735'] },
+    ];
+    clightningApiMock.httpGet.mockResolvedValueOnce(listPeersResponse);
     clightningApiMock.httpPost.mockRejectedValue(new Error('peer-error'));
-    await expect(clightningService.connectPeers(node, ['asdf'])).resolves.not.toThrow();
+    await expect(clightningService.connectPeers(node, ['fdsa'])).resolves.not.toThrow();
   });
 
   it('should close the channel', async () => {

@@ -119,8 +119,8 @@ describe('Lightning Model', () => {
 
   it('should be able to deposit funds using the first bitcoin node', async () => {
     const { depositFunds } = store.getActions().lightning;
-    const modifiednode = { ...node, backendName: 'not-valid' };
-    await depositFunds({ node: modifiednode, sats: '50000' });
+    const modifiedNode = { ...node, backendName: 'not-valid' };
+    await depositFunds({ node: modifiedNode, sats: '50000' });
     const nodeState = store.getState().lightning.nodes[node.name];
     expect(nodeState.walletBalance).toBeDefined();
     const balances = nodeState.walletBalance as LightningNodeBalances;
@@ -131,7 +131,9 @@ describe('Lightning Model', () => {
 
   it('should not throw an error when connecting peers', async () => {
     const { connectAllPeers } = store.getActions().lightning;
-    lightningServiceMock.getInfo.mockResolvedValue(defaultStateInfo({ rpcUrl: 'asdf' }));
+    lightningServiceMock.getInfo.mockResolvedValue(
+      defaultStateInfo({ alias: 'alice', pubkey: 'xyz', rpcUrl: 'asdf' }),
+    );
     lightningServiceMock.getInfo.mockRejectedValueOnce(new Error('getInfo-error'));
     await expect(connectAllPeers(network)).resolves.not.toThrow();
   });

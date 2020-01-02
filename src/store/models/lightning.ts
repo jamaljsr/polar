@@ -128,19 +128,27 @@ const lightningModel: LightningModel = {
   connectAllPeers: thunk(async (actions, network, { injections, getState }) => {
     // fetch info for each ln node
     for (const node of network.nodes.lightning) {
-      // swallow any error when connecting peers in case a singl enode fails to start
+      // swallow any error when connecting peers in case a single node fails to start
       try {
         await actions.getInfo(node);
       } catch {}
     }
     const { nodes } = getState();
-    // get a list of rpcUrls
-    const rpcUrls = Object.values(nodes)
-      .map(n => (n.info && n.info.rpcUrl) || '')
-      .filter(n => !!n);
+    // make a list of rpcUrls and a map of name -> pubkey
+    const rpcUrls: string[] = [];
+    const pubKeys: Record<string, string> = {};
+    Object.values(nodes).forEach(n => {
+      if (n.info) {
+        pubKeys[n.info.alias] = n.info.pubkey;
+        rpcUrls.push(n.info.rpcUrl);
+      }
+    });
 
     for (const node of network.nodes.lightning) {
-      await injections.lightningFactory.getService(node).connectPeers(node, rpcUrls);
+      const pubkey = pubKeys[node.name];
+      // filter out the node's own rpcUrl
+      const urls = pubkey ? rpcUrls.filter(u => !u.startsWith(pubkey)) : rpcUrls;
+      await injections.lightningFactory.getService(node).connectPeers(node, urls);
     }
   }),
   depositFunds: thunk(

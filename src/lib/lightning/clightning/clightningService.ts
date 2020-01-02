@@ -91,7 +91,10 @@ class CLightningService implements LightningService {
   }
 
   async connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
-    for (const toRpcUrl of rpcUrls) {
+    const peers = await this.getPeers(node);
+    const keys = peers.map(p => p.pubkey);
+    const newUrls = rpcUrls.filter(u => !keys.includes(u.split('@')[0]));
+    for (const toRpcUrl of newUrls) {
       try {
         const body = { id: toRpcUrl };
         await httpPost<{ id: string }>(this.cast(node), 'peer/connect', body);
@@ -111,14 +114,11 @@ class CLightningService implements LightningService {
   ): Promise<PLN.LightningNodeChannelPoint> {
     // get peers of source node
     const clnFrom = this.cast(from);
-    const peers = await this.getPeers(clnFrom);
 
+    // add peer if not connected already
+    await this.connectPeers(clnFrom, [toRpcUrl]);
     // get pubkey of dest node
     const [toPubKey] = toRpcUrl.split('@');
-    // add peer if not connected
-    if (!peers.some(p => p.pubkey === toPubKey)) {
-      await this.connectPeers(clnFrom, [toRpcUrl]);
-    }
 
     // open the channel
     const body: CLN.OpenChannelRequest = {

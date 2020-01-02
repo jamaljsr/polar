@@ -68,6 +68,9 @@ describe('LndService', () => {
   });
 
   it('should not throw error when connecting to peers', async () => {
+    lndProxyClient.listPeers = jest.fn().mockResolvedValue({
+      peers: [{ pubKey: 'fdsa' }],
+    });
     lndProxyClient.connectPeer = jest.fn().mockRejectedValue(new Error('peer-error'));
     await expect(lndService.connectPeers(node, ['asdf'])).resolves.not.toThrow();
   });

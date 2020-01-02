@@ -13,7 +13,11 @@ const request = async <T>(
 ): Promise<T> => {
   const id = Math.round(Math.random() * Date.now());
   const url = `http://127.0.0.1:${node.ports.rest}/v1/${path}`;
-  debug(`c-lightning API: [request] ${id} "${url}" ${body ? JSON.stringify(body) : ''}`);
+  debug(
+    `c-lightning API: [request] ${node.name} ${id} "${url}" ${
+      body ? JSON.stringify(body) : ''
+    }`,
+  );
 
   const response = await fetch(url, {
     method,
@@ -25,7 +29,9 @@ const request = async <T>(
   });
 
   const json = await response.json();
-  debug(`c-lightning API: [response] ${id} ${JSON.stringify(json, null, 2)}`);
+  debug(
+    `c-lightning API: [response] ${node.name} ${id} ${JSON.stringify(json, null, 2)}`,
+  );
 
   if (!response.ok && typeof json.error === 'object') {
     const { code, message } = json.error;
