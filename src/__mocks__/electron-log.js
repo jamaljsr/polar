@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 module.exports = {
-  error: (...params) => {},
-  warn: (...params) => {},
-  info: (...params) => {},
-  verbose: (...params) => {},
-  debug: (...params) => {},
-  silly: (...params) => {},
+  error: () => jest.fn(),
+  warn: () => jest.fn(),
+  info: () => jest.fn(),
+  verbose: () => jest.fn(),
+  debug: () => jest.fn(),
+  silly: () => jest.fn(),
 };

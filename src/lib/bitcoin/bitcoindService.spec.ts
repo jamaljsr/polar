@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
 import { createBitcoindNetworkNode } from 'utils/network';
 import { getNetwork } from 'utils/tests';
@@ -52,6 +53,26 @@ describe('BitcoindService', () => {
     expect(getInst().generateToAddress).toBeCalledTimes(1);
     expect(getInst().generateToAddress).toBeCalledWith(2, 'abcdef');
     expect(result[0]).toEqual('blockhash1');
+  });
+
+  it('should reformat logs for rpc requests', async () => {
+    const spy = jest.spyOn(log, 'debug');
+    mockBitcoin.mockImplementationOnce(options => {
+      options.logger.debug({ request: { body: '{}' } }, 'Making request...');
+      return mockProto;
+    });
+    await bitcoindService.getBlockchainInfo(node);
+    expect(spy).toBeCalledWith('BitcoindService: [request]', '{}');
+  });
+
+  it('should reformat logs for rpc responses', async () => {
+    const spy = jest.spyOn(log, 'debug');
+    mockBitcoin.mockImplementationOnce(options => {
+      options.logger.debug({ request: { body: '{}' } }, 'Received response...');
+      return mockProto;
+    });
+    await bitcoindService.getBlockchainInfo(node);
+    expect(spy).toBeCalledWith('BitcoindService: [response]', '{}');
   });
 
   describe('sendFunds', () => {

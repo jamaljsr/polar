@@ -96,7 +96,10 @@ class CLightningService implements LightningService {
         const body = { id: toRpcUrl };
         await httpPost<{ id: string }>(this.cast(node), 'peer/connect', body);
       } catch (error) {
-        debug(`Failed to connect peer '${toRpcUrl}' to LND node ${node.name}`, error);
+        debug(
+          `Failed to connect peer '${toRpcUrl}' to c-lightning node ${node.name}:`,
+          error.message,
+        );
       }
     }
   }

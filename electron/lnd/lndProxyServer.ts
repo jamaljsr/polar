@@ -119,7 +119,7 @@ const decodeInvoice = async (args: {
 
 /**
  * A mapping of electron IPC channel names to the functions to execute when
- * messages are recieved
+ * messages are received
  */
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
@@ -141,7 +141,7 @@ const listeners: {
 /**
  * Sets up the IPC listeners for the main process and maps them to async
  * functions.
- * @param ipc the IPC onject of the main process
+ * @param ipc the IPC object of the main process
  */
 export const initLndProxy = (ipc: IpcMain) => {
   debug('LndProxyServer: initialize');
@@ -149,7 +149,7 @@ export const initLndProxy = (ipc: IpcMain) => {
     const requestChan = `lnd-${channel}-request`;
     const responseChan = `lnd-${channel}-response`;
 
-    debug(`listening for ipc command "${channel}"`);
+    debug(`LndProxyServer: listening for ipc command "${channel}"`);
     ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
       debug(
@@ -164,7 +164,7 @@ export const initLndProxy = (ipc: IpcMain) => {
       try {
         // attempt to execute the associated function
         let result = await func(...args);
-        // merge the result with default values since LND omits falsey values
+        // merge the result with default values since LND omits falsy values
         debug(
           `LndProxyServer: send response "${uniqueChan}"`,
           JSON.stringify(result, null, 2),

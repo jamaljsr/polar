@@ -17,7 +17,7 @@ class BitcoindService implements BitcoindLibrary {
       port: `${node.ports.rpc}`,
       username: bitcoinCredentials.user,
       password: bitcoinCredentials.pass,
-      logger: logger as any,
+      logger: this.log(),
     });
   }
 
@@ -118,6 +118,21 @@ class BitcoindService implements BitcoindLibrary {
     const numBlocks = desiredCoins < currReward ? 1 : desiredCoins / currReward;
     // round down to the nearest whole number
     return Math.floor(numBlocks);
+  }
+
+  /**
+   * a custom logging function which reformats the RPC requests & responses
+   */
+  private log(): any {
+    return {
+      debug: (data: any, msg: string) => {
+        const type = msg.startsWith('Making request') ? 'request' : 'response';
+        const body = JSON.parse(data.request.body);
+        const output =
+          type === 'request' ? JSON.stringify(body) : JSON.stringify(body, null, 2);
+        logger.debug(`BitcoindService: [${type}]`, output);
+      },
+    };
   }
 }
 

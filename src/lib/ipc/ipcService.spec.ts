@@ -6,10 +6,10 @@ describe('IpcService', () => {
     ipcRenderer.once = jest.fn().mockImplementation((chan, cb) => cb(null, '321'));
     ipcRenderer.send = jest.fn();
     const ipc = createIpcSender('Test Name', 'pre1');
-    await ipc('chan1', { val: 123 });
+    await ipc('chan1', { node: 123 });
     expect(ipcRenderer.send).toBeCalledWith('pre1-chan1-request', {
       replyTo: expect.stringContaining('pre1-chan1-response'),
-      val: 123,
+      node: 123,
     });
   });
 
