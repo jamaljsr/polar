@@ -49,6 +49,7 @@ describe('NetworkView Component', () => {
     const result = renderWithProviders(cmp, { initialState, route });
     return {
       ...result,
+      network,
       primaryBtn: result.container.querySelector(
         '.ant-page-header-heading-extra .ant-btn',
       ) as Element,
@@ -202,11 +203,10 @@ describe('NetworkView Component', () => {
     });
 
     it('should delete the network', async () => {
-      const { getByLabelText, getByText, findByText, store } = renderComponent(
+      const { getByLabelText, getByText, findByText, network } = renderComponent(
         '1',
         Status.Started,
       );
-      const path = store.getState().network.networks[0].path;
       fireEvent.mouseOver(getByLabelText('icon: more'));
       fireEvent.click(await findByText('Delete'));
       fireEvent.click(await findByText('Yes'));
@@ -215,7 +215,7 @@ describe('NetworkView Component', () => {
       expect(
         getByText("The network 'test network' and its data has been deleted!"),
       ).toBeInTheDocument();
-      expect(fsMock.remove).toBeCalledWith(expect.stringContaining(path));
+      expect(fsMock.remove).toBeCalledWith(expect.stringContaining(network.path));
     });
 
     it('should display an error if the delete fails', async () => {

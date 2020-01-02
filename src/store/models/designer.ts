@@ -32,6 +32,7 @@ export interface DesignerModel {
   redraw: boolean;
   activeChart: Computed<DesignerModel, IChart>;
   setActiveId: Action<DesignerModel, number>;
+  clearActiveId: Action<DesignerModel>;
   setAllCharts: Action<DesignerModel, Record<number, IChart>>;
   setChart: Action<DesignerModel, { id: number; chart: IChart }>;
   removeChart: Action<DesignerModel, number>;
@@ -76,6 +77,9 @@ const designerModel: DesignerModel = {
   setActiveId: action((state, networkId) => {
     if (!state.allCharts[networkId]) throw new Error(l('notFoundError', { networkId }));
     state.activeId = networkId;
+  }),
+  clearActiveId: action(state => {
+    state.activeId = -1;
   }),
   setAllCharts: action((state, charts) => {
     state.allCharts = charts;

@@ -69,10 +69,8 @@ describe('Designer model', () => {
     });
 
     it('should have a chart in state', () => {
-      const { activeId, allCharts, activeChart } = store.getState().designer;
+      const { allCharts } = store.getState().designer;
       const chart = allCharts[firstNetwork().id];
-      expect(activeId).toBe(-1);
-      expect(activeChart).toBeUndefined();
       expect(chart).not.toBeUndefined();
       expect(Object.keys(chart.nodes)).toHaveLength(5);
     });

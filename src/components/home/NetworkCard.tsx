@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import { Card, Col, Icon, Row, Statistic } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -16,13 +16,19 @@ const Styled = {
 const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.home.NetworkCard');
   const { navigateTo } = useStoreActions(s => s.app);
+  const { setActiveId } = useStoreActions(s => s.designer);
+
+  const handleClick = useCallback(() => {
+    setActiveId(network.id);
+    navigateTo(NETWORK_VIEW(network.id));
+  }, [network.id, setActiveId, navigateTo]);
 
   return (
     <Styled.Card
       title={network.name}
       hoverable
       extra={<StatusBadge status={network.status} />}
-      onClick={() => navigateTo(NETWORK_VIEW(network.id))}
+      onClick={handleClick}
     >
       <Row>
         <Col span={12}>

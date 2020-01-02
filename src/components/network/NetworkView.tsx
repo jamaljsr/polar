@@ -1,6 +1,6 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { RouteComponentProps } from 'react-router';
+import { Redirect, RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import { Alert, Button, Empty, Input, Modal, PageHeader } from 'antd';
@@ -60,8 +60,9 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState('');
 
-  const { navigateTo, notify } = useStoreActions(s => s.app);
   const { dockerImages } = useStoreState(s => s.app);
+  const { navigateTo, notify } = useStoreActions(s => s.app);
+  const { clearActiveId } = useStoreActions(s => s.designer);
   const { toggle, rename, remove } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
   const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
@@ -93,11 +94,14 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     });
   };
 
-  useEffect(() => {
-    if (!network) navigateTo(HOME);
-  }, [network, navigateTo]);
+  const handleBackClick = useCallback(() => {
+    navigateTo(HOME);
+    clearActiveId();
+  }, [navigateTo, clearActiveId]);
 
-  if (!network) return null;
+  if (!network) {
+    return <Redirect to={HOME} />;
+  }
 
   let header: ReactNode;
   if (editing) {
@@ -129,7 +133,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     header = (
       <Styled.PageHeader
         title={network.name}
-        onBack={() => navigateTo(HOME)}
+        onBack={handleBackClick}
         tags={<StatusTag status={network.status} />}
         extra={
           <NetworkActions

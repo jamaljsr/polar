@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
+import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import { NETWORK_VIEW } from 'components/routing';
 import NetworkCard from './NetworkCard';
@@ -7,7 +8,17 @@ import NetworkCard from './NetworkCard';
 describe('NetworkCard component', () => {
   const network = getNetwork(1, 'my network 1');
   const renderComponent = () => {
-    return renderWithProviders(<NetworkCard network={network} />);
+    const initialState = {
+      network: {
+        networks: [network],
+      },
+      designer: {
+        allCharts: {
+          1: initChartFromNetwork(network),
+        },
+      },
+    };
+    return renderWithProviders(<NetworkCard network={network} />, { initialState });
   };
 
   it("should display the network's name", () => {

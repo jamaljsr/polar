@@ -165,6 +165,7 @@ const networkModel: NetworkModel = {
       await injections.dockerService.saveComposeFile(newNetwork);
       const chart = initChartFromNetwork(newNetwork);
       getStoreActions().designer.setChart({ id: newNetwork.id, chart });
+      getStoreActions().designer.setActiveId(newNetwork.id);
       await actions.save();
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },

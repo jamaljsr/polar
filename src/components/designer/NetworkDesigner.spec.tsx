@@ -27,6 +27,7 @@ describe('NetworkDesigner Component', () => {
         networks: [network],
       },
       designer: {
+        activeId: network.id,
         allCharts,
       },
       lightning: {

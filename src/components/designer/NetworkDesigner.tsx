@@ -30,15 +30,10 @@ interface Props {
 }
 
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
-  const { setActiveId, ...callbacks } = useStoreActions(s => s.designer);
-  const { allCharts, activeId } = useStoreState(s => s.designer);
+  const callbacks = useStoreActions(s => s.designer);
   const { openChannel, createInvoice, payInvoice, changeBackend } = useStoreState(
     s => s.modals,
   );
-  // update the redux store with the current network's chart
-  useEffect(() => {
-    if (allCharts[network.id] && activeId !== network.id) setActiveId(network.id);
-  }, [network.id, setActiveId, allCharts, activeId]);
 
   const { save } = useStoreActions(s => s.network);
   const chart = useStoreState(s => s.designer.activeChart);
