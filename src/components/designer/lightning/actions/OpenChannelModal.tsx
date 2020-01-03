@@ -3,6 +3,7 @@ import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
+import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { OpenChannelPayload } from 'store/models/lightning';
 import { Network } from 'types';
@@ -32,7 +33,8 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
 
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
-    for (const node of network.nodes.lightning) {
+    const nodes = network.nodes.lightning.filter(n => n.status === Status.Started);
+    for (const node of nodes) {
       await getWalletBalance(node);
     }
   }, [network.nodes, visible]);
@@ -82,6 +84,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             label={l('source')}
             disabled={openChanAsync.loading}
             initialValue={from}
+            status={Status.Started}
             nodes={nodes}
           />
         </Col>
@@ -93,6 +96,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
             label={l('dest')}
             disabled={openChanAsync.loading}
             initialValue={to}
+            status={Status.Started}
             nodes={nodes}
           />
         </Col>

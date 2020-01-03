@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { usePrefixedTranslation } from 'hooks';
+import { Status } from 'shared/types';
 import { LightningNodeBalances } from 'lib/lightning/types';
 import { LightningNodeModel } from 'store/models/lightning';
 import { Network } from 'types';
@@ -14,6 +15,7 @@ export interface Props {
   label?: string;
   disabled?: boolean;
   initialValue?: string;
+  status?: Status;
   nodes?: {
     [key: string]: LightningNodeModel;
   };
@@ -26,6 +28,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   label,
   disabled,
   initialValue,
+  status,
   nodes,
 }) => {
   const { l } = usePrefixedTranslation('cmps.common.form.LightningNodeSelect');
@@ -42,7 +45,10 @@ const LightningNodeSelect: React.FC<Props> = ({
     setInitialized(true);
   }
 
-  const { lightning } = network.nodes;
+  let lnNodes = network.nodes.lightning;
+  if (status !== undefined) {
+    lnNodes = lnNodes.filter(n => n.status === status);
+  }
   return (
     <Form.Item label={label} help={help}>
       {form.getFieldDecorator(id, {
@@ -50,7 +56,7 @@ const LightningNodeSelect: React.FC<Props> = ({
         rules: [{ required: true, message: l('cmps.forms.required') }],
       })(
         <Select disabled={disabled} onChange={v => setHelp(getBalance(v.toString()))}>
-          {lightning.map(node => (
+          {lnNodes.map(node => (
             <Select.Option key={node.name} value={node.name}>
               {node.name}
             </Select.Option>

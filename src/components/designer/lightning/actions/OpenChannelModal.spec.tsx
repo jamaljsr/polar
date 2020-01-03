@@ -17,8 +17,8 @@ import OpenChannelModal from './OpenChannelModal';
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('OpenChannelModal', () => {
-  const renderComponent = async (status?: Status) => {
-    const network = getNetwork(1, 'test network', status);
+  const renderComponent = async () => {
+    const network = getNetwork(1, 'test network', Status.Started);
     const initialState = {
       network: {
         networks: [network],
@@ -79,7 +79,7 @@ describe('OpenChannelModal', () => {
   });
 
   it('should remove chart link when cancel is clicked', async () => {
-    const { getByText, store } = await renderComponent(Status.Started);
+    const { getByText, store } = await renderComponent();
     const linkId = 'xxxx';
     const { designer } = store.getActions();
     const link = { linkId, fromNodeId: 'alice', fromPortId: 'p1' } as any;
