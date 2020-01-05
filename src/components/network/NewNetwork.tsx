@@ -32,6 +32,7 @@ const NewNetwork: React.SFC = () => {
       <Styled.PageHeader title={l('title')} onBack={() => navigateTo(HOME)} />
       <Card>
         <Form
+          layout="vertical"
           colon={false}
           initialValues={{
             lndNodes: isWindows() ? 3 : 2,

@@ -93,6 +93,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
         <p>{l('description')}</p>
         <Form
           form={form}
+          layout="vertical"
           hideRequiredMark
           colon={false}
           initialValues={{ lnNode: lnName, backendNode: backendName }}

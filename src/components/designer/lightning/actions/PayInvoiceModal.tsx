@@ -57,6 +57,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       >
         <Form
           form={form}
+          layout="vertical"
           hideRequiredMark
           colon={false}
           initialValues={{ node: nodeName }}

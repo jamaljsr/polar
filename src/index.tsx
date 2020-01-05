@@ -30,6 +30,10 @@ const Root: React.FC = () => (
           width: 100vw;
           height: 100vh;
         }
+
+        .ant-form-item-with-help {
+          margin-bottom: 12px;
+        }
       `}
     />
     <App />
