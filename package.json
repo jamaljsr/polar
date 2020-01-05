@@ -51,6 +51,7 @@
     "xterm-addon-fit": "0.3.0"
   },
   "devDependencies": {
+    "@ant-design/icons": "^4.0.0-alpha.19",
     "@commitlint/cli": "8.3.4",
     "@commitlint/config-conventional": "8.3.4",
     "@emotion/core": "10.0.27",
@@ -76,7 +77,7 @@
     "@types/redux-logger": "3.0.7",
     "@typescript-eslint/eslint-plugin": "2.15.0",
     "@typescript-eslint/parser": "2.15.0",
-    "antd": "3.26.6",
+    "antd": "4.0.0-rc.0",
     "babel-plugin-emotion": "10.0.27",
     "babel-plugin-import": "1.13.0",
     "bitcoin-core": "3.0.0",
