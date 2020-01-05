@@ -11,7 +11,7 @@ const statusColors = {
   [Status.Starting]: 'blue',
   [Status.Started]: 'green',
   [Status.Stopping]: 'blue',
-  [Status.Stopped]: 'gray',
+  [Status.Stopped]: 'rgba(255, 255, 255, 0.25)',
   [Status.Error]: 'red',
 };
 

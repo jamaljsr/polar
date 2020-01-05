@@ -9,8 +9,7 @@ import { HOME } from 'components/routing';
 
 const Styled = {
   PageHeader: styled(PageHeader)`
-    border: 1px solid rgb(235, 237, 240);
-    background-color: #fff;
+    border: 1px solid #303030;
     margin-bottom: 10px;
     flex: 0;
   `,

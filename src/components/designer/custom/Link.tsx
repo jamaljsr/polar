@@ -23,7 +23,7 @@ export const generateCurvePath = (startPos: IPosition, endPos: IPosition): strin
   const curveX = isHorizontal ? curve : 0;
   const curveY = isHorizontal ? 0 : curve;
 
-  // add 0.001 to the last point's coords to workaround gradients dissappearing
+  // add 0.001 to the last point's coords to workaround gradients disappearing
   // when rendered as a straight line. See https://stackoverflow.com/a/34687362
   return `M${start.x},${start.y} C ${start.x + curveX},${start.y + curveY} ${end.x -
     curveX},${end.y - curveY} ${end.x + 0.001},${end.y + 0.001}`;
@@ -44,7 +44,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
 
   // memoize these calculations for a bit of perf
   const { leftStop, rightStop, leftColor, rightColor } = useMemo(() => {
-    const [blue, green, orange, gray] = ['#6495ED', '#52c41a', '#fa8c16', 'lightgray'];
+    const [blue, green, orange, gray] = ['#6495ED', '#52c41a', '#fa8c16', '#1b1b1b'];
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes

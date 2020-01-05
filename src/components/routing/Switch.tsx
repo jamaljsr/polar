@@ -16,6 +16,7 @@ const Styled = {
       padding: 16px 16px 0;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      background: rgba(43, 43, 43, 0.25);
     }
   `,
 };

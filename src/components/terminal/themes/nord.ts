@@ -20,13 +20,18 @@ const colors = {
   nord15: '#B48EAD',
 };
 
+const custom = {
+  softForeground: '#ffffffbf',
+  darkBackground: '#2b2b2b40',
+};
+
 const nord: ITheme = {
   /** The default foreground color */
-  foreground: colors.nord4,
+  foreground: custom.softForeground,
   /** The default background color */
-  background: colors.nord0,
+  background: custom.darkBackground,
   /** The cursor color */
-  cursor: colors.nord4,
+  cursor: custom.softForeground,
   /** The accent color of the cursor (fg color for a block cursor) */
   cursorAccent: colors.nord3,
   /** The selection background color (can be transparent) */

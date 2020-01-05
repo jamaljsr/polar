@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
+import { AppleOutlined, DownloadOutlined, WindowsOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Modal, Result } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -34,11 +35,11 @@ export const dockerLinks: Record<PolarPlatform, Record<string, string>> = {
   unknown: {},
 };
 
-const buttonIcons: Record<PolarPlatform, string> = {
-  mac: 'apple',
-  windows: 'windows',
-  linux: 'download',
-  unknown: 'download',
+const buttonIcons: Record<PolarPlatform, ReactNode> = {
+  mac: <AppleOutlined />,
+  windows: <WindowsOutlined />,
+  linux: <DownloadOutlined />,
+  unknown: <DownloadOutlined />,
 };
 
 const DetectDockerModal: React.FC = () => {

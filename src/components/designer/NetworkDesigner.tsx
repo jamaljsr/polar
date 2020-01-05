@@ -5,7 +5,7 @@ import { useDebounce } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
-import { Link, NodeInner, Port, Ports } from './custom';
+import { CanvasOuter, Link, NodeInner, Port, Ports } from './custom';
 import {
   ChangeBackendModal,
   CreateInvoiceModal,
@@ -53,6 +53,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         chart={chart}
         config={{ snapToGrid: true }}
         Components={{
+          CanvasOuter,
           NodeInner,
           Link,
           Port,

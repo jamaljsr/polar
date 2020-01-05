@@ -1,4 +1,4 @@
-// const darkTheme = require('./src/theme');
+const darkThemeVars = require('antd/dist/dark-theme');
 
 const getLessLoader = (test, withModules) => {
   return {
@@ -20,9 +20,12 @@ const getLessLoader = (test, withModules) => {
         options: {
           javascriptEnabled: true,
           modifyVars: {
-            '@primary-color': '#fa8c16',
+            hack: `true;@import "${require.resolve(
+              'antd/lib/style/color/colorPalette.less',
+            )}";`,
+            ...darkThemeVars,
+            '@primary-color': '#d46b08',
           },
-          // modifyVars: darkTheme,
         },
       },
     ],
@@ -31,7 +34,7 @@ const getLessLoader = (test, withModules) => {
 
 module.exports = [
   config => {
-    // set target on webpack config to support electrong
+    // set target on webpack config to support electron
     config.target = 'electron-renderer';
     // add support for hot reload of hooks
     config.resolve.alias['react-dom'] = '@hot-loader/react-dom';
