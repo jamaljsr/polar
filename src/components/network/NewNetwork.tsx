@@ -1,10 +1,7 @@
-import React, { FormEvent, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Card, Col, Input, InputNumber, PageHeader, Row } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
+import { Button, Card, Col, Form, Input, InputNumber, PageHeader, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { isWindows } from 'utils/system';
@@ -19,65 +16,64 @@ const Styled = {
   `,
 };
 
-interface FormProps {
-  name: string;
-  lndNodes: number;
-  clightningNodes: number;
-  bitcoindNodes: number;
-}
-
-const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
+const NewNetwork: React.SFC = () => {
   useEffect(() => info('Rendering NewNetwork component'), []);
 
   const { l } = usePrefixedTranslation('cmps.network.NewNetwork');
   const { navigateTo } = useStoreActions(s => s.app);
   const { addNetwork } = useStoreActions(s => s.network);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    form.validateFields((err, values: FormProps) => {
-      if (err) return;
-
-      addNetwork(values);
-    });
+  const handleSubmit = (values: any) => {
+    addNetwork(values);
   };
 
   return (
     <>
       <Styled.PageHeader title={l('title')} onBack={() => navigateTo(HOME)} />
       <Card>
-        <Form onSubmit={handleSubmit} colon={false}>
-          <Form.Item label={l('nameLabel')}>
-            {form.getFieldDecorator('name', {
-              rules: [{ required: true, message: l('cmps.forms.required') }],
-            })(<Input placeholder={l('namePhldr')} />)}
+        <Form
+          colon={false}
+          initialValues={{
+            lndNodes: isWindows() ? 3 : 2,
+            clightningNodes: isWindows() ? 0 : 1,
+            bitcoindNodes: 1,
+          }}
+          onFinish={handleSubmit}
+        >
+          <Form.Item
+            name="name"
+            label={l('nameLabel')}
+            rules={[{ required: true, message: l('cmps.forms.required') }]}
+          >
+            <Input placeholder={l('namePhldr')} />
           </Form.Item>
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item label={l('lndNodesLabel')}>
-                {form.getFieldDecorator('lndNodes', {
-                  rules: [{ required: true, message: l('cmps.forms.required') }],
-                  initialValue: isWindows() ? 3 : 2,
-                })(<InputNumber min={0} max={10} />)}
+              <Form.Item
+                name="lndNodes"
+                label={l('lndNodesLabel')}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
+                name="clightningNodes"
                 label={l('clightningNodesLabel')}
                 help={isWindows() ? l('clightningWindows') : ''}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
-                {form.getFieldDecorator('clightningNodes', {
-                  rules: [{ required: true, message: l('cmps.forms.required') }],
-                  initialValue: isWindows() ? 0 : 1,
-                })(<InputNumber min={0} max={10} disabled={isWindows()} />)}
+                <InputNumber min={0} max={10} disabled={isWindows()} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label={l('bitcoindNodesLabel')}>
-                {form.getFieldDecorator('bitcoindNodes', {
-                  rules: [{ required: true, message: 'required' }],
-                  initialValue: 1,
-                })(<InputNumber min={1} max={10} />)}
+              <Form.Item
+                name="bitcoindNodes"
+                label={l('bitcoindNodesLabel')}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={1} max={10} />
               </Form.Item>
             </Col>
           </Row>
@@ -92,4 +88,4 @@ const NewNetwork: React.SFC<FormComponentProps> = ({ form }) => {
   );
 };
 
-export default Form.create()(NewNetwork);
+export default NewNetwork;

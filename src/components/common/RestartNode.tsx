@@ -1,9 +1,7 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import { PlayCircleOutlined, PoweroffOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Modal } from 'antd';
+import styled from '@emotion/styled';
+import { Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CommonNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';

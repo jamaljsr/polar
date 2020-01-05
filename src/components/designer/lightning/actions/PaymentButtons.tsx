@@ -1,9 +1,7 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import { FileProtectOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button } from 'antd';
+import styled from '@emotion/styled';
+import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';

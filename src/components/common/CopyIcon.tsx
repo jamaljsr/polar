@@ -1,11 +1,12 @@
 import React, { ReactNode } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { CopyFilled } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Icon, message } from 'antd';
+import { message } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 
 const Styled = {
-  Icon: styled(Icon)`
+  Icon: styled(CopyFilled)`
     margin-left: 5px;
     color: #aaa;
   `,
@@ -27,7 +28,7 @@ const CopyIcon: React.FC<Props> = ({ value, label = '', text }) => {
     <>
       {text}
       <CopyToClipboard text={value} onCopy={() => message.success(msg, 2)}>
-        <Styled.Icon type="copy" />
+        <Styled.Icon />
       </CopyToClipboard>
     </>
   );

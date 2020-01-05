@@ -1,10 +1,9 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
+import { Form } from 'antd';
 import { LightningNodeModel } from 'store/models/lightning';
 import { defaultStateBalances, getNetwork } from 'utils/tests';
-import LightningNodeSelect, { Props } from './LightningNodeSelect';
+import LightningNodeSelect from './LightningNodeSelect';
 
 describe('LightningNodeSelect', () => {
   const renderComponent = (
@@ -15,17 +14,21 @@ describe('LightningNodeSelect', () => {
     const nodes = initialNodes || {
       alice: {},
     };
-    const FormCmp = Form.create<Props>()(LightningNodeSelect);
-    const cmp = (
-      <FormCmp
-        network={network}
-        id="from"
-        label="Source"
-        nodes={nodes}
-        initialValue={initialValue}
-      />
-    );
-    const result = render(cmp);
+    const TestForm = () => {
+      const [form] = Form.useForm();
+      return (
+        <Form form={form} initialValues={{ from: initialValue }}>
+          <LightningNodeSelect
+            network={network}
+            name="from"
+            form={form}
+            label="Source"
+            nodes={nodes}
+          />
+        </Form>
+      );
+    };
+    const result = render(<TestForm />);
     return {
       ...result,
       network,

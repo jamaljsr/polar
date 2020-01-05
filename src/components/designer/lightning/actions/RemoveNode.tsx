@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Modal } from 'antd';
+import { Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { DownloadOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Input, InputNumber } from 'antd';
+import { Button, Form, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';

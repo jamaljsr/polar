@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -16,7 +17,7 @@ const Styled = {
       opacity: 1;
     }
   `,
-  Icon: styled(Icon)`
+  BookIcon: styled(BookOutlined)`
     margin-left: 5px;
     color: #aaa;
   `,
@@ -52,7 +53,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         <Tooltip title={restDocsUrl}>
           <Styled.Link onClick={() => openInBrowser(restDocsUrl)}>REST</Styled.Link>
         </Tooltip>
-        <Styled.Icon type="book" />
+        <Styled.BookIcon />
       </>
     ),
   });
