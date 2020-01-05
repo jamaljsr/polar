@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Button, Dropdown, Icon, Menu } from 'antd';
+import { GlobalOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu } from 'antd';
 import { ClickParam } from 'antd/lib/menu';
 import { useStoreState } from 'easy-peasy';
 import { languages } from 'i18n';
@@ -33,7 +34,7 @@ const LocaleSwitch: React.FC = () => {
     <>
       <Dropdown overlay={menu} placement="topRight">
         <Styled.Button type="link">
-          <Icon type="global" />
+          <GlobalOutlined />
           {languages[settings.lang]}
         </Styled.Button>
       </Dropdown>

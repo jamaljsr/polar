@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Form, Select } from 'antd';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Select } from 'antd';
 import { WrappedFormUtils } from 'antd/lib/form/Form';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';

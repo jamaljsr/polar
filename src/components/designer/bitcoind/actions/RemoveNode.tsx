@@ -1,5 +1,7 @@
 import React from 'react';
-import { Button, Form, Modal } from 'antd';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';

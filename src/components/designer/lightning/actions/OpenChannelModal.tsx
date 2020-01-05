@@ -1,6 +1,8 @@
 import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Alert, Checkbox, Col, InputNumber, Modal, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';

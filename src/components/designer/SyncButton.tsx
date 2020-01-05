@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
+import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
@@ -30,7 +31,7 @@ const SyncButton: React.FC<Props> = ({ network }) => {
   return (
     <Tooltip title={l('syncBtnTip')}>
       <Button
-        icon="reload"
+        icon={<ReloadOutlined />}
         disabled={network.status !== Status.Started}
         onClick={syncChartAsync.execute}
         loading={syncChartAsync.loading}

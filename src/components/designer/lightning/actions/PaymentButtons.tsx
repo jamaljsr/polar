@@ -1,6 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Button, Form, Icon } from 'antd';
+import { FileProtectOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
@@ -23,11 +26,11 @@ const PaymentButtons: React.FC<Props> = ({ node }) => {
     <Form.Item label={l('paymentsTitle')} colon={false}>
       <Button.Group style={{ width: '100%' }}>
         <Styled.Button onClick={() => showPayInvoice({ nodeName: node.name })}>
-          <Icon type="thunderbolt" />
+          <ThunderboltOutlined />
           {l('payInvoice')}
         </Styled.Button>
         <Styled.Button onClick={() => showCreateInvoice({ nodeName: node.name })}>
-          <Icon type="file-protect" />
+          <FileProtectOutlined />
           {l('createInvoice')}
         </Styled.Button>
       </Button.Group>

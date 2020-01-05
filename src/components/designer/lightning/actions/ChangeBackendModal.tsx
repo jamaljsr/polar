@@ -1,7 +1,10 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Alert, Col, Form, Icon, Modal, Row, Select } from 'antd';
+import { SwapOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Alert, Col, Modal, Row, Select } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
@@ -112,7 +115,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
               />
             </Col>
             <Styled.IconCol span={4}>
-              <Icon type="swap" style={{ fontSize: '2em', opacity: 0.5 }} />
+              <SwapOutlined style={{ fontSize: '2em', opacity: 0.5 }} />
             </Styled.IconCol>
             <Col span={10}>
               <Form.Item label={l('backendNodeLabel')}>

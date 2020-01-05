@@ -1,6 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Button, Form, Icon, Modal } from 'antd';
+import { PlayCircleOutlined, PoweroffOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CommonNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
@@ -49,14 +52,14 @@ const RestartNode: React.FC<Props> = ({ node }) => {
           disabled={disabled || !showStop}
           onClick={() => showConfirmModal('stop')}
         >
-          <Icon type="poweroff" />
+          <PoweroffOutlined />
           {l('stopBtn')}
         </Styled.Button>
         <Styled.Button
           disabled={disabled || showStop}
           onClick={() => showConfirmModal('start')}
         >
-          <Icon type="play-circle" />
+          <PlayCircleOutlined />
           {l('startBtn')}
         </Styled.Button>
       </Button.Group>

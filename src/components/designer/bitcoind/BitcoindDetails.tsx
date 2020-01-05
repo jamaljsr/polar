@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert, Icon } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -56,7 +57,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           showIcon
           closable={false}
           message={l('waitingNotice')}
-          icon={<Icon type="loading" />}
+          icon={<LoadingOutlined />}
         />
       )}
       {getInfoAsync.error && (
