@@ -31,8 +31,18 @@ const Root: React.FC = () => (
           height: 100vh;
         }
 
+        //--- antd overrides ---
+        .ant-form-item-label {
+          margin-bottom: 5px;
+        }
+
         .ant-form-item-with-help {
           margin-bottom: 12px;
+        }
+
+        .ant-alert-info {
+          background-color: #111b26;
+          border: 1px solid #153450;
         }
       `}
     />

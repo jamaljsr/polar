@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CloudSyncOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Switch } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -83,7 +84,12 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
         />
       ))}
       {showAll && (
-        <Styled.UpdatesButton type="link" block icon="cloud-sync" onClick={toggleModal}>
+        <Styled.UpdatesButton
+          type="link"
+          block
+          icon={<CloudSyncOutlined />}
+          onClick={toggleModal}
+        >
           {l('checkUpdates')}
         </Styled.UpdatesButton>
       )}

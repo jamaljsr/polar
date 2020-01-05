@@ -26,8 +26,9 @@ const Styled = {
     height: 100%;
   `,
   PageHeader: styled(PageHeader)`
-    border: 1px solid rgb(235, 237, 240);
-    background-color: #fff;
+    border: 1px solid #303030;
+    border-radius: 2px;
+    background-color: #141414;
     margin-bottom: 10px;
     flex: 0;
   `,

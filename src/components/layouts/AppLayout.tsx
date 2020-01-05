@@ -41,6 +41,7 @@ const Styled = {
     display: flex;
     justify-content: space-between;
     padding: 0 5px;
+    background: rgba(43, 43, 43, 0.25);
   `,
 };
 

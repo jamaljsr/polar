@@ -6,9 +6,9 @@ const Styled = {
   Node: styled.div`
     display: flex;
     justify-content: space-between;
-    border: 1px solid #e8e8e8;
+    border: 1px solid #303030;
     border-radius: 4px;
-    box-shadow: 4px 2px 9px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 2px 9px rgba(100, 100, 100, 0.1);
     cursor: move;
     overflow: hidden;
     transition: all 0.3s ease-out;
