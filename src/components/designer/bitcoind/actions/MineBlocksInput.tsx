@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
+import { ToolOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -31,25 +32,23 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   });
 
   return (
-    <>
-      <Form.Item label={l('label')}>
-        <InputGroup compact>
-          <Styled.InputNumber
-            value={value}
-            min={1}
-            max={1000}
-            onChange={v => v && setValue(v)}
-          />
-          <Styled.Button
-            onClick={mineAsync.execute}
-            loading={mineAsync.loading}
-            icon="tool"
-          >
-            {l('btn')}
-          </Styled.Button>
-        </InputGroup>
-      </Form.Item>
-    </>
+    <Form.Item label={l('label')}>
+      <InputGroup compact>
+        <Styled.InputNumber
+          value={value}
+          min={1}
+          max={1000}
+          onChange={v => v && setValue(v)}
+        />
+        <Styled.Button
+          onClick={mineAsync.execute}
+          loading={mineAsync.loading}
+          icon={<ToolOutlined />}
+        >
+          {l('btn')}
+        </Styled.Button>
+      </InputGroup>
+    </Form.Item>
   );
 };
 

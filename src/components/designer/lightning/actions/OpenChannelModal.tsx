@@ -64,6 +64,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   let cmp = (
     <Form
       form={form}
+      layout="vertical"
       hideRequiredMark
       colon={false}
       initialValues={{ from, to, sats: 250000, autoFund: true }}

@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { CopyFilled } from '@ant-design/icons';
+import { CopyOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { message } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 
 const Styled = {
-  Icon: styled(CopyFilled)`
+  Icon: styled(CopyOutlined)`
     margin-left: 5px;
     color: #aaa;
   `,

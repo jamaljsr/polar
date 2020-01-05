@@ -52,6 +52,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
     cmp = (
       <Form
         form={form}
+        layout="vertical"
         hideRequiredMark
         colon={false}
         initialValues={{ node: nodeName, amount: 50000 }}

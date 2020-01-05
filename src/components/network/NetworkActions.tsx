@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import {
   CloseOutlined,
   FormOutlined,
   MoreOutlined,
+  PlayCircleOutlined,
+  StopOutlined,
   ToolOutlined,
+  WarningOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, Menu, Tag } from 'antd';
@@ -37,7 +40,7 @@ const config: {
   [key: number]: {
     label: string;
     type: ButtonType;
-    icon: string;
+    icon: ReactNode;
   };
 } = {
   [Status.Starting]: {
@@ -48,7 +51,7 @@ const config: {
   [Status.Started]: {
     label: 'Stop',
     type: 'danger',
-    icon: 'stop',
+    icon: <StopOutlined />,
   },
   [Status.Stopping]: {
     label: 'Stopping',
@@ -58,12 +61,12 @@ const config: {
   [Status.Stopped]: {
     label: 'Start',
     type: 'primary',
-    icon: 'play-circle',
+    icon: <PlayCircleOutlined />,
   },
   [Status.Error]: {
     label: 'Restart',
     type: 'danger',
-    icon: 'warning',
+    icon: <WarningOutlined />,
   },
 };
 
