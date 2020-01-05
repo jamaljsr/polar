@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Icon, Menu } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { NETWORK_NEW } from 'components/routing';
@@ -24,7 +25,7 @@ const NavMenu: React.FC = () => {
     <Styled.Menu>
       <Menu theme="dark" mode="horizontal" selectable={false}>
         <Menu.Item onClick={() => navigateTo(NETWORK_NEW)}>
-          <Icon type="plus" />
+          <PlusOutlined />
           {l('createNetwork')}
         </Menu.Item>
       </Menu>

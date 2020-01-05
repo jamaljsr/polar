@@ -1,6 +1,9 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { Button, Form } from 'antd';
+import { CodeOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
@@ -31,7 +34,7 @@ const OpenTerminalButton: React.FC<Props> = ({ node }) => {
   return (
     <Form.Item label={l('title')} help={l('info', { cmd })} colon={false}>
       <Button
-        icon="code"
+        icon={<CodeOutlined />}
         block
         loading={openAsync.loading}
         onClick={() =>

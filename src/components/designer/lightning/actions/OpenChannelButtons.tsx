@@ -1,6 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Button, Form, Icon } from 'antd';
+import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
@@ -25,11 +28,11 @@ const OpenChannelButtons: React.FC<Props> = ({ node }) => {
     <Form.Item label={l('openChannelTitle')} colon={false}>
       <Button.Group style={{ width: '100%' }}>
         <Styled.Button onClick={() => showOpenChannel({ to: node.name })}>
-          <Icon type="download" />
+          <DownloadOutlined />
           {l('incoming')}
         </Styled.Button>
         <Styled.Button onClick={() => showOpenChannel({ from: node.name })}>
-          <Icon type="upload" />
+          <UploadOutlined />
           {l('outgoing')}
         </Styled.Button>
       </Button.Group>

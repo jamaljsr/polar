@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
-import { Alert, Icon } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -61,7 +62,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
         <Alert
           type="info"
           showIcon
-          icon={<Icon type="loading" />}
+          icon={<LoadingOutlined />}
           closable={false}
           message={l('waitingNotice', { implementation: node.implementation })}
         />

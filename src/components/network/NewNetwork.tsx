@@ -1,7 +1,9 @@
 import React, { FormEvent, useEffect } from 'react';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Button, Card, Col, Form, Input, InputNumber, PageHeader, Row } from 'antd';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button, Card, Col, Input, InputNumber, PageHeader, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';

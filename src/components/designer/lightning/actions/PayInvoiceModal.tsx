@@ -1,6 +1,8 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { Form, Input, Modal } from 'antd';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Input, Modal } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';

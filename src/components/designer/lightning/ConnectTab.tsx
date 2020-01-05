@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
-import { Icon, Radio, Tooltip } from 'antd';
+import { Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CLightningNode, LightningNode, LndNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';

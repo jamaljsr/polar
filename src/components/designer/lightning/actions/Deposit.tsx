@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { Button, Form, Input, InputNumber } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
@@ -40,7 +43,7 @@ const Deposit: React.FC<{ node: LightningNode }> = ({ node }) => {
           onClick={depositAsync.execute}
           loading={depositAsync.loading}
           style={{ width: '35%' }}
-          icon="download"
+          icon={<DownloadOutlined />}
         >
           {l('depositBtn')}
         </Button>

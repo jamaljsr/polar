@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 
 interface Props {
   inline?: boolean;
@@ -7,9 +7,7 @@ interface Props {
 }
 
 const Loader: React.FC<Props> = ({ inline, size }) => (
-  <Icon
-    type="loading"
-    theme="outlined"
+  <LoadingOutlined
     style={{
       color: '#ffa940',
       fontSize: size || '2rem',

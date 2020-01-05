@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
-import { Card, Col, Icon, Row, Statistic } from 'antd';
+import { LinkOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Card, Col, Row, Statistic } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
@@ -35,14 +36,14 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
           <Statistic
             title={l('lightningNodes')}
             value={network.nodes.lightning.length}
-            suffix={<Icon type="thunderbolt" />}
+            suffix={<ThunderboltOutlined />}
           />
         </Col>
         <Col span={12}>
           <Statistic
             title={l('bitcoinNodes')}
             value={network.nodes.bitcoin.length}
-            suffix={<Icon type="link" />}
+            suffix={<LinkOutlined />}
           />
         </Col>
       </Row>

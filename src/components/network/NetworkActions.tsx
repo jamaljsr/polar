@@ -1,7 +1,8 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Button, Divider, Dropdown, Icon, Menu, Tag } from 'antd';
+import { MoreOutlined, ToolOutlined } from '@ant-design/icons';
+import { Button, Divider, Dropdown, Menu, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
@@ -101,7 +102,11 @@ const NetworkActions: React.FC<Props> = ({
       {bitcoinNode.status === Status.Started && nodeState && nodeState.chainInfo && (
         <>
           <Tag>height: {nodeState.chainInfo.blocks}</Tag>
-          <Button onClick={mineAsync.execute} loading={mineAsync.loading} icon="tool">
+          <Button
+            onClick={mineAsync.execute}
+            loading={mineAsync.loading}
+            icon={<ToolOutlined />}
+          >
             {l('mineBtn')}
           </Button>
           <Divider type="vertical" />
@@ -118,7 +123,7 @@ const NetworkActions: React.FC<Props> = ({
         {l(`primaryBtn${label}`)}
       </Styled.Button>
       <Dropdown key="options" overlay={menu}>
-        <Button icon="more" />
+        <Button icon={<MoreOutlined />} />
       </Dropdown>
     </>
   );

@@ -1,7 +1,9 @@
 import React, { ReactNode } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { Button, Col, Form, InputNumber, message, Modal, Result, Row } from 'antd';
+import { Form } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
+import { Button, Col, InputNumber, message, Modal, Result, Row } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
