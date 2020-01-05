@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Select } from 'antd';
-import { WrappedFormUtils } from 'antd/lib/form/Form';
+import { Form, Select } from 'antd';
+import { FormInstance } from 'antd/lib/form/Form';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { LightningNodeBalances } from 'lib/lightning/types';
@@ -12,11 +10,10 @@ import { format } from 'utils/units';
 
 export interface Props {
   network: Network;
-  id: string;
-  form: WrappedFormUtils<any>;
+  name: string;
+  form: FormInstance;
   label?: string;
   disabled?: boolean;
-  initialValue?: string;
   status?: Status;
   nodes?: {
     [key: string]: LightningNodeModel;
@@ -25,20 +22,20 @@ export interface Props {
 
 const LightningNodeSelect: React.FC<Props> = ({
   network,
-  id,
+  name,
   form,
   label,
   disabled,
-  initialValue,
   status,
   nodes,
 }) => {
   const { l } = usePrefixedTranslation('cmps.common.form.LightningNodeSelect');
   const [help, setHelp] = useState<string>();
+  const [initialValue] = useState(form.getFieldValue(name));
   const [initialized, setInitialized] = useState(false);
-  const getBalance = (name: string): string | undefined => {
-    if (nodes && nodes[name] && nodes[name].walletBalance) {
-      const balances = nodes[name].walletBalance as LightningNodeBalances;
+  const getBalance = (nodeName: string): string | undefined => {
+    if (nodes && nodes[nodeName] && nodes[nodeName].walletBalance) {
+      const balances = nodes[nodeName].walletBalance as LightningNodeBalances;
       return `${l('balance')}: ${format(balances.confirmed)} sats`;
     }
   };
@@ -52,19 +49,19 @@ const LightningNodeSelect: React.FC<Props> = ({
     lnNodes = lnNodes.filter(n => n.status === status);
   }
   return (
-    <Form.Item label={label} help={help}>
-      {form.getFieldDecorator(id, {
-        initialValue: initialValue,
-        rules: [{ required: true, message: l('cmps.forms.required') }],
-      })(
-        <Select disabled={disabled} onChange={v => setHelp(getBalance(v.toString()))}>
-          {lnNodes.map(node => (
-            <Select.Option key={node.name} value={node.name}>
-              {node.name}
-            </Select.Option>
-          ))}
-        </Select>,
-      )}
+    <Form.Item
+      name={name}
+      label={label}
+      help={help}
+      rules={[{ required: true, message: l('cmps.forms.required') }]}
+    >
+      <Select disabled={disabled} onChange={v => setHelp(getBalance(v.toString()))}>
+        {lnNodes.map(node => (
+          <Select.Option key={node.name} value={node.name}>
+            {node.name}
+          </Select.Option>
+        ))}
+      </Select>
     </Form.Item>
   );
 };

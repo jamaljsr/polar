@@ -1,11 +1,8 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import styled from '@emotion/styled';
 import { SwapOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Alert, Col, Modal, Row, Select } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
+import styled from '@emotion/styled';
+import { Alert, Col, Form, Modal, Row, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -25,19 +22,15 @@ const Styled = {
   `,
 };
 
-interface FormFields {
-  lnNode?: string;
-  backendNode?: string;
-}
-
-interface Props extends FormComponentProps<FormFields> {
+interface Props {
   network: Network;
 }
 
-const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
+const ChangeBackendModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation(
     'cmps.designer.lightning.actions.ChangeBackendModal',
   );
+  const [form] = Form.useForm();
   const { visible, lnName, backendName } = useStoreState(s => s.modals.changeBackend);
   const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeBackend } = useStoreActions(s => s.modals);
@@ -78,12 +71,8 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
   }
 
   const handleSubmit = () => {
-    form.validateFields(err => {
-      if (err) return;
-
-      if (!ln || !backend) return;
-      changeAsync.execute(ln.name, backend.name);
-    });
+    if (!ln || !backend) return;
+    changeAsync.execute(ln.name, backend.name);
   };
 
   return (
@@ -99,38 +88,42 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
           loading: changeAsync.loading,
           disabled: !!compatWarning,
         }}
-        onOk={handleSubmit}
+        onOk={form.submit}
       >
         <p>{l('description')}</p>
-        <Form hideRequiredMark colon={false}>
-          <Row type="flex" gutter={16}>
+        <Form
+          form={form}
+          hideRequiredMark
+          colon={false}
+          initialValues={{ lnNode: lnName, backendNode: backendName }}
+          onFinish={handleSubmit}
+        >
+          <Row gutter={16}>
             <Col span={10}>
               <LightningNodeSelect
                 network={network}
-                id="lnNode"
+                name="lnNode"
                 form={form}
                 label={l('lnNodeLabel')}
                 disabled={changeAsync.loading}
-                initialValue={lnName}
               />
             </Col>
             <Styled.IconCol span={4}>
               <SwapOutlined style={{ fontSize: '2em', opacity: 0.5 }} />
             </Styled.IconCol>
             <Col span={10}>
-              <Form.Item label={l('backendNodeLabel')}>
-                {form.getFieldDecorator('backendNode', {
-                  initialValue: backendName,
-                  rules: [{ required: true, message: l('cmps.forms.required') }],
-                })(
-                  <Select disabled={changeAsync.loading}>
-                    {network.nodes.bitcoin.map(node => (
-                      <Select.Option key={node.name} value={node.name}>
-                        {node.name}
-                      </Select.Option>
-                    ))}
-                  </Select>,
-                )}
+              <Form.Item
+                name="backendNode"
+                label={l('backendNodeLabel')}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <Select disabled={changeAsync.loading}>
+                  {network.nodes.bitcoin.map(node => (
+                    <Select.Option key={node.name} value={node.name}>
+                      {node.name}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
@@ -148,4 +141,4 @@ const ChangeBackendModal: React.FC<Props> = ({ network, form }) => {
   );
 };
 
-export default Form.create<Props>()(ChangeBackendModal);
+export default ChangeBackendModal;

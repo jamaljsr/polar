@@ -1,9 +1,7 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { CodeOutlined } from '@ant-design/icons';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button } from 'antd';
+import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';

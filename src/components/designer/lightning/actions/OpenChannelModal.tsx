@@ -1,9 +1,6 @@
 import React from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Alert, Checkbox, Col, InputNumber, Modal, Row } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
+import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -12,21 +9,15 @@ import { Network } from 'types';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
-interface FormFields {
-  from: string;
-  to: string;
-  sats: string;
-  autoFund: boolean;
-}
-
-interface Props extends FormComponentProps<FormFields> {
+interface Props {
   network: Network;
 }
 
-const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
+const OpenChannelModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation(
     'cmps.designer.lightning.actions.OpenChannelModal',
   );
+  const [form] = Form.useForm();
   const { nodes } = useStoreState(s => s.lightning);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
@@ -61,31 +52,32 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
     showDeposit = balance <= sats && !areSameNodesSelected;
   }
 
-  const handleSubmit = () => {
-    form.validateFields((err, values: FormFields) => {
-      if (err) return;
-
-      const { lightning } = network.nodes;
-      const fromNode = lightning.find(n => n.name === values.from);
-      const toNode = lightning.find(n => n.name === values.to);
-      if (!fromNode || !toNode) return;
-      const autoFund = showDeposit && values.autoFund;
-      openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats, autoFund });
-    });
+  const handleSubmit = (values: any) => {
+    const { lightning } = network.nodes;
+    const fromNode = lightning.find(n => n.name === values.from);
+    const toNode = lightning.find(n => n.name === values.to);
+    if (!fromNode || !toNode) return;
+    const autoFund = showDeposit && values.autoFund;
+    openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats, autoFund });
   };
 
   let cmp = (
-    <Form hideRequiredMark colon={false}>
+    <Form
+      form={form}
+      hideRequiredMark
+      colon={false}
+      initialValues={{ from, to, sats: 250000, autoFund: true }}
+      onFinish={handleSubmit}
+    >
       {areSameNodesSelected && <Alert type="error" message={l('sameNodesWarnMsg')} />}
-      <Row type="flex" gutter={16}>
+      <Row gutter={16}>
         <Col span={12}>
           <LightningNodeSelect
             network={network}
-            id="from"
+            name="from"
             form={form}
             label={l('source')}
             disabled={openChanAsync.loading}
-            initialValue={from}
             status={Status.Started}
             nodes={nodes}
           />
@@ -93,46 +85,37 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
         <Col span={12}>
           <LightningNodeSelect
             network={network}
-            id="to"
+            name="to"
             form={form}
             label={l('dest')}
             disabled={openChanAsync.loading}
-            initialValue={to}
             status={Status.Started}
             nodes={nodes}
           />
         </Col>
       </Row>
       <Form.Item
+        name="sats"
         label={l('capacityLabel') + ' (sats)'}
         help={l('capacityInfo', {
           min: '20,000 sats',
           max: '16,777,216 sats',
         })}
+        rules={[{ required: true, message: l('cmps.forms.required') }]}
       >
-        {form.getFieldDecorator('sats', {
-          initialValue: 250000,
-          rules: [{ required: true, message: l('cmps.forms.required') }],
-        })(
-          <InputNumber
-            min={20000}
-            disabled={openChanAsync.loading}
-            formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
-            style={{ width: '100%' }}
-          />,
-        )}
+        <InputNumber
+          min={20000}
+          disabled={openChanAsync.loading}
+          formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
+          style={{ width: '100%' }}
+        />
       </Form.Item>
       {showDeposit && (
-        <Form.Item>
-          {form.getFieldDecorator('autoFund', {
-            valuePropName: 'checked',
-            initialValue: true,
-          })(
-            <Checkbox disabled={openChanAsync.loading}>
-              Deposit enough funds to {selectedFrom} to open the channel
-            </Checkbox>,
-          )}
+        <Form.Item name="autoFund" valuePropName="checked">
+          <Checkbox disabled={openChanAsync.loading}>
+            Deposit enough funds to {selectedFrom} to open the channel
+          </Checkbox>
         </Form.Item>
       )}
     </Form>
@@ -163,7 +146,7 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
           loading: openChanAsync.loading,
           disabled: areSameNodesSelected,
         }}
-        onOk={handleSubmit}
+        onOk={form.submit}
       >
         {cmp}
       </Modal>
@@ -171,4 +154,4 @@ const OpenChannelModal: React.FC<Props> = ({ network, form }) => {
   );
 };
 
-export default Form.create<Props>()(OpenChannelModal);
+export default OpenChannelModal;

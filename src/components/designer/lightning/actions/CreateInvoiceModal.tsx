@@ -1,10 +1,7 @@
 import React, { ReactNode } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { Form } from '@ant-design/compatible';
-import '@ant-design/compatible/assets/index.css';
-import { Button, Col, InputNumber, message, Modal, Result, Row } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
+import { Button, Col, Form, InputNumber, message, Modal, Result, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -13,19 +10,15 @@ import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
-interface FormFields {
-  node?: string;
-  amount?: string;
-}
-
-interface Props extends FormComponentProps<FormFields> {
+interface Props {
   network: Network;
 }
 
-const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
+const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation(
     'cmps.designer.lightning.actions.CreateInvoiceModal',
   );
+  const [form] = Form.useForm();
   const { visible, nodeName, invoice, amount } = useStoreState(
     s => s.modals.createInvoice,
   );
@@ -42,15 +35,11 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
     }
   });
 
-  const handleSubmit = () => {
-    form.validateFields((err, values: FormFields) => {
-      if (err) return;
-
-      const { lightning } = network.nodes;
-      const node = lightning.find(n => n.name === values.node);
-      if (!node || !values.amount) return;
-      createAsync.execute(node, parseInt(values.amount));
-    });
+  const handleSubmit = (values: any) => {
+    const { lightning } = network.nodes;
+    const node = lightning.find(n => n.name === values.node);
+    if (!node || !values.amount) return;
+    createAsync.execute(node, parseInt(values.amount));
   };
 
   const handleCopy = () => {
@@ -61,32 +50,36 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
   let cmp: ReactNode;
   if (!invoice) {
     cmp = (
-      <Form hideRequiredMark colon={false}>
-        <Row type="flex" gutter={16}>
+      <Form
+        form={form}
+        hideRequiredMark
+        colon={false}
+        initialValues={{ node: nodeName, amount: 50000 }}
+        onFinish={handleSubmit}
+      >
+        <Row gutter={16}>
           <Col span={12}>
             <LightningNodeSelect
               network={network}
-              id="node"
+              name="node"
               form={form}
               label={l('nodeLabel')}
               disabled={createAsync.loading}
-              initialValue={nodeName}
             />
           </Col>
           <Col span={12}>
-            <Form.Item label={l('amountLabel') + ' (sats)'}>
-              {form.getFieldDecorator('amount', {
-                initialValue: 50000,
-                rules: [{ required: true, message: l('cmps.forms.required') }],
-              })(
-                <InputNumber
-                  min={1}
-                  disabled={createAsync.loading}
-                  formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
-                  style={{ width: '100%' }}
-                />,
-              )}
+            <Form.Item
+              name="amount"
+              label={l('amountLabel') + ' (sats)'}
+              rules={[{ required: true, message: l('cmps.forms.required') }]}
+            >
+              <InputNumber
+                min={1}
+                disabled={createAsync.loading}
+                formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -127,7 +120,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
         okButtonProps={{
           loading: createAsync.loading,
         }}
-        onOk={handleSubmit}
+        onOk={form.submit}
       >
         {cmp}
       </Modal>
@@ -135,4 +128,4 @@ const CreateInvoiceModal: React.FC<Props> = ({ network, form }) => {
   );
 };
 
-export default Form.create<Props>()(CreateInvoiceModal);
+export default CreateInvoiceModal;
