@@ -35,7 +35,7 @@ const Home: React.FC = () => {
       {networks.length === 0 && <GetStarted />}
       <Row gutter={16}>
         {networks.map(n => (
-          <Col key={n.id} sm={24} md={12} lg={8} xl={6} xxl={4}>
+          <Col key={n.id} sm={24} md={12} lg={8} xl={6} xxl={5}>
             <NetworkCard network={n} />
           </Col>
         ))}

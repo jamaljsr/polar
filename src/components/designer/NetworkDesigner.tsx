@@ -18,6 +18,7 @@ const Styled = {
   Designer: styled.div`
     position: relative;
     flex: 1;
+    overflow: hidden;
   `,
   FlowChart: styled(FlowChart)`
     height: 100%;
