@@ -51,7 +51,7 @@
     "xterm-addon-fit": "0.3.0"
   },
   "devDependencies": {
-    "@ant-design/icons": "^4.0.0-alpha.19",
+    "@ant-design/icons": "4.0.0-alpha.19",
     "@commitlint/cli": "8.3.4",
     "@commitlint/config-conventional": "8.3.4",
     "@emotion/core": "10.0.27",
