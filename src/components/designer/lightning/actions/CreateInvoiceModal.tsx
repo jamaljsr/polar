@@ -29,7 +29,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
   const createAsync = useAsyncCallback(async (node: LightningNode, amount: number) => {
     try {
       const invoice = await createInvoice({ node, amount, memo: '' });
-      showCreateInvoice({ nodeName: node.name, amount, invoice });
+      await showCreateInvoice({ nodeName: node.name, amount, invoice });
     } catch (error) {
       notify({ message: l('submitError'), error });
     }
@@ -92,7 +92,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
         title={l('successTitle')}
         subTitle={l('successDesc', { nodeName, amount: format(`${amount}`) })}
         extra={
-          <>
+          <Form>
             <Form.Item>
               <CopyableInput label="Invoice" value={invoice} />
             </Form.Item>
@@ -101,7 +101,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
                 <Button type="primary">{l('copyClose')}</Button>
               </CopyToClipboard>
             </Form.Item>
-          </>
+          </Form>
         }
       />
     );
