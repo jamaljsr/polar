@@ -128,9 +128,11 @@ describe('ChangeBackendModal', () => {
 
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
-      const { getByText, findAllByText } = await renderComponent(Status.Stopped, '', '');
+      const { getByText, getAllByText } = await renderComponent(Status.Stopped, '', '');
       fireEvent.click(getByText('Change Backend'));
-      expect(await findAllByText('required')).toHaveLength(2);
+      await wait(() => {
+        expect(getAllByText('required')).toHaveLength(2);
+      });
     });
   });
 

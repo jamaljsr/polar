@@ -9,4 +9,5 @@ export default styled(Card)`
   width: 360px;
   border-radius: 2px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 `;

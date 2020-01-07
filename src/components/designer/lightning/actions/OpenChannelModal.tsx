@@ -23,7 +23,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
   const [selectedFrom, setSelectedFrom] = useState(from);
   const [selectedTo, setSelectedTo] = useState(to);
-  const [selectedSats, setSelectedSats] = useState(0);
+  const [selectedSats, setSelectedSats] = useState(250000);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
   const { getWalletBalance, openChannel } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
@@ -47,13 +47,18 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
 
   const sameNode = selectedFrom === selectedTo;
   useMemo(() => {
-    if (selectedFrom && nodes[selectedFrom] && nodes[selectedFrom].walletBalance) {
+    if (
+      selectedFrom &&
+      nodes[selectedFrom] &&
+      nodes[selectedFrom].walletBalance &&
+      !openChanAsync.loading
+    ) {
       const nodeInfo = nodes[selectedFrom];
       const confirmed = nodeInfo.walletBalance && nodeInfo.walletBalance.confirmed;
       const balance = parseInt(confirmed || '0');
       setShowDeposit(balance <= selectedSats && !sameNode);
     }
-  }, [selectedFrom, selectedSats, nodes, sameNode]);
+  }, [selectedFrom, selectedSats, nodes, sameNode, openChanAsync.loading]);
 
   const handleSubmit = (values: any) => {
     const { lightning } = network.nodes;

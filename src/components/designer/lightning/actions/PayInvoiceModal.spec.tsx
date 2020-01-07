@@ -78,13 +78,13 @@ describe('PayInvoiceModal', () => {
   });
 
   it('should do nothing if an invalid node is selected', async () => {
-    const { getByText, getByLabelText } = await renderComponent(
+    const { getByText, findByText, getByLabelText } = await renderComponent(
       Status.Stopped,
       'invalid',
     );
     fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
-    await wait(() => fireEvent.click(getByText('Pay Invoice')));
-    expect(getByText('Pay Invoice')).toBeInTheDocument();
+    fireEvent.click(getByText('Pay Invoice'));
+    expect(await findByText('Pay Invoice')).toBeInTheDocument();
   });
 
   describe('with form submitted', () => {
@@ -109,11 +109,11 @@ describe('PayInvoiceModal', () => {
 
     it('should display an error when paying the invoice fails', async () => {
       lightningServiceMock.payInvoice.mockRejectedValue(new Error('error-msg'));
-      const { getByText, getByLabelText } = await renderComponent();
+      const { getByText, findByText, getByLabelText } = await renderComponent();
       fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
-      await wait(() => fireEvent.click(getByText('Pay Invoice')));
-      expect(getByText('Unable to pay the Invoice')).toBeInTheDocument();
-      expect(getByText('error-msg')).toBeInTheDocument();
+      fireEvent.click(getByText('Pay Invoice'));
+      expect(await findByText('Unable to pay the Invoice')).toBeInTheDocument();
+      expect(await findByText('error-msg')).toBeInTheDocument();
     });
   });
 });

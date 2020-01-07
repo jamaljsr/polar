@@ -28,7 +28,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
         message: l('successTitle'),
         description: l('successDesc', { amount: format(amount), nodeName }),
       });
-      hidePayInvoice();
+      await hidePayInvoice();
     } catch (error) {
       notify({ message: l('submitError'), error });
     }
@@ -42,43 +42,41 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   };
 
   return (
-    <>
-      <Modal
-        title={l('title')}
-        visible={visible}
-        onCancel={() => hidePayInvoice()}
-        destroyOnClose
-        cancelText={l('cancelBtn')}
-        okText={l('okBtn')}
-        okButtonProps={{
-          loading: payAsync.loading,
-        }}
-        onOk={form.submit}
+    <Modal
+      title={l('title')}
+      visible={visible}
+      onCancel={() => hidePayInvoice()}
+      destroyOnClose
+      cancelText={l('cancelBtn')}
+      okText={l('okBtn')}
+      okButtonProps={{
+        loading: payAsync.loading,
+      }}
+      onOk={form.submit}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        hideRequiredMark
+        colon={false}
+        initialValues={{ node: nodeName }}
+        onFinish={handleSubmit}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          hideRequiredMark
-          colon={false}
-          initialValues={{ node: nodeName }}
-          onFinish={handleSubmit}
+        <LightningNodeSelect
+          network={network}
+          name="node"
+          label={l('nodeLabel')}
+          disabled={payAsync.loading}
+        />
+        <Form.Item
+          name="invoice"
+          label={l('invoiceLabel')}
+          rules={[{ required: true, message: l('cmps.forms.required') }]}
         >
-          <LightningNodeSelect
-            network={network}
-            name="node"
-            label={l('nodeLabel')}
-            disabled={payAsync.loading}
-          />
-          <Form.Item
-            name="invoice"
-            label={l('invoiceLabel')}
-            rules={[{ required: true, message: l('cmps.forms.required') }]}
-          >
-            <Input.TextArea rows={6} disabled={payAsync.loading} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+          <Input.TextArea rows={6} disabled={payAsync.loading} />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 
