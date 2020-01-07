@@ -14,7 +14,10 @@ This document describes the steps to follow to create a new release of Polar and
    ```
    yarn release
    ```
-1. Manually modify with CHANGELOG.md file to make it more presentable. Add a brief summary at the top and remove any unnecessary commits.
+1. Manually modify with `CHANGELOG.md` file to make it more presentable. Add a brief summary at the top and remove any unnecessary commits.
+1. Modify the `README.md` file
+   - add any updates to features and/or newly supported node versions
+   - update the download links to point to the new urls
 1. Commit your changes
    ```
    git add .

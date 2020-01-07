@@ -21,18 +21,20 @@ With Polar you can:
 
 - Create a regtest Lightning Network in just a few clicks
 - Connect from your app to the lightning nodes via RPC
-- Launch a terminal in each bitcoin/lightning node
 - Add more nodes using drag & drop
+- Start and stop individual nodes
 - Open & Close Channels
+- Create & Pay Lightning Invoices
+- Launch a terminal in each bitcoin/lightning node
 - Manually mine new blocks
 - Deposit regtest coins into each Lightning node
 
-Supported Network Nodes:
+Supported Network Node Versions:
 
-- LND v0.8.0 & v0.7.1
-- Bitcoin Core v0.18.1
-- c-lightning (coming soon)
-- eclair (coming soon)
+- LND v0.8.2, v0.8.0 & v0.7.1
+- Bitcoin Core v0.19.0.1 & v0.18.1
+- c-lightning v0.8.0
+- eclair (coming soon?) \*need to gauge demand for this implementation\*
 
 ## Dependencies
 
@@ -41,9 +43,17 @@ Polar requires that you have Docker installed to create the local networks
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
 
+You will be prompted to install Docker if Polar cannot detect it automatically
+
 ## Download
 
-The most current Polar downloads for Mac, Windows & Linux can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
+Download Polar v0.2.0 for
+
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v0.2.0/polar-mac-v0.2.0.dmg), [zip](https://github.com/jamaljsr/polar/releases/download/v0.2.0/polar-mac-v0.2.0.zip))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v0.2.0/polar-linux-amd64-v0.2.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v0.2.0/polar-linux-x86_64-v0.2.0.AppImage))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v0.2.0/polar-win-v0.1.0.exe))
+
+Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
 ## Polar's Future
 
@@ -91,7 +101,7 @@ Polar's translations are managed on [Crowdin](https://crowdin.com/project/polar)
 - [Prettier](https://github.com/prettier/prettier): keep code format consistent
 - [ESLint](https://github.com/eslint/eslint): follow code quality best practices
 - [Github Actions](https://github.com/actions): automate builds and testing on Windows/Mac/Linux
-- [Renevate Bot](https://github.com/renovatebot/renovate): automate dependency upgrades via GitHub bot
+- [Renovate Bot](https://github.com/renovatebot/renovate): automate dependency upgrades via GitHub bot
 - [Jest](https://github.com/facebook/jest): delightful JavaScript testing
 - [React Testing Library](https://github.com/testing-library/react-testing-library): React specific testing utilities
 - [CodeCov](https://codecov.io/): maintain quality of unit tests
