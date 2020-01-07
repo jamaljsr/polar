@@ -53,7 +53,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       const balance = parseInt(confirmed || '0');
       setShowDeposit(balance <= selectedSats && !sameNode);
     }
-  }, [selectedFrom, selectedTo, selectedSats, nodes, sameNode]);
+  }, [selectedFrom, selectedSats, nodes, sameNode]);
 
   const handleSubmit = (values: any) => {
     const { lightning } = network.nodes;
