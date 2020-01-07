@@ -9,7 +9,9 @@ import OpenTerminalButton from './OpenTerminalButton';
 describe('OpenTerminalButton', () => {
   const renderComponent = (nodeSelector: (n: Network) => LightningNode | BitcoinNode) => {
     const network = getNetwork(1, 'test network');
-    return renderWithProviders(<OpenTerminalButton node={nodeSelector(network)} />);
+    return renderWithProviders(<OpenTerminalButton node={nodeSelector(network)} />, {
+      wrapForm: true,
+    });
   };
 
   it('should render label', () => {

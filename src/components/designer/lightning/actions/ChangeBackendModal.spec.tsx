@@ -13,7 +13,11 @@ import {
 import ChangeBackendModal from './ChangeBackendModal';
 
 describe('ChangeBackendModal', () => {
-  const renderComponent = async (status?: Status, lnName = 'alice') => {
+  const renderComponent = async (
+    status?: Status,
+    lnName = 'alice',
+    backendName = 'backend1',
+  ) => {
     const network = getNetwork(1, 'test network', status);
     const oldBitcoind = createBitcoindNetworkNode(network, '0.18.1', status);
     network.nodes.bitcoin.push(oldBitcoind);
@@ -34,7 +38,7 @@ describe('ChangeBackendModal', () => {
         changeBackend: {
           visible: true,
           lnName,
-          backendName: 'backend1',
+          backendName,
         },
       },
     };
@@ -106,29 +110,27 @@ describe('ChangeBackendModal', () => {
   });
 
   it('should display the compatibility warning for older bitcoin node', async () => {
-    const { getByText, queryByText, getByLabelText } = await renderComponent();
+    const { getByText, queryByText, changeSelect } = await renderComponent();
     const warning =
       'dave is running LND v0.7.1-beta which is compatible with Bitcoin Core v0.18.1 and older.' +
       ' backend1 is running v0.19.0.1 so it cannot be used.';
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
-    fireEvent.click(getByLabelText('Lightning Node'));
-    fireEvent.click(getByText('dave'));
+    changeSelect('Lightning Node', 'dave');
     expect(getByText(warning)).toBeInTheDocument();
   });
 
   it('should not display the compatibility warning', async () => {
     const { queryByLabelText } = await renderComponent(Status.Stopped, 'bob');
-    const warning = queryByLabelText('icon: exclamation-circle');
+    const warning = queryByLabelText('exclamation-circle');
     expect(warning).not.toBeInTheDocument();
   });
 
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
-      const { getAllByText, getByText, store } = await renderComponent();
-      act(() => store.getActions().modals.showChangeBackend({}));
+      const { getByText, findAllByText } = await renderComponent(Status.Stopped, '', '');
       fireEvent.click(getByText('Change Backend'));
-      expect(getAllByText('required')).toHaveLength(2);
+      expect(await findAllByText('required')).toHaveLength(2);
     });
   });
 
@@ -142,9 +144,8 @@ describe('ChangeBackendModal', () => {
 
   describe('with form submitted', () => {
     it('should update the backend successfully', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
-      fireEvent.click(getByLabelText('Bitcoin Node'));
-      fireEvent.click(getByText('backend2'));
+      const { getByText, changeSelect, store } = await renderComponent();
+      changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
       await wait(() => {
         expect(store.getState().modals.changeBackend.visible).toBe(false);
@@ -155,10 +156,9 @@ describe('ChangeBackendModal', () => {
     });
 
     it('should succeed if a previous link does not exist', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
+      const { getByText, changeSelect, store } = await renderComponent();
       store.getActions().designer.removeLink('alice-backend1');
-      fireEvent.click(getByLabelText('Bitcoin Node'));
-      fireEvent.click(getByText('backend2'));
+      changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
       await wait(() => {
         expect(store.getState().modals.changeBackend.visible).toBe(false);
@@ -169,9 +169,8 @@ describe('ChangeBackendModal', () => {
     });
 
     it('should restart containers when backend is updated', async () => {
-      const { getByText, getByLabelText } = await renderComponent(Status.Started);
-      fireEvent.click(getByLabelText('Bitcoin Node'));
-      fireEvent.click(getByText('backend2'));
+      const { getByText, changeSelect } = await renderComponent(Status.Started);
+      changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
       await wait(() => {
         expect(injections.dockerService.stopNode).toBeCalledTimes(1);

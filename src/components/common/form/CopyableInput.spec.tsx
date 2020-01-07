@@ -9,18 +9,18 @@ describe('CopyableInput component', () => {
 
   it('should display a copy icon', () => {
     const { getByLabelText } = renderComponent();
-    expect(getByLabelText('icon: copy')).toBeInTheDocument();
+    expect(getByLabelText('copy')).toBeInTheDocument();
   });
 
   it('should display a message when the icon is clicked', async () => {
     const { findByText, getByLabelText } = renderComponent();
-    fireEvent.click(getByLabelText('icon: copy'));
+    fireEvent.click(getByLabelText('copy'));
     expect(await findByText('Copied to clipboard')).toBeInTheDocument();
   });
 
   it('should display a message with label when the icon is clicked', async () => {
     const { findByText, getByLabelText } = renderComponent('test-label');
-    fireEvent.click(getByLabelText('icon: copy'));
+    fireEvent.click(getByLabelText('copy'));
     expect(await findByText('Copied test-label to clipboard')).toBeInTheDocument();
   });
 });

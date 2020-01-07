@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
+import { Form } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
@@ -66,13 +67,16 @@ export const injections: StoreInjections = {
  */
 export const renderWithProviders = (
   component: React.ReactElement,
-  config?: { route?: string; initialState?: any },
+  config?: { route?: string; initialState?: any; wrapForm?: boolean },
 ) => {
   const options = config || {};
   // use in-memory history for testing
   const history = createMemoryHistory();
   if (options.route) {
     history.push(options.route);
+  }
+  if (options.wrapForm) {
+    component = <Form>{component}</Form>;
   }
   // provide initial state if any
   const initialState = options.initialState || {};
@@ -85,5 +89,15 @@ export const renderWithProviders = (
     </StoreProvider>,
   );
 
-  return { ...result, history, injections, store };
+  // a helper to change the value of an antd <Select> component
+  const changeSelect = (label: string, value: string) => {
+    const { getByLabelText, getAllByText } = result;
+    fireEvent.mouseDown(getByLabelText(label));
+    // Select renders two lists of the options to the dom. click on the
+    // second one if it exists, otherwise click the only one
+    const options = getAllByText(value);
+    fireEvent.click(options[1] || options[0]);
+  };
+
+  return { ...result, history, injections, store, changeSelect };
 };

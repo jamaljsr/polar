@@ -120,7 +120,7 @@ describe('Channel component', () => {
       // antd creates two modals in the DOM for some silly reason. Need to click one
       fireEvent.click(getAllByText('Yes')[0]);
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('icon: check-circle-o'));
+      await waitForElement(() => getByLabelText('check-circle'));
       expect(getByText('The channel has been closed')).toBeInTheDocument();
       expect(lightningServiceMock.closeChannel).toBeCalledTimes(1);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
@@ -128,7 +128,7 @@ describe('Channel component', () => {
 
     it('should display an error if closing the channel fails', async () => {
       // antd Modal.confirm logs a console error when onOk fails
-      // this supresses those errors from being displayed in test runs
+      // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         lightningServiceMock.closeChannel.mockRejectedValue(new Error('test error'));
         const { getByText, getAllByText, getByLabelText } = renderComponent();
@@ -137,7 +137,7 @@ describe('Channel component', () => {
         // antd creates two modals in the DOM for some silly reason. Need to click one
         fireEvent.click(getAllByText('Yes')[0]);
         // wait for the error notification to be displayed
-        await waitForElement(() => getByLabelText('icon: close-circle-o'));
+        await waitForElement(() => getByLabelText('close-circle'));
         expect(getByText('Unable to close the channel')).toBeInTheDocument();
         expect(getByText('test error')).toBeInTheDocument();
       });

@@ -84,7 +84,7 @@ describe('NetworkActions Component', () => {
 
   it('should call onRenameClick when rename menu item clicked', async () => {
     const { getByText, getByLabelText } = renderComponent(Status.Stopped);
-    fireEvent.mouseOver(getByLabelText('icon: more'));
+    fireEvent.mouseOver(getByLabelText('more'));
     await wait(() => jest.runOnlyPendingTimers());
     fireEvent.click(getByText('Rename'));
     await wait(() => jest.runOnlyPendingTimers());
@@ -93,7 +93,7 @@ describe('NetworkActions Component', () => {
 
   it('should call onDeleteClick when rename menu item clicked', async () => {
     const { getByText, getByLabelText } = renderComponent(Status.Stopped);
-    fireEvent.mouseOver(getByLabelText('icon: more'));
+    fireEvent.mouseOver(getByLabelText('more'));
     await wait(() => jest.runOnlyPendingTimers());
     fireEvent.click(getByText('Delete'));
     await wait(() => jest.runOnlyPendingTimers());

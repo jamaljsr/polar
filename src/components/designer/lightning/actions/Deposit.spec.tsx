@@ -22,7 +22,7 @@ describe('Deposit', () => {
     };
     const node = network.nodes.lightning[0];
     const cmp = <Deposit node={node} />;
-    const result = renderWithProviders(cmp, { initialState });
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     return {
       ...result,
       input: result.container.querySelector('input') as HTMLInputElement,

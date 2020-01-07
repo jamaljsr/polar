@@ -73,10 +73,10 @@ describe('NetworkDesigner Component', () => {
     expect(store.getState().designer.activeChart.selected.id).not.toBeUndefined();
   });
 
-  it('should not set the active chart if it doesnt exist', async () => {
+  it('should not set the active chart if it does not exist', async () => {
     const { getByLabelText, store } = renderComponent({});
     expect(store.getState().designer.activeChart).toBeUndefined();
-    expect(getByLabelText('icon: loading')).toBeInTheDocument();
+    expect(getByLabelText('loading')).toBeInTheDocument();
   });
 
   it('should display node details in the sidebar when a node is selected', async () => {

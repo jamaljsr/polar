@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { SwapOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
@@ -31,7 +31,10 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
     'cmps.designer.lightning.actions.ChangeBackendModal',
   );
   const [form] = Form.useForm();
+  const [compatWarning, setCompatWarning] = useState<string>();
   const { visible, lnName, backendName } = useStoreState(s => s.modals.changeBackend);
+  const [selectedLn, setSelectedLn] = useState(lnName);
+  const [selectedBackend, setSelectedBackend] = useState(backendName);
   const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeBackend } = useStoreActions(s => s.modals);
   const { updateBackendNode } = useStoreActions(s => s.network);
@@ -54,23 +57,26 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  const lnSelected: string = form.getFieldValue('lnNode') || lnName;
-  const backendSelected: string = form.getFieldValue('backendNode') || backendName;
-  const { lightning, bitcoin } = network.nodes;
-  const ln = lightning.find(n => n.name === lnSelected);
-  const backend = bitcoin.find(n => n.name === backendSelected);
-  let compatWarning: string | undefined;
-  if (ln && backend) {
-    const { compatibility } = dockerRepoState.images[ln.implementation];
-    if (compatibility) {
-      const requiredVersion = compatibility[ln.version];
-      if (!isVersionCompatible(backend.version, requiredVersion)) {
-        compatWarning = l('compatWarning', { ln, backend, requiredVersion });
+  useEffect(() => {
+    const { lightning, bitcoin } = network.nodes;
+    const ln = lightning.find(n => n.name === selectedLn);
+    const backend = bitcoin.find(n => n.name === selectedBackend);
+    if (ln && backend) {
+      const { compatibility } = dockerRepoState.images[ln.implementation];
+      if (compatibility) {
+        const requiredVersion = compatibility[ln.version];
+        if (!isVersionCompatible(backend.version, requiredVersion)) {
+          setCompatWarning(l('compatWarning', { ln, backend, requiredVersion }));
+        }
       }
     }
-  }
+  }, [dockerRepoState, l, network.nodes, selectedLn, selectedBackend]);
 
   const handleSubmit = () => {
+    const { lightning, bitcoin } = network.nodes;
+    const { lnNode, backendNode } = form.getFieldsValue();
+    const ln = lightning.find(n => n.name === lnNode);
+    const backend = bitcoin.find(n => n.name === backendNode);
     if (!ln || !backend) return;
     changeAsync.execute(ln.name, backend.name);
   };
@@ -104,9 +110,9 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
               <LightningNodeSelect
                 network={network}
                 name="lnNode"
-                form={form}
                 label={l('lnNodeLabel')}
                 disabled={changeAsync.loading}
+                onChange={v => setSelectedLn(v.toString())}
               />
             </Col>
             <Styled.IconCol span={4}>
@@ -118,7 +124,10 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
                 label={l('backendNodeLabel')}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
-                <Select disabled={changeAsync.loading}>
+                <Select
+                  disabled={changeAsync.loading}
+                  onChange={v => setSelectedBackend(v.toString())}
+                >
                   {network.nodes.bitcoin.map(node => (
                     <Select.Option key={node.name} value={node.name}>
                       {node.name}
@@ -129,9 +138,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
             </Col>
           </Row>
           {network.status === Status.Started && (
-            <Styled.Restart>
-              {l('restartNotice', { name: form.getFieldValue('lnNode') || lnName })}
-            </Styled.Restart>
+            <Styled.Restart>{l('restartNotice', { name: selectedLn })}</Styled.Restart>
           )}
           {compatWarning && (
             <Alert type="warning" message={compatWarning} closable={false} showIcon />

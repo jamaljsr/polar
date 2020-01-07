@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -18,8 +18,12 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     'cmps.designer.lightning.actions.OpenChannelModal',
   );
   const [form] = Form.useForm();
+  const [showDeposit, setShowDeposit] = useState(false);
   const { nodes } = useStoreState(s => s.lightning);
   const { visible, to, from } = useStoreState(s => s.modals.openChannel);
+  const [selectedFrom, setSelectedFrom] = useState(from);
+  const [selectedTo, setSelectedTo] = useState(to);
+  const [selectedSats, setSelectedSats] = useState(0);
   const { hideOpenChannel } = useStoreActions(s => s.modals);
   const { getWalletBalance, openChannel } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
@@ -41,16 +45,15 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  // flag to show the deposit checkbox if the from node balance is less than the capacity
-  let showDeposit = false;
-  const selectedFrom = form.getFieldValue('from') || from;
-  const areSameNodesSelected = selectedFrom === (form.getFieldValue('to') || to);
-  if (selectedFrom && nodes[selectedFrom] && !openChanAsync.loading) {
-    const { confirmed } = nodes[selectedFrom].walletBalance || {};
-    const balance = parseInt(confirmed || '0');
-    const sats = form.getFieldValue('sats');
-    showDeposit = balance <= sats && !areSameNodesSelected;
-  }
+  const sameNode = selectedFrom === selectedTo;
+  useMemo(() => {
+    if (selectedFrom && nodes[selectedFrom] && nodes[selectedFrom].walletBalance) {
+      const nodeInfo = nodes[selectedFrom];
+      const confirmed = nodeInfo.walletBalance && nodeInfo.walletBalance.confirmed;
+      const balance = parseInt(confirmed || '0');
+      setShowDeposit(balance <= selectedSats && !sameNode);
+    }
+  }, [selectedFrom, selectedTo, selectedSats, nodes, sameNode]);
 
   const handleSubmit = (values: any) => {
     const { lightning } = network.nodes;
@@ -70,16 +73,17 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       initialValues={{ from, to, sats: 250000, autoFund: true }}
       onFinish={handleSubmit}
     >
-      {areSameNodesSelected && <Alert type="error" message={l('sameNodesWarnMsg')} />}
+      {sameNode && <Alert type="error" message={l('sameNodesWarnMsg')} />}
       <Row gutter={16}>
         <Col span={12}>
           <LightningNodeSelect
             network={network}
             name="from"
-            form={form}
             label={l('source')}
             disabled={openChanAsync.loading}
             status={Status.Started}
+            initialValue={from}
+            onChange={v => setSelectedFrom(v.toString())}
             nodes={nodes}
           />
         </Col>
@@ -87,10 +91,11 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
           <LightningNodeSelect
             network={network}
             name="to"
-            form={form}
             label={l('dest')}
             disabled={openChanAsync.loading}
             status={Status.Started}
+            initialValue={to}
+            onChange={v => setSelectedTo(v.toString())}
             nodes={nodes}
           />
         </Col>
@@ -110,6 +115,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
           formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
           style={{ width: '100%' }}
+          onChange={v => setSelectedSats(v as number)}
         />
       </Form.Item>
       {showDeposit && (
@@ -145,7 +151,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         okText={l('okBtn')}
         okButtonProps={{
           loading: openChanAsync.loading,
-          disabled: areSameNodesSelected,
+          disabled: sameNode,
         }}
         onOk={form.submit}
       >

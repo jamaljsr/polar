@@ -2601,7 +2601,7 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@^4.0.0-rc.0:
+antd@4.0.0-rc.0:
   version "4.0.0-rc.0"
   resolved "https://registry.yarnpkg.com/antd/-/antd-4.0.0-rc.0.tgz#169877ba47cd278a06852bb9b13edab6acd7344c"
   integrity sha512-zOLx73ep+YCXqBi0x3fkMm6pycTFLFBH9DStCqGi5ihF6r1QUReDOwZC5X1V+b0Gk6jyrl/5lz1OMNtBrLObJQ==
