@@ -11,7 +11,7 @@ import {
 import CreateInvoiceModal from './CreateInvoiceModal';
 
 describe('CreateInvoiceModal', () => {
-  const renderComponent = async (status?: Status) => {
+  const renderComponent = async (status?: Status, nodeName = 'alice') => {
     const network = getNetwork(1, 'test network', status);
     const initialState = {
       network: {
@@ -26,12 +26,12 @@ describe('CreateInvoiceModal', () => {
       modals: {
         createInvoice: {
           visible: true,
-          nodeName: 'alice',
+          nodeName,
         },
       },
     };
     const cmp = <CreateInvoiceModal network={network} />;
-    const result = renderWithProviders(cmp, { initialState });
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     return {
       ...result,
       network,
@@ -68,18 +68,18 @@ describe('CreateInvoiceModal', () => {
 
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
-      const { getByText, getByLabelText } = await renderComponent();
+      const { getByText, getByLabelText, findByText } = await renderComponent();
       fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '' } });
-      await wait(() => fireEvent.click(getByText('Create Invoice')));
-      expect(getByText('required')).toBeInTheDocument();
+      fireEvent.click(getByText('Create Invoice'));
+      expect(await findByText('required')).toBeInTheDocument();
     });
   });
 
   it('should do nothing if an invalid node is selected', async () => {
-    const { getByText, getByLabelText, store } = await renderComponent();
-    await wait(() => {
-      store.getActions().modals.showCreateInvoice({ nodeName: 'invalid' });
-    });
+    const { getByText, getByLabelText } = await renderComponent(
+      Status.Stopped,
+      'invalid',
+    );
     fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '1000' } });
     await wait(() => fireEvent.click(getByText('Create Invoice')));
     expect(getByText('Create Invoice')).toBeInTheDocument();

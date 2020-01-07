@@ -21,8 +21,8 @@ describe('LightningNodeSelect', () => {
           <LightningNodeSelect
             network={network}
             name="from"
-            form={form}
             label="Source"
+            initialValue={initialValue}
             nodes={nodes}
           />
         </Form>
@@ -60,14 +60,19 @@ describe('LightningNodeSelect', () => {
         walletBalance: defaultStateBalances({ confirmed: '200' }),
       },
     };
-    const { getByText, queryByText, getByLabelText } = renderComponent(nodes, 'alice');
+    const { findByText, getAllByText, getByText, getByLabelText } = renderComponent(
+      nodes,
+      'alice',
+    );
     // confirm the initial balance is displayed
-    expect(queryByText('Balance: 100 sats')).toBeInTheDocument();
+    expect(getByText('Balance: 100 sats')).toBeInTheDocument();
     // open the dropdown
-    fireEvent.click(getByLabelText('Source'));
+    fireEvent.mouseDown(getByLabelText('Source'));
     // click on bob option
-    fireEvent.click(getByText('bob'));
+    // Select renders two lists of the options to the dom. click on the
+    // second one if it exists, otherwise click the only one
+    fireEvent.click(getAllByText('bob')[1]);
     // confirm the balance updates
-    expect(getByText('Balance: 200 sats')).toBeInTheDocument();
+    expect(await findByText('Balance: 200 sats')).toBeInTheDocument();
   });
 });

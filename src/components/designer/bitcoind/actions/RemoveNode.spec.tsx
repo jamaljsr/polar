@@ -38,7 +38,7 @@ describe('RemoveNode', () => {
     };
     const node = network.nodes.bitcoin[0];
     const cmp = <RemoveNode node={node} />;
-    const result = renderWithProviders(cmp, { initialState });
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     return {
       ...result,
       node,
@@ -68,7 +68,7 @@ describe('RemoveNode', () => {
     fireEvent.click(getByText('Remove'));
     fireEvent.click(getByText('Yes'));
     // wait for the error notification to be displayed
-    await waitForElement(() => getByLabelText('icon: check-circle-o'));
+    await waitForElement(() => getByLabelText('check-circle'));
     expect(
       getByText('The node backend1 have been removed from the network'),
     ).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe('RemoveNode', () => {
     fireEvent.click(getByText('Remove'));
     fireEvent.click(getByText('Yes'));
     // wait for the error notification to be displayed
-    await waitForElement(() => getByLabelText('icon: check-circle-o'));
+    await waitForElement(() => getByLabelText('check-circle'));
     expect(
       getByText('The node backend1 have been removed from the network'),
     ).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('RemoveNode', () => {
       fireEvent.click(getByText('Remove'));
       fireEvent.click(getByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('icon: close-circle-o'));
+      await waitForElement(() => getByLabelText('close-circle'));
       expect(getByText('Unable to remove the node')).toBeInTheDocument();
       expect(getByText('test error')).toBeInTheDocument();
     });

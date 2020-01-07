@@ -116,7 +116,7 @@ describe('DefaultSidebar Component', () => {
     it('should display an error if syncing the chart fails', async () => {
       lightningServiceMock.getInfo.mockRejectedValue(new Error('failed to get info'));
       const { getByLabelText, findByText } = renderComponent(Status.Started);
-      fireEvent.click(getByLabelText('icon: reload'));
+      fireEvent.click(getByLabelText('reload'));
       expect(await findByText('failed to get info')).toBeInTheDocument();
       expect(lightningServiceMock.getInfo).toBeCalledTimes(3);
     });
@@ -126,7 +126,7 @@ describe('DefaultSidebar Component', () => {
       lightningServiceMock.getBalances.mockResolvedValue(defaultStateBalances({}));
       lightningServiceMock.getChannels.mockResolvedValue([]);
       const { getByLabelText, findByText } = renderComponent(Status.Started);
-      fireEvent.click(getByLabelText('icon: reload'));
+      fireEvent.click(getByLabelText('reload'));
       expect(
         await findByText('The designer has been synced with the Lightning nodes'),
       ).toBeInTheDocument();

@@ -7,7 +7,7 @@ describe('Loader Component', () => {
     const result = render(<Loader inline={inline} size={size} />);
     return {
       ...result,
-      loader: result.getByLabelText('icon: loading'),
+      loader: result.getByLabelText('loading'),
     };
   };
 

@@ -34,7 +34,7 @@ describe('RemoveNode', () => {
     const { lightning } = network.nodes;
     const node = lightning[status === Status.Started ? 0 : 1];
     const cmp = <RemoveNode node={node} />;
-    const result = renderWithProviders(cmp, { initialState });
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     return {
       ...result,
       node,
@@ -62,7 +62,7 @@ describe('RemoveNode', () => {
     fireEvent.click(getByText('Remove'));
     fireEvent.click(getByText('Yes'));
     // wait for the error notification to be displayed
-    await waitForElement(() => getByLabelText('icon: check-circle-o'));
+    await waitForElement(() => getByLabelText('check-circle'));
     expect(
       getByText('The node alice have been removed from the network'),
     ).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('RemoveNode', () => {
     fireEvent.click(getByText('Remove'));
     fireEvent.click(getByText('Yes'));
     // wait for the error notification to be displayed
-    await waitForElement(() => getByLabelText('icon: check-circle-o'));
+    await waitForElement(() => getByLabelText('check-circle'));
     expect(
       getByText('The node alice have been removed from the network'),
     ).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('RemoveNode', () => {
       fireEvent.click(getByText('Remove'));
       fireEvent.click(getByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('icon: close-circle-o'));
+      await waitForElement(() => getByLabelText('close-circle'));
       expect(getByText('Unable to remove the node')).toBeInTheDocument();
       expect(getByText('test error')).toBeInTheDocument();
     });

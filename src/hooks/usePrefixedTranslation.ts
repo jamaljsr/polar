@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -7,10 +8,13 @@ import { useTranslation } from 'react-i18next';
 const usePrefixedTranslation = (prefix: string) => {
   const { t } = useTranslation();
   // the new `t` function that will append the prefix
-  const translate = (key: string, options?: string | object) => {
-    // if the key contains a '.', then don't add the prefix
-    return key.includes('.') ? t(key, options) : t(`${prefix}.${key}`, options);
-  };
+  const translate = useCallback(
+    (key: string, options?: string | object) => {
+      // if the key contains a '.', then don't add the prefix
+      return key.includes('.') ? t(key, options) : t(`${prefix}.${key}`, options);
+    },
+    [prefix, t],
+  );
 
   return {
     l: translate,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/react';
+import { act, fireEvent, wait } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -11,7 +11,7 @@ import {
 import PayInvoiceModal from './PayInvoiceModal';
 
 describe('PayInvoiceModal', () => {
-  const renderComponent = async (status?: Status) => {
+  const renderComponent = async (status?: Status, nodeName = 'alice') => {
     const network = getNetwork(1, 'test network', status);
     const initialState = {
       network: {
@@ -26,7 +26,7 @@ describe('PayInvoiceModal', () => {
       modals: {
         payInvoice: {
           visible: true,
-          nodeName: 'alice',
+          nodeName,
         },
       },
     };
@@ -70,17 +70,18 @@ describe('PayInvoiceModal', () => {
 
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
-      const { getByText } = await renderComponent();
-      await wait(() => fireEvent.click(getByText('Pay Invoice')));
-      expect(getByText('required')).toBeInTheDocument();
+      const { getByText, findByText, store } = await renderComponent();
+      act(() => store.getActions().modals.showPayInvoice({}));
+      fireEvent.click(getByText('Pay Invoice'));
+      expect(await findByText('required')).toBeInTheDocument();
     });
   });
 
   it('should do nothing if an invalid node is selected', async () => {
-    const { getByText, getByLabelText, store } = await renderComponent();
-    await wait(() => {
-      store.getActions().modals.showPayInvoice({ nodeName: 'invalid' });
-    });
+    const { getByText, getByLabelText } = await renderComponent(
+      Status.Stopped,
+      'invalid',
+    );
     fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
     await wait(() => fireEvent.click(getByText('Pay Invoice')));
     expect(getByText('Pay Invoice')).toBeInTheDocument();

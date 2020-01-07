@@ -63,7 +63,6 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
             <LightningNodeSelect
               network={network}
               name="node"
-              form={form}
               label={l('nodeLabel')}
               disabled={createAsync.loading}
             />

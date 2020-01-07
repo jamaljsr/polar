@@ -18,7 +18,7 @@ describe('MineBlocksInput', () => {
       },
     };
     const cmp = <MineBlocksInput node={network.nodes.bitcoin[0]} />;
-    const result = renderWithProviders(cmp, { initialState });
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     return {
       ...result,
       input: result.container.querySelector('input') as HTMLInputElement,

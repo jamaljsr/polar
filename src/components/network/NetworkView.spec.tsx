@@ -152,7 +152,7 @@ describe('NetworkView Component', () => {
 
     it('should show the rename input', async () => {
       const { getByLabelText, getByText, findByDisplayValue } = renderComponent('1');
-      fireEvent.mouseOver(getByLabelText('icon: more'));
+      fireEvent.mouseOver(getByLabelText('more'));
       await wait(() => jest.runOnlyPendingTimers());
       fireEvent.click(getByText('Rename'));
       const input = (await findByDisplayValue('test network')) as HTMLInputElement;
@@ -167,7 +167,7 @@ describe('NetworkView Component', () => {
       const { getByLabelText, getByText, findByDisplayValue, store } = renderComponent(
         '1',
       );
-      fireEvent.mouseOver(getByLabelText('icon: more'));
+      fireEvent.mouseOver(getByLabelText('more'));
       await wait(() => jest.runOnlyPendingTimers());
       fireEvent.click(getByText('Rename'));
       const input = await findByDisplayValue('test network');
@@ -179,7 +179,7 @@ describe('NetworkView Component', () => {
 
     it('should display an error if renaming fails', async () => {
       const { getByLabelText, getByText, findByDisplayValue } = renderComponent('1');
-      fireEvent.mouseOver(getByLabelText('icon: more'));
+      fireEvent.mouseOver(getByLabelText('more'));
       await wait(() => jest.runOnlyPendingTimers());
       fireEvent.click(getByText('Rename'));
       const input = await findByDisplayValue('test network');
@@ -193,7 +193,7 @@ describe('NetworkView Component', () => {
   describe('delete network', () => {
     it('should show the confirm modal', async () => {
       const { getByLabelText, getByText, findByText } = renderComponent('1');
-      fireEvent.mouseOver(getByLabelText('icon: more'));
+      fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Delete'));
       expect(
         getByText('Are you sure you want to delete this network?'),
@@ -207,11 +207,11 @@ describe('NetworkView Component', () => {
         '1',
         Status.Started,
       );
-      fireEvent.mouseOver(getByLabelText('icon: more'));
+      fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Delete'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('icon: check-circle-o'));
+      await waitForElement(() => getByLabelText('check-circle'));
       expect(
         getByText("The network 'test network' and its data has been deleted!"),
       ).toBeInTheDocument();
@@ -220,15 +220,15 @@ describe('NetworkView Component', () => {
 
     it('should display an error if the delete fails', async () => {
       // antd Modal.confirm logs a console error when onOk fails
-      // this supresses those errors from being displayed in test runs
+      // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         fsMock.remove = jest.fn().mockRejectedValue(new Error('cannot delete'));
         const { getByLabelText, getByText, findByText, store } = renderComponent('1');
-        fireEvent.mouseOver(getByLabelText('icon: more'));
+        fireEvent.mouseOver(getByLabelText('more'));
         fireEvent.click(await findByText('Delete'));
         fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
-        await waitForElement(() => getByLabelText('icon: close-circle-o'));
+        await waitForElement(() => getByLabelText('close-circle'));
         expect(getByText('cannot delete')).toBeInTheDocument();
         expect(store.getState().network.networks).toHaveLength(1);
         expect(store.getState().designer.allCharts[1]).toBeDefined();

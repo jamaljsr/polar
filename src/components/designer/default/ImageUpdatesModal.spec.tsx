@@ -31,13 +31,13 @@ describe('ImageUpdatesModal', () => {
     expect(getByText('Check for new Node Versions')).toBeInTheDocument();
     expect(getByText('Add New Versions')).toBeInTheDocument();
     expect(getByText('Add New Versions')).not.toBeVisible();
-    await waitForElementToBeRemoved(() => getByLabelText('icon: loading'));
+    await waitForElementToBeRemoved(() => getByLabelText('loading'));
   });
 
   it('should display a loader', async () => {
     const { getByLabelText } = await renderComponent();
-    expect(getByLabelText('icon: loading')).toBeInTheDocument();
-    await waitForElementToBeRemoved(() => getByLabelText('icon: loading'));
+    expect(getByLabelText('loading')).toBeInTheDocument();
+    await waitForElementToBeRemoved(() => getByLabelText('loading'));
   });
 
   it('should display up to date message', async () => {

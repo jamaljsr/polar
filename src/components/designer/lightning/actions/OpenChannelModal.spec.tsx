@@ -17,7 +17,7 @@ import OpenChannelModal from './OpenChannelModal';
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('OpenChannelModal', () => {
-  const renderComponent = async () => {
+  const renderComponent = async (from = 'alice', to?: string) => {
     const network = getNetwork(1, 'test network', Status.Started);
     const initialState = {
       network: {
@@ -32,14 +32,15 @@ describe('OpenChannelModal', () => {
       modals: {
         openChannel: {
           visible: true,
-          from: 'alice',
+          from,
+          to,
         },
       },
     };
     const cmp = <OpenChannelModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
     // wait for the loader to go away
-    await waitForElementToBeRemoved(() => result.getByLabelText('icon: loading'));
+    await waitForElementToBeRemoved(() => result.getByLabelText('loading'));
     return {
       ...result,
       network,
@@ -106,22 +107,57 @@ describe('OpenChannelModal', () => {
 
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
-      const { getAllByText, getByText, store } = await renderComponent();
-      act(() => store.getActions().modals.showOpenChannel({}));
+      const { findAllByText, getByText } = await renderComponent('');
       fireEvent.click(getByText('Open Channel'));
-      expect(getAllByText('required')).toHaveLength(2);
+      expect(await findAllByText('required')).toHaveLength(2);
     });
   });
 
   it('should do nothing if an invalid node is selected', async () => {
-    const { getByText, getByLabelText, store } = await renderComponent();
-    act(() =>
-      store.getActions().modals.showOpenChannel({ from: 'invalid', to: 'invalid2' }),
-    );
+    const { getByText, getByLabelText } = await renderComponent('invalid', 'invalid2');
     fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
     fireEvent.click(getByText('Open Channel'));
     await wait(() => {
       expect(getByText('Open Channel')).toBeInTheDocument();
+    });
+  });
+
+  describe('balances', () => {
+    const balances = (confirmed: string) => ({
+      confirmed,
+      unconfirmed: '200',
+      total: '300',
+    });
+
+    beforeEach(() => {
+      // make each node's balance different
+      lightningServiceMock.getBalances.mockImplementation(node =>
+        Promise.resolve(balances((node.id + 100).toString())),
+      );
+    });
+
+    it('should display the correct balance for the source', async () => {
+      const { findByText, changeSelect } = await renderComponent();
+      changeSelect('Source', 'bob');
+      expect(await findByText('Balance: 101 sats')).toBeInTheDocument();
+    });
+
+    it('should display the correct balance for the destination', async () => {
+      const { findByText, changeSelect } = await renderComponent();
+      changeSelect('Destination', 'carol');
+      expect(await findByText('Balance: 102 sats')).toBeInTheDocument();
+    });
+
+    it('should not display an empty balance', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue(balances(false as any));
+      const { findByText } = await renderComponent();
+      expect(await findByText('Balance: 0 sats')).toBeInTheDocument();
+    });
+
+    it('should not display invalid balance', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue(balances('invalid'));
+      const { findByText } = await renderComponent();
+      expect(await findByText('Balance: 0 sats')).toBeInTheDocument();
     });
   });
 
@@ -141,8 +177,10 @@ describe('OpenChannelModal', () => {
     });
 
     it('should open a channel successfully', async () => {
-      const { getByText, getByLabelText, store, network } = await renderComponent();
-      act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
+      const { getByText, getByLabelText, store, network } = await renderComponent(
+        'bob',
+        'alice',
+      );
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       fireEvent.click(getByText('Open Channel'));
@@ -155,8 +193,10 @@ describe('OpenChannelModal', () => {
     });
 
     it('should open a channel and deposit funds', async () => {
-      const { getByText, getByLabelText, store, network } = await renderComponent();
-      act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
+      const { getByText, getByLabelText, store, network } = await renderComponent(
+        'bob',
+        'alice',
+      );
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByText('Open Channel'));
       await wait(() => {
@@ -171,10 +211,17 @@ describe('OpenChannelModal', () => {
 
     it('should display an error when opening a channel fails', async () => {
       lightningServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
-      const { getByText, getByLabelText, store } = await renderComponent();
-      act(() => store.getActions().modals.showOpenChannel({ from: 'bob', to: 'alice' }));
+      const {
+        getByText,
+        getByLabelText,
+        findByLabelText,
+        changeSelect,
+      } = await renderComponent('bob');
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
-      fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
+      changeSelect('Destination', 'alice');
+      fireEvent.click(
+        await findByLabelText('Deposit enough funds to bob to open the channel'),
+      );
       fireEvent.click(getByText('Open Channel'));
       await wait(() => {
         expect(getByText('Unable to open the channel')).toBeInTheDocument();

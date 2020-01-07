@@ -58,7 +58,7 @@ describe('DetectDockerModal component', () => {
     mockOS.platform.mockReturnValue('darwin');
     const { getByText, getByLabelText } = renderComponent();
     expect(getByText('Download Docker Desktop')).toBeInTheDocument();
-    expect(getByLabelText('icon: apple')).toBeInTheDocument();
+    expect(getByLabelText('apple')).toBeInTheDocument();
   });
 
   it('should open browser when download button clicked on mac', () => {
@@ -74,7 +74,7 @@ describe('DetectDockerModal component', () => {
     mockOS.platform.mockReturnValue('win32');
     const { getByText, getByLabelText } = renderComponent();
     expect(getByText('Download Docker Desktop')).toBeInTheDocument();
-    expect(getByLabelText('icon: windows')).toBeInTheDocument();
+    expect(getByLabelText('windows')).toBeInTheDocument();
   });
 
   it('should open browser when download button clicked on windows', () => {
@@ -91,7 +91,7 @@ describe('DetectDockerModal component', () => {
     const { getByText, getAllByLabelText } = renderComponent();
     expect(getByText('Download Docker')).toBeInTheDocument();
     expect(getByText('Download Docker Compose')).toBeInTheDocument();
-    expect(getAllByLabelText('icon: download')).toHaveLength(2);
+    expect(getAllByLabelText('download')).toHaveLength(2);
   });
 
   it('should open browser when download buttons clicked on linux', () => {

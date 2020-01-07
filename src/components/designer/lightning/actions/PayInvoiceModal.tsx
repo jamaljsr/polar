@@ -23,7 +23,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   const payAsync = useAsyncCallback(async (node: LightningNode, invoice: string) => {
     try {
       const { amount } = await payInvoice({ node, invoice });
-      const nodeName = form.getFieldsValue().node;
+      const nodeName = node.name;
       notify({
         message: l('successTitle'),
         description: l('successDesc', { amount: format(amount), nodeName }),
@@ -66,7 +66,6 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
           <LightningNodeSelect
             network={network}
             name="node"
-            form={form}
             label={l('nodeLabel')}
             disabled={payAsync.loading}
           />
