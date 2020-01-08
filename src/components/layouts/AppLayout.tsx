@@ -12,6 +12,7 @@ const { Header, Content, Footer } = Layout;
 const Styled = {
   Layout: styled(Layout)`
     min-height: 100vh;
+    overflow: hidden;
   `,
   Header: styled(Header)`
     padding: 0 16px;

@@ -243,6 +243,7 @@ export const updateChartFromNodes = (
     if (i === 0) return;
     // the prev node should always be the first peer
     const peer = btc.peers[0];
+    if (!peer) return;
     // link the curr node to the prev node
     const id = `${peer}-${btc.name}`;
     if (!links[id]) {
