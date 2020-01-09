@@ -5963,17 +5963,17 @@ debug@3.1.0:
   dependencies:
     ms "2.0.0"
 
+debug@4.1.1, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
+  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
+  dependencies:
+    ms "^2.1.1"
+
 debug@^3.0.0, debug@^3.1.0, debug@^3.1.1, debug@^3.2.5, debug@^3.2.6:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
   integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
-  dependencies:
-    ms "^2.1.1"
-
-debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
-  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
   dependencies:
     ms "^2.1.1"
 
@@ -16549,13 +16549,14 @@ test-exclude@^5.2.3:
     read-pkg-up "^4.0.0"
     require-main-filename "^2.0.0"
 
-testcafe-browser-provider-electron@0.0.13:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.13.tgz#df1936500f535fb40abe426b6263c9982ada190a"
-  integrity sha512-lvvhkGd3TL4gleNqaghc+u84QUyqQ0PSvishbvGHA9f6YLqgeN7TYK+ZOhh6IDeBCswwEyzPZJUexgSLVDOLhQ==
+testcafe-browser-provider-electron@0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.14.tgz#093d4173084947858a255114f3442076b582b8a9"
+  integrity sha512-FcnOm1GMKPC0SWn5IFRitBJ6xSLWuLyzaZopZ+MH+Pp95hy4atVWbImDTJzTr4aHtPqs3GNdF1H7Ff2t7CmuNw==
   dependencies:
     babel-runtime "^6.25.0"
     chrome-remote-interface "^0.27.0"
+    debug "4.1.1"
     dedent "^0.7.0"
     endpoint-utils "^1.0.2"
     lodash "^4.17.4"
