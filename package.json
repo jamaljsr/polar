@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@ant-design/icons": "4.0.0-rc.0",
-    "@commitlint/cli": "8.3.4",
+    "@commitlint/cli": "8.3.5",
     "@commitlint/config-conventional": "8.3.4",
     "@emotion/core": "10.0.27",
     "@emotion/styled": "10.0.27",
