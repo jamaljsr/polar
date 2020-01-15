@@ -6,9 +6,9 @@ import { Loader, StatusBadge } from 'components/common';
 
 const Styled = {
   Node: styled.div<{ size?: ISize }>`
-    border: 1px solid #232323;
+    border: 1px solid #303030;
     border-radius: 2px;
-    background-color: #141414;
+    background-color: #1f1f1f;
     padding: 20px;
     font-weight: bold;
     display: flex;

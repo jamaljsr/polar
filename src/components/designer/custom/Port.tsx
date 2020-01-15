@@ -6,9 +6,9 @@ import { Tooltip } from 'antd';
 const Outer = styled.div<{ type: string }>`
   width: 18px;
   height: 18px;
-  ${props => props.type && `border-${props.type}: 2px solid #232323;`}
+  ${props => props.type && `border-${props.type}: 2px solid #303030;`}
   border-radius: 50%;
-  background: #141414;
+  background: #1f1f1f;
   cursor: pointer;
   display: flex;
   justify-content: center;
