@@ -134,7 +134,7 @@
     "testcafe-browser-provider-electron": "0.0.14",
     "testcafe-react-selectors": "4.0.0",
     "ts-node": "8.6.2",
-    "typescript": "3.7.4",
+    "typescript": "3.7.5",
     "wait-on": "3.3.0",
     "webpack": "4.41.2"
   },
