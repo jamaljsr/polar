@@ -90,7 +90,7 @@
     "devtron": "1.4.0",
     "docker-compose": "0.23.2",
     "dockerode": "3.0.2",
-    "easy-peasy": "3.2.6",
+    "easy-peasy": "3.3.0",
     "electron": "7.0.1",
     "electron-builder": "22.2.0",
     "electron-devtools-installer": "2.2.4",
