@@ -24,9 +24,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
- - OS: [e.g. OSX Majave or Windows 10 v1903]
- - Docker Version: [e.g. 19.03.1]
- - Docker Compose Version: [e.g. 1.24.1]
+- OS: [e.g. OSX Mojave or Windows 10 v1903]
+- Polar Version: [e.g. 0.2.0]
+- Docker Version: [e.g. 19.03.1]
+- Docker Compose Version: [e.g. 1.24.1]
 
 **Additional context**
 Add any other context about the problem here.
