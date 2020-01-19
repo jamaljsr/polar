@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Layout } from 'antd';
+import { useStoreState } from 'store';
 import { NavMenu } from 'components/common';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
@@ -54,17 +55,20 @@ interface Props {
 }
 
 const AppLayout: React.FC<Props> = (props: Props) => {
+  const { initialized } = useStoreState(s => s.app);
   return (
     <Styled.Layout>
-      <Styled.Header>
-        <Styled.Logo>
-          <Link to={HOME}>
-            <Styled.Image src={logo} alt="logo" />
-            <Styled.Brand>Polar</Styled.Brand>
-          </Link>
-        </Styled.Logo>
-        <NavMenu />
-      </Styled.Header>
+      {initialized && (
+        <Styled.Header>
+          <Styled.Logo>
+            <Link to={HOME}>
+              <Styled.Image src={logo} alt="logo" />
+              <Styled.Brand>Polar</Styled.Brand>
+            </Link>
+          </Styled.Logo>
+          <NavMenu />
+        </Styled.Header>
+      )}
       <Styled.Content>{props.children}</Styled.Content>
       <Styled.Footer>
         <DockerStatus />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BulbFilled, BulbOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Tooltip } from 'antd';
+import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 
@@ -28,11 +28,10 @@ const ThemeSwitch: React.FC = () => {
   };
 
   return (
-    <Tooltip overlay={`Switch to ${isLight ? 'dark' : 'light'} mode`} placement="left">
-      <Styled.Button type="link" onClick={toggleTheme}>
-        {isLight ? <BulbOutlined /> : <BulbFilled />}
-      </Styled.Button>
-    </Tooltip>
+    <Styled.Button type="link" onClick={toggleTheme}>
+      {isLight ? <BulbOutlined /> : <BulbFilled />}
+      {isLight ? 'Light' : 'Dark'}
+    </Styled.Button>
   );
 };
 
