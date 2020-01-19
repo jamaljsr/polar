@@ -60,6 +60,7 @@ const appModel: AppModel = {
   initialized: false,
   settings: {
     lang: getI18n().language,
+    theme: 'dark',
     showAllNodeVersions: false,
   },
   dockerVersions: { docker: '', compose: '' },

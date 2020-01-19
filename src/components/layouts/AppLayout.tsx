@@ -5,7 +5,7 @@ import { Layout } from 'antd';
 import { NavMenu } from 'components/common';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
-import { DockerStatus, LocaleSwitch } from './';
+import { DockerStatus, LocaleSwitch, ThemeSwitch } from './';
 
 const { Header, Content, Footer } = Layout;
 
@@ -44,6 +44,9 @@ const Styled = {
     padding: 0 5px;
     background: rgba(43, 43, 43, 0.25);
   `,
+  FooterToggles: styled.span`
+    display: inline-block;
+  `,
 };
 
 interface Props {
@@ -65,7 +68,10 @@ const AppLayout: React.FC<Props> = (props: Props) => {
       <Styled.Content>{props.children}</Styled.Content>
       <Styled.Footer>
         <DockerStatus />
-        <LocaleSwitch />
+        <Styled.FooterToggles>
+          <LocaleSwitch />
+          <ThemeSwitch />
+        </Styled.FooterToggles>
       </Styled.Footer>
     </Styled.Layout>
   );

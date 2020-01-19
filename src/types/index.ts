@@ -24,6 +24,7 @@ export interface Network {
 
 export interface AppSettings {
   lang: string;
+  theme: 'light' | 'dark';
   showAllNodeVersions: boolean;
 }
 
