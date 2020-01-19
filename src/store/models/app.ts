@@ -13,6 +13,7 @@ import {
   StoreInjections,
 } from 'types';
 import { defaultRepoState } from 'utils/constants';
+import { changeTheme } from 'utils/theme';
 import { RootModel } from './';
 
 export interface NotifyOptions {
@@ -89,6 +90,7 @@ const appModel: AppModel = {
     if (settings) {
       actions.setSettings(settings);
       await getI18n().changeLanguage(settings.lang);
+      changeTheme(settings.theme || 'dark');
     }
   }),
   updateSettings: thunk(async (actions, updates, { injections, getState }) => {
@@ -96,6 +98,7 @@ const appModel: AppModel = {
     const { settings } = getState();
     await injections.settingsService.save(settings);
     if (updates.lang) await getI18n().changeLanguage(settings.lang);
+    if (updates.theme) changeTheme(updates.theme);
   }),
   setDockerVersions: action((state, versions) => {
     state.dockerVersions = versions;
