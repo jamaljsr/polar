@@ -34,6 +34,9 @@
     "test:cafe": "cross-env NODE_ENV=production testcafe electron:./ ./e2e/**/*.e2e.ts",
     "test:e2e": "yarn build && yarn test:cafe",
     "test:e2e:live": "yarn test:e2e -L",
+    "theme": "yarn theme:light && yarn theme:dark",
+    "theme:light": "lessc --include-path=node_modules --js ./src/theme/light.less ./public/themes/light.css",
+    "theme:dark": "lessc --include-path=node_modules --js ./src/theme/dark.less ./public/themes/dark.css",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
