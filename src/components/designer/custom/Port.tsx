@@ -2,13 +2,15 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { IPortDefaultProps } from '@mrblenny/react-flow-chart';
 import { Tooltip } from 'antd';
+import { useTheme } from 'hooks/useTheme';
+import { ThemeColors } from 'theme/colors';
 
-const Outer = styled.div<{ type: string }>`
+const Outer = styled.div<{ type: string; colors: ThemeColors['port'] }>`
   width: 18px;
   height: 18px;
-  ${props => props.type && `border-${props.type}: 2px solid #303030;`}
+  ${props => props.type && `border-${props.type}: 2px solid ${props.colors.border};`}
   border-radius: 50%;
-  background: #1f1f1f;
+  background: ${props => props.colors.outer};
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -33,7 +35,8 @@ const CustomPort: React.FC<IPortDefaultProps> = ({
   isLinkSelected,
   isLinkHovered,
 }) => {
-  let color = '#383838';
+  const theme = useTheme();
+  let color = theme.port.inner;
   let tip = '';
   if (port.properties) {
     color = port.properties.initiator ? '#52c41a' : '#6495ED';
@@ -41,7 +44,7 @@ const CustomPort: React.FC<IPortDefaultProps> = ({
   }
   return (
     <Tooltip title={tip}>
-      <Outer type={port.type}>
+      <Outer type={port.type} colors={theme.port}>
         <Inner color={color} active={isLinkSelected || isLinkHovered} />
       </Outer>
     </Tooltip>

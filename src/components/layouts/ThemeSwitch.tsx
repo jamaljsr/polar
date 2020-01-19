@@ -30,7 +30,7 @@ const ThemeSwitch: React.FC = () => {
   return (
     <Styled.Button type="link" onClick={toggleTheme}>
       {isLight ? <BulbOutlined /> : <BulbFilled />}
-      {isLight ? 'Light' : 'Dark'}
+      {isLight ? l('light') : l('dark')}
     </Styled.Button>
   );
 };

@@ -3,13 +3,17 @@ import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import { Button, Card, Col, Form, Input, InputNumber, PageHeader, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { useTheme } from 'hooks/useTheme';
 import { useStoreActions } from 'store';
+import { ThemeColors } from 'theme/colors';
 import { isWindows } from 'utils/system';
 import { HOME } from 'components/routing';
 
 const Styled = {
-  PageHeader: styled(PageHeader)`
-    border: 1px solid #303030;
+  PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
+    border: 1px solid ${props => props.colors.border};
+    border-radius: 2px;
+    background-color: ${props => props.colors.background};
     margin-bottom: 10px;
     flex: 0;
   `,
@@ -19,6 +23,7 @@ const NewNetwork: React.SFC = () => {
   useEffect(() => info('Rendering NewNetwork component'), []);
 
   const { l } = usePrefixedTranslation('cmps.network.NewNetwork');
+  const theme = useTheme();
   const { navigateTo } = useStoreActions(s => s.app);
   const { addNetwork } = useStoreActions(s => s.network);
 
@@ -28,7 +33,11 @@ const NewNetwork: React.SFC = () => {
 
   return (
     <>
-      <Styled.PageHeader title={l('title')} onBack={() => navigateTo(HOME)} />
+      <Styled.PageHeader
+        title={l('title')}
+        colors={theme.pageHeader}
+        onBack={() => navigateTo(HOME)}
+      />
       <Card>
         <Form
           layout="vertical"

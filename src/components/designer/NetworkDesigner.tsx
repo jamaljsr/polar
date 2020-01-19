@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { FlowChart } from '@mrblenny/react-flow-chart';
 import { useDebounce } from 'hooks';
+import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
-import { CanvasOuter, Link, NodeInner, Port, Ports } from './custom';
+import { CanvasOuterDark, Link, NodeInner, Port, Ports } from './custom';
 import {
   ChangeBackendModal,
   CreateInvoiceModal,
@@ -31,6 +32,7 @@ interface Props {
 }
 
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
+  const theme = useTheme();
   const callbacks = useStoreActions(s => s.designer);
   const { openChannel, createInvoice, payInvoice, changeBackend } = useStoreState(
     s => s.modals,
@@ -54,7 +56,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         chart={chart}
         config={{ snapToGrid: true }}
         Components={{
-          CanvasOuter,
+          CanvasOuter: theme.name === 'dark' ? CanvasOuterDark : undefined,
           NodeInner,
           Link,
           Port,

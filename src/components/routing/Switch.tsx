@@ -1,9 +1,11 @@
 import React from 'react';
 import { AnimatedSwitch, spring } from 'react-router-transition';
 import styled from '@emotion/styled';
+import { useTheme } from 'hooks/useTheme';
+import { ThemeColors } from 'theme/colors';
 
 const Styled = {
-  AnimatedSwitch: styled(AnimatedSwitch)`
+  AnimatedSwitch: styled(AnimatedSwitch)<{ colors: ThemeColors['switch'] }>`
     position: relative;
     flex: 1;
     display: flex;
@@ -16,7 +18,7 @@ const Styled = {
       padding: 16px 16px 0;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      background: rgba(43, 43, 43, 0.25);
+      background: ${props => props.colors.background};
     }
   `,
 };
@@ -51,8 +53,13 @@ const pageTransitions = {
 };
 
 const Switch: React.FC = ({ children }) => {
+  const theme = useTheme();
   return (
-    <Styled.AnimatedSwitch {...pageTransitions} mapStyles={mapStyles}>
+    <Styled.AnimatedSwitch
+      {...pageTransitions}
+      colors={theme.switch}
+      mapStyles={mapStyles}
+    >
       {children}
     </Styled.AnimatedSwitch>
   );
