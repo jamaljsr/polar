@@ -1,4 +1,4 @@
-export { default as CanvasOuter } from './CanvasOuter';
+export { default as CanvasOuterDark } from './CanvasOuterDark';
 export { default as Link } from './Link';
 export { default as NodeInner } from './NodeInner';
 export { default as Port } from './Port';

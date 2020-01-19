@@ -2,7 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Layout } from 'antd';
+import { useTheme } from 'hooks/useTheme';
 import { useStoreState } from 'store';
+import { ThemeColors } from 'theme/colors';
 import { NavMenu } from 'components/common';
 import { HOME } from 'components/routing';
 import logo from 'resources/logo.png';
@@ -11,9 +13,24 @@ import { DockerStatus, LocaleSwitch, ThemeSwitch } from './';
 const { Header, Content, Footer } = Layout;
 
 const Styled = {
-  Layout: styled(Layout)`
+  Layout: styled(Layout)<{ colors: ThemeColors }>`
     min-height: 100vh;
     overflow: hidden;
+
+    //--- antd overrides ---
+    .ant-form-item-label {
+      margin-bottom: 5px;
+    }
+    .ant-form-item-with-help {
+      margin-bottom: 12px;
+    }
+    .ant-alert-info {
+      background-color: ${props => props.colors.alert.background};
+      border: 1px solid ${props => props.colors.alert.border};
+    }
+    .ant-badge-status-default {
+      background-color: ${props => props.colors.statusBadge.default};
+    }
   `,
   Header: styled(Header)`
     padding: 0 16px;
@@ -39,11 +56,11 @@ const Styled = {
   Content: styled(Content)`
     display: flex;
   `,
-  Footer: styled(Footer)`
+  Footer: styled(Footer)<{ colors: ThemeColors['footer'] }>`
     display: flex;
     justify-content: space-between;
     padding: 0 5px;
-    background: rgba(43, 43, 43, 0.25);
+    background: ${props => props.colors.background};
   `,
   FooterToggles: styled.span`
     display: inline-block;
@@ -56,8 +73,10 @@ interface Props {
 
 const AppLayout: React.FC<Props> = (props: Props) => {
   const { initialized } = useStoreState(s => s.app);
+  const theme = useTheme();
   return (
-    <Styled.Layout>
+    <Styled.Layout colors={theme}>
+      {/* hide the header until the theme has been loaded */}
       {initialized && (
         <Styled.Header>
           <Styled.Logo>
@@ -70,7 +89,7 @@ const AppLayout: React.FC<Props> = (props: Props) => {
         </Styled.Header>
       )}
       <Styled.Content>{props.children}</Styled.Content>
-      <Styled.Footer>
+      <Styled.Footer colors={theme.footer}>
         <DockerStatus />
         <Styled.FooterToggles>
           <LocaleSwitch />

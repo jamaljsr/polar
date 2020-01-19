@@ -1,14 +1,16 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
+import { useTheme } from 'hooks/useTheme';
+import { ThemeColors } from 'theme/colors';
 
 const Styled = {
-  Node: styled.div`
+  Node: styled.div<{ colors: ThemeColors['dragNode'] }>`
     display: flex;
     justify-content: space-between;
-    border: 1px solid #303030;
+    border: 1px solid ${props => props.colors.border};
     border-radius: 4px;
-    box-shadow: 4px 2px 9px rgba(100, 100, 100, 0.1);
+    box-shadow: 4px 2px 9px ${props => props.colors.shadow};
     cursor: move;
     overflow: hidden;
     transition: all 0.3s ease-out;
@@ -48,6 +50,7 @@ interface Props {
 }
 
 const DraggableNode: React.FC<Props> = ({ label, desc, icon, properties, visible }) => {
+  const theme = useTheme();
   return (
     <Styled.Node
       draggable
@@ -55,6 +58,7 @@ const DraggableNode: React.FC<Props> = ({ label, desc, icon, properties, visible
         event.dataTransfer.setData(REACT_FLOW_CHART, JSON.stringify(properties));
       }}
       className={!visible ? 'hide' : ''}
+      colors={theme.dragNode}
     >
       <Styled.Label>
         {label} {desc && <Styled.Desc>{desc}</Styled.Desc>}

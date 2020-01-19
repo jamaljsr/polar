@@ -5,8 +5,10 @@ import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import { Alert, Button, Empty, Input, Modal, PageHeader } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
+import { ThemeColors } from 'theme/colors';
 import { getMissingImages } from 'utils/network';
 import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
@@ -25,10 +27,10 @@ const Styled = {
     flex-direction: column;
     height: 100%;
   `,
-  PageHeader: styled(PageHeader)`
-    border: 1px solid #303030;
+  PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
+    border: 1px solid ${props => props.colors.border};
     border-radius: 2px;
-    background-color: #141414;
+    background-color: ${props => props.colors.background};
     margin-bottom: 10px;
     flex: 0;
   `,
@@ -54,6 +56,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   useEffect(() => info('Rendering NetworkView component'), []);
   const { l } = usePrefixedTranslation('cmps.network.NetworkView');
 
+  const theme = useTheme();
   const { networks } = useStoreState(s => s.network);
   const networkId = parseInt(match.params.id || '');
   const network = networks.find(n => n.id === networkId);
@@ -108,6 +111,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   if (editing) {
     header = (
       <Styled.PageHeader
+        colors={theme.pageHeader}
         title={
           <Styled.RenameInput
             name="newNetworkName"
@@ -133,6 +137,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   } else {
     header = (
       <Styled.PageHeader
+        colors={theme.pageHeader}
         title={network.name}
         onBack={handleBackClick}
         tags={<StatusTag status={network.status} />}

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { ILinkDefaultProps, IPosition } from '@mrblenny/react-flow-chart';
+import { useTheme } from 'hooks/useTheme';
 import { LinkProperties } from 'utils/chart';
 
 export const generateCurvePath = (startPos: IPosition, endPos: IPosition): string => {
@@ -41,15 +42,16 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
   isSelected,
 }) => {
   const points = generateCurvePath(startPos, endPos);
+  const theme = useTheme();
 
   // memoize these calculations for a bit of perf
   const { leftStop, rightStop, leftColor, rightColor } = useMemo(() => {
-    const [blue, green, orange, gray] = ['#6495ED', '#52c41a', '#fa8c16', '#1b1b1b'];
+    const [blue, green, orange] = ['#6495ED', '#52c41a', '#fa8c16'];
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes
-    let leftColor = gray;
-    let rightColor = gray;
+    let leftColor = theme.link.default;
+    let rightColor = theme.link.default;
     if (link.properties) {
       const { type, direction, toBalance, capacity } = link.properties as LinkProperties;
       if (type === 'open-channel') {
@@ -82,7 +84,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
       leftColor,
       rightColor,
     };
-  }, [link.properties]);
+  }, [link.properties, theme]);
 
   // use link id since the gradient element must be unique in the dom
   const gradientId = `lg-${link.id}`;
