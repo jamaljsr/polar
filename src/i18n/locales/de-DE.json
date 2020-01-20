@@ -218,6 +218,8 @@
   "cmps.home.Home.initError": "Anwendungsstatus kann nicht initialisiert werden",
   "cmps.home.NetworkCard.lightningNodes": "Blitzknoten",
   "cmps.home.NetworkCard.bitcoinNodes": "Bitcoin Knoten",
+  "cmps.layouts.ThemeSwitch.light": "Light",
+  "cmps.layouts.ThemeSwitch.dark": "Dark",
   "cmps.network.NetworkActions.menuRename": "Umbenennen",
   "cmps.network.NetworkActions.menuDelete": "Löschen",
   "cmps.network.NetworkActions.primaryBtnStarting": "Beginnend",
