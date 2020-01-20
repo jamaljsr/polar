@@ -218,6 +218,8 @@
   "cmps.home.Home.initError": "No se puede inicializar el estado de la aplicación",
   "cmps.home.NetworkCard.lightningNodes": "Nodos Lightning",
   "cmps.home.NetworkCard.bitcoinNodes": "Nodos de Bitcoin",
+  "cmps.layouts.ThemeSwitch.light": "Light",
+  "cmps.layouts.ThemeSwitch.dark": "Dark",
   "cmps.network.NetworkActions.menuRename": "Renombrar",
   "cmps.network.NetworkActions.menuDelete": "Eliminar",
   "cmps.network.NetworkActions.primaryBtnStarting": "Comenzando",
