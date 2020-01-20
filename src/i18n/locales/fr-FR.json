@@ -218,6 +218,8 @@
   "cmps.home.Home.initError": "Impossible d'initialiser l'état de l'application",
   "cmps.home.NetworkCard.lightningNodes": "Nœuds de foudre",
   "cmps.home.NetworkCard.bitcoinNodes": "Noeuds Bitcoin",
+  "cmps.layouts.ThemeSwitch.light": "Light",
+  "cmps.layouts.ThemeSwitch.dark": "Dark",
   "cmps.network.NetworkActions.menuRename": "Renommer",
   "cmps.network.NetworkActions.menuDelete": "Supprimer",
   "cmps.network.NetworkActions.primaryBtnStarting": "Départ",
