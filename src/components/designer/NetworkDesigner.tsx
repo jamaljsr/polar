@@ -20,6 +20,7 @@ const Styled = {
     position: relative;
     flex: 1;
     overflow: hidden;
+    margin: 0 -16px;
   `,
   FlowChart: styled(FlowChart)`
     height: 100%;
@@ -49,7 +50,6 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   }, [debouncedChart, save]);
 
   if (!chart) return <Loader />;
-
   return (
     <Styled.Designer>
       <Styled.FlowChart

@@ -6,6 +6,11 @@ import AppLayout from './AppLayout';
 
 describe('AppLayout component', () => {
   const renderComponent = (route?: string) => {
+    const initialState = {
+      app: {
+        initialized: true,
+      },
+    };
     // create a wrapper component to test language switching
     const LangWrapper: React.FC = () => {
       const { t } = useTranslation();
@@ -16,7 +21,7 @@ describe('AppLayout component', () => {
         </AppLayout>
       );
     };
-    return renderWithProviders(<LangWrapper />, { route });
+    return renderWithProviders(<LangWrapper />, { route, initialState });
   };
 
   beforeEach(async () => {
@@ -33,9 +38,9 @@ describe('AppLayout component', () => {
     expect(getByText("Let's get started!")).toBeInTheDocument();
   });
 
-  it('should navigate to home page when logo clicked', () => {
-    const { getByAltText, history } = renderComponent('/network');
-    fireEvent.click(getByAltText('logo'));
+  it('should navigate to home page when logo clicked', async () => {
+    const { findByAltText, history } = renderComponent('/network');
+    fireEvent.click(await findByAltText('logo'));
     expect(history.location.pathname).toEqual('/');
   });
 
@@ -56,6 +61,29 @@ describe('AppLayout component', () => {
       fireEvent.mouseEnter(getByText('English'));
       fireEvent.click(await findByText('Español (es-ES)'));
       expect(await findByText('¡Empecemos!')).toBeInTheDocument();
+    });
+  });
+
+  describe('Theme Switcher', () => {
+    it('should display dark mode by default', async () => {
+      const { getByText } = renderComponent();
+      expect(getByText('Dark')).toBeInTheDocument();
+    });
+
+    it('should switch to Light mode', async () => {
+      const { getByText, findByText } = renderComponent();
+      expect(getByText('Dark')).toBeInTheDocument();
+      fireEvent.click(getByText('Dark'));
+      expect(await findByText('Light')).toBeInTheDocument();
+    });
+
+    it('should switch to Dark mode', async () => {
+      const { getByText, findByText } = renderComponent();
+      expect(getByText('Dark')).toBeInTheDocument();
+      fireEvent.click(getByText('Dark'));
+      expect(await findByText('Light')).toBeInTheDocument();
+      fireEvent.click(getByText('Light'));
+      expect(await findByText('Dark')).toBeInTheDocument();
     });
   });
 });

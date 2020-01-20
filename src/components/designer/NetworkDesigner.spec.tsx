@@ -2,6 +2,7 @@ import React from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { fireEvent, waitForElementToBeRemoved } from '@testing-library/dom';
 import { act } from '@testing-library/react';
+import { themeColors } from 'theme/colors';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import NetworkDesigner from './NetworkDesigner';
@@ -17,12 +18,17 @@ describe('NetworkDesigner Component', () => {
     });
   });
 
-  const renderComponent = (charts?: Record<number, IChart>) => {
+  const renderComponent = (charts?: Record<number, IChart>, theme = 'dark') => {
     const network = getNetwork(1, 'test network');
     const allCharts = charts || {
       1: initChartFromNetwork(network),
     };
     const initialState = {
+      app: {
+        settings: {
+          theme,
+        },
+      },
       network: {
         networks: [network],
       },
@@ -140,5 +146,27 @@ describe('NetworkDesigner Component', () => {
     });
     await waitForElementToBeRemoved(() => queryByText('Yes'));
     expect(queryByText('alice')).toBeNull();
+  });
+
+  it('should render the dark links', async () => {
+    const { container } = renderComponent(undefined, 'dark');
+    // look for the first lineargradient tag
+    const query = 'lineargradient#lg-alice-backend1';
+    const gradientEl = container.querySelector(query) as Element;
+    // get the color of the first stop in the gradient
+    const color = (gradientEl.firstElementChild as Element).getAttribute('stop-color');
+    // the color should be pulled from the theme
+    expect(color).toBe(themeColors.dark.link.default);
+  });
+
+  it('should render the light links', async () => {
+    const { container } = renderComponent(undefined, 'light');
+    // look for the first lineargradient tag
+    const query = 'lineargradient#lg-alice-backend1';
+    const gradientEl = container.querySelector(query) as Element;
+    // get the color of the first stop in the gradient
+    const color = (gradientEl.firstElementChild as Element).getAttribute('stop-color');
+    // the color should be pulled from the theme
+    expect(color).toBe(themeColors.light.link.default);
   });
 });

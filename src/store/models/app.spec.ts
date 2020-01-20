@@ -37,6 +37,7 @@ describe('App model', () => {
     mockSettingsService.load.mockResolvedValue({
       lang: 'en-US',
       showAllNodeVersions: true,
+      theme: 'dark',
     });
     mockRepoService.load.mockResolvedValue({
       ...defaultRepoState,
@@ -50,6 +51,19 @@ describe('App model', () => {
     expect(mockSettingsService.load).toBeCalledTimes(1);
     expect(mockDockerService.getVersions).toBeCalledTimes(1);
     expect(mockDockerService.loadNetworks).toBeCalledTimes(1);
+  });
+
+  it('should initialize with missing settings', async () => {
+    mockSettingsService.load.mockResolvedValue(undefined);
+    await store.getActions().app.initialize();
+    expect(store.getState().app.initialized).toBe(true);
+  });
+
+  it('should initialize with missing theme', async () => {
+    mockSettingsService.load.mockResolvedValue({ lang: 'en-US' } as any);
+    await store.getActions().app.initialize();
+    expect(store.getState().app.initialized).toBe(true);
+    expect(store.getState().app.settings.theme).toBe('dark');
   });
 
   it('should update settings', async () => {
