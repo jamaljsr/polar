@@ -75,6 +75,8 @@ typings/
 
 # compiled by tsc from /src/electron/
 /public/main
+# compiled by lessc (yarn theme cmd) from /src/theme/
+/public/themes
 
 # misc
 .DS_Store
