@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.1](https://github.com/jamaljsr/polar/compare/v0.2.0...v0.2.1)
+
+This is just a small release to bring back light mode for those who prefer it over dark mode.
+
+### Features
+
+- **ui:** add light/dark mode toggle ([#280](https://github.com/jamaljsr/polar/pull/280))
+
+### Bug Fixes
+
+- **ui:** lighten node background in dark mode ([2a5fde4](https://github.com/jamaljsr/polar/commit/2a5fde4925d4224c5e239bdfb8450391ab2e07b6))
+
+### Docs
+
+- fix spelling and add Polar version field to bug template ([#279](https://github.com/jamaljsr/polar/pull/279)) h/t [@bolatovumar](https://github.com/bolatovumar)
+
 ## [0.2.0](https://github.com/jamaljsr/polar/compare/v0.1.0...v0.2.0)
 
 This release was focused on adding core features that didn't make it in the first release, as well as some UX and stability improvements. The UI has been redesigned to use a dark theme which has been a popular request. Polar now supports the latest versions of LND v0.8.2, Bitcoin Core v0.19.0.1 and adds support for c-lightning v0.8.0. Future released versions of these Lightning & Bitcoin nodes can now be used without needing to release a new version of Polar. This feature will let you start using the new versions as soon as they are out. To maintain support for older LND versions which are not compatible with the latest bitcoind, Polar now supports running multiple bitcoin nodes in a single network. Have fun creating chain splits and block reorgs with the new ability to stop and start individual nodes as well :)
