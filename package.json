@@ -128,7 +128,7 @@
     "react-scripts": "3.3.0",
     "redux": "4.0.5",
     "redux-logger": "3.0.6",
-    "standard-version": "7.0.1",
+    "standard-version": "7.1.0",
     "strip-ansi": "6.0.0",
     "stylelint": "13.0.0",
     "stylelint-config-prettier": "8.0.1",
