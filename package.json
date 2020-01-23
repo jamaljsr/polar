@@ -68,7 +68,7 @@
     "@types/detect-port": "1.1.0",
     "@types/dockerode": "2.5.21",
     "@types/fs-extra": "8.0.1",
-    "@types/jest": "24.9.0",
+    "@types/jest": "24.9.1",
     "@types/js-yaml": "3.12.1",
     "@types/node": "12.12.21",
     "@types/react": "16.9.19",
