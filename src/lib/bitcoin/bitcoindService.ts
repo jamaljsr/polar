@@ -127,10 +127,17 @@ class BitcoindService implements BitcoindLibrary {
     return {
       debug: (data: any, msg: string) => {
         const type = msg.startsWith('Making request') ? 'request' : 'response';
-        const body = JSON.parse(data.request.body);
-        const output =
-          type === 'request' ? JSON.stringify(body) : JSON.stringify(body, null, 2);
-        logger.debug(`BitcoindService: [${type}]`, output);
+        const { body: rawBody } = data.request;
+        if (rawBody) {
+          const body = JSON.parse(rawBody);
+          const output =
+            type === 'request' ? JSON.stringify(body) : JSON.stringify(body, null, 2);
+          logger.debug(`BitcoindService: [${type}]`, output);
+        } else if (data.request.error) {
+          logger.debug(`BitcoindService: [${type}]`, data.request.error);
+        } else {
+          logger.debug(`BitcoindService: [${type}]`, data);
+        }
       },
     };
   }
