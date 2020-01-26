@@ -75,6 +75,34 @@ describe('BitcoindService', () => {
     expect(spy).toBeCalledWith('BitcoindService: [response]', '{}');
   });
 
+  it('should log correctly for rpc response error', async () => {
+    const spy = jest.spyOn(log, 'debug');
+    mockBitcoin.mockImplementationOnce(options => {
+      options.logger.debug(
+        { request: { error: Error('error') } },
+        'Received response...',
+      );
+      return mockProto;
+    });
+    await bitcoindService.getBlockchainInfo(node);
+    expect(spy).toBeCalledWith('BitcoindService: [response]', Error('error'));
+  });
+
+  it('should log correctly for unknown rpc response', async () => {
+    const spy = jest.spyOn(log, 'debug');
+    mockBitcoin.mockImplementationOnce(options => {
+      options.logger.debug(
+        { request: { unknownProp: 'some value' } },
+        'Received response...',
+      );
+      return mockProto;
+    });
+    await bitcoindService.getBlockchainInfo(node);
+    expect(spy).toBeCalledWith('BitcoindService: [response]', {
+      request: { unknownProp: 'some value' },
+    });
+  });
+
   describe('sendFunds', () => {
     it('should send funds with sufficient balance', async () => {
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 1);
