@@ -8,7 +8,7 @@
 
 <p align="center">
   <img src="./assets/screen.png" />
-  <a href="https://youtu.be/HInI_G3oYpc" target="_blank">
+  <a href="https://youtu.be/mb37durvPns" target="_blank">
     View a short video demo
   </a>
 </p>
