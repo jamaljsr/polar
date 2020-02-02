@@ -6811,10 +6811,10 @@ electron-localshortcut@^3.1.0:
     keyboardevent-from-electron-accelerator "^2.0.0"
     keyboardevents-areequal "^0.2.1"
 
-electron-log@4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.0.4.tgz#a80daefa2f9adbfe5ac88806cfc5270c03ab55d2"
-  integrity sha512-u9nW6XSuvtvrsz3IJYvOjLryyeO4SIodX4TMnRGqPckoKyiPsnDxH9wHXigeUSmYDAg1Dwu8VowumUdkslssUQ==
+electron-log@4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.0.5.tgz#4179f0ecf28917e74f0408cfa1e93857b8f20f97"
+  integrity sha512-YadfIactRvhnkclBwxJ9jYGCrkbjhpPXjQXglz71rzrhUq1mXq3DyISrq1t4XiL0C8HKJbSpAq5DXbDppPxzaQ==
 
 electron-publish@22.3.2:
   version "22.3.2"
