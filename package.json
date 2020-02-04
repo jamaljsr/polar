@@ -50,7 +50,7 @@
     "electron-log": "4.0.6",
     "electron-window-state": "5.0.3",
     "shell-env": "3.0.0",
-    "xterm": "4.3.0",
+    "xterm": "4.4.0",
     "xterm-addon-fit": "0.3.0"
   },
   "devDependencies": {
