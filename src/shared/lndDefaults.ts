@@ -149,26 +149,35 @@ export const defaultLndWaitingCloseChannel = (
 
 export const defaultLndPendingChannels = (
   value: Partial<LND.PendingChannelsResponse>,
-): LND.PendingChannelsResponse => ({
-  totalLimboBalance: '',
-  pendingOpenChannels: mapArray(
-    value.pendingOpenChannels || [],
-    defaultLndPendingOpenChannel,
-  ),
-  pendingClosingChannels: mapArray(
-    value.pendingClosingChannels || [],
-    defaultLndClosedChannel,
-  ),
-  pendingForceClosingChannels: mapArray(
-    value.pendingForceClosingChannels || [],
-    defaultLndForceClosedChannel,
-  ),
-  waitingCloseChannels: mapArray(
-    value.waitingCloseChannels || [],
-    defaultLndWaitingCloseChannel,
-  ),
-  ...value,
-});
+): LND.PendingChannelsResponse => {
+  const {
+    pendingOpenChannels,
+    pendingClosingChannels,
+    pendingForceClosingChannels,
+    waitingCloseChannels,
+    ...rest
+  } = value;
+  return {
+    totalLimboBalance: '',
+    pendingOpenChannels: mapArray(
+      pendingOpenChannels || [],
+      defaultLndPendingOpenChannel,
+    ),
+    pendingClosingChannels: mapArray(
+      pendingClosingChannels || [],
+      defaultLndClosedChannel,
+    ),
+    pendingForceClosingChannels: mapArray(
+      pendingForceClosingChannels || [],
+      defaultLndForceClosedChannel,
+    ),
+    waitingCloseChannels: mapArray(
+      waitingCloseChannels || [],
+      defaultLndWaitingCloseChannel,
+    ),
+    ...rest,
+  };
+};
 
 const defaults = {
   [ipcChannels.getInfo]: defaultLndInfo,
