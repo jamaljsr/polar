@@ -4,6 +4,7 @@ import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
 import {
   getNetwork,
   injections,
@@ -137,7 +138,11 @@ describe('NetworkView Component', () => {
   });
 
   it('should not display a message if the docker images are found', async () => {
-    const images = ['bitcoind:0.19.0.1', 'lnd:0.8.2-beta', 'clightning:0.8.0'];
+    const images = [
+      `lnd:${defaultRepoState.images.LND.latest}`,
+      `clightning:${defaultRepoState.images['c-lightning'].latest}`,
+      `bitcoind:${defaultRepoState.images.bitcoind.latest}`,
+    ];
     const { queryByText } = renderComponent('1', Status.Stopped, images);
     expect(
       queryByText(
