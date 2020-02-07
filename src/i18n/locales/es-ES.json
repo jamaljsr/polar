@@ -181,7 +181,7 @@
   "cmps.designer.lightning.ConnectTab.p2pLnUrl": "URL de P2P LN",
   "cmps.designer.lightning.ConnectTab.apiDocs": "Documentos de API",
   "cmps.designer.lightning.ConnectTab.filePaths": "Rutas de archivo",
-  "cmps.designer.lightning.ConnectTab.hexStrings": "MALEFICIO",
+  "cmps.designer.lightning.ConnectTab.hexStrings": "HEX",
   "cmps.designer.lightning.ConnectTab.base64Strings": "Base64",
   "cmps.designer.lightning.ConnectTab.lndConnect": "LND Connect",
   "cmps.designer.lightning.InfoTab.nodeType": "Tipo de nodo",
