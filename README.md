@@ -72,6 +72,8 @@ Polar's translations are managed on [Crowdin](https://crowdin.com/project/polar)
 
 ## Development
 
+If you would like to learn how to package Polar from source code or want to fix a bug or add a new feature, please see [CONTRIBUTING.md](https://github.com/jamaljsr/polar/blob/master/CONTRIBUTING.md) for detailed instructions.
+
 ### Commands
 
 | Command         | Description                                                       |
@@ -81,12 +83,7 @@ Polar's translations are managed on [Crowdin](https://crowdin.com/project/polar)
 | `yarn test`     | run unit tests in watch mode                                      |
 | `yarn test:e2e` | run e2e tests                                                     |
 | `yarn lint:all` | run typescript and eslint syntax checking                         |
-| `yarn langs`    | extract i18n language keys from code                              |
 | `yarn package`  | package the app for your OS                                       |
-
-### Tips
-
-- install the [import-sorter](https://github.com/SoominHan/import-sorter) Visual Studio Code extension for automatic import statement sorting
 
 ### Tech Stack
 
@@ -95,6 +92,7 @@ Polar's translations are managed on [Crowdin](https://crowdin.com/project/polar)
 - [ReactJS](https://github.com/facebook/react/): declarative UI library for JavaScript
 - [Create React App](https://github.com/facebook/create-react-app): minimize build configuration
 - [easy-peasy](https://github.com/ctrlplusb/easy-peasy): Redux state management without the boilerplate
+- [Emotion](https://emotion.sh/): simplified CSS style composition
 - [Ant Design](https://github.com/ant-design/ant-design/): don't reinvent the wheel with UI design
 - [react-i18next](https://github.com/i18next/react-i18next): support for multiple languages (english/spanish included)
 - [electron-log](https://github.com/megahertz/electron-log): multi-level logging to console and file
