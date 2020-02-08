@@ -130,7 +130,7 @@
     "redux-logger": "3.0.6",
     "standard-version": "7.1.0",
     "strip-ansi": "6.0.0",
-    "stylelint": "13.0.0",
+    "stylelint": "13.1.0",
     "stylelint-config-prettier": "8.0.1",
     "stylelint-config-standard": "19.0.0",
     "testcafe": "1.8.1",
