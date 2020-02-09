@@ -1,17 +1,16 @@
 import React from 'react';
-import { PlusOutlined } from '@ant-design/icons';
+import { HddOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Menu } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { NETWORK_NEW } from 'components/routing';
+import { NETWORK_NEW, NODES_VIEW } from 'components/routing';
 
 const Styled = {
   Menu: styled.div`
     float: right;
-    margin-top: 9px;
   `,
-  PlusIcon: styled(PlusOutlined)`
+  MenuIcon: styled(MenuOutlined)`
     font-size: 1.2rem;
     color: #fff;
   `,
@@ -20,15 +19,23 @@ const Styled = {
 const NavMenu: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.common.NavMenu');
   const { navigateTo } = useStoreActions(s => s.app);
-
+  const menu = (
+    <Menu theme="dark">
+      <Menu.Item onClick={() => navigateTo(NETWORK_NEW)}>
+        <PlusOutlined />
+        {l('createNetwork')}
+      </Menu.Item>
+      <Menu.Item onClick={() => navigateTo(NODES_VIEW)}>
+        <HddOutlined />
+        {l('manageNodes')}
+      </Menu.Item>
+    </Menu>
+  );
   return (
     <Styled.Menu>
-      <Menu theme="dark" mode="horizontal" selectable={false}>
-        <Menu.Item onClick={() => navigateTo(NETWORK_NEW)}>
-          <Styled.PlusIcon />
-          {l('createNetwork')}
-        </Menu.Item>
-      </Menu>
+      <Dropdown overlay={menu} trigger={['click']}>
+        <Styled.MenuIcon />
+      </Dropdown>
     </Styled.Menu>
   );
 };
