@@ -3,13 +3,15 @@ import { shell } from 'electron';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
-import { Action, action, Thunk, thunk } from 'easy-peasy';
+import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
+import { NodeImplementation } from 'shared/types';
 import {
   AppSettings,
   DockerRepoState,
   DockerRepoUpdates,
   DockerVersions,
+  ManagedNode,
   StoreInjections,
 } from 'types';
 import { defaultRepoState } from 'utils/constants';
@@ -29,6 +31,7 @@ export interface AppModel {
   // images that have been pulled/downloaded from Docker Hub
   dockerImages: string[];
   // all images that are available on Docker Hub
+  managedNodes: Computed<AppModel, ManagedNode[]>;
   dockerRepoState: DockerRepoState;
   setInitialized: Action<AppModel, boolean>;
   setSettings: Action<AppModel, Partial<AppSettings>>;
@@ -63,10 +66,32 @@ const appModel: AppModel = {
     lang: getI18n().language,
     theme: 'dark',
     showAllNodeVersions: false,
+    nodes: {
+      managed: [],
+      custom: [],
+    },
   },
   dockerVersions: { docker: '', compose: '' },
   dockerImages: [],
   dockerRepoState: defaultRepoState,
+  // computed properties
+  managedNodes: computed(state => {
+    // the list of managed nodes should be computed to merge the user-defined
+    // commands with the hard-coded nodes
+    const nodes: ManagedNode[] = [];
+    const { managed } = state.settings.nodes;
+    Object.entries(state.dockerRepoState.images).forEach(([type, entry]) => {
+      entry.versions.forEach(version => {
+        const m = managed.find(n => n.implementation === type && n.version === version);
+        nodes.push({
+          implementation: type as NodeImplementation,
+          version,
+          command: m ? m.command : '',
+        });
+      });
+    });
+    return nodes;
+  }),
   // reducer actions (mutations allowed thx to immer)
   setInitialized: action((state, initialized) => {
     state.initialized = initialized;

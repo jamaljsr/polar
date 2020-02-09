@@ -69,12 +69,14 @@ export const bitcoinCredentials = {
 export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
   LND: {
     name: 'LND',
+    imageName: 'polarlightning/lnd',
     logo: lndLogo,
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'lnd',
   },
   'c-lightning': {
     name: 'c-lightning',
+    imageName: 'polarlightning/clightning',
     logo: clightningLogo,
     platforms: ['mac', 'linux'],
     volumeDirName: 'c-lightning',
@@ -83,18 +85,21 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
   },
   eclair: {
     name: 'Eclair',
+    imageName: '',
     logo: '',
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'eclair',
   },
   bitcoind: {
     name: 'Bitcoin Core',
+    imageName: 'polarlightning/bitcoind',
     logo: bitcoindLogo,
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'bitcoind',
   },
   btcd: {
     name: 'btcd',
+    imageName: '',
     logo: '',
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'btcd',
