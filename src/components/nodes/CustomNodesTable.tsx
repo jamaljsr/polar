@@ -24,7 +24,7 @@ const Styled = {
   `,
 };
 
-interface NodeInfo {
+interface CustomNodeView {
   id: string;
   name: string;
   dockerImage: string;
@@ -40,11 +40,11 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
   const { l } = usePrefixedTranslation('cmps.nodes.CustomNodesTable');
   const currPlatform = getPolarPlatform();
 
-  const handleEdit = (node: NodeInfo) => {
+  const handleEdit = (node: CustomNodeView) => {
     console.warn(node);
   };
 
-  const handleDelete = (node: NodeInfo) => {
+  const handleDelete = (node: CustomNodeView) => {
     console.warn(node);
   };
 
@@ -52,7 +52,7 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
     return null;
   }
 
-  const customNodes: NodeInfo[] = [];
+  const customNodes: CustomNodeView[] = [];
   nodes.forEach(({ id, implementation, dockerImage, command }) => {
     const { name, logo, platforms } = dockerConfigs[implementation];
     if (!platforms.includes(currPlatform)) return;
@@ -71,7 +71,7 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
         title={l('implementation')}
         dataIndex="name"
         key="name"
-        render={(name: string, node: NodeInfo) => (
+        render={(name: string, node: CustomNodeView) => (
           <span key="name">
             <Styled.Logo src={node.logo} />
             {name}
@@ -80,10 +80,10 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
       />
       <Table.Column title={l('dockerImage')} dataIndex="dockerImage" key="imageName" />
       <Table.Column
-        title=""
+        title={l('manage')}
         width={200}
         align="right"
-        render={(_, node: NodeInfo) => (
+        render={(_, node: CustomNodeView) => (
           <span key="edit">
             <Button type="link" icon={<FormOutlined />} onClick={() => handleEdit(node)}>
               {l('edit')}

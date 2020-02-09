@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { info } from 'electron-log';
 import { PlusOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, PageHeader } from 'antd';
+import { Alert, Button, PageHeader } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
@@ -15,8 +15,11 @@ const Styled = {
     border: 1px solid ${props => props.colors.border};
     border-radius: 2px;
     background-color: ${props => props.colors.background};
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     flex: 0;
+  `,
+  Alert: styled(Alert)`
+    margin-bottom: 16px;
   `,
 };
 
@@ -40,6 +43,13 @@ const NodesView: React.FC = () => {
           </Button>
         }
       />
+      <Styled.Alert
+        type="warning"
+        message={l('warnMsg')}
+        description={l('warnDesc')}
+        showIcon
+      />
+
       <CustomNodesTable nodes={settings.nodes.custom} />
       <ManagedNodesTable nodes={managedNodes} />
     </>
