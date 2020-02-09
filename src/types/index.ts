@@ -69,6 +69,8 @@ export interface DockerConfig {
   logo: string;
   platforms: PolarPlatform[];
   volumeDirName: string;
+  command: string;
+  variables: string[];
   dataDir?: string;
   apiDir?: string;
 }

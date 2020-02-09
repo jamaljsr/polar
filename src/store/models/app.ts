@@ -37,6 +37,7 @@ export interface AppModel {
   setSettings: Action<AppModel, Partial<AppSettings>>;
   loadSettings: Thunk<AppModel, any, StoreInjections, RootModel>;
   updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
+  updateManagedNode: Thunk<AppModel, ManagedNode, StoreInjections, RootModel>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
@@ -82,6 +83,7 @@ const appModel: AppModel = {
     const { managed } = state.settings.nodes;
     Object.entries(state.dockerRepoState.images).forEach(([type, entry]) => {
       entry.versions.forEach(version => {
+        // search for a custom command saved in settings
         const m = managed.find(n => n.implementation === type && n.version === version);
         nodes.push({
           implementation: type as NodeImplementation,
@@ -124,6 +126,19 @@ const appModel: AppModel = {
     await injections.settingsService.save(settings);
     if (updates.lang) await getI18n().changeLanguage(settings.lang);
     if (updates.theme) changeTheme(updates.theme);
+  }),
+  updateManagedNode: thunk(async (actions, node, { getState }) => {
+    const { nodes } = getState().settings;
+    // create a list of nodes excluding the one being updated
+    const managed = nodes.managed.filter(
+      n => !(n.implementation === node.implementation && n.version === node.version),
+    );
+    // add the updated node to the list if the command is not blank
+    if (node.command) managed.push(node);
+    // update the settings in state and on disk
+    await actions.updateSettings({
+      nodes: { ...nodes, managed },
+    });
   }),
   setDockerVersions: action((state, versions) => {
     state.dockerVersions = versions;
