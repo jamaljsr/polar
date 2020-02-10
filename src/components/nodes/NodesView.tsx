@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { info } from 'electron-log';
 import { PlusOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
@@ -7,8 +7,10 @@ import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
+import { CustomNode } from 'types';
+import { dockerConfigs } from 'utils/constants';
 import { HOME } from 'components/routing';
-import { CustomNodesTable, ManagedNodesTable } from './';
+import { CustomNodeModal, CustomNodesTable, ManagedNodesTable } from './';
 
 const Styled = {
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
@@ -28,8 +30,18 @@ const NodesView: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.nodes.NodesView');
 
   const theme = useTheme();
+  const [addingNode, setAddingNode] = useState<CustomNode>();
   const { managedNodes, settings } = useStoreState(s => s.app);
   const { navigateTo } = useStoreActions(s => s.app);
+
+  const handleAdd = () => {
+    setAddingNode({
+      id: '',
+      implementation: 'LND',
+      dockerImage: '',
+      command: dockerConfigs.LND.command,
+    });
+  };
 
   return (
     <>
@@ -38,7 +50,7 @@ const NodesView: React.FC = () => {
         colors={theme.pageHeader}
         onBack={() => navigateTo(HOME)}
         extra={
-          <Button type="primary" icon={<PlusOutlined />}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
             {l('addBtn')}
           </Button>
         }
@@ -52,6 +64,9 @@ const NodesView: React.FC = () => {
 
       <CustomNodesTable nodes={settings.nodes.custom} />
       <ManagedNodesTable nodes={managedNodes} />
+      {addingNode && (
+        <CustomNodeModal node={addingNode} onClose={() => setAddingNode(undefined)} />
+      )}
     </>
   );
 };

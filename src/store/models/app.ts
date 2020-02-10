@@ -40,6 +40,7 @@ export interface AppModel {
   updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
   updateManagedNode: Thunk<AppModel, ManagedNode, StoreInjections, RootModel>;
   saveCustomNode: Thunk<AppModel, CustomNode, StoreInjections, RootModel>;
+  removeCustomNode: Thunk<AppModel, CustomNode, StoreInjections, RootModel>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
@@ -153,6 +154,15 @@ const appModel: AppModel = {
       node.id = `${Date.now()}`;
       custom = [node, ...nodes.custom];
     }
+    // update the settings in state and on disk
+    await actions.updateSettings({
+      nodes: { ...nodes, custom },
+    });
+  }),
+  removeCustomNode: thunk(async (actions, node, { getState }) => {
+    const { nodes } = getState().settings;
+    // remove the custom node
+    const custom = nodes.custom.filter(c => c.id !== node.id);
     // update the settings in state and on disk
     await actions.updateSettings({
       nodes: { ...nodes, custom },
