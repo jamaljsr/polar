@@ -8,6 +8,7 @@ import { ipcChannels } from 'shared';
 import { NodeImplementation } from 'shared/types';
 import {
   AppSettings,
+  CustomNode,
   DockerRepoState,
   DockerRepoUpdates,
   DockerVersions,
@@ -38,6 +39,7 @@ export interface AppModel {
   loadSettings: Thunk<AppModel, any, StoreInjections, RootModel>;
   updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
   updateManagedNode: Thunk<AppModel, ManagedNode, StoreInjections, RootModel>;
+  saveCustomNode: Thunk<AppModel, CustomNode, StoreInjections, RootModel>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
@@ -138,6 +140,22 @@ const appModel: AppModel = {
     // update the settings in state and on disk
     await actions.updateSettings({
       nodes: { ...nodes, managed },
+    });
+  }),
+  saveCustomNode: thunk(async (actions, node, { getState }) => {
+    const { nodes } = getState().settings;
+    let custom: CustomNode[];
+    if (node.id) {
+      // if updating, overwrite the existing node
+      custom = nodes.custom.map(c => (c.id === node.id ? node : c));
+    } else {
+      // add new node
+      node.id = `${Date.now()}`;
+      custom = [node, ...nodes.custom];
+    }
+    // update the settings in state and on disk
+    await actions.updateSettings({
+      nodes: { ...nodes, custom },
     });
   }),
   setDockerVersions: action((state, versions) => {

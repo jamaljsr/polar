@@ -38,6 +38,7 @@ describe('App model', () => {
       lang: 'en-US',
       showAllNodeVersions: true,
       theme: 'dark',
+      nodes: { custom: [], managed: [] },
     });
     mockRepoService.load.mockResolvedValue({
       ...defaultRepoState,

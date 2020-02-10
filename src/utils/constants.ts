@@ -155,7 +155,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-listenonion=0',
     ].join('\n  '),
     // if vars are modified, also update the i18n strings for cmps.nodes.CommandVariables
-    variables: ['rpcUser', 'rpcPass'],
+    variables: ['rpcUser', 'rpcAuth'],
   },
   btcd: {
     name: 'btcd',

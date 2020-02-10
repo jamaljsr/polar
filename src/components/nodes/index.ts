@@ -1,4 +1,5 @@
 export { default as CommandVariables } from './CommandVariables';
+export { default as CustomNodeModal } from './CustomNodeModal';
 export { default as CustomNodesTable } from './CustomNodesTable';
 export { default as ManagedNodeModal } from './ManagedNodeModal';
 export { default as ManagedNodesTable } from './ManagedNodesTable';
