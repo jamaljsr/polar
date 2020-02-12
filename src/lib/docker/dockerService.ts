@@ -16,7 +16,7 @@ import {
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
-import { APP_VERSION, DOCKER_REPO, dockerConfigs } from 'utils/constants';
+import { APP_VERSION, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux } from 'utils/system';
@@ -61,13 +61,9 @@ class DockerService implements DockerLibrary {
       debug('fetching docker images');
       const allImages = await new Dockerode().listImages();
       debug(`All Images: ${JSON.stringify(allImages)}`);
-      const prefix = `${DOCKER_REPO}/`;
-      const polarImages = ([] as string[])
-        .concat(...allImages.map(i => i.RepoTags || []))
-        .filter(i => i.startsWith(prefix))
-        .map(i => i.substr(prefix.length));
-      debug(`Polar Images: ${JSON.stringify(polarImages)}`);
-      return polarImages;
+      const imageNames = ([] as string[]).concat(...allImages.map(i => i.RepoTags || []));
+      debug(`Image Names: ${JSON.stringify(imageNames)}`);
+      return imageNames;
     } catch (error) {
       debug(`Failed: ${error.message}`);
       return [];
