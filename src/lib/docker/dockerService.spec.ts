@@ -117,14 +117,14 @@ describe('DockerService', () => {
     const polar = (name: string) => `${DOCKER_REPO}/${name}`;
     const mapResponse = (names: string[]) => names.map(name => ({ RepoTags: [name] }));
 
-    it('should return a list of prefixed images', async () => {
+    it('should return a list of all docker images', async () => {
       dockerListImages.mockResolvedValue(mapResponse([polar('aaa'), polar('bbb')]));
-      expect(await dockerService.getImages()).toEqual(['aaa', 'bbb']);
+      expect(await dockerService.getImages()).toEqual([polar('aaa'), polar('bbb')]);
     });
 
-    it('should not return images that do not start with the prefix', async () => {
+    it('should return images that do not start with the prefix', async () => {
       dockerListImages.mockResolvedValue(mapResponse(['other1', polar('aaa'), 'other2']));
-      expect(await dockerService.getImages()).toEqual(['aaa']);
+      expect(await dockerService.getImages()).toEqual(['other1', polar('aaa'), 'other2']);
     });
 
     it('should return an empty list if the fetch fails', async () => {
@@ -137,7 +137,7 @@ describe('DockerService', () => {
         ...mapResponse([polar('aaa'), polar('bbb')]),
         { RepoTags: undefined },
       ]);
-      expect(await dockerService.getImages()).toEqual(['aaa', 'bbb']);
+      expect(await dockerService.getImages()).toEqual([polar('aaa'), polar('bbb')]);
     });
   });
 

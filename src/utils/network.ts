@@ -11,7 +11,7 @@ import {
 } from 'shared/types';
 import { DockerRepoImage, DockerRepoState, Network } from 'types';
 import { networksPath, nodePath } from './config';
-import { BasePorts } from './constants';
+import { BasePorts, DOCKER_REPO } from './constants';
 import { getName } from './names';
 import { range } from './numbers';
 import { isVersionCompatible } from './strings';
@@ -238,8 +238,13 @@ export const getMissingImages = (network: Network, pulled: string[]): string[] =
   const neededImages = [...bitcoin, ...lightning].map(
     n => `${n.implementation.toLocaleLowerCase().replace(/-/g, '')}:${n.version}`,
   );
+  // make a list of only Polar images
+  const prefix = `${DOCKER_REPO}/`;
+  const polarImages = pulled
+    .filter(i => i.startsWith(prefix))
+    .map(i => i.substr(prefix.length));
   // exclude images already pulled
-  const missing = neededImages.filter(i => !pulled.includes(i));
+  const missing = neededImages.filter(i => !polarImages.includes(i));
   // filter out duplicates
   const unique = missing.filter((image, index) => missing.indexOf(image) === index);
   if (unique.length)

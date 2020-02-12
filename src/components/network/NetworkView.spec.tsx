@@ -154,9 +154,9 @@ describe('NetworkView Component', () => {
 
   it('should not display a message if the docker images are found', async () => {
     const images = [
-      `lnd:${defaultRepoState.images.LND.latest}`,
-      `clightning:${defaultRepoState.images['c-lightning'].latest}`,
-      `bitcoind:${defaultRepoState.images.bitcoind.latest}`,
+      `polarlightning/lnd:${defaultRepoState.images.LND.latest}`,
+      `polarlightning/clightning:${defaultRepoState.images['c-lightning'].latest}`,
+      `polarlightning/bitcoind:${defaultRepoState.images.bitcoind.latest}`,
     ];
     const { queryByText } = renderComponent('1', Status.Stopped, images);
     expect(

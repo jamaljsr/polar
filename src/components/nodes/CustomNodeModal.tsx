@@ -6,6 +6,7 @@ import { NodeImplementation } from 'shared/types';
 import { useStoreActions } from 'store';
 import { CustomNode } from 'types';
 import { dockerConfigs } from 'utils/constants';
+import DockerImageInput from 'components/common/form/DockerImageInput';
 import { CommandVariables } from './';
 
 interface Props {
@@ -18,6 +19,7 @@ const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
   const [form] = Form.useForm();
   const { notify, saveCustomNode } = useStoreActions(s => s.app);
   const [activeImpl, setActiveImpl] = useState(node.implementation);
+  const isEditing = !!node.id;
 
   const saveAsync = useAsyncCallback(async (nodeToSave: CustomNode) => {
     try {
@@ -68,7 +70,10 @@ const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item name="implementation" label={l('implementation')}>
-              <Select onChange={v => handleImplChange(v as NodeImplementation)}>
+              <Select
+                onChange={v => handleImplChange(v as NodeImplementation)}
+                disabled={isEditing || saveAsync.loading}
+              >
                 {Object.entries(implGroups).map(([label, impls]) => (
                   <Select.OptGroup label={label} key={label}>
                     {impls.map(impl => (
@@ -83,12 +88,18 @@ const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="dockerImage" label={l('dockerImage')}>
-              <Input disabled={saveAsync.loading} />
-            </Form.Item>
+            <DockerImageInput
+              name="dockerImage"
+              label={l('dockerImage')}
+              disabled={isEditing || saveAsync.loading}
+            />
           </Col>
         </Row>
-        <Form.Item name="command" label={l('command')}>
+        <Form.Item
+          name="command"
+          label={l('command')}
+          rules={[{ required: true, message: l('cmps.forms.required') }]}
+        >
           <Input.TextArea
             rows={6}
             className="custom-scroll"
