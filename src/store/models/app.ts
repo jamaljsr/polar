@@ -8,11 +8,11 @@ import { ipcChannels } from 'shared';
 import { NodeImplementation } from 'shared/types';
 import {
   AppSettings,
-  CustomNode,
+  CustomImage,
   DockerRepoState,
   DockerRepoUpdates,
   DockerVersions,
-  ManagedNode,
+  ManagedImage,
   StoreInjections,
 } from 'types';
 import { defaultRepoState } from 'utils/constants';
@@ -32,15 +32,15 @@ export interface AppModel {
   // images that have been pulled/downloaded from Docker Hub
   dockerImages: string[];
   // all images that are available on Docker Hub
-  managedNodes: Computed<AppModel, ManagedNode[]>;
   dockerRepoState: DockerRepoState;
+  computedManagedImages: Computed<AppModel, ManagedImage[]>;
   setInitialized: Action<AppModel, boolean>;
   setSettings: Action<AppModel, Partial<AppSettings>>;
   loadSettings: Thunk<AppModel, any, StoreInjections, RootModel>;
   updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
-  updateManagedNode: Thunk<AppModel, ManagedNode, StoreInjections, RootModel>;
-  saveCustomNode: Thunk<AppModel, CustomNode, StoreInjections, RootModel>;
-  removeCustomNode: Thunk<AppModel, CustomNode, StoreInjections, RootModel>;
+  updateManagedImage: Thunk<AppModel, ManagedImage, StoreInjections, RootModel>;
+  saveCustomImage: Thunk<AppModel, CustomImage, StoreInjections, RootModel>;
+  removeCustomImage: Thunk<AppModel, CustomImage, StoreInjections, RootModel>;
   initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
@@ -70,7 +70,7 @@ const appModel: AppModel = {
     lang: getI18n().language,
     theme: 'dark',
     showAllNodeVersions: false,
-    nodes: {
+    nodeImages: {
       managed: [],
       custom: [],
     },
@@ -79,11 +79,11 @@ const appModel: AppModel = {
   dockerImages: [],
   dockerRepoState: defaultRepoState,
   // computed properties
-  managedNodes: computed(state => {
+  computedManagedImages: computed(state => {
     // the list of managed nodes should be computed to merge the user-defined
     // commands with the hard-coded nodes
-    const nodes: ManagedNode[] = [];
-    const { managed } = state.settings.nodes;
+    const nodes: ManagedImage[] = [];
+    const { managed } = state.settings.nodeImages;
     Object.entries(state.dockerRepoState.images).forEach(([type, entry]) => {
       entry.versions.forEach(version => {
         // search for a custom command saved in settings
@@ -130,42 +130,42 @@ const appModel: AppModel = {
     if (updates.lang) await getI18n().changeLanguage(settings.lang);
     if (updates.theme) changeTheme(updates.theme);
   }),
-  updateManagedNode: thunk(async (actions, node, { getState }) => {
-    const { nodes } = getState().settings;
+  updateManagedImage: thunk(async (actions, node, { getState }) => {
+    const { nodeImages } = getState().settings;
     // create a list of nodes excluding the one being updated
-    const managed = nodes.managed.filter(
+    const managed = nodeImages.managed.filter(
       n => !(n.implementation === node.implementation && n.version === node.version),
     );
     // add the updated node to the list if the command is not blank
     if (node.command) managed.push(node);
     // update the settings in state and on disk
     await actions.updateSettings({
-      nodes: { ...nodes, managed },
+      nodeImages: { ...nodeImages, managed },
     });
   }),
-  saveCustomNode: thunk(async (actions, node, { getState }) => {
-    const { nodes } = getState().settings;
-    let custom: CustomNode[];
+  saveCustomImage: thunk(async (actions, node, { getState }) => {
+    const { nodeImages } = getState().settings;
+    let custom: CustomImage[];
     if (node.id) {
       // if updating, overwrite the existing node
-      custom = nodes.custom.map(c => (c.id === node.id ? node : c));
+      custom = nodeImages.custom.map(c => (c.id === node.id ? node : c));
     } else {
       // add new node
       node.id = `${Date.now()}`;
-      custom = [node, ...nodes.custom];
+      custom = [node, ...nodeImages.custom];
     }
     // update the settings in state and on disk
     await actions.updateSettings({
-      nodes: { ...nodes, custom },
+      nodeImages: { ...nodeImages, custom },
     });
   }),
-  removeCustomNode: thunk(async (actions, node, { getState }) => {
-    const { nodes } = getState().settings;
+  removeCustomImage: thunk(async (actions, node, { getState }) => {
+    const { nodeImages } = getState().settings;
     // remove the custom node
-    const custom = nodes.custom.filter(c => c.id !== node.id);
+    const custom = nodeImages.custom.filter(c => c.id !== node.id);
     // update the settings in state and on disk
     await actions.updateSettings({
-      nodes: { ...nodes, custom },
+      nodeImages: { ...nodeImages, custom },
     });
   }),
   setDockerVersions: action((state, versions) => {

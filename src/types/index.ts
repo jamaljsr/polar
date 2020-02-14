@@ -23,20 +23,20 @@ export interface Network {
 }
 
 /**
- * Managed nodes are hard-coded with docker images pushed to the
+ * Managed images are hard-coded with docker images pushed to the
  * Docker Hub polarlightning repo
  */
-export interface ManagedNode {
+export interface ManagedImage {
   implementation: NodeImplementation;
   version: string;
   command: string;
 }
 
 /**
- * Custom nodes are created by the user using docker images that only
+ * Custom images are created by the user using docker images that only
  * exist locally on the user's machine
  */
-export interface CustomNode {
+export interface CustomImage {
   id: string;
   implementation: NodeImplementation;
   dockerImage: string;
@@ -47,9 +47,10 @@ export interface AppSettings {
   lang: string;
   theme: 'light' | 'dark';
   showAllNodeVersions: boolean;
-  nodes: {
-    managed: ManagedNode[];
-    custom: CustomNode[];
+  /** lists of docker image customizations */
+  nodeImages: {
+    managed: ManagedImage[];
+    custom: CustomImage[];
   };
 }
 

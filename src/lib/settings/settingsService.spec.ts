@@ -18,7 +18,7 @@ describe('SettingsService', () => {
       lang: 'en-US',
       showAllNodeVersions: true,
       theme: 'dark',
-      nodes: { custom: [], managed: [] },
+      nodeImages: { custom: [], managed: [] },
     };
   });
 

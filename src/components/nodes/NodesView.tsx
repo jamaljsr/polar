@@ -7,7 +7,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
-import { CustomNode } from 'types';
+import { CustomImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { HOME } from 'components/routing';
 import { CustomNodeModal, CustomNodesTable, ManagedNodesTable } from './';
@@ -30,12 +30,12 @@ const NodesView: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.nodes.NodesView');
 
   const theme = useTheme();
-  const [addingNode, setAddingNode] = useState<CustomNode>();
-  const { managedNodes, settings } = useStoreState(s => s.app);
+  const [addingImage, setAddingImage] = useState<CustomImage>();
+  const { computedManagedImages, settings } = useStoreState(s => s.app);
   const { navigateTo } = useStoreActions(s => s.app);
 
   const handleAdd = () => {
-    setAddingNode({
+    setAddingImage({
       id: '',
       implementation: 'LND',
       dockerImage: '',
@@ -62,10 +62,10 @@ const NodesView: React.FC = () => {
         showIcon
       />
 
-      <CustomNodesTable nodes={settings.nodes.custom} />
-      <ManagedNodesTable nodes={managedNodes} />
-      {addingNode && (
-        <CustomNodeModal node={addingNode} onClose={() => setAddingNode(undefined)} />
+      <CustomNodesTable nodes={settings.nodeImages.custom} />
+      <ManagedNodesTable nodes={computedManagedImages} />
+      {addingImage && (
+        <CustomNodeModal node={addingImage} onClose={() => setAddingImage(undefined)} />
       )}
     </>
   );

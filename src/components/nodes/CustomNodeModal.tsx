@@ -4,26 +4,26 @@ import { Col, Form, Input, Modal, Row, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions } from 'store';
-import { CustomNode } from 'types';
+import { CustomImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import DockerImageInput from 'components/common/form/DockerImageInput';
 import { CommandVariables } from './';
 
 interface Props {
-  node: CustomNode;
+  node: CustomImage;
   onClose: () => void;
 }
 
 const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
   const { l } = usePrefixedTranslation('cmps.nodes.CustomNodeModal');
   const [form] = Form.useForm();
-  const { notify, saveCustomNode } = useStoreActions(s => s.app);
+  const { notify, saveCustomImage } = useStoreActions(s => s.app);
   const [activeImpl, setActiveImpl] = useState(node.implementation);
   const isEditing = !!node.id;
 
-  const saveAsync = useAsyncCallback(async (nodeToSave: CustomNode) => {
+  const saveAsync = useAsyncCallback(async (nodeToSave: CustomImage) => {
     try {
-      await saveCustomNode(nodeToSave);
+      await saveCustomImage(nodeToSave);
       onClose();
     } catch (error) {
       notify({ message: l('saveError'), error });

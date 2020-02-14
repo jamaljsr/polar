@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Button, Col, Form, Input, Modal, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { ManagedNode } from 'types';
+import { ManagedImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { CommandVariables } from './';
 
@@ -18,21 +18,21 @@ const Styled = {
 };
 
 interface Props {
-  node: ManagedNode;
+  image: ManagedImage;
   onClose: () => void;
 }
 
-const ManagedNodeModal: React.FC<Props> = ({ node, onClose }) => {
+const ManagedNodeModal: React.FC<Props> = ({ image, onClose }) => {
   const { l } = usePrefixedTranslation('cmps.nodes.ManagedNodeModal');
   const [form] = Form.useForm();
-  const { notify, updateManagedNode } = useStoreActions(s => s.app);
+  const { notify, updateManagedImage } = useStoreActions(s => s.app);
 
-  const config = dockerConfigs[node.implementation];
+  const config = dockerConfigs[image.implementation];
 
   const saveAsync = useAsyncCallback(async (command: string) => {
     try {
-      node.command = command;
-      await updateManagedNode(node);
+      image.command = command;
+      await updateManagedImage(image);
       onClose();
     } catch (error) {
       notify({ message: l('saveError'), error });
@@ -43,7 +43,7 @@ const ManagedNodeModal: React.FC<Props> = ({ node, onClose }) => {
 
   return (
     <Modal
-      title={l('title', node)}
+      title={l('title', image)}
       visible
       width={600}
       destroyOnClose
@@ -68,17 +68,17 @@ const ManagedNodeModal: React.FC<Props> = ({ node, onClose }) => {
         layout="vertical"
         hideRequiredMark
         colon={false}
-        initialValues={{ command: node.command || config.command }}
+        initialValues={{ command: image.command || config.command }}
         onFinish={handleSubmit}
       >
         <Styled.Summary>{l('summary')}</Styled.Summary>
         <Form.Item label={l('dockerImage')}>
-          <Input value={`${config.imageName}:${node.version}`} disabled />
+          <Input value={`${config.imageName}:${image.version}`} disabled />
         </Form.Item>
         <Form.Item name="command" label={l('command')}>
           <Input.TextArea rows={6} disabled={saveAsync.loading} />
         </Form.Item>
-        <CommandVariables implementation={node.implementation} />
+        <CommandVariables implementation={image.implementation} />
       </Form>
     </Modal>
   );

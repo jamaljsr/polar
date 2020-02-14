@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Button, Table, Tag } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
-import { ManagedNode } from 'types';
+import { ManagedImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { getPolarPlatform } from 'utils/system';
 import { ManagedNodeModal } from './';
@@ -31,17 +31,17 @@ interface ManagedNodeView {
 }
 
 interface Props {
-  nodes: ManagedNode[];
+  nodes: ManagedImage[];
 }
 
 const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
   const { l } = usePrefixedTranslation('cmps.nodes.ManagedNodesTable');
   const currPlatform = getPolarPlatform();
-  const [editingNode, setEditingNode] = useState<ManagedNode>();
+  const [editingImage, setEditingImage] = useState<ManagedImage>();
 
   const handleCustomize = (node: ManagedNodeView) => {
     const { implementation, version, command } = node;
-    setEditingNode({ implementation, version, command });
+    setEditingImage({ implementation, version, command });
   };
 
   const managedNodes: ManagedNodeView[] = [];
@@ -92,8 +92,11 @@ const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
           )}
         />
       </Styled.Table>
-      {editingNode && (
-        <ManagedNodeModal node={editingNode} onClose={() => setEditingNode(undefined)} />
+      {editingImage && (
+        <ManagedNodeModal
+          image={editingImage}
+          onClose={() => setEditingImage(undefined)}
+        />
       )}
     </>
   );
