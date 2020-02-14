@@ -9,7 +9,7 @@ interface Props {
 }
 
 const CommandVariables: React.FC<Props> = ({ implementation }) => {
-  const { l } = usePrefixedTranslation('cmps.nodes.CommandVariables');
+  const { l } = usePrefixedTranslation('cmps.nodeImages.CommandVariables');
 
   const columns = [
     { title: l('variable'), dataIndex: 'variable', key: 'variable' },

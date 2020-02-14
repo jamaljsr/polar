@@ -3,12 +3,12 @@ import { Route, Switch } from 'react-router';
 import { Home } from 'components/home';
 import { AppLayout } from 'components/layouts';
 import { NetworkView, NewNetwork } from 'components/network';
-import { NodesView } from 'components/nodes';
+import { NodeImagesView } from 'components/nodeImages';
 import {
   HOME,
   NETWORK_NEW,
   NETWORK_VIEW,
-  NODES_VIEW,
+  NODE_IMAGES,
   Switch as AnimatedSwitch,
   TERMINAL,
 } from 'components/routing';
@@ -23,7 +23,7 @@ const Routes: React.FC = () => (
           <Route path={HOME} exact component={Home} />
           <Route path={NETWORK_NEW} exact component={NewNetwork} />
           <Route path={NETWORK_VIEW(':id')} component={NetworkView} />
-          <Route path={NODES_VIEW} component={NodesView} />
+          <Route path={NODE_IMAGES} component={NodeImagesView} />
         </AnimatedSwitch>
       </AppLayout>
     </Route>

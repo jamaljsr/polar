@@ -22,8 +22,8 @@ interface Props {
   onClose: () => void;
 }
 
-const ManagedNodeModal: React.FC<Props> = ({ image, onClose }) => {
-  const { l } = usePrefixedTranslation('cmps.nodes.ManagedNodeModal');
+const ManagedImageModal: React.FC<Props> = ({ image, onClose }) => {
+  const { l } = usePrefixedTranslation('cmps.nodeImages.ManagedImageModal');
   const [form] = Form.useForm();
   const { notify, updateManagedImage } = useStoreActions(s => s.app);
 
@@ -84,4 +84,4 @@ const ManagedNodeModal: React.FC<Props> = ({ image, onClose }) => {
   );
 };
 
-export default ManagedNodeModal;
+export default ManagedImageModal;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAsyncCallback } from 'react-async-hook';
+import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { Col, Form, Input, Modal, Row, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
@@ -10,27 +10,36 @@ import DockerImageInput from 'components/common/form/DockerImageInput';
 import { CommandVariables } from './';
 
 interface Props {
-  node: CustomImage;
+  image: CustomImage;
   onClose: () => void;
 }
 
-const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
-  const { l } = usePrefixedTranslation('cmps.nodes.CustomNodeModal');
+const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
+  const { l } = usePrefixedTranslation('cmps.nodeImages.CustomImageModal');
   const [form] = Form.useForm();
-  const { notify, saveCustomImage } = useStoreActions(s => s.app);
-  const [activeImpl, setActiveImpl] = useState(node.implementation);
-  const isEditing = !!node.id;
+  const { notify, saveCustomImage, getDockerImages } = useStoreActions(s => s.app);
+  const [activeImpl, setActiveImpl] = useState(image.implementation);
+  const isEditing = !!image.id;
 
-  const saveAsync = useAsyncCallback(async (nodeToSave: CustomImage) => {
+  // get an updated list of docker images in case it's changed since launching the app
+  useAsync(async () => {
     try {
-      await saveCustomImage(nodeToSave);
+      await getDockerImages();
+    } catch (error) {
+      notify({ message: l('saveError'), error });
+    }
+  }, [image]);
+
+  const saveAsync = useAsyncCallback(async (imageToSave: CustomImage) => {
+    try {
+      await saveCustomImage(imageToSave);
       onClose();
     } catch (error) {
       notify({ message: l('saveError'), error });
     }
   });
   const handleSubmit = (values: any) => {
-    const { id } = node;
+    const { id } = image;
     const { implementation, dockerImage, command } = values;
     saveAsync.execute({ id, implementation, dockerImage, command });
   };
@@ -46,7 +55,7 @@ const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
 
   return (
     <Modal
-      title={l('title', node)}
+      title={l('title', image)}
       visible
       width={600}
       destroyOnClose
@@ -64,7 +73,7 @@ const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
         layout="vertical"
         hideRequiredMark
         colon={false}
-        initialValues={node}
+        initialValues={image}
         onFinish={handleSubmit}
       >
         <Row gutter={16}>
@@ -112,4 +121,4 @@ const CustomNodeModal: React.FC<Props> = ({ node, onClose }) => {
   );
 };
 
-export default CustomNodeModal;
+export default CustomImageModal;

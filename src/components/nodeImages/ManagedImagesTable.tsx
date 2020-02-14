@@ -7,7 +7,7 @@ import { NodeImplementation } from 'shared/types';
 import { ManagedImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { getPolarPlatform } from 'utils/system';
-import { ManagedNodeModal } from './';
+import { ManagedImageModal } from './';
 
 const Styled = {
   Table: styled(Table)`
@@ -20,7 +20,7 @@ const Styled = {
   `,
 };
 
-interface ManagedNodeView {
+interface ManagedImageView {
   index: number;
   implementation: NodeImplementation;
   name: string;
@@ -31,30 +31,38 @@ interface ManagedNodeView {
 }
 
 interface Props {
-  nodes: ManagedImage[];
+  images: ManagedImage[];
 }
 
-const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
-  const { l } = usePrefixedTranslation('cmps.nodes.ManagedNodesTable');
+const ManagedImagesTable: React.FC<Props> = ({ images }) => {
+  const { l } = usePrefixedTranslation('cmps.nodeImages.ManagedImagesTable');
   const currPlatform = getPolarPlatform();
   const [editingImage, setEditingImage] = useState<ManagedImage>();
 
-  const handleCustomize = (node: ManagedNodeView) => {
-    const { implementation, version, command } = node;
+  const handleCustomize = (image: ManagedImageView) => {
+    const { implementation, version, command } = image;
     setEditingImage({ implementation, version, command });
   };
 
-  const managedNodes: ManagedNodeView[] = [];
-  nodes.forEach(({ implementation, version, command }, index) => {
+  const managedImages: ManagedImageView[] = [];
+  images.forEach(({ implementation, version, command }, index) => {
     const { name, imageName, logo, platforms } = dockerConfigs[implementation];
     if (!platforms.includes(currPlatform)) return;
-    managedNodes.push({ index, name, imageName, logo, implementation, version, command });
+    managedImages.push({
+      index,
+      name,
+      imageName,
+      logo,
+      implementation,
+      version,
+      command,
+    });
   });
 
   return (
     <>
       <Styled.Table
-        dataSource={managedNodes}
+        dataSource={managedImages}
         title={() => l('title')}
         pagination={false}
         rowKey="index"
@@ -62,9 +70,9 @@ const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
         <Table.Column
           title={l('implementation')}
           dataIndex="name"
-          render={(name: string, node: ManagedNodeView) => (
+          render={(name: string, image: ManagedImageView) => (
             <span key="name">
-              <Styled.Logo src={node.logo} />
+              <Styled.Logo src={image.logo} />
               {name}
             </span>
           )}
@@ -81,11 +89,11 @@ const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
           title={l('manage')}
           width={150}
           align="right"
-          render={(_, node: ManagedNodeView) => (
+          render={(_, image: ManagedImageView) => (
             <Button
               type="link"
               icon={<FormOutlined />}
-              onClick={() => handleCustomize(node)}
+              onClick={() => handleCustomize(image)}
             >
               {l('edit')}
             </Button>
@@ -93,7 +101,7 @@ const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
         />
       </Styled.Table>
       {editingImage && (
-        <ManagedNodeModal
+        <ManagedImageModal
           image={editingImage}
           onClose={() => setEditingImage(undefined)}
         />
@@ -102,4 +110,4 @@ const ManagedNodesTable: React.FC<Props> = ({ nodes }) => {
   );
 };
 
-export default ManagedNodesTable;
+export default ManagedImagesTable;
