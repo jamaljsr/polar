@@ -5,7 +5,7 @@ import { Button, Modal, Table } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions } from 'store';
-import { CustomNode } from 'types';
+import { CustomImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { getPolarPlatform } from 'utils/system';
 import { CustomNodeModal } from './';
@@ -37,18 +37,18 @@ interface CustomNodeView {
 }
 
 interface Props {
-  nodes: CustomNode[];
+  nodes: CustomImage[];
 }
 
 const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
   const { l } = usePrefixedTranslation('cmps.nodes.CustomNodesTable');
   const currPlatform = getPolarPlatform();
-  const [editingNode, setEditingNode] = useState<CustomNode>();
-  const { removeCustomNode, notify } = useStoreActions(s => s.app);
+  const [editingImage, setEditingImage] = useState<CustomImage>();
+  const { removeCustomImage, notify } = useStoreActions(s => s.app);
 
   const handleEdit = (node: CustomNodeView) => {
     const { id, implementation, dockerImage, command } = node;
-    setEditingNode({ id, implementation, dockerImage, command });
+    setEditingImage({ id, implementation, dockerImage, command });
   };
 
   let modal: any;
@@ -62,7 +62,7 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
       cancelText: l('cancelBtn'),
       onOk: async () => {
         try {
-          await removeCustomNode(node);
+          await removeCustomImage(node);
           notify({ message: l('success', { dockerImage }) });
         } catch (error) {
           notify({ message: l('error'), error });
@@ -129,8 +129,8 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
           )}
         />
       </Styled.Table>
-      {editingNode && (
-        <CustomNodeModal node={editingNode} onClose={() => setEditingNode(undefined)} />
+      {editingImage && (
+        <CustomNodeModal node={editingImage} onClose={() => setEditingImage(undefined)} />
       )}
     </>
   );
