@@ -10,7 +10,7 @@ import { ThemeColors } from 'theme/colors';
 import { CustomImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { HOME } from 'components/routing';
-import { CustomNodeModal, CustomNodesTable, ManagedNodesTable } from './';
+import { CustomImageModal, CustomImagesTable, ManagedImagesTable } from './';
 
 const Styled = {
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
@@ -25,9 +25,9 @@ const Styled = {
   `,
 };
 
-const NodesView: React.FC = () => {
-  useEffect(() => info('Rendering NodesView component'), []);
-  const { l } = usePrefixedTranslation('cmps.nodes.NodesView');
+const NodeImagesView: React.FC = () => {
+  useEffect(() => info('Rendering NodeImagesView component'), []);
+  const { l } = usePrefixedTranslation('cmps.nodeImages.NodeImagesView');
 
   const theme = useTheme();
   const [addingImage, setAddingImage] = useState<CustomImage>();
@@ -62,13 +62,13 @@ const NodesView: React.FC = () => {
         showIcon
       />
 
-      <CustomNodesTable nodes={settings.nodeImages.custom} />
-      <ManagedNodesTable nodes={computedManagedImages} />
+      <CustomImagesTable images={settings.nodeImages.custom} />
+      <ManagedImagesTable images={computedManagedImages} />
       {addingImage && (
-        <CustomNodeModal node={addingImage} onClose={() => setAddingImage(undefined)} />
+        <CustomImageModal image={addingImage} onClose={() => setAddingImage(undefined)} />
       )}
     </>
   );
 };
 
-export default NodesView;
+export default NodeImagesView;

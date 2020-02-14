@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { renderWithProviders } from 'utils/tests';
-import { NETWORK_NEW, NODES_VIEW } from 'components/routing';
+import { NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 import NavMenu from './NavMenu';
 
 describe('DetailsList Component', () => {
@@ -20,6 +20,6 @@ describe('DetailsList Component', () => {
     const { getByText, getByLabelText, history } = renderComponent();
     fireEvent.click(getByLabelText('menu'));
     fireEvent.click(getByText('Manage Nodes'));
-    expect(history.location.pathname).toEqual(NODES_VIEW);
+    expect(history.location.pathname).toEqual(NODE_IMAGES);
   });
 });

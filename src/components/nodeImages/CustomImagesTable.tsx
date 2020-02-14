@@ -8,7 +8,7 @@ import { useStoreActions } from 'store';
 import { CustomImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { getPolarPlatform } from 'utils/system';
-import { CustomNodeModal } from './';
+import { CustomImageModal } from './';
 
 const Styled = {
   Table: styled(Table)`
@@ -27,7 +27,7 @@ const Styled = {
   `,
 };
 
-interface CustomNodeView {
+interface CustomImageView {
   id: string;
   implementation: NodeImplementation;
   name: string;
@@ -37,23 +37,23 @@ interface CustomNodeView {
 }
 
 interface Props {
-  nodes: CustomImage[];
+  images: CustomImage[];
 }
 
-const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
-  const { l } = usePrefixedTranslation('cmps.nodes.CustomNodesTable');
+const CustomImagesTable: React.FC<Props> = ({ images }) => {
+  const { l } = usePrefixedTranslation('cmps.nodeImages.CustomImagesTable');
   const currPlatform = getPolarPlatform();
   const [editingImage, setEditingImage] = useState<CustomImage>();
   const { removeCustomImage, notify } = useStoreActions(s => s.app);
 
-  const handleEdit = (node: CustomNodeView) => {
-    const { id, implementation, dockerImage, command } = node;
+  const handleEdit = (image: CustomImageView) => {
+    const { id, implementation, dockerImage, command } = image;
     setEditingImage({ id, implementation, dockerImage, command });
   };
 
   let modal: any;
-  const showRemoveModal = (node: CustomNodeView) => {
-    const { dockerImage } = node;
+  const showRemoveModal = (image: CustomImageView) => {
+    const { dockerImage } = image;
     modal = Modal.confirm({
       title: l('confirmTitle', { dockerImage }),
       content: l('confirmText'),
@@ -62,7 +62,7 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
       cancelText: l('cancelBtn'),
       onOk: async () => {
         try {
-          await removeCustomImage(node);
+          await removeCustomImage(image);
           notify({ message: l('success', { dockerImage }) });
         } catch (error) {
           notify({ message: l('error'), error });
@@ -75,22 +75,22 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
   // cleanup the modal when the component unmounts
   useEffect(() => () => modal && modal.destroy(), [modal]);
 
-  // don't show the table if there are no custom nodes
-  if (!nodes.length) {
+  // don't show the table if there are no custom images
+  if (!images.length) {
     return null;
   }
 
-  const customNodes: CustomNodeView[] = [];
-  nodes.forEach(({ id, implementation, dockerImage, command }) => {
+  const customImages: CustomImageView[] = [];
+  images.forEach(({ id, implementation, dockerImage, command }) => {
     const { name, logo, platforms } = dockerConfigs[implementation];
     if (!platforms.includes(currPlatform)) return;
-    customNodes.push({ id, implementation, name, dockerImage, logo, command });
+    customImages.push({ id, implementation, name, dockerImage, logo, command });
   });
 
   return (
     <>
       <Styled.Table
-        dataSource={customNodes}
+        dataSource={customImages}
         title={() => l('title')}
         pagination={false}
         rowKey="id"
@@ -98,9 +98,9 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
         <Table.Column
           title={l('implementation')}
           dataIndex="name"
-          render={(name: string, node: CustomNodeView) => (
+          render={(name: string, image: CustomImageView) => (
             <span key="name">
-              <Styled.Logo src={node.logo} />
+              <Styled.Logo src={image.logo} />
               {name}
             </span>
           )}
@@ -111,29 +111,32 @@ const CustomNodesTable: React.FC<Props> = ({ nodes }) => {
           title={l('manage')}
           width={200}
           align="right"
-          render={(_, node: CustomNodeView) => (
+          render={(_, image: CustomImageView) => (
             <>
               <Button
                 type="link"
                 icon={<FormOutlined />}
-                onClick={() => handleEdit(node)}
+                onClick={() => handleEdit(image)}
               >
                 {l('edit')}
               </Button>
               <Styled.DeleteButton
                 type="link"
                 icon={<DeleteOutlined />}
-                onClick={() => showRemoveModal(node)}
+                onClick={() => showRemoveModal(image)}
               ></Styled.DeleteButton>
             </>
           )}
         />
       </Styled.Table>
       {editingImage && (
-        <CustomNodeModal node={editingImage} onClose={() => setEditingImage(undefined)} />
+        <CustomImageModal
+          image={editingImage}
+          onClose={() => setEditingImage(undefined)}
+        />
       )}
     </>
   );
 };
 
-export default CustomNodesTable;
+export default CustomImagesTable;

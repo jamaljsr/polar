@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Dropdown, Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { NETWORK_NEW, NODES_VIEW } from 'components/routing';
+import { NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 
 const Styled = {
   Menu: styled.div`
@@ -25,7 +25,7 @@ const NavMenu: React.FC = () => {
         <PlusOutlined />
         {l('createNetwork')}
       </Menu.Item>
-      <Menu.Item onClick={() => navigateTo(NODES_VIEW)}>
+      <Menu.Item onClick={() => navigateTo(NODE_IMAGES)}>
         <HddOutlined />
         {l('manageNodes')}
       </Menu.Item>
