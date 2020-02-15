@@ -11,7 +11,7 @@ import { networksPath } from 'utils/config';
 import { APP_VERSION, defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { createNetwork } from 'utils/network';
-import { getNetwork } from 'utils/tests';
+import { getNetwork, testManagedImages } from 'utils/tests';
 
 jest.mock('dockerode');
 jest.mock('os');
@@ -184,7 +184,7 @@ describe('DockerService', () => {
         clightningNodes: 0,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
-        images: [],
+        images: testManagedImages,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -204,7 +204,7 @@ describe('DockerService', () => {
         clightningNodes: 1,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
-        images: [],
+        images: testManagedImages,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -245,7 +245,7 @@ describe('DockerService', () => {
         clightningNodes: 1,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
-        images: [],
+        images: testManagedImages,
       });
       const chart = initChartFromNetwork(net);
       net.path = 'ELECTRON_PATH[userData]/data/networks/1';

@@ -1,7 +1,21 @@
 import { Status } from 'shared/types';
-import { Network } from 'types';
+import { ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from '../network';
+
+export const testManagedImages: ManagedImage[] = [
+  { implementation: 'LND', version: defaultRepoState.images.LND.latest, command: '' },
+  {
+    implementation: 'c-lightning',
+    version: defaultRepoState.images['c-lightning'].latest,
+    command: '',
+  },
+  {
+    implementation: 'bitcoind',
+    version: defaultRepoState.images.bitcoind.latest,
+    command: '',
+  },
+];
 
 export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
   createNetwork({
@@ -12,7 +26,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     bitcoindNodes: 1,
     status,
     repoState: defaultRepoState,
-    images: [],
+    images: testManagedImages,
   });
 
 export const mockProperty = <T extends {}, K extends keyof T>(

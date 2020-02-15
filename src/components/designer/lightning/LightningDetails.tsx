@@ -9,6 +9,7 @@ import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
 import ActionsTab from './ActionsTab';
+import AdvancedTab from './AdvancedTab';
 import ConnectTab from './ConnectTab';
 import InfoTab from './InfoTab';
 
@@ -44,11 +45,13 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
     { key: 'info', tab: l('info') },
     { key: 'connect', tab: l('connect') },
     { key: 'actions', tab: l('actions') },
+    { key: 'advanced', tab: 'Advanced' },
   ];
   const tabContents: Record<string, ReactNode> = {
     info: <InfoTab node={node} />,
     connect: <ConnectTab node={node} />,
     actions: <ActionsTab node={node} />,
+    advanced: <AdvancedTab node={node} />,
   };
   return (
     <SidebarCard
