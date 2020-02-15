@@ -7,9 +7,10 @@ import {
   CommonNode,
   LightningNode,
   LndNode,
+  NodeImplementation,
   Status,
 } from 'shared/types';
-import { DockerRepoImage, DockerRepoState, Network } from 'types';
+import { DockerRepoImage, DockerRepoState, ManagedImage, Network } from 'types';
 import { networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO } from './constants';
 import { getName } from './names';
@@ -32,6 +33,22 @@ const groupNodes = (network: Network) => {
     ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair'),
   };
+};
+
+const getImageCommand = (
+  images: ManagedImage[],
+  implementation: NodeImplementation,
+  version: string,
+): string => {
+  const image = images.find(
+    i => i.implementation === implementation && i.version === version,
+  );
+  if (!image) {
+    throw new Error(
+      `Unable to set docker image command for ${implementation} v${version}`,
+    );
+  }
+  return image.command;
 };
 
 // long path games
@@ -78,6 +95,7 @@ export const createLndNetworkNode = (
   version: string,
   compatibility: DockerRepoImage['compatibility'],
   status = Status.Stopped,
+  dockerCommand?: string,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'LND';
@@ -105,6 +123,9 @@ export const createLndNetworkNode = (
       grpc: BasePorts.lnd.grpc + id,
       p2p: BasePorts.lnd.p2p + id,
     },
+    docker: {
+      command: dockerCommand || '',
+    },
   };
 };
 
@@ -113,6 +134,7 @@ export const createCLightningNetworkNode = (
   version: string,
   compatibility: DockerRepoImage['compatibility'],
   status = Status.Stopped,
+  dockerCommand?: string,
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'c-lightning';
@@ -142,6 +164,9 @@ export const createCLightningNetworkNode = (
       rest: BasePorts.clightning.rest + id,
       p2p: BasePorts.clightning.p2p + id,
     },
+    docker: {
+      command: dockerCommand || '',
+    },
   };
 };
 
@@ -149,6 +174,7 @@ export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
   status = Status.Stopped,
+  dockerCommand?: string,
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
@@ -167,6 +193,9 @@ export const createBitcoindNetworkNode = (
       rpc: BasePorts.bitcoind.rest + id,
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
+    },
+    docker: {
+      command: dockerCommand || '',
     },
   };
 
@@ -187,9 +216,18 @@ export const createNetwork = (config: {
   clightningNodes: number;
   bitcoindNodes: number;
   repoState: DockerRepoState;
+  images: ManagedImage[];
   status?: Status;
 }): Network => {
-  const { id, name, lndNodes, clightningNodes, bitcoindNodes, repoState } = config;
+  const {
+    id,
+    name,
+    lndNodes,
+    clightningNodes,
+    bitcoindNodes,
+    repoState,
+    images,
+  } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
 
@@ -207,20 +245,24 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
 
   range(bitcoindNodes).forEach(() => {
-    bitcoin.push(
-      createBitcoindNetworkNode(network, repoState.images.bitcoind.latest, status),
-    );
+    const version = repoState.images.bitcoind.latest;
+    const cmd = getImageCommand(images, 'bitcoind', version);
+    bitcoin.push(createBitcoindNetworkNode(network, version, status, cmd));
   });
 
   // add lightning nodes in an alternating pattern
   range(Math.max(lndNodes, clightningNodes)).forEach(i => {
     if (i < lndNodes) {
       const { latest, compatibility } = repoState.images.LND;
-      lightning.push(createLndNetworkNode(network, latest, compatibility, status));
+      const cmd = getImageCommand(images, 'LND', latest);
+      lightning.push(createLndNetworkNode(network, latest, compatibility, status, cmd));
     }
     if (i < clightningNodes) {
       const { latest, compatibility } = repoState.images['c-lightning'];
-      lightning.push(createCLightningNetworkNode(network, latest, compatibility, status));
+      const cmd = getImageCommand(images, 'c-lightning', latest);
+      lightning.push(
+        createCLightningNetworkNode(network, latest, compatibility, status, cmd),
+      );
     }
   });
 

@@ -2,7 +2,13 @@ import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
-import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
+import {
+  BitcoinNode,
+  CommonNode,
+  LightningNode,
+  NodeImplementation,
+  Status,
+} from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION } from 'utils/constants';
@@ -148,7 +154,7 @@ const networkModel: NetworkModel = {
       payload,
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
-      const { dockerRepoState } = getStoreState().app;
+      const { dockerRepoState, computedManagedImages } = getStoreState().app;
       const nextId = Math.max(0, ...getState().networks.map(n => n.id)) + 1;
       const { name, lndNodes, clightningNodes, bitcoindNodes } = payload;
       const network = createNetwork({
@@ -158,6 +164,7 @@ const networkModel: NetworkModel = {
         clightningNodes,
         bitcoindNodes,
         repoState: dockerRepoState,
+        images: computedManagedImages,
       });
       actions.add(network);
       const { networks } = getState();
@@ -172,17 +179,24 @@ const networkModel: NetworkModel = {
   ),
   addNode: thunk(
     async (actions, { id, type, version }, { getState, getStoreState, injections }) => {
-      const { dockerRepoState } = getStoreState().app;
+      const { dockerRepoState, settings } = getStoreState().app;
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
       let node: LightningNode | BitcoinNode;
+      // lookup custom startup command
+      const nodeImage = settings.nodeImages.managed.find(
+        i => i.implementation === (type as NodeImplementation) && i.version === version,
+      );
+      const command = nodeImage ? nodeImage.command : '';
       switch (type) {
         case 'LND':
           node = createLndNetworkNode(
             network,
             version,
             dockerRepoState.images.LND.compatibility,
+            Status.Stopped,
+            command,
           );
           network.nodes.lightning.push(node);
           break;
@@ -191,11 +205,13 @@ const networkModel: NetworkModel = {
             network,
             version,
             dockerRepoState.images['c-lightning'].compatibility,
+            Status.Stopped,
+            command,
           );
           network.nodes.lightning.push(node);
           break;
         case 'bitcoind':
-          node = createBitcoindNetworkNode(network, version);
+          node = createBitcoindNetworkNode(network, version, Status.Stopped, command);
           network.nodes.bitcoin.push(node);
           break;
         default:

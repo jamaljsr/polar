@@ -12,6 +12,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     bitcoindNodes: 1,
     status,
     repoState: defaultRepoState,
+    images: [],
   });
 
 export const mockProperty = <T extends {}, K extends keyof T>(
