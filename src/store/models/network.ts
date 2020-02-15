@@ -230,15 +230,18 @@ const networkModel: NetworkModel = {
       return node;
     },
   ),
-  updateAdvancedOptions: thunk(async (actions, { node, command }, { getState }) => {
-    const networks = getState().networks;
-    const network = networks.find(n => n.id === node.networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
-    const nodes: CommonNode[] = [...network.nodes.lightning, ...network.nodes.bitcoin];
-    nodes.filter(n => n.name === node.name).forEach(n => (n.docker.command = command));
-    actions.setNetworks([...networks]);
-    await actions.save();
-  }),
+  updateAdvancedOptions: thunk(
+    async (actions, { node, command }, { getState, injections }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const nodes: CommonNode[] = [...network.nodes.lightning, ...network.nodes.bitcoin];
+      nodes.filter(n => n.name === node.name).forEach(n => (n.docker.command = command));
+      actions.setNetworks([...networks]);
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
+    },
+  ),
   removeLightningNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
       const networks = getState().networks;

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { bitcoinCredentials, dockerConfigs } from 'utils/constants';
+import { dockerConfigs } from 'utils/constants';
 /* eslint-disable no-template-curly-in-string */
 import { ComposeService } from './composeFile';
 
@@ -13,6 +13,7 @@ export const bitcoind = (
   rpcPort: number,
   zmqBlockPort: number,
   zmqTxPort: number,
+  command: string,
 ): ComposeService => ({
   image: `polarlightning/bitcoind:${version}`,
   container_name: container,
@@ -21,26 +22,9 @@ export const bitcoind = (
     GROUPID: '${GROUPID:-1000}',
   },
   hostname: name,
-  // Note: escape ($) rpcauth with ($$)
-  command: trimInside(`
-    bitcoind
-      -server=1
-      -regtest=1
-      -rpcauth=${bitcoinCredentials.user}:${bitcoinCredentials.rpcauth}
-      -debug=0
-      -zmqpubrawblock=tcp://0.0.0.0:28334
-      -zmqpubrawtx=tcp://0.0.0.0:28335
-      -txindex=1
-      -dnsseed=0
-      -upnp=0
-      -rpcbind=0.0.0.0
-      -rpcallowip=0.0.0.0/0
-      -rpcport=18443
-      -listen=1
-      -listenonion=0
-  `),
+  command: trimInside(command),
   volumes: [
-    `./volumes/${dockerConfigs['bitcoind'].volumeDirName}/${name}:/home/bitcoin/.bitcoin`,
+    `./volumes/${dockerConfigs.bitcoind.volumeDirName}/${name}:/home/bitcoin/.bitcoin`,
   ],
   expose: [
     '18443', // RPC
@@ -59,10 +43,10 @@ export const lnd = (
   name: string,
   container: string,
   version: string,
-  backendName: string,
   restPort: number,
   grpcPort: number,
   p2pPort: number,
+  command: string,
 ): ComposeService => ({
   image: `polarlightning/lnd:${version}`,
   container_name: container,
@@ -71,27 +55,9 @@ export const lnd = (
     GROUPID: '${GROUPID:-1000}',
   },
   hostname: name,
-  command: trimInside(`
-    lnd
-      --noseedbackup
-      --trickledelay=5000
-      --alias=${name}
-      --externalip=${name}
-      --tlsextradomain=${name}
-      --listen=0.0.0.0:9735
-      --rpclisten=0.0.0.0:10009
-      --restlisten=0.0.0.0:8080
-      --bitcoin.active
-      --bitcoin.regtest
-      --bitcoin.node=bitcoind
-      --bitcoind.rpchost=${backendName}
-      --bitcoind.rpcuser=${bitcoinCredentials.user}
-      --bitcoind.rpcpass=${bitcoinCredentials.pass}
-      --bitcoind.zmqpubrawblock=tcp://${backendName}:28334
-      --bitcoind.zmqpubrawtx=tcp://${backendName}:28335
-  `),
+  command: trimInside(command),
   restart: 'always',
-  volumes: [`./volumes/${dockerConfigs['LND'].volumeDirName}/${name}:/home/lnd/.lnd`],
+  volumes: [`./volumes/${dockerConfigs.LND.volumeDirName}/${name}:/home/lnd/.lnd`],
   expose: [
     '8080', // REST
     '10009', // gRPC
@@ -108,9 +74,9 @@ export const clightning = (
   name: string,
   container: string,
   version: string,
-  backendName: string,
   restPort: number,
   p2pPort: number,
+  command: string,
 ): ComposeService => ({
   image: `polarlightning/clightning:${version}`,
   container_name: container,
@@ -119,22 +85,7 @@ export const clightning = (
     GROUPID: '${GROUPID:-1000}',
   },
   hostname: name,
-  command: trimInside(`
-    lightningd
-      --alias=${name}
-      --addr=${name}
-      --network=regtest
-      --bitcoin-rpcuser=${bitcoinCredentials.user}
-      --bitcoin-rpcpassword=${bitcoinCredentials.pass}
-      --bitcoin-rpcconnect=${backendName}
-      --bitcoin-rpcport=18443
-      --log-level=debug
-      --dev-bitcoind-poll=2
-      --dev-fast-gossip
-      --plugin=/opt/c-lightning-rest/plugin.js
-      --rest-port=8080
-      --rest-protocol=http
-  `),
+  command: trimInside(command),
   restart: 'always',
   volumes: [
     `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/${dockerConfigs['c-lightning'].dataDir}:/home/clightning/.lightning`,

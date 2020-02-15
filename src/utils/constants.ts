@@ -92,7 +92,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--bitcoind.zmqpubrawblock=tcp://{{backendName}}:28334',
       '--bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335',
     ].join('\n  '),
-    // if vars are modified, also update the i18n strings for cmps.nodes.CommandVariables
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
   },
   'c-lightning': {
@@ -117,7 +117,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--rest-port=8080',
       '--rest-protocol=http',
     ].join('\n  '),
-    // if vars are modified, also update the i18n strings for cmps.nodes.CommandVariables
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
     dataDir: 'lightningd',
     apiDir: 'rest-api',
@@ -154,7 +154,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-listen=1',
       '-listenonion=0',
     ].join('\n  '),
-    // if vars are modified, also update the i18n strings for cmps.nodes.CommandVariables
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['rpcUser', 'rpcAuth'],
   },
   btcd: {
