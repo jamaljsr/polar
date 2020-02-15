@@ -15,6 +15,9 @@ export interface CommonNode {
   version: string;
   status: Status;
   errorMsg?: string;
+  docker: {
+    command: string;
+  };
 }
 
 export interface LightningNode extends CommonNode {
