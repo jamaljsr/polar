@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { NETWORK_NEW } from 'components/routing';
+import { NETWORK_NEW, NETWORK_IMPORT } from 'components/routing';
 import logobw from 'resources/logo_bw.png';
 
 const Styled = {
@@ -24,6 +24,9 @@ const Styled = {
     font-weight: 300;
     margin-bottom: 30px;
   `,
+  ImportLink: styled(Link)`
+    margin-top: 15px;
+  `,
 };
 
 const GetStarted: React.FC = () => {
@@ -37,6 +40,11 @@ const GetStarted: React.FC = () => {
           {l('createBtn')}
         </Button>
       </Link>
+      <Styled.ImportLink to={NETWORK_IMPORT}>
+        <Button type="default" size="middle">
+          {l('importBtn')}
+        </Button>
+      </Styled.ImportLink>
     </Styled.GetStarted>
   );
 };

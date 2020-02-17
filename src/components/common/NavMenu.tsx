@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Dropdown, Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { NETWORK_NEW, NODE_IMAGES } from 'components/routing';
+import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 
 const Styled = {
   Menu: styled.div`
@@ -21,6 +21,9 @@ const NavMenu: React.FC = () => {
   const { navigateTo } = useStoreActions(s => s.app);
   const menu = (
     <Menu theme="dark">
+      <Menu.Item onClick={() => navigateTo(NETWORK_IMPORT)}>
+        {l('importNetwork')}
+      </Menu.Item>
       <Menu.Item onClick={() => navigateTo(NETWORK_NEW)}>
         <PlusOutlined />
         {l('createNetwork')}

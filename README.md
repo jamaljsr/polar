@@ -28,6 +28,7 @@ With Polar you can:
 - Launch a terminal in each bitcoin/lightning node
 - Manually mine new blocks
 - Deposit regtest coins into each Lightning node
+- Export and import networks, for sharing with other Lightning developers
 
 Supported Network Node Versions:
 
@@ -61,7 +62,7 @@ The overall goal of Polar is to minimize the time & effort needed for a develope
 
 Here's a short list of ideas for features that may be beneficial to add in future releases (in no particular order):
 
-- Network snapshots with the ability to import/export them. These could also be used as templates to quickly boot up a network with predefined nodes and channels. The templates could be hosted github to allow community contributions. This may require a scripting system built-in.
+- Importing network templates from external sources (such as GitHub) to allow for community contributions. This may require a scripting system built-in.
 - Sample app projects/code in different languages (Python, Typescript/JS, Go, C#) showing how to connect to the Lightning/Bitcoin nodes from an external app.
 - Bitcoin Block Explorer & GRPC/REST API Explorers to have access to all of the node RPC API's graphically, without needing to fallback to the Terminal.
 

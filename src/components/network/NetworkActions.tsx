@@ -4,6 +4,7 @@ import {
   CloseOutlined,
   FormOutlined,
   MoreOutlined,
+  ExportOutlined,
   PlayCircleOutlined,
   StopOutlined,
   ToolOutlined,
@@ -27,6 +28,9 @@ const Styled = {
   CloseIcon: styled(CloseOutlined)`
     margin-right: 5px;
   `,
+  ExportIcon: styled(ExportOutlined)`
+    margin-right: 5px;
+  `,
 };
 
 interface Props {
@@ -34,6 +38,7 @@ interface Props {
   onClick: () => void;
   onRenameClick: () => void;
   onDeleteClick: () => void;
+  onExportClick: () => void;
 }
 
 const config: {
@@ -75,6 +80,7 @@ const NetworkActions: React.FC<Props> = ({
   onClick,
   onRenameClick,
   onDeleteClick,
+  onExportClick,
 }) => {
   const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
 
@@ -104,6 +110,10 @@ const NetworkActions: React.FC<Props> = ({
       <Menu.Item key="delete" onClick={onDeleteClick}>
         <Styled.CloseIcon />
         {l('menuDelete')}
+      </Menu.Item>
+      <Menu.Item key="export" onClick={onExportClick}>
+        <Styled.ExportIcon />
+        {l('menuExport')}
       </Menu.Item>
     </Menu>
   );

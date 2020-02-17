@@ -1,7 +1,10 @@
 import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
+import path from 'path';
+import { promises as fs } from 'fs';
 import { Redirect, RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
+import * as electron from 'electron';
 import styled from '@emotion/styled';
 import { Alert, Button, Empty, Input, Modal, PageHeader } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -14,6 +17,9 @@ import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
 import { HOME } from 'components/routing';
 import NetworkActions from './NetworkActions';
+import { Network } from 'types';
+import * as files from 'utils/files';
+import { dataPath } from 'utils/config';
 
 const Styled = {
   Empty: styled(Empty)`
@@ -55,6 +61,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
 
   const theme = useTheme();
   const { networks } = useStoreState(s => s.network);
+  const { allCharts } = useStoreState(s => s.designer);
   const networkId = parseInt(match.params.id || '');
   const network = networks.find(n => n.id === networkId);
 
@@ -76,6 +83,39 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       notify({ message: l('renameError'), error });
     }
   });
+
+  /**
+   * If user didn't cancel the process, returns the destination of the generated Zip
+   */
+  const exportNetwork = async (network: Network): Promise<string | undefined> => {
+    info('exporting network', network);
+
+    // make sure the volumes directory is created, otherwise the zipping wil throw
+    // the volumes directory is not present if the network has never been started
+    await fs.mkdir(path.join(dataPath, 'networks', network.id.toString(), 'volumes'), {
+      recursive: true,
+    });
+
+    const zipped = await files.zipNetwork(network, allCharts[network.id]);
+
+    const options: electron.SaveDialogOptions = {
+      title: 'title',
+      defaultPath: path.basename(zipped),
+      properties: ['promptToCreate', 'createDirectory'],
+    } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
+    const { filePath: zipDestination } = await electron.remote.dialog.showSaveDialog(
+      options,
+    );
+
+    // user aborted dialog
+    if (!zipDestination) {
+      return;
+    }
+
+    await fs.copyFile(zipped, zipDestination);
+    info('exported network to', zipDestination);
+    return zipDestination;
+  };
 
   const showRemoveModal = (networkId: number, name: string) => {
     Modal.confirm({
@@ -169,6 +209,17 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
               setEditingName(network.name);
             }}
             onDeleteClick={() => showRemoveModal(network.id, network.name)}
+            onExportClick={async () => {
+              const destination = await exportNetwork(network);
+              if (!destination) {
+                return;
+              }
+
+              Modal.success({
+                title: 'Exported network',
+                content: `Exported network '${network.name}' successfully. Saved the zip file to ${destination}.`,
+              });
+            }}
           />
         }
       />
