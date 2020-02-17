@@ -1,6 +1,9 @@
 import { debug } from 'electron-log';
-import { join } from 'path';
+import { promises as fs } from 'fs';
+import { basename, join } from 'path';
+import { IChart } from '@mrblenny/react-flow-chart';
 import detectPort from 'detect-port';
+import os from 'os';
 import {
   BitcoinNode,
   CLightningNode,
@@ -17,7 +20,8 @@ import {
   ManagedImage,
   Network,
 } from 'types';
-import { networksPath, nodePath } from './config';
+import * as files from 'utils/files';
+import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO } from './constants';
 import { getName } from './names';
 import { range } from './numbers';
@@ -207,6 +211,93 @@ export const createBitcoindNetworkNode = (
   }
 
   return node;
+};
+
+const isNetwork = (value: any): value is Network => {
+  return (
+    typeof value === 'object' &&
+    typeof value.id === 'number' &&
+    typeof value.name === 'string' &&
+    typeof value.status === 'number' &&
+    typeof value.path === 'string' &&
+    typeof value.nodes === 'object'
+  );
+};
+
+const readNetwork = async (path: string, id: number): Promise<Network> => {
+  const rawNetwork = await fs.readFile(path);
+  const network = JSON.parse(rawNetwork.toString('utf-8'));
+  if (!isNetwork(network)) {
+    throw Error(`${path} did not contain a valid network!`);
+  }
+
+  network.path = join(dataPath, 'networks', id.toString());
+
+  network.id = id;
+  network.nodes.bitcoin.forEach(bitcoin => {
+    bitcoin.networkId = id;
+  });
+  network.nodes.lightning.forEach(ln => {
+    ln.networkId = id;
+    if (ln.implementation === 'LND') {
+      const lnd = ln as LndNode;
+      lnd.paths = getLndFilePaths(lnd.name, network);
+    } else if (ln.implementation === 'c-lightning') {
+      const clightning = ln as CLightningNode;
+      clightning.paths = {
+        macaroon: join(
+          network.path,
+          'volumes',
+          'c-lightning',
+          clightning.name,
+          'rest-api',
+          'access.macaroon',
+        ),
+      };
+    }
+  });
+
+  return network;
+};
+
+const isChart = (value: any): value is IChart =>
+  typeof value === 'object' &&
+  typeof value.offset === 'object' &&
+  typeof value.nodes === 'object' &&
+  typeof value.links === 'object' &&
+  typeof value.selected === 'object' &&
+  typeof value.hovered === 'object';
+
+const readChart = async (path: string): Promise<IChart> => {
+  const rawChart = await fs.readFile(path);
+  const chart = JSON.parse(rawChart.toString('utf-8'));
+  if (!isChart(chart)) {
+    throw Error(`${path} did not contain a valid chart`);
+  }
+
+  return chart;
+};
+
+/**
+ * @returns The newly created network, the chart corresponding to it
+ *          and the destination of the unzipped files
+ */
+export const getNetworkFromZip = async (
+  zip: string,
+  newId: number,
+): Promise<[Network, IChart, string]> => {
+  const destination = join(os.tmpdir(), basename(zip, '.zip'));
+  await files.unzip(zip, destination).catch(err => {
+    console.error(`Could not unzip ${zip} into ${destination}:`, err);
+    throw err;
+  });
+
+  const [network, chart] = await Promise.all([
+    readNetwork(join(destination, 'network.json'), newId),
+    readChart(join(destination, 'chart.json')),
+  ]);
+
+  return [network, chart, destination];
 };
 
 export const createNetwork = (config: {

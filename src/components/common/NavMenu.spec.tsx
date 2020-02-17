@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { renderWithProviders } from 'utils/tests';
-import { NETWORK_NEW, NODE_IMAGES } from 'components/routing';
+import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 import NavMenu from './NavMenu';
 
 describe('DetailsList Component', () => {
@@ -21,5 +21,11 @@ describe('DetailsList Component', () => {
     fireEvent.click(getByLabelText('menu'));
     fireEvent.click(getByText('Manage Nodes'));
     expect(history.location.pathname).toEqual(NODE_IMAGES);
+  });
+
+  it('should navigate to import page when menu item is clicked', () => {
+    const { getByText, history } = renderComponent();
+    fireEvent.click(getByText('Import Network'));
+    expect(history.location.pathname).toEqual(NETWORK_IMPORT);
   });
 });

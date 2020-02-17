@@ -8,6 +8,7 @@ describe('NetworkActions Component', () => {
   const handleClick = jest.fn();
   const handleRenameClick = jest.fn();
   const handleDeleteClick = jest.fn();
+  const handleExportClick = jest.fn();
 
   const renderComponent = (status: Status) => {
     const network = getNetwork(1, 'test network', status);
@@ -32,6 +33,7 @@ describe('NetworkActions Component', () => {
         onClick={handleClick}
         onRenameClick={handleRenameClick}
         onDeleteClick={handleDeleteClick}
+        onExportClick={handleExportClick}
       />,
       { initialState },
     );
@@ -98,6 +100,15 @@ describe('NetworkActions Component', () => {
     fireEvent.click(getByText('Delete'));
     await wait(() => jest.runOnlyPendingTimers());
     expect(handleDeleteClick).toBeCalled();
+  });
+
+  it('should call onExportClick when export menu item clicked', async () => {
+    const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+    fireEvent.mouseOver(getByLabelText('more'));
+    await wait(() => jest.runOnlyPendingTimers());
+    fireEvent.click(getByText('Export'));
+    await wait(() => jest.runOnlyPendingTimers());
+    expect(handleExportClick).toBeCalled();
   });
 
   it('should display the current block height', () => {
