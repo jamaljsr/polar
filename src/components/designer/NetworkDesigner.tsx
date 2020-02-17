@@ -6,6 +6,7 @@ import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
+import AdvancedOptionsModal from 'components/common/AdvancedOptionsModal';
 import { CanvasOuterDark, Link, NodeInner, Port, Ports } from './custom';
 import {
   ChangeBackendModal,
@@ -35,9 +36,13 @@ interface Props {
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const theme = useTheme();
   const callbacks = useStoreActions(s => s.designer);
-  const { openChannel, createInvoice, payInvoice, changeBackend } = useStoreState(
-    s => s.modals,
-  );
+  const {
+    openChannel,
+    createInvoice,
+    payInvoice,
+    changeBackend,
+    advancedOptions,
+  } = useStoreState(s => s.modals);
 
   const { save } = useStoreActions(s => s.network);
   const chart = useStoreState(s => s.designer.activeChart);
@@ -69,6 +74,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {createInvoice.visible && <CreateInvoiceModal network={network} />}
       {payInvoice.visible && <PayInvoiceModal network={network} />}
       {changeBackend.visible && <ChangeBackendModal network={network} />}
+      {advancedOptions.visible && <AdvancedOptionsModal network={network} />}
     </Styled.Designer>
   );
 };

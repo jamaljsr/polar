@@ -40,6 +40,7 @@ export interface NetworkModel {
   networkById: Computed<NetworkModel, (id?: string | number) => Network>;
   setNetworks: Action<NetworkModel, Network[]>;
   updateNodePorts: Action<NetworkModel, { id: number; ports: OpenPorts }>;
+  updateNodeCommand: Action<NetworkModel, { id: number; name: string; command: string }>;
   load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   save: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
   add: Action<NetworkModel, Network>;
@@ -126,6 +127,11 @@ const networkModel: NetworkModel = {
   // reducer actions (mutations allowed thx to immer)
   setNetworks: action((state, networks) => {
     state.networks = networks;
+  }),
+  updateNodeCommand: action((state, { id, name, command }) => {
+    const network = state.networks.find(n => n.id === id) as Network;
+    const nodes: CommonNode[] = [...network.nodes.lightning, ...network.nodes.bitcoin];
+    nodes.filter(n => n.name === name).forEach(n => (n.docker.command = command));
   }),
   updateNodePorts: action((state, { id, ports }) => {
     const network = state.networks.find(n => n.id === id) as Network;
@@ -235,9 +241,7 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
-      const nodes: CommonNode[] = [...network.nodes.lightning, ...network.nodes.bitcoin];
-      nodes.filter(n => n.name === node.name).forEach(n => (n.docker.command = command));
-      actions.setNetworks([...networks]);
+      actions.updateNodeCommand({ id: node.networkId, name: node.name, command });
       await actions.save();
       await injections.dockerService.saveComposeFile(network);
     },
