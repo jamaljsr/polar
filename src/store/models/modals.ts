@@ -28,11 +28,19 @@ interface PayInvoiceModel {
   nodeName?: string;
 }
 
+interface AdvancedOptionsModel {
+  visible: boolean;
+  nodeName?: string;
+  command?: string;
+  defaultCommand?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
   createInvoice: CreateInvoiceModel;
   payInvoice: PayInvoiceModel;
+  advancedOptions: AdvancedOptionsModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, any, StoreInjections, RootModel>;
@@ -45,6 +53,9 @@ export interface ModalsModel {
   setPayInvoice: Action<ModalsModel, PayInvoiceModel>;
   showPayInvoice: Thunk<ModalsModel, Partial<PayInvoiceModel>, StoreInjections>;
   hidePayInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  setAdvancedOptions: Action<ModalsModel, AdvancedOptionsModel>;
+  showAdvancedOptions: Thunk<ModalsModel, Partial<AdvancedOptionsModel>, StoreInjections>;
+  hideAdvancedOptions: Thunk<ModalsModel, any, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -52,6 +63,7 @@ const modalsModel: ModalsModel = {
   changeBackend: { visible: false },
   createInvoice: { visible: false },
   payInvoice: { visible: false },
+  advancedOptions: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -126,6 +138,23 @@ const modalsModel: ModalsModel = {
     actions.setPayInvoice({
       visible: false,
       nodeName: undefined,
+    });
+  }),
+  setAdvancedOptions: action((state, payload) => {
+    state.advancedOptions = {
+      ...state.advancedOptions,
+      ...payload,
+    };
+  }),
+  showAdvancedOptions: thunk((actions, { nodeName, command, defaultCommand }) => {
+    actions.setAdvancedOptions({ visible: true, nodeName, command, defaultCommand });
+  }),
+  hideAdvancedOptions: thunk(actions => {
+    actions.setAdvancedOptions({
+      visible: false,
+      nodeName: undefined,
+      command: undefined,
+      defaultCommand: undefined,
     });
   }),
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { LightningNode, Status } from 'shared/types';
-import { RestartNode } from 'components/common';
+import { AdvancedOptionsButton, RestartNode } from 'components/common';
 import { OpenTerminalButton } from 'components/terminal';
 import { Deposit, OpenChannelButtons, PaymentButtons, RemoveNode } from './actions';
 
@@ -29,6 +29,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         </>
       )}
       <RestartNode node={node} />
+      <AdvancedOptionsButton node={node} />
       <RemoveNode node={node} />
     </Form>
   );

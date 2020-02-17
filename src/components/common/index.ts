@@ -1,3 +1,4 @@
+export { default as AdvancedOptionsButton } from './AdvancedOptionsButton';
 export { default as CopyIcon } from './CopyIcon';
 export { default as DetailsList } from './DetailsList';
 export { default as Loader } from './Loader';
