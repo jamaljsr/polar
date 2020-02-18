@@ -9,13 +9,13 @@ const trimInside = (text: string): string => text.replace(/\s+/g, ' ').trim();
 export const bitcoind = (
   name: string,
   container: string,
-  version: string,
+  image: string,
   rpcPort: number,
   zmqBlockPort: number,
   zmqTxPort: number,
   command: string,
 ): ComposeService => ({
-  image: `polarlightning/bitcoind:${version}`,
+  image,
   container_name: container,
   environment: {
     USERID: '${USERID:-1000}',
@@ -42,13 +42,13 @@ export const bitcoind = (
 export const lnd = (
   name: string,
   container: string,
-  version: string,
+  image: string,
   restPort: number,
   grpcPort: number,
   p2pPort: number,
   command: string,
 ): ComposeService => ({
-  image: `polarlightning/lnd:${version}`,
+  image,
   container_name: container,
   environment: {
     USERID: '${USERID:-1000}',
@@ -73,12 +73,12 @@ export const lnd = (
 export const clightning = (
   name: string,
   container: string,
-  version: string,
+  image: string,
   restPort: number,
   p2pPort: number,
   command: string,
 ): ComposeService => ({
-  image: `polarlightning/clightning:${version}`,
+  image,
   container_name: container,
   environment: {
     USERID: '${USERID:-1000}',

@@ -1,7 +1,6 @@
 import { BitcoinNode, CLightningNode, CommonNode, LndNode } from 'shared/types';
 import { bitcoinCredentials, dockerConfigs } from 'utils/constants';
 import { getContainerName } from 'utils/network';
-/* eslint-disable @typescript-eslint/camelcase */
 import { bitcoind, clightning, lnd } from './nodeTemplates';
 
 export interface ComposeService {
@@ -42,7 +41,9 @@ class ComposeFile {
       rpcUser: bitcoinCredentials.user,
       rpcAuth: bitcoinCredentials.rpcauth,
     };
-    // use the node's custom command of the default for the implementation
+    // use the node's custom image or the default for the implementation
+    const image = node.docker.image || `${dockerConfigs.bitcoind.imageName}:${version}`;
+    // use the node's custom command or the default for the implementation
     const nodeCommand = node.docker.command || dockerConfigs.bitcoind.command;
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
@@ -50,7 +51,7 @@ class ComposeFile {
     this.content.services[name] = bitcoind(
       name,
       container,
-      version,
+      image,
       rpc,
       zmqBlock,
       zmqTx,
@@ -69,12 +70,14 @@ class ComposeFile {
       rpcUser: bitcoinCredentials.user,
       rpcPass: bitcoinCredentials.pass,
     };
-    // use the node's custom command of the default for the implementation
+    // use the node's custom image or the default for the implementation
+    const image = node.docker.image || `${dockerConfigs.LND.imageName}:${version}`;
+    // use the node's custom command or the default for the implementation
     const nodeCommand = node.docker.command || dockerConfigs.LND.command;
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = lnd(name, container, version, rest, grpc, p2p, command);
+    this.content.services[name] = lnd(name, container, image, rest, grpc, p2p, command);
   }
 
   addClightning(node: CLightningNode, backend: CommonNode) {
@@ -88,19 +91,15 @@ class ComposeFile {
       rpcUser: bitcoinCredentials.user,
       rpcPass: bitcoinCredentials.pass,
     };
-    // use the node's custom command of the default for the implementation
+    // use the node's custom image or the default for the implementation
+    const image =
+      node.docker.image || `${dockerConfigs['c-lightning'].imageName}:${version}`;
+    // use the node's custom command or the default for the implementation
     const nodeCommand = node.docker.command || dockerConfigs['c-lightning'].command;
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = clightning(
-      name,
-      container,
-      version,
-      rest,
-      p2p,
-      command,
-    );
+    this.content.services[name] = clightning(name, container, image, rest, p2p, command);
   }
 
   private mergeCommand(command: string, variables: Record<string, string>) {

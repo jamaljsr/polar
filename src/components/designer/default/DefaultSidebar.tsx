@@ -48,19 +48,36 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const toggleModal = () => setShowUpdatesModal(!showUpdatesModal);
 
   const nodes: {
-    name: string;
+    label: string;
     logo: string;
     version: string;
     type: string;
     latest: boolean;
+    customId?: string;
   }[] = [];
 
+  // add custom nodes
+  settings.nodeImages.custom.forEach(image => {
+    const { logo, platforms } = dockerConfigs[image.implementation];
+    if (!platforms.includes(currPlatform)) return;
+    nodes.push({
+      label: `Custom [${image.dockerImage}]`,
+      logo,
+      version: image.dockerImage,
+      type: image.implementation,
+      latest: true,
+      customId: image.id,
+    });
+  });
+
+  // add managed nodes
   Object.entries(dockerRepoState.images).forEach(([type, entry]) => {
     const { name, logo, platforms } = dockerConfigs[type as NodeImplementation];
     if (!platforms.includes(currPlatform)) return;
     entry.versions.forEach(version => {
+      const label = `${name} v${version}`;
       const latest = version === entry.latest;
-      nodes.push({ name, logo, version, type, latest });
+      nodes.push({ label, logo, version, type, latest });
     });
   });
 
@@ -73,13 +90,13 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
         <span>{l('showVersions')}</span>
         <Switch checked={showAll} onClick={toggleVersions} />
       </Styled.Toggle>
-      {nodes.map(({ name, logo, version, latest, type }) => (
+      {nodes.map(({ label, logo, version, latest, type, customId }) => (
         <DraggableNode
           key={version}
-          label={`${name} v${version}`}
+          label={label}
           desc={showAll && latest ? 'latest' : ''}
           icon={logo}
-          properties={{ type, version }}
+          properties={{ type, version, customId }}
           visible={showAll || latest}
         />
       ))}

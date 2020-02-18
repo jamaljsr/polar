@@ -57,6 +57,7 @@ export interface NetworkModel {
       id: number;
       type: string;
       version: string;
+      customId?: string;
     },
     StoreInjections,
     RootModel,
@@ -191,25 +192,37 @@ const networkModel: NetworkModel = {
     },
   ),
   addNode: thunk(
-    async (actions, { id, type, version }, { getState, getStoreState, injections }) => {
+    async (
+      actions,
+      { id, type, version, customId },
+      { getState, getStoreState, injections },
+    ) => {
       const { dockerRepoState, settings } = getStoreState().app;
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
       let node: LightningNode | BitcoinNode;
-      // lookup custom startup command
-      const nodeImage = settings.nodeImages.managed.find(
-        i => i.implementation === (type as NodeImplementation) && i.version === version,
-      );
-      const command = nodeImage ? nodeImage.command : '';
+      // lookup custom image and startup command
+      const docker = { image: '', command: '' };
+      if (customId) {
+        const customNode = settings.nodeImages.custom.find(n => n.id === customId);
+        if (customNode) {
+          docker.image = customNode.dockerImage;
+          docker.command = customNode.command;
+        }
+      } else {
+        const nodeImage = settings.nodeImages.managed.find(
+          i => i.implementation === (type as NodeImplementation) && i.version === version,
+        );
+        docker.command = nodeImage ? nodeImage.command : '';
+      }
       switch (type) {
         case 'LND':
           node = createLndNetworkNode(
             network,
             version,
             dockerRepoState.images.LND.compatibility,
-            Status.Stopped,
-            command,
+            docker,
           );
           network.nodes.lightning.push(node);
           break;
@@ -218,13 +231,12 @@ const networkModel: NetworkModel = {
             network,
             version,
             dockerRepoState.images['c-lightning'].compatibility,
-            Status.Stopped,
-            command,
+            docker,
           );
           network.nodes.lightning.push(node);
           break;
         case 'bitcoind':
-          node = createBitcoindNetworkNode(network, version, Status.Stopped, command);
+          node = createBitcoindNetworkNode(network, version, docker);
           network.nodes.bitcoin.push(node);
           break;
         default:
