@@ -264,6 +264,7 @@ const designerModel: DesignerModel = {
             id: activeId,
             type: data.type,
             version: data.version,
+            customId: data.customId,
           });
           actions.addNode({ newNode, position });
           if (network.status === Status.Started) {

@@ -19,10 +19,16 @@ describe('ChangeBackendModal', () => {
     backendName = 'backend1',
   ) => {
     const network = getNetwork(1, 'test network', status);
-    const oldBitcoind = createBitcoindNetworkNode(network, '0.18.1', status);
+    const oldBitcoind = createBitcoindNetworkNode(network, '0.18.1', undefined, status);
     network.nodes.bitcoin.push(oldBitcoind);
     const { compatibility } = defaultRepoState.images.LND;
-    const oldLnd = createLndNetworkNode(network, '0.7.1-beta', compatibility, status);
+    const oldLnd = createLndNetworkNode(
+      network,
+      '0.7.1-beta',
+      compatibility,
+      undefined,
+      status,
+    );
     network.nodes.lightning.push(oldLnd);
     const initialState = {
       network: {

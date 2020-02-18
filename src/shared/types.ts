@@ -16,6 +16,7 @@ export interface CommonNode {
   status: Status;
   errorMsg?: string;
   docker: {
+    image: string;
     command: string;
   };
 }

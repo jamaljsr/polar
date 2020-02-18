@@ -57,7 +57,6 @@ const v020 = (file: NetworksFile): NetworksFile => {
     });
   });
 
-  file.version = '0.2.0';
   return file;
 };
 
@@ -72,19 +71,18 @@ const v030 = (file: NetworksFile): NetworksFile => {
     const pre = `[${network.id}] ${network.name}:`;
     network.nodes.bitcoin.forEach(node => {
       if (!node.docker) {
-        debug(`${pre} set docker command for Bitcoin node ${node.name}`);
-        node.docker = { command: '' };
+        debug(`${pre} set docker details for Bitcoin node ${node.name}`);
+        node.docker = { image: '', command: '' };
       }
     });
     network.nodes.lightning.forEach(node => {
       if (!node.docker) {
-        debug(`${pre} set docker command for ${node.implementation} node ${node.name}`);
-        node.docker = { command: '' };
+        debug(`${pre} set docker details for ${node.implementation} node ${node.name}`);
+        node.docker = { image: '', command: '' };
       }
     });
   });
 
-  file.version = '0.3.0';
   return file;
 };
 
@@ -106,6 +104,7 @@ export const migrateNetworksFile = (file: NetworksFile): NetworksFile => {
       return migrationFunc(currFile);
     }, file);
 
+    migrated.version = APP_VERSION;
     debug('Migrations complete');
     return migrated;
   } catch (e) {

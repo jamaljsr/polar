@@ -94,8 +94,8 @@ export const createLndNetworkNode = (
   network: Network,
   version: string,
   compatibility: DockerRepoImage['compatibility'],
+  docker?: CommonNode['docker'],
   status = Status.Stopped,
-  dockerCommand?: string,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'LND';
@@ -123,9 +123,7 @@ export const createLndNetworkNode = (
       grpc: BasePorts.lnd.grpc + id,
       p2p: BasePorts.lnd.p2p + id,
     },
-    docker: {
-      command: dockerCommand || '',
-    },
+    docker: docker || { image: '', command: '' },
   };
 };
 
@@ -133,8 +131,8 @@ export const createCLightningNetworkNode = (
   network: Network,
   version: string,
   compatibility: DockerRepoImage['compatibility'],
+  docker?: CommonNode['docker'],
   status = Status.Stopped,
-  dockerCommand?: string,
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'c-lightning';
@@ -164,17 +162,15 @@ export const createCLightningNetworkNode = (
       rest: BasePorts.clightning.rest + id,
       p2p: BasePorts.clightning.p2p + id,
     },
-    docker: {
-      command: dockerCommand || '',
-    },
+    docker: docker || { image: '', command: '' },
   };
 };
 
 export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
+  docker?: CommonNode['docker'],
   status = Status.Stopped,
-  dockerCommand?: string,
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
@@ -194,9 +190,7 @@ export const createBitcoindNetworkNode = (
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
     },
-    docker: {
-      command: dockerCommand || '',
-    },
+    docker: docker || { image: '', command: '' },
   };
 
   // peer up with the previous node on both sides
@@ -243,11 +237,12 @@ export const createNetwork = (config: {
   };
 
   const { bitcoin, lightning } = network.nodes;
+  const dockerWrap = (command: string) => ({ image: '', command });
 
   range(bitcoindNodes).forEach(() => {
     const version = repoState.images.bitcoind.latest;
     const cmd = getImageCommand(images, 'bitcoind', version);
-    bitcoin.push(createBitcoindNetworkNode(network, version, status, cmd));
+    bitcoin.push(createBitcoindNetworkNode(network, version, dockerWrap(cmd), status));
   });
 
   // add lightning nodes in an alternating pattern
@@ -255,13 +250,21 @@ export const createNetwork = (config: {
     if (i < lndNodes) {
       const { latest, compatibility } = repoState.images.LND;
       const cmd = getImageCommand(images, 'LND', latest);
-      lightning.push(createLndNetworkNode(network, latest, compatibility, status, cmd));
+      lightning.push(
+        createLndNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+      );
     }
     if (i < clightningNodes) {
       const { latest, compatibility } = repoState.images['c-lightning'];
       const cmd = getImageCommand(images, 'c-lightning', latest);
       lightning.push(
-        createCLightningNetworkNode(network, latest, compatibility, status, cmd),
+        createCLightningNetworkNode(
+          network,
+          latest,
+          compatibility,
+          dockerWrap(cmd),
+          status,
+        ),
       );
     }
   });
@@ -277,16 +280,15 @@ export const createNetwork = (config: {
  */
 export const getMissingImages = (network: Network, pulled: string[]): string[] => {
   const { bitcoin, lightning } = network.nodes;
-  const neededImages = [...bitcoin, ...lightning].map(
-    n => `${n.implementation.toLocaleLowerCase().replace(/-/g, '')}:${n.version}`,
-  );
-  // make a list of only Polar images
-  const prefix = `${DOCKER_REPO}/`;
-  const polarImages = pulled
-    .filter(i => i.startsWith(prefix))
-    .map(i => i.substr(prefix.length));
+  const neededImages = [...bitcoin, ...lightning].map(n => {
+    // use the custom image name if specified
+    if (n.docker.image) return n.docker.image;
+    // convert implementation to image name: LND -> lnd, c-lightning -> clightning
+    const impl = n.implementation.toLocaleLowerCase().replace(/-/g, '');
+    return `${DOCKER_REPO}/${impl}:${n.version}`;
+  });
   // exclude images already pulled
-  const missing = neededImages.filter(i => !polarImages.includes(i));
+  const missing = neededImages.filter(i => !pulled.includes(i));
   // filter out duplicates
   const unique = missing.filter((image, index) => missing.indexOf(image) === index);
   if (unique.length)
