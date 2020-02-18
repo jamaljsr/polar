@@ -67,7 +67,7 @@
     "@testing-library/react": "9.4.0",
     "@types/detect-port": "1.1.0",
     "@types/dockerode": "2.5.22",
-    "@types/fs-extra": "8.0.1",
+    "@types/fs-extra": "8.1.0",
     "@types/jest": "25.1.2",
     "@types/js-yaml": "3.12.2",
     "@types/node": "12.12.21",
