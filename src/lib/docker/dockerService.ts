@@ -189,9 +189,13 @@ class DockerService implements DockerLibrary {
 
     if (await exists(path)) {
       const json = await read(path);
-      const data = JSON.parse(json);
+      let data = JSON.parse(json);
       info(`loaded ${data.networks.length} networks from '${path}'`);
-      return data.version === APP_VERSION ? data : migrateNetworksFile(data);
+      if (data.version !== APP_VERSION) {
+        data = migrateNetworksFile(data);
+        await this.saveNetworks(data);
+      }
+      return data;
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
       return { version: APP_VERSION, networks: [], charts: {} };

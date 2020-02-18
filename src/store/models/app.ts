@@ -1,5 +1,6 @@
 import { getI18n } from 'react-i18next';
 import { shell } from 'electron';
+import { warn } from 'electron-log';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { push } from 'connected-react-router';
@@ -219,6 +220,7 @@ const appModel: AppModel = {
         message: message,
         description: description || error.message,
       });
+      warn(message, error);
     }
   }),
   navigateTo: thunk((actions, route, { dispatch }) => {
