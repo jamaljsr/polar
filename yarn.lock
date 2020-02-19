@@ -9804,10 +9804,10 @@ i18next@*:
   dependencies:
     "@babel/runtime" "^7.3.1"
 
-i18next@19.1.0:
-  version "19.1.0"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.1.0.tgz#fe1a1da3d208872946307c7d2d115da45d46159f"
-  integrity sha512-ISbmukX4L6Dz0QoH9+EW1AnBw7j+NRLoMu9uLPMaNSSTP9Eie9/oUL0dOyWX15baB3gYOpkHJpGZRHOqcnl0ew==
+i18next@19.2.0:
+  version "19.2.0"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.2.0.tgz#befeea5e9a5d133e9438b8a402cd55102ca41526"
+  integrity sha512-Pj/WKE0ABTwZ1CA5CHSsrcUm1KD0BxLEs30m7AAJCBKtRVOB9rqQCpXX4qzRHwFB8Fm6xqy6Dlcz/7IKb8nkQQ==
   dependencies:
     "@babel/runtime" "^7.3.1"
 
