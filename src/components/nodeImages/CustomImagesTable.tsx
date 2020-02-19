@@ -29,8 +29,9 @@ const Styled = {
 
 interface CustomImageView {
   id: string;
-  implementation: NodeImplementation;
   name: string;
+  implementation: NodeImplementation;
+  implName: string;
   dockerImage: string;
   logo: string;
   command: string;
@@ -47,8 +48,8 @@ const CustomImagesTable: React.FC<Props> = ({ images }) => {
   const { removeCustomImage, notify } = useStoreActions(s => s.app);
 
   const handleEdit = (image: CustomImageView) => {
-    const { id, implementation, dockerImage, command } = image;
-    setEditingImage({ id, implementation, dockerImage, command });
+    const { id, name, implementation, dockerImage, command } = image;
+    setEditingImage({ id, name, implementation, dockerImage, command });
   };
 
   let modal: any;
@@ -81,10 +82,10 @@ const CustomImagesTable: React.FC<Props> = ({ images }) => {
   }
 
   const customImages: CustomImageView[] = [];
-  images.forEach(({ id, implementation, dockerImage, command }) => {
-    const { name, logo, platforms } = dockerConfigs[implementation];
+  images.forEach(({ id, name, implementation, dockerImage, command }) => {
+    const { name: implName, logo, platforms } = dockerConfigs[implementation];
     if (!platforms.includes(currPlatform)) return;
-    customImages.push({ id, implementation, name, dockerImage, logo, command });
+    customImages.push({ id, name, implementation, implName, dockerImage, logo, command });
   });
 
   return (
@@ -97,14 +98,15 @@ const CustomImagesTable: React.FC<Props> = ({ images }) => {
       >
         <Table.Column
           title={l('implementation')}
-          dataIndex="name"
-          render={(name: string, image: CustomImageView) => (
-            <span key="name">
+          dataIndex="implName"
+          render={(implName: string, image: CustomImageView) => (
+            <span key="implName">
               <Styled.Logo src={image.logo} />
-              {name}
+              {implName}
             </span>
           )}
         />
+        <Table.Column title={l('name')} dataIndex="name" />
         <Table.Column title={l('dockerImage')} dataIndex="dockerImage" />
         <Table.Column title={l('command')} dataIndex="command" ellipsis />
         <Table.Column

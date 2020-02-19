@@ -16,10 +16,13 @@ interface Props {
 const InfoTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.InfoTab');
   const { nodes } = useStoreState(s => s.lightning);
+  const version = node.docker.image
+    ? { label: l('customImage'), value: node.docker.image }
+    : { label: l('version'), value: `v${node.version}` };
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
     { label: l('implementation'), value: node.implementation },
-    { label: l('version'), value: `v${node.version}` },
+    version,
     {
       label: l('status'),
       value: (

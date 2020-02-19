@@ -40,8 +40,8 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
   });
   const handleSubmit = (values: any) => {
     const { id } = image;
-    const { implementation, dockerImage, command } = values;
-    saveAsync.execute({ id, implementation, dockerImage, command });
+    const { implementation, dockerImage, name, command } = values;
+    saveAsync.execute({ id, name, implementation, dockerImage, command });
   };
   const handleImplChange = (value: NodeImplementation) => {
     setActiveImpl(value);
@@ -76,6 +76,13 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
         initialValues={image}
         onFinish={handleSubmit}
       >
+        <Form.Item
+          name="name"
+          label={l('name')}
+          rules={[{ required: true, message: l('cmps.forms.required') }]}
+        >
+          <Input placeholder={l('namePlaceholder')} />
+        </Form.Item>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item name="implementation" label={l('implementation')}>

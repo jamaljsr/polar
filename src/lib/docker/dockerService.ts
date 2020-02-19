@@ -61,9 +61,14 @@ class DockerService implements DockerLibrary {
       debug('fetching docker images');
       const allImages = await new Dockerode().listImages();
       debug(`All Images: ${JSON.stringify(allImages)}`);
-      const imageNames = ([] as string[]).concat(...allImages.map(i => i.RepoTags || []));
-      debug(`Image Names: ${JSON.stringify(imageNames)}`);
-      return imageNames;
+      const imageNames = ([] as string[])
+        .concat(...allImages.map(i => i.RepoTags || []))
+        .filter(n => n !== '<none>:<none>'); // ignore untagged images
+      const uniqueNames = imageNames.filter(
+        (image, index) => imageNames.indexOf(image) === index,
+      );
+      debug(`Image Names: ${JSON.stringify(uniqueNames)}`);
+      return uniqueNames;
     } catch (error) {
       debug(`Failed: ${error.message}`);
       return [];
