@@ -23,6 +23,7 @@ import {
   createNetwork,
   filterCompatibleBackends,
   getOpenPorts,
+  importNetworkFromZip,
   OpenPorts,
   zipNetwork,
 } from 'utils/network';
@@ -126,6 +127,16 @@ export interface NetworkModel {
     StoreInjections,
     RootModel,
     Promise<string | undefined>
+  >;
+  /**
+   * Given a file path to a zip archive, unpack and import the contained network
+   */
+  importNetwork: Thunk<
+    NetworkModel,
+    string,
+    StoreInjections,
+    RootModel,
+    Promise<Network>
   >;
 }
 
@@ -636,6 +647,24 @@ const networkModel: NetworkModel = {
     await copyFile(zipped, zipDestination);
     info('exported network to', zipDestination);
     return zipDestination;
+  }),
+  importNetwork: thunk(async (_, path, { getStoreState, getStoreActions }) => {
+    const {
+      network: { networks },
+    } = getStoreState();
+
+    const { network: networkActions } = getStoreActions();
+    const { designer: designerActions } = getStoreActions();
+
+    console.log('func', importNetworkFromZip);
+    const [newNetwork, chart] = await importNetworkFromZip(path, networks);
+
+    networkActions.add(newNetwork);
+    designerActions.setChart({ chart, id: newNetwork.id });
+    await networkActions.save();
+
+    info('imported', newNetwork);
+    return newNetwork;
   }),
 };
 

@@ -1,5 +1,6 @@
 import * as log from 'electron-log';
 import { pathExists } from 'fs-extra';
+import { join } from 'path';
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
@@ -24,6 +25,15 @@ jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
   rm: jest.fn(),
 }));
+
+jest.mock('utils/network', () => ({
+  importNetworkFromZip: jest.fn().mockImplementation(() => {
+    const tests = jest.requireActual('utils/tests');
+    const network = tests.getNetwork();
+    return [network, tests.initChartFromNetwork(network)];
+  }),
+}));
+
 const filesMock = files as jest.Mocked<typeof files>;
 const logMock = log as jest.Mocked<typeof log>;
 const detectPortMock = detectPort as jest.Mock;
@@ -828,7 +838,6 @@ describe('Network model', () => {
     });
 
     it('should export a network', async () => {
-      jest.setTimeout(1000 * 60 * 60);
       const { network: networkActions } = store.getActions();
 
       const network = getNetwork();
@@ -844,6 +853,18 @@ describe('Network model', () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const exists = await pathExists(exportedZip!);
       expect(exists).toBeTruthy();
+    });
+  });
+
+  describe.only('Import', () => {
+    it('should import a network', async () => {
+      const { network: networkActions } = store.getActions();
+
+      const imported = await networkActions.importNetwork(
+        join(__dirname, '..', '..', 'utils', 'tests', 'resources', 'zipped-network.zip'),
+      );
+      console.log(imported);
+      expect(true).toBe(false);
     });
   });
 });
