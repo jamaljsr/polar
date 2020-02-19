@@ -1,11 +1,21 @@
+import { join } from 'path';
 import detectPort from 'detect-port';
 import { LndNode, NodeImplementation, Status } from 'shared/types';
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
-import { getImageCommand, getOpenPortRange, getOpenPorts, OpenPorts } from './network';
+import {
+  getImageCommand,
+  getNetworkFromZip,
+  getOpenPortRange,
+  getOpenPorts,
+  OpenPorts,
+} from './network';
 import { getNetwork, testManagedImages } from './tests';
 
 const mockDetectPort = detectPort as jest.Mock;
+
+// use the real deal
+jest.mock('fs-extra', () => jest.requireActual('fs-extra'));
 
 describe('Network Utils', () => {
   describe('getImageCommand', () => {
@@ -157,6 +167,24 @@ describe('Network Utils', () => {
       const lnd2 = network.nodes.lightning[2] as LndNode;
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
+    });
+  });
+
+  describe('getNetworkFromZip', () => {
+    it('reads zipped-network.zip', async () => {
+      const newId = 90;
+      const [network] = await getNetworkFromZip(
+        join(__dirname, 'tests', 'resources', 'zipped-network.zip'),
+        newId,
+      );
+
+      expect(network.id).toBe(newId);
+      expect(network.nodes.bitcoin).toHaveLength(1);
+      expect(network.nodes.lightning).toHaveLength(3);
+    });
+
+    it('throws on non-existent zip', async () => {
+      await expect(getNetworkFromZip('nonexistent', 9)).rejects.toThrow();
     });
   });
 });

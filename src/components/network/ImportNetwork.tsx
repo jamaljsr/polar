@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import styled from '@emotion/styled';
-import { Button, Upload, Card, PageHeader, Spin, Modal } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
 import log from 'electron-log';
-import { ThemeColors } from 'theme/colors';
-import { useTheme } from 'hooks/useTheme';
-import { HOME } from 'components/routing';
-import { useStoreActions, useStoreState } from 'store';
-import { usePrefixedTranslation } from 'hooks';
+import { UploadOutlined } from '@ant-design/icons';
+import styled from '@emotion/styled';
+import { Button, Card, PageHeader, Upload } from 'antd';
 import { RcFile } from 'antd/lib/upload';
-import { getNetworkFromZip } from 'utils/network';
-import fsExtra from 'fs-extra';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { dataPath } from 'utils/config';
+import { usePrefixedTranslation } from 'hooks';
+import { useTheme } from 'hooks/useTheme';
+import { useStoreActions, useStoreState } from 'store';
+import { ThemeColors } from 'theme/colors';
+import { importNetworkFromZip } from 'utils/network';
+import { HOME } from 'components/routing';
 
 const Styled = {
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
@@ -32,15 +28,11 @@ const Styled = {
       width: 200px;
     }
   `,
-  Spin: styled(Spin)<{ visible: boolean }>`
-    position: absolute;
-    display: ${visible => (visible ? 'inherit' : 'none')};
-  `,
 };
 
 const ImportNetwork: React.SFC = () => {
   const [file, setFile] = useState<RcFile | undefined>();
-  const { navigateTo } = useStoreActions(s => s.app);
+  const { navigateTo, notify } = useStoreActions(s => s.app);
   const { l } = usePrefixedTranslation('cmps.network.ImportNetwork');
   const networkActions = useStoreActions(s => s.network);
   const designerActions = useStoreActions(s => s.designer);
@@ -80,51 +72,33 @@ const ImportNetwork: React.SFC = () => {
           <p className="ant-upload-text">{l('fileDraggerArea')}</p>
         </Upload.Dragger>
         <Styled.ButtonContainer>
-          <Button onClick={() => setFile(undefined)} disabled={file === undefined}>
+          <Button onClick={() => setFile(undefined)} disabled={!file}>
             {l('removeButton')}
           </Button>
           <Button
             onClick={async () => {
-              if (!file) {
-                throw Error('File was undefined in import submit function!');
+              try {
+                const [newNetwork, chart] = await importNetworkFromZip(
+                  // if file is undefined, export button is disabled
+                  // so we can be sure that this assertions is OK
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  file!.path,
+                  networks,
+                );
+
+                networkActions.add(newNetwork);
+                designerActions.setChart({ chart, id: newNetwork.id });
+                await networkActions.save();
+
+                log.info('imported', newNetwork);
+                notify({ message: l('importSuccess') });
+                navigateTo(HOME);
+              } catch (error) {
+                notify({ message: '', error });
               }
-
-              const maxId = networks
-                .map(n => n.id)
-                .reduce((max, curr) => Math.max(max, curr), 0);
-              const newId = maxId + 1;
-
-              const [newNetwork, chart, unzippedFilesDirectory] = await getNetworkFromZip(
-                file.path,
-                newId,
-              );
-
-              const newNetworkDirectory = join(dataPath, 'networks', newId.toString());
-              await fs.mkdir(newNetworkDirectory, { recursive: true });
-
-              const thingsToCopy = ['docker-compose.yml', 'volumes'];
-              await Promise.all(
-                thingsToCopy.map(path =>
-                  fsExtra.copy(
-                    join(unzippedFilesDirectory, path),
-                    join(newNetworkDirectory, path),
-                  ),
-                ),
-              );
-
-              networkActions.add(newNetwork);
-              designerActions.setChart({ chart, id: newId });
-              await networkActions.save();
-
-              log.info('imported', newNetwork);
-              Modal.success({
-                title: 'Imported network',
-                content: `Imported network '${newNetwork.name}' successfully.`,
-                onOk: () => navigateTo(HOME),
-              });
             }}
             type="primary"
-            disabled={file === undefined}
+            disabled={!file}
           >
             {l('importButton')}
           </Button>

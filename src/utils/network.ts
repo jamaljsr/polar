@@ -1,9 +1,10 @@
 import { debug } from 'electron-log';
 import { promises as fs } from 'fs';
+import { copy } from 'fs-extra';
 import { basename, join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import detectPort from 'detect-port';
-import os from 'os';
+import os, { tmpdir } from 'os';
 import {
   BitcoinNode,
   CLightningNode,
@@ -20,13 +21,14 @@ import {
   ManagedImage,
   Network,
 } from 'types';
-import * as files from 'utils/files';
 import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO } from './constants';
 import { getName } from './names';
 import { range } from './numbers';
 import { isVersionCompatible } from './strings';
+import { isWindows } from './system';
 import { prefixTranslation } from './translate';
+import { unzip, zip } from './zip';
 
 const { l } = prefixTranslation('utils.network');
 
@@ -287,10 +289,7 @@ export const getNetworkFromZip = async (
   newId: number,
 ): Promise<[Network, IChart, string]> => {
   const destination = join(os.tmpdir(), basename(zip, '.zip'));
-  await files.unzip(zip, destination).catch(err => {
-    console.error(`Could not unzip ${zip} into ${destination}:`, err);
-    throw err;
-  });
+  await unzip(zip, destination);
 
   const [network, chart] = await Promise.all([
     readNetwork(join(destination, 'network.json'), newId),
@@ -298,6 +297,88 @@ export const getNetworkFromZip = async (
   ]);
 
   return [network, chart, destination];
+};
+
+/**
+ * Given a zip file and the existing networks in the app,
+ * unpack the zipped files and save them to the correct
+ * locations.
+ *
+ * The caller is responsible for persisting the network
+ * and chart to the store.
+ */
+export const importNetworkFromZip = async (
+  zipPath: string,
+  existingNetworks: Network[],
+): Promise<[Network, IChart]> => {
+  const maxId = existingNetworks
+    .map(n => n.id)
+    .reduce((max, curr) => Math.max(max, curr), 0);
+  const newId = maxId + 1;
+
+  const [newNetwork, chart, unzippedFilesDirectory] = await getNetworkFromZip(
+    zipPath,
+    newId,
+  );
+  const networkHasCLightning = newNetwork.nodes.lightning.some(
+    n => n.implementation === 'c-lightning',
+  );
+
+  if (isWindows() && networkHasCLightning) {
+    throw Error(l('importClightningWindows'));
+  }
+
+  const newNetworkDirectory = join(dataPath, 'networks', newId.toString());
+  await fs.mkdir(newNetworkDirectory, { recursive: true });
+
+  const thingsToCopy = ['docker-compose.yml', 'volumes'];
+  await Promise.all(
+    thingsToCopy.map(path =>
+      copy(join(unzippedFilesDirectory, path), join(newNetworkDirectory, path)),
+    ),
+  );
+
+  return [newNetwork, chart];
+};
+
+const sanitizeFileName = (name: string): string => {
+  const withoutSpaces = name.replace(/\s/g, '-'); // replace all whitespace with hyphens
+
+  // remove all character which could lead to either unpleasant or
+  // invalid file names
+  return withoutSpaces.replace(/[^0-9a-zA-Z-._]/g, '');
+};
+
+/**
+ * Archive the given network into a folder with the following content:
+ *
+ * ```
+ * docker-compose.yml // compose file for network
+ * volumes            // directory with all data files needed by nodes
+ * network.json       // serialized network object
+ * chart.json         // serialized chart object
+ * ```
+ *
+ * @return Path of created `.zip` file
+ */
+export const zipNetwork = async (network: Network, chart: IChart): Promise<string> => {
+  const destination = join(tmpdir(), `polar-${sanitizeFileName(network.name)}.zip`);
+
+  await zip({
+    destination,
+    objects: [
+      {
+        name: 'network.json',
+        object: network,
+      },
+      {
+        name: 'chart.json',
+        object: chart,
+      },
+    ],
+    paths: [join(network.path, 'docker-compose.yml'), join(network.path, 'volumes')],
+  });
+  return destination;
 };
 
 export const createNetwork = (config: {
