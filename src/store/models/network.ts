@@ -1,5 +1,7 @@
+import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
-import { join } from 'path';
+import { copyFile, ensureDir } from 'fs-extra';
+import { basename, join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
@@ -11,6 +13,7 @@ import {
 } from 'shared/types';
 import { CustomImage, Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { dataPath } from 'utils/config';
 import { APP_VERSION } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
@@ -21,6 +24,7 @@ import {
   filterCompatibleBackends,
   getOpenPorts,
   OpenPorts,
+  zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { NETWORK_VIEW } from 'components/routing';
@@ -112,6 +116,17 @@ export interface NetworkModel {
     Promise<void>
   >;
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+
+  /**
+   * If user didn't cancel the process, returns the destination of the generated Zip
+   */
+  exportNetwork: Thunk<
+    NetworkModel,
+    Network,
+    StoreInjections,
+    RootModel,
+    Promise<string | undefined>
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -591,6 +606,36 @@ const networkModel: NetworkModel = {
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
+  }),
+
+  exportNetwork: thunk(async (_, network, { getStoreState }) => {
+    info('exporting network', network);
+
+    const {
+      designer: { allCharts },
+    } = getStoreState();
+
+    // make sure the volumes directory is created, otherwise the zipping wil throw
+    // the volumes directory is not present if the network has never been started
+    await ensureDir(join(dataPath, 'networks', network.id.toString(), 'volumes'));
+
+    const zipped = await zipNetwork(network, allCharts[network.id]);
+
+    const options: SaveDialogOptions = {
+      title: 'title',
+      defaultPath: basename(zipped),
+      properties: ['promptToCreate', 'createDirectory'],
+    } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
+    const { filePath: zipDestination } = await remote.dialog.showSaveDialog(options);
+
+    // user aborted dialog
+    if (!zipDestination) {
+      return;
+    }
+
+    await copyFile(zipped, zipDestination);
+    info('exported network to', zipDestination);
+    return zipDestination;
   }),
 };
 

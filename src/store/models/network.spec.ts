@@ -1,4 +1,5 @@
 import * as log from 'electron-log';
+import { pathExists } from 'fs-extra';
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
@@ -814,6 +815,35 @@ describe('Network model', () => {
         networkId: 999,
       };
       await expect(updateAdvancedOptions({ node, command: '' })).rejects.toThrow();
+    });
+  });
+
+  describe('Export', () => {
+    let exportedZip: string | undefined;
+    afterEach(async () => {
+      if (!exportedZip) {
+        return;
+      }
+      await files.rm(exportedZip);
+    });
+
+    it('should export a network', async () => {
+      jest.setTimeout(1000 * 60 * 60);
+      const { network: networkActions } = store.getActions();
+
+      const network = getNetwork();
+      await networkActions.addNetwork({
+        name: 'test',
+        lndNodes: 1,
+        clightningNodes: 2,
+        bitcoindNodes: 1,
+      });
+
+      exportedZip = await networkActions.exportNetwork(network);
+      expect(exportedZip).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const exists = await pathExists(exportedZip!);
+      expect(exists).toBeTruthy();
     });
   });
 });

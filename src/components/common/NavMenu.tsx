@@ -1,5 +1,10 @@
 import React from 'react';
-import { HddOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  HddOutlined,
+  ImportOutlined,
+  MenuOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Dropdown, Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -11,6 +16,10 @@ const Styled = {
     float: right;
   `,
   MenuIcon: styled(MenuOutlined)`
+    font-size: 1.2rem;
+    color: #fff;
+  `,
+  ImportIcon: styled(ImportOutlined)`
     font-size: 1.2rem;
     color: #fff;
   `,

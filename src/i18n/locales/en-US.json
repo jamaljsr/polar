@@ -231,7 +231,6 @@
   "cmps.home.DetectDockerModal.checkAgain": "Check Again",
   "cmps.home.GetStarted.title": "Let's get started!",
   "cmps.home.GetStarted.createBtn": "Create a Lightning Network",
-  "cmps.home.GetStarted.importBtn": "Import a Lightning Network",
   "cmps.home.Home.initError": "Unable to initialize the application state",
   "cmps.home.NetworkCard.lightningNodes": "Lightning Nodes",
   "cmps.home.NetworkCard.bitcoinNodes": "Bitcoin Nodes",
@@ -258,10 +257,14 @@
   "cmps.network.NetworkView.deleteSuccess": "The network '{{name}}' and its data has been deleted!",
   "cmps.network.NetworkView.deleteError": "Unable to delete the network",
   "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
+  "cmps.network.NetworkView.exportSuccess": "Exported '{{name}}'. Saved the zip file to {{destination}}",
+  "cmps.network.NetworkView.notReadyToExport": "Cannot export a running network",
+  "cmps.network.NetworkView.notReadyToExportDescription": "Make sure the network is completely stopped before exporting it.",
   "cmps.network.ImportNetwork.title": "Import a pre-defined Lightning Network",
   "cmps.network.ImportNetwork.fileDraggerArea": "Click or drag ZIP file to this area to import",
   "cmps.network.ImportNetwork.removeButton": "Remove",
   "cmps.network.ImportNetwork.importButton": "Import",
+  "cmps.network.ImportNetwork.importSuccess": "Imported network '{{name}}' successfully",
   "cmps.network.NewNetwork.title": "Create a new Lightning Network",
   "cmps.network.NewNetwork.nameLabel": "Network Name",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
@@ -345,5 +348,6 @@
   "store.models.network.renameErr": "The network name '{{name}}' is not valid",
   "store.models.network.removeLastErr": "Cannot remove the only bitcoin node",
   "store.models.network.removeCompatErr": "There are no other compatible backends for {{lnName}} to connect to. You must remove the {{lnName}} node first",
-  "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}"
+  "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
+  "utils.network.importClightningWindows": "Importing networks with c-lightning nodes is not supported on Windows"
 }
