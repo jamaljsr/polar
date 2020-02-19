@@ -59,11 +59,12 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   // add custom nodes
   settings.nodeImages.custom.forEach(image => {
     const { logo, platforms } = dockerConfigs[image.implementation];
+    const { latest } = dockerRepoState.images[image.implementation];
     if (!platforms.includes(currPlatform)) return;
     nodes.push({
-      label: `Custom [${image.dockerImage}]`,
+      label: image.name,
       logo,
-      version: image.dockerImage,
+      version: latest,
       type: image.implementation,
       latest: true,
       customId: image.id,
@@ -92,7 +93,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
       </Styled.Toggle>
       {nodes.map(({ label, logo, version, latest, type, customId }) => (
         <DraggableNode
-          key={version}
+          key={label}
           label={label}
           desc={showAll && latest ? 'latest' : ''}
           icon={logo}

@@ -37,6 +37,7 @@ const NodeImagesView: React.FC = () => {
   const handleAdd = () => {
     setAddingImage({
       id: '',
+      name: '',
       implementation: 'LND',
       dockerImage: '',
       command: dockerConfigs.LND.command,

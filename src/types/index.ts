@@ -38,6 +38,7 @@ export interface ManagedImage {
  */
 export interface CustomImage {
   id: string;
+  name: string;
   implementation: NodeImplementation;
   dockerImage: string;
   command: string;

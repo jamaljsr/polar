@@ -70,7 +70,7 @@ const NewNetwork: React.SFC = () => {
               <Form.Item
                 name="clightningNodes"
                 label={l('clightningNodesLabel')}
-                help={isWindows() ? l('clightningWindows') : ''}
+                extra={isWindows() ? l('clightningWindows') : ''}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
                 <InputNumber min={0} max={10} disabled={isWindows()} />
