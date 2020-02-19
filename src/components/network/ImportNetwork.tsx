@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import log from 'electron-log';
 import { UploadOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Card, PageHeader, Upload } from 'antd';
 import { RcFile } from 'antd/lib/upload';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
-import { useStoreActions, useStoreState } from 'store';
+import { useStoreActions } from 'store';
 import { ThemeColors } from 'theme/colors';
-import { importNetworkFromZip } from 'utils/network';
 import { HOME } from 'components/routing';
 
 const Styled = {
@@ -33,11 +31,8 @@ const Styled = {
 const ImportNetwork: React.SFC = () => {
   const [file, setFile] = useState<RcFile | undefined>();
   const { navigateTo, notify } = useStoreActions(s => s.app);
+  const { importNetwork } = useStoreActions(s => s.network);
   const { l } = usePrefixedTranslation('cmps.network.ImportNetwork');
-  const networkActions = useStoreActions(s => s.network);
-  const designerActions = useStoreActions(s => s.designer);
-
-  const { networks } = useStoreState(s => s.network);
 
   const theme = useTheme();
   return (
@@ -78,19 +73,10 @@ const ImportNetwork: React.SFC = () => {
           <Button
             onClick={async () => {
               try {
-                const [newNetwork, chart] = await importNetworkFromZip(
-                  // if file is undefined, export button is disabled
-                  // so we can be sure that this assertions is OK
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  file!.path,
-                  networks,
-                );
-
-                networkActions.add(newNetwork);
-                designerActions.setChart({ chart, id: newNetwork.id });
-                await networkActions.save();
-
-                log.info('imported', newNetwork);
+                // if file is undefined, export button is disabled
+                // so we can be sure that this assertions is OK
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                await importNetwork(file!.path);
                 notify({ message: l('importSuccess') });
                 navigateTo(HOME);
               } catch (error) {

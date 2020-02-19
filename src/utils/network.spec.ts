@@ -14,7 +14,6 @@ import { getNetwork, testManagedImages } from './tests';
 
 const mockDetectPort = detectPort as jest.Mock;
 
-// use the real deal
 jest.mock('fs-extra', () => jest.requireActual('fs-extra'));
 
 describe('Network Utils', () => {
