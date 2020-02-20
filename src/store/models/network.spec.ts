@@ -42,6 +42,7 @@ describe('Network model', () => {
     lndNodes: 2,
     clightningNodes: 1,
     bitcoindNodes: 1,
+    customNodes: {},
   };
 
   beforeEach(() => {

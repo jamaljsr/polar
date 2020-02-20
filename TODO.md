@@ -1,5 +1,7 @@
 # TODO List
 
+- add new LND logo.. migrate chart
+
 Small Stuff
 
 - fix pasting text in terminal

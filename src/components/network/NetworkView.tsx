@@ -37,9 +37,6 @@ const Styled = {
   RenameInput: styled(Input)`
     width: 500px;
   `,
-  Alert: styled(Alert)`
-    margin-bottom: 10px;
-  `,
   NetworkDesigner: styled(NetworkDesigner)`
     flex: 1;
   `,
@@ -186,9 +183,9 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   return (
     <Styled.NetworkView>
       {header}
-      {showNotice && <Styled.Alert type="info" message={l('missingImages')} showIcon />}
+      {showNotice && <Alert type="info" message={l('missingImages')} showIcon />}
       {toggleAsync.error && (
-        <Styled.Alert
+        <Alert
           type="error"
           message={<Styled.Error>{toggleAsync.error.message}</Styled.Error>}
         />

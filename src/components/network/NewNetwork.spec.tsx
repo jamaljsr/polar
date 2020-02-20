@@ -14,7 +14,7 @@ describe('NewNetwork component', () => {
     const result = renderWithProviders(<NewNetwork />);
     return {
       ...result,
-      createBtn: result.getByText('Create').parentElement as Element,
+      createBtn: result.getAllByText('Create Network')[0].parentElement as Element,
       nameInput: result.getByLabelText('Network Name'),
     };
   };
@@ -47,16 +47,16 @@ describe('NewNetwork component', () => {
   it('should have the correct default nodes', () => {
     mockOS.platform.mockReturnValue('darwin');
     const { getByLabelText } = renderComponent();
-    expect(getByLabelText('How many LND nodes?')).toHaveValue('2');
-    expect(getByLabelText('How many c-lightning nodes?')).toHaveValue('1');
-    expect(getByLabelText('How many bitcoind nodes?')).toHaveValue('1');
+    expect(getByLabelText('LND')).toHaveValue('2');
+    expect(getByLabelText('c-lightning')).toHaveValue('1');
+    expect(getByLabelText('Bitcoin Core')).toHaveValue('1');
   });
 
   it('should disable c-lightning input on Windows', () => {
     mockOS.platform.mockReturnValue('win32');
     const { getByLabelText, getByText } = renderComponent();
-    expect(getByLabelText('How many c-lightning nodes?')).toHaveValue('0');
-    expect(getByLabelText('How many LND nodes?')).toHaveValue('3');
+    expect(getByLabelText('c-lightning')).toHaveValue('0');
+    expect(getByLabelText('LND')).toHaveValue('3');
     expect(getByText('Not supported on Windows yet.')).toBeInTheDocument();
   });
 
