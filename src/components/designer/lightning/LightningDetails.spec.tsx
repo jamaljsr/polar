@@ -266,6 +266,15 @@ describe('LightningDetails', () => {
       expect(nodeName).toEqual(node.name);
     });
 
+    it('should handle advanced options button click', async () => {
+      const { findByText, node, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Edit Options'));
+      const { visible, nodeName } = store.getState().modals.advancedOptions;
+      expect(visible).toEqual(true);
+      expect(nodeName).toEqual(node.name);
+    });
+
     describe('c-lightning', () => {
       beforeEach(() => {
         node = network.nodes.lightning[1];
