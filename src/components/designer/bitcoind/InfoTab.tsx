@@ -14,13 +14,10 @@ interface Props {
 const InfoTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.InfoTab');
   const { nodes } = useStoreState(s => s.bitcoind);
-  const version = node.docker.image
-    ? { label: l('customImage'), value: node.docker.image }
-    : { label: l('version'), value: `v${node.version}` };
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
     { label: l('implementation'), value: node.implementation },
-    version,
+    { label: l('version'), value: node.docker.image ? 'custom' : `v${node.version}` },
     {
       label: l('status'),
       value: (
@@ -31,6 +28,10 @@ const InfoTab: React.FC<Props> = ({ node }) => {
       ),
     },
   ];
+
+  if (node.docker.image) {
+    details.splice(3, 0, { label: l('customImage'), value: node.docker.image });
+  }
 
   const nodeState = nodes[node.name];
   if (
