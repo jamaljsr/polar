@@ -1,11 +1,22 @@
 import React, { useEffect } from 'react';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Button, Card, Col, Form, Input, InputNumber, PageHeader, Row } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  PageHeader,
+  Row,
+} from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
-import { useStoreActions } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
+import { dockerConfigs } from 'utils/constants';
 import { isWindows } from 'utils/system';
 import { HOME } from 'components/routing';
 
@@ -17,6 +28,12 @@ const Styled = {
     margin-bottom: 10px;
     flex: 0;
   `,
+  Divider: styled(Divider)`
+    .ant-divider-inner-text {
+      font-size: 14px;
+      opacity: 0.5;
+    }
+  `,
 };
 
 const NewNetwork: React.SFC = () => {
@@ -26,10 +43,18 @@ const NewNetwork: React.SFC = () => {
   const theme = useTheme();
   const { navigateTo } = useStoreActions(s => s.app);
   const { addNetwork } = useStoreActions(s => s.network);
+  const { settings } = useStoreState(s => s.app);
+  const { custom: customNodes } = settings.nodeImages;
 
   const handleSubmit = (values: any) => {
+    values.customNodes = values.customNodes || {};
     addNetwork(values);
   };
+
+  const initialCustomValues = customNodes.reduce((result, node) => {
+    result[node.id] = 0;
+    return result;
+  }, {} as Record<string, number>);
 
   return (
     <>
@@ -46,6 +71,7 @@ const NewNetwork: React.SFC = () => {
             lndNodes: isWindows() ? 3 : 2,
             clightningNodes: isWindows() ? 0 : 1,
             bitcoindNodes: 1,
+            customNodes: initialCustomValues,
           }}
           onFinish={handleSubmit}
         >
@@ -56,11 +82,30 @@ const NewNetwork: React.SFC = () => {
           >
             <Input placeholder={l('namePhldr')} />
           </Form.Item>
+          {customNodes.length > 0 && (
+            <>
+              <Styled.Divider orientation="left">{l('customLabel')}</Styled.Divider>
+              <Row>
+                {customNodes.map(node => (
+                  <Col span={8} key={node.id}>
+                    <Form.Item
+                      name={['customNodes', node.id]}
+                      label={node.name}
+                      rules={[{ required: true, message: l('cmps.forms.required') }]}
+                    >
+                      <InputNumber min={0} max={10} />
+                    </Form.Item>
+                  </Col>
+                ))}
+              </Row>
+            </>
+          )}
+          <Styled.Divider orientation="left">{l('managedLabel')}</Styled.Divider>
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item
                 name="lndNodes"
-                label={l('lndNodesLabel')}
+                label={dockerConfigs.LND.name}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
                 <InputNumber min={0} max={10} />
@@ -69,7 +114,7 @@ const NewNetwork: React.SFC = () => {
             <Col span={8}>
               <Form.Item
                 name="clightningNodes"
-                label={l('clightningNodesLabel')}
+                label={dockerConfigs['c-lightning'].name}
                 extra={isWindows() ? l('clightningWindows') : ''}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
@@ -79,7 +124,7 @@ const NewNetwork: React.SFC = () => {
             <Col span={8}>
               <Form.Item
                 name="bitcoindNodes"
-                label={l('bitcoindNodesLabel')}
+                label={dockerConfigs.bitcoind.name}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
                 <InputNumber min={1} max={10} />

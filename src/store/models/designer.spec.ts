@@ -65,6 +65,7 @@ describe('Designer model', () => {
         lndNodes: 2,
         clightningNodes: 1,
         bitcoindNodes: 2,
+        customNodes: {},
       });
     });
 
@@ -99,6 +100,7 @@ describe('Designer model', () => {
         lndNodes: 2,
         clightningNodes: 0,
         bitcoindNodes: 1,
+        customNodes: {},
       });
       store.getActions().designer.setActiveId(firstNetwork().id);
       const { removeChart } = store.getActions().designer;
@@ -349,6 +351,7 @@ describe('Designer model', () => {
           lndNodes: 0,
           clightningNodes: 0,
           bitcoindNodes: 0,
+          customNodes: {},
         });
         const newId = store.getState().network.networks[1].id;
         setActiveId(newId);

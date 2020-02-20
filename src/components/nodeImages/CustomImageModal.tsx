@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import { Col, Form, Input, Modal, Row, Select } from 'antd';
+import { Alert, Col, Form, Input, Modal, Row, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions } from 'store';
@@ -76,6 +76,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
         initialValues={image}
         onFinish={handleSubmit}
       >
+        {isEditing && <Alert type="info" showIcon message={l('editingInfo')} />}
         <Form.Item
           name="name"
           label={l('name')}

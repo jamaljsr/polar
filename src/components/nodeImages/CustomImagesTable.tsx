@@ -12,7 +12,7 @@ import { CustomImageModal } from './';
 
 const Styled = {
   Table: styled(Table)`
-    margin: 20px 0;
+    margin: 16px 0;
   `,
   Logo: styled.img`
     width: 24px;

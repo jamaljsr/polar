@@ -14,6 +14,6 @@ describe('App container', () => {
 
   it('should render the new network page', () => {
     const { getByText } = renderComponent(NETWORK_NEW);
-    expect(getByText('Create')).toBeInTheDocument();
+    expect(getByText('Create Network')).toBeInTheDocument();
   });
 });

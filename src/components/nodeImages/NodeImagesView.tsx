@@ -20,9 +20,6 @@ const Styled = {
     margin-bottom: 16px;
     flex: 0;
   `,
-  Alert: styled(Alert)`
-    margin-bottom: 16px;
-  `,
 };
 
 const NodeImagesView: React.FC = () => {
@@ -56,12 +53,7 @@ const NodeImagesView: React.FC = () => {
           </Button>
         }
       />
-      <Styled.Alert
-        type="warning"
-        message={l('warnMsg')}
-        description={l('warnDesc')}
-        showIcon
-      />
+      <Alert type="warning" message={l('warnMsg')} description={l('warnDesc')} showIcon />
 
       <CustomImagesTable images={settings.nodeImages.custom} />
       <ManagedImagesTable images={computedManagedImages} />

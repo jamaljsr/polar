@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { css, Global } from '@emotion/core';
 import styled from '@emotion/styled';
 import { Layout } from 'antd';
 import { useTheme } from 'hooks/useTheme';
@@ -13,24 +14,9 @@ import { DockerStatus, LocaleSwitch, ThemeSwitch } from './';
 const { Header, Content, Footer } = Layout;
 
 const Styled = {
-  Layout: styled(Layout)<{ colors: ThemeColors }>`
+  Layout: styled(Layout)`
     min-height: 100vh;
     overflow: hidden;
-
-    //--- antd overrides ---
-    .ant-form-item-label {
-      margin-bottom: 5px;
-    }
-    .ant-form-item-with-help {
-      margin-bottom: 12px;
-    }
-    .ant-alert-info {
-      background-color: ${props => props.colors.alert.background};
-      border: 1px solid ${props => props.colors.alert.border};
-    }
-    .ant-badge-status-default {
-      background-color: ${props => props.colors.statusBadge.default};
-    }
   `,
   Header: styled(Header)`
     padding: 0 16px;
@@ -71,11 +57,42 @@ interface Props {
   children: React.ReactNode;
 }
 
+/**
+ * Override some antd styled globally
+ */
+const AntdOverrides: React.FC = () => {
+  const theme = useTheme();
+  return (
+    <Global
+      styles={css`
+        //--- antd overrides ---
+        .ant-form-item-label {
+          margin-bottom: 5px;
+        }
+        .ant-form-item-with-help {
+          margin-bottom: 12px;
+        }
+        .ant-alert {
+          margin-bottom: 16px;
+        }
+        .ant-alert-info {
+          background-color: ${theme.alert.background};
+          border: 1px solid ${theme.alert.border};
+        }
+        .ant-badge-status-default {
+          background-color: ${theme.statusBadge.default};
+        }
+      `}
+    />
+  );
+};
+
 const AppLayout: React.FC<Props> = (props: Props) => {
   const { initialized } = useStoreState(s => s.app);
   const theme = useTheme();
   return (
-    <Styled.Layout colors={theme}>
+    <Styled.Layout>
+      <AntdOverrides />
       {/* hide the header until the theme has been loaded */}
       {initialized && (
         <Styled.Header>

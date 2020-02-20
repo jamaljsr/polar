@@ -10,7 +10,13 @@ import {
   NodeImplementation,
   Status,
 } from 'shared/types';
-import { DockerRepoImage, DockerRepoState, ManagedImage, Network } from 'types';
+import {
+  CustomImage,
+  DockerRepoImage,
+  DockerRepoState,
+  ManagedImage,
+  Network,
+} from 'types';
 import { networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO } from './constants';
 import { getName } from './names';
@@ -210,7 +216,8 @@ export const createNetwork = (config: {
   clightningNodes: number;
   bitcoindNodes: number;
   repoState: DockerRepoState;
-  images: ManagedImage[];
+  managedImages: ManagedImage[];
+  customImages: { image: CustomImage; count: number }[];
   status?: Status;
 }): Network => {
   const {
@@ -220,7 +227,8 @@ export const createNetwork = (config: {
     clightningNodes,
     bitcoindNodes,
     repoState,
-    images,
+    managedImages,
+    customImages,
   } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
@@ -239,24 +247,53 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
   const dockerWrap = (command: string) => ({ image: '', command });
 
+  // add custom bitcoin nodes
+  customImages
+    .filter(i => i.image.implementation === 'bitcoind')
+    .forEach(i => {
+      const version = repoState.images.bitcoind.latest;
+      const docker = { image: i.image.dockerImage, command: i.image.command };
+      range(i.count).forEach(() => {
+        bitcoin.push(createBitcoindNetworkNode(network, version, docker, status));
+      });
+    });
+
+  // add managed bitcoin noes
   range(bitcoindNodes).forEach(() => {
     const version = repoState.images.bitcoind.latest;
-    const cmd = getImageCommand(images, 'bitcoind', version);
+    const cmd = getImageCommand(managedImages, 'bitcoind', version);
     bitcoin.push(createBitcoindNetworkNode(network, version, dockerWrap(cmd), status));
   });
+
+  // add custom lightning nodes
+  customImages
+    .filter(
+      i => i.image.implementation === 'LND' || i.image.implementation === 'c-lightning',
+    )
+    .forEach(({ image, count }) => {
+      const { latest, compatibility } = repoState.images.LND;
+      const docker = { image: image.dockerImage, command: image.command };
+      const createFunc =
+        image.implementation === 'LND'
+          ? createLndNetworkNode
+          : createCLightningNetworkNode;
+      range(count).forEach(() => {
+        lightning.push(createFunc(network, latest, compatibility, docker, status));
+      });
+    });
 
   // add lightning nodes in an alternating pattern
   range(Math.max(lndNodes, clightningNodes)).forEach(i => {
     if (i < lndNodes) {
       const { latest, compatibility } = repoState.images.LND;
-      const cmd = getImageCommand(images, 'LND', latest);
+      const cmd = getImageCommand(managedImages, 'LND', latest);
       lightning.push(
         createLndNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
       );
     }
     if (i < clightningNodes) {
       const { latest, compatibility } = repoState.images['c-lightning'];
-      const cmd = getImageCommand(images, 'c-lightning', latest);
+      const cmd = getImageCommand(managedImages, 'c-lightning', latest);
       lightning.push(
         createCLightningNetworkNode(
           network,

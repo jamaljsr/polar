@@ -9,7 +9,7 @@ import {
   NodeImplementation,
   Status,
 } from 'shared/types';
-import { Network, StoreInjections } from 'types';
+import { CustomImage, Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION } from 'utils/constants';
 import { rm } from 'utils/files';
@@ -33,6 +33,7 @@ interface AddNetworkArgs {
   lndNodes: number;
   clightningNodes: number;
   bitcoindNodes: number;
+  customNodes: Record<string, number>;
 }
 
 export interface NetworkModel {
@@ -165,12 +166,20 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      payload,
+      { name, lndNodes, clightningNodes, bitcoindNodes, customNodes },
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
-      const { dockerRepoState, computedManagedImages } = getStoreState().app;
+      const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
+      // convert the customNodes object into an array of custom images with counts
+      const customImages: { image: CustomImage; count: number }[] = [];
+      Object.entries(customNodes)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .filter(([_, count]) => count > 0)
+        .forEach(([id, count]) => {
+          const image = settings.nodeImages.custom.find(i => i.id === id);
+          if (image) customImages.push({ image, count });
+        });
       const nextId = Math.max(0, ...getState().networks.map(n => n.id)) + 1;
-      const { name, lndNodes, clightningNodes, bitcoindNodes } = payload;
       const network = createNetwork({
         id: nextId,
         name,
@@ -178,7 +187,8 @@ const networkModel: NetworkModel = {
         clightningNodes,
         bitcoindNodes,
         repoState: dockerRepoState,
-        images: computedManagedImages,
+        managedImages: computedManagedImages,
+        customImages,
       });
       actions.add(network);
       const { networks } = getState();

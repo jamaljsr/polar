@@ -184,7 +184,8 @@ describe('DockerService', () => {
         clightningNodes: 0,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
-        images: testManagedImages,
+        managedImages: testManagedImages,
+        customImages: [],
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -204,7 +205,8 @@ describe('DockerService', () => {
         clightningNodes: 1,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
-        images: testManagedImages,
+        managedImages: testManagedImages,
+        customImages: [],
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -245,7 +247,8 @@ describe('DockerService', () => {
         clightningNodes: 1,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
-        images: testManagedImages,
+        managedImages: testManagedImages,
+        customImages: [],
       });
       const chart = initChartFromNetwork(net);
       net.path = 'ELECTRON_PATH[userData]/data/networks/1';
