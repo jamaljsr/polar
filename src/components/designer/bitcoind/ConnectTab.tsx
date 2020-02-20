@@ -37,6 +37,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   const details: DetailValues = [
     { label: l('rpcHost'), value: `http://127.0.0.1:${node.ports.rpc}` },
+    { label: l('zmqBlockHost'), value: `tcp://127.0.0.1:${node.ports.zmqBlock}` },
+    { label: l('zmqTxHost'), value: `tcp://127.0.0.1:${node.ports.zmqTx}` },
     { label: l('rpcUser'), value: bitcoinCredentials.user },
     { label: l('rpcPass'), value: bitcoinCredentials.pass },
   ].map(({ label, value }) => ({
