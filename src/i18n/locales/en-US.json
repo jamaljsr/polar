@@ -13,7 +13,7 @@
   "cmps.common.AdvancedOptionsButton.title": "Advanced Node Options",
   "cmps.common.AdvancedOptionsButton.btn": "Edit Options",
   "cmps.common.AdvancedOptionsModal.title": "Advanced Node Options",
-  "cmps.common.AdvancedOptionsModal.okBtn": "Ok",
+  "cmps.common.AdvancedOptionsModal.okBtn": "Save",
   "cmps.common.AdvancedOptionsModal.cancelBtn": "Cancel",
   "cmps.common.AdvancedOptionsModal.success": "Updated advanced options for {{name}}",
   "cmps.common.AdvancedOptionsModal.error": "Failed to update options",
