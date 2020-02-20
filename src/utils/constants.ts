@@ -45,6 +45,8 @@ export const denominationNames: { [key in Denomination]: string } = {
 export const BasePorts = {
   bitcoind: {
     rest: 18443,
+    zmqBlock: 28334,
+    zmqTx: 29335,
   },
   lnd: {
     rest: 8081,

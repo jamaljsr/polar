@@ -150,6 +150,7 @@ export const createBitcoindNetworkNode = (
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
+
   const name = `backend${id + 1}`;
   const node: BitcoinNode = {
     id,
@@ -160,7 +161,11 @@ export const createBitcoindNetworkNode = (
     version,
     peers: [],
     status,
-    ports: { rpc: BasePorts.bitcoind.rest + id },
+    ports: {
+      rpc: BasePorts.bitcoind.rest + id,
+      zmqBlock: BasePorts.bitcoind.zmqBlock + id,
+      zmqTx: BasePorts.bitcoind.zmqTx + id,
+    },
   };
 
   // peer up with the previous node on both sides
@@ -270,6 +275,8 @@ export interface OpenPorts {
     rpc?: number;
     grpc?: number;
     rest?: number;
+    zmqBlock?: number;
+    zmqTx?: number;
   };
 }
 
@@ -284,11 +291,33 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
   // filter out nodes that are already started since their ports are in use by themselves
   const bitcoin = network.nodes.bitcoin.filter(n => n.status !== Status.Started);
   if (bitcoin.length) {
-    const existingPorts = bitcoin.map(n => n.ports.rpc);
-    const openPorts = await getOpenPortRange(existingPorts);
+    let existingPorts = bitcoin.map(n => n.ports.rpc);
+    let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
         ports[bitcoin[index].name] = { rpc: port };
+      });
+    }
+
+    existingPorts = bitcoin.map(n => n.ports.zmqBlock);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[bitcoin[index].name] = {
+          ...(ports[bitcoin[index].name] || {}),
+          zmqBlock: port,
+        };
+      });
+    }
+
+    existingPorts = bitcoin.map(n => n.ports.zmqTx);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[bitcoin[index].name] = {
+          ...(ports[bitcoin[index].name] || {}),
+          zmqTx: port,
+        };
       });
     }
   }

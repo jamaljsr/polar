@@ -26,13 +26,53 @@ describe('Network Utils', () => {
       network = getNetwork();
     });
 
-    it('should update the port for bitcoin rpc', async () => {
+    it('should update the ports for bitcoind', async () => {
       mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
       network.nodes.lightning = [];
-      const port = network.nodes.bitcoin[0].ports.rpc;
+      const restPort = network.nodes.bitcoin[0].ports.rpc;
+      const zmqBlockPort = network.nodes.bitcoin[0].ports.zmqBlock;
+      const zmqTxPort = network.nodes.bitcoin[0].ports.zmqTx;
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
-      expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(port + 1);
+      expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
+    });
+
+    it('should update the rest port for bitcoind', async () => {
+      const portsInUse = [18443];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const restPort = network.nodes.bitcoin[0].ports.rpc;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
+    });
+
+    it('should update the zmq block port for bitcoind', async () => {
+      const portsInUse = [28334];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const zmqBlockPort = network.nodes.bitcoin[0].ports.zmqBlock;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
+    });
+
+    it('should update the zmq tx port for bitcoind', async () => {
+      const portsInUse = [29335];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const zmqTxPort = network.nodes.bitcoin[0].ports.zmqTx;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
     });
 
     it('should update the grpc ports for lightning nodes', async () => {

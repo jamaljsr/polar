@@ -11,6 +11,8 @@ export const bitcoind = (
   container: string,
   version: string,
   rpcPort: number,
+  zmqBlockPort: number,
+  zmqTxPort: number,
 ): ComposeService => ({
   image: `polarlightning/bitcoind:${version}`,
   container_name: container,
@@ -48,6 +50,8 @@ export const bitcoind = (
   ],
   ports: [
     `${rpcPort}:18443`, // RPC
+    `${zmqBlockPort}:28334`, // ZMQ blocks
+    `${zmqTxPort}:28335`, // ZMQ txns
   ],
 });
 
