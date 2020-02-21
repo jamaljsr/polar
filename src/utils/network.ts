@@ -103,6 +103,7 @@ export const createLndNetworkNode = (
     ports: {
       rest: BasePorts.lnd.rest + id,
       grpc: BasePorts.lnd.grpc + id,
+      p2p: BasePorts.lnd.p2p + id,
     },
   };
 };
@@ -139,6 +140,7 @@ export const createCLightningNetworkNode = (
     },
     ports: {
       rest: BasePorts.clightning.rest + id,
+      p2p: BasePorts.clightning.p2p + id,
     },
   };
 };
@@ -277,6 +279,7 @@ export interface OpenPorts {
     rest?: number;
     zmqBlock?: number;
     zmqTx?: number;
+    p2p?: number;
   };
 }
 
@@ -345,15 +348,37 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
         };
       });
     }
+
+    existingPorts = lnd.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[lnd[index].name] = {
+          ...(ports[lnd[index].name] || {}),
+          p2p: port,
+        };
+      });
+    }
   }
 
   clightning = clightning.filter(n => n.status !== Status.Started);
   if (clightning.length) {
-    const existingPorts = clightning.map(n => n.ports.rest);
-    const openPorts = await getOpenPortRange(existingPorts);
+    let existingPorts = clightning.map(n => n.ports.rest);
+    let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
         ports[clightning[index].name] = { rest: port };
+      });
+    }
+
+    existingPorts = clightning.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[clightning[index].name] = {
+          ...(ports[clightning[index].name] || {}),
+          p2p: port,
+        };
       });
     }
   }

@@ -33,6 +33,7 @@ export interface LndNode extends LightningNode {
   ports: {
     rest: number;
     grpc: number;
+    p2p: number;
   };
 }
 
@@ -42,6 +43,7 @@ export interface CLightningNode extends LightningNode {
   };
   ports: {
     rest: number;
+    p2p: number;
   };
 }
 

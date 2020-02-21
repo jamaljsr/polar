@@ -62,6 +62,7 @@ export const lnd = (
   backendName: string,
   restPort: number,
   grpcPort: number,
+  p2pPort: number,
 ): ComposeService => ({
   image: `polarlightning/lnd:${version}`,
   container_name: container,
@@ -99,6 +100,7 @@ export const lnd = (
   ports: [
     `${restPort}:8080`, // REST
     `${grpcPort}:10009`, // gRPC
+    `${p2pPort}:9735`, // p2p
   ],
 });
 
@@ -108,6 +110,7 @@ export const clightning = (
   version: string,
   backendName: string,
   restPort: number,
+  p2pPort: number,
 ): ComposeService => ({
   image: `polarlightning/clightning:${version}`,
   container_name: container,
@@ -143,5 +146,6 @@ export const clightning = (
   ],
   ports: [
     `${restPort}:8080`, // REST
+    `${p2pPort}:9735`, // p2p
   ],
 });

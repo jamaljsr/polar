@@ -17,6 +17,7 @@ describe('nodeTemplates', () => {
       'btcnode1',
       8080,
       10009,
+      9735,
     );
     expect(node.image).toContain('lnd');
     expect(node.container_name).toEqual('polar-mynode');
