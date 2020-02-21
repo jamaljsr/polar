@@ -37,6 +37,8 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "비트 코인이 온라인 상태가되기를 기다리는 중",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "노드에 연결할 수 없습니다",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPC 호스트",
+  "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQ Block Host",
+  "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQ Transaction Host",
   "cmps.designer.bitcoind.ConnectTab.rpcUser": "사용자 이름",
   "cmps.designer.bitcoind.ConnectTab.rpcPass": "암호",
   "cmps.designer.bitcoind.ConnectTab.apiDocs": "API 문서",
