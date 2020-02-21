@@ -37,6 +37,8 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "В ожидании выхода биткойн онлайн",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "Невозможно подключиться к узлу",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPC Host",
+  "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQ Block Host",
+  "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQ Transaction Host",
   "cmps.designer.bitcoind.ConnectTab.rpcUser": "имя пользователя",
   "cmps.designer.bitcoind.ConnectTab.rpcPass": "пароль",
   "cmps.designer.bitcoind.ConnectTab.apiDocs": "API Документы",
