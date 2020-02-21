@@ -7,10 +7,13 @@ import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import BitcoindDetails from './BitcoindDetails';
 
 describe('BitcoindDetails', () => {
-  const renderComponent = (status?: Status) => {
+  const renderComponent = (status?: Status, custom = false) => {
     const network = getNetwork(1, 'test network', status);
     if (status === Status.Error) {
       network.nodes.bitcoin.forEach(n => (n.errorMsg = 'test-error'));
+    }
+    if (custom) {
+      network.nodes.bitcoin[0].docker.image = 'custom:image';
     }
     const initialState = {
       network: {
@@ -48,6 +51,12 @@ describe('BitcoindDetails', () => {
       const { findByText, node } = renderComponent();
       expect(await findByText('Version')).toBeInTheDocument();
       expect(await findByText(`v${node.version}`)).toBeInTheDocument();
+    });
+
+    it('should display Docker Image', async () => {
+      const { findByText } = renderComponent(Status.Stopped, true);
+      expect(await findByText('Docker Image')).toBeInTheDocument();
+      expect(await findByText('custom:image')).toBeInTheDocument();
     });
 
     it('should display Status', async () => {

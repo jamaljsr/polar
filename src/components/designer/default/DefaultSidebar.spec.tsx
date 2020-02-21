@@ -3,6 +3,7 @@ import { REACT_FLOW_CHART } from '@mrblenny/react-flow-chart';
 import { createEvent, fireEvent } from '@testing-library/dom';
 import os from 'os';
 import { Status } from 'shared/types';
+import { CustomImage } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import {
@@ -31,13 +32,27 @@ const mockRepoService = injections.repoService as jest.Mocked<
 
 describe('DefaultSidebar Component', () => {
   const lndLatest = defaultRepoState.images.LND.latest;
+  const customImages: CustomImage[] = [
+    {
+      id: '123',
+      name: 'My Test Image',
+      implementation: 'c-lightning',
+      dockerImage: 'custom:image',
+      command: 'test-command',
+    },
+  ];
 
-  const renderComponent = (status?: Status) => {
+  const renderComponent = (status?: Status, images?: CustomImage[]) => {
     const network = getNetwork(1, 'test network', status);
     const chart = initChartFromNetwork(network);
     const initialState = {
       app: {
         dockerRepoState: defaultRepoState,
+        settings: {
+          nodeImages: {
+            custom: images || [],
+          },
+        },
       },
       network: {
         networks: [network],
@@ -92,6 +107,17 @@ describe('DefaultSidebar Component', () => {
     expect(queryByText('c-lightning')).not.toBeInTheDocument();
     fireEvent.click(getByRole('switch'));
     expect(getAllByText('latest')).toHaveLength(2);
+  });
+
+  it('should display custom images', () => {
+    const { getByText } = renderComponent(Status.Stopped, customImages);
+    expect(getByText(`My Test Image`)).toBeInTheDocument();
+  });
+
+  it('should not display incompatible custom images', () => {
+    mockOS.platform.mockReturnValue('win32');
+    const { queryByText } = renderComponent(Status.Stopped, customImages);
+    expect(queryByText(`My Test Image`)).not.toBeInTheDocument();
   });
 
   it('should display a draggable LND node', () => {
