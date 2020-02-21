@@ -37,6 +37,8 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "Warte auf Start von bitcoind",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "Verbindung zum Node nicht möglich",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPC Host",
+  "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQ Block Host",
+  "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQ Transaction Host",
   "cmps.designer.bitcoind.ConnectTab.rpcUser": "Benutzername",
   "cmps.designer.bitcoind.ConnectTab.rpcPass": "Passwort",
   "cmps.designer.bitcoind.ConnectTab.apiDocs": "API-Dokumentation",
