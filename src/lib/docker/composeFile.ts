@@ -49,22 +49,37 @@ class ComposeFile {
     const {
       name,
       version,
-      ports: { rest, grpc },
+      ports: { rest, grpc, p2p },
     } = node;
     const container = getContainerName(node);
     const backendName = getContainerName(backend);
-    this.content.services[name] = lnd(name, container, version, backendName, rest, grpc);
+    this.content.services[name] = lnd(
+      name,
+      container,
+      version,
+      backendName,
+      rest,
+      grpc,
+      p2p,
+    );
   }
 
   addClightning(node: CLightningNode, backend: CommonNode) {
     const {
       name,
       version,
-      ports: { rest },
+      ports: { rest, p2p },
     } = node;
     const container = getContainerName(node);
     const backendName = getContainerName(backend);
-    this.content.services[name] = clightning(name, container, version, backendName, rest);
+    this.content.services[name] = clightning(
+      name,
+      container,
+      version,
+      backendName,
+      rest,
+      p2p,
+    );
   }
 }
 

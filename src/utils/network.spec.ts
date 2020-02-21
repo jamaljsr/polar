@@ -49,6 +49,8 @@ describe('Network Utils', () => {
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
     });
 
     it('should update the zmq block port for bitcoind', async () => {
@@ -60,7 +62,9 @@ describe('Network Utils', () => {
       const zmqBlockPort = network.nodes.bitcoin[0].ports.zmqBlock;
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].rest).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
     });
 
     it('should update the zmq tx port for bitcoind', async () => {
@@ -72,6 +76,8 @@ describe('Network Utils', () => {
       const zmqTxPort = network.nodes.bitcoin[0].ports.zmqTx;
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].rest).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
     });
 
@@ -97,6 +103,19 @@ describe('Network Utils', () => {
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].rest).toBe(8082);
       expect(ports[network.nodes.lightning[2].name].rest).toBe(8083);
+    });
+
+    it('should update the p2p ports for lightning nodes', async () => {
+      const portsInUse = [9735, 9836, 9737];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.bitcoin = [];
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.lightning[0].name].p2p).toBe(9736);
+      expect(ports[network.nodes.lightning[1].name].p2p).toBe(9837);
+      expect(ports[network.nodes.lightning[2].name].p2p).toBe(9738);
     });
 
     it('should not update ports if none are in use', async () => {

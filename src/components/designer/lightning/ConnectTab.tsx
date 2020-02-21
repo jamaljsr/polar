@@ -40,6 +40,7 @@ export interface ConnectionInfo {
     readOnly?: string;
     cert?: string;
   };
+  p2pUriExternal: string;
 }
 
 interface Props {
@@ -51,8 +52,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const [authType, setAuthType] = useState<string>('paths');
   const { openInBrowser } = useStoreActions(s => s.app);
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
+  const pubkey = nodeState && nodeState.info ? nodeState.info.pubkey : '';
+  const p2pLnUrlInternal = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
 
-  const lnUrl = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
   const info = useMemo((): ConnectionInfo => {
     if (node.status === Status.Started) {
       if (node.implementation === 'LND') {
@@ -67,6 +69,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             readOnly: lnd.paths.readonlyMacaroon,
             cert: lnd.paths.tlsCert,
           },
+          p2pUriExternal: `${pubkey}@127.0.0.1:${lnd.ports.p2p}`,
         };
       } else if (node.implementation === 'c-lightning') {
         const cln = node as CLightningNode;
@@ -76,6 +79,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           credentials: {
             admin: cln.paths.macaroon,
           },
+          p2pUriExternal: `${pubkey}@127.0.0.1:${cln.ports.p2p}`,
         };
       }
     }
@@ -85,7 +89,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       restDocsUrl: '',
       credentials: {},
     } as ConnectionInfo;
-  }, [node]);
+  }, [node, pubkey]);
 
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;
@@ -95,7 +99,12 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const hosts: DetailValues = [
     [l('grpcHost'), grpcUrl, grpcUrl],
     [l('restHost'), restUrl, restUrl],
-    [l('p2pLnUrl'), lnUrl, ellipseInner(lnUrl, 3, 19)],
+    [l('p2pLnUrlInternal'), info.p2pUriExternal, ellipseInner(p2pLnUrlInternal, 3, 17)],
+    [
+      l('p2pLnUrlExternal'),
+      info.p2pUriExternal,
+      ellipseInner(info.p2pUriExternal, 3, 17),
+    ],
   ]
     .filter(h => !!h[1]) // exclude empty values
     .map(([label, value, text]) => ({

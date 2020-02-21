@@ -51,9 +51,11 @@ export const BasePorts = {
   lnd: {
     rest: 8081,
     grpc: 10001,
+    p2p: 9735,
   },
   clightning: {
     rest: 8181,
+    p2p: 9835,
   },
 };
 
