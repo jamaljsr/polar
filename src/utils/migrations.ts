@@ -81,6 +81,10 @@ const v030 = (file: NetworksFile): NetworksFile => {
         debug(`${pre} set docker details for ${node.implementation} node ${node.name}`);
         node.docker = { image: '', command: '' };
       }
+      // the p2p ports were added to bitcoin nodes in PR #301
+      if (!node.ports.p2p)
+        node.ports.p2p =
+          node.implementation === 'LND' ? BasePorts.lnd.p2p : BasePorts.clightning.p2p;
     });
   });
 
