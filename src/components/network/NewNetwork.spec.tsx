@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, waitForDomChange } from '@testing-library/react';
 import os from 'os';
+import { CustomImage } from 'types';
 import { renderWithProviders, suppressConsoleErrors } from 'utils/tests';
 import { HOME, NETWORK_VIEW } from 'components/routing';
 import NewNetwork from './NewNetwork';
@@ -10,8 +11,26 @@ jest.mock('os');
 const mockOS = os as jest.Mocked<typeof os>;
 
 describe('NewNetwork component', () => {
-  const renderComponent = () => {
-    const result = renderWithProviders(<NewNetwork />);
+  const customImages: CustomImage[] = [
+    {
+      id: '123',
+      name: 'My Test Image',
+      implementation: 'c-lightning',
+      dockerImage: 'custom:image',
+      command: 'test-command',
+    },
+  ];
+  const renderComponent = (withCustom = false) => {
+    const initialState = {
+      app: {
+        settings: {
+          nodeImages: {
+            custom: withCustom ? customImages : [],
+          },
+        },
+      },
+    };
+    const result = renderWithProviders(<NewNetwork />, { initialState });
     return {
       ...result,
       createBtn: result.getAllByText('Create Network')[0].parentElement as Element,
@@ -46,10 +65,16 @@ describe('NewNetwork component', () => {
 
   it('should have the correct default nodes', () => {
     mockOS.platform.mockReturnValue('darwin');
-    const { getByLabelText } = renderComponent();
+    const { getByLabelText, queryByText } = renderComponent();
     expect(getByLabelText('LND')).toHaveValue('2');
     expect(getByLabelText('c-lightning')).toHaveValue('1');
     expect(getByLabelText('Bitcoin Core')).toHaveValue('1');
+    expect(queryByText('My Test Image')).not.toBeInTheDocument();
+  });
+
+  it('should display custom nodes', () => {
+    const { getByLabelText } = renderComponent(true);
+    expect(getByLabelText('My Test Image')).toHaveValue('0');
   });
 
   it('should disable c-lightning input on Windows', () => {

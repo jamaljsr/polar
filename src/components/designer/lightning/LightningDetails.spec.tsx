@@ -19,7 +19,7 @@ describe('LightningDetails', () => {
   let network: Network;
   let node: LightningNode;
 
-  const renderComponent = (status?: Status) => {
+  const renderComponent = (status?: Status, custom = false) => {
     if (status !== undefined) {
       network.status = status;
       network.nodes.bitcoin.forEach(n => (n.status = status));
@@ -27,6 +27,9 @@ describe('LightningDetails', () => {
         n.status = status;
         n.errorMsg = status === Status.Error ? 'test-error' : undefined;
       });
+    }
+    if (custom) {
+      network.nodes.lightning[0].docker.image = 'custom:image';
     }
     const initialState = {
       network: {
@@ -68,6 +71,12 @@ describe('LightningDetails', () => {
       const { findByText, node } = renderComponent();
       expect(await findByText('Version')).toBeInTheDocument();
       expect(await findByText(`v${node.version}`)).toBeInTheDocument();
+    });
+
+    it('should display Docker Image', async () => {
+      const { findByText } = renderComponent(Status.Stopped, true);
+      expect(await findByText('Docker Image')).toBeInTheDocument();
+      expect(await findByText('custom:image')).toBeInTheDocument();
     });
 
     it('should display Status', async () => {
