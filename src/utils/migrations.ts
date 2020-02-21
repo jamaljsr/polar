@@ -3,7 +3,7 @@ import { join } from 'path';
 import { LndNode } from 'shared/types';
 import { NetworksFile } from 'types';
 import { networksPath } from './config';
-import { APP_VERSION } from './constants';
+import { APP_VERSION, BasePorts } from './constants';
 import { getLndFilePaths } from './network';
 
 const v020 = (file: NetworksFile): NetworksFile => {
@@ -63,19 +63,20 @@ const v020 = (file: NetworksFile): NetworksFile => {
 const v030 = (file: NetworksFile): NetworksFile => {
   debug('Applying v0.3.0 migrations');
 
-  /**
-   * the docker property was added to bitcoin and lightning
-   * nodes to save a custom startup command
-   */
   file.networks.forEach(network => {
     const pre = `[${network.id}] ${network.name}:`;
     network.nodes.bitcoin.forEach(node => {
+      // the docker property was added to bitcoin nodes to save a custom startup command
       if (!node.docker) {
         debug(`${pre} set docker details for Bitcoin node ${node.name}`);
         node.docker = { image: '', command: '' };
       }
+      // the zmq ports were added to bitcoin nodes in PR #297
+      if (!node.ports.zmqBlock) node.ports.zmqBlock = BasePorts.bitcoind.zmqBlock;
+      if (!node.ports.zmqTx) node.ports.zmqTx = BasePorts.bitcoind.zmqTx;
     });
     network.nodes.lightning.forEach(node => {
+      // the docker property was added to lightning nodes to save a custom startup command
       if (!node.docker) {
         debug(`${pre} set docker details for ${node.implementation} node ${node.name}`);
         node.docker = { image: '', command: '' };
