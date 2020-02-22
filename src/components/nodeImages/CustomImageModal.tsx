@@ -22,11 +22,11 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
   const isEditing = !!image.id;
 
   // get an updated list of docker images in case it's changed since launching the app
-  useAsync(async () => {
+  const fetchImagesAsync = useAsync(async () => {
     try {
       await getDockerImages();
     } catch (error) {
-      notify({ message: l('saveError'), error });
+      notify({ message: l('loadImagesError'), error });
     }
   }, [image]);
 
@@ -65,7 +65,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
       onOk={form.submit}
       okText={l('okBtn')}
       okButtonProps={{
-        loading: saveAsync.loading,
+        loading: fetchImagesAsync.loading || saveAsync.loading,
       }}
     >
       <Form

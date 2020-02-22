@@ -1,5 +1,5 @@
 import { Status } from 'shared/types';
-import { ManagedImage, Network } from 'types';
+import { CustomImage, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from '../network';
 
@@ -13,7 +13,24 @@ export const testManagedImages: ManagedImage[] = [
   {
     implementation: 'bitcoind',
     version: defaultRepoState.images.bitcoind.latest,
-    command: '',
+    command: 'test-bitcoind-command',
+  },
+];
+
+export const testCustomImages: CustomImage[] = [
+  {
+    id: '123',
+    name: 'My Custom Image',
+    implementation: 'LND',
+    dockerImage: 'lnd:master',
+    command: 'test-command',
+  },
+  {
+    id: '456',
+    name: 'Another Custom Image',
+    implementation: 'c-lightning',
+    dockerImage: 'my-clightning:latest',
+    command: 'another-command',
   },
 ];
 

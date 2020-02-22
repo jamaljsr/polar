@@ -54,9 +54,9 @@ const CustomImagesTable: React.FC<Props> = ({ images }) => {
 
   let modal: any;
   const showRemoveModal = (image: CustomImageView) => {
-    const { dockerImage } = image;
+    const { name } = image;
     modal = Modal.confirm({
-      title: l('confirmTitle', { dockerImage }),
+      title: l('confirmTitle', { name }),
       content: l('confirmText'),
       okText: l('confirmBtn'),
       okType: 'danger',
@@ -64,7 +64,7 @@ const CustomImagesTable: React.FC<Props> = ({ images }) => {
       onOk: async () => {
         try {
           await removeCustomImage(image);
-          notify({ message: l('success', { dockerImage }) });
+          notify({ message: l('success', { name }) });
         } catch (error) {
           notify({ message: l('error'), error });
           throw error;
