@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
 import { createBitcoindNetworkNode } from 'utils/network';
-import { getNetwork } from 'utils/tests';
+import { getNetwork, testNodeDocker } from 'utils/tests';
 import bitcoindService from './bitcoindService';
 
 jest.mock('bitcoin-core');
@@ -9,7 +9,9 @@ const mockBitcoin = (BitcoinCore as unknown) as jest.Mock<BitcoinCore>;
 
 describe('BitcoindService', () => {
   const network = getNetwork();
-  network.nodes.bitcoin.push(createBitcoindNetworkNode(network, '0.18.1'));
+  network.nodes.bitcoin.push(
+    createBitcoindNetworkNode(network, '0.18.1', testNodeDocker),
+  );
   const node = network.nodes.bitcoin[0];
   const mockProto = BitcoinCore.prototype;
   // helper func to get the first instance created during the test

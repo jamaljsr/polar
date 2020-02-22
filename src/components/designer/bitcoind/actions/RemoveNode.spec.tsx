@@ -11,6 +11,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
+  testNodeDocker,
 } from 'utils/tests';
 import RemoveNode from './RemoveNode';
 
@@ -24,7 +25,9 @@ describe('RemoveNode', () => {
       network.nodes.lightning.forEach(n => (n.errorMsg = 'test-error'));
     }
     const btcLatest = defaultRepoState.images.bitcoind.latest;
-    network.nodes.bitcoin.push(createBitcoindNetworkNode(network, btcLatest));
+    network.nodes.bitcoin.push(
+      createBitcoindNetworkNode(network, btcLatest, testNodeDocker),
+    );
     const initialState = {
       network: {
         networks: [network],

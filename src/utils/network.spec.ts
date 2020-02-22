@@ -1,12 +1,30 @@
 import detectPort from 'detect-port';
-import { LndNode, Status } from 'shared/types';
+import { LndNode, NodeImplementation, Status } from 'shared/types';
 import { Network } from 'types';
-import { getOpenPortRange, getOpenPorts, OpenPorts } from './network';
-import { getNetwork } from './tests';
+import { defaultRepoState } from './constants';
+import { getImageCommand, getOpenPortRange, getOpenPorts, OpenPorts } from './network';
+import { getNetwork, testManagedImages } from './tests';
 
 const mockDetectPort = detectPort as jest.Mock;
 
 describe('Network Utils', () => {
+  describe('getImageCommand', () => {
+    it('should return the commands for managed images', () => {
+      // create images with the commands set to their implementation
+      const images = testManagedImages.map(i => ({ ...i, command: i.implementation }));
+      const impls: NodeImplementation[] = ['LND', 'c-lightning', 'bitcoind'];
+      impls.forEach(impl => {
+        expect(getImageCommand(images, impl, defaultRepoState.images[impl].latest)).toBe(
+          impl,
+        );
+      });
+    });
+
+    it('should thrown an error if the image was not found', () => {
+      expect(() => getImageCommand(testManagedImages, 'LND', 'invalid')).toThrow();
+    });
+  });
+
   describe('getOpenPortRange', () => {
     beforeEach(() => {
       let port = 10003;

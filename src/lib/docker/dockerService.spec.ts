@@ -4,6 +4,7 @@ import { join } from 'path';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
+import { LndNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -251,11 +252,28 @@ describe('DockerService', () => {
         customImages: [],
       });
       const chart = initChartFromNetwork(net);
+      // added in v0.2.0
       net.path = 'ELECTRON_PATH[userData]/data/networks/1';
       delete net.nodes.bitcoin[0].peers;
       const { name } = net.nodes.bitcoin[0];
       delete chart.nodes[name].ports['peer-left'];
       delete chart.nodes[name].ports['peer-right'];
+      net.nodes.lightning.forEach(n => {
+        if (n.implementation === 'LND') {
+          (n as LndNode).paths.tlsCert = `ELECTRON_PATH[userData]/data/networks/1/volumes/lnd/${n.name}/tls.cert`;
+        }
+      });
+      // added in v0.3.0
+      net.nodes.bitcoin.forEach(n => {
+        delete n.docker;
+        delete n.ports.zmqBlock;
+        delete n.ports.zmqTx;
+      });
+      net.nodes.lightning.forEach(n => {
+        delete n.docker;
+        delete n.ports.p2p;
+      });
+
       const fileData: NetworksFile = {
         version: '0.0.0',
         networks: [net],
@@ -264,6 +282,28 @@ describe('DockerService', () => {
         },
       };
       return JSON.stringify(fileData);
+    };
+
+    const createCurrentNetworksFile = () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 2,
+        clightningNodes: 1,
+        bitcoindNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+      });
+      const chart = initChartFromNetwork(net);
+      const fileData: NetworksFile = {
+        version: `${APP_VERSION}`,
+        networks: [net],
+        charts: {
+          [network.id]: chart,
+        },
+      };
+      return fileData;
     };
 
     it('should load the list of networks from disk', async () => {
@@ -300,12 +340,42 @@ describe('DockerService', () => {
       filesMock.read.mockResolvedValue(createLegacyNetworksFile());
       const { networks, charts, version } = await dockerService.loadNetworks();
       expect(version).toEqual(APP_VERSION);
+      // v0.2.0
       expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
       const btcNode = networks[0].nodes.bitcoin[0];
       expect(btcNode.peers).toEqual([]);
       const chart = charts[networks[0].id];
       expect(chart.nodes[btcNode.name].ports['peer-left']).toBeDefined();
       expect(chart.nodes[btcNode.name].ports['peer-right']).toBeDefined();
+      // v0.3.0
+      expect(btcNode.docker).toBeDefined();
+      expect(btcNode.ports.zmqBlock).toBeDefined();
+      expect(btcNode.ports.zmqTx).toBeDefined();
+      networks[0].nodes.lightning.forEach(n => {
+        expect(n.docker).toBeDefined();
+        expect(n.ports.p2p).toBeDefined();
+      });
+    });
+
+    it('should not modify a current network if migrated', async () => {
+      const file = createCurrentNetworksFile();
+      file.version = '0.0.0'; // induce a migration to run
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(JSON.stringify(file));
+      const { networks, charts, version } = await dockerService.loadNetworks();
+      expect(version).toEqual(APP_VERSION);
+      expect(networks).toEqual(file.networks);
+      expect(charts).toEqual(file.charts);
+    });
+
+    it('should not throw an error if migration fails', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      const file = JSON.parse(createLegacyNetworksFile());
+      file.networks[0] = 'a string instead of a network'; // induce migration error
+      const json = JSON.stringify(file);
+      filesMock.read.mockResolvedValue(json);
+      const { version } = await dockerService.loadNetworks();
+      expect(version).toEqual('0.0.0');
     });
   });
 

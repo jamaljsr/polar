@@ -18,16 +18,12 @@ describe('DockerImageInput', () => {
     };
   };
 
-  it('should display the label and input', () => {
-    const { getByText, getByLabelText } = renderComponent();
-    expect(getByText('Docker Image')).toBeInTheDocument();
-    expect(getByLabelText('Docker Image')).toBeInTheDocument();
-    expect(getByLabelText('Docker Image')).toBeInstanceOf(HTMLInputElement);
-  });
-
   it('should filter images based on search text', async () => {
-    const { getAllByText, queryAllByText, getByLabelText } = renderComponent();
+    const { getByText, getAllByText, queryAllByText, getByLabelText } = renderComponent();
+    expect(getByText('Docker Image')).toBeInTheDocument();
+    expect(getByLabelText('Docker Image')).toBeInstanceOf(HTMLInputElement);
     const input = getByLabelText('Docker Image') as HTMLInputElement;
+    input.focus();
     fireEvent.change(input, { target: { value: 'a' } });
     expect(getAllByText('aaa')).toHaveLength(2);
     expect(queryAllByText('bbb')).toHaveLength(0);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AutoComplete, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreState } from 'store';
@@ -14,9 +14,9 @@ const DockerImageInput: React.FC<Props> = ({ name, label, disabled }) => {
   const { l } = usePrefixedTranslation('cmps.common.form.DockerImageInput');
 
   const { dockerImages } = useStoreState(s => s.app);
-  const images = dockerImages
-    .filter(i => !i.startsWith(DOCKER_REPO))
-    .map(i => ({ value: i }));
+  const images = useMemo(() => {
+    return dockerImages.filter(i => !i.startsWith(DOCKER_REPO)).map(i => ({ value: i }));
+  }, [dockerImages]);
   const [options, setOptions] = useState<{ value: string }[]>([]);
 
   const handleSearch = (text: string) => {

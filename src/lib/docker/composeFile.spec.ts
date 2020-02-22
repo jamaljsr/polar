@@ -1,4 +1,5 @@
-import { LndNode } from 'shared/types';
+import { CLightningNode, LndNode } from 'shared/types';
+import { bitcoinCredentials } from 'utils/constants';
 import { getNetwork } from 'utils/tests';
 import ComposeFile from './composeFile';
 
@@ -7,6 +8,7 @@ describe('ComposeFile', () => {
   const network = getNetwork();
   const btcNode = network.nodes.bitcoin[0];
   const lndNode = network.nodes.lightning[0] as LndNode;
+  const clnNode = network.nodes.lightning[1] as CLightningNode;
 
   beforeEach(() => {
     composeFile = new ComposeFile();
@@ -36,7 +38,16 @@ describe('ComposeFile', () => {
     const service = composeFile.content.services['backend1'];
     expect(service.image).toContain('bitcoind');
     expect(service.container_name).toEqual('polar-n1-backend1');
+    expect(service.command).toContain(bitcoinCredentials.user);
     expect(service.volumes[0]).toContain('/backend1:');
+  });
+
+  it('should use the bitcoind nodes docker data', () => {
+    btcNode.docker = { image: 'my-image', command: 'my-command' };
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['backend1'];
+    expect(service.image).toBe('my-image');
+    expect(service.command).toBe('my-command');
   });
 
   it('should add an lnd config', () => {
@@ -51,5 +62,35 @@ describe('ComposeFile', () => {
     expect(service.container_name).toEqual('polar-n1-alice');
     expect(service.command).toContain('backend');
     expect(service.volumes[0]).toContain('/alice:');
+  });
+
+  it('should use the lnd nodes docker data', () => {
+    lndNode.docker = { image: 'my-image', command: 'my-command' };
+    composeFile.addLnd(lndNode, btcNode);
+    const service = composeFile.content.services['alice'];
+    expect(service.image).toBe('my-image');
+    expect(service.command).toBe('my-command');
+  });
+
+  it('should add an c-lightning config', () => {
+    composeFile.addClightning(clnNode, btcNode);
+    expect(composeFile.content.services['bob']).not.toBeUndefined();
+  });
+
+  it('should create the correct c-lightning docker compose values', () => {
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.image).toContain('clightning');
+    expect(service.container_name).toEqual('polar-n1-bob');
+    expect(service.command).toContain('backend');
+    expect(service.volumes[0]).toContain('/bob/lightningd:');
+  });
+
+  it('should use the c-lightning nodes docker data', () => {
+    clnNode.docker = { image: 'my-image', command: 'my-command' };
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.image).toBe('my-image');
+    expect(service.command).toBe('my-command');
   });
 });

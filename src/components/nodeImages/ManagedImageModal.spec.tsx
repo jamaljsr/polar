@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, wait } from '@testing-library/react';
+import { ManagedImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { renderWithProviders, testManagedImages } from 'utils/tests';
 import ManagedImageModal from './ManagedImageModal';
@@ -9,7 +10,11 @@ describe('ManagedImageModal Component', () => {
 
   const renderComponent = () => {
     const nodeImages = {
-      managed: testManagedImages,
+      managed: [
+        ...testManagedImages,
+        // add a dummy image
+        { implementation: 'LND', version: 'test', command: 'test-lnd-command' },
+      ] as ManagedImage[],
     };
     const initialState = {
       app: {
@@ -19,7 +24,7 @@ describe('ManagedImageModal Component', () => {
       },
     };
 
-    const image = nodeImages.managed[2];
+    const image = nodeImages.managed[3];
     const result = renderWithProviders(
       <ManagedImageModal image={image} onClose={onClose} />,
       { initialState },
@@ -71,7 +76,7 @@ describe('ManagedImageModal Component', () => {
     fireEvent.change(getByLabelText('Command'), { target: { value: 'a' } });
     fireEvent.click(getByText('Save'));
     await wait(() => {
-      expect(store.getState().app.settings.nodeImages.managed[2].command).toBe('a');
+      expect(store.getState().app.settings.nodeImages.managed[3].command).toBe('a');
     });
     expect(onClose).toHaveBeenCalled();
   });
@@ -80,7 +85,7 @@ describe('ManagedImageModal Component', () => {
     const { getByText, store } = renderComponent();
     fireEvent.click(getByText('Reset to Default'));
     await wait(() => {
-      expect(store.getState().app.settings.nodeImages.managed[2]).toBeUndefined();
+      expect(store.getState().app.settings.nodeImages.managed[3]).toBeUndefined();
     });
     expect(onClose).toHaveBeenCalled();
   });

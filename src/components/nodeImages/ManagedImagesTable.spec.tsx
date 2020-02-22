@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
 import os from 'os';
+import { ManagedImage } from 'types';
 import { DOCKER_REPO } from 'utils/constants';
 import { injections, renderWithProviders, testManagedImages } from 'utils/tests';
 import ManagedImagesTable from './ManagedImagesTable';
@@ -15,7 +16,11 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<
 describe('ManagedImagesTable Component', () => {
   const renderComponent = () => {
     const nodeImages = {
-      managed: testManagedImages,
+      managed: [
+        ...testManagedImages,
+        // add a dummy image
+        { implementation: 'eclair', version: 'test', command: 'test-lnd-command' },
+      ] as ManagedImage[],
     };
     const initialState = {
       app: {
@@ -51,6 +56,11 @@ describe('ManagedImagesTable Component', () => {
     expect(getAllByText('polarlightning/lnd')).toHaveLength(1);
     expect(getAllByText('polarlightning/clightning')).toHaveLength(1);
     expect(getAllByText('polarlightning/bitcoind')).toHaveLength(1);
+  });
+
+  it('should display the custom command', () => {
+    const { getByText } = renderComponent();
+    expect(getByText('test-lnd-command')).toBeInTheDocument();
   });
 
   it('should not display incompatible managed images', () => {

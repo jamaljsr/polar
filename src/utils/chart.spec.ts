@@ -1,7 +1,12 @@
 import { IChart, IConfig } from '@mrblenny/react-flow-chart';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
-import { defaultStateChannel, defaultStateInfo, getNetwork } from 'utils/tests';
+import {
+  defaultStateChannel,
+  defaultStateInfo,
+  getNetwork,
+  testNodeDocker,
+} from 'utils/tests';
 import { initChartFromNetwork, snap, updateChartFromNodes } from './chart';
 import { createBitcoindNetworkNode } from './network';
 
@@ -113,7 +118,9 @@ describe('Chart Util', () => {
     });
 
     it('should not create bitcoin link without a peer', () => {
-      network.nodes.bitcoin.push(createBitcoindNetworkNode(network, '0.19.0.1'));
+      network.nodes.bitcoin.push(
+        createBitcoindNetworkNode(network, '0.19.0.1', testNodeDocker),
+      );
       chart = initChartFromNetwork(network);
       expect(chart.links['backend1-backend2']).toBeDefined();
       network.nodes.bitcoin[1].peers = [];
