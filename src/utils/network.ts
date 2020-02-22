@@ -41,7 +41,7 @@ const groupNodes = (network: Network) => {
   };
 };
 
-const getImageCommand = (
+export const getImageCommand = (
   images: ManagedImage[],
   implementation: NodeImplementation,
   version: string,
@@ -100,7 +100,7 @@ export const createLndNetworkNode = (
   network: Network,
   version: string,
   compatibility: DockerRepoImage['compatibility'],
-  docker?: CommonNode['docker'],
+  docker: CommonNode['docker'],
   status = Status.Stopped,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
@@ -129,7 +129,7 @@ export const createLndNetworkNode = (
       grpc: BasePorts.lnd.grpc + id,
       p2p: BasePorts.lnd.p2p + id,
     },
-    docker: docker || { image: '', command: '' },
+    docker,
   };
 };
 
@@ -137,7 +137,7 @@ export const createCLightningNetworkNode = (
   network: Network,
   version: string,
   compatibility: DockerRepoImage['compatibility'],
-  docker?: CommonNode['docker'],
+  docker: CommonNode['docker'],
   status = Status.Stopped,
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
@@ -168,14 +168,14 @@ export const createCLightningNetworkNode = (
       rest: BasePorts.clightning.rest + id,
       p2p: BasePorts.clightning.p2p + id,
     },
-    docker: docker || { image: '', command: '' },
+    docker,
   };
 };
 
 export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
-  docker?: CommonNode['docker'],
+  docker: CommonNode['docker'],
   status = Status.Stopped,
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
@@ -196,7 +196,7 @@ export const createBitcoindNetworkNode = (
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
     },
-    docker: docker || { image: '', command: '' },
+    docker,
   };
 
   // peer up with the previous node on both sides

@@ -1,6 +1,7 @@
 import React from 'react';
 import fsExtra from 'fs-extra';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
+import { act } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -11,6 +12,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
+  testCustomImages,
 } from 'utils/tests';
 import NetworkView from './NetworkView';
 
@@ -143,27 +145,46 @@ describe('NetworkView Component', () => {
     expect(primaryBtn).toHaveTextContent('Starting');
   });
 
-  it('should display a message if the docker images are not downloaded', async () => {
-    const { getByText } = renderComponent('1');
-    expect(
-      getByText(
-        'Starting this network will take a bit longer than normal because it uses docker images that have not been downloaded yet.',
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it('should not display a message if the docker images are found', async () => {
-    const images = [
+  describe('missing images', () => {
+    const lndLatest = defaultRepoState.images.LND.latest;
+    const msg =
+      'Starting this network will take a bit longer than normal because it uses docker images that have not been downloaded yet.';
+    const pulledImages = [
       `polarlightning/lnd:${defaultRepoState.images.LND.latest}`,
       `polarlightning/clightning:${defaultRepoState.images['c-lightning'].latest}`,
       `polarlightning/bitcoind:${defaultRepoState.images.bitcoind.latest}`,
     ];
-    const { queryByText } = renderComponent('1', Status.Stopped, images);
-    expect(
-      queryByText(
-        'Starting this network will take a bit longer than normal because it uses docker images that have not been downloaded yet.',
-      ),
-    ).toBeNull();
+
+    it('should display a message if the docker images are not downloaded', async () => {
+      const { getByText } = renderComponent('1');
+      expect(getByText(msg)).toBeInTheDocument();
+    });
+
+    it('should not display a message if the docker images are found', async () => {
+      const { queryByText } = renderComponent('1', Status.Stopped, pulledImages);
+      expect(queryByText(msg)).toBeNull();
+    });
+
+    it('should display a message if a node is added', async () => {
+      const { getByText, queryByText, store } = renderComponent(
+        '1',
+        Status.Stopped,
+        pulledImages,
+      );
+      expect(queryByText(msg)).toBeNull();
+      await act(async () => {
+        const settings = {
+          nodeImages: {
+            managed: [],
+            custom: testCustomImages,
+          },
+        };
+        store.getActions().app.setSettings(settings);
+        const addArgs = { id: 1, type: 'LND', version: lndLatest, customId: '123' };
+        await store.getActions().network.addNode(addArgs);
+      });
+      expect(getByText(msg)).toBeInTheDocument();
+    });
   });
 
   describe('node state', () => {

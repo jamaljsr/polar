@@ -1,7 +1,9 @@
-import { Status } from 'shared/types';
+import { CommonNode, Status } from 'shared/types';
 import { CustomImage, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from '../network';
+
+export const testNodeDocker: CommonNode['docker'] = { image: '', command: '' };
 
 export const testManagedImages: ManagedImage[] = [
   { implementation: 'LND', version: defaultRepoState.images.LND.latest, command: '' },
@@ -13,7 +15,7 @@ export const testManagedImages: ManagedImage[] = [
   {
     implementation: 'bitcoind',
     version: defaultRepoState.images.bitcoind.latest,
-    command: 'test-bitcoind-command',
+    command: '',
   },
 ];
 

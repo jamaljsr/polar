@@ -1,12 +1,17 @@
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { Status } from 'shared/types';
-import { Network } from 'types';
+import { NodeImplementation, Status } from 'shared/types';
+import { CustomImage, Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import * as files from 'utils/files';
-import { getNetwork, injections, lightningServiceMock } from 'utils/tests';
+import {
+  getNetwork,
+  injections,
+  lightningServiceMock,
+  testCustomImages,
+} from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
@@ -147,6 +152,39 @@ describe('Network model', () => {
       expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
       expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
     });
+
+    it('should add a network with custom nodes', async () => {
+      const custom: CustomImage[] = [
+        ...testCustomImages,
+        {
+          id: '789',
+          name: 'Another Custom Image',
+          implementation: 'bitcoind',
+          dockerImage: 'my-bitcoind:latest',
+          command: 'another-command',
+        },
+      ];
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom,
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const args = {
+        ...addNetworkArgs,
+        customNodes: {
+          '123': 1, // LND
+          '456': 1, // c-lightning
+          '789': 1, // bitcoind
+          '999': 1, // invalid
+        },
+      };
+      await store.getActions().network.addNetwork(args);
+      const node = firstNetwork().nodes.lightning[0];
+      expect(node.docker.image).toBe(custom[0].dockerImage);
+      expect(node.docker.command).toBe(custom[0].command);
+    });
   });
 
   describe('Adding a Node', () => {
@@ -179,18 +217,126 @@ describe('Network model', () => {
 
     it('should throw an error if the network id is invalid', async () => {
       const payload = { id: 999, type: 'LND', version: lndLatest };
-      const { addNode: addLndNode } = store.getActions().network;
-      await expect(addLndNode(payload)).rejects.toThrow(
+      const { addNode } = store.getActions().network;
+      await expect(addNode(payload)).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
     });
 
     it('should throw an error if the node type is invalid', async () => {
       const payload = { id: firstNetwork().id, type: 'abcd', version: lndLatest };
-      const { addNode: addLndNode } = store.getActions().network;
-      await expect(addLndNode(payload)).rejects.toThrow(
+      const { addNode } = store.getActions().network;
+      await expect(addNode(payload)).rejects.toThrow(
         "Cannot add unknown node type 'abcd' to the network",
       );
+    });
+
+    it('should add a LND custom node', async () => {
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom: testCustomImages,
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = {
+        id: firstNetwork().id,
+        type: 'LND',
+        version: lndLatest,
+        customId: '123',
+      };
+      store.getActions().network.addNode(payload);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning[3].docker.image).toBe(testCustomImages[0].dockerImage);
+      expect(lightning[3].docker.command).toBe(testCustomImages[0].command);
+    });
+
+    it('should add a c-lightning custom node', async () => {
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom: testCustomImages,
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = {
+        id: firstNetwork().id,
+        type: 'c-lightning',
+        version: clnLatest,
+        customId: '456',
+      };
+      store.getActions().network.addNode(payload);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning[3].docker.image).toBe(testCustomImages[1].dockerImage);
+      expect(lightning[3].docker.command).toBe(testCustomImages[1].command);
+    });
+
+    it('should add a bitcoind custom node', async () => {
+      const customBitcoind = {
+        id: '789',
+        name: 'Another Custom Image',
+        implementation: 'bitcoind',
+        dockerImage: 'my-bitcoind:latest',
+        command: 'another-command',
+      };
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom: [customBitcoind] as CustomImage[],
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = {
+        id: firstNetwork().id,
+        type: 'bitcoind',
+        version: defaultRepoState.images.bitcoind.latest,
+        customId: '789',
+      };
+      store.getActions().network.addNode(payload);
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin[1].docker.image).toBe(customBitcoind.dockerImage);
+      expect(bitcoin[1].docker.command).toBe(customBitcoind.command);
+    });
+
+    it('should ignore an invalid custom node', async () => {
+      const invalidId = '999';
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom: testCustomImages,
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = {
+        id: firstNetwork().id,
+        type: 'LND',
+        version: lndLatest,
+        customId: invalidId,
+      };
+      store.getActions().network.addNode(payload);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning[3].docker.image).toBe('');
+      expect(lightning[3].docker.command).toBe('');
+    });
+
+    it('should add a managed node', async () => {
+      const settings = {
+        nodeImages: {
+          managed: [
+            {
+              implementation: 'LND' as NodeImplementation,
+              version: defaultRepoState.images.LND.latest,
+              command: 'test-command',
+            },
+          ],
+          custom: [],
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = { id: firstNetwork().id, type: 'LND', version: lndLatest };
+      store.getActions().network.addNode(payload);
+      const { lightning } = firstNetwork().nodes;
+      expect(lightning[3].docker.command).toBe('test-command');
     });
   });
 
@@ -641,6 +787,16 @@ describe('Network model', () => {
     it('should fail to remove with an invalid id', async () => {
       const { remove } = store.getActions().network;
       await expect(remove(10)).rejects.toThrow();
+    });
+
+    it('should fail to update advanced options with an invalid id', async () => {
+      const { addNetwork, updateAdvancedOptions } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 999,
+      };
+      await expect(updateAdvancedOptions({ node, command: '' })).rejects.toThrow();
     });
   });
 });

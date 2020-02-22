@@ -9,6 +9,7 @@ import {
   injections,
   renderWithProviders,
   suppressConsoleErrors,
+  testNodeDocker,
 } from 'utils/tests';
 import ChangeBackendModal from './ChangeBackendModal';
 
@@ -19,14 +20,19 @@ describe('ChangeBackendModal', () => {
     backendName = 'backend1',
   ) => {
     const network = getNetwork(1, 'test network', status);
-    const oldBitcoind = createBitcoindNetworkNode(network, '0.18.1', undefined, status);
+    const oldBitcoind = createBitcoindNetworkNode(
+      network,
+      '0.18.1',
+      testNodeDocker,
+      status,
+    );
     network.nodes.bitcoin.push(oldBitcoind);
     const { compatibility } = defaultRepoState.images.LND;
     const oldLnd = createLndNetworkNode(
       network,
       '0.7.1-beta',
       compatibility,
-      undefined,
+      testNodeDocker,
       status,
     );
     network.nodes.lightning.push(oldLnd);

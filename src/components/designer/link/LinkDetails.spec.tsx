@@ -1,13 +1,15 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { createBitcoindNetworkNode } from 'utils/network';
-import { getNetwork, renderWithProviders } from 'utils/tests';
+import { getNetwork, renderWithProviders, testNodeDocker } from 'utils/tests';
 import LinkDetails from './LinkDetails';
 
 describe('LinkDetails component', () => {
   const renderComponent = (from: string, to: string, properties: any) => {
     const network = getNetwork();
-    network.nodes.bitcoin.push(createBitcoindNetworkNode(network, '0.18.1'));
+    network.nodes.bitcoin.push(
+      createBitcoindNetworkNode(network, '0.18.1', testNodeDocker),
+    );
 
     const link: ILink = {
       id: 'asdf',
