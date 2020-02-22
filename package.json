@@ -64,7 +64,7 @@
     "@rescripts/cli": "0.0.13",
     "@rescripts/rescript-use-babel-config": "0.0.9",
     "@testing-library/jest-dom": "5.1.1",
-    "@testing-library/react": "9.4.0",
+    "@testing-library/react": "9.4.1",
     "@types/detect-port": "1.1.0",
     "@types/dockerode": "2.5.23",
     "@types/fs-extra": "8.1.0",
