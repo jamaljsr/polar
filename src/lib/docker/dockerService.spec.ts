@@ -53,11 +53,11 @@ describe('DockerService', () => {
 
   it('should populate UID/GID env vars when running on linux', async () => {
     mockOS.platform.mockReturnValue('linux');
-    mockOS.userInfo.mockReturnValue({ uid: 999, gid: 999 } as any);
+    mockOS.userInfo.mockReturnValue({ uid: '999', gid: '999' } as any);
     await dockerService.getVersions();
     expect(composeMock.version).toBeCalledWith(
       expect.objectContaining({
-        env: expect.objectContaining({ USERID: 999, GROUPID: 999 }),
+        env: expect.objectContaining({ USERID: '999', GROUPID: '999' }),
       }),
       undefined,
     );
