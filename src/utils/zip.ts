@@ -1,7 +1,7 @@
-import { error, info, warn } from 'electron-log';
+import { error, warn } from 'electron-log';
 import fs from 'fs';
 import { pathExists } from 'fs-extra';
-import { basename, join, resolve } from 'path';
+import { basename } from 'path';
 import archiver from 'archiver';
 import unzipper from 'unzipper';
 
@@ -55,49 +55,9 @@ const addStringToZip = (
   content: string,
   nameInArchive: string,
 ): void => {
-  try {
-    archive.append(content, { name: nameInArchive });
-  } catch (err) {
-    error(`Could not add ${nameInArchive} to zip: ${err}`);
-    throw err;
-  }
+  archive.append(content, { name: nameInArchive });
+  return;
 };
-
-/**
- * Adds a file to the given ZIP archive. We read the file into
- * memory and then append it to the ZIP archive. There appears
- * to be issues with using Archiver.js with Electron/Webpack,
- * so that's why we have to do it in a somewhat inefficient way.
- *
- * Related issues:
- *  * https://github.com/archiverjs/node-archiver/issues/349
- *  * https://github.com/archiverjs/node-archiver/issues/403
- *  * https://github.com/archiverjs/node-archiver/issues/174
- *
- * @param archive ZIP archive to add the file to
- * @param filePath file to add, absolute path
- * @param nameInArchive name of file in archive
- */
-const addFileToZip = async (
-  archive: archiver.Archiver,
-  filePath: string,
-  nameInArchive: string,
-) => {
-  return archive.append(await fs.promises.readFile(filePath), { name: nameInArchive });
-};
-
-// Generate a sequence of all regular files inside the given directory
-async function* getFiles(dir: string): AsyncGenerator<string> {
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const res = resolve(dir, entry.name);
-    if (entry.isDirectory()) {
-      yield* getFiles(res);
-    } else if (entry.isFile()) {
-      yield res;
-    }
-  }
-}
 
 /**
  * Add the given path to the archive. If it's a file we add it directly, it it is a directory
@@ -109,17 +69,9 @@ async function* getFiles(dir: string): AsyncGenerator<string> {
 const addFileOrDirectoryToZip = async (archive: archiver.Archiver, filePath: string) => {
   const isDir = await fs.promises.lstat(filePath).then(res => res.isDirectory());
   if (isDir) {
-    info('Adding directory to zip file:', filePath);
-    for await (const file of getFiles(filePath)) {
-      // a typical file might look like this:
-      //   /home/user/.polar/networks/1/volumes/bitcoind/backend1/regtest/mempool.dat
-      // after applying this transformation, we end up with:
-      //   volumes/bitcoind/backend1/regtest/mempool.dat
-      const nameInArchive = join(basename(filePath), file.slice(filePath.length));
-      await addFileToZip(archive, file, nameInArchive);
-    }
+    archive.directory(filePath, basename(filePath));
   } else {
-    return addFileToZip(archive, filePath, basename(filePath));
+    archive.file(filePath, { name: basename(filePath) });
   }
 };
 

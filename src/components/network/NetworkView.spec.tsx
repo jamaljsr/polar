@@ -1,6 +1,7 @@
 import React from 'react';
+import electron from 'electron';
 import fsExtra from 'fs-extra';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { act } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
@@ -11,6 +12,7 @@ import {
   injections,
   lightningServiceMock,
   renderWithProviders,
+  suppressConsoleErrors,
   testCustomImages,
 } from 'utils/tests';
 import NetworkView from './NetworkView';
@@ -22,6 +24,10 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 const dockerServiceMock = injections.dockerService as jest.Mocked<
   typeof injections.dockerService
 >;
+
+jest.mock('utils/zip', () => ({
+  zip: jest.fn(),
+}));
 
 describe('NetworkView Component', () => {
   const renderComponent = (
@@ -259,6 +265,52 @@ describe('NetworkView Component', () => {
     });
   });
 
+  describe('delete network', () => {
+    it('should show the confirm modal', async () => {
+      const { getByLabelText, getByText, findByText } = renderComponent('1');
+      fireEvent.mouseOver(getByLabelText('more'));
+      fireEvent.click(await findByText('Delete'));
+      expect(
+        getByText('Are you sure you want to delete this network?'),
+      ).toBeInTheDocument();
+      expect(getByText('Yes')).toBeInTheDocument();
+      expect(getByText('Cancel')).toBeInTheDocument();
+    });
+
+    it('should delete the network', async () => {
+      const { getByLabelText, getByText, findByText, network } = renderComponent(
+        '1',
+        Status.Started,
+      );
+      fireEvent.mouseOver(getByLabelText('more'));
+      fireEvent.click(await findByText('Delete'));
+      fireEvent.click(await findByText('Yes'));
+      // wait for the error notification to be displayed
+      await waitForElement(() => getByLabelText('check-circle'));
+      expect(
+        getByText("The network 'test network' and its data has been deleted!"),
+      ).toBeInTheDocument();
+      expect(fsMock.remove).toBeCalledWith(expect.stringContaining(network.path));
+    });
+
+    it('should display an error if the delete fails', async () => {
+      // antd Modal.confirm logs a console error when onOk fails
+      // this suppresses those errors from being displayed in test runs
+      await suppressConsoleErrors(async () => {
+        fsMock.remove = jest.fn().mockRejectedValue(new Error('cannot delete'));
+        const { getByLabelText, getByText, findByText, store } = renderComponent('1');
+        fireEvent.mouseOver(getByLabelText('more'));
+        fireEvent.click(await findByText('Delete'));
+        fireEvent.click(await findByText('Yes'));
+        // wait for the error notification to be displayed
+        await waitForElement(() => getByLabelText('close-circle'));
+        expect(getByText('cannot delete')).toBeInTheDocument();
+        expect(store.getState().network.networks).toHaveLength(1);
+        expect(store.getState().designer.allCharts[1]).toBeDefined();
+      });
+    });
+  });
+
   describe('export network', () => {
     beforeEach(jest.useFakeTimers);
     afterEach(jest.useRealTimers);
@@ -277,6 +329,33 @@ describe('NetworkView Component', () => {
       fireEvent.click(getByText('Export'));
       await wait(() => jest.runOnlyPendingTimers());
       expect(getByText('Cannot export a running network')).toBeInTheDocument();
+    });
+
+    it('should export a stopped network', async () => {
+      const { primaryBtn, getByText, getByLabelText } = renderComponent('1');
+      expect(primaryBtn).toHaveTextContent('Start');
+
+      fireEvent.mouseOver(getByLabelText('more'));
+      await wait(() => jest.runOnlyPendingTimers());
+
+      fireEvent.click(getByText('Export'));
+      await wait(() => jest.runOnlyPendingTimers());
+      expect(getByText("Exported 'test network'", { exact: false })).toBeInTheDocument();
+    });
+
+    it('should not export the network if the user closes the file save dialogue', async () => {
+      // returns undefined if user closes the window
+      electron.remote.dialog.showSaveDialog = jest.fn(() => ({})) as any;
+
+      const { primaryBtn, queryByText, getByText, getByLabelText } = renderComponent('1');
+      expect(primaryBtn).toHaveTextContent('Start');
+
+      fireEvent.mouseOver(getByLabelText('more'));
+      await wait(() => jest.runOnlyPendingTimers());
+
+      fireEvent.click(getByText('Export'));
+      await wait(() => jest.runOnlyPendingTimers());
+      expect(queryByText("Exported 'test network'", { exact: false })).toBeNull();
     });
   });
 });

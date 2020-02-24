@@ -4,4 +4,5 @@ module.exports = {
   readFile: jest.fn(),
   remove: jest.fn(),
   ensureDir: jest.fn(),
+  copyFile: jest.fn(),
 };

@@ -349,6 +349,10 @@ const sanitizeFileName = (name: string): string => {
   return withoutSpaces.replace(/[^0-9a-zA-Z-._]/g, '');
 };
 
+/** Creates a suitable file name for a Zip archive of the given network */
+export const zipNameForNetwork = (network: Network): string =>
+  `polar-${sanitizeFileName(network.name)}.zip`;
+
 /**
  * Archive the given network into a folder with the following content:
  *
@@ -362,7 +366,7 @@ const sanitizeFileName = (name: string): string => {
  * @return Path of created `.zip` file
  */
 export const zipNetwork = async (network: Network, chart: IChart): Promise<string> => {
-  const destination = join(tmpdir(), `polar-${sanitizeFileName(network.name)}.zip`);
+  const destination = join(tmpdir(), zipNameForNetwork(network));
 
   await zip({
     destination,
