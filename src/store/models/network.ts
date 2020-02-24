@@ -1,7 +1,7 @@
 import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
 import { copyFile, ensureDir } from 'fs-extra';
-import { basename, join } from 'path';
+import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
@@ -25,6 +25,7 @@ import {
   getOpenPorts,
   importNetworkFromZip,
   OpenPorts,
+  zipNameForNetwork,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -620,6 +621,19 @@ const networkModel: NetworkModel = {
   }),
 
   exportNetwork: thunk(async (_, network, { getStoreState }) => {
+    const options: SaveDialogOptions = {
+      title: 'title',
+      defaultPath: zipNameForNetwork(network),
+      properties: ['promptToCreate', 'createDirectory'],
+    } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
+    const { filePath: zipDestination } = await remote.dialog.showSaveDialog(options);
+
+    // user aborted dialog
+    if (!zipDestination) {
+      info('User aborted network export');
+      return;
+    }
+
     info('exporting network', network);
 
     const {
@@ -632,22 +646,11 @@ const networkModel: NetworkModel = {
 
     const zipped = await zipNetwork(network, allCharts[network.id]);
 
-    const options: SaveDialogOptions = {
-      title: 'title',
-      defaultPath: basename(zipped),
-      properties: ['promptToCreate', 'createDirectory'],
-    } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
-    const { filePath: zipDestination } = await remote.dialog.showSaveDialog(options);
-
-    // user aborted dialog
-    if (!zipDestination) {
-      return;
-    }
-
     await copyFile(zipped, zipDestination);
     info('exported network to', zipDestination);
     return zipDestination;
   }),
+
   importNetwork: thunk(async (_, path, { getStoreState, getStoreActions }) => {
     const {
       network: { networks },
@@ -656,7 +659,6 @@ const networkModel: NetworkModel = {
     const { network: networkActions } = getStoreActions();
     const { designer: designerActions } = getStoreActions();
 
-    console.log('func', importNetworkFromZip);
     const [newNetwork, chart] = await importNetworkFromZip(path, networks);
 
     networkActions.add(newNetwork);

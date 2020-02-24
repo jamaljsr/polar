@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { RouteComponentProps } from 'react-router';
 import { UploadOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Card, PageHeader, Upload } from 'antd';
+import { Card, PageHeader, Spin, Upload } from 'antd';
 import { RcFile } from 'antd/lib/upload';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
@@ -10,6 +11,11 @@ import { ThemeColors } from 'theme/colors';
 import { HOME } from 'components/routing';
 
 const Styled = {
+  Container: styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  `,
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
     border: 1px solid ${props => props.colors.border};
     border-radius: 2px;
@@ -17,80 +23,72 @@ const Styled = {
     margin-bottom: 10px;
     flex: 0;
   `,
-  ButtonContainer: styled.div`
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-evenly;
-
-    button {
-      width: 200px;
-    }
+  Card: styled(Card)`
+    flex: 1;
+  `,
+  Dragger: styled(Upload.Dragger)`
+    flex: 1;
   `,
 };
 
-const ImportNetwork: React.SFC = () => {
-  const [file, setFile] = useState<RcFile | undefined>();
+const ImportNetwork: React.FC<RouteComponentProps> = () => {
   const { navigateTo, notify } = useStoreActions(s => s.app);
   const { importNetwork } = useStoreActions(s => s.network);
   const { l } = usePrefixedTranslation('cmps.network.ImportNetwork');
+  const [importing, setImporting] = useState(false);
+
+  const doImportNetwork = (file: RcFile) => {
+    setImporting(true);
+
+    // we kick off the import promise, but don't wait for it
+    importNetwork(file.path)
+      .then(network => {
+        notify({ message: l('importSuccess', { name: network.name }) });
+        navigateTo(HOME);
+      })
+      .catch(error => {
+        notify({ message: l('importError', { file: file.name }), error });
+      })
+      .then(() => {
+        setImporting(false);
+      });
+
+    // return false to prevent the Upload.Dragger from sending the file somewhere
+    return false;
+  };
 
   const theme = useTheme();
   return (
-    <>
+    <Styled.Container>
       <Styled.PageHeader
         title={l('title')}
         colors={theme.pageHeader}
         onBack={() => navigateTo(HOME)}
       />
-      <Card>
-        <Upload.Dragger
-          fileList={file ? [file] : []}
+      <Styled.Card bodyStyle={{ height: '100%' }}>
+        <Styled.Dragger
+          // to not display a file in the upload dragger after the user has selected a zip
+          fileList={undefined}
           accept=".zip"
-          onRemove={async () => {
-            setFile(undefined);
-
-            // return false makes the operation stop. we don't want to actually
-            // interact with a server, just operate in memory
-            return false;
-          }}
-          beforeUpload={file => {
-            setFile(file);
-
-            // return false makes the upload stop. we don't want to actually
-            // upload this file anywhere, just store it in memory
-            return false;
-          }}
+          disabled={importing}
+          beforeUpload={doImportNetwork}
         >
-          <p className="ant-upload-drag-icon">
-            <UploadOutlined />
-          </p>
-          <p className="ant-upload-text">{l('fileDraggerArea')}</p>
-        </Upload.Dragger>
-        <Styled.ButtonContainer>
-          <Button onClick={() => setFile(undefined)} disabled={!file}>
-            {l('removeButton')}
-          </Button>
-          <Button
-            onClick={async () => {
-              try {
-                // if file is undefined, export button is disabled
-                // so we can be sure that this assertions is OK
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                await importNetwork(file!.path);
-                notify({ message: l('importSuccess') });
-                navigateTo(HOME);
-              } catch (error) {
-                notify({ message: '', error });
-              }
-            }}
-            type="primary"
-            disabled={!file}
-          >
-            {l('importButton')}
-          </Button>
-        </Styled.ButtonContainer>
-      </Card>
-    </>
+          {importing ? (
+            <>
+              <Spin size="large" />
+              <p>{l('importText')}</p>
+            </>
+          ) : (
+            <>
+              <p className="ant-upload-drag-icon">
+                <UploadOutlined />
+              </p>
+              <p className="ant-upload-text">{l('fileDraggerArea')}</p>
+            </>
+          )}
+        </Styled.Dragger>
+      </Styled.Card>
+    </Styled.Container>
   );
 };
 

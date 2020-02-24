@@ -8,6 +8,11 @@ module.exports = [
     config.resolve.alias['react-dom'] = '@hot-loader/react-dom';
     // https://github.com/websockets/ws/issues/1538#issuecomment-577627369
     config.resolve.alias['ws'] = path.resolve(path.join(__dirname, 'node_modules/ws/index.js' ))
+    // fix for archiver module with webpack
+    // See https://github.com/archiverjs/node-archiver/issues/403
+    config.externals = {
+      archiver: "require('archiver')",
+    };
     return config;
   },
   [

@@ -1,6 +1,5 @@
+import electron from 'electron';
 import * as log from 'electron-log';
-import { pathExists } from 'fs-extra';
-import { join } from 'path';
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
@@ -27,11 +26,24 @@ jest.mock('utils/files', () => ({
 }));
 
 jest.mock('utils/network', () => ({
-  importNetworkFromZip: jest.fn().mockImplementation(() => {
-    const tests = jest.requireActual('utils/tests');
-    const network = tests.getNetwork();
-    return [network, tests.initChartFromNetwork(network)];
-  }),
+  ...jest.requireActual('utils/network'),
+  importNetworkFromZip: () => {
+    return jest.fn().mockImplementation(() => {
+      const network = {
+        id: 1,
+        nodes: {
+          bitcoin: [{}],
+          lightning: [{}],
+        },
+      };
+      return [network, {}];
+    })();
+  },
+}));
+
+jest.mock('utils/zip', () => ({
+  zip: jest.fn(),
+  unzip: jest.fn(),
 }));
 
 const filesMock = files as jest.Mocked<typeof files>;
@@ -829,42 +841,49 @@ describe('Network model', () => {
   });
 
   describe('Export', () => {
-    let exportedZip: string | undefined;
-    afterEach(async () => {
-      if (!exportedZip) {
-        return;
-      }
-      await files.rm(exportedZip);
-    });
-
-    it('should export a network', async () => {
+    it('should export a network and show a save dialogue', async () => {
       const { network: networkActions } = store.getActions();
 
-      const network = getNetwork();
-      await networkActions.addNetwork({
-        name: 'test',
-        lndNodes: 1,
-        clightningNodes: 2,
-        bitcoindNodes: 1,
-      });
+      const spy = jest.spyOn(electron.remote.dialog, 'showSaveDialog');
 
-      exportedZip = await networkActions.exportNetwork(network);
-      expect(exportedZip).toBeDefined();
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const exists = await pathExists(exportedZip!);
-      expect(exists).toBeTruthy();
+      const exported = await networkActions.exportNetwork(getNetwork());
+      expect(exported).toBeDefined();
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should not export a network if the user closes the dialogue', async () => {
+      const mock = electron.remote.dialog.showSaveDialog as jest.MockedFunction<
+        typeof electron.remote.dialog.showSaveDialog
+      >;
+      // returns undefined if user closes the window
+      mock.mockImplementation(() => ({} as any));
+
+      const { network: networkActions } = store.getActions();
+      const exported = await networkActions.exportNetwork(getNetwork());
+      expect(exported).toBeUndefined();
     });
   });
 
-  describe.only('Import', () => {
+  describe('Import', () => {
     it('should import a network', async () => {
       const { network: networkActions } = store.getActions();
+      const statePreImport = store.getState();
 
-      const imported = await networkActions.importNetwork(
-        join(__dirname, '..', '..', 'utils', 'tests', 'resources', 'zipped-network.zip'),
+      const imported = await networkActions.importNetwork('zip');
+      expect(imported.id).toBeDefined();
+      expect(imported.nodes.bitcoin.length).toBeGreaterThan(0);
+      expect(imported.nodes.lightning.length).toBeGreaterThan(0);
+
+      const statePostImport = store.getState();
+
+      expect(statePostImport.network.networks.length).toEqual(
+        statePreImport.network.networks.length + 1,
       );
-      console.log(imported);
-      expect(true).toBe(false);
+
+      const numChartsPost = Object.keys(statePostImport.designer.allCharts).length;
+      const numChartsPre = Object.keys(statePreImport.designer.allCharts).length;
+      expect(numChartsPost).toEqual(numChartsPre + 1);
     });
   });
 });

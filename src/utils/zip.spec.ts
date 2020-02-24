@@ -1,11 +1,18 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import archiver from 'archiver';
 import { tmpdir } from 'os';
 import { unzip, zip } from './zip';
 
 jest.mock('fs-extra', () => jest.requireActual('fs-extra'));
 
 describe('unzip', () => {
+  it("fail to unzip something that isn't a zip", async () => {
+    return expect(
+      unzip(join(__dirname, 'tests', 'resources', 'bar.txt'), 'foobar'),
+    ).rejects.toThrow();
+  });
+
   it('unzips test.zip', async () => {
     const destination = join(tmpdir(), 'zip-test-' + Date.now());
     await unzip(join(__dirname, 'tests', 'resources', 'test.zip'), destination);
@@ -36,7 +43,7 @@ describe('unzip', () => {
     expect(bazEntries.map(e => e.name)).toContain('qux.ts');
 
     const qux = await fs.readFile(join(destination, 'baz', 'qux.ts'));
-    expect(qux.toString('utf-8')).toBe("console.log('qux');\n");
+    expect(qux.toString('utf-8')).toBe('console.log("qux");\n');
 
     const bar = await fs.readFile(join(destination, 'bar.txt'));
     expect(bar.toString('utf-8')).toBe('bar\n');
@@ -44,9 +51,13 @@ describe('unzip', () => {
     const foo = await fs.readFile(join(destination, 'foo.json'));
     expect(foo.toString('utf-8')).toBe(JSON.stringify({ foo: 2 }, null, 4) + '\n');
   });
+
+  it("fails to unzip something that doesn't exist", async () => {
+    return expect(unzip('foobar', 'bazfoo')).rejects.toThrow();
+  });
 });
 
-describe.only('zip', () => {
+describe('zip', () => {
   it('zips objects', async () => {
     const objects: Array<{ name: string; object: any }> = [
       {
