@@ -254,8 +254,8 @@ class DockerService implements DockerLibrary {
         // add user/group id's to env so that file permissions on the
         // docker volumes are set correctly. containers cannot write
         // to disk on linux if permissions aren't set correctly
-        USERID: uid,
-        GROUPID: gid,
+        USERID: `${uid}`,
+        GROUPID: `${gid}`,
       };
     }
 
