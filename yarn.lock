@@ -2565,10 +2565,10 @@
   resolved "https://registry.yarnpkg.com/@types/detect-port/-/detect-port-1.1.0.tgz#07075d264e2e5a432624b1e7ffc11379fe66be8a"
   integrity sha1-BwddJk4uWkMmJLHn/8ETef5mvoo=
 
-"@types/dockerode@2.5.23":
-  version "2.5.23"
-  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-2.5.23.tgz#bc67175e68b766fdee3c9f123dc1d486314dd3f2"
-  integrity sha512-Q9t0uUs8zaGwiVi1hUCwLDe9X47m+nhX2P22gS7Z2HyoVjK3BE9j2YcKNPLNM/ehjVCv85jPA8trBUjiTjpJfw==
+"@types/dockerode@2.5.24":
+  version "2.5.24"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-2.5.24.tgz#702fb8827b260ec28e2702d7e2848bf24ec1ff25"
+  integrity sha512-2iwkmqjc6viw40KnAcyLW1sp9mptb6CPARvpRQDAzKsf0y6dphK0qzgouLiI2gaoNB0iiumZGd2nduGypKk9Aw==
   dependencies:
     "@types/node" "*"
 
