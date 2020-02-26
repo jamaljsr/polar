@@ -33,7 +33,7 @@ Supported Network Node Versions:
 
 - LND v0.8.2, v0.8.0 & v0.7.1
 - Bitcoin Core v0.19.0.1 & v0.18.1
-- c-lightning v0.8.0
+- c-lightning v0.8.1 & v0.8.0
 - eclair (coming soon?) \*need to gauge demand for this implementation\*
 
 ## Dependencies

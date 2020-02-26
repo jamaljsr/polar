@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# give bitcoind a second to bootup
+sleep 1
+
 # containers on linux share file permissions with hosts.
 # assigning the same uid/gid from the host user
 # ensures that the files can be read/write from both sides

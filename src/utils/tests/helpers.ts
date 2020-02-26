@@ -23,6 +23,11 @@ export const mockProperty = <T extends {}, K extends keyof T>(
 };
 
 /**
+ * Poor man's deep clone. Useful for tests to avoid another dependency
+ */
+export const clone = (data: object) => JSON.parse(JSON.stringify(data));
+
+/**
  * Suppresses console errors when executing some code.
  * For example: antd Modal.confirm logs a console error when onOk fails
  * this suppresses those errors from being displayed in test runs

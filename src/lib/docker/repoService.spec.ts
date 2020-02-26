@@ -3,6 +3,7 @@ import { repoService } from 'lib/docker';
 import { DockerRepoState } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import * as files from 'utils/files';
+import { clone } from 'utils/tests';
 
 jest.mock('utils/files', () => ({
   write: jest.fn(),
@@ -17,7 +18,7 @@ describe('RepoService', () => {
     await repoService.save(defaultRepoState);
     expect(filesMock.write).toBeCalledWith(
       expect.stringContaining('nodes.json'),
-      expect.stringContaining('"version": 2'),
+      expect.stringContaining(`"version": ${defaultRepoState.version}`),
     );
   });
 
@@ -38,7 +39,7 @@ describe('RepoService', () => {
     const localState = defaultRepoState;
     const updatedState: DockerRepoState = {
       ...defaultRepoState,
-      version: 3,
+      version: defaultRepoState.version + 1,
       images: {
         ...defaultRepoState.images,
         bitcoind: {
@@ -51,7 +52,7 @@ describe('RepoService', () => {
     beforeEach(fetchMock.reset);
 
     it('should return no updates for the same version', async () => {
-      fetchMock.once('end:/nodes.json', localState);
+      fetchMock.once('end:/nodes.json', clone(localState));
       const result = await repoService.checkForUpdates(localState);
       expect(result.state).toEqual(localState);
       expect(result.updates).not.toBeDefined();
@@ -59,7 +60,7 @@ describe('RepoService', () => {
 
     it('should return no updates for new version with no new images', async () => {
       fetchMock.once('end:/nodes.json', {
-        ...localState,
+        ...clone(localState),
         version: localState.version + 1,
       });
       const result = await repoService.checkForUpdates(localState);
@@ -68,7 +69,7 @@ describe('RepoService', () => {
     });
 
     it('should return updated state with new versions', async () => {
-      fetchMock.once('end:/nodes.json', updatedState);
+      fetchMock.once('end:/nodes.json', clone(updatedState));
       const result = await repoService.checkForUpdates(localState);
       expect(result.state).toEqual(updatedState);
       expect(result.updates).toBeDefined();
