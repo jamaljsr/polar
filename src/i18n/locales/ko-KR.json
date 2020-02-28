@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "취소",
   "cmps.network.NetworkView.deleteSuccess": "네트워크 '{{name}}'및 해당 데이터가 삭제되었습니다!",
   "cmps.network.NetworkView.deleteError": "네트워크를 삭제할 수 없습니다",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "새로운 번개 네트워크 만들기",
   "cmps.network.NewNetwork.nameLabel": "네트워크 이름",
   "cmps.network.NewNetwork.namePhldr": "내 번개 Simnet",
