@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "Cancelar",
   "cmps.network.NetworkView.deleteSuccess": "¡La red '{{name}}' y sus datos han sido eliminados!",
   "cmps.network.NetworkView.deleteError": "No se puede eliminar la red",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "Crear una nueva red Lightning",
   "cmps.network.NewNetwork.nameLabel": "Nombre de red",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
