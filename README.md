@@ -64,7 +64,6 @@ Here's a short list of ideas for features that may be beneficial to add in futur
 - Network snapshots with the ability to import/export them. These could also be used as templates to quickly boot up a network with predefined nodes and channels. The templates could be hosted github to allow community contributions. This may require a scripting system built-in.
 - Sample app projects/code in different languages (Python, Typescript/JS, Go, C#) showing how to connect to the Lightning/Bitcoin nodes from an external app.
 - Bitcoin Block Explorer & GRPC/REST API Explorers to have access to all of the node RPC API's graphically, without needing to fallback to the Terminal.
-- A branded website with download links and getting started guides to make Polar a bit easier to find via search engines
 
 ## Help Translate
 
@@ -113,4 +112,4 @@ Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/jo
 
 ## Contact
 
-I plan to setup a website and email soon. The best place to reach me now is on Twitter @jamaljsr. I also lurk in the LND Slack server, so you can msg me there as well.
+The best place to reach me is on Twitter @jamaljsr. I also lurk in the LND Slack server, so you can msg me there as well.
