@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "Отмена",
   "cmps.network.NetworkView.deleteSuccess": "Сеть '{{name}}' и ее данные были удалены!",
   "cmps.network.NetworkView.deleteError": "Невозможно удалить сеть",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "Создать новую сеть Lightning",
   "cmps.network.NewNetwork.nameLabel": "Имя сети",
   "cmps.network.NewNetwork.namePhldr": "Моя молния симнет",
