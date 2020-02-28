@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "Cancel",
   "cmps.network.NetworkView.deleteSuccess": "The network '{{name}}' and its data has been deleted!",
   "cmps.network.NetworkView.deleteError": "Unable to delete the network",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "Create a new Lightning Network",
   "cmps.network.NewNetwork.nameLabel": "Network Name",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",

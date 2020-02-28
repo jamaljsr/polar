@@ -20,6 +20,7 @@ export interface BitcoindNodeModel {
 export interface BitcoindModel {
   nodes: BitcoindNodeMapping;
   removeNode: Action<BitcoindModel, string>;
+  clearNodes: Action<BitcoindModel, void>;
   setInfo: Action<
     BitcoindModel,
     { node: BitcoinNode; chainInfo: ChainInfo; walletInfo: WalletInfo }
@@ -39,6 +40,9 @@ const bitcoindModel: BitcoindModel = {
   // reducer actions (mutations allowed thx to immer)
   removeNode: action((state, name) => {
     delete state.nodes[name];
+  }),
+  clearNodes: action(state => {
+    state.nodes = {};
   }),
   setInfo: action((state, { node, chainInfo, walletInfo }) => {
     if (!state.nodes[node.name]) state.nodes[node.name] = {};
