@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "取消",
   "cmps.network.NetworkView.deleteSuccess": "网络“{{name}}”及其数据已被删除！",
   "cmps.network.NetworkView.deleteError": "无法删除网络",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "创建一个新的闪电网络",
   "cmps.network.NewNetwork.nameLabel": "网络名字",
   "cmps.network.NewNetwork.namePhldr": "我的闪电Simnet",
