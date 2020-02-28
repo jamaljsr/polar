@@ -1,4 +1,4 @@
-commit_message: 'chore(i18n): add new translations for %language%'
+commit_message: '[ci skip] add new translations for %language%'
 append_commit_message: false
 files:
   - source: /src/i18n/locales/en-US.json
