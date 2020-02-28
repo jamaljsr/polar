@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "Stornieren",
   "cmps.network.NetworkView.deleteSuccess": "Das Netzwerk '{{name}}' und seine Daten wurden gelöscht!",
   "cmps.network.NetworkView.deleteError": "Das Netzwerk kann nicht gelöscht werden",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "Erstellen Sie ein neues Lightning Netzwerk",
   "cmps.network.NewNetwork.nameLabel": "Netzwerkname",
   "cmps.network.NewNetwork.namePhldr": "Mein Blitz Simnet",
