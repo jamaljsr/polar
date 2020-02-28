@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "Cancelar",
   "cmps.network.NetworkView.deleteSuccess": "A rede '{{name}}' e seus dados foram excluídos!",
   "cmps.network.NetworkView.deleteError": "Não foi possível excluir a rede",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "Crie uma nova rede Lightning",
   "cmps.network.NewNetwork.nameLabel": "Nome da rede",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
