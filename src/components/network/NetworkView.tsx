@@ -65,8 +65,10 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const [editingName, setEditingName] = useState('');
 
   const { dockerImages } = useStoreState(s => s.app);
+  const { nodes: bitcoinData } = useStoreState(s => s.bitcoind);
   const { navigateTo, notify } = useStoreActions(s => s.app);
   const { clearActiveId } = useStoreActions(s => s.designer);
+  const { getInfo } = useStoreActions(s => s.bitcoind);
   const { toggle, rename, remove } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
   const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
@@ -102,6 +104,26 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     navigateTo(HOME);
     clearActiveId();
   }, [navigateTo, clearActiveId]);
+
+  useEffect(() => {
+    const fetchInfo = async () => {
+      // fetch bitcoin data if not present to show the block height
+      if (network && network.status === Status.Started && network.nodes.bitcoin[0]) {
+        const { name } = network.nodes.bitcoin[0];
+        if (!(bitcoinData && bitcoinData[name] && bitcoinData[name].chainInfo)) {
+          try {
+            await getInfo(network.nodes.bitcoin[0]);
+          } catch (error) {
+            notify({ message: l('getInfoError'), error });
+          }
+        }
+      }
+    };
+    fetchInfo();
+    // intentionally pass an empty deps array because we
+    // only want to run this hook on mount
+    // eslint-disable-next-line
+  }, []);
 
   if (!network) {
     return <Redirect to={HOME} />;

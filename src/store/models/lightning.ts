@@ -44,6 +44,7 @@ export interface PayInvoicePayload {
 export interface LightningModel {
   nodes: LightningNodeMapping;
   removeNode: Action<LightningModel, string>;
+  clearNodes: Action<LightningModel, void>;
   setInfo: Action<LightningModel, { node: LightningNode; info: PLN.LightningNodeInfo }>;
   getInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   setWalletBalance: Action<
@@ -92,6 +93,9 @@ const lightningModel: LightningModel = {
     if (state.nodes[name]) {
       delete state.nodes[name];
     }
+  }),
+  clearNodes: action(state => {
+    state.nodes = {};
   }),
   setInfo: action((state, { node, info }) => {
     if (!state.nodes[node.name]) state.nodes[node.name] = {};

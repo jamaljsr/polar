@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import styled from '@emotion/styled';
 import { LinkOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import styled from '@emotion/styled';
 import { Card, Col, Row, Statistic } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
@@ -18,11 +18,15 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.home.NetworkCard');
   const { navigateTo } = useStoreActions(s => s.app);
   const { setActiveId } = useStoreActions(s => s.designer);
+  const { clearNodes: clearLnNodes } = useStoreActions(s => s.lightning);
+  const { clearNodes: clearBtcNodes } = useStoreActions(s => s.bitcoind);
 
   const handleClick = useCallback(() => {
     setActiveId(network.id);
+    clearLnNodes();
+    clearBtcNodes();
     navigateTo(NETWORK_VIEW(network.id));
-  }, [network.id, setActiveId, navigateTo]);
+  }, [network.id, setActiveId, clearLnNodes, clearBtcNodes, navigateTo]);
 
   return (
     <Styled.Card

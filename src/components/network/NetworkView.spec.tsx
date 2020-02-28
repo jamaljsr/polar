@@ -27,8 +27,24 @@ describe('NetworkView Component', () => {
     id: string | undefined,
     status?: Status,
     images?: string[],
+    withBitcoinData = true,
   ) => {
     const network = getNetwork(1, 'test network', status);
+    const bitcoinData = {
+      nodes: {
+        backend1: {
+          chainInfo: {
+            blocks: 123,
+            bestblockhash: 'abcdef',
+          },
+          walletInfo: {
+            balance: 10,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            immature_balance: 20,
+          },
+        },
+      },
+    };
     const initialState = {
       app: {
         dockerImages: images || [],
@@ -37,10 +53,12 @@ describe('NetworkView Component', () => {
         networks: [network],
       },
       designer: {
+        activeId: network.id,
         allCharts: {
           1: initChartFromNetwork(network),
         },
       },
+      bitcoind: withBitcoinData ? bitcoinData : undefined,
     };
     const route = `/network/${id}`;
     const history = createMemoryHistory({ initialEntries: [route] });
@@ -51,9 +69,6 @@ describe('NetworkView Component', () => {
     return {
       ...result,
       network,
-      primaryBtn: result.container.querySelector(
-        '.ant-page-header-heading-extra .ant-btn',
-      ) as Element,
     };
   };
 
@@ -97,8 +112,8 @@ describe('NetworkView Component', () => {
   });
 
   it('should change UI when network is started', async () => {
-    const { primaryBtn } = renderComponent('1');
-    expect(primaryBtn).toHaveTextContent('Start');
+    const { getByText } = renderComponent('1');
+    const primaryBtn = getByText('Start');
     fireEvent.click(primaryBtn);
     // should switch to stopping immediately
     expect(primaryBtn).toHaveTextContent('Starting');
@@ -109,8 +124,8 @@ describe('NetworkView Component', () => {
   });
 
   it('should change UI when network is stopped', async () => {
-    const { primaryBtn } = renderComponent('1', Status.Started);
-    expect(primaryBtn).toHaveTextContent('Stop');
+    const { getByText } = renderComponent('1', Status.Started);
+    const primaryBtn = getByText('Stop');
     fireEvent.click(primaryBtn);
     // should switch to stopping immediately
     expect(primaryBtn).toHaveTextContent('Stopping');
@@ -121,8 +136,8 @@ describe('NetworkView Component', () => {
   });
 
   it('should do nothing when network is starting', async () => {
-    const { primaryBtn } = renderComponent('1', Status.Starting);
-    expect(primaryBtn).toHaveTextContent('Starting');
+    const { getByText } = renderComponent('1', Status.Starting);
+    const primaryBtn = getByText('Starting', { selector: 'button span' });
     fireEvent.click(primaryBtn);
     // should remain the same since button should be disabled
     expect(primaryBtn).toHaveTextContent('Starting');
@@ -149,6 +164,35 @@ describe('NetworkView Component', () => {
         'Starting this network will take a bit longer than normal because it uses docker images that have not been downloaded yet.',
       ),
     ).toBeNull();
+  });
+
+  describe('node state', () => {
+    beforeEach(() => {
+      bitcoindServiceMock.getBlockchainInfo.mockResolvedValue({
+        blocks: 321,
+        bestblockhash: 'abcdef',
+      } as any);
+      bitcoindServiceMock.getWalletInfo.mockResolvedValue({
+        balance: 10,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        immature_balance: 20,
+      } as any);
+    });
+
+    it('should fetch bitcoin data when mounted', async () => {
+      const { findByText } = renderComponent('1', Status.Started, [], false);
+      // wait for the new chain height to be displayed on mount
+      expect(await findByText('height: 321')).toBeInTheDocument();
+    });
+
+    it('should handle an error when fetching bitcoin data on mount', async () => {
+      bitcoindServiceMock.getBlockchainInfo.mockRejectedValue(new Error('test-err'));
+      const { findByText } = renderComponent('1', Status.Started, [], false);
+      expect(
+        await findByText('Failed to fetch the bitcoin block height'),
+      ).toBeInTheDocument();
+      expect(await findByText('test-err')).toBeInTheDocument();
+    });
   });
 
   describe('rename network', () => {
