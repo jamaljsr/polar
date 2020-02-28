@@ -242,6 +242,7 @@
   "cmps.network.NetworkView.deleteCancelBtn": "キャンセル",
   "cmps.network.NetworkView.deleteSuccess": "ネットワーク '{{name}}'とそのデータは削除されました！",
   "cmps.network.NetworkView.deleteError": "ネットワークを削除できません",
+  "cmps.network.NetworkView.getInfoError": "Failed to fetch the bitcoin block height",
   "cmps.network.NewNetwork.title": "新しいLightningネットワークを作成する",
   "cmps.network.NewNetwork.nameLabel": "ネットワーク名",
   "cmps.network.NewNetwork.namePhldr": "私のLightning Simnet",
