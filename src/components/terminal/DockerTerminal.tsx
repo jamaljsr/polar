@@ -96,17 +96,25 @@ const connectStreams = async (term: Terminal, name: string, type: string, l: any
 
   // create an exec instance
   const exec = await container.exec({ ...execCommand, User: config.user });
+  // initialize the size of the docker session based on the xterm size
+  exec.resize({ w: term.cols, h: term.rows });
   // run exec to connect to the container
   const stream = await exec.start(execOptions);
-  // connect I/O streams
+
+  // pass data from xterm to docker
   term.onData(data => stream.write(data));
-  stream.on('data', (data: any) => term.write(data));
+  // pass data from docker to xterm
+  stream.on('data', (data: Buffer) => term.write(data));
+  // when the xterm is resized, also resize the docker session
+  term.onResize(({ rows, cols }) => exec.resize({ w: cols, h: rows }));
   // close the window if the stream is closed (ex: 'exit' typed)
   stream.on('close', () => window.close());
+
   // run alias command
   const cli = /alias (.*)=/.exec(config.alias);
   if (cli) term.writeln(green(l('cliUpdating', { cli: cli[1] })));
   stream.write(`${config.alias}\n\n`);
+
   // close window if the container goes down while the terminal is open
   container.wait(() => window.close());
 };
@@ -139,14 +147,17 @@ const DockerTerminal: React.FC = () => {
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(termEl.current as HTMLDivElement);
-    fitAddon.fit();
+    // write Polar logo to the console
     polar.split('\n').forEach(line => term.writeln(line));
+    // write the connected message
     term.writeln(l('connected', { type: yellow(type), name: yellow(name) }));
     term.writeln('');
 
     // listen to resize events
     const resize = () => fitAddon.fit();
     window.addEventListener('resize', resize);
+    // resize immediately
+    resize();
 
     // to run async code in useEffect, you must wrap it in a function
     const connect = async () => {
