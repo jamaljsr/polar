@@ -272,6 +272,8 @@ describe('DockerService', () => {
       net.nodes.lightning.forEach(n => {
         delete n.docker;
         delete n.ports.p2p;
+        // the old LND logo url
+        chart.nodes[n.name].properties.icon = '/static/media/lnd.935c28bc.png';
       });
 
       const fileData: NetworksFile = {

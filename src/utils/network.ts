@@ -125,9 +125,9 @@ export const createLndNetworkNode = (
     backendName: backends[id % backends.length].name,
     paths: getLndFilePaths(name, network),
     ports: {
-      rest: BasePorts.lnd.rest + id,
-      grpc: BasePorts.lnd.grpc + id,
-      p2p: BasePorts.lnd.p2p + id,
+      rest: BasePorts.LND.rest + id,
+      grpc: BasePorts.LND.grpc + id,
+      p2p: BasePorts.LND.p2p + id,
     },
     docker,
   };
@@ -165,8 +165,8 @@ export const createCLightningNetworkNode = (
       macaroon: join(path, 'rest-api', 'access.macaroon'),
     },
     ports: {
-      rest: BasePorts.clightning.rest + id,
-      p2p: BasePorts.clightning.p2p + id,
+      rest: BasePorts['c-lightning'].rest + id,
+      p2p: BasePorts['c-lightning'].p2p + id,
     },
     docker,
   };

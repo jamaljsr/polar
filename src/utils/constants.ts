@@ -42,21 +42,23 @@ export const denominationNames: { [key in Denomination]: string } = {
  * be sufficiently spaced apart to allow a dozen or so numbers higher and
  * not cause conflicts
  */
-export const BasePorts = {
+export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
   bitcoind: {
     rest: 18443,
     zmqBlock: 28334,
     zmqTx: 29335,
   },
-  lnd: {
+  LND: {
     rest: 8081,
     grpc: 10001,
     p2p: 9735,
   },
-  clightning: {
+  'c-lightning': {
     rest: 8181,
     p2p: 9835,
   },
+  eclair: {},
+  btcd: {},
 };
 
 export const bitcoinCredentials = {

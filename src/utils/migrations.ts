@@ -3,7 +3,7 @@ import { join } from 'path';
 import { LndNode } from 'shared/types';
 import { NetworksFile } from 'types';
 import { networksPath } from './config';
-import { APP_VERSION, BasePorts } from './constants';
+import { APP_VERSION, BasePorts, dockerConfigs } from './constants';
 import { getLndFilePaths } from './network';
 
 const v020 = (file: NetworksFile): NetworksFile => {
@@ -72,8 +72,14 @@ const v030 = (file: NetworksFile): NetworksFile => {
         node.docker = { image: '', command: '' };
       }
       // the zmq ports were added to bitcoin nodes in PR #297
-      if (!node.ports.zmqBlock) node.ports.zmqBlock = BasePorts.bitcoind.zmqBlock;
-      if (!node.ports.zmqTx) node.ports.zmqTx = BasePorts.bitcoind.zmqTx;
+      if (!node.ports.zmqBlock) {
+        debug(`${pre} set ZMQ Blocks port for Bitcoin node ${node.name}`);
+        node.ports.zmqBlock = BasePorts.bitcoind.zmqBlock;
+      }
+      if (!node.ports.zmqTx) {
+        debug(`${pre} set ZMQ Txns port for Bitcoin node ${node.name}`);
+        node.ports.zmqTx = BasePorts.bitcoind.zmqTx;
+      }
     });
     network.nodes.lightning.forEach(node => {
       // the docker property was added to lightning nodes to save a custom startup command
@@ -82,9 +88,20 @@ const v030 = (file: NetworksFile): NetworksFile => {
         node.docker = { image: '', command: '' };
       }
       // the p2p ports were added to bitcoin nodes in PR #301
-      if (!node.ports.p2p)
-        node.ports.p2p =
-          node.implementation === 'LND' ? BasePorts.lnd.p2p : BasePorts.clightning.p2p;
+      if (!node.ports.p2p) {
+        const port = BasePorts[node.implementation].p2p;
+        debug(`${pre} set P2P port ${port} for ${node.implementation} node ${node.name}`);
+        node.ports.p2p = port;
+      }
+
+      // update the LND logo path
+      if (node.implementation === 'LND') {
+        const props = file.charts[network.id].nodes[node.name].properties;
+        if (props && props.icon !== dockerConfigs.LND.logo) {
+          debug(`${pre} update LND logo icon for chart node ${node.name}`);
+          props.icon = dockerConfigs.LND.logo;
+        }
+      }
     });
   });
 
