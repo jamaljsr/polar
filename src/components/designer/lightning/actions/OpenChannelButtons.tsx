@@ -14,13 +14,26 @@ const Styled = {
 
 interface Props {
   node: LightningNode;
+  menuType?: 'incoming' | 'outgoing';
 }
 
-const OpenChannelButtons: React.FC<Props> = ({ node }) => {
+const OpenChannelButtons: React.FC<Props> = ({ node, menuType }) => {
   const { l } = usePrefixedTranslation(
     'cmps.designer.lightning.actions.OpenChannelButtons',
   );
   const { showOpenChannel } = useStoreActions(s => s.modals);
+
+  // render a menu item inside of the NodeContextMenu
+  if (menuType) {
+    const icon = menuType === 'incoming' ? <DownloadOutlined /> : <UploadOutlined />;
+    const args = menuType === 'incoming' ? { to: node.name } : { from: node.name };
+    return (
+      <span onClick={() => showOpenChannel(args)}>
+        {icon}
+        <span>{l(`${menuType}Menu`)}</span>
+      </span>
+    );
+  }
 
   return (
     <Form.Item label={l('openChannelTitle')} colon={false}>
