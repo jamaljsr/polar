@@ -1,15 +1,14 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
-import { Button, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode, Status } from 'shared/types';
-import { useStoreActions } from 'store';
 import { LinkProperties } from 'utils/chart';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { CopyIcon, DetailsList, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
+import CloseChannelButton from './CloseChannelButton';
 
 interface Props {
   link: ILink;
@@ -27,26 +26,6 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
     status,
     channelPoint,
   } = link.properties as LinkProperties;
-
-  const { notify } = useStoreActions(s => s.app);
-  const { closeChannel } = useStoreActions(s => s.lightning);
-  const showCloseChanModal = () => {
-    Modal.confirm({
-      title: l('closeChanModalTitle'),
-      okText: l('closeChanConfirmBtn'),
-      okType: 'danger',
-      cancelText: l('closeChanCancelBtn'),
-      onOk: async () => {
-        try {
-          await closeChannel({ node: from, channelPoint });
-          notify({ message: l('closeChanSuccess') });
-        } catch (error) {
-          notify({ message: l('closeChanError'), error });
-          throw error;
-        }
-      },
-    });
-  };
 
   const channelDetails: DetailValues = [
     { label: l('status'), value: status },
@@ -86,9 +65,7 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
       <DetailsList title={l('sourceTitle')} details={fromDetails} />
       <DetailsList title={l('destinationTitle')} details={toDetails} />
       {type === 'open-channel' && (
-        <Button type="danger" block ghost onClick={showCloseChanModal}>
-          {l('closeChanBtn')}
-        </Button>
+        <CloseChannelButton node={from} channelPoint={channelPoint} />
       )}
     </SidebarCard>
   );

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { ILinkDefaultProps, IPosition } from '@mrblenny/react-flow-chart';
 import { useTheme } from 'hooks/useTheme';
 import { LinkProperties } from 'utils/chart';
+import LinkContextMenu from './LinkContextMenu';
 
 export const generateCurvePath = (startPos: IPosition, endPos: IPosition): string => {
   const width = Math.abs(startPos.x - endPos.x);
@@ -90,43 +91,45 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
   const gradientId = `lg-${link.id}`;
 
   return (
-    <svg
-      style={{
-        overflow: 'visible',
-        position: 'absolute',
-        cursor: 'pointer',
-        left: 0,
-        right: 0,
-      }}
-    >
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor={leftColor} />
-          <stop offset={`${leftStop}%`} stopColor={leftColor} />
-          <stop offset={`${rightStop}%`} stopColor={rightColor} />
-          <stop offset="100%" stopColor={rightColor} />
-        </linearGradient>
-      </defs>
-      <circle r="4" cx={startPos.x} cy={startPos.y} fill={`url(#${gradientId})`} />
-      {/* Main line */}
-      <path d={points} stroke={`url(#${gradientId})`} strokeWidth="3" fill="none" />
-      {/* Thick line to make selection easier */}
-      <path
-        d={points}
-        stroke={`url(#${gradientId})`}
-        strokeWidth="20"
-        fill="none"
-        strokeLinecap="round"
-        strokeOpacity={isHovered || isSelected ? 0.1 : 0}
-        onMouseEnter={() => onLinkMouseEnter({ config, linkId: link.id })}
-        onMouseLeave={() => onLinkMouseLeave({ config, linkId: link.id })}
-        onClick={e => {
-          onLinkClick({ config, linkId: link.id });
-          e.stopPropagation();
+    <LinkContextMenu link={link}>
+      <svg
+        style={{
+          overflow: 'visible',
+          position: 'absolute',
+          cursor: 'pointer',
+          left: 0,
+          right: 0,
         }}
-      />
-      <circle r="4" cx={endPos.x} cy={endPos.y} fill={`url(#${gradientId})`} />
-    </svg>
+      >
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={leftColor} />
+            <stop offset={`${leftStop}%`} stopColor={leftColor} />
+            <stop offset={`${rightStop}%`} stopColor={rightColor} />
+            <stop offset="100%" stopColor={rightColor} />
+          </linearGradient>
+        </defs>
+        <circle r="4" cx={startPos.x} cy={startPos.y} fill={`url(#${gradientId})`} />
+        {/* Main line */}
+        <path d={points} stroke={`url(#${gradientId})`} strokeWidth="3" fill="none" />
+        {/* Thick line to make selection easier */}
+        <path
+          d={points}
+          stroke={`url(#${gradientId})`}
+          strokeWidth="20"
+          fill="none"
+          strokeLinecap="round"
+          strokeOpacity={isHovered || isSelected ? 0.1 : 0}
+          onMouseEnter={() => onLinkMouseEnter({ config, linkId: link.id })}
+          onMouseLeave={() => onLinkMouseLeave({ config, linkId: link.id })}
+          onClick={e => {
+            onLinkClick({ config, linkId: link.id });
+            e.stopPropagation();
+          }}
+        />
+        <circle r="4" cx={endPos.x} cy={endPos.y} fill={`url(#${gradientId})`} />
+      </svg>
+    </LinkContextMenu>
   );
 };
 
