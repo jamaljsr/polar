@@ -14,9 +14,10 @@ const Styled = {
 
 interface Props {
   node: CommonNode;
+  menuType?: 'start' | 'stop';
 }
 
-const RestartNode: React.FC<Props> = ({ node }) => {
+const RestartNode: React.FC<Props> = ({ node, menuType }) => {
   const { l } = usePrefixedTranslation(`cmps.common.RestartNode`);
   const { notify } = useStoreActions(s => s.app);
   const { toggleNode } = useStoreActions(s => s.network);
@@ -42,6 +43,17 @@ const RestartNode: React.FC<Props> = ({ node }) => {
       },
     });
   };
+
+  // render a menu item inside of the NodeContextMenu
+  if (menuType) {
+    const icon = menuType === 'start' ? <PlayCircleOutlined /> : <PoweroffOutlined />;
+    return (
+      <span onClick={() => showConfirmModal(menuType)}>
+        {icon}
+        <span>{l(`${menuType}Btn`)}</span>
+      </span>
+    );
+  }
 
   return (
     <Form.Item label={l('title')} colon={false}>

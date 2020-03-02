@@ -5,6 +5,7 @@ import { useTheme } from 'hooks/useTheme';
 import { ThemeColors } from 'theme/colors';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { Loader, StatusBadge } from 'components/common';
+import NodeContextMenu from './NodeContextMenu';
 
 const Styled = {
   Node: styled.div<{ size?: ISize; colors: ThemeColors['node'] }>`
@@ -29,12 +30,14 @@ const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
       <Loader size="16px" />
     </Styled.Node>
   ) : (
-    <Styled.Node size={node.size} colors={theme.node}>
-      <span>
-        <StatusBadge text={node.id} status={node.properties.status} />
-      </span>
-      <img src={node.properties.icon} style={{ width: 24, height: 24 }} alt="" />
-    </Styled.Node>
+    <NodeContextMenu node={node}>
+      <Styled.Node size={node.size} colors={theme.node}>
+        <span>
+          <StatusBadge text={node.id} status={node.properties.status} />
+        </span>
+        <img src={node.properties.icon} style={{ width: 24, height: 24 }} alt="" />
+      </Styled.Node>
+    </NodeContextMenu>
   );
 };
 

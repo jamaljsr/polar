@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { CloseOutlined } from '@ant-design/icons';
 import { Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode } from 'shared/types';
@@ -6,9 +7,10 @@ import { useStoreActions } from 'store';
 
 interface Props {
   node: LightningNode;
+  type?: 'button' | 'menu';
 }
 
-const RemoveNode: React.FC<Props> = ({ node }) => {
+const RemoveNode: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.RemoveNode');
   const { notify } = useStoreActions(s => s.app);
   const { removeLightningNode } = useStoreActions(s => s.network);
@@ -36,6 +38,16 @@ const RemoveNode: React.FC<Props> = ({ node }) => {
 
   // cleanup the modal when the component unmounts
   useEffect(() => () => modal && modal.destroy(), [modal]);
+
+  // render a menu item inside of the NodeContextMenu
+  if (type === 'menu') {
+    return (
+      <span onClick={showRemoveModal}>
+        <CloseOutlined />
+        <span>{l('btnText')}</span>
+      </span>
+    );
+  }
 
   return (
     <Form.Item label={l('title')} colon={false}>

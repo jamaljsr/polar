@@ -10,12 +10,25 @@ import { TERMINAL } from 'components/routing';
 
 interface Props {
   node: LightningNode | BitcoinNode;
+  type?: 'button' | 'menu';
 }
 
-const OpenTerminalButton: React.FC<Props> = ({ node }) => {
+const OpenTerminalButton: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.common.OpenTerminalButton');
   const { openWindow } = useStoreActions(s => s.app);
-  const openAsync = useAsyncCallback(openWindow);
+  const openAsync = useAsyncCallback(async () => {
+    await openWindow(TERMINAL(node.implementation, getContainerName(node)));
+  });
+
+  // render a menu item inside of the NodeContextMenu
+  if (type === 'menu') {
+    return (
+      <span onClick={openAsync.execute}>
+        <CodeOutlined />
+        <span>{l('menu')}</span>
+      </span>
+    );
+  }
 
   let cmd = '';
   switch (node.implementation) {
@@ -35,9 +48,7 @@ const OpenTerminalButton: React.FC<Props> = ({ node }) => {
         icon={<CodeOutlined />}
         block
         loading={openAsync.loading}
-        onClick={() =>
-          openAsync.execute(TERMINAL(node.implementation, getContainerName(node)))
-        }
+        onClick={openAsync.execute}
       >
         {l('btn')}
       </Button>

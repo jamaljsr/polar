@@ -1,7 +1,5 @@
 # TODO List
 
-- add new LND logo.. migrate chart
-
 Small Stuff
 
 - implement real-time channel updates from LND via GRPC streams

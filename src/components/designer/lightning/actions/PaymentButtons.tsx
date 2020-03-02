@@ -14,11 +14,24 @@ const Styled = {
 
 interface Props {
   node: LightningNode;
+  menuType?: 'pay' | 'create';
 }
 
-const PaymentButtons: React.FC<Props> = ({ node }) => {
+const PaymentButtons: React.FC<Props> = ({ node, menuType }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.PaymentButtons');
   const { showPayInvoice, showCreateInvoice } = useStoreActions(s => s.modals);
+
+  // render a menu item inside of the NodeContextMenu
+  if (menuType) {
+    const icon = menuType === 'pay' ? <ThunderboltOutlined /> : <FileProtectOutlined />;
+    const action = menuType === 'pay' ? showPayInvoice : showCreateInvoice;
+    return (
+      <span onClick={() => action({ nodeName: node.name })}>
+        {icon}
+        <span>{l(`${menuType}Invoice`)}</span>
+      </span>
+    );
+  }
 
   return (
     <Form.Item label={l('paymentsTitle')} colon={false}>
