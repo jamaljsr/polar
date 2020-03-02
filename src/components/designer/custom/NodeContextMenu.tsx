@@ -4,9 +4,9 @@ import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, Menu } from 'antd';
 import { LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
-import { AdvancedOptionsButton, RestartNode } from 'components/common';
+import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { OpenTerminalButton } from 'components/terminal';
-import { OpenChannelButtons, PaymentButtons, RemoveNode } from '../lightning/actions';
+import { OpenChannelButtons, PaymentButtons } from '../lightning/actions';
 
 const Styled = {
   MenuItem: styled(Menu.Item)`
@@ -77,7 +77,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
         [Status.Started, Status.Error].includes(node.status),
       )}
       {createItem('options', <AdvancedOptionsButton type="menu" node={node} />)}
-      {createItem('remove', <RemoveNode type="menu" node={node as LightningNode} />)}
+      {createItem('remove', <RemoveNode type="menu" node={node} />)}
     </Menu>
   );
 
