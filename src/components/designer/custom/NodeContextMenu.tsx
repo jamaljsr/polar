@@ -69,12 +69,12 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       {createItem(
         'start',
         <RestartNode menuType="start" node={node} />,
-        [Status.Stopped].includes(node.status),
+        [Status.Stopped, Status.Error].includes(node.status),
       )}
       {createItem(
         'stop',
         <RestartNode menuType="stop" node={node} />,
-        [Status.Started, Status.Error].includes(node.status),
+        [Status.Started].includes(node.status),
       )}
       {createItem('options', <AdvancedOptionsButton type="menu" node={node} />)}
       {createItem('remove', <RemoveNode type="menu" node={node} />)}

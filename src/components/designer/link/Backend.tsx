@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, LightningNode, Status } from 'shared/types';
-import { useStoreActions } from 'store';
+
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
+import ChangeBackendButton from './ChangeBackendButton';
 
 interface Props {
   bitcoinNode: BitcoinNode;
@@ -14,14 +14,6 @@ interface Props {
 
 const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.Backend');
-
-  const { showChangeBackend } = useStoreActions(s => s.modals);
-  const handleChangeClick = () => {
-    showChangeBackend({
-      lnName: lightningNode.name,
-      backendName: bitcoinNode.name,
-    });
-  };
 
   const backendDetails: DetailValues = [
     { label: l('name'), value: bitcoinNode.name },
@@ -52,9 +44,7 @@ const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
       <p>{l('desc')}</p>
       <DetailsList title={l('lightningTitle')} details={lightningDetails} />
       <DetailsList title={l('bitcoinTitle')} details={backendDetails} />
-      <Button block onClick={handleChangeClick}>
-        {l('btnText')}
-      </Button>
+      <ChangeBackendButton lnName={lightningNode.name} backendName={bitcoinNode.name} />
     </SidebarCard>
   );
 };
