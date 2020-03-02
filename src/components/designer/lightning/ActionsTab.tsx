@@ -2,9 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { LightningNode, Status } from 'shared/types';
-import { AdvancedOptionsButton, RestartNode } from 'components/common';
+import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { OpenTerminalButton } from 'components/terminal';
-import { Deposit, OpenChannelButtons, PaymentButtons, RemoveNode } from './actions';
+import { Deposit, OpenChannelButtons, PaymentButtons } from './actions';
 
 const Styled = {
   Spacer: styled.div`

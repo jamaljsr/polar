@@ -2,10 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { BitcoinNode, Status } from 'shared/types';
-import { AdvancedOptionsButton, RestartNode } from 'components/common';
+import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { OpenTerminalButton } from 'components/terminal';
 import MineBlocksInput from './actions/MineBlocksInput';
-import RemoveNode from './actions/RemoveNode';
 
 const Styled = {
   Spacer: styled.div`

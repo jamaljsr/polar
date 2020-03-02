@@ -64,7 +64,7 @@ describe('RemoveNode', () => {
     // wait for the error notification to be displayed
     await waitForElement(() => getByLabelText('check-circle'));
     expect(
-      getByText('The node alice have been removed from the network'),
+      getByText('The node alice has been removed from the network'),
     ).toBeInTheDocument();
     expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
   });
@@ -77,14 +77,14 @@ describe('RemoveNode', () => {
     // wait for the error notification to be displayed
     await waitForElement(() => getByLabelText('check-circle'));
     expect(
-      getByText('The node alice have been removed from the network'),
+      getByText('The node alice has been removed from the network'),
     ).toBeInTheDocument();
     expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
   });
 
   it('should display an error if removing the node fails', async () => {
     // antd Modal.confirm logs a console error when onOk fails
-    // this supresses those errors from being displayed in test runs
+    // this suppresses those errors from being displayed in test runs
     await suppressConsoleErrors(async () => {
       dockerServiceMock.removeNode.mockRejectedValue(new Error('test error'));
       const { getByText, getByLabelText } = renderComponent(Status.Started);
