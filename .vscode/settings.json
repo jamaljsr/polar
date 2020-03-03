@@ -67,5 +67,16 @@
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "cSpell.words": [
+    "Testcafe",
+    "antd",
+    "bitcoind",
+    "clightning",
+    "cmps",
+    "logobw",
+    "mrblenny",
+    "unzipper",
+    "uploader"
+  ]
 }

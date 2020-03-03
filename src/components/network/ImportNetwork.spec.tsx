@@ -21,7 +21,9 @@ describe('ImportNetwork component', () => {
   it('has a file uploader', async () => {
     const { getByText } = renderComponent();
     expect(
-      getByText('Click or drag ZIP file to this area to import'),
+      getByText(
+        'Drag a zip file exported from Polar here, or click to browse for the file',
+      ),
     ).toBeInTheDocument();
   });
 

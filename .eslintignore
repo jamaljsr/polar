@@ -7,6 +7,3 @@
 
 # compiled by tsc from /src/electron/
 /public
-
-# rest resources
-/src/utils/resources

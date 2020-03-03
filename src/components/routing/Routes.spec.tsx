@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderWithProviders } from 'utils/tests';
-import { HOME, NETWORK_NEW, Routes, NETWORK_IMPORT } from 'components/routing';
+import { HOME, NETWORK_IMPORT, NETWORK_NEW, Routes } from 'components/routing';
 
 describe('App container', () => {
   const renderComponent = (route: string) => {
@@ -19,6 +19,6 @@ describe('App container', () => {
 
   it('should render the import network page', () => {
     const { getByText } = renderComponent(NETWORK_IMPORT);
-    expect(getByText('Import a pre-defined Lightning Network')).toBeInTheDocument();
+    expect(getByText('Import a Lightning Network')).toBeInTheDocument();
   });
 });

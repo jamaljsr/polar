@@ -1,6 +1,6 @@
 import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
-import { copyFile, ensureDir } from 'fs-extra';
+import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
@@ -646,7 +646,7 @@ const networkModel: NetworkModel = {
 
     const zipped = await zipNetwork(network, allCharts[network.id]);
 
-    await copyFile(zipped, zipDestination);
+    await copy(zipped, zipDestination);
     info('exported network to', zipDestination);
     return zipDestination;
   }),
@@ -656,14 +656,14 @@ const networkModel: NetworkModel = {
       network: { networks },
     } = getStoreState();
 
-    const { network: networkActions } = getStoreActions();
-    const { designer: designerActions } = getStoreActions();
+    const { add, save } = getStoreActions().network;
+    const { setChart } = getStoreActions().designer;
 
     const [newNetwork, chart] = await importNetworkFromZip(path, networks);
 
-    networkActions.add(newNetwork);
-    designerActions.setChart({ chart, id: newNetwork.id });
-    await networkActions.save();
+    add(newNetwork);
+    setChart({ chart, id: newNetwork.id });
+    await save();
 
     info('imported', newNetwork);
     return newNetwork;

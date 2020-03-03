@@ -143,6 +143,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       'bitcoind',
       '-server=1',
       '-regtest=1',
+      '-reindex',
       '-rpcauth={{rpcUser}}:{{rpcAuth}}',
       '-debug=1',
       '-zmqpubrawblock=tcp://0.0.0.0:28334',

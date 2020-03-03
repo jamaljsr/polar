@@ -16,6 +16,5 @@
     "jsx": "preserve",
     "baseUrl": "src"
   },
-  "include": ["src"],
-  "exclude": ["src/utils/tests/resources"]
+  "include": ["src"]
 }

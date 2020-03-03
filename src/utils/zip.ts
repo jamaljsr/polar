@@ -1,7 +1,7 @@
-import { error, warn } from 'electron-log';
+import { error, info, warn } from 'electron-log';
 import fs from 'fs';
-import { pathExists } from 'fs-extra';
-import { basename } from 'path';
+import { createWriteStream, pathExists } from 'fs-extra';
+import { join } from 'path';
 import archiver from 'archiver';
 import unzipper from 'unzipper';
 
@@ -30,54 +30,10 @@ export const unzip = (zip: string, destination: string): Promise<void> => {
   });
 };
 
-interface ZipArgs {
-  /** The destination of the generated zip */
-  destination: string;
-  objects: Array<{
-    /** Object to serialize (with `JSON.stringify`) and store in the zip */
-    object: any;
-    /** Name of this object in the generated zip */
-    name: string;
-  }>;
-  /** Files or folders to include  */
-  paths: string[];
-}
-
-/**
- * Adds a raw string into the ZIP archive
- *
- * @param archive ZIP archive to add the file to
- * @param content content to add into archive
- * @param nameInArchive name of file in archive
- */
-const addStringToZip = (
-  archive: archiver.Archiver,
-  content: string,
-  nameInArchive: string,
-): void => {
-  archive.append(content, { name: nameInArchive });
-  return;
-};
-
-/**
- * Add the given path to the archive. If it's a file we add it directly, it it is a directory
- * we recurse over all the files within that directory
- *
- * @param archive ZIP archive to add the file to
- * @param filePath file to add, absolute path
- */
-const addFileOrDirectoryToZip = async (archive: archiver.Archiver, filePath: string) => {
-  const isDir = await fs.promises.lstat(filePath).then(res => res.isDirectory());
-  if (isDir) {
-    archive.directory(filePath, basename(filePath));
-  } else {
-    archive.file(filePath, { name: basename(filePath) });
-  }
-};
-
-export const zip = ({ destination, objects, paths }: ZipArgs): Promise<void> =>
+export const zip = (source: string, destination: string): Promise<void> =>
   new Promise(async (resolve, reject) => {
-    const output = fs.createWriteStream(destination);
+    info('zipping', source, 'to', destination);
+    const output = createWriteStream(destination);
     const archive = archiver('zip');
 
     // finished
@@ -95,13 +51,16 @@ export const zip = ({ destination, objects, paths }: ZipArgs): Promise<void> =>
     // pipe all zipped data to the output
     archive.pipe(output);
 
-    const pathPromises = paths.map(p => addFileOrDirectoryToZip(archive, p));
-
-    for (const obj of objects) {
-      addStringToZip(archive, JSON.stringify(obj.object), obj.name);
-    }
-
-    await Promise.all(pathPromises);
+    // avoid including the c-lightning RPC socket
+    const entryDataFunction: archiver.EntryDataFunction = entry => {
+      if (entry.name?.endsWith(join('lightningd', 'regtest', 'lightning-rpc'))) {
+        console.info('skipping', entry);
+        return false;
+      }
+      return entry;
+    };
+    // append files from a sub-directory, putting its contents at the root of archive
+    archive.directory(source, false, entryDataFunction);
 
     // we've added all files, tell this to the archive so it can emit the 'close' event
     // once all streams have finished

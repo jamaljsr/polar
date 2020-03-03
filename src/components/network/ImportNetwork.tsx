@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { RouteComponentProps } from 'react-router';
 import { UploadOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
@@ -35,27 +36,17 @@ const ImportNetwork: React.FC<RouteComponentProps> = () => {
   const { navigateTo, notify } = useStoreActions(s => s.app);
   const { importNetwork } = useStoreActions(s => s.network);
   const { l } = usePrefixedTranslation('cmps.network.ImportNetwork');
-  const [importing, setImporting] = useState(false);
+  const doImportNetwork = useAsyncCallback(async (file: RcFile) => {
+    try {
+      const network = await importNetwork(file.path);
+      notify({ message: l('importSuccess', { name: network.name }) });
+      navigateTo(HOME);
+    } catch (error) {
+      notify({ message: l('importError', { file: file.name }), error });
+    }
 
-  const doImportNetwork = (file: RcFile) => {
-    setImporting(true);
-
-    // we kick off the import promise, but don't wait for it
-    importNetwork(file.path)
-      .then(network => {
-        notify({ message: l('importSuccess', { name: network.name }) });
-        navigateTo(HOME);
-      })
-      .catch(error => {
-        notify({ message: l('importError', { file: file.name }), error });
-      })
-      .then(() => {
-        setImporting(false);
-      });
-
-    // return false to prevent the Upload.Dragger from sending the file somewhere
-    return false;
-  };
+    return;
+  });
 
   const theme = useTheme();
   return (
@@ -70,10 +61,10 @@ const ImportNetwork: React.FC<RouteComponentProps> = () => {
           // to not display a file in the upload dragger after the user has selected a zip
           fileList={undefined}
           accept=".zip"
-          disabled={importing}
-          beforeUpload={doImportNetwork}
+          disabled={doImportNetwork.loading}
+          beforeUpload={doImportNetwork.execute}
         >
-          {importing ? (
+          {doImportNetwork.loading ? (
             <>
               <Spin size="large" />
               <p>{l('importText')}</p>

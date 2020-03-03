@@ -1,7 +1,7 @@
 import React from 'react';
 import electron from 'electron';
 import fsExtra from 'fs-extra';
-import { fireEvent, wait, waitForElement } from '@testing-library/dom';
+import { fireEvent, getByText, wait, waitForElement } from '@testing-library/dom';
 import { act } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
