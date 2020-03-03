@@ -6,7 +6,7 @@ import { LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { OpenTerminalButton } from 'components/terminal';
-import { OpenChannelButtons, PaymentButtons } from '../lightning/actions';
+import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
 
 const Styled = {
   MenuItem: styled(Menu.Item)`
@@ -44,13 +44,13 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     <Menu style={{ width: 200 }}>
       {isStarted && [
         createItem(
-          'pay',
-          <PaymentButtons menuType="pay" node={node as LightningNode} />,
+          'inv',
+          <PaymentButtons menuType="create" node={node as LightningNode} />,
           isLN,
         ),
         createItem(
-          'inv',
-          <PaymentButtons menuType="create" node={node as LightningNode} />,
+          'pay',
+          <PaymentButtons menuType="pay" node={node as LightningNode} />,
           isLN,
         ),
         createItem(

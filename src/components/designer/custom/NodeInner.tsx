@@ -5,7 +5,7 @@ import { useTheme } from 'hooks/useTheme';
 import { ThemeColors } from 'theme/colors';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { Loader, StatusBadge } from 'components/common';
-import NodeContextMenu from './NodeContextMenu';
+import NodeContextMenu from '../NodeContextMenu';
 
 const Styled = {
   Node: styled.div<{ size?: ISize; colors: ThemeColors['node'] }>`

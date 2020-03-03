@@ -3,8 +3,8 @@ import { ILink } from '@mrblenny/react-flow-chart';
 import { Dropdown, Menu } from 'antd';
 import { useStoreState } from 'store';
 import { LinkProperties } from 'utils/chart';
-import ChangeBackendButton from '../link/ChangeBackendButton';
-import CloseChannelButton from '../link/CloseChannelButton';
+import ChangeBackendButton from './link/ChangeBackendButton';
+import CloseChannelButton from './link/CloseChannelButton';
 
 interface Props {
   link: ILink;

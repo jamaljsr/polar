@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ILinkDefaultProps, IPosition } from '@mrblenny/react-flow-chart';
 import { useTheme } from 'hooks/useTheme';
 import { LinkProperties } from 'utils/chart';
-import LinkContextMenu from './LinkContextMenu';
+import LinkContextMenu from '../LinkContextMenu';
 
 export const generateCurvePath = (startPos: IPosition, endPos: IPosition): string => {
   const width = Math.abs(startPos.x - endPos.x);
