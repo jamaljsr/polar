@@ -28,16 +28,14 @@ jest.mock('utils/files', () => ({
 jest.mock('utils/network', () => ({
   ...jest.requireActual('utils/network'),
   importNetworkFromZip: () => {
-    return jest.fn().mockImplementation(() => {
-      const network = {
-        id: 1,
-        nodes: {
-          bitcoin: [{}],
-          lightning: [{}],
-        },
-      };
-      return [network, {}];
-    })();
+    const network = {
+      id: 1,
+      nodes: {
+        bitcoin: [{}],
+        lightning: [{}],
+      },
+    };
+    return [network, {}];
   },
 }));
 
@@ -842,11 +840,11 @@ describe('Network model', () => {
 
   describe('Export', () => {
     it('should export a network and show a save dialogue', async () => {
-      const { network: networkActions } = store.getActions();
+      const { exportNetwork } = store.getActions().network;
 
       const spy = jest.spyOn(electron.remote.dialog, 'showSaveDialog');
 
-      const exported = await networkActions.exportNetwork(getNetwork());
+      const exported = await exportNetwork(getNetwork());
       expect(exported).toBeDefined();
 
       expect(spy).toHaveBeenCalled();
@@ -859,18 +857,18 @@ describe('Network model', () => {
       // returns undefined if user closes the window
       mock.mockImplementation(() => ({} as any));
 
-      const { network: networkActions } = store.getActions();
-      const exported = await networkActions.exportNetwork(getNetwork());
+      const { exportNetwork } = store.getActions().network;
+      const exported = await exportNetwork(getNetwork());
       expect(exported).toBeUndefined();
     });
   });
 
   describe('Import', () => {
     it('should import a network', async () => {
-      const { network: networkActions } = store.getActions();
+      const { importNetwork } = store.getActions().network;
       const statePreImport = store.getState();
 
-      const imported = await networkActions.importNetwork('zip');
+      const imported = await importNetwork('zip');
       expect(imported.id).toBeDefined();
       expect(imported.nodes.bitcoin.length).toBeGreaterThan(0);
       expect(imported.nodes.lightning.length).toBeGreaterThan(0);

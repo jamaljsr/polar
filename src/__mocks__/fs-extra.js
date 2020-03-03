@@ -1,8 +1,11 @@
 module.exports = {
   outputFile: jest.fn(),
+  writeFile: jest.fn(),
   pathExists: jest.fn(),
   readFile: jest.fn(),
   remove: jest.fn(),
   ensureDir: jest.fn(),
-  copyFile: jest.fn(),
+  copy: jest.fn(),
+  createWriteStream: jest.fn(),
+  createReadStream: jest.fn(),
 };
