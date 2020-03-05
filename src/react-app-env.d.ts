@@ -7,3 +7,5 @@ declare module '*.module.less';
 declare module 'react-router-transition';
 
 declare module 'lndconnect';
+
+declare module 'react-lazylog';

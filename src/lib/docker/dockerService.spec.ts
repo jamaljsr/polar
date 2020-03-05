@@ -407,6 +407,7 @@ describe('DockerService', () => {
     });
 
     it('should call compose.upOne when a node is started', async () => {
+      composeMock.stopOne.mockResolvedValue(mockResult);
       composeMock.upOne.mockResolvedValue(mockResult);
       const node = network.nodes.lightning[0];
       await dockerService.startNode(network, node);

@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { BitcoinNode, Status } from 'shared/types';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import MineBlocksInput from './actions/MineBlocksInput';
 
@@ -23,6 +24,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         <>
           <MineBlocksInput node={node} />
           <OpenTerminalButton node={node} />
+          <ViewLogsButton node={node} />
           <Styled.Spacer />
         </>
       )}

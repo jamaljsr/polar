@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { LightningNode, Status } from 'shared/types';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import { Deposit, OpenChannelButtons, PaymentButtons } from './actions';
 
@@ -25,6 +26,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
           <OpenChannelButtons node={node} />
           <PaymentButtons node={node} />
           <OpenTerminalButton node={node} />
+          <ViewLogsButton node={node} />
           <Styled.Spacer />
         </>
       )}

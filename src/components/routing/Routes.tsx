@@ -1,11 +1,13 @@
 import React from 'react';
 import { Route, Switch } from 'react-router';
+import { DockerLogs } from 'components/dockerLogs';
 import { Home } from 'components/home';
 import { AppLayout } from 'components/layouts';
 import { NetworkView, NewNetwork } from 'components/network';
 import { NodeImagesView } from 'components/nodeImages';
 import {
   HOME,
+  LOGS,
   NETWORK_NEW,
   NETWORK_VIEW,
   NODE_IMAGES,
@@ -16,6 +18,7 @@ import { DockerTerminal } from 'components/terminal';
 
 const Routes: React.FC = () => (
   <Switch>
+    <Route path={LOGS(':type', ':name')} exact component={DockerLogs} />
     <Route path={TERMINAL(':type', ':name')} exact component={DockerTerminal} />
     <Route>
       <AppLayout>
