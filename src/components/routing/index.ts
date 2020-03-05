@@ -7,3 +7,5 @@ export const NETWORK_VIEW = (id: number | string) => `/network/${id}`;
 export const NODE_IMAGES = '/nodes-images';
 export const TERMINAL = (type: number | string, name: number | string) =>
   `/terminal/${type}/${name}`;
+export const LOGS = (type: number | string, name: number | string) =>
+  `/logs/${type}/${name}`;

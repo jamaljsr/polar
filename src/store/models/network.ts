@@ -261,10 +261,11 @@ const networkModel: NetworkModel = {
   updateAdvancedOptions: thunk(
     async (actions, { node, command }, { getState, injections }) => {
       const networks = getState().networks;
-      const network = networks.find(n => n.id === node.networkId);
+      let network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
       actions.updateNodeCommand({ id: node.networkId, name: node.name, command });
       await actions.save();
+      network = getState().networks.find(n => n.id === node.networkId) as Network;
       await injections.dockerService.saveComposeFile(network);
     },
   ),
@@ -555,9 +556,9 @@ const networkModel: NetworkModel = {
       // after all LN nodes are online, connect each of them to each other. This helps
       // ensure that each node is aware of the entire graph and can route payments properly
       if (allNodesOnline.length) {
-        Promise.all(allNodesOnline).then(async () => {
-          await getStoreActions().lightning.connectAllPeers(network);
-        });
+        Promise.all(allNodesOnline)
+          .then(async () => await getStoreActions().lightning.connectAllPeers(network))
+          .catch(e => info('Failed to connect all LN peers', e));
       }
     },
   ),

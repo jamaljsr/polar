@@ -104,7 +104,7 @@ class DockerService implements DockerLibrary {
   }
 
   /**
-   * Start a network using docper-compose
+   * Start a network using docker-compose
    * @param network the network to start
    */
   async start(network: Network) {
@@ -135,6 +135,10 @@ class DockerService implements DockerLibrary {
    */
   async startNode(network: Network, node: CommonNode) {
     this.ensureDirs(network, [node]);
+    // make sure the docker container is stopped. If it is already started in an error state
+    // then starting it would have no effect
+    await this.stopNode(network, node);
+
     info(`Starting docker container for ${node.name}`);
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.upOne, node.name, this.getArgs(network));

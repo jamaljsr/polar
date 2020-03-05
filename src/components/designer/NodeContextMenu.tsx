@@ -5,6 +5,7 @@ import { Dropdown, Menu } from 'antd';
 import { LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
 
@@ -75,6 +76,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
         'stop',
         <RestartNode menuType="stop" node={node} />,
         [Status.Started].includes(node.status),
+      )}
+      {createItem(
+        'logs',
+        <ViewLogsButton type="menu" node={node} />,
+        [Status.Started, Status.Error].includes(node.status),
       )}
       {createItem('options', <AdvancedOptionsButton type="menu" node={node} />)}
       {createItem('remove', <RemoveNode type="menu" node={node} />)}

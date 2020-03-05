@@ -7,7 +7,7 @@ import { APP_ROOT, BASE_URL } from './constants';
 import { clearProxyCache } from './lnd/lndProxyServer';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
-  debug('opwnWindow', args);
+  debug('openWindow', args);
   const winState = windowState({
     defaultWidth: 800,
     defaultHeight: 600,
@@ -51,7 +51,7 @@ const clearCache = (): Promise<{ success: boolean }> => {
 
 /**
  * A mapping of electron IPC channel names to the functions to execute when
- * messages are recieved
+ * messages are received
  */
 const listeners: {
   [key: string]: (...args: any) => Promise<any>;
@@ -63,7 +63,7 @@ const listeners: {
 /**
  * Sets up the IPC listeners for the main process and maps them to async
  * functions.
- * @param ipc the IPC onject of the main process
+ * @param ipc the IPC object of the main process
  */
 export const initAppIpcListener = (ipc: IpcMain) => {
   const log = (msg: string, ...rest: any[]) => debug(`AppIpcListener: ${msg}`, ...rest);
