@@ -1,3 +1,4 @@
+import * as log from 'electron-log';
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
@@ -23,7 +24,8 @@ jest.mock('utils/files', () => ({
   rm: jest.fn(),
 }));
 const filesMock = files as jest.Mocked<typeof files>;
-const mockDetectPort = detectPort as jest.Mock;
+const logMock = log as jest.Mocked<typeof log>;
+const detectPortMock = detectPort as jest.Mock;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
@@ -542,7 +544,7 @@ describe('Network model', () => {
     });
 
     it('should not save compose file and networks if all ports are available', async () => {
-      mockDetectPort.mockImplementation(port => Promise.resolve(port));
+      detectPortMock.mockImplementation(port => Promise.resolve(port));
       (injections.dockerService.saveComposeFile as jest.Mock).mockReset();
       (injections.dockerService.saveNetworks as jest.Mock).mockReset();
       const { start } = store.getActions().network;
@@ -557,7 +559,7 @@ describe('Network model', () => {
 
     it('should save compose file and networks when a port is in use', async () => {
       const portsInUse = [10001];
-      mockDetectPort.mockImplementation(port =>
+      detectPortMock.mockImplementation(port =>
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
       );
 
@@ -576,6 +578,21 @@ describe('Network model', () => {
       expect(lightning[2].ports.grpc).toBe(10003);
       expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
       expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
+    });
+
+    it('should catch exception if it cannot connect all peers', async () => {
+      const err = new Error('test-error');
+      // raise an error for the 3rd call to connect peers
+      lightningServiceMock.connectPeers.mockResolvedValueOnce();
+      lightningServiceMock.connectPeers.mockResolvedValueOnce();
+      lightningServiceMock.connectPeers.mockRejectedValueOnce(err);
+      const { start } = store.getActions().network;
+      const network = firstNetwork();
+      await start(network.id);
+      await wait(() => {
+        expect(lightningServiceMock.connectPeers).toBeCalledTimes(3);
+      });
+      expect(logMock.info).toBeCalledWith('Failed to connect all LN peers', err);
     });
   });
 

@@ -45,6 +45,7 @@ describe('NodeContextMenu', () => {
     expect(getByText('Open Incoming Channel')).toBeInTheDocument();
     expect(getByText('Launch Terminal')).toBeInTheDocument();
     expect(getByText('Stop')).toBeInTheDocument();
+    expect(getByText('View Logs')).toBeInTheDocument();
     expect(getByText('Advanced Options')).toBeInTheDocument();
     expect(getByText('Remove')).toBeInTheDocument();
   });
@@ -56,6 +57,7 @@ describe('NodeContextMenu', () => {
     expect(queryByText('Open Outgoing Channel')).not.toBeInTheDocument();
     expect(queryByText('Open Incoming Channel')).not.toBeInTheDocument();
     expect(queryByText('Launch Terminal')).not.toBeInTheDocument();
+    expect(queryByText('View Logs')).not.toBeInTheDocument();
     expect(getByText('Start')).toBeInTheDocument();
     expect(getByText('Advanced Options')).toBeInTheDocument();
     expect(getByText('Remove')).toBeInTheDocument();
@@ -65,6 +67,7 @@ describe('NodeContextMenu', () => {
     const { getByText } = renderComponent('backend1', Status.Started);
     expect(getByText('Launch Terminal')).toBeInTheDocument();
     expect(getByText('Stop')).toBeInTheDocument();
+    expect(getByText('View Logs')).toBeInTheDocument();
     expect(getByText('Advanced Options')).toBeInTheDocument();
     expect(getByText('Remove')).toBeInTheDocument();
   });
@@ -72,6 +75,7 @@ describe('NodeContextMenu', () => {
   it('should display the correct options for a stopped bitcoin node', async () => {
     const { getByText, queryByText } = renderComponent('backend1', Status.Stopped);
     expect(queryByText('Launch Terminal')).not.toBeInTheDocument();
+    expect(queryByText('View Logs')).not.toBeInTheDocument();
     expect(getByText('Start')).toBeInTheDocument();
     expect(getByText('Advanced Options')).toBeInTheDocument();
     expect(getByText('Remove')).toBeInTheDocument();
@@ -85,6 +89,7 @@ describe('NodeContextMenu', () => {
     expect(queryByText('Open Incoming Channel')).not.toBeInTheDocument();
     expect(queryByText('Launch Terminal')).not.toBeInTheDocument();
     expect(queryByText('Stop')).not.toBeInTheDocument();
+    expect(queryByText('View Logs')).not.toBeInTheDocument();
     expect(queryByText('Advanced Options')).not.toBeInTheDocument();
     expect(queryByText('Remove')).not.toBeInTheDocument();
   });
@@ -145,6 +150,18 @@ describe('NodeContextMenu', () => {
     expect(
       await findByText('Are you sure you want to stop the alice node?'),
     ).toBeInTheDocument();
+  });
+
+  it('should open log viewer', async () => {
+    const ipcMock = injections.ipc as jest.Mock;
+    ipcMock.mockResolvedValue(true);
+    const { getByText, store } = renderComponent('alice', Status.Started);
+    expect(store.getState().modals.openChannel.visible).toBe(false);
+    await act(async () => {
+      fireEvent.click(getByText('View Logs'));
+    });
+    const url = '/logs/LND/polar-n1-alice';
+    expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
   });
 
   it('should show the advanced options modal', async () => {
