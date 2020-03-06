@@ -71,6 +71,10 @@ const Styled = {
     white-space: pre;
     will-change: initial;
     outline: none;
+
+    .log-line {
+      user-select: text;
+    }
   `,
 };
 
@@ -130,6 +134,7 @@ const DockerLogs: React.FC = () => {
       enableSearch
       onScroll={handleScroll}
       follow={follow}
+      lineClassName="log-line"
     />
   );
 };
