@@ -3,14 +3,16 @@ name: CI
 on:
   push:
     branches:
-      - master
-      - renovate/*
-      - release/*
+      - 'master'
+      - 'renovate/*'
+      - 'release/*'
+      - 'ci/*'
   pull_request:
     branches-ignore:
-      - translations
-      - renovate/*
-      - release/*
+      - 'translations'
+      - 'renovate/*'
+      - 'release/*'
+      - 'ci/*'
     types: [assigned, opened, synchronize, reopened]
 
 jobs:
@@ -69,9 +71,7 @@ jobs:
         run: yarn test:ci
 
       - name: coverage
-        run: yarn test:codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v1
 
       - name: electron build
         run: yarn package:ci
