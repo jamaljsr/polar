@@ -27,6 +27,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
+      - name: print context
+        run: echo ${{ toJson(github.event) }}
       - name: set git config
         run: |
           git config --global core.eol lf
