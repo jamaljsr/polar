@@ -200,7 +200,8 @@ class DockerService implements DockerLibrary {
       const json = await read(path);
       let data = JSON.parse(json);
       info(`loaded ${data.networks.length} networks from '${path}'`);
-      if (data.version !== APP_VERSION) {
+      // migrate data when the version differs or running locally
+      if (data.version !== APP_VERSION || process.env.NODE_ENV !== 'production') {
         data = migrateNetworksFile(data);
         await this.saveNetworks(data);
       }

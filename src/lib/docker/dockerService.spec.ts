@@ -12,7 +12,7 @@ import { networksPath } from 'utils/config';
 import { APP_VERSION, defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { createNetwork } from 'utils/network';
-import { getNetwork, testManagedImages } from 'utils/tests';
+import { getNetwork, mockProperty, testManagedImages } from 'utils/tests';
 
 jest.mock('dockerode');
 jest.mock('os');
@@ -357,6 +357,16 @@ describe('DockerService', () => {
         expect(n.docker).toBeDefined();
         expect(n.ports.p2p).toBeDefined();
       });
+    });
+
+    it('should not run migrations in production with up to date version', async () => {
+      mockProperty(process, 'env', { NODE_ENV: 'production' } as any);
+      const file = createCurrentNetworksFile();
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(JSON.stringify(file));
+      const result = await dockerService.loadNetworks();
+      expect(result).toEqual(file);
+      mockProperty(process, 'env', { NODE_ENV: 'test' } as any);
     });
 
     it('should not modify a current network if migrated', async () => {
