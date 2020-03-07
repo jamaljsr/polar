@@ -315,8 +315,8 @@ describe('NetworkView Component', () => {
     beforeEach(jest.useFakeTimers);
     afterEach(jest.useRealTimers);
     it('should fail to export a running network', async () => {
-      const { primaryBtn, getByText, getByLabelText } = renderComponent('1');
-      expect(primaryBtn).toHaveTextContent('Start');
+      const { getByText, getByLabelText } = renderComponent('1');
+      const primaryBtn = getByText('Start');
       fireEvent.click(primaryBtn);
       // should change to stopped after some time
       await wait(() => {
@@ -332,8 +332,7 @@ describe('NetworkView Component', () => {
     });
 
     it('should export a stopped network', async () => {
-      const { primaryBtn, getByText, getByLabelText } = renderComponent('1');
-      expect(primaryBtn).toHaveTextContent('Start');
+      const { getByText, getByLabelText } = renderComponent('1');
 
       fireEvent.mouseOver(getByLabelText('more'));
       await wait(() => jest.runOnlyPendingTimers());
@@ -347,8 +346,7 @@ describe('NetworkView Component', () => {
       // returns undefined if user closes the window
       electron.remote.dialog.showSaveDialog = jest.fn(() => ({})) as any;
 
-      const { primaryBtn, queryByText, getByText, getByLabelText } = renderComponent('1');
-      expect(primaryBtn).toHaveTextContent('Start');
+      const { queryByText, getByText, getByLabelText } = renderComponent('1');
 
       fireEvent.mouseOver(getByLabelText('more'));
       await wait(() => jest.runOnlyPendingTimers());

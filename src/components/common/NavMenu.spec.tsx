@@ -24,7 +24,8 @@ describe('DetailsList Component', () => {
   });
 
   it('should navigate to import page when menu item is clicked', () => {
-    const { getByText, history } = renderComponent();
+    const { getByText, getByLabelText, history } = renderComponent();
+    fireEvent.click(getByLabelText('menu'));
     fireEvent.click(getByText('Import Network'));
     expect(history.location.pathname).toEqual(NETWORK_IMPORT);
   });
