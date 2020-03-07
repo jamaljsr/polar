@@ -10,22 +10,19 @@ describe('DetailsList Component', () => {
   };
 
   it('should navigate to /network when create menu item clicked', () => {
-    const { getByText, getByLabelText, history } = renderComponent();
-    fireEvent.click(getByLabelText('menu'));
+    const { getByText, history } = renderComponent();
     fireEvent.click(getByText('Create Network'));
     expect(history.location.pathname).toEqual(NETWORK_NEW);
   });
 
   it('should navigate to /nodes when manage nodes item clicked', () => {
-    const { getByText, getByLabelText, history } = renderComponent();
-    fireEvent.click(getByLabelText('menu'));
+    const { getByText, history } = renderComponent();
     fireEvent.click(getByText('Manage Nodes'));
     expect(history.location.pathname).toEqual(NODE_IMAGES);
   });
 
   it('should navigate to import page when menu item is clicked', () => {
-    const { getByText, getByLabelText, history } = renderComponent();
-    fireEvent.click(getByLabelText('menu'));
+    const { getByText, history } = renderComponent();
     fireEvent.click(getByText('Import Network'));
     expect(history.location.pathname).toEqual(NETWORK_IMPORT);
   });

@@ -2,9 +2,9 @@ import React, { ReactNode } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import {
   CloseOutlined,
+  ExportOutlined,
   FormOutlined,
   MoreOutlined,
-  ExportOutlined,
   PlayCircleOutlined,
   StopOutlined,
   ToolOutlined,
@@ -107,13 +107,13 @@ const NetworkActions: React.FC<Props> = ({
         <Styled.FormIcon />
         {l('menuRename')}
       </Menu.Item>
-      <Menu.Item key="delete" onClick={onDeleteClick}>
-        <Styled.CloseIcon />
-        {l('menuDelete')}
-      </Menu.Item>
       <Menu.Item key="export" onClick={onExportClick}>
         <Styled.ExportIcon />
         {l('menuExport')}
+      </Menu.Item>
+      <Menu.Item key="delete" onClick={onDeleteClick}>
+        <Styled.CloseIcon />
+        {l('menuDelete')}
       </Menu.Item>
     </Menu>
   );

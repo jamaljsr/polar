@@ -3,12 +3,13 @@ import { useAsyncCallback } from 'react-async-hook';
 import { RouteComponentProps } from 'react-router';
 import { UploadOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Card, PageHeader, Spin, Upload } from 'antd';
+import { Card, PageHeader, Upload } from 'antd';
 import { RcFile } from 'antd/lib/upload';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions } from 'store';
 import { ThemeColors } from 'theme/colors';
+import { Loader } from 'components/common';
 import { HOME } from 'components/routing';
 
 const Styled = {
@@ -33,14 +34,14 @@ const Styled = {
 };
 
 const ImportNetwork: React.FC<RouteComponentProps> = () => {
-  const { navigateTo, notify } = useStoreActions(s => s.app);
-  const { importNetwork } = useStoreActions(s => s.network);
   const { l } = usePrefixedTranslation('cmps.network.ImportNetwork');
-  const doImportNetwork = useAsyncCallback(async (file: RcFile) => {
+  const { navigateTo, navigateToNetwork, notify } = useStoreActions(s => s.app);
+  const { importNetwork } = useStoreActions(s => s.network);
+  const importAsync = useAsyncCallback(async (file: RcFile) => {
     try {
       const network = await importNetwork(file.path);
       notify({ message: l('importSuccess', { name: network.name }) });
-      navigateTo(HOME);
+      navigateToNetwork(network.id);
     } catch (error) {
       notify({ message: l('importError', { file: file.name }), error });
     }
@@ -61,13 +62,12 @@ const ImportNetwork: React.FC<RouteComponentProps> = () => {
           // to not display a file in the upload dragger after the user has selected a zip
           fileList={undefined}
           accept=".zip"
-          disabled={doImportNetwork.loading}
-          beforeUpload={doImportNetwork.execute}
+          disabled={importAsync.loading}
+          beforeUpload={importAsync.execute}
         >
-          {doImportNetwork.loading ? (
+          {importAsync.loading ? (
             <>
-              <Spin size="large" />
-              <p>{l('importText')}</p>
+              <Loader />
             </>
           ) : (
             <>

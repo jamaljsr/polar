@@ -6,7 +6,6 @@ import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
 import { StatusBadge } from 'components/common';
-import { NETWORK_VIEW } from 'components/routing';
 
 const Styled = {
   Card: styled(Card)`
@@ -16,17 +15,11 @@ const Styled = {
 
 const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.home.NetworkCard');
-  const { navigateTo } = useStoreActions(s => s.app);
-  const { setActiveId } = useStoreActions(s => s.designer);
-  const { clearNodes: clearLnNodes } = useStoreActions(s => s.lightning);
-  const { clearNodes: clearBtcNodes } = useStoreActions(s => s.bitcoind);
+  const { navigateToNetwork } = useStoreActions(s => s.app);
 
   const handleClick = useCallback(() => {
-    setActiveId(network.id);
-    clearLnNodes();
-    clearBtcNodes();
-    navigateTo(NETWORK_VIEW(network.id));
-  }, [network.id, setActiveId, clearLnNodes, clearBtcNodes, navigateTo]);
+    navigateToNetwork(network.id);
+  }, [network.id, navigateToNetwork]);
 
   return (
     <Styled.Card

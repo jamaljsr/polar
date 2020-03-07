@@ -839,12 +839,17 @@ describe('Network model', () => {
   });
 
   describe('Export', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
     it('should export a network and show a save dialogue', async () => {
       const { exportNetwork } = store.getActions().network;
 
       const spy = jest.spyOn(electron.remote.dialog, 'showSaveDialog');
 
-      const exported = await exportNetwork(getNetwork());
+      const exported = await exportNetwork(firstNetwork());
       expect(exported).toBeDefined();
 
       expect(spy).toHaveBeenCalled();
@@ -858,7 +863,7 @@ describe('Network model', () => {
       mock.mockImplementation(() => ({} as any));
 
       const { exportNetwork } = store.getActions().network;
-      const exported = await exportNetwork(getNetwork());
+      const exported = await exportNetwork(firstNetwork());
       expect(exported).toBeUndefined();
     });
   });

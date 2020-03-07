@@ -76,6 +76,20 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       notify({ message: l('renameError'), error });
     }
   });
+  const exportAsync = useAsyncCallback(async (id: number, name: string) => {
+    try {
+      const destination = await exportNetwork({ id });
+      // the destination is undefined if Cancel is clicked on the SaveDialog
+      if (destination) {
+        notify({
+          message: l('exportSuccess', { name }),
+          description: l('exportSuccessDesc', { destination }),
+        });
+      }
+    } catch (error) {
+      notify({ message: l('exportError'), error });
+    }
+  });
 
   const showRemoveModal = (networkId: number, name: string) => {
     Modal.confirm({
@@ -169,26 +183,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
               setEditingName(network.name);
             }}
             onDeleteClick={() => showRemoveModal(network.id, network.name)}
-            onExportClick={async () => {
-              const readyToExport = [Status.Error, Status.Stopped].includes(
-                network.status,
-              );
-              if (!readyToExport) {
-                notify({
-                  message: l('notReadyToExport'),
-                  error: Error(l('notReadyToExportDescription')),
-                });
-                return;
-              }
-              const destination = await exportNetwork(network);
-              if (!destination) {
-                return;
-              }
-
-              notify({
-                message: l('exportSuccess', { name: network.name, destination }),
-              });
-            }}
+            onExportClick={() => exportAsync.execute(network.id, network.name)}
           />
         }
       />
