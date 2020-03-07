@@ -9,6 +9,7 @@ on:
       - 'ci/*'
   pull_request:
     branches:
+      - '*'
       - '!translations'
       - '!renovate/*'
       - '!release/*'
