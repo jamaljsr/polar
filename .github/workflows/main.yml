@@ -8,11 +8,11 @@ on:
       - 'release/*'
       - 'ci/*'
   pull_request:
-    branches-ignore:
-      - 'translations'
-      - 'renovate/*'
-      - 'release/*'
-      - 'ci/*'
+    branches:
+      - '!translations'
+      - '!renovate/*'
+      - '!release/*'
+      - '!ci/*'
     types: [assigned, opened, synchronize, reopened]
 
 jobs:
