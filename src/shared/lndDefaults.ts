@@ -22,6 +22,7 @@ export const defaultLndInfo = (
   version: '',
   numInactiveChannels: 0,
   color: '',
+  features: [],
   ...value,
 });
 
@@ -73,6 +74,9 @@ export const defaultLndChannel = (value: Partial<LND.Channel>): LND.Channel => (
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
   staticRemoteKey: false,
+  lifetime: 0,
+  uptime: 0,
+  closeAddress: '',
   ...value,
 });
 
