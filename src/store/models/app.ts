@@ -18,6 +18,7 @@ import {
 } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { changeTheme } from 'utils/theme';
+import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
 export interface NotifyOptions {
@@ -59,6 +60,7 @@ export interface AppModel {
   >;
   notify: Action<AppModel, NotifyOptions>;
   navigateTo: Thunk<AppModel, string>;
+  navigateToNetwork: Thunk<AppModel, number, StoreInjections, RootModel>;
   openInBrowser: Action<AppModel, string>;
   openWindow: Thunk<AppModel, string, StoreInjections, RootModel>;
   clearAppCache: Thunk<AppModel, void, StoreInjections, RootModel>;
@@ -225,6 +227,18 @@ const appModel: AppModel = {
   }),
   navigateTo: thunk((actions, route, { dispatch }) => {
     dispatch(push(route));
+  }),
+  navigateToNetwork: thunk((actions, id, { dispatch, getStoreActions }) => {
+    // Navigating to a network requires a bit more work than just changing the route.
+    // This may be able to be refactored into a useAsync func in NetworkView
+    // set the active chart Id
+    getStoreActions().designer.setActiveId(id);
+    // reset the lightning nodes state
+    getStoreActions().lightning.clearNodes();
+    // reset the bitcoin nodes state
+    getStoreActions().bitcoind.clearNodes();
+    // change the route
+    dispatch(push(NETWORK_VIEW(id)));
   }),
   openInBrowser: action((state, url) => {
     shell.openExternal(url);

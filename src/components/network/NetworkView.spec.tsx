@@ -1,7 +1,7 @@
 import React from 'react';
 import electron from 'electron';
 import fsExtra from 'fs-extra';
-import { fireEvent, getByText, wait, waitForElement } from '@testing-library/dom';
+import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { act } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
@@ -328,7 +328,7 @@ describe('NetworkView Component', () => {
 
       fireEvent.click(getByText('Export'));
       await wait(() => jest.runOnlyPendingTimers());
-      expect(getByText('Cannot export a running network')).toBeInTheDocument();
+      expect(getByText('The network must be stopped to be exported')).toBeInTheDocument();
     });
 
     it('should export a stopped network', async () => {

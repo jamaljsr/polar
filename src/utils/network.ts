@@ -1,9 +1,9 @@
 import { debug } from 'electron-log';
-import { copy, mkdirp, readFile, writeFile } from 'fs-extra';
+import { copy, mkdirp, writeFile } from 'fs-extra';
 import { basename, join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import detectPort from 'detect-port';
-import os, { tmpdir } from 'os';
+import { tmpdir } from 'os';
 import {
   BitcoinNode,
   CLightningNode,
@@ -20,9 +20,9 @@ import {
   ManagedImage,
   Network,
 } from 'types';
-import NetworkDesigner from 'components/designer/NetworkDesigner';
 import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO, dockerConfigs } from './constants';
+import { read } from './files';
 import { getName } from './names';
 import { range } from './numbers';
 import { isVersionCompatible } from './strings';
@@ -79,6 +79,13 @@ export const getLndFilePaths = (name: string, network: Network) => {
     tlsCert: lndCertPath(name),
     adminMacaroon: lndMacaroonPath(name, 'admin'),
     readonlyMacaroon: lndMacaroonPath(name, 'readonly'),
+  };
+};
+
+export const getCLightningFilePaths = (name: string, network: Network) => {
+  const path = nodePath(network, 'c-lightning', name);
+  return {
+    macaroon: join(path, 'rest-api', 'access.macaroon'),
   };
 };
 
@@ -156,20 +163,17 @@ export const createCLightningNetworkNode = (
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
-  const path = nodePath(network, 'c-lightning', name);
   return {
     id,
     networkId: network.id,
-    name: name,
+    name,
     type: 'lightning',
     implementation: 'c-lightning',
     version,
     status,
     // alternate between backend nodes
     backendName: backends[id % backends.length].name,
-    paths: {
-      macaroon: join(path, 'rest-api', 'access.macaroon'),
-    },
+    paths: getCLightningFilePaths(name, network),
     ports: {
       rest: BasePorts['c-lightning'].rest + id,
       p2p: BasePorts['c-lightning'].p2p + id,
@@ -213,180 +217,6 @@ export const createBitcoindNetworkNode = (
   }
 
   return node;
-};
-
-const isNetwork = (value: any): value is Network => {
-  return (
-    typeof value === 'object' &&
-    typeof value.id === 'number' &&
-    typeof value.name === 'string' &&
-    typeof value.status === 'number' &&
-    typeof value.path === 'string' &&
-    typeof value.nodes === 'object'
-  );
-};
-
-const readNetwork = async (path: string, id: number): Promise<Network> => {
-  const rawNetwork = await readFile(path);
-  const network = JSON.parse(rawNetwork.toString('utf-8'));
-  if (!isNetwork(network)) {
-    throw Error(`${path} did not contain a valid network!`);
-  }
-
-  return network;
-};
-
-const isChart = (value: any): value is IChart =>
-  typeof value === 'object' &&
-  typeof value.offset === 'object' &&
-  typeof value.nodes === 'object' &&
-  typeof value.links === 'object' &&
-  typeof value.selected === 'object' &&
-  typeof value.hovered === 'object';
-
-const readExportFile = async (path: string, id: number): Promise<[Network, IChart]> => {
-  const rawFile = await readFile(path);
-
-  const parsed = JSON.parse(rawFile.toString('utf-8'));
-  if (!parsed.network) {
-    throw Error(`${path} did not contain a 'network' field`);
-  }
-  if (!parsed.chart) {
-    throw Error(`${path} did not contain a 'chart' field`);
-  }
-  const network = parsed.network as unknown;
-  const chart = parsed.chart as unknown;
-  if (!isNetwork(network)) {
-    throw Error(`${path} did not contain a valid network`);
-  }
-
-  if (!isChart(chart)) {
-    throw Error(`${path} did not contain a valid chart`);
-  }
-
-  network.path = join(dataPath, 'networks', id.toString());
-
-  network.id = id;
-  network.nodes.bitcoin.forEach(bitcoin => {
-    bitcoin.networkId = id;
-  });
-  network.nodes.lightning.forEach(ln => {
-    ln.networkId = id;
-    if (ln.implementation === 'LND') {
-      const lnd = ln as LndNode;
-      lnd.paths = getLndFilePaths(lnd.name, network);
-    } else if (ln.implementation === 'c-lightning') {
-      const clightning = ln as CLightningNode;
-      clightning.paths = {
-        macaroon: join(
-          nodePath(network, 'c-lightning', clightning.name),
-          'rest-api',
-          'access.macaroon',
-        ),
-      };
-    }
-  });
-
-  return [network, chart];
-};
-
-/**
- * @returns The newly created network, the chart corresponding to it
- *          and the destination of the unzipped files
- */
-export const getNetworkFromZip = async (
-  zip: string,
-  newId: number,
-): Promise<[Network, IChart, string]> => {
-  const destination = join(os.tmpdir(), basename(zip, '.zip'));
-  await unzip(zip, destination);
-
-  const [network, chart] = await readExportFile(join(destination, 'export.json'), newId);
-
-  return [network, chart, destination];
-};
-
-/**
- * Given a zip file and the existing networks in the app,
- * unpack the zipped files and save them to the correct
- * locations.
- *
- * The caller is responsible for persisting the network
- * and chart to the store.
- */
-export const importNetworkFromZip = async (
-  zipPath: string,
-  existingNetworks: Network[],
-): Promise<[Network, IChart]> => {
-  const maxId = existingNetworks
-    .map(n => n.id)
-    .reduce((max, curr) => Math.max(max, curr), 0);
-  const newId = maxId + 1;
-
-  const [newNetwork, chart, unzippedFilesDirectory] = await getNetworkFromZip(
-    zipPath,
-    newId,
-  );
-
-  const platform = getPolarPlatform();
-
-  for (const { implementation } of newNetwork.nodes.lightning) {
-    const { platforms } = dockerConfigs[implementation];
-    const nodeSupportsPlatform = platforms.includes(platform);
-    if (!nodeSupportsPlatform) {
-      throw Error(l('incompatibleImplementation', { implementation, platform }));
-    }
-  }
-
-  const newNetworkDirectory = join(dataPath, 'networks', newId.toString());
-  await mkdirp(newNetworkDirectory);
-
-  const thingsToCopy = ['docker-compose.yml', 'volumes'];
-  await Promise.all(
-    thingsToCopy.map(path =>
-      copy(join(unzippedFilesDirectory, path), join(newNetworkDirectory, path)),
-    ),
-  );
-
-  return [newNetwork, chart];
-};
-
-const sanitizeFileName = (name: string): string => {
-  const withoutSpaces = name.replace(/\s/g, '-'); // replace all whitespace with hyphens
-
-  // remove all character which could lead to either unpleasant or
-  // invalid file names
-  return withoutSpaces.replace(/[^0-9a-zA-Z-._]/g, '');
-};
-
-/** Creates a suitable file name for a Zip archive of the given network */
-export const zipNameForNetwork = (network: Network): string =>
-  `polar-${sanitizeFileName(network.name)}.zip`;
-
-/**
- * Archive the given network into a folder with the following content:
- *
- * ```
- * docker-compose.yml // compose file for network
- * volumes            // directory with all data files needed by nodes
- * network.json       // serialized network object
- * chart.json         // serialized chart object
- * ```
- *
- * @return Path of created `.zip` file
- */
-export const zipNetwork = async (network: Network, chart: IChart): Promise<string> => {
-  const exportFileContent = {
-    network,
-    chart,
-  };
-
-  await writeFile(join(network.path, 'export.json'), JSON.stringify(exportFileContent));
-
-  const destination = join(tmpdir(), zipNameForNetwork(network));
-
-  await zip(network.path, destination);
-  return destination;
 };
 
 export const createNetwork = (config: {
@@ -651,4 +481,123 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
 
   // return undefined if no ports where updated
   return Object.keys(ports).length > 0 ? ports : undefined;
+};
+
+/**
+ * Validates that an object is a valid network
+ * @param value the object to validate
+ */
+const isNetwork = (value: any): value is Network => {
+  return (
+    typeof value === 'object' &&
+    typeof value.id === 'number' &&
+    typeof value.name === 'string' &&
+    typeof value.status === 'number' &&
+    typeof value.path === 'string' &&
+    typeof value.nodes === 'object'
+  );
+};
+
+/**
+ * Validates that an object is a valid network chart
+ * @param value the object to validate
+ */
+const isChart = (value: any): value is IChart =>
+  typeof value === 'object' &&
+  typeof value.offset === 'object' &&
+  typeof value.nodes === 'object' &&
+  typeof value.links === 'object' &&
+  typeof value.selected === 'object' &&
+  typeof value.hovered === 'object';
+
+/**
+ * Imports a network from a given zip file path
+ * @param zipPath the path to the zip file
+ * @param id the network id to assign to the parsed network
+ */
+export const importNetworkFromZip = async (
+  zipPath: string,
+  id: number,
+): Promise<[Network, IChart]> => {
+  // extract zip to a temp folder first
+  const tmpDir = join(tmpdir(), basename(zipPath, '.zip'));
+  await unzip(zipPath, tmpDir);
+  debug(`Extracted '${zipPath}' to '${tmpDir}'`);
+
+  // read and parse the export.json file
+  const path = join(tmpDir, 'export.json');
+  const parsed = JSON.parse(await read(path));
+  // validate the network and chart
+  if (!(parsed.network && isNetwork(parsed.network))) {
+    throw Error(`${path} did not contain a valid network`);
+  }
+  if (!(parsed.chart && isChart(parsed.chart))) {
+    throw Error(`${path} did not contain a valid chart`);
+  }
+  const network = parsed.network as Network;
+  const chart = parsed.chart as IChart;
+  const netPath = join(dataPath, 'networks', `${id}`);
+
+  debug(`Updating the network path from '${network.path}' to '${netPath}'`);
+  // update the paths for the network and nodes
+  network.path = netPath;
+  debug(`Updating network id to '${id}'`);
+  network.id = id;
+  network.nodes.bitcoin.forEach(bitcoin => {
+    bitcoin.networkId = id;
+  });
+  network.nodes.lightning.forEach(ln => {
+    ln.networkId = id;
+    if (ln.implementation === 'LND') {
+      const lnd = ln as LndNode;
+      lnd.paths = getLndFilePaths(lnd.name, network);
+    } else if (ln.implementation === 'c-lightning') {
+      const cln = ln as CLightningNode;
+      cln.paths = getCLightningFilePaths(cln.name, network);
+    }
+  });
+
+  // confirms all nodes in the network are supported on the current OS
+  const platform = getPolarPlatform();
+  for (const { implementation } of network.nodes.lightning) {
+    const { platforms } = dockerConfigs[implementation];
+    const nodeSupportsPlatform = platforms.includes(platform);
+    if (!nodeSupportsPlatform) {
+      throw Error(l('incompatibleImplementation', { implementation, platform }));
+    }
+  }
+
+  // copy the network files to correct path
+  await mkdirp(network.path);
+  const thingsToCopy = ['docker-compose.yml', 'volumes'];
+  await Promise.all(
+    thingsToCopy.map(path => copy(join(tmpDir, path), join(network.path, path))),
+  );
+
+  return [network, chart];
+};
+
+/**
+ * Archive the given network into a folder with the following content:
+ *
+ * ```
+ * docker-compose.yml // compose file for network
+ * volumes            // directory with all data files needed by nodes
+ * export.json        // serialized network & chart objects
+ * ```
+ * @param network the network to archive
+ * @param chart the associated chart
+ * @param zipPath the full path to save the zip file
+ * @return Path of created `.zip` file
+ */
+export const zipNetwork = async (
+  network: Network,
+  chart: IChart,
+  zipPath: string,
+): Promise<void> => {
+  // save the network and chart to export.json in the network's folder
+  const content = JSON.stringify({ network, chart });
+  await writeFile(join(network.path, 'export.json'), content);
+  // zip the network dir into the zip path
+  await zip(network.path, zipPath);
 };

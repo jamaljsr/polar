@@ -75,7 +75,7 @@ describe('MineBlocksInput', () => {
     const numBlocks = -5;
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
-    expect(await findByText(/must be a positve number/)).toBeInTheDocument();
+    expect(await findByText(/must be a positive number/)).toBeInTheDocument();
   });
 
   it('should display an error if lightning nodes cannot update after mining', async () => {

@@ -1,6 +1,5 @@
 import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
-import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
@@ -13,7 +12,6 @@ import {
 } from 'shared/types';
 import { CustomImage, Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { dataPath } from 'utils/config';
 import { APP_VERSION } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
@@ -25,7 +23,6 @@ import {
   getOpenPorts,
   importNetworkFromZip,
   OpenPorts,
-  zipNameForNetwork,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -124,7 +121,7 @@ export interface NetworkModel {
    */
   exportNetwork: Thunk<
     NetworkModel,
-    Network,
+    { id: number },
     StoreInjections,
     RootModel,
     Promise<string | undefined>
@@ -619,55 +616,53 @@ const networkModel: NetworkModel = {
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),
-
-  exportNetwork: thunk(async (_, network, { getStoreState }) => {
+  exportNetwork: thunk(async (actions, { id }, { getState, getStoreState }) => {
+    const { networks } = getState();
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+    // only export stopped networks
+    if (![Status.Error, Status.Stopped].includes(network.status)) {
+      throw new Error(l('exportBadStatus'));
+    }
+    const defaultName = network.name.replace(/\s/g, '-').replace(/[^0-9a-zA-Z-._]/g, '');
     const options: SaveDialogOptions = {
-      title: 'title',
-      defaultPath: zipNameForNetwork(network),
+      title: l('exportTitle', { name: network.name }),
+      defaultPath: `${defaultName}.polar.zip`,
       properties: ['promptToCreate', 'createDirectory'],
     } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
-    const { filePath: zipDestination } = await remote.dialog.showSaveDialog(options);
+    const { filePath } = await remote.dialog.showSaveDialog(options);
 
     // user aborted dialog
-    if (!zipDestination) {
+    if (!filePath) {
       info('User aborted network export');
       return;
     }
 
-    info('exporting network', network);
-
-    const {
-      designer: { allCharts },
-    } = getStoreState();
-
-    // make sure the volumes directory is created, otherwise the zipping wil throw
-    // the volumes directory is not present if the network has never been started
-    await ensureDir(join(dataPath, 'networks', network.id.toString(), 'volumes'));
-
-    const zipped = await zipNetwork(network, allCharts[network.id]);
-
-    await copy(zipped, zipDestination);
-    info('exported network to', zipDestination);
-    return zipDestination;
+    info(`exporting network '${network.name}' to '${filePath}'`);
+    const { activeChart } = getStoreState().designer;
+    await zipNetwork(network, activeChart, filePath);
+    info('exported network successfully');
+    return filePath;
   }),
+  importNetwork: thunk(
+    async (_, path, { getStoreState, getStoreActions, injections }) => {
+      const { networks } = getStoreState().network;
+      const { add, save } = getStoreActions().network;
+      const { setChart } = getStoreActions().designer;
 
-  importNetwork: thunk(async (_, path, { getStoreState, getStoreActions }) => {
-    const {
-      network: { networks },
-    } = getStoreState();
+      // determine the next available id to use
+      const nextId = Math.max(0, ...networks.map(n => n.id)) + 1;
+      const [network, chart] = await importNetworkFromZip(path, nextId);
 
-    const { add, save } = getStoreActions().network;
-    const { setChart } = getStoreActions().designer;
+      add(network);
+      setChart({ chart, id: network.id });
+      await save();
+      await injections.dockerService.saveComposeFile(network);
 
-    const [newNetwork, chart] = await importNetworkFromZip(path, networks);
-
-    add(newNetwork);
-    setChart({ chart, id: newNetwork.id });
-    await save();
-
-    info('imported', newNetwork);
-    return newNetwork;
-  }),
+      info('imported', network);
+      return network;
+    },
+  ),
 };
 
 export default networkModel;
