@@ -1,6 +1,5 @@
 import { error, info, warn } from 'electron-log';
-import fs from 'fs';
-import { createWriteStream, pathExists } from 'fs-extra';
+import { createReadStream, createWriteStream, pathExists } from 'fs-extra';
 import { join } from 'path';
 import archiver from 'archiver';
 import unzipper from 'unzipper';
@@ -17,9 +16,9 @@ export const unzip = (filePath: string, destination: string): Promise<void> => {
       if (!exists) {
         throw Error(`${filePath} does not exist!`);
       }
-      const stream = fs
-        .createReadStream(filePath)
-        .pipe(unzipper.Extract({ path: destination }));
+      const stream = createReadStream(filePath).pipe(
+        unzipper.Extract({ path: destination }),
+      );
 
       stream.on('close', resolve);
       stream.on('error', err => {

@@ -1,8 +1,7 @@
-const createMockArchiver = () => {
-  // TODO: this code should live in __mocks__/archiver.js
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { PassThrough } = require('stream');
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { PassThrough } = require('stream');
+module.exports = () => {
   let mockStream;
   // return a fake stream when "archiver()" is called in the app
   const ctor = function() {
@@ -18,5 +17,3 @@ const createMockArchiver = () => {
 
   return ctor;
 };
-
-export default createMockArchiver();
