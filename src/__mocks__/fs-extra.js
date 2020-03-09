@@ -6,6 +6,7 @@ module.exports = {
   remove: jest.fn(),
   ensureDir: jest.fn(),
   copy: jest.fn(),
+  mkdirp: jest.fn(),
   createWriteStream: jest.fn(),
   createReadStream: jest.fn(),
 };

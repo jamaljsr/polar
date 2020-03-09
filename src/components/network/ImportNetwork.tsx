@@ -1,6 +1,5 @@
 import React from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { RouteComponentProps } from 'react-router';
 import { UploadOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Card, PageHeader, Upload } from 'antd';
@@ -33,7 +32,7 @@ const Styled = {
   `,
 };
 
-const ImportNetwork: React.FC<RouteComponentProps> = () => {
+const ImportNetwork: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.network.ImportNetwork');
   const { navigateTo, navigateToNetwork, notify } = useStoreActions(s => s.app);
   const { importNetwork } = useStoreActions(s => s.network);
@@ -41,12 +40,10 @@ const ImportNetwork: React.FC<RouteComponentProps> = () => {
     try {
       const network = await importNetwork(file.path);
       notify({ message: l('importSuccess', { name: network.name }) });
-      navigateToNetwork(network.id);
+      await navigateToNetwork(network.id);
     } catch (error) {
       notify({ message: l('importError', { file: file.name }), error });
     }
-
-    return;
   });
 
   const theme = useTheme();
@@ -63,7 +60,10 @@ const ImportNetwork: React.FC<RouteComponentProps> = () => {
           fileList={undefined}
           accept=".zip"
           disabled={importAsync.loading}
-          beforeUpload={importAsync.execute}
+          beforeUpload={file => {
+            importAsync.execute(file);
+            return false;
+          }}
         >
           {importAsync.loading ? (
             <>

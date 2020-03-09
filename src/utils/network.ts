@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { copy, mkdirp, writeFile } from 'fs-extra';
+import { copy, writeFile } from 'fs-extra';
 import { basename, join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import detectPort from 'detect-port';
@@ -22,7 +22,7 @@ import {
 } from 'types';
 import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO, dockerConfigs } from './constants';
-import { read } from './files';
+import { read, rm } from './files';
 import { getName } from './names';
 import { range } from './numbers';
 import { isVersionCompatible } from './strings';
@@ -520,23 +520,33 @@ export const importNetworkFromZip = async (
   id: number,
 ): Promise<[Network, IChart]> => {
   // extract zip to a temp folder first
-  const tmpDir = join(tmpdir(), basename(zipPath, '.zip'));
+  const tmpDir = join(tmpdir(), 'polar', basename(zipPath, '.zip'));
   await unzip(zipPath, tmpDir);
   debug(`Extracted '${zipPath}' to '${tmpDir}'`);
 
   // read and parse the export.json file
-  const path = join(tmpDir, 'export.json');
-  const parsed = JSON.parse(await read(path));
+  const exportFilePath = join(tmpDir, 'export.json');
+  const parsed = JSON.parse(await read(exportFilePath));
   // validate the network and chart
   if (!(parsed.network && isNetwork(parsed.network))) {
-    throw Error(`${path} did not contain a valid network`);
+    throw Error(`${exportFilePath} did not contain a valid network`);
   }
   if (!(parsed.chart && isChart(parsed.chart))) {
-    throw Error(`${path} did not contain a valid chart`);
+    throw Error(`${exportFilePath} did not contain a valid chart`);
   }
   const network = parsed.network as Network;
   const chart = parsed.chart as IChart;
   const netPath = join(dataPath, 'networks', `${id}`);
+
+  // confirms all nodes in the network are supported on the current OS
+  const platform = getPolarPlatform();
+  for (const { implementation } of network.nodes.lightning) {
+    const { platforms } = dockerConfigs[implementation];
+    const nodeSupportsPlatform = platforms.includes(platform);
+    if (!nodeSupportsPlatform) {
+      throw Error(l('incompatibleImplementation', { implementation, platform }));
+    }
+  }
 
   debug(`Updating the network path from '${network.path}' to '${netPath}'`);
   // update the paths for the network and nodes
@@ -557,22 +567,10 @@ export const importNetworkFromZip = async (
     }
   });
 
-  // confirms all nodes in the network are supported on the current OS
-  const platform = getPolarPlatform();
-  for (const { implementation } of network.nodes.lightning) {
-    const { platforms } = dockerConfigs[implementation];
-    const nodeSupportsPlatform = platforms.includes(platform);
-    if (!nodeSupportsPlatform) {
-      throw Error(l('incompatibleImplementation', { implementation, platform }));
-    }
-  }
-
-  // copy the network files to correct path
-  await mkdirp(network.path);
-  const thingsToCopy = ['docker-compose.yml', 'volumes'];
-  await Promise.all(
-    thingsToCopy.map(path => copy(join(tmpDir, path), join(network.path, path))),
-  );
+  // remove the export file as it is no longer needed
+  rm(exportFilePath);
+  // copy the network files to correct path inside of ~/.polar
+  await copy(tmpDir, network.path);
 
   return [network, chart];
 };
