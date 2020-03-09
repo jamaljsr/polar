@@ -1570,11 +1570,12 @@
   dependencies:
     "@types/whatwg-streams" "^0.0.7"
 
-"@mrblenny/react-flow-chart@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@mrblenny/react-flow-chart/-/react-flow-chart-0.0.9.tgz#d549ecf276daebbddc11a841b651e867adb468fa"
-  integrity sha512-ZbxSKBnqhFSxMzjedulFvexz+phMklPbtrv0ASZdJKF06L2xor4TdttxhHeX4ImKnV+zfRvQ88EDIPhH9qRtGA==
+"@mrblenny/react-flow-chart@0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@mrblenny/react-flow-chart/-/react-flow-chart-0.0.11.tgz#56be0aec9bed1613f5bf780238344467a1ccc52b"
+  integrity sha512-jCBmQeJdFNLIdwuu8k3DNZuOqaCg2GPzQijYqZ0QAcyfkX92RepWKhKQ6PxQ02Q7t5zFlsHTtDSUSS4ZTmx3zg==
   dependencies:
+    pathfinding "^0.4.18"
     react-draggable "^3.0.5"
     react-resize-observer "^1.1.1"
     styled-components "^5.0.0"
@@ -8774,6 +8775,11 @@ he@^1.2.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
+heap@0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/heap/-/heap-0.2.5.tgz#713b65590ebcc40fcbeeaf55e851694092b39af1"
+  integrity sha1-cTtlWQ68xA/L7q9V6FFpQJKzmvE=
+
 hex-color-regex@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
@@ -12873,6 +12879,13 @@ path-type@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
+
+pathfinding@^0.4.18:
+  version "0.4.18"
+  resolved "https://registry.yarnpkg.com/pathfinding/-/pathfinding-0.4.18.tgz#a9990f6fa22b7ef196e5651b049165403a045fe8"
+  integrity sha1-qZkPb6IrfvGW5WUbBJFlQDoEX+g=
+  dependencies:
+    heap "0.2.5"
 
 pathval@^1.1.0:
   version "1.1.0"
