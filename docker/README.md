@@ -8,7 +8,9 @@ _Warning: These images are not hardened and shouldn't be used to store real bitc
 
 ### Tags
 
-- `0.18.1`, `latest` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
+- `0.19.1` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
+- `0.19.0.1` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
+- `0.18.1` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
 
 **Building the image**
 
@@ -29,7 +31,10 @@ $ docker push polarlightning/bitcoind:<version>
 
 ### Tags
 
-- `0.8.0-beta`, `latest` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
+- `0.9.1-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
+- `0.9.0-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
+- `0.8.2-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
+- `0.8.0-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.7.1-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 
 **Building the image**
@@ -39,7 +44,7 @@ $ cd lnd
 $ docker build --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> .
 ```
 
-Replace `<version>` with the desired LND version (ex: `0.8.0-beta`)
+Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
 
 **Push to Docker Hub**
 
@@ -51,7 +56,8 @@ $ docker push polarlightning/lnd:<version>
 
 ### Tags
 
-- `0.7.3`, `latest` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `0.8.1` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `0.8.0` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 
 **Building the image**
 
