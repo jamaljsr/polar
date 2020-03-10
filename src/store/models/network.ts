@@ -35,6 +35,7 @@ interface AddNetworkArgs {
   name: string;
   lndNodes: number;
   clightningNodes: number;
+  eclairNodes: number;
   bitcoindNodes: number;
   customNodes: Record<string, number>;
 }
@@ -190,7 +191,7 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      { name, lndNodes, clightningNodes, bitcoindNodes, customNodes },
+      { name, lndNodes, clightningNodes, eclairNodes, bitcoindNodes, customNodes },
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
@@ -209,6 +210,7 @@ const networkModel: NetworkModel = {
         name,
         lndNodes,
         clightningNodes,
+        eclairNodes,
         bitcoindNodes,
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
