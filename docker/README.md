@@ -74,6 +74,27 @@ Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
 $ docker push polarlightning/clightning:<version>
 ```
 
+## Eclair
+
+### Tags
+
+- `0.3.3` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+
+**Building the image**
+
+```sh
+$ cd eclair
+$ docker build --build-arg ECLAIR_VERSION=<version> -t polarlightning/eclair:<version> .
+```
+
+Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
+
+**Push to Docker Hub**
+
+```sh
+$ docker push polarlightning/eclair:<version>
+```
+
 # Out-of-Band Image Updates
 
 These docker images can be updated in-between Polar releases. This allows developers to use the latest Bitcoin & Lightning versions shortly after they are released, without needing to download and install a new version of Polar.
