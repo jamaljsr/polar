@@ -1,6 +1,3 @@
-import { tmpdir } from 'os';
-import { join } from 'path';
-
 module.exports = {
   remote: {
     app: {
@@ -8,9 +5,7 @@ module.exports = {
       getLocale: () => 'en-US',
     },
     dialog: {
-      showSaveDialog: async () => ({
-        filePath: join(tmpdir(), 'polar-saved-network.zip'),
-      }),
+      showSaveDialog: jest.fn(),
     },
     process: {
       env: {},

@@ -645,7 +645,7 @@ const networkModel: NetworkModel = {
     return filePath;
   }),
   importNetwork: thunk(
-    async (_, path, { getStoreState, getStoreActions, injections }) => {
+    async (actions, path, { getStoreState, getStoreActions, injections }) => {
       const { networks } = getStoreState().network;
       const { add, save } = getStoreActions().network;
       const { setChart } = getStoreActions().designer;

@@ -1,4 +1,3 @@
-import electron from 'electron';
 import * as log from 'electron-log';
 import { wait } from '@testing-library/react';
 import detectPort from 'detect-port';
@@ -23,20 +22,6 @@ import networkModel from './network';
 jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
   rm: jest.fn(),
-}));
-
-jest.mock('utils/network', () => ({
-  ...jest.requireActual('utils/network'),
-  importNetworkFromZip: () => {
-    const network = {
-      id: 1,
-      nodes: {
-        bitcoin: [{}],
-        lightning: [{}],
-      },
-    };
-    return [network, {}];
-  },
 }));
 
 jest.mock('utils/zip', () => ({
@@ -836,57 +821,10 @@ describe('Network model', () => {
       };
       await expect(updateAdvancedOptions({ node, command: '' })).rejects.toThrow();
     });
-  });
 
-  describe('Export', () => {
-    beforeEach(() => {
-      const { addNetwork } = store.getActions().network;
-      addNetwork(addNetworkArgs);
-    });
-
-    it('should export a network and show a save dialogue', async () => {
+    it('should fail to export with an invalid id', async () => {
       const { exportNetwork } = store.getActions().network;
-
-      const spy = jest.spyOn(electron.remote.dialog, 'showSaveDialog');
-
-      const exported = await exportNetwork(firstNetwork());
-      expect(exported).toBeDefined();
-
-      expect(spy).toHaveBeenCalled();
-    });
-
-    it('should not export a network if the user closes the dialogue', async () => {
-      const mock = electron.remote.dialog.showSaveDialog as jest.MockedFunction<
-        typeof electron.remote.dialog.showSaveDialog
-      >;
-      // returns undefined if user closes the window
-      mock.mockImplementation(() => ({} as any));
-
-      const { exportNetwork } = store.getActions().network;
-      const exported = await exportNetwork(firstNetwork());
-      expect(exported).toBeUndefined();
-    });
-  });
-
-  describe('Import', () => {
-    it('should import a network', async () => {
-      const { importNetwork } = store.getActions().network;
-      const statePreImport = store.getState();
-
-      const imported = await importNetwork('zip');
-      expect(imported.id).toBeDefined();
-      expect(imported.nodes.bitcoin.length).toBeGreaterThan(0);
-      expect(imported.nodes.lightning.length).toBeGreaterThan(0);
-
-      const statePostImport = store.getState();
-
-      expect(statePostImport.network.networks.length).toEqual(
-        statePreImport.network.networks.length + 1,
-      );
-
-      const numChartsPost = Object.keys(statePostImport.designer.allCharts).length;
-      const numChartsPre = Object.keys(statePreImport.designer.allCharts).length;
-      expect(numChartsPost).toEqual(numChartsPre + 1);
+      await expect(exportNetwork({ id: 10 })).rejects.toThrow();
     });
   });
 });

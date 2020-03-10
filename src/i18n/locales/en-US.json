@@ -350,5 +350,6 @@
   "store.models.network.exportTitle": "Export '{{name}}'",
   "store.models.network.exportBadStatus": "The network must be stopped to be exported",
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
-  "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}"
+  "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
+  "utils.network.unknownImplementation": "Cannot import unknown Lightning implementation '{{implementation}}'"
 }

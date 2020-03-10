@@ -1,5 +1,6 @@
 import React from 'react';
 import electron from 'electron';
+import * as log from 'electron-log';
 import fsExtra from 'fs-extra';
 import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { act } from '@testing-library/react';
@@ -15,19 +16,21 @@ import {
   suppressConsoleErrors,
   testCustomImages,
 } from 'utils/tests';
+import * as zip from 'utils/zip';
 import NetworkView from './NetworkView';
 
+jest.mock('utils/zip');
+
 const fsMock = fsExtra as jest.Mocked<typeof fsExtra>;
+const logMock = log as jest.Mocked<typeof log>;
+const zipMock = zip as jest.Mocked<typeof zip>;
+const dialogMock = electron.remote.dialog as jest.Mocked<typeof electron.remote.dialog>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
 const dockerServiceMock = injections.dockerService as jest.Mocked<
   typeof injections.dockerService
 >;
-
-jest.mock('utils/zip', () => ({
-  zip: jest.fn(),
-}));
 
 describe('NetworkView Component', () => {
   const renderComponent = (
@@ -222,46 +225,39 @@ describe('NetworkView Component', () => {
   });
 
   describe('rename network', () => {
-    beforeEach(jest.useFakeTimers);
-    afterEach(jest.useRealTimers);
-
     it('should show the rename input', async () => {
-      const { getByLabelText, getByText, findByDisplayValue } = renderComponent('1');
+      const { getByLabelText, findByText, findByDisplayValue } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
-      await wait(() => jest.runOnlyPendingTimers());
-      fireEvent.click(getByText('Rename'));
+      fireEvent.click(await findByText('Rename'));
       const input = (await findByDisplayValue('test network')) as HTMLInputElement;
       expect(input).toBeInTheDocument();
       expect(input.type).toBe('text');
-      fireEvent.click(getByText('Cancel'));
+      fireEvent.click(await findByText('Cancel'));
       expect(input).not.toBeInTheDocument();
-      expect(getByText('Start')).toBeInTheDocument();
+      expect(await findByText('Start')).toBeInTheDocument();
     });
 
     it('should rename the network', async () => {
-      const { getByLabelText, getByText, findByDisplayValue, store } = renderComponent(
+      const { getByLabelText, findByText, findByDisplayValue, store } = renderComponent(
         '1',
       );
       fireEvent.mouseOver(getByLabelText('more'));
-      await wait(() => jest.runOnlyPendingTimers());
-      fireEvent.click(getByText('Rename'));
+      fireEvent.click(await findByText('Rename'));
       const input = await findByDisplayValue('test network');
       fireEvent.change(input, { target: { value: 'new network name' } });
-      fireEvent.click(getByText('Save'));
-      await wait(() => jest.runOnlyPendingTimers());
+      fireEvent.click(await findByText('Save'));
       expect(store.getState().network.networkById(1).name).toBe('new network name');
+      expect(await findByText('Start')).toBeInTheDocument();
     });
 
     it('should display an error if renaming fails', async () => {
-      const { getByLabelText, getByText, findByDisplayValue } = renderComponent('1');
+      const { getByLabelText, findByText, findByDisplayValue } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
-      await wait(() => jest.runOnlyPendingTimers());
-      fireEvent.click(getByText('Rename'));
+      fireEvent.click(await findByText('Rename'));
       const input = await findByDisplayValue('test network');
       fireEvent.change(input, { target: { value: '' } });
-      fireEvent.click(getByText('Save'));
-      await wait(() => jest.runOnlyPendingTimers());
-      expect(getByText('Failed to rename the network')).toBeInTheDocument();
+      fireEvent.click(await findByText('Save'));
+      expect(await findByText('Failed to rename the network')).toBeInTheDocument();
     });
   });
 
@@ -312,48 +308,39 @@ describe('NetworkView Component', () => {
   });
 
   describe('export network', () => {
-    beforeEach(jest.useFakeTimers);
-    afterEach(jest.useRealTimers);
     it('should fail to export a running network', async () => {
-      const { getByText, getByLabelText } = renderComponent('1');
-      const primaryBtn = getByText('Start');
-      fireEvent.click(primaryBtn);
-      // should change to stopped after some time
-      await wait(() => {
-        expect(primaryBtn).toHaveTextContent('Stop');
-      });
-
+      const { getByLabelText, findByText } = renderComponent('1', Status.Started);
       fireEvent.mouseOver(getByLabelText('more'));
-      await wait(() => jest.runOnlyPendingTimers());
-
-      fireEvent.click(getByText('Export'));
-      await wait(() => jest.runOnlyPendingTimers());
-      expect(getByText('The network must be stopped to be exported')).toBeInTheDocument();
+      fireEvent.click(await findByText('Export'));
+      expect(
+        await findByText('The network must be stopped to be exported'),
+      ).toBeInTheDocument();
     });
 
     it('should export a stopped network', async () => {
-      const { getByText, getByLabelText } = renderComponent('1');
-
+      dialogMock.showSaveDialog.mockResolvedValue({ filePath: 'file.zip' } as any);
+      const { findByText, getByLabelText } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
-      await wait(() => jest.runOnlyPendingTimers());
-
-      fireEvent.click(getByText('Export'));
-      await wait(() => jest.runOnlyPendingTimers());
-      expect(getByText("Exported 'test network'", { exact: false })).toBeInTheDocument();
+      fireEvent.click(await findByText('Export'));
+      expect(
+        await findByText("Exported 'test network'", { exact: false }),
+      ).toBeInTheDocument();
     });
 
     it('should not export the network if the user closes the file save dialogue', async () => {
+      jest.useFakeTimers();
       // returns undefined if user closes the window
-      electron.remote.dialog.showSaveDialog = jest.fn(() => ({})) as any;
-
-      const { queryByText, getByText, getByLabelText } = renderComponent('1');
-
+      dialogMock.showSaveDialog.mockResolvedValue({} as any);
+      const { queryByText, findByText, getByLabelText } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
       await wait(() => jest.runOnlyPendingTimers());
-
-      fireEvent.click(getByText('Export'));
+      fireEvent.click(await findByText('Export'));
       await wait(() => jest.runOnlyPendingTimers());
+      expect(logMock.info).toBeCalledWith('User aborted network export');
+      expect(dialogMock.showSaveDialog).toBeCalled();
+      expect(zipMock.zip).not.toBeCalled();
       expect(queryByText("Exported 'test network'", { exact: false })).toBeNull();
+      jest.useRealTimers();
     });
   });
 });
