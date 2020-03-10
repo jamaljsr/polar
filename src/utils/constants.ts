@@ -2,6 +2,7 @@ import { NodeImplementation } from 'shared/types';
 import { DockerConfig, DockerRepoState } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
+import eclairLogo from 'resources/eclair.png';
 import lndLogo from 'resources/lnd.png';
 import packageJson from '../../package.json';
 
@@ -126,12 +127,29 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
   },
   eclair: {
     name: 'Eclair',
-    imageName: '',
-    logo: '',
+    imageName: 'polarlightning/eclair',
+    logo: eclairLogo,
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'eclair',
-    command: '',
-    variables: [],
+    command: [
+      'polar-eclair',
+      '--node-alias={{name}}',
+      '--server.port=9735',
+      '--api.enabled=true',
+      '--api.binging-ip=0.0.0.0',
+      '--api.port=8080',
+      '--api.password=eclairpw',
+      '--chain=regtest',
+      '--bitcoind.host={{backendName}}',
+      '--bitcoind.rpcport=18443',
+      '--bitcoind.rpcuser={{rpcUser}}',
+      '--bitcoind.rpcpassword={{rpcPass}}',
+      '--bitcoind.zmqblock=tcp://{{backendName}}:28334',
+      '--bitcoind.zmqtx=tcp://{{backendName}}:28335',
+      '--datadir=/home/eclair/.eclair',
+    ].join('\n  '),
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
+    variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
   },
   bitcoind: {
     name: 'Bitcoin Core',
@@ -203,8 +221,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.8.1', '0.8.0'],
     },
     eclair: {
-      latest: '',
-      versions: [],
+      latest: '0.3.3',
+      versions: ['0.3.3'],
     },
     bitcoind: {
       latest: '0.19.1',

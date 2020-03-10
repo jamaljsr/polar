@@ -3,9 +3,7 @@ import { BitcoinNode, LightningNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
-import btclogo from 'resources/bitcoin.svg';
-import clightningLogo from 'resources/clightning.png';
-import lndLogo from 'resources/lnd.png';
+import { dockerConfigs } from './constants';
 
 export interface LinkProperties {
   type: 'backend' | 'pending-channel' | 'open-channel' | 'btcpeer';
@@ -36,7 +34,6 @@ export const snap = (position: IPosition, config?: IConfig) =>
     : position;
 
 export const createLightningChartNode = (ln: LightningNode) => {
-  const logo = ln.implementation === 'c-lightning' ? clightningLogo : lndLogo;
   const node: INode = {
     id: ln.name,
     type: 'lightning',
@@ -49,7 +46,7 @@ export const createLightningChartNode = (ln: LightningNode) => {
     size: { width: 200, height: 36 },
     properties: {
       status: ln.status,
-      icon: logo,
+      icon: dockerConfigs[ln.implementation].logo,
     },
   };
 
@@ -78,7 +75,7 @@ export const createBitcoinChartNode = (btc: BitcoinNode) => {
     size: { width: 200, height: 36 },
     properties: {
       status: btc.status,
-      icon: btclogo,
+      icon: dockerConfigs[btc.implementation].logo,
     },
   };
 

@@ -65,6 +65,7 @@ describe('Designer model', () => {
         name: 'test',
         lndNodes: 2,
         clightningNodes: 1,
+        eclairNodes: 0,
         bitcoindNodes: 2,
         customNodes: {},
       });
@@ -100,6 +101,7 @@ describe('Designer model', () => {
         name: 'test 2',
         lndNodes: 2,
         clightningNodes: 0,
+        eclairNodes: 0,
         bitcoindNodes: 1,
         customNodes: {},
       });
@@ -351,6 +353,7 @@ describe('Designer model', () => {
           name: 'test 3',
           lndNodes: 0,
           clightningNodes: 0,
+          eclairNodes: 0,
           bitcoindNodes: 0,
           customNodes: {},
         });

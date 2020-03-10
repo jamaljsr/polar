@@ -68,8 +68,9 @@ const NewNetwork: React.SFC = () => {
           layout="vertical"
           colon={false}
           initialValues={{
-            lndNodes: isWindows() ? 3 : 2,
+            lndNodes: isWindows() ? 2 : 1,
             clightningNodes: isWindows() ? 0 : 1,
+            eclairNodes: 1,
             bitcoindNodes: 1,
             customNodes: initialCustomValues,
           }}
@@ -102,7 +103,7 @@ const NewNetwork: React.SFC = () => {
           )}
           <Styled.Divider orientation="left">{l('managedLabel')}</Styled.Divider>
           <Row gutter={16}>
-            <Col span={8}>
+            <Col span={6}>
               <Form.Item
                 name="lndNodes"
                 label={dockerConfigs.LND.name}
@@ -111,7 +112,7 @@ const NewNetwork: React.SFC = () => {
                 <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
               <Form.Item
                 name="clightningNodes"
                 label={dockerConfigs['c-lightning'].name}
@@ -121,7 +122,16 @@ const NewNetwork: React.SFC = () => {
                 <InputNumber min={0} max={10} disabled={isWindows()} />
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={6}>
+              <Form.Item
+                name="eclairNodes"
+                label={dockerConfigs.eclair.name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
               <Form.Item
                 name="bitcoindNodes"
                 label={dockerConfigs.bitcoind.name}

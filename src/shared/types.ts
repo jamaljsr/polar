@@ -51,6 +51,13 @@ export interface CLightningNode extends LightningNode {
   };
 }
 
+export interface EclairNode extends LightningNode {
+  ports: {
+    rest: number;
+    p2p: number;
+  };
+}
+
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
   implementation: 'bitcoind' | 'btcd';

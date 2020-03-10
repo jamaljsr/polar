@@ -10,6 +10,7 @@ import {
   BitcoinNode,
   CLightningNode,
   CommonNode,
+  EclairNode,
   LightningNode,
   LndNode,
 } from 'shared/types';
@@ -94,6 +95,11 @@ class DockerService implements DockerLibrary {
         const cln = node as CLightningNode;
         const backend = bitcoin.find(n => n.name === cln.backendName) || bitcoin[0];
         file.addClightning(cln, backend);
+      }
+      if (node.implementation === 'eclair') {
+        const eclair = node as EclairNode;
+        const backend = bitcoin.find(n => n.name === eclair.backendName) || bitcoin[0];
+        file.addEclair(eclair, backend);
       }
     });
 

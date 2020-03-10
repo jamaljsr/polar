@@ -184,6 +184,7 @@ describe('DockerService', () => {
         name: 'my network',
         lndNodes: 1,
         clightningNodes: 0,
+        eclairNodes: 0,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
         managedImages: testManagedImages,
@@ -205,6 +206,7 @@ describe('DockerService', () => {
         name: 'my network',
         lndNodes: 0,
         clightningNodes: 1,
+        eclairNodes: 0,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
         managedImages: testManagedImages,
@@ -221,7 +223,7 @@ describe('DockerService', () => {
     });
 
     it('should not save unknown lightning implementation', () => {
-      network.nodes.lightning[0].implementation = 'eclair';
+      network.nodes.lightning[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(network);
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
@@ -247,6 +249,7 @@ describe('DockerService', () => {
         name: 'my network',
         lndNodes: 2,
         clightningNodes: 1,
+        eclairNodes: 0,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
         managedImages: testManagedImages,
@@ -293,6 +296,7 @@ describe('DockerService', () => {
         name: 'my network',
         lndNodes: 2,
         clightningNodes: 1,
+        eclairNodes: 0,
         bitcoindNodes: 1,
         repoState: defaultRepoState,
         managedImages: testManagedImages,

@@ -8,6 +8,7 @@ import {
   BitcoinNode,
   CLightningNode,
   CommonNode,
+  EclairNode,
   LightningNode,
   LndNode,
   NodeImplementation,
@@ -182,6 +183,41 @@ export const createCLightningNetworkNode = (
   };
 };
 
+export const createEclairNetworkNode = (
+  network: Network,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+): EclairNode => {
+  const { bitcoin, lightning } = network.nodes;
+  const implementation: EclairNode['implementation'] = 'eclair';
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
+  const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
+  const name = getName(id);
+  return {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'lightning',
+    implementation,
+    version,
+    status,
+    // alternate between backend nodes
+    backendName: backends[id % backends.length].name,
+    ports: {
+      rest: BasePorts.LND.rest + id,
+      p2p: BasePorts.LND.p2p + id,
+    },
+    docker,
+  };
+};
+
 export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
@@ -224,6 +260,7 @@ export const createNetwork = (config: {
   name: string;
   lndNodes: number;
   clightningNodes: number;
+  eclairNodes: number;
   bitcoindNodes: number;
   repoState: DockerRepoState;
   managedImages: ManagedImage[];
@@ -235,6 +272,7 @@ export const createNetwork = (config: {
     name,
     lndNodes,
     clightningNodes,
+    eclairNodes,
     bitcoindNodes,
     repoState,
     managedImages,
@@ -293,7 +331,7 @@ export const createNetwork = (config: {
     });
 
   // add lightning nodes in an alternating pattern
-  range(Math.max(lndNodes, clightningNodes)).forEach(i => {
+  range(Math.max(lndNodes, clightningNodes, eclairNodes)).forEach(i => {
     if (i < lndNodes) {
       const { latest, compatibility } = repoState.images.LND;
       const cmd = getImageCommand(managedImages, 'LND', latest);
@@ -312,6 +350,13 @@ export const createNetwork = (config: {
           dockerWrap(cmd),
           status,
         ),
+      );
+    }
+    if (i < eclairNodes) {
+      const { latest, compatibility } = repoState.images.eclair;
+      const cmd = getImageCommand(managedImages, 'eclair', latest);
+      lightning.push(
+        createEclairNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
       );
     }
   });

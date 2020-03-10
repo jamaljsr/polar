@@ -54,6 +54,7 @@ describe('Network model', () => {
     name: 'test',
     lndNodes: 2,
     clightningNodes: 1,
+    eclairNodes: 0,
     bitcoindNodes: 1,
     customNodes: {},
   };

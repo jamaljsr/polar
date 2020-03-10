@@ -42,6 +42,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     name: name || 'my-test',
     lndNodes: 2,
     clightningNodes: 1,
+    eclairNodes: 0,
     bitcoindNodes: 1,
     status,
     repoState: defaultRepoState,

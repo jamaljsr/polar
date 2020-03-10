@@ -87,7 +87,7 @@ describe('DefaultSidebar Component', () => {
     const { getByText, getAllByText, getByRole } = renderComponent();
     fireEvent.click(getByRole('switch'));
     expect(getByText(`LND v0.8.0-beta`)).toBeInTheDocument();
-    expect(getAllByText('latest')).toHaveLength(3);
+    expect(getAllByText('latest')).toHaveLength(4);
   });
 
   it('should display the Image Updates Modal', async () => {
@@ -106,7 +106,7 @@ describe('DefaultSidebar Component', () => {
     const { queryByText, getAllByText, getByRole } = renderComponent();
     expect(queryByText('c-lightning')).not.toBeInTheDocument();
     fireEvent.click(getByRole('switch'));
-    expect(getAllByText('latest')).toHaveLength(2);
+    expect(getAllByText('latest')).toHaveLength(3);
   });
 
   it('should display custom images', () => {
