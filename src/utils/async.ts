@@ -1,5 +1,5 @@
 /**
- * Returns a promise that will be reolved after the specified timeout
+ * Returns a promise that will be resolved after the specified timeout
  * @param timeout the amount of ms to wait
  */
 export const delay = (timeout: number) => {
@@ -8,10 +8,10 @@ export const delay = (timeout: number) => {
 };
 
 /**
- * Returns a promise that will ressolve when execution of the conditionFunc does not throw an error
+ * Returns a promise that will resolve when execution of the conditionFunc does not throw an error
  * @param conditionFunc the function to execute which determines when the call succeeds. Must return a Promise
  * @param interval the number of ms between each execution of the conditionFunc
- * @param timeout the absolute timeout to abort checking the codition and return false
+ * @param timeout the absolute timeout to abort checking the condition and return false
  */
 export const waitFor = async (
   conditionFunc: () => Promise<any>,

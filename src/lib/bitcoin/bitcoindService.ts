@@ -73,7 +73,7 @@ class BitcoindService implements BitcoindLibrary {
   async waitUntilOnline(
     node: BitcoinNode,
     interval = 3 * 1000, // check every 3 seconds
-    timeout = 30 * 1000, // timeout after 30 seconds
+    timeout = 60 * 1000, // timeout after 60 seconds
   ): Promise<void> {
     return waitFor(
       async () => {
