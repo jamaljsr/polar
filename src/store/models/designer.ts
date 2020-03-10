@@ -288,231 +288,172 @@ const designerModel: DesignerModel = {
       }
     },
   ),
-  // TODO: add unit tests for the actions below
-  // These actions are excluded from test coverage analysis because
-  // they were copied with no modifications from
-  // https://github.com/MrBlenny/react-flow-chart/blob/master/src/container/actions.ts
-  onDragNode: action(
-    /* istanbul ignore next */
-    (state, { config, data, id }) => {
-      const chart = state.allCharts[state.activeId];
-      if (chart.nodes[id]) {
-        chart.nodes[id] = {
-          ...chart.nodes[id],
-          position: snap(data, config),
-        };
-      }
-    },
-  ),
-  onDragNodeStop: action(
-    /* istanbul ignore next */
-    state => {
-      return state;
-    },
-  ),
-  onDragCanvas: action(
-    /* istanbul ignore next */
-    (state, { config, data }) => {
-      const chart = state.allCharts[state.activeId];
-      chart.offset = snap(data, config);
-    },
-  ),
-  onDragCanvasStop: action(
-    /* istanbul ignore next */
-    state => {
-      return state;
-    },
-  ),
-  onLinkStart: action(
-    /* istanbul ignore next */
-    (state, { linkId, fromNodeId, fromPortId }) => {
-      const chart = state.allCharts[state.activeId];
-      chart.links[linkId] = {
-        id: linkId,
-        from: {
-          nodeId: fromNodeId,
-          portId: fromPortId,
-        },
-        to: {},
-        properties: {
-          type: 'link-start',
-        },
+  onDragNode: action((state, { config, data, id }) => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.nodes[id]) {
+      chart.nodes[id] = {
+        ...chart.nodes[id],
+        position: snap(data, config),
       };
-    },
+    }
+  }),
+  onDragNodeStop: action(
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    () => {},
   ),
-  onLinkMove: action(
-    /* istanbul ignore next */
-    (state, { linkId, toPosition }) => {
-      const chart = state.allCharts[state.activeId];
-      const link = chart.links[linkId];
-      link.to.position = toPosition;
-      chart.links[linkId] = { ...link };
-    },
+  onDragCanvas: action((state, { config, data }) => {
+    const chart = state.allCharts[state.activeId];
+    chart.offset = snap(data, config);
+  }),
+  onDragCanvasStop: action(
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    () => {},
   ),
-  onLinkComplete: action(
-    /* istanbul ignore next */
-    (state, args) => {
-      const chart = state.allCharts[state.activeId];
-      const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
-      if (
-        (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
-        fromNodeId !== toNodeId &&
-        [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
-      ) {
-        chart.links[linkId].to = {
-          nodeId: toNodeId,
-          portId: toPortId,
-        };
-      } else {
-        delete chart.links[linkId];
-      }
-    },
-  ),
-  onLinkCancel: action(
-    /* istanbul ignore next */
-    (state, { linkId }) => {
-      const chart = state.allCharts[state.activeId];
+  onLinkStart: action((state, { linkId, fromNodeId, fromPortId }) => {
+    const chart = state.allCharts[state.activeId];
+    chart.links[linkId] = {
+      id: linkId,
+      from: {
+        nodeId: fromNodeId,
+        portId: fromPortId,
+      },
+      to: {},
+      properties: {
+        type: 'link-start',
+      },
+    };
+  }),
+  onLinkMove: action((state, { linkId, toPosition }) => {
+    const chart = state.allCharts[state.activeId];
+    const link = chart.links[linkId];
+    link.to.position = toPosition;
+    chart.links[linkId] = { ...link };
+  }),
+  onLinkComplete: action((state, args) => {
+    const chart = state.allCharts[state.activeId];
+    const { linkId, fromNodeId, fromPortId, toNodeId, toPortId, config = {} } = args;
+    if (
+      (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
+      fromNodeId !== toNodeId &&
+      [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
+    ) {
+      chart.links[linkId].to = {
+        nodeId: toNodeId,
+        portId: toPortId,
+      };
+    } else {
       delete chart.links[linkId];
-    },
-  ),
-  onLinkMouseEnter: action(
-    /* istanbul ignore next */
-    (state, { linkId }) => {
-      const chart = state.allCharts[state.activeId];
-      // Set the link to hover
-      const link = chart.links[linkId];
-      // Set the connected ports to hover
-      if (link.to.nodeId && link.to.portId) {
-        if (chart.hovered.type !== 'link' || chart.hovered.id !== linkId) {
-          chart.hovered = {
-            type: 'link',
-            id: linkId,
-          };
-        }
-      }
-    },
-  ),
-  onLinkMouseLeave: action(
-    /* istanbul ignore next */
-    (state, { linkId }) => {
-      const chart = state.allCharts[state.activeId];
-      const link = chart.links[linkId];
-      // Set the connected ports to hover
-      if (link.to.nodeId && link.to.portId) {
-        chart.hovered = {};
-      }
-    },
-  ),
-  onLinkClick: action(
-    /* istanbul ignore next */
-    (state, { linkId }) => {
-      const chart = state.allCharts[state.activeId];
-      if (chart.selected.id !== linkId || chart.selected.type !== 'link') {
-        chart.selected = {
+    }
+  }),
+  onLinkCancel: action((state, { linkId }) => {
+    const chart = state.allCharts[state.activeId];
+    delete chart.links[linkId];
+  }),
+  onLinkMouseEnter: action((state, { linkId }) => {
+    const chart = state.allCharts[state.activeId];
+    // Set the link to hover
+    const link = chart.links[linkId];
+    // Set the connected ports to hover
+    if (link.to.nodeId && link.to.portId) {
+      if (chart.hovered.type !== 'link' || chart.hovered.id !== linkId) {
+        chart.hovered = {
           type: 'link',
           id: linkId,
         };
       }
-    },
-  ),
-  onCanvasClick: action(
-    /* istanbul ignore next */
-    state => {
-      const chart = state.allCharts[state.activeId];
-      if (chart.selected.id) {
-        chart.selected = {};
-      }
-    },
-  ),
-  onDeleteKey: action(
-    /* istanbul ignore next */
-    state => {
-      const chart = state.allCharts[state.activeId];
-      if (chart.selected) {
-        chart.selected = {};
-      }
-    },
-  ),
-  onNodeClick: action(
-    /* istanbul ignore next */
-    (state, { nodeId }) => {
-      const chart = state.allCharts[state.activeId];
-      if (chart.selected.id !== nodeId || chart.selected.type !== 'node') {
-        chart.selected = {
-          type: 'node',
-          id: nodeId,
-        };
-      }
-    },
-  ),
-  onNodeMouseEnter: action(
-    /* istanbul ignore next */
-    (state, { nodeId }) => {
-      const chart = state.allCharts[state.activeId];
-      chart.hovered = {
+    }
+  }),
+  onLinkMouseLeave: action((state, { linkId }) => {
+    const chart = state.allCharts[state.activeId];
+    const link = chart.links[linkId];
+    // Set the connected ports to hover
+    if (link.to.nodeId && link.to.portId) {
+      chart.hovered = {};
+    }
+  }),
+  onLinkClick: action((state, { linkId }) => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.selected.id !== linkId || chart.selected.type !== 'link') {
+      chart.selected = {
+        type: 'link',
+        id: linkId,
+      };
+    }
+  }),
+  onCanvasClick: action(state => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.selected.id) {
+      chart.selected = {};
+    }
+  }),
+  onDeleteKey: action(state => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.selected) {
+      chart.selected = {};
+    }
+  }),
+  onNodeClick: action((state, { nodeId }) => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.selected.id !== nodeId || chart.selected.type !== 'node') {
+      chart.selected = {
         type: 'node',
         id: nodeId,
       };
-    },
-  ),
-  onNodeMouseLeave: action(
-    /* istanbul ignore next */
-    (state, { nodeId }) => {
-      const chart = state.allCharts[state.activeId];
-      if (chart.hovered.type === 'node' && chart.hovered.id === nodeId) {
-        chart.hovered = {};
-      }
-    },
-  ),
-  onNodeSizeChange: action(
-    /* istanbul ignore next */
-    (state, { nodeId, size }) => {
-      const chart = state.allCharts[state.activeId];
-      chart.nodes[nodeId].size = {
-        ...size,
+    }
+  }),
+  onNodeMouseEnter: action((state, { nodeId }) => {
+    const chart = state.allCharts[state.activeId];
+    chart.hovered = {
+      type: 'node',
+      id: nodeId,
+    };
+  }),
+  onNodeMouseLeave: action((state, { nodeId }) => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.hovered.type === 'node' && chart.hovered.id === nodeId) {
+      chart.hovered = {};
+    }
+  }),
+  onNodeSizeChange: action((state, { nodeId, size }) => {
+    const chart = state.allCharts[state.activeId];
+    chart.nodes[nodeId].size = {
+      ...size,
+    };
+  }),
+  onPortPositionChange: action((state, { node: nodeToUpdate, port, el, nodesEl }) => {
+    const chart = state.allCharts[state.activeId];
+    if (nodeToUpdate.size) {
+      // rotate the port's position based on the node's orientation prop (angle)
+      const center = {
+        x: nodeToUpdate.size.width / 2,
+        y: nodeToUpdate.size.height / 2,
       };
-    },
-  ),
-  onPortPositionChange: action(
-    /* istanbul ignore next */
-    (state, { node: nodeToUpdate, port, el, nodesEl }) => {
-      const chart = state.allCharts[state.activeId];
-      if (nodeToUpdate.size) {
-        // rotate the port's position based on the node's orientation prop (angle)
-        const center = {
-          x: nodeToUpdate.size.width / 2,
-          y: nodeToUpdate.size.height / 2,
-        };
-        const current = {
-          x: el.offsetLeft + nodesEl.offsetLeft + el.offsetWidth / 2,
-          y: el.offsetTop + nodesEl.offsetTop + el.offsetHeight / 2,
-        };
-        const angle = nodeToUpdate.orientation || 0;
-        const position = rotate(center, current, angle);
-
-        const node = chart.nodes[nodeToUpdate.id];
-        node.ports[port.id].position = {
-          x: position.x,
-          y: position.y,
-        };
-
-        chart.nodes[nodeToUpdate.id] = { ...node };
-      }
-    },
-  ),
-  onCanvasDrop: action(
-    /* istanbul ignore next */
-    (state, { config, data, position }) => {
-      const chart = state.allCharts[state.activeId];
-      chart.nodes[LOADING_NODE_ID] = {
-        id: LOADING_NODE_ID,
-        position: snap(position, config),
-        type: data.type,
-        ports: {},
-        properties: {},
+      const current = {
+        x: el.offsetLeft + nodesEl.offsetLeft + el.offsetWidth / 2,
+        y: el.offsetTop + nodesEl.offsetTop + el.offsetHeight / 2,
       };
-    },
-  ),
+      const angle = nodeToUpdate.orientation || 0;
+      const position = rotate(center, current, angle);
+
+      const node = chart.nodes[nodeToUpdate.id];
+      node.ports[port.id].position = {
+        x: position.x,
+        y: position.y,
+      };
+
+      chart.nodes[nodeToUpdate.id] = { ...node };
+    }
+  }),
+  onCanvasDrop: action((state, { config, data, position }) => {
+    const chart = state.allCharts[state.activeId];
+    chart.nodes[LOADING_NODE_ID] = {
+      id: LOADING_NODE_ID,
+      position: snap(position, config),
+      type: data.type,
+      ports: {},
+      properties: {},
+    };
+  }),
 };
 
 export default designerModel;

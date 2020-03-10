@@ -1,3 +1,4 @@
+import { IPosition } from '@mrblenny/react-flow-chart';
 import { wait } from '@testing-library/dom';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
@@ -441,6 +442,221 @@ describe('Designer model', () => {
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[3].status).toBe(Status.Started);
         });
+      });
+    });
+
+    describe('FlowChart Actions', () => {
+      const position: IPosition = { x: 100, y: 100 };
+
+      it('onDragNode', () => {
+        const { onDragNode } = store.getActions().designer;
+        // should update position
+        onDragNode({ id: 'alice', data: position } as any);
+        expect(firstChart().nodes.alice.position).toEqual(position);
+        // should do nothing for unknown node
+        const before = firstChart();
+        onDragNode({ id: 'unknown', data: position } as any);
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onDragNodeStop', () => {
+        const { onDragNodeStop } = store.getActions().designer;
+        // should do nothing
+        const before = firstChart();
+        onDragNodeStop({} as any);
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onDragCanvas', () => {
+        const { onDragCanvas } = store.getActions().designer;
+        onDragCanvas({ data: position } as any);
+        expect(firstChart().offset).toEqual(position);
+      });
+
+      it('onDragCanvasStop', () => {
+        const { onDragCanvasStop } = store.getActions().designer;
+        // should do nothing
+        const before = firstChart();
+        onDragCanvasStop({} as any);
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onLinkStart', () => {
+        const { onLinkStart } = store.getActions().designer;
+        expect(firstChart().links['test-link']).toBeUndefined();
+        const payload = {
+          linkId: 'test-link',
+          fromNodeId: 'alice',
+          fromPortId: 'empty-left',
+        };
+        onLinkStart(payload as any);
+        expect(firstChart().links['test-link']).toBeDefined();
+      });
+
+      it('onLinkMove', () => {
+        const { onLinkStart, onLinkMove } = store.getActions().designer;
+        // create the link first
+        const payload = {
+          linkId: 'test-link',
+          fromNodeId: 'alice',
+          fromPortId: 'empty-left',
+        };
+        onLinkStart(payload as any);
+        expect(firstChart().links['test-link'].to.position).toBeUndefined();
+        // move the link
+        onLinkMove({ linkId: 'test-link', toPosition: position } as any);
+        expect(firstChart().links['test-link'].to.position).toBeDefined();
+      });
+
+      it('onLinkComplete', () => {
+        // set the nodes to Started
+        const { setStatus } = store.getActions().network;
+        setStatus({ id: firstNetwork().id, status: Status.Started });
+
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        // create the link first
+        const payload = {
+          linkId: 'test-link',
+          fromNodeId: 'alice',
+          fromPortId: 'empty-left',
+        };
+        onLinkStart(payload as any);
+        expect(firstChart().links['test-link'].to.nodeId).toBeUndefined();
+        // complete the link
+        const completePayload = {
+          ...payload,
+          toNodeId: 'bob',
+          toPortId: 'empty-right',
+          config: {
+            validateLink: () => true,
+          },
+        };
+        onLinkComplete(completePayload as any);
+        expect(firstChart().links['test-link'].to.nodeId).toBe('bob');
+      });
+
+      it('onLinkCancel', () => {
+        const { onLinkStart, onLinkCancel } = store.getActions().designer;
+        // create the link first
+        const payload = {
+          linkId: 'test-link',
+          fromNodeId: 'alice',
+          fromPortId: 'empty-left',
+        };
+        onLinkStart(payload as any);
+        expect(firstChart().links['test-link']).toBeDefined();
+        // cancel the link
+        onLinkCancel({ linkId: 'test-link' } as any);
+        expect(firstChart().links['test-link']).toBeUndefined();
+      });
+
+      it('onLinkMouseEnter - onLinkMouseLeave', () => {
+        const {
+          onLinkMouseEnter,
+          onLinkMouseLeave,
+          onLinkStart,
+        } = store.getActions().designer;
+        // happy path
+        expect(firstChart().hovered.id).toBeUndefined();
+        onLinkMouseEnter({ linkId: 'alice-backend1' });
+        expect(firstChart().hovered.id).toBe('alice-backend1');
+        expect(firstChart().hovered.type).toBe('link');
+        onLinkMouseLeave({ linkId: 'alice-backend1' });
+        expect(firstChart().hovered.id).toBeUndefined();
+        // with no "to"
+        const payload = {
+          linkId: 'test-link',
+          fromNodeId: 'alice',
+          fromPortId: 'empty-left',
+        };
+        onLinkStart(payload as any);
+        const before = firstChart();
+        onLinkMouseEnter({ linkId: 'test-link' });
+        onLinkMouseLeave({ linkId: 'test-link' });
+        expect(firstChart()).toEqual(before);
+        // same link hovered twice
+        expect(firstChart().hovered.id).toBeUndefined();
+        onLinkMouseEnter({ linkId: 'alice-backend1' });
+        expect(firstChart().hovered.id).toBe('alice-backend1');
+        onLinkMouseEnter({ linkId: 'alice-backend1' });
+        expect(firstChart().hovered.id).toBe('alice-backend1');
+      });
+
+      it('onLinkClick', () => {
+        const { onLinkClick } = store.getActions().designer;
+        expect(firstChart().selected.id).toBeUndefined();
+        onLinkClick({ linkId: 'alice-backend1' });
+        expect(firstChart().selected.id).toBe('alice-backend1');
+        expect(firstChart().selected.type).toBe('link');
+        // click again does nothing
+        const before = firstChart();
+        onLinkClick({ linkId: 'alice-backend1' });
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onCanvasClick', () => {
+        const { onLinkClick, onCanvasClick } = store.getActions().designer;
+        expect(firstChart().selected.id).toBeUndefined();
+        onLinkClick({ linkId: 'alice-backend1' });
+        expect(firstChart().selected.id).toBe('alice-backend1');
+        expect(firstChart().selected.type).toBe('link');
+        onCanvasClick({});
+        expect(firstChart().selected.id).toBeUndefined();
+        // click again does nothing
+        const before = firstChart();
+        onCanvasClick({});
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onDeleteKey', () => {
+        const { onLinkClick, onDeleteKey, setChart } = store.getActions().designer;
+        expect(firstChart().selected.id).toBeUndefined();
+        onLinkClick({ linkId: 'alice-backend1' });
+        expect(firstChart().selected.id).toBe('alice-backend1');
+        expect(firstChart().selected.type).toBe('link');
+        onDeleteKey({});
+        expect(firstChart().selected.id).toBeUndefined();
+        // delete again does nothing
+        const before = firstChart();
+        delete before.selected;
+        setChart({ id: firstNetwork().id, chart: before });
+        onDeleteKey({});
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onNodeClick', () => {
+        const { onNodeClick } = store.getActions().designer;
+        expect(firstChart().selected.id).toBeUndefined();
+        onNodeClick({ nodeId: 'alice' });
+        expect(firstChart().selected.id).toBe('alice');
+        expect(firstChart().selected.type).toBe('node');
+        // delete again does nothing
+        const before = firstChart();
+        onNodeClick({ nodeId: 'alice' });
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onNodeMouseEnter - onNodeMouseLeave', () => {
+        const { onNodeMouseEnter, onNodeMouseLeave } = store.getActions().designer;
+        expect(firstChart().hovered.id).toBeUndefined();
+        onNodeMouseEnter({ nodeId: 'alice' });
+        expect(firstChart().hovered.id).toBe('alice');
+        expect(firstChart().hovered.type).toBe('node');
+        onNodeMouseLeave({ nodeId: 'alice' });
+        expect(firstChart().hovered.id).toBeUndefined();
+        // leave again does nothing
+        const before = firstChart();
+        onNodeMouseLeave({ nodeId: 'alice' });
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onPortPositionChange', () => {
+        const { onPortPositionChange } = store.getActions().designer;
+        // does nothing without size
+        const before = firstChart();
+        const node = { ...before.nodes['alice'], size: undefined };
+        onPortPositionChange({ node } as any);
+        expect(firstChart()).toEqual(before);
       });
     });
   });

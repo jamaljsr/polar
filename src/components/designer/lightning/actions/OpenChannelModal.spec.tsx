@@ -107,9 +107,9 @@ describe('OpenChannelModal', () => {
 
   it('should display an error if form is not valid', async () => {
     await suppressConsoleErrors(async () => {
-      const { findAllByText, getByText } = await renderComponent('');
+      const { findByText, getByText } = await renderComponent();
       fireEvent.click(getByText('Open Channel'));
-      expect(await findAllByText('required')).toHaveLength(2);
+      expect(await findByText('required')).toBeInTheDocument();
     });
   });
 
