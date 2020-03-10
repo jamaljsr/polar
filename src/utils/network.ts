@@ -529,27 +529,16 @@ export const importNetworkFromZip = async (
   const parsed = JSON.parse(await read(exportFilePath));
   // validate the network and chart
   if (!(parsed.network && isNetwork(parsed.network))) {
-    throw Error(`${exportFilePath} did not contain a valid network`);
+    throw new Error(`${exportFilePath} did not contain a valid network`);
   }
   if (!(parsed.chart && isChart(parsed.chart))) {
-    throw Error(`${exportFilePath} did not contain a valid chart`);
+    throw new Error(`${exportFilePath} did not contain a valid chart`);
   }
   const network = parsed.network as Network;
   const chart = parsed.chart as IChart;
   const netPath = join(dataPath, 'networks', `${id}`);
 
-  // confirms all nodes in the network are supported on the current OS
-  const platform = getPolarPlatform();
-  for (const { implementation } of network.nodes.lightning) {
-    const { platforms } = dockerConfigs[implementation];
-    const nodeSupportsPlatform = platforms.includes(platform);
-    if (!nodeSupportsPlatform) {
-      throw Error(l('incompatibleImplementation', { implementation, platform }));
-    }
-  }
-
   debug(`Updating the network path from '${network.path}' to '${netPath}'`);
-  // update the paths for the network and nodes
   network.path = netPath;
   debug(`Updating network id to '${id}'`);
   network.id = id;
@@ -564,12 +553,25 @@ export const importNetworkFromZip = async (
     } else if (ln.implementation === 'c-lightning') {
       const cln = ln as CLightningNode;
       cln.paths = getCLightningFilePaths(cln.name, network);
+    } else {
+      throw new Error(l('unknownImplementation', { implementation: ln.implementation }));
     }
   });
 
+  // confirms all nodes in the network are supported on the current OS
+  const platform = getPolarPlatform();
+  for (const { implementation } of network.nodes.lightning) {
+    const { platforms } = dockerConfigs[implementation];
+    const nodeSupportsPlatform = platforms.includes(platform);
+    if (!nodeSupportsPlatform) {
+      throw new Error(l('incompatibleImplementation', { implementation, platform }));
+    }
+  }
+
   // remove the export file as it is no longer needed
-  rm(exportFilePath);
-  // copy the network files to correct path inside of ~/.polar
+  await rm(exportFilePath);
+
+  debug(`Copying '${tmpDir}' to '${network.path}'`);
   await copy(tmpDir, network.path);
 
   return [network, chart];

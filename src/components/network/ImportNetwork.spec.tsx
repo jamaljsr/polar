@@ -1,35 +1,49 @@
 import React from 'react';
 import * as fs from 'fs-extra';
+import { join } from 'path';
+import { IChart } from '@mrblenny/react-flow-chart';
 import { fireEvent } from '@testing-library/react';
-import { PassThrough } from 'stream';
-import * as unzipper from 'unzipper';
-import { delay } from 'utils/async';
+import * as os from 'os';
+import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
 import { getNetwork, renderWithProviders } from 'utils/tests';
+import * as zip from 'utils/zip';
 import ImportNetwork from './ImportNetwork';
 
 jest.mock('utils/files');
-jest.mock('unzipper', () => ({
-  Extract: jest.fn(),
-}));
+jest.mock('utils/zip');
+jest.mock('os');
 
+const osMock = os as jest.Mocked<typeof os>;
 const fsMock = fs as jest.Mocked<typeof fs>;
 const filesMock = files as jest.Mocked<typeof files>;
-const unzipperMock = unzipper as jest.Mocked<typeof unzipper>;
+const zipMock = zip as jest.Mocked<typeof zip>;
 
 describe('ImportNetwork component', () => {
-  const network = getNetwork();
-  const chart = initChartFromNetwork(network);
-  let unzipStream: PassThrough;
+  const exportFilePath = join('/', 'tmp', 'polar', 'file', 'export.json');
+  let network: Network;
+  let chart: IChart;
 
   const renderComponent = () => {
-    const result = renderWithProviders(<ImportNetwork />);
+    const network = getNetwork(1, 'test network');
+    const initialState = {
+      network: {
+        networks: [network],
+      },
+      designer: {
+        activeId: network.id,
+        allCharts: {
+          1: initChartFromNetwork(network),
+        },
+      },
+    };
+    const result = renderWithProviders(<ImportNetwork />, { initialState });
 
-    // attach the file to the input before triggering change
     const fileInput = result.container.querySelector(
       'input[type=file]',
     ) as HTMLInputElement;
+    // attach the file to the input so the Uploader can receive it
     const file = new File(['asdf'], 'file.zip');
     file.path = 'file.zip';
     Object.defineProperty(fileInput, 'files', { value: [file] });
@@ -41,24 +55,14 @@ describe('ImportNetwork component', () => {
   };
 
   beforeEach(() => {
-    fsMock.pathExists.mockResolvedValue(true as never);
-    fsMock.mkdirp.mockResolvedValue(true as never);
-    fsMock.copy.mockResolvedValue(true as never);
+    network = getNetwork();
+    chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
-    fsMock.createReadStream.mockImplementation(() => {
-      return {
-        pipe: jest.fn(() => {
-          // return the mock stream when "pipe()" is called
-          unzipStream = new PassThrough();
-          return unzipStream;
-        }),
-      } as any;
-    });
-    unzipperMock.Extract.mockImplementation(jest.fn());
-  });
-
-  afterEach(() => {
-    if (unzipStream) unzipStream.destroy();
+    filesMock.rm.mockResolvedValue();
+    zipMock.unzip.mockResolvedValue();
+    fsMock.copy.mockResolvedValue(true as never);
+    osMock.tmpdir.mockReturnValue('/tmp');
+    osMock.platform.mockReturnValue('darwin');
   });
 
   it('should display the file upload label', async () => {
@@ -83,9 +87,6 @@ describe('ImportNetwork component', () => {
     expect(queryByLabelText('loading')).not.toBeInTheDocument();
     fireEvent.change(fileInput);
     expect(queryByLabelText('loading')).toBeInTheDocument();
-    // close the unzip stream after a small delay
-    await delay(100);
-    unzipStream.emit('close');
     expect(
       await findByText("Imported network 'my-test' successfully"),
     ).toBeInTheDocument();
@@ -95,10 +96,62 @@ describe('ImportNetwork component', () => {
     fsMock.copy.mockRejectedValue(new Error('test-error') as never);
     const { findByText, fileInput } = renderComponent();
     fireEvent.change(fileInput);
-    // fail the unzip stream after a small delay
-    await delay(100);
-    unzipStream.emit('error', new Error('test-error'));
     expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
     expect(await findByText('test-error')).toBeInTheDocument();
+  });
+
+  it('should throw if the network is missing', async () => {
+    filesMock.read.mockResolvedValue(JSON.stringify({ chart }));
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = `${exportFilePath} did not contain a valid network`;
+    expect(await findByText(msg)).toBeInTheDocument();
+  });
+
+  it('should throw if the network is not valid', async () => {
+    filesMock.read.mockResolvedValue(JSON.stringify({ network: {}, chart }));
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = `${exportFilePath} did not contain a valid network`;
+    expect(await findByText(msg)).toBeInTheDocument();
+  });
+
+  it('should throw if the chart is missing', async () => {
+    filesMock.read.mockResolvedValue(JSON.stringify({ network }));
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = `${exportFilePath} did not contain a valid chart`;
+    expect(await findByText(msg)).toBeInTheDocument();
+  });
+
+  it('should throw if the chart is not valid', async () => {
+    filesMock.read.mockResolvedValue(JSON.stringify({ network, chart: {} }));
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = `${exportFilePath} did not contain a valid chart`;
+    expect(await findByText(msg)).toBeInTheDocument();
+  });
+
+  it('should throw if the network is not supported', async () => {
+    osMock.platform.mockReturnValue('win32');
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = 'Importing networks with c-lightning nodes is not supported on windows';
+    expect(await findByText(msg)).toBeInTheDocument();
+  });
+
+  it('should throw for an unknown LN implementation', async () => {
+    network.nodes.lightning[0].implementation = 'asdf' as any;
+    filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = "Cannot import unknown Lightning implementation 'asdf'";
+    expect(await findByText(msg)).toBeInTheDocument();
   });
 });

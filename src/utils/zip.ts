@@ -39,27 +39,24 @@ export const unzip = (filePath: string, destination: string): Promise<void> => {
 export const zip = (source: string, destination: string): Promise<void> =>
   new Promise(async (resolve, reject) => {
     info(`zipping ${source} to ${destination}`);
-    const output = createWriteStream(destination);
     const archive = archiver('zip');
-
-    // finished
     archive.on('finish', () => resolve());
     archive.on('error', err => {
       error(`got error when zipping ${destination}:`, err);
       reject(err);
     });
-
     archive.on('warning', warning => {
       warn(`got warning when zipping ${destination}:`, warning);
       reject(warning);
     });
 
-    // pipe all zipped data to the output
-    archive.pipe(output);
+    // pipe all zipped data to the destination file
+    archive.pipe(createWriteStream(destination));
 
     // avoid including the c-lightning RPC socket
     const entryData: archiver.EntryDataFunction = entry => {
-      if (entry.name?.endsWith(join('lightningd', 'regtest', 'lightning-rpc'))) {
+      const rpcPath = join('lightningd', 'regtest', 'lightning-rpc');
+      if (entry.name && entry.name.endsWith(rpcPath)) {
         info('skipping', entry);
         return false;
       }

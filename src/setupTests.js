@@ -48,8 +48,15 @@ afterEach(async () => {
   // code below destroys those components before the next test is run
   message.destroy();
   notification.destroy();
+  // wait for the modal to be removed before starting the next test. it uses a short animation
+  const getNotification = () => document.querySelector('.ant-notification');
+  if (getNotification()) {
+    await waitForElementToBeRemoved(getNotification);
+  }
   Modal.destroyAll();
   // wait for the modal to be removed before starting the next test. it uses a short animation
   const getModal = () => document.querySelector('.ant-modal-root');
-  if (getModal()) await waitForElementToBeRemoved(getModal);
+  if (getModal()) {
+    await waitForElementToBeRemoved(getModal);
+  }
 });

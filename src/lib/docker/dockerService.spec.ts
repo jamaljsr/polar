@@ -23,6 +23,7 @@ jest.mock('utils/files', () => ({
 }));
 
 const mockOS = os as jest.Mocked<typeof os>;
+const fsMock = fs as jest.Mocked<typeof fs>;
 const filesMock = files as jest.Mocked<typeof files>;
 const composeMock = compose as jest.Mocked<typeof compose>;
 const electronMock = electron as jest.Mocked<typeof electron>;
@@ -329,6 +330,18 @@ describe('DockerService', () => {
     it('should copy networks folder from an older version', async () => {
       filesMock.exists.mockResolvedValueOnce(true); // legacy path
       filesMock.exists.mockResolvedValueOnce(false); // current path before copy
+      filesMock.exists.mockResolvedValueOnce(true); // current path after copy
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile());
+      const { networks, version } = await dockerService.loadNetworks();
+      expect(version).toEqual(APP_VERSION);
+      expect(networks.length).toBe(1);
+      expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
+    });
+
+    it('should not throw if older version folder fails to copy', async () => {
+      filesMock.exists.mockResolvedValueOnce(true); // legacy path
+      filesMock.exists.mockResolvedValueOnce(false); // current path before copy
+      fsMock.copy.mockRejectedValue(new Error('test-error') as never);
       filesMock.exists.mockResolvedValueOnce(true); // current path after copy
       filesMock.read.mockResolvedValue(createLegacyNetworksFile());
       const { networks, version } = await dockerService.loadNetworks();
