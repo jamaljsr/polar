@@ -50,7 +50,9 @@ export interface DesignerModel {
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   // Flowchart component callbacks
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
+  onDragNodeStop: Action<DesignerModel, Parameters<RFC.IOnDragNodeStop>[0]>;
   onDragCanvas: Action<DesignerModel, Parameters<RFC.IOnDragCanvas>[0]>;
+  onDragCanvasStop: Action<DesignerModel, Parameters<RFC.IOnDragCanvasStop>[0]>;
   onLinkStart: Action<DesignerModel, Parameters<RFC.IOnLinkStart>[0]>;
   onLinkMove: Action<DesignerModel, Parameters<RFC.IOnLinkMove>[0]>;
   onLinkComplete: Action<DesignerModel, Parameters<RFC.IOnLinkComplete>[0]>;
@@ -61,6 +63,8 @@ export interface DesignerModel {
   onCanvasClick: Action<DesignerModel, Parameters<RFC.IOnCanvasClick>[0]>;
   onDeleteKey: Action<DesignerModel, Parameters<RFC.IOnDeleteKey>[0]>;
   onNodeClick: Action<DesignerModel, Parameters<RFC.IOnNodeClick>[0]>;
+  onNodeMouseEnter: Action<DesignerModel, Parameters<RFC.IOnNodeMouseEnter>[0]>;
+  onNodeMouseLeave: Action<DesignerModel, Parameters<RFC.IOnNodeMouseLeave>[0]>;
   onNodeSizeChange: Action<DesignerModel, Parameters<RFC.IOnNodeSizeChange>[0]>;
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
@@ -300,11 +304,23 @@ const designerModel: DesignerModel = {
       }
     },
   ),
+  onDragNodeStop: action(
+    /* istanbul ignore next */
+    state => {
+      return state;
+    },
+  ),
   onDragCanvas: action(
     /* istanbul ignore next */
     (state, { config, data }) => {
       const chart = state.allCharts[state.activeId];
       chart.offset = snap(data, config);
+    },
+  ),
+  onDragCanvasStop: action(
+    /* istanbul ignore next */
+    state => {
+      return state;
     },
   ),
   onLinkStart: action(
@@ -426,6 +442,25 @@ const designerModel: DesignerModel = {
           type: 'node',
           id: nodeId,
         };
+      }
+    },
+  ),
+  onNodeMouseEnter: action(
+    /* istanbul ignore next */
+    (state, { nodeId }) => {
+      const chart = state.allCharts[state.activeId];
+      chart.hovered = {
+        type: 'node',
+        id: nodeId,
+      };
+    },
+  ),
+  onNodeMouseLeave: action(
+    /* istanbul ignore next */
+    (state, { nodeId }) => {
+      const chart = state.allCharts[state.activeId];
+      if (chart.hovered.type === 'node' && chart.hovered.id === nodeId) {
+        chart.hovered = {};
       }
     },
   ),
