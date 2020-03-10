@@ -9,7 +9,7 @@
   },
   "mac": {
     "category": "public.app-category.utilities",
-    "target": ["dmg", "zip"]
+    "target": ["dmg"]
   },
   "dmg": {
     "contents": [
@@ -29,7 +29,7 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64", "ia32"]
+        "arch": ["x64"]
       }
     ]
   },
@@ -37,11 +37,11 @@
     "target": [
       {
         "target": "deb",
-        "arch": ["x64", "ia32"]
+        "arch": ["x64"]
       },
       {
         "target": "AppImage",
-        "arch": ["x64", "ia32"]
+        "arch": ["x64"]
       }
     ],
     "category": "Development"
