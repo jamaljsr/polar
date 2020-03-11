@@ -2,6 +2,7 @@ export default {
   // general app chnnels
   openWindow: 'open-Window',
   clearCache: 'clear-cache',
+  http: 'http',
   // LND proxy channels
   getInfo: 'get-info',
   walletBalance: 'wallet-balance',

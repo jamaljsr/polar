@@ -69,6 +69,10 @@ export const bitcoinCredentials = {
     '5e5e98c21f5c814568f8b55d83b23c1c$$066b03f92df30b11de8e4b1b1cd5b1b4281aa25205bd57df9be82caf97a05526',
 };
 
+export const eclairCredentials = {
+  pass: 'eclairpw',
+};
+
 export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
   LND: {
     name: 'LND',
@@ -136,9 +140,10 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--node-alias={{name}}',
       '--server.port=9735',
       '--api.enabled=true',
-      '--api.binging-ip=0.0.0.0',
+      '--public-ips=[{{name}}]',
+      '--api.binding-ip=0.0.0.0',
       '--api.port=8080',
-      '--api.password=eclairpw',
+      '--api.password={{eclairPass}}',
       '--chain=regtest',
       '--bitcoind.host={{backendName}}',
       '--bitcoind.rpcport=18443',
@@ -147,9 +152,10 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--bitcoind.zmqblock=tcp://{{backendName}}:28334',
       '--bitcoind.zmqtx=tcp://{{backendName}}:28335',
       '--datadir=/home/eclair/.eclair',
+      '--printToConsole=true',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
-    variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
+    variables: ['name', 'eclairPass', 'backendName', 'rpcUser', 'rpcPass'],
   },
   bitcoind: {
     name: 'Bitcoin Core',

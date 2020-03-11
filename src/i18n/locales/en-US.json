@@ -280,6 +280,7 @@
   "cmps.nodeImages.CommandVariables.var-rpcUser": "The RPC username used to authenticate to the backend Bitcoin node",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "The RPC password used to authenticate to the backend Bitcoin node",
   "cmps.nodeImages.CommandVariables.var-rpcAuth": "The encoded RPC authentication string used to specify the password for the backend Bitcoin node",
+  "cmps.nodeImages.CommandVariables.var-eclairPass": "The API password used to authenticate to the Eclair node",
   "cmps.nodeImages.CustomImageModal.title": "Custom Node Details",
   "cmps.nodeImages.CustomImageModal.name": "Name",
   "cmps.nodeImages.CustomImageModal.implementation": "Implementation",

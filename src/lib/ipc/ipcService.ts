@@ -50,7 +50,7 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
       });
       debug(
         `${serviceName}: [request] "${reqChan}"`,
-        JSON.stringify(stripNode(uniqPayload)),
+        JSON.stringify(stripNode(uniqPayload), null, 2),
       );
       ipcRenderer.send(reqChan, uniqPayload);
     });

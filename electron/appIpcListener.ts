@@ -4,6 +4,7 @@ import windowState from 'electron-window-state';
 import { join } from 'path';
 import { ipcChannels } from '../src/shared';
 import { APP_ROOT, BASE_URL } from './constants';
+import { httpRequest } from './httpProxy';
 import { clearProxyCache } from './lnd/lndProxyServer';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
@@ -58,6 +59,7 @@ const listeners: {
 } = {
   [ipcChannels.openWindow]: openWindow,
   [ipcChannels.clearCache]: clearCache,
+  [ipcChannels.http]: httpRequest,
 };
 
 /**
