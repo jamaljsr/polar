@@ -7,7 +7,6 @@ export enum Status {
 }
 
 export interface CommonNode {
-  // TODO: change id to a uuid
   id: number;
   networkId: number;
   name: string;

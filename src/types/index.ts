@@ -122,6 +122,7 @@ export interface BitcoindLibrary {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
   getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
   getWalletInfo: (node: BitcoinNode) => Promise<WalletInfo>;
+  getNewAddress: (node: BitcoinNode) => Promise<string>;
   connectPeers: (node: BitcoinNode) => Promise<void>;
   mine: (numBlocks: number, node: BitcoinNode) => Promise<string[]>;
   sendFunds: (node: BitcoinNode, addr: string, amount: number) => Promise<string>;
@@ -130,8 +131,14 @@ export interface BitcoindLibrary {
 export interface LightningService {
   waitUntilOnline: (node: LightningNode) => Promise<void>;
   getInfo: (node: LightningNode) => Promise<PLN.LightningNodeInfo>;
-  getBalances: (node: LightningNode) => Promise<PLN.LightningNodeBalances>;
-  getNewAddress: (node: LightningNode) => Promise<PLN.LightningNodeAddress>;
+  getBalances: (
+    node: LightningNode,
+    backend?: BitcoinNode,
+  ) => Promise<PLN.LightningNodeBalances>;
+  getNewAddress: (
+    node: LightningNode,
+    backend?: BitcoinNode,
+  ) => Promise<PLN.LightningNodeAddress>;
   getChannels: (node: LightningNode) => Promise<PLN.LightningNodeChannel[]>;
   getPeers: (node: LightningNode) => Promise<PLN.LightningNodePeer[]>;
   connectPeers: (node: LightningNode, rpcUrls: string[]) => Promise<void>;

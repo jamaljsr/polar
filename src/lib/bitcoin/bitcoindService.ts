@@ -29,6 +29,10 @@ class BitcoindService implements BitcoindLibrary {
     return await this.creatClient(node).getWalletInfo();
   }
 
+  async getNewAddress(node: BitcoinNode) {
+    return await this.creatClient(node).getNewAddress();
+  }
+
   async connectPeers(node: BitcoinNode) {
     const client = this.creatClient(node);
     for (const peer of node.peers) {
