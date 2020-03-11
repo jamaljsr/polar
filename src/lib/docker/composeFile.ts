@@ -5,7 +5,7 @@ import {
   EclairNode,
   LndNode,
 } from 'shared/types';
-import { bitcoinCredentials, dockerConfigs } from 'utils/constants';
+import { bitcoinCredentials, dockerConfigs, eclairCredentials } from 'utils/constants';
 import { getContainerName } from 'utils/network';
 import { bitcoind, clightning, eclair, lnd } from './nodeTemplates';
 
@@ -116,6 +116,7 @@ class ComposeFile {
     const variables = {
       name: node.name,
       backendName: getContainerName(backend),
+      eclairPass: eclairCredentials.pass,
       rpcUser: bitcoinCredentials.user,
       rpcPass: bitcoinCredentials.pass,
     };

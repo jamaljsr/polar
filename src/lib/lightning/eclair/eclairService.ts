@@ -1,11 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { LightningNode } from 'shared/types';
+import { EclairNode, LightningNode } from 'shared/types';
 import { LightningService } from 'types';
+import { waitFor } from 'utils/async';
 import * as PLN from '../types';
+import { httpPost } from './eclairApi';
+import * as ELN from './types';
 
 class EclairService implements LightningService {
-  getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
-    throw new Error(`getInfo is not implemented for ${node.implementation} nodes`);
+  async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
+    const info = await httpPost<ELN.GetInfoResponse>(this.cast(node), 'getinfo');
+    return {
+      pubkey: info.nodeId,
+      alias: info.alias,
+      rpcUrl: (info.publicAddresses && info.publicAddresses[0]) || '',
+      syncedToChain: true,
+      blockHeight: info.blockHeight,
+      numActiveChannels: 0,
+      numPendingChannels: 0,
+      numInactiveChannels: 0,
+    };
   }
   getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
     throw new Error(`getBalances is not implemented for ${node.implementation} nodes`);
@@ -42,8 +55,30 @@ class EclairService implements LightningService {
   ): Promise<PLN.LightningNodePayReceipt> {
     throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
   }
-  waitUntilOnline(node: LightningNode): Promise<void> {
-    return Promise.resolve();
+
+  /**
+   * Helper function to continually query the LND node until a successful
+   * response is received or it times out
+   */
+  async waitUntilOnline(
+    node: LightningNode,
+    interval = 3 * 1000, // check every 3 seconds
+    timeout = 60 * 1000, // timeout after 60 seconds
+  ): Promise<void> {
+    return waitFor(
+      async () => {
+        await this.getInfo(node);
+      },
+      interval,
+      timeout,
+    );
+  }
+
+  private cast(node: LightningNode): EclairNode {
+    if (node.implementation !== 'eclair')
+      throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
+
+    return node as EclairNode;
   }
 }
 
