@@ -49,6 +49,7 @@ export const injections: StoreInjections = {
     waitUntilOnline: jest.fn(),
     getBlockchainInfo: jest.fn(),
     getWalletInfo: jest.fn(),
+    getNewAddress: jest.fn(),
     connectPeers: jest.fn(),
     sendFunds: jest.fn(),
     mine: jest.fn(),

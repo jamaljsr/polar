@@ -10,6 +10,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { ITerminalOptions, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { useStoreActions } from 'store';
+import { eclairCredentials } from 'utils/constants';
 import { nord } from './themes';
 
 const docker = new Docker();
@@ -69,6 +70,10 @@ const nodeConfig: Record<string, { user: string; alias: string }> = {
   'c-lightning': {
     user: 'clightning',
     alias: 'alias lightning-cli="lightning-cli --network regtest"',
+  },
+  eclair: {
+    user: 'eclair',
+    alias: `alias eclair-cli="eclair-cli -p ${eclairCredentials.pass}"`,
   },
   bitcoind: {
     user: 'bitcoin',

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EclairNode, LightningNode } from 'shared/types';
+import { BitcoinNode, EclairNode, LightningNode } from 'shared/types';
+import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
+import { toSats } from 'utils/units';
 import * as PLN from '../types';
 import { httpPost } from './eclairApi';
 import * as ELN from './types';
@@ -20,21 +22,41 @@ class EclairService implements LightningService {
       numInactiveChannels: 0,
     };
   }
-  getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
-    throw new Error(`getBalances is not implemented for ${node.implementation} nodes`);
+
+  async getBalances(
+    node: LightningNode,
+    backend?: BitcoinNode,
+  ): Promise<PLN.LightningNodeBalances> {
+    const btcNode = this.validateBackend('getNewAddress', backend);
+    const balances = await bitcoindService.getWalletInfo(btcNode);
+    const unconfirmed = balances.unconfirmed_balance + balances.immature_balance;
+    return {
+      total: toSats(balances.balance + unconfirmed),
+      confirmed: toSats(balances.balance),
+      unconfirmed: toSats(unconfirmed),
+    };
   }
-  getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    throw new Error(`getNewAddress is not implemented for ${node.implementation} nodes`);
+  async getNewAddress(
+    node: LightningNode,
+    backend?: BitcoinNode,
+  ): Promise<PLN.LightningNodeAddress> {
+    const btcNode = this.validateBackend('getNewAddress', backend);
+    const address = await bitcoindService.getNewAddress(btcNode);
+    return { address };
   }
-  getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
-    throw new Error(`getChannels is not implemented for ${node.implementation} nodes`);
+
+  async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
+    return [] as any;
   }
+
   getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
     throw new Error(`getPeers is not implemented for ${node.implementation} nodes`);
   }
+
   connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
     throw new Error(`connectPeers is not implemented for ${node.implementation} nodes`);
   }
+
   openChannel(
     from: LightningNode,
     toRpcUrl: string,
@@ -42,12 +64,15 @@ class EclairService implements LightningService {
   ): Promise<PLN.LightningNodeChannelPoint> {
     throw new Error(`openChannel is not implemented for ${from.implementation} nodes`);
   }
+
   closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
   }
+
   createInvoice(node: LightningNode, amount: number, memo?: string): Promise<string> {
     throw new Error(`createInvoice is not implemented for ${node.implementation} nodes`);
   }
+
   payInvoice(
     node: LightningNode,
     invoice: string,
@@ -79,6 +104,12 @@ class EclairService implements LightningService {
       throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
 
     return node as EclairNode;
+  }
+
+  private validateBackend(action: string, backend?: BitcoinNode) {
+    if (!backend) throw new Error(`EclairService ${action}: backend was not specified`);
+
+    return backend as BitcoinNode;
   }
 }
 

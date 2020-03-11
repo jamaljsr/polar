@@ -75,6 +75,13 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  getBackendNode: Thunk<
+    NetworkModel,
+    LightningNode,
+    StoreInjections,
+    RootModel,
+    BitcoinNode | undefined
+  >;
   removeLightningNode: Thunk<
     NetworkModel,
     { node: LightningNode },
@@ -295,6 +302,12 @@ const networkModel: NetworkModel = {
       await injections.dockerService.saveComposeFile(network);
     },
   ),
+  getBackendNode: thunk((actions, lnNode, { getState }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === lnNode.networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: lnNode.networkId }));
+    return network.nodes.bitcoin.find(n => n.name === lnNode.backendName);
+  }),
   removeLightningNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
       const networks = getState().networks;

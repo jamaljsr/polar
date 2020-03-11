@@ -110,9 +110,10 @@ const lightningModel: LightningModel = {
     if (!state.nodes[node.name]) state.nodes[node.name] = {};
     state.nodes[node.name].walletBalance = balance;
   }),
-  getWalletBalance: thunk(async (actions, node, { injections }) => {
+  getWalletBalance: thunk(async (actions, node, { injections, getStoreActions }) => {
     const api = injections.lightningFactory.getService(node);
-    const balance = await api.getBalances(node);
+    const backend = getStoreActions().network.getBackendNode(node);
+    const balance = await api.getBalances(node, backend);
     actions.setWalletBalance({ node, balance });
   }),
   setChannels: action((state, { node, channels }) => {
@@ -160,7 +161,8 @@ const lightningModel: LightningModel = {
       const { nodes } = getStoreState().network.networkById(node.networkId);
       const btcNode = nodes.bitcoin[0];
       const api = injections.lightningFactory.getService(node);
-      const { address } = await api.getNewAddress(node);
+      const backend = getStoreActions().network.getBackendNode(node);
+      const { address } = await api.getNewAddress(node, backend);
       const coins = fromSatsNumeric(sats);
       await injections.bitcoindService.sendFunds(btcNode, address, coins);
       await getStoreActions().bitcoind.mine({
