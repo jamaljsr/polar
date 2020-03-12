@@ -80,7 +80,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       {createItem(
         'logs',
         <ViewLogsButton type="menu" node={node} />,
-        [Status.Started, Status.Error].includes(node.status),
+        [Status.Starting, Status.Started, Status.Error].includes(node.status),
       )}
       {createItem('options', <AdvancedOptionsButton type="menu" node={node} />)}
       {createItem('remove', <RemoveNode type="menu" node={node} />)}

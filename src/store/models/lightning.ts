@@ -161,8 +161,7 @@ const lightningModel: LightningModel = {
       const { nodes } = getStoreState().network.networkById(node.networkId);
       const btcNode = nodes.bitcoin[0];
       const api = injections.lightningFactory.getService(node);
-      const backend = getStoreActions().network.getBackendNode(node);
-      const { address } = await api.getNewAddress(node, backend);
+      const { address } = await api.getNewAddress(node);
       const coins = fromSatsNumeric(sats);
       await injections.bitcoindService.sendFunds(btcNode, address, coins);
       await getStoreActions().bitcoind.mine({
@@ -261,7 +260,7 @@ const lightningModel: LightningModel = {
     const nodeDelays: Record<LightningNode['implementation'], number> = {
       LND: 1,
       'c-lightning': 2,
-      eclair: 1,
+      eclair: 2,
     };
     // determine the highest delay of all implementations
     const longestDelay = nodes.reduce(

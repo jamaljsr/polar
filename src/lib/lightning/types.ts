@@ -38,7 +38,8 @@ export interface LightningNodeChannel {
     | 'Closing'
     | 'Force Closing'
     | 'Waiting to Close'
-    | 'Closed';
+    | 'Closed'
+    | 'Error';
 }
 
 export interface LightningNodeChannelPoint {

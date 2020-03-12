@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import { debug } from 'electron-log';
 import { BitcoinNode, EclairNode, LightningNode } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
@@ -8,13 +8,40 @@ import * as PLN from '../types';
 import { httpPost } from './eclairApi';
 import * as ELN from './types';
 
+const ChannelStateToStatus: Record<
+  ELN.ChannelState,
+  PLN.LightningNodeChannel['status']
+> = {
+  WAIT_FOR_INIT_INTERNAL: 'Opening',
+  WAIT_FOR_OPEN_CHANNEL: 'Opening',
+  WAIT_FOR_ACCEPT_CHANNEL: 'Opening',
+  WAIT_FOR_FUNDING_INTERNAL: 'Opening',
+  WAIT_FOR_FUNDING_CREATED: 'Opening',
+  WAIT_FOR_FUNDING_SIGNED: 'Opening',
+  WAIT_FOR_FUNDING_CONFIRMED: 'Opening',
+  WAIT_FOR_FUNDING_LOCKED: 'Opening',
+  NORMAL: 'Open',
+  SHUTDOWN: 'Closed',
+  NEGOTIATING: 'Opening',
+  CLOSING: 'Closing',
+  CLOSED: 'Closed',
+  OFFLINE: 'Open',
+  SYNCING: 'Open',
+  WAIT_FOR_REMOTE_PUBLISH_FUTURE_COMMITMENT: 'Opening',
+  ERR_FUNDING_LOST: 'Error',
+  ERR_INFORMATION_LEAK: 'Error',
+};
+
 class EclairService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpPost<ELN.GetInfoResponse>(this.cast(node), 'getinfo');
     return {
       pubkey: info.nodeId,
       alias: info.alias,
-      rpcUrl: (info.publicAddresses && info.publicAddresses[0]) || '',
+      rpcUrl:
+        info.publicAddresses && info.publicAddresses[0]
+          ? `${info.nodeId}@${info.publicAddresses[0]}`
+          : '',
       syncedToChain: true,
       blockHeight: info.blockHeight,
       numActiveChannels: 0,
@@ -36,49 +63,161 @@ class EclairService implements LightningService {
       unconfirmed: toSats(unconfirmed),
     };
   }
-  async getNewAddress(
-    node: LightningNode,
-    backend?: BitcoinNode,
-  ): Promise<PLN.LightningNodeAddress> {
-    const btcNode = this.validateBackend('getNewAddress', backend);
-    const address = await bitcoindService.getNewAddress(btcNode);
+  async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
+    const address = await httpPost<string>(this.cast(node), 'getnewaddress');
     return { address };
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
-    return [] as any;
+    const channels = await httpPost<ELN.ChannelResponse[]>(this.cast(node), 'channels');
+    const balances = await httpPost<ELN.UsableBalancesResponse[]>(
+      this.cast(node),
+      'usablebalances',
+    );
+    return channels
+      .filter(c => c.data.commitments.localParams.isFunder)
+      .map(c => {
+        const status = ChannelStateToStatus[c.state] || 'Error';
+        const nodeBalances = balances.find(b => b.remoteNodeId === c.nodeId) || {
+          canSend: 0,
+          canReceive: 0,
+        };
+        return {
+          pending: status !== 'Open',
+          uniqueId: c.channelId.slice(-12),
+          channelPoint: c.channelId,
+          pubkey: c.nodeId,
+          capacity: c.data.commitments.commitInput.amountSatoshis,
+          localBalance: this.toSats(nodeBalances.canSend),
+          remoteBalance: this.toSats(nodeBalances.canReceive),
+          status,
+        };
+      });
   }
 
-  getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
-    throw new Error(`getPeers is not implemented for ${node.implementation} nodes`);
+  async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
+    const peers = await httpPost<ELN.PeerResponse[]>(this.cast(node), 'peers');
+    return peers.map(p => ({
+      pubkey: p.nodeId,
+      address: '',
+    }));
   }
 
-  connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
-    throw new Error(`connectPeers is not implemented for ${node.implementation} nodes`);
+  async connectPeers(node: LightningNode, rpcUrls: string[]): Promise<void> {
+    const peers = await this.getPeers(node);
+    const keys = peers.map(p => p.pubkey);
+    const newUrls = rpcUrls.filter(u => !keys.includes(u.split('@')[0]));
+    for (const toRpcUrl of newUrls) {
+      try {
+        const body = { uri: toRpcUrl };
+        await httpPost<{ uri: string }>(this.cast(node), 'connect', body);
+      } catch (error) {
+        debug(
+          `Failed to connect peer '${toRpcUrl}' to Eclair node ${node.name}:`,
+          error.message,
+        );
+      }
+    }
   }
 
-  openChannel(
+  async openChannel(
     from: LightningNode,
     toRpcUrl: string,
     amount: string,
   ): Promise<PLN.LightningNodeChannelPoint> {
-    throw new Error(`openChannel is not implemented for ${from.implementation} nodes`);
+    // get peers of source node
+    const clnFrom = this.cast(from);
+
+    // add peer if not connected already
+    await this.connectPeers(clnFrom, [toRpcUrl]);
+    // get pubkey of dest node
+    const [toPubKey] = toRpcUrl.split('@');
+
+    // open the channel
+    const body: ELN.OpenChannelRequest = {
+      nodeId: toPubKey,
+      fundingSatoshis: parseInt(amount),
+    };
+    const res = await httpPost<string>(this.cast(from), 'open', body);
+
+    return {
+      txid: res,
+      // Eclair doesn't return the output index. hard-code to 0
+      index: 0,
+    };
   }
 
-  closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
-    throw new Error(`closeChannel is not implemented for ${node.implementation} nodes`);
+  async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
+    const body: ELN.CloseChannelRequest = {
+      channelId: channelPoint,
+    };
+    return await httpPost<string>(this.cast(node), 'close', body);
   }
 
-  createInvoice(node: LightningNode, amount: number, memo?: string): Promise<string> {
-    throw new Error(`createInvoice is not implemented for ${node.implementation} nodes`);
+  async createInvoice(
+    node: LightningNode,
+    amount: number,
+    memo?: string,
+  ): Promise<string> {
+    const body: ELN.CreateInvoiceRequest = {
+      description: memo || `Payment to ${node.name}`,
+      amountMsat: amount,
+    };
+    const inv = await httpPost<ELN.CreateInvoiceResponse>(
+      this.cast(node),
+      'createinvoice',
+      body,
+    );
+
+    return inv.serialized;
   }
 
-  payInvoice(
+  async payInvoice(
     node: LightningNode,
     invoice: string,
     amount?: number,
   ): Promise<PLN.LightningNodePayReceipt> {
-    throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
+    const amountMsat = amount ? amount * 1000 : undefined;
+    const body: ELN.PayInvoiceRequest = { invoice, amountMsat };
+    const id = await httpPost<string>(this.cast(node), 'payinvoice', body);
+
+    // payinvoice is fire-and-forget, so we need to poll to check for status updates.
+    // poll for a success every second for up to 5 seconds
+    await waitFor(() => this.getPaymentStatus(node, id), 1000, 5 * 1000);
+
+    const { status, paymentRequest } = await this.getPaymentStatus(node, id);
+    return {
+      preimage: status.paymentPreimage,
+      amount: paymentRequest.amount,
+      destination: paymentRequest.nodeId,
+    };
+  }
+
+  async getPaymentStatus(
+    node: LightningNode,
+    id: string,
+  ): Promise<ELN.GetSentInfoResponse> {
+    const body: ELN.GetSentInfoRequest = { id };
+    const attempts = await httpPost<ELN.GetSentInfoResponse[]>(
+      this.cast(node),
+      'getsentinfo',
+      body,
+    );
+    const sent = attempts.find(a => a.status.type === 'sent');
+    if (!sent) {
+      // throw an error with the failureMessage
+      let msg = 'Failed to send payment';
+      const failed = attempts.find(a => a.status.type === 'failed');
+      if (failed) {
+        const { failures } = failed.status;
+        if (failures.length) {
+          msg = failures[0].failureMessage;
+        }
+      }
+      throw new Error(msg);
+    }
+
+    return sent;
   }
 
   /**
@@ -104,6 +243,10 @@ class EclairService implements LightningService {
       throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
 
     return node as EclairNode;
+  }
+
+  private toSats(msats: number): string {
+    return (msats / 1000).toFixed(0).toString();
   }
 
   private validateBackend(action: string, backend?: BitcoinNode) {

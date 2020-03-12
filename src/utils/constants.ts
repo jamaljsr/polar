@@ -138,9 +138,9 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     command: [
       'polar-eclair',
       '--node-alias={{name}}',
+      '--server.public-ips.0={{name}}',
       '--server.port=9735',
       '--api.enabled=true',
-      '--public-ips=[{{name}}]',
       '--api.binding-ip=0.0.0.0',
       '--api.port=8080',
       '--api.password={{eclairPass}}',
