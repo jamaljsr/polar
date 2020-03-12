@@ -17,6 +17,7 @@ import { rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
+  createEclairNetworkNode,
   createLndNetworkNode,
   createNetwork,
   filterCompatibleBackends,
@@ -274,6 +275,15 @@ const networkModel: NetworkModel = {
             network,
             version,
             dockerRepoState.images['c-lightning'].compatibility,
+            docker,
+          );
+          network.nodes.lightning.push(node);
+          break;
+        case 'eclair':
+          node = createEclairNetworkNode(
+            network,
+            version,
+            dockerRepoState.images.eclair.compatibility,
             docker,
           );
           network.nodes.lightning.push(node);
@@ -595,7 +605,7 @@ const networkModel: NetworkModel = {
       // after all LN nodes are online, connect each of them to each other. This helps
       // ensure that each node is aware of the entire graph and can route payments properly
       if (allNodesOnline.length) {
-        Promise.all(allNodesOnline)
+        await Promise.all(allNodesOnline)
           .then(async () => await getStoreActions().lightning.connectAllPeers(network))
           .catch(e => info('Failed to connect all LN peers', e));
       }

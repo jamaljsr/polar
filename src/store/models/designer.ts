@@ -261,7 +261,7 @@ const designerModel: DesignerModel = {
         });
         // remove the loading node added in onCanvasDrop
         actions.removeNode(LOADING_NODE_ID);
-      } else if (['LND', 'c-lightning', 'bitcoind'].includes(data.type)) {
+      } else if (['LND', 'c-lightning', 'eclair', 'bitcoind'].includes(data.type)) {
         const { addNode, toggleNode } = getStoreActions().network;
         try {
           const newNode = await addNode({
