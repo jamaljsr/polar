@@ -32,6 +32,7 @@ export interface BitcoindModel {
     StoreInjections,
     RootModel
   >;
+  mineFirstBlock: Thunk<BitcoindModel, BitcoinNode, StoreInjections, RootModel>;
 }
 
 const bitcoindModel: BitcoindModel = {
@@ -65,6 +66,18 @@ const bitcoindModel: BitcoindModel = {
     await Promise.all(
       network.nodes.bitcoin.filter(n => n.status === Status.Started).map(actions.getInfo),
     );
+  }),
+  mineFirstBlock: thunk(async (actions, node, { injections, getState }) => {
+    // if this is the first time starting the network, then automatically mine the first
+    // block. Otherwise, Eclair nodes will fail to start.
+    if (node.name === 'backend1') {
+      // only mine this block on the first node
+      const { chainInfo } = getState().nodes['backend1'];
+      if (chainInfo && chainInfo.blocks === 0) {
+        await injections.bitcoindService.mine(1, node);
+        await actions.getInfo(node);
+      }
+    }
   }),
 };
 
