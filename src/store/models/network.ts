@@ -563,10 +563,10 @@ const networkModel: NetworkModel = {
     await actions.save();
   }),
   monitorStartup: thunk(
-    async (actions, nodes, { injections, getState, getStoreActions }) => {
+    async (actions, nodes, { injections, getStoreState, getStoreActions }) => {
       if (!nodes.length) return;
       const id = nodes[0].networkId;
-      const network = getState().networks.find(n => n.id === id);
+      const network = getStoreState().network.networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
 
       const allNodesOnline: Promise<void>[] = [];
@@ -596,6 +596,7 @@ const networkModel: NetworkModel = {
               // connect each bitcoin node to it's peers so tx & block propagation is fast
               await injections.bitcoindService.connectPeers(btc);
               await getStoreActions().bitcoind.getInfo(btc);
+              await getStoreActions().bitcoind.mineFirstBlock(btc);
             })
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
