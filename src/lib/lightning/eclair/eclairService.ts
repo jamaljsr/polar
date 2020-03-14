@@ -72,6 +72,7 @@ class EclairService implements LightningService {
     const channels = await httpPost<ELN.ChannelResponse[]>(this.cast(node), 'channels');
     return channels
       .filter(c => c.data.commitments.localParams.isFunder)
+      .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
         const status = ChannelStateToStatus[c.state] || 'Error';
         const { localCommit, commitInput } = c.data.commitments;

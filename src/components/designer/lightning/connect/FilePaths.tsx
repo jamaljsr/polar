@@ -15,7 +15,7 @@ const FilePaths: React.FC<Props> = ({ credentials }) => {
 
   const auth: DetailValues = [
     [l('tlsCert'), cert, cert && ellipseInner(cert, 14, 22)],
-    [l('adminMacaroon'), admin, ellipseInner(admin, 14, 22)],
+    [l('adminMacaroon'), admin, admin && ellipseInner(admin, 14, 22)],
     [l('readOnlyMacaroon'), readOnly, readOnly && ellipseInner(readOnly, 14, 22)],
   ]
     .filter(c => !!c[1]) // exclude empty values

@@ -393,13 +393,9 @@ describe('LightningDetails', () => {
 
       it('should properly handle an unknown implementation', async () => {
         node.implementation = '' as any;
-        const { getByText, queryByText, findByText, container } = renderComponent(
-          Status.Started,
-        );
+        const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await wait(() => toggle(container, 'base64'));
         expect(getByText('API Docs')).toBeInTheDocument();
-        expect(queryByText('TLS Cert')).not.toBeInTheDocument();
       });
     });
   });
