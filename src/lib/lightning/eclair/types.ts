@@ -42,14 +42,6 @@ export interface ChannelResponse {
   data: any;
 }
 
-export interface UsableBalancesResponse {
-  remoteNodeId: string;
-  shortChannelId: string;
-  canSend: number;
-  canReceive: number;
-  isPublic: boolean;
-}
-
 export interface PeerResponse {
   nodeId: string;
   state: 'CONNECTED' | 'DISCONNECTED';

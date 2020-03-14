@@ -70,26 +70,19 @@ class EclairService implements LightningService {
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
     const channels = await httpPost<ELN.ChannelResponse[]>(this.cast(node), 'channels');
-    const balances = await httpPost<ELN.UsableBalancesResponse[]>(
-      this.cast(node),
-      'usablebalances',
-    );
     return channels
       .filter(c => c.data.commitments.localParams.isFunder)
       .map(c => {
         const status = ChannelStateToStatus[c.state] || 'Error';
-        const nodeBalances = balances.find(b => b.remoteNodeId === c.nodeId) || {
-          canSend: 0,
-          canReceive: 0,
-        };
+        const { localCommit, commitInput } = c.data.commitments;
         return {
           pending: status !== 'Open',
           uniqueId: c.channelId.slice(-12),
           channelPoint: c.channelId,
           pubkey: c.nodeId,
-          capacity: c.data.commitments.commitInput.amountSatoshis,
-          localBalance: this.toSats(nodeBalances.canSend),
-          remoteBalance: this.toSats(nodeBalances.canReceive),
+          capacity: commitInput.amountSatoshis,
+          localBalance: this.toSats(localCommit.spec.toLocal),
+          remoteBalance: this.toSats(localCommit.spec.toRemote),
           status,
         };
       });
