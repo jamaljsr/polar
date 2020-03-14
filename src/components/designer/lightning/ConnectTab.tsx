@@ -3,12 +3,13 @@ import { BookOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { CLightningNode, LightningNode, LndNode, Status } from 'shared/types';
+import { CLightningNode, EclairNode, LightningNode, LndNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
+import { eclairCredentials } from 'utils/constants';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
-import { EncodedStrings, FilePaths, LndConnect } from './connect';
+import { BasicAuth, EncodedStrings, FilePaths, LndConnect } from './connect';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -36,9 +37,10 @@ export interface ConnectionInfo {
   grpcUrl?: string;
   grpcDocsUrl?: string;
   credentials: {
-    admin: string;
+    admin?: string;
     readOnly?: string;
     cert?: string;
+    basicAuth?: string;
   };
   p2pUriExternal: string;
 }
@@ -49,7 +51,9 @@ interface Props {
 
 const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.ConnectTab');
-  const [authType, setAuthType] = useState<string>('paths');
+  const [authType, setAuthType] = useState<string>(
+    node.implementation === 'eclair' ? 'basic' : 'paths',
+  );
   const { openInBrowser } = useStoreActions(s => s.app);
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
   const pubkey = nodeState && nodeState.info ? nodeState.info.pubkey : '';
@@ -80,6 +84,16 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             admin: cln.paths.macaroon,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${cln.ports.p2p}`,
+        };
+      } else if (node.implementation === 'eclair') {
+        const eln = node as EclairNode;
+        return {
+          restUrl: `http://127.0.0.1:${eln.ports.rest}`,
+          restDocsUrl: 'https://acinq.github.io/eclair',
+          credentials: {
+            basicAuth: eclairCredentials.pass,
+          },
+          p2pUriExternal: `${pubkey}@127.0.0.1:${eln.ports.p2p}`,
         };
       }
     }
@@ -135,6 +149,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     hex: <EncodedStrings credentials={credentials} encoding="hex" />,
     base64: <EncodedStrings credentials={credentials} encoding="base64" />,
     lndc: node.implementation === 'LND' && <LndConnect node={node as LndNode} />,
+    basic: credentials.basicAuth && <BasicAuth password={credentials.basicAuth} />,
   };
 
   return (
@@ -146,11 +161,22 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
-        <Radio.Button value="paths">{l('filePaths')}</Radio.Button>
-        <Radio.Button value="hex">{l('hexStrings')}</Radio.Button>
-        <Radio.Button value="base64">{l('base64Strings')}</Radio.Button>
+        {credentials.admin && [
+          <Radio.Button key="paths" value="paths">
+            {l('filePaths')}
+          </Radio.Button>,
+          <Radio.Button key="hex" value="hex">
+            {l('hexStrings')}
+          </Radio.Button>,
+          <Radio.Button key="base64" value="base64">
+            {l('base64Strings')}
+          </Radio.Button>,
+        ]}
         {node.implementation === 'LND' && (
           <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
+        )}
+        {credentials.basicAuth && (
+          <Radio.Button value="basic">{l('basicAuth')}</Radio.Button>
         )}
       </Styled.RadioGroup>
       {authCmps[authType]}

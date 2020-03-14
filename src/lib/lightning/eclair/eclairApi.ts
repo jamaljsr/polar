@@ -1,6 +1,7 @@
 import { ipcChannels } from 'shared';
 import { EclairNode } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
+import { eclairCredentials } from 'utils/constants';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -12,13 +13,15 @@ const request = async <T>(
   path: string,
   body?: object,
 ): Promise<T> => {
+  // there is no username for Ecalir API so left of the colon is blank
+  const base64auth = new Buffer(`:${eclairCredentials.pass}`).toString('base64');
   const args = {
     url: `http://127.0.0.1:${node.ports.rest}/${path}`,
     method,
     body,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${new Buffer(':eclairpw').toString('base64')}`,
+      Authorization: `Basic ${base64auth}`,
     },
   };
   const res = await ipc(ipcChannels.http, args);
