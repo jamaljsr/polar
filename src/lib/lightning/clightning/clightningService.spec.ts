@@ -111,13 +111,6 @@ describe('CLightningService', () => {
     expect(actual.destination).toEqual('asdf');
   });
 
-  it('should throw an error for an incorrect node', async () => {
-    const lnd = getNetwork().nodes.lightning[0];
-    await expect(clightningService.getInfo(lnd)).rejects.toThrow(
-      "ClightningService cannot be used for 'LND' nodes",
-    );
-  });
-
   describe('openChannel', () => {
     it('should open the channel successfully', async () => {
       const listPeersResponse: Partial<CLN.Peer>[] = [

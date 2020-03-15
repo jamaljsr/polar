@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { CLightningNode, LightningNode } from 'shared/types';
+import { LightningNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -23,7 +23,7 @@ const ChannelStateToStatus: Record<
 
 class CLightningService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
-    const info = await httpGet<CLN.GetInfoResponse>(this.cast(node), 'getinfo');
+    const info = await httpGet<CLN.GetInfoResponse>(node, 'getinfo');
     return {
       pubkey: info.id,
       alias: info.alias,
@@ -39,7 +39,7 @@ class CLightningService implements LightningService {
   }
 
   async getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
-    const balances = await httpGet<CLN.GetBalanceResponse>(this.cast(node), 'getBalance');
+    const balances = await httpGet<CLN.GetBalanceResponse>(node, 'getBalance');
     return {
       total: balances.totalBalance.toString(),
       confirmed: balances.confBalance.toString(),
@@ -48,13 +48,13 @@ class CLightningService implements LightningService {
   }
 
   async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    return await httpGet<PLN.LightningNodeAddress>(this.cast(node), 'newaddr');
+    return await httpGet<PLN.LightningNodeAddress>(node, 'newaddr');
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
     const { pubkey } = await this.getInfo(node);
     const channels = await httpGet<CLN.GetChannelsResponse[]>(
-      this.cast(node),
+      node,
       'channel/listChannels',
     );
     return (
@@ -81,7 +81,7 @@ class CLightningService implements LightningService {
   }
 
   async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
-    const peers = await httpGet<CLN.Peer[]>(this.cast(node), 'peer/listPeers');
+    const peers = await httpGet<CLN.Peer[]>(node, 'peer/listPeers');
     return peers
       .filter(p => p.connected)
       .map(p => ({
@@ -97,7 +97,7 @@ class CLightningService implements LightningService {
     for (const toRpcUrl of newUrls) {
       try {
         const body = { id: toRpcUrl };
-        await httpPost<{ id: string }>(this.cast(node), 'peer/connect', body);
+        await httpPost<{ id: string }>(node, 'peer/connect', body);
       } catch (error) {
         debug(
           `Failed to connect peer '${toRpcUrl}' to c-lightning node ${node.name}:`,
@@ -112,11 +112,8 @@ class CLightningService implements LightningService {
     toRpcUrl: string,
     amount: string,
   ): Promise<PLN.LightningNodeChannelPoint> {
-    // get peers of source node
-    const clnFrom = this.cast(from);
-
     // add peer if not connected already
-    await this.connectPeers(clnFrom, [toRpcUrl]);
+    await this.connectPeers(from, [toRpcUrl]);
     // get pubkey of dest node
     const [toPubKey] = toRpcUrl.split('@');
 
@@ -127,7 +124,7 @@ class CLightningService implements LightningService {
       feeRate: '253perkw', // min relay fee for bitcoind
     };
     const res = await httpPost<CLN.OpenChannelResponse>(
-      this.cast(from),
+      from,
       'channel/openChannel',
       body,
     );
@@ -141,7 +138,7 @@ class CLightningService implements LightningService {
 
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     return await httpDelete<CLN.CloseChannelResponse>(
-      this.cast(node),
+      node,
       `channel/closeChannel/${channelPoint}`,
     );
   }
@@ -157,11 +154,7 @@ class CLightningService implements LightningService {
       description: memo || `Polar Invoice for ${node.name}`,
     };
 
-    const res = await httpPost<CLN.InvoiceResponse>(
-      this.cast(node),
-      'invoice/genInvoice',
-      body,
-    );
+    const res = await httpPost<CLN.InvoiceResponse>(node, 'invoice/genInvoice', body);
 
     return res.bolt11;
   }
@@ -173,7 +166,7 @@ class CLightningService implements LightningService {
   ): Promise<PLN.LightningNodePayReceipt> {
     const body: CLN.PayRequest = { invoice, amount };
 
-    const res = await httpPost<CLN.PayResponse>(this.cast(node), 'pay', body);
+    const res = await httpPost<CLN.PayResponse>(node, 'pay', body);
 
     return {
       preimage: res.paymentPreimage,
@@ -202,15 +195,6 @@ class CLightningService implements LightningService {
 
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
-  }
-
-  private cast(node: LightningNode): CLightningNode {
-    if (node.implementation !== 'c-lightning')
-      throw new Error(
-        `ClightningService cannot be used for '${node.implementation}' nodes`,
-      );
-
-    return node as CLightningNode;
   }
 }
 
