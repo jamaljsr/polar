@@ -24,7 +24,7 @@ describe('ManagedImageModal Component', () => {
       },
     };
 
-    const image = nodeImages.managed[3];
+    const image = nodeImages.managed[4];
     const result = renderWithProviders(
       <ManagedImageModal image={image} onClose={onClose} />,
       { initialState },
@@ -76,7 +76,7 @@ describe('ManagedImageModal Component', () => {
     fireEvent.change(getByLabelText('Command'), { target: { value: 'a' } });
     fireEvent.click(getByText('Save'));
     await wait(() => {
-      expect(store.getState().app.settings.nodeImages.managed[3].command).toBe('a');
+      expect(store.getState().app.settings.nodeImages.managed[4].command).toBe('a');
     });
     expect(onClose).toHaveBeenCalled();
   });
@@ -85,7 +85,7 @@ describe('ManagedImageModal Component', () => {
     const { getByText, store } = renderComponent();
     fireEvent.click(getByText('Reset to Default'));
     await wait(() => {
-      expect(store.getState().app.settings.nodeImages.managed[3]).toBeUndefined();
+      expect(store.getState().app.settings.nodeImages.managed[4]).toBeUndefined();
     });
     expect(onClose).toHaveBeenCalled();
   });

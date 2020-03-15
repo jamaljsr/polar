@@ -160,6 +160,7 @@ describe('NetworkView Component', () => {
     const pulledImages = [
       `polarlightning/lnd:${defaultRepoState.images.LND.latest}`,
       `polarlightning/clightning:${defaultRepoState.images['c-lightning'].latest}`,
+      `polarlightning/eclair:${defaultRepoState.images.eclair.latest}`,
       `polarlightning/bitcoind:${defaultRepoState.images.bitcoind.latest}`,
     ];
 

@@ -28,7 +28,7 @@ describe('NetworkCard component', () => {
 
   it('should display the number of lightning nodes', () => {
     const { getByText } = renderComponent();
-    expect(getByText('3')).toBeInTheDocument();
+    expect(getByText('4')).toBeInTheDocument();
   });
 
   it('should display the number of bitcoin nodes', () => {

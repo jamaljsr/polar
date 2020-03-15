@@ -20,7 +20,7 @@ describe('Channel component', () => {
   const renderComponent = () => {
     const network = getNetwork();
     const lnd1 = network.nodes.lightning[0];
-    const lnd2 = network.nodes.lightning[2];
+    const lnd2 = network.nodes.lightning[3];
     const link: ILink = {
       id: 'asdf',
       from: { nodeId: lnd1.name, portId: 'asdf' },
@@ -81,7 +81,7 @@ describe('Channel component', () => {
     it('should display Name', () => {
       const { getByText } = renderComponent();
       expect(getByText('alice')).toBeInTheDocument();
-      expect(getByText('carol')).toBeInTheDocument();
+      expect(getByText('dave')).toBeInTheDocument();
     });
 
     it('should display Version', () => {

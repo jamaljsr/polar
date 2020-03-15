@@ -58,7 +58,10 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     rest: 8181,
     p2p: 9835,
   },
-  eclair: {},
+  eclair: {
+    rest: 8281,
+    p2p: 9935,
+  },
   btcd: {},
 };
 
