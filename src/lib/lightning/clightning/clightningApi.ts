@@ -1,37 +1,38 @@
 import { debug } from 'electron-log';
-import { CLightningNode } from 'shared/types';
+import { CLightningNode, LightningNode } from 'shared/types';
 import { read } from 'utils/files';
 import { snakeKeysToCamel } from 'utils/objects';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 const request = async <T>(
-  node: CLightningNode,
+  node: LightningNode,
   method: HttpMethod,
   path: string,
-  body?: object,
+  bodyObj?: object,
 ): Promise<T> => {
+  if (node.implementation !== 'c-lightning')
+    throw new Error(
+      `ClightningService cannot be used for '${node.implementation}' nodes`,
+    );
+
+  const cln = node as CLightningNode;
   const id = Math.round(Math.random() * Date.now());
-  const url = `http://127.0.0.1:${node.ports.rest}/v1/${path}`;
-  debug(
-    `c-lightning API: [request] ${node.name} ${id} "${url}" ${
-      body ? JSON.stringify(body) : ''
-    }`,
-  );
+  const url = `http://127.0.0.1:${cln.ports.rest}/v1/${path}`;
+  const body = bodyObj ? JSON.stringify(bodyObj) : undefined;
+  debug(`c-lightning API: [request] ${cln.name} ${id} "${url}" ${body}`);
 
   const response = await fetch(url, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      macaroon: await read(node.paths.macaroon, 'base64'),
+      macaroon: await read(cln.paths.macaroon, 'base64'),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body,
   });
 
   const json = await response.json();
-  debug(
-    `c-lightning API: [response] ${node.name} ${id} ${JSON.stringify(json, null, 2)}`,
-  );
+  debug(`c-lightning API: [response] ${cln.name} ${id} ${JSON.stringify(json, null, 2)}`);
 
   if (!response.ok && typeof json.error === 'object') {
     const { code, message } = json.error;
@@ -41,18 +42,18 @@ const request = async <T>(
   return snakeKeysToCamel(json) as T;
 };
 
-export const httpGet = async <T>(node: CLightningNode, path: string): Promise<T> => {
+export const httpGet = async <T>(node: LightningNode, path: string): Promise<T> => {
   return request<T>(node, 'GET', path);
 };
 
 export const httpPost = async <T>(
-  node: CLightningNode,
+  node: LightningNode,
   path: string,
   body: object,
 ): Promise<T> => {
   return request<T>(node, 'POST', path, body);
 };
 
-export const httpDelete = async <T>(node: CLightningNode, path: string): Promise<T> => {
+export const httpDelete = async <T>(node: LightningNode, path: string): Promise<T> => {
   return request<T>(node, 'DELETE', path);
 };

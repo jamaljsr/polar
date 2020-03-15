@@ -1,10 +1,21 @@
 import React, { ReactNode } from 'react';
+import styled from '@emotion/styled';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { Dropdown, Menu } from 'antd';
 import { useStoreState } from 'store';
 import { LinkProperties } from 'utils/chart';
 import ChangeBackendButton from './link/ChangeBackendButton';
 import CloseChannelButton from './link/CloseChannelButton';
+
+const Styled = {
+  MenuItem: styled(Menu.Item)`
+    & > span {
+      margin: -5px -12px;
+      padding: 5px 12px;
+      display: block;
+    }
+  `,
+};
 
 interface Props {
   link: ILink;
@@ -42,7 +53,7 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
     <Dropdown
       overlay={
         <Menu style={{ width: 200 }}>
-          <Menu.Item>{menuItem}</Menu.Item>
+          <Styled.MenuItem>{menuItem}</Styled.MenuItem>
         </Menu>
       }
       trigger={['contextMenu']}

@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { BitcoinNode, EclairNode, LightningNode } from 'shared/types';
+import { BitcoinNode, LightningNode } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -34,7 +34,7 @@ const ChannelStateToStatus: Record<
 
 class EclairService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
-    const info = await httpPost<ELN.GetInfoResponse>(this.cast(node), 'getinfo');
+    const info = await httpPost<ELN.GetInfoResponse>(node, 'getinfo');
     return {
       pubkey: info.nodeId,
       alias: info.alias,
@@ -64,12 +64,12 @@ class EclairService implements LightningService {
     };
   }
   async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    const address = await httpPost<string>(this.cast(node), 'getnewaddress');
+    const address = await httpPost<string>(node, 'getnewaddress');
     return { address };
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
-    const channels = await httpPost<ELN.ChannelResponse[]>(this.cast(node), 'channels');
+    const channels = await httpPost<ELN.ChannelResponse[]>(node, 'channels');
     return channels
       .filter(c => c.data.commitments.localParams.isFunder)
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
@@ -90,7 +90,7 @@ class EclairService implements LightningService {
   }
 
   async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
-    const peers = await httpPost<ELN.PeerResponse[]>(this.cast(node), 'peers');
+    const peers = await httpPost<ELN.PeerResponse[]>(node, 'peers');
     return peers.map(p => ({
       pubkey: p.nodeId,
       address: '',
@@ -104,7 +104,7 @@ class EclairService implements LightningService {
     for (const toRpcUrl of newUrls) {
       try {
         const body = { uri: toRpcUrl };
-        await httpPost<{ uri: string }>(this.cast(node), 'connect', body);
+        await httpPost<{ uri: string }>(node, 'connect', body);
       } catch (error) {
         debug(
           `Failed to connect peer '${toRpcUrl}' to Eclair node ${node.name}:`,
@@ -119,11 +119,8 @@ class EclairService implements LightningService {
     toRpcUrl: string,
     amount: string,
   ): Promise<PLN.LightningNodeChannelPoint> {
-    // get peers of source node
-    const clnFrom = this.cast(from);
-
     // add peer if not connected already
-    await this.connectPeers(clnFrom, [toRpcUrl]);
+    await this.connectPeers(from, [toRpcUrl]);
     // get pubkey of dest node
     const [toPubKey] = toRpcUrl.split('@');
 
@@ -132,7 +129,7 @@ class EclairService implements LightningService {
       nodeId: toPubKey,
       fundingSatoshis: parseInt(amount),
     };
-    const res = await httpPost<string>(this.cast(from), 'open', body);
+    const res = await httpPost<string>(from, 'open', body);
 
     return {
       txid: res,
@@ -145,7 +142,7 @@ class EclairService implements LightningService {
     const body: ELN.CloseChannelRequest = {
       channelId: channelPoint,
     };
-    return await httpPost<string>(this.cast(node), 'close', body);
+    return await httpPost<string>(node, 'close', body);
   }
 
   async createInvoice(
@@ -155,13 +152,9 @@ class EclairService implements LightningService {
   ): Promise<string> {
     const body: ELN.CreateInvoiceRequest = {
       description: memo || `Payment to ${node.name}`,
-      amountMsat: amount,
+      amountMsat: amount * 1000,
     };
-    const inv = await httpPost<ELN.CreateInvoiceResponse>(
-      this.cast(node),
-      'createinvoice',
-      body,
-    );
+    const inv = await httpPost<ELN.CreateInvoiceResponse>(node, 'createinvoice', body);
 
     return inv.serialized;
   }
@@ -173,7 +166,7 @@ class EclairService implements LightningService {
   ): Promise<PLN.LightningNodePayReceipt> {
     const amountMsat = amount ? amount * 1000 : undefined;
     const body: ELN.PayInvoiceRequest = { invoice, amountMsat };
-    const id = await httpPost<string>(this.cast(node), 'payinvoice', body);
+    const id = await httpPost<string>(node, 'payinvoice', body);
 
     // payinvoice is fire-and-forget, so we need to poll to check for status updates.
     // poll for a success every second for up to 5 seconds
@@ -192,11 +185,7 @@ class EclairService implements LightningService {
     id: string,
   ): Promise<ELN.GetSentInfoResponse> {
     const body: ELN.GetSentInfoRequest = { id };
-    const attempts = await httpPost<ELN.GetSentInfoResponse[]>(
-      this.cast(node),
-      'getsentinfo',
-      body,
-    );
+    const attempts = await httpPost<ELN.GetSentInfoResponse[]>(node, 'getsentinfo', body);
     const sent = attempts.find(a => a.status.type === 'sent');
     if (!sent) {
       // throw an error with the failureMessage
@@ -230,13 +219,6 @@ class EclairService implements LightningService {
       interval,
       timeout,
     );
-  }
-
-  private cast(node: LightningNode): EclairNode {
-    if (node.implementation !== 'eclair')
-      throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
-
-    return node as EclairNode;
   }
 
   private toSats(msats: number): string {

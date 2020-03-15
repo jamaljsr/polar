@@ -12,8 +12,9 @@ import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
 const Styled = {
   MenuItem: styled(Menu.Item)`
     & > span {
-      display: inline-block;
-      width: 100%;
+      margin: -5px -12px;
+      padding: 5px 12px;
+      display: block;
     }
   `,
 };

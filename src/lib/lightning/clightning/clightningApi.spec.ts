@@ -23,6 +23,13 @@ describe('CLightningApi', () => {
     expect(res).toEqual({ success: true });
   });
 
+  it('should throw an error for an incorrect node implementation', async () => {
+    const lnd = getNetwork().nodes.lightning[0];
+    await expect(httpGet(lnd, 'get-ok')).rejects.toThrow(
+      "ClightningService cannot be used for 'LND' nodes",
+    );
+  });
+
   it('should perform an unsuccessful httpGet', async () => {
     fetchMock.once('end:/get-err', {
       status: 500,
