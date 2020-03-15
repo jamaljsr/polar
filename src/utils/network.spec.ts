@@ -108,7 +108,7 @@ describe('Network Utils', () => {
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].grpc).toBe(10002);
-      expect(ports[network.nodes.lightning[2].name].grpc).toBe(10003);
+      expect(ports[network.nodes.lightning[3].name].grpc).toBe(10004);
     });
 
     it('should update the rest ports for lightning nodes', async () => {
@@ -120,11 +120,11 @@ describe('Network Utils', () => {
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].rest).toBe(8082);
-      expect(ports[network.nodes.lightning[2].name].rest).toBe(8083);
+      expect(ports[network.nodes.lightning[3].name].rest).toBe(8084);
     });
 
     it('should update the p2p ports for lightning nodes', async () => {
-      const portsInUse = [9735, 9836, 9737];
+      const portsInUse = [9735, 9836, 9937, 9737];
       mockDetectPort.mockImplementation(port =>
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
       );
@@ -133,7 +133,8 @@ describe('Network Utils', () => {
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].p2p).toBe(9736);
       expect(ports[network.nodes.lightning[1].name].p2p).toBe(9837);
-      expect(ports[network.nodes.lightning[2].name].p2p).toBe(9738);
+      expect(ports[network.nodes.lightning[2].name].p2p).toBe(9938);
+      expect(ports[network.nodes.lightning[3].name].p2p).toBe(9738);
     });
 
     it('should not update ports if none are in use', async () => {
@@ -154,7 +155,7 @@ describe('Network Utils', () => {
       // alice ports should not be changed
       expect(ports[network.nodes.lightning[0].name]).toBeUndefined();
       // bob ports should change
-      const lnd2 = network.nodes.lightning[2] as LndNode;
+      const lnd2 = network.nodes.lightning[3] as LndNode;
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
     });

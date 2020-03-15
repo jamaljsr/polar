@@ -125,11 +125,11 @@ describe('ChangeBackendModal', () => {
     const { getByText, queryByText, changeSelect } = await renderComponent();
     const bitcoindVersion = defaultRepoState.images.bitcoind.latest;
     const warning =
-      'dave is running LND v0.7.1-beta which is compatible with Bitcoin Core v0.18.1 and older.' +
+      'erin is running LND v0.7.1-beta which is compatible with Bitcoin Core v0.18.1 and older.' +
       ` backend1 is running v${bitcoindVersion} so it cannot be used.`;
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
-    changeSelect('Lightning Node', 'dave');
+    changeSelect('Lightning Node', 'erin');
     expect(getByText(warning)).toBeInTheDocument();
   });
 

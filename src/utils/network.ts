@@ -44,7 +44,7 @@ const groupNodes = (network: Network) => {
     clightning: lightning.filter(
       n => n.implementation === 'c-lightning',
     ) as CLightningNode[],
-    eclair: lightning.filter(n => n.implementation === 'eclair'),
+    eclair: lightning.filter(n => n.implementation === 'eclair') as EclairNode[],
   };
 };
 
@@ -211,8 +211,8 @@ export const createEclairNetworkNode = (
     // alternate between backend nodes
     backendName: backends[id % backends.length].name,
     ports: {
-      rest: BasePorts.LND.rest + id,
-      p2p: BasePorts.LND.p2p + id,
+      rest: BasePorts.eclair.rest + id,
+      p2p: BasePorts.eclair.p2p + id,
     },
     docker,
   };
@@ -466,7 +466,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  let { lnd, clightning } = groupNodes(network);
+  let { lnd, clightning, eclair } = groupNodes(network);
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);
@@ -518,6 +518,28 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
       openPorts.forEach((port, index) => {
         ports[clightning[index].name] = {
           ...(ports[clightning[index].name] || {}),
+          p2p: port,
+        };
+      });
+    }
+  }
+
+  eclair = eclair.filter(n => n.status !== Status.Started);
+  if (eclair.length) {
+    let existingPorts = eclair.map(n => n.ports.rest);
+    let openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[eclair[index].name] = { rest: port };
+      });
+    }
+
+    existingPorts = eclair.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[eclair[index].name] = {
+          ...(ports[eclair[index].name] || {}),
           p2p: port,
         };
       });
@@ -598,7 +620,7 @@ export const importNetworkFromZip = async (
     } else if (ln.implementation === 'c-lightning') {
       const cln = ln as CLightningNode;
       cln.paths = getCLightningFilePaths(cln.name, network);
-    } else {
+    } else if (ln.implementation !== 'eclair') {
       throw new Error(l('unknownImplementation', { implementation: ln.implementation }));
     }
   });

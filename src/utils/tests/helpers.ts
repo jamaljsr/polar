@@ -13,6 +13,11 @@ export const testManagedImages: ManagedImage[] = [
     command: '',
   },
   {
+    implementation: 'eclair',
+    version: defaultRepoState.images.eclair.latest,
+    command: '',
+  },
+  {
     implementation: 'bitcoind',
     version: defaultRepoState.images.bitcoind.latest,
     command: '',
@@ -42,7 +47,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     name: name || 'my-test',
     lndNodes: 2,
     clightningNodes: 1,
-    eclairNodes: 0,
+    eclairNodes: 1,
     bitcoindNodes: 1,
     status,
     repoState: defaultRepoState,
