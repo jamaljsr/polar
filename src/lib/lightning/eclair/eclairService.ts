@@ -54,7 +54,7 @@ class EclairService implements LightningService {
     node: LightningNode,
     backend?: BitcoinNode,
   ): Promise<PLN.LightningNodeBalances> {
-    const btcNode = this.validateBackend('getNewAddress', backend);
+    const btcNode = this.validateBackend('getBalances', backend);
     const balances = await bitcoindService.getWalletInfo(btcNode);
     const unconfirmed = balances.unconfirmed_balance + balances.immature_balance;
     return {
@@ -74,7 +74,7 @@ class EclairService implements LightningService {
       .filter(c => c.data.commitments.localParams.isFunder)
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
-        const status = ChannelStateToStatus[c.state] || 'Error';
+        const status = ChannelStateToStatus[c.state];
         const { localCommit, commitInput } = c.data.commitments;
         return {
           pending: status !== 'Open',
@@ -93,7 +93,7 @@ class EclairService implements LightningService {
     const peers = await httpPost<ELN.PeerResponse[]>(node, 'peers');
     return peers.map(p => ({
       pubkey: p.nodeId,
-      address: '',
+      address: p.address || '',
     }));
   }
 
@@ -193,7 +193,7 @@ class EclairService implements LightningService {
       const failed = attempts.find(a => a.status.type === 'failed');
       if (failed) {
         const { failures } = failed.status;
-        if (failures.length) {
+        if (failures && failures.length) {
           msg = failures[0].failureMessage;
         }
       }
