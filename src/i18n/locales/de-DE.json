@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "Kanäle",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "Aktiv / Ausstehend / Inaktiv",
   "cmps.designer.lightning.InfoTab.startError": "Verbindung zu {{implementation}} Knoten nicht möglich",
-  "cmps.designer.lightning.InfoTab.syncWarning": "Nicht synchron mit der Kette. Meins einen Block",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "Info",
   "cmps.designer.lightning.LightningDetails.connect": "Verbinden",
   "cmps.designer.lightning.LightningDetails.actions": "Aktionen",
