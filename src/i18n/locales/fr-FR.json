@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "Chaînes",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "Actif / En attente / Inactif",
   "cmps.designer.lightning.InfoTab.startError": "Impossible de se connecter à {{implementation}} nœud",
-  "cmps.designer.lightning.InfoTab.syncWarning": "Pas en phase avec la chaîne. Mine un bloc",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "Info",
   "cmps.designer.lightning.LightningDetails.connect": "Relier",
   "cmps.designer.lightning.LightningDetails.actions": "Actions",
