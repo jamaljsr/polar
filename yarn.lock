@@ -1679,12 +1679,12 @@
     pkg-dir "^2.0.0"
     ts-protoc-gen "^0.8.0"
 
-"@rescripts/cli@0.0.13":
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.13.tgz#b35331ada2dc5d9578a7a40a339684451acf295d"
-  integrity sha512-ik/HqNVcR/9Yb2nz3fvNBA+fKviAGxEmZc5ci2rbrNzcDC4vu/ZH1yY8eBHZ9opA7KFeU2O5MWhgMFYXmmN1Cg==
+"@rescripts/cli@0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.14.tgz#1ec700148e754337bff1cedaefd757e016664978"
+  integrity sha512-BPDm8xwYFdzOe8uardwbybrlFu9C6f9463CHPs1M1gtWK+gyXxfWxsYuNMxWlxAnogRHpqLYSYFHGphx2ocGEg==
   dependencies:
-    "@rescripts/utilities" "^0.0.6"
+    "@rescripts/utilities" "^0.0.7"
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
@@ -1694,13 +1694,6 @@
   integrity sha512-S+b7X54Q1/CmMjxe0p2d7UHISDy+DnLlGDFyGulJJBY8PuOsHt1BqSzKqJAOt5S1LpcZ756YW3umK0clp5u+eQ==
   dependencies:
     "@rescripts/utilities" "^0.0.7"
-
-"@rescripts/utilities@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.6.tgz#23202bed3c7015cb24b7fba7f3fb0660d1713d65"
-  integrity sha512-Lmy6+b3HZ7gbN+kKaP6B752/KW1EbLlsAjxCB/9ztzzv3BKnIvJm1R5rMGg4ycNMSlrOOpCFVpuKry5EHqaNmw==
-  dependencies:
-    ramda "^0.26.0"
 
 "@rescripts/utilities@^0.0.7":
   version "0.0.7"
