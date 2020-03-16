@@ -10,7 +10,7 @@ interface Props {
 const BasicAuth: React.FC<Props> = ({ password }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.connect.BasicAuth');
 
-  const base64pass = new Buffer(`:${password}`).toString('base64');
+  const base64pass = Buffer.from(`:${password}`).toString('base64');
   const auth = `Basic ${base64pass}`;
 
   const details: DetailValues = [

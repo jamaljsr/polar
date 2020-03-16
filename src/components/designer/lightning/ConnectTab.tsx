@@ -43,6 +43,7 @@ export interface ConnectionInfo {
     basicAuth?: string;
   };
   p2pUriExternal: string;
+  authTypes: string[];
 }
 
 interface Props {
@@ -74,6 +75,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             cert: lnd.paths.tlsCert,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${lnd.ports.p2p}`,
+          authTypes: ['paths', 'hex', 'base64', 'lndc'],
         };
       } else if (node.implementation === 'c-lightning') {
         const cln = node as CLightningNode;
@@ -84,6 +86,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             admin: cln.paths.macaroon,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${cln.ports.p2p}`,
+          authTypes: ['paths', 'hex', 'base64'],
         };
       } else if (node.implementation === 'eclair') {
         const eln = node as EclairNode;
@@ -94,6 +97,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             basicAuth: eclairCredentials.pass,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${eln.ports.p2p}`,
+          authTypes: ['basic'],
         };
       }
     }
@@ -102,8 +106,18 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       restUrl: '',
       restDocsUrl: '',
       credentials: {},
+      p2pUriExternal: '',
+      authTypes: [],
     } as ConnectionInfo;
   }, [node, pubkey]);
+
+  // ensure an appropriate auth type is used when switching nodes
+  const nodeAuthType = useMemo(() => {
+    if (!info.authTypes.includes(authType)) {
+      return info.authTypes[0];
+    }
+    return authType;
+  }, [authType, info.authTypes]);
 
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;
@@ -157,21 +171,19 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       <DetailsList details={hosts} />
       <Styled.RadioGroup
         name="authType"
-        defaultValue={authType}
+        value={nodeAuthType}
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
-        {credentials.admin && [
-          <Radio.Button key="paths" value="paths">
-            {l('filePaths')}
-          </Radio.Button>,
-          <Radio.Button key="hex" value="hex">
-            {l('hexStrings')}
-          </Radio.Button>,
-          <Radio.Button key="base64" value="base64">
-            {l('base64Strings')}
-          </Radio.Button>,
-        ]}
+        <Radio.Button key="paths" value="paths">
+          {l('filePaths')}
+        </Radio.Button>
+        <Radio.Button key="hex" value="hex">
+          {l('hexStrings')}
+        </Radio.Button>
+        <Radio.Button key="base64" value="base64">
+          {l('base64Strings')}
+        </Radio.Button>
         {node.implementation === 'LND' && (
           <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
         )}
@@ -179,7 +191,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           <Radio.Button value="basic">{l('basicAuth')}</Radio.Button>
         )}
       </Styled.RadioGroup>
-      {authCmps[authType]}
+      {authCmps[nodeAuthType]}
     </>
   );
 };

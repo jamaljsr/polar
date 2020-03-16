@@ -222,6 +222,28 @@ describe('DockerService', () => {
       );
     });
 
+    it('should save the eclair node with the first bitcoin node as backend', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 1,
+        bitcoindNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+      });
+      net.nodes.lightning[0].backendName = 'invalid';
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(
+          `container_name: polar-n1-${network.nodes.lightning[0].name}`,
+        ),
+      );
+    });
+
     it('should not save unknown lightning implementation', () => {
       network.nodes.lightning[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(network);

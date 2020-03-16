@@ -307,6 +307,27 @@ describe('LightningDetails', () => {
       });
     });
 
+    describe('eclair', () => {
+      beforeEach(() => {
+        node = network.nodes.lightning[2];
+      });
+
+      it('should display the REST Host', async () => {
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(getByText('REST Host')).toBeInTheDocument();
+        expect(getByText('http://127.0.0.1:8283')).toBeInTheDocument();
+      });
+
+      it('should open API Doc links in the browser', async () => {
+        shell.openExternal = jest.fn().mockResolvedValue(true);
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        await wait(() => fireEvent.click(getByText('REST')));
+        expect(shell.openExternal).toBeCalledWith('https://acinq.github.io/eclair');
+      });
+    });
+
     describe('connect options', () => {
       const toggle = (container: HTMLElement, value: string) => {
         fireEvent.click(
