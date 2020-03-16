@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "频道",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "有效/待定/无效",
   "cmps.designer.lightning.InfoTab.startError": "无法连接到 {{implementation}} 节点",
-  "cmps.designer.lightning.InfoTab.syncWarning": "然后与链不同步。挖一个街区",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "信息",
   "cmps.designer.lightning.LightningDetails.connect": "连接",
   "cmps.designer.lightning.LightningDetails.actions": "动作",
