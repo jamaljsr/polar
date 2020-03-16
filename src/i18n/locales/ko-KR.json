@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "채널",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "활성 / 보류 / 비활성",
   "cmps.designer.lightning.InfoTab.startError": "{{implementation}} 노드에 연결할 수 없습니다",
-  "cmps.designer.lightning.InfoTab.syncWarning": "체인과 동기화되지 않았습니다. 블록 광산",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "정보",
   "cmps.designer.lightning.LightningDetails.connect": "잇다",
   "cmps.designer.lightning.LightningDetails.actions": "행위",
