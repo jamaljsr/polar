@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "Channels",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "Active / Pending / Inactive",
   "cmps.designer.lightning.InfoTab.startError": "Unable to connect to {{implementation}} node",
-  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with then chain. Mine a block",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "Info",
   "cmps.designer.lightning.LightningDetails.connect": "Connect",
   "cmps.designer.lightning.LightningDetails.actions": "Actions",
