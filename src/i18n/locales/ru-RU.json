@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "каналы",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "Активный / Ожидание / Неактивный",
   "cmps.designer.lightning.InfoTab.startError": "Невозможно подключиться к {{implementation}} узлу",
-  "cmps.designer.lightning.InfoTab.syncWarning": "Не синхронизировано с тогдашней цепочкой. Мой блок",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "Информация",
   "cmps.designer.lightning.LightningDetails.connect": "Подключиться",
   "cmps.designer.lightning.LightningDetails.actions": "действия",
