@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "チャンネル",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "アクティブ/保留中/非アクティブ",
   "cmps.designer.lightning.InfoTab.startError": "{{implementation}} ノードに接続できません",
-  "cmps.designer.lightning.InfoTab.syncWarning": "チェーンと同期していません。ブロックをマイニングする",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "情報",
   "cmps.designer.lightning.LightningDetails.connect": "つなぐ",
   "cmps.designer.lightning.LightningDetails.actions": "行動",
