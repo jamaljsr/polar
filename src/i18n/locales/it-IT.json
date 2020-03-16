@@ -209,7 +209,7 @@
   "cmps.designer.lightning.InfoTab.channels": "Canali",
   "cmps.designer.lightning.InfoTab.channelsTooltip": "Attivo / In attesa / Inattivo",
   "cmps.designer.lightning.InfoTab.startError": "Impossibile connettersi al nodo {{implementation}}",
-  "cmps.designer.lightning.InfoTab.syncWarning": "Non sincronizzato con la catena. Il mio un isolato",
+  "cmps.designer.lightning.InfoTab.syncWarning": "Not in sync with the chain. Mine a block",
   "cmps.designer.lightning.LightningDetails.info": "Informazioni",
   "cmps.designer.lightning.LightningDetails.connect": "Collegare",
   "cmps.designer.lightning.LightningDetails.actions": "Azioni",
