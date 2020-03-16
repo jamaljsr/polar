@@ -46,6 +46,7 @@ export interface PeerResponse {
   nodeId: string;
   state: 'CONNECTED' | 'DISCONNECTED';
   channels: number;
+  address?: string;
 }
 
 export interface OpenChannelRequest {
