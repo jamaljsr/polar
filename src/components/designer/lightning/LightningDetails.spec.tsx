@@ -154,7 +154,7 @@ describe('LightningDetails', () => {
       const { findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));
       expect(
-        await findByText('Not in sync with then chain. Mine a block'),
+        await findByText('Not in sync with the chain. Mine a block'),
       ).toBeInTheDocument();
     });
 
