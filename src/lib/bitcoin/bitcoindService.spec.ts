@@ -38,6 +38,12 @@ describe('BitcoindService', () => {
     expect(info.balance).toEqual(5);
   });
 
+  it('should get new address', async () => {
+    const addr = await bitcoindService.getNewAddress(node);
+    expect(mockBitcoin.mock.instances[0].getNewAddress).toBeCalledTimes(1);
+    expect(addr).toEqual('abcdef');
+  });
+
   it('should connect peers', async () => {
     await bitcoindService.connectPeers(node);
     expect(mockBitcoin.mock.instances[0].addNode).toBeCalledTimes(1);
