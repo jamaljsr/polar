@@ -67,7 +67,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
       );
       const channels = (
         <Tooltip title={l('channelsTooltip')}>
-          {`${numActiveChannels} / ${numPendingChannels} / ${numInactiveChannels}`}
+          <>{`${numActiveChannels} / ${numPendingChannels} / ${numInactiveChannels}`}</>
         </Tooltip>
       );
       details.push(
