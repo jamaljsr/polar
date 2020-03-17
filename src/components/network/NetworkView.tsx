@@ -197,7 +197,14 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   return (
     <Styled.NetworkView>
       {header}
-      {showNotice && <Alert type="info" message={l('missingImages')} showIcon />}
+      {showNotice && (
+        <Alert
+          type="info"
+          message={l('missingImages')}
+          description={missingImages.join(', ')}
+          showIcon
+        />
+      )}
       {toggleAsync.error && (
         <Alert
           type="error"

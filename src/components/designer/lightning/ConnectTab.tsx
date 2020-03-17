@@ -175,15 +175,17 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
-        <Radio.Button key="paths" value="paths">
-          {l('filePaths')}
-        </Radio.Button>
-        <Radio.Button key="hex" value="hex">
-          {l('hexStrings')}
-        </Radio.Button>
-        <Radio.Button key="base64" value="base64">
-          {l('base64Strings')}
-        </Radio.Button>
+        {credentials.admin && [
+          <Radio.Button key="paths" value="paths">
+            {l('filePaths')}
+          </Radio.Button>,
+          <Radio.Button key="hex" value="hex">
+            {l('hexStrings')}
+          </Radio.Button>,
+          <Radio.Button key="base64" value="base64">
+            {l('base64Strings')}
+          </Radio.Button>,
+        ]}
         {node.implementation === 'LND' && (
           <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
         )}

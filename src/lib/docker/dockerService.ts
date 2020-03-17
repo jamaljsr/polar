@@ -115,7 +115,7 @@ class DockerService implements DockerLibrary {
    */
   async start(network: Network) {
     const { bitcoin, lightning } = network.nodes;
-    this.ensureDirs(network, [...bitcoin, ...lightning]);
+    await this.ensureDirs(network, [...bitcoin, ...lightning]);
 
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
@@ -140,7 +140,7 @@ class DockerService implements DockerLibrary {
    * @param node the node to start
    */
   async startNode(network: Network, node: CommonNode) {
-    this.ensureDirs(network, [node]);
+    await this.ensureDirs(network, [node]);
     // make sure the docker container is stopped. If it is already started in an error state
     // then starting it would have no effect
     await this.stopNode(network, node);
