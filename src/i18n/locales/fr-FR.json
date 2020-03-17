@@ -334,7 +334,7 @@
   "cmps.terminal.DockerTerminal.containerErr": "Conteneur Docker '{{name}}' introuvable",
   "cmps.terminal.DockerTerminal.cliUpdating": "Mettre à jour {{cli}} pour toujours utiliser le réseau regtest",
   "cmps.terminal.OpenTerminalButton.title": "Terminal",
-  "cmps.terminal.OpenTerminalButton.btn": "Launch",
+  "cmps.terminal.OpenTerminalButton.btn": "Lancement",
   "cmps.terminal.OpenTerminalButton.menu": "Launch Terminal",
   "cmps.terminal.OpenTerminalButton.info": "Run '{{cmd}}' commands directly on the node",
   "cmps.terminal.OpenTerminalButton.openMsg": "Launching the terminal...",
