@@ -20,7 +20,7 @@
   "cmps.common.AdvancedOptionsModal.error": "Failed to update options",
   "cmps.common.CopyIcon.message": "Copied {{label}} to clipboard",
   "cmps.common.NavMenu.createNetwork": "Create Network",
-  "cmps.common.NavMenu.manageNodes": "Manage Nodes",
+  "cmps.common.NavMenu.manageNodes": "Manage Images",
   "cmps.common.NavMenu.importNetwork": "Import Network",
   "cmps.common.NavMenu.exportNetwork": "Export Network",
   "cmps.common.RestartNode.title": "Restart Node",

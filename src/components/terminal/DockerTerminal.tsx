@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
+import { remote } from 'electron';
 import { debug, info } from 'electron-log';
 import styled from '@emotion/styled';
 import 'xterm/css/xterm.css';
@@ -142,6 +143,23 @@ const DockerTerminal: React.FC = () => {
   const { notify } = useStoreActions(s => s.app);
   const { type, name } = useParams<RouteParams>();
   const termEl = useRef<HTMLDivElement>(null);
+
+  // add context menu
+  useEffect(() => {
+    window.addEventListener(
+      'contextmenu',
+      e => {
+        e.preventDefault();
+        const menu = remote.Menu.buildFromTemplate([
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+        ]);
+        menu.popup({ window: remote.getCurrentWindow() });
+      },
+      false,
+    );
+  });
 
   useEffect(() => {
     info('Rendering DockerTerminal component');

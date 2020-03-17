@@ -17,7 +17,7 @@ describe('DetailsList Component', () => {
 
   it('should navigate to /nodes when manage nodes item clicked', () => {
     const { getByText, history } = renderComponent();
-    fireEvent.click(getByText('Manage Nodes'));
+    fireEvent.click(getByText('Manage Images'));
     expect(history.location.pathname).toEqual(NODE_IMAGES);
   });
 

@@ -7,6 +7,9 @@ module.exports = {
     dialog: {
       showSaveDialog: jest.fn(),
     },
+    Menu: {
+      buildFromTemplate: jest.fn(),
+    },
     process: {
       env: {},
     },
