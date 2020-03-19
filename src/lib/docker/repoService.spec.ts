@@ -1,4 +1,4 @@
-import fetchMock from 'fetch-mock';
+import * as utils from 'shared/utils';
 import { repoService } from 'lib/docker';
 import { DockerRepoState } from 'types';
 import { defaultRepoState } from 'utils/constants';
@@ -10,8 +10,10 @@ jest.mock('utils/files', () => ({
   read: jest.fn(),
   exists: jest.fn(),
 }));
+jest.mock('shared/utils');
 
 const filesMock = files as jest.Mocked<typeof files>;
+const utilsMock = utils as jest.Mocked<typeof utils>;
 
 describe('RepoService', () => {
   it('should save state to disk', async () => {
@@ -49,27 +51,27 @@ describe('RepoService', () => {
       },
     };
 
-    beforeEach(fetchMock.reset);
-
     it('should return no updates for the same version', async () => {
-      fetchMock.once('end:/nodes.json', clone(localState));
+      utilsMock.httpRequest.mockResolvedValue(JSON.stringify(clone(localState)));
       const result = await repoService.checkForUpdates(localState);
       expect(result.state).toEqual(localState);
       expect(result.updates).not.toBeDefined();
     });
 
     it('should return no updates for new version with no new images', async () => {
-      fetchMock.once('end:/nodes.json', {
-        ...clone(localState),
-        version: localState.version + 1,
-      });
+      utilsMock.httpRequest.mockResolvedValue(
+        JSON.stringify({
+          ...clone(localState),
+          version: localState.version + 1,
+        }),
+      );
       const result = await repoService.checkForUpdates(localState);
       expect(result.state).toEqual(localState);
       expect(result.updates).not.toBeDefined();
     });
 
     it('should return updated state with new versions', async () => {
-      fetchMock.once('end:/nodes.json', clone(updatedState));
+      utilsMock.httpRequest.mockResolvedValue(JSON.stringify(clone(updatedState)));
       const result = await repoService.checkForUpdates(localState);
       expect(result.state).toEqual(updatedState);
       expect(result.updates).toBeDefined();

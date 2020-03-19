@@ -1,13 +1,12 @@
 import { debug } from 'electron-log';
 import { CLightningNode, LightningNode } from 'shared/types';
+import { httpRequest } from 'shared/utils';
 import { read } from 'utils/files';
 import { snakeKeysToCamel } from 'utils/objects';
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
-
 const request = async <T>(
   node: LightningNode,
-  method: HttpMethod,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   path: string,
   bodyObj?: object,
 ): Promise<T> => {
@@ -22,7 +21,7 @@ const request = async <T>(
   const body = bodyObj ? JSON.stringify(bodyObj) : undefined;
   debug(`c-lightning API: [request] ${cln.name} ${id} "${url}" ${body}`);
 
-  const response = await fetch(url, {
+  const response = await httpRequest(url, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -31,10 +30,10 @@ const request = async <T>(
     body,
   });
 
-  const json = await response.json();
+  const json = JSON.parse(response);
   debug(`c-lightning API: [response] ${cln.name} ${id} ${JSON.stringify(json, null, 2)}`);
 
-  if (!response.ok && typeof json.error === 'object') {
+  if (typeof json.error === 'object') {
     const { code, message } = json.error;
     throw new Error(`lightningd ${code}: ${message}`);
   }

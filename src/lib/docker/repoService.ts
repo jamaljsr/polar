@@ -1,6 +1,7 @@
 import { debug } from 'electron-log';
 import { join } from 'path';
 import { NodeImplementation } from 'shared/types';
+import { httpRequest } from 'shared/utils';
 import { DockerRepoState, DockerRepoUpdates, RepoServiceInjection } from 'types';
 import { dataPath } from 'utils/config';
 import { REPO_STATE_URL } from 'utils/constants';
@@ -87,8 +88,9 @@ class RepoService implements RepoServiceInjection {
   async fetchRemote(): Promise<DockerRepoState> {
     debug(`Fetching remote repo state:`);
     debug(` - url: ${REPO_STATE_URL}`);
-    const response = await fetch(REPO_STATE_URL);
-    const state = await response.json();
+
+    const response = await httpRequest(REPO_STATE_URL);
+    const state = JSON.parse(response);
     debug(` - response: \n${JSON.stringify(state)}`);
     return state;
   }
