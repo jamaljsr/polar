@@ -6,6 +6,7 @@ import { fireEvent, wait, waitForElement } from '@testing-library/dom';
 import { act } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
+import * as ipc from 'lib/ipc/ipcService';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import {
@@ -16,14 +17,13 @@ import {
   suppressConsoleErrors,
   testCustomImages,
 } from 'utils/tests';
-import * as zip from 'utils/zip';
 import NetworkView from './NetworkView';
 
-jest.mock('utils/zip');
+jest.mock('lib/ipc/ipcService');
 
 const fsMock = fsExtra as jest.Mocked<typeof fsExtra>;
 const logMock = log as jest.Mocked<typeof log>;
-const zipMock = zip as jest.Mocked<typeof zip>;
+const ipcMock = ipc as jest.Mocked<typeof ipc>;
 const dialogMock = electron.remote.dialog as jest.Mocked<typeof electron.remote.dialog>;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
@@ -309,6 +309,11 @@ describe('NetworkView Component', () => {
   });
 
   describe('export network', () => {
+    beforeEach(() => {
+      const sender = jest.fn().mockResolvedValue(undefined);
+      ipcMock.createIpcSender.mockReturnValue(sender);
+    });
+
     it('should fail to export a running network', async () => {
       const { getByLabelText, findByText } = renderComponent('1', Status.Started);
       fireEvent.mouseOver(getByLabelText('more'));
@@ -339,7 +344,6 @@ describe('NetworkView Component', () => {
       await wait(() => jest.runOnlyPendingTimers());
       expect(logMock.info).toBeCalledWith('User aborted network export');
       expect(dialogMock.showSaveDialog).toBeCalled();
-      expect(zipMock.zip).not.toBeCalled();
       expect(queryByText("Exported 'test network'", { exact: false })).toBeNull();
       jest.useRealTimers();
     });

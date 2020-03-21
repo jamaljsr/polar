@@ -24,11 +24,6 @@ jest.mock('utils/files', () => ({
   rm: jest.fn(),
 }));
 
-jest.mock('utils/zip', () => ({
-  zip: jest.fn(),
-  unzip: jest.fn(),
-}));
-
 const filesMock = files as jest.Mocked<typeof files>;
 const logMock = log as jest.Mocked<typeof log>;
 const detectPortMock = detectPort as jest.Mock;

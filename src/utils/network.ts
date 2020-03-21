@@ -4,6 +4,7 @@ import { basename, join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import detectPort from 'detect-port';
 import { tmpdir } from 'os';
+import { ipcChannels } from 'shared';
 import {
   BitcoinNode,
   CLightningNode,
@@ -14,6 +15,7 @@ import {
   NodeImplementation,
   Status,
 } from 'shared/types';
+import { createIpcSender } from 'lib/ipc/ipcService';
 import {
   CustomImage,
   DockerRepoImage,
@@ -29,7 +31,6 @@ import { range } from './numbers';
 import { isVersionCompatible } from './strings';
 import { getPolarPlatform } from './system';
 import { prefixTranslation } from './translate';
-import { unzip, zip } from './zip';
 
 const { l } = prefixTranslation('utils.network');
 
@@ -588,7 +589,8 @@ export const importNetworkFromZip = async (
 ): Promise<[Network, IChart]> => {
   // extract zip to a temp folder first
   const tmpDir = join(tmpdir(), 'polar', basename(zipPath, '.zip'));
-  await unzip(zipPath, tmpDir);
+  const ipc = createIpcSender('NetworkUtil', 'app');
+  await ipc(ipcChannels.unzip, { filePath: zipPath, destination: tmpDir });
   debug(`Extracted '${zipPath}' to '${tmpDir}'`);
 
   // read and parse the export.json file
@@ -666,5 +668,7 @@ export const zipNetwork = async (
   const content = JSON.stringify({ network, chart });
   await writeFile(join(network.path, 'export.json'), content);
   // zip the network dir into the zip path
-  await zip(network.path, zipPath);
+  const ipc = createIpcSender('NetworkUtil', 'app');
+  await ipc(ipcChannels.zip, { source: network.path, destination: zipPath });
+  // await zip(network.path, zipPath);
 };

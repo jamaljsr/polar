@@ -9,35 +9,32 @@ import unzipper from 'unzipper';
  * @param filePath the path to the zip file
  * @param destination the folder to extract to
  */
-export const unzip = (filePath: string, destination: string): Promise<void> => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const exists = await pathExists(filePath);
-      if (!exists) {
-        throw Error(`${filePath} does not exist!`);
-      }
-      const stream = createReadStream(filePath).pipe(
-        unzipper.Extract({ path: destination }),
-      );
-
-      stream.on('close', resolve);
-      stream.on('error', err => {
-        error(`Could not unzip ${filePath} into ${destination}:`, err);
-        reject(err);
-      });
-    } catch (err) {
-      reject(err);
+export const unzip = (args: { filePath: string; destination: string }): Promise<any> =>
+  new Promise(async (resolve, reject) => {
+    const { filePath, destination } = args;
+    const exists = await pathExists(filePath);
+    if (!exists) {
+      throw Error(`${filePath} does not exist!`);
     }
+    const stream = createReadStream(filePath).pipe(
+      unzipper.Extract({ path: destination }),
+    );
+
+    stream.on('close', resolve);
+    stream.on('error', err => {
+      error(`Could not unzip ${filePath} into ${destination}:`, err);
+      reject(err);
+    });
   });
-};
 
 /**
  * Zips the contents of a folder
  * @param source the folder path containing the files to zip
  * @param destination the file path of where to store the zip
  */
-export const zip = (source: string, destination: string): Promise<void> =>
+export const zip = (args: { source: string; destination: string }): Promise<any> =>
   new Promise(async (resolve, reject) => {
+    const { source, destination } = args;
     info(`zipping ${source} to ${destination}`);
     const archive = archiver('zip');
     archive.on('finish', () => resolve());

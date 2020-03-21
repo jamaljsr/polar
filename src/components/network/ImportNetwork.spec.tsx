@@ -4,21 +4,21 @@ import { join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { fireEvent } from '@testing-library/react';
 import * as os from 'os';
+import * as ipc from 'lib/ipc/ipcService';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
 import { getNetwork, renderWithProviders } from 'utils/tests';
-import * as zip from 'utils/zip';
 import ImportNetwork from './ImportNetwork';
 
 jest.mock('utils/files');
-jest.mock('utils/zip');
 jest.mock('os');
+jest.mock('lib/ipc/ipcService');
 
 const osMock = os as jest.Mocked<typeof os>;
 const fsMock = fs as jest.Mocked<typeof fs>;
 const filesMock = files as jest.Mocked<typeof files>;
-const zipMock = zip as jest.Mocked<typeof zip>;
+const ipcMock = ipc as jest.Mocked<typeof ipc>;
 
 describe('ImportNetwork component', () => {
   const exportFilePath = join('/', 'tmp', 'polar', 'file', 'export.json');
@@ -59,10 +59,11 @@ describe('ImportNetwork component', () => {
     chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
     filesMock.rm.mockResolvedValue();
-    zipMock.unzip.mockResolvedValue();
     fsMock.copy.mockResolvedValue(true as never);
     osMock.tmpdir.mockReturnValue('/tmp');
     osMock.platform.mockReturnValue('darwin');
+    const sender = jest.fn().mockResolvedValue(undefined);
+    ipcMock.createIpcSender.mockReturnValue(sender);
   });
 
   it('should display the file upload label', async () => {

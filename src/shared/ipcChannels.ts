@@ -1,8 +1,10 @@
 export default {
   // general app chnnels
-  openWindow: 'open-Window',
+  openWindow: 'open-window',
   clearCache: 'clear-cache',
   http: 'http',
+  zip: 'zip',
+  unzip: 'unzip',
   // LND proxy channels
   getInfo: 'get-info',
   walletBalance: 'wallet-balance',

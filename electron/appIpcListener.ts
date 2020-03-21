@@ -6,6 +6,7 @@ import { ipcChannels } from '../src/shared';
 import { APP_ROOT, BASE_URL } from './constants';
 import { httpProxy } from './httpProxy';
 import { clearProxyCache } from './lnd/lndProxyServer';
+import { unzip, zip } from './utils/zip';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
   debug('openWindow', args);
@@ -60,6 +61,8 @@ const listeners: {
   [ipcChannels.openWindow]: openWindow,
   [ipcChannels.clearCache]: clearCache,
   [ipcChannels.http]: httpProxy,
+  [ipcChannels.zip]: zip,
+  [ipcChannels.unzip]: unzip,
 };
 
 /**
