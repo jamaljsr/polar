@@ -73,7 +73,7 @@ const bitcoindModel: BitcoindModel = {
     if (node.name === 'backend1') {
       // only mine this block on the first node
       const { chainInfo } = getState().nodes['backend1'];
-      if (chainInfo && chainInfo.blocks === 0) {
+      if (chainInfo) {
         await injections.bitcoindService.mine(1, node);
         await actions.getInfo(node);
       }

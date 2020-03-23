@@ -17,8 +17,8 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 >;
 
 describe('Channel component', () => {
-  const renderComponent = () => {
-    const network = getNetwork();
+  const renderComponent = (status = Status.Stopped) => {
+    const network = getNetwork(1, 'test network', status);
     const lnd1 = network.nodes.lightning[0];
     const lnd2 = network.nodes.lightning[3];
     const link: ILink = {
@@ -103,7 +103,7 @@ describe('Channel component', () => {
     });
 
     it('should show the close channel modal', () => {
-      const { getByText } = renderComponent();
+      const { getByText } = renderComponent(Status.Started);
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       expect(
@@ -114,7 +114,7 @@ describe('Channel component', () => {
     });
 
     it('should close the channel successfully', async () => {
-      const { getByText, getAllByText, getByLabelText } = renderComponent();
+      const { getByText, getAllByText, getByLabelText } = renderComponent(Status.Started);
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       // antd creates two modals in the DOM for some silly reason. Need to click one
@@ -126,12 +126,24 @@ describe('Channel component', () => {
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
 
+    it('should display an error if the node is not started', async () => {
+      const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+      expect(getByText('Close Channel')).toBeInTheDocument();
+      fireEvent.click(getByText('Close Channel'));
+      // wait for the error notification to be displayed
+      await waitForElement(() => getByLabelText('close-circle'));
+      expect(getByText('Unable to close the channel')).toBeInTheDocument();
+      expect(getByText('The source node must be Started')).toBeInTheDocument();
+    });
+
     it('should display an error if closing the channel fails', async () => {
       // antd Modal.confirm logs a console error when onOk fails
       // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         lightningServiceMock.closeChannel.mockRejectedValue(new Error('test error'));
-        const { getByText, getAllByText, getByLabelText } = renderComponent();
+        const { getByText, getAllByText, getByLabelText } = renderComponent(
+          Status.Started,
+        );
         expect(getByText('Close Channel')).toBeInTheDocument();
         fireEvent.click(getByText('Close Channel'));
         // antd creates two modals in the DOM for some silly reason. Need to click one
