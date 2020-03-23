@@ -1941,10 +1941,10 @@
   resolved "https://registry.yarnpkg.com/@types/detect-port/-/detect-port-1.1.0.tgz#07075d264e2e5a432624b1e7ffc11379fe66be8a"
   integrity sha1-BwddJk4uWkMmJLHn/8ETef5mvoo=
 
-"@types/dockerode@2.5.25":
-  version "2.5.25"
-  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-2.5.25.tgz#a0dca148bf5b27067c0281ec16a493ab7b89ab19"
-  integrity sha512-k1Wmam3uR4GNX0Gm3UNrMiJyDtFDkEXl8ljguclPG9Zbw+tSZk1z93LL+TDV9QWhrEKkgcmlMHSGEh9gzOw2+g==
+"@types/dockerode@2.5.26":
+  version "2.5.26"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-2.5.26.tgz#ac1e5abcc0a559708b8064e38a7f83eeffe27faa"
+  integrity sha512-1OVF2rHRtn3ue4+aMdmql2TyUUdEFvWU3sg0rvQxO3jasvNokDx3G5xXzucFFgSWMA3OFIJ9yseW3BNU1XgktQ==
   dependencies:
     "@types/node" "*"
 
