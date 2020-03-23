@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "Cancel",
   "cmps.designer.link.CloseChannelButton.success": "The channel has been closed",
   "cmps.designer.link.CloseChannelButton.error": "Unable to close the channel",
+  "cmps.designer.link.CloseChannelButton.notStarted": "The source node must be Started",
   "cmps.designer.link.LinkDetails.invalidTitle": "Invalid Selection",
   "cmps.designer.link.LinkDetails.invalidMsg": "You've somehow managed to select an invalid link. Click the reload icon above to ensure your chart accurately represents the state in your nodes",
   "cmps.designer.link.Peer.title": "Bitcoin Peer Connection",
