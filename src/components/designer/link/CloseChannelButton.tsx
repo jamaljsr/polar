@@ -2,7 +2,7 @@ import React from 'react';
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LightningNode } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
 
 interface Props {
@@ -17,6 +17,10 @@ const CloseChannelButton: React.FC<Props> = ({ node, channelPoint, type }) => {
   const { closeChannel } = useStoreActions(s => s.lightning);
 
   const showCloseChanModal = () => {
+    if (node.status !== Status.Started) {
+      notify({ message: l('error'), error: new Error(l('notStarted')) });
+      return;
+    }
     Modal.confirm({
       title: l('title'),
       okText: l('confirmBtn'),

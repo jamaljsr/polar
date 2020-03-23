@@ -14,7 +14,6 @@ import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 const Styled = {
   Menu: styled.div`
     float: right;
-    margin-top: 9px;
   `,
   MenuIcon: styled(MenuOutlined)`
     font-size: 1.2rem;
