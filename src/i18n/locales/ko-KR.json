@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "취소",
   "cmps.designer.link.CloseChannelButton.success": "채널이 닫혔습니다",
   "cmps.designer.link.CloseChannelButton.error": "채널을 닫을 수 없습니다",
+  "cmps.designer.link.CloseChannelButton.notStarted": "The source node must be Started",
   "cmps.designer.link.LinkDetails.invalidTitle": "잘못된 선택",
   "cmps.designer.link.LinkDetails.invalidMsg": "어떻게 든 유효하지 않은 링크를 선택했습니다. 차트가 노드의 상태를 정확하게 나타내려면 위의 다시로드 아이콘을 클릭하십시오.",
   "cmps.designer.link.Peer.title": "비트 코인 피어 연결",
@@ -354,6 +355,7 @@
   "store.models.network.removeCompatErr": "연결할 {{lnName}} 에 대한 다른 호환 가능한 백엔드가 없습니다. 먼저 {{lnName}} 노드를 제거해야합니다",
   "store.models.network.exportTitle": "'{{name}}'내보내기",
   "store.models.network.exportBadStatus": "네트워크를 내보내려면 중지해야합니다",
+  "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
   "utils.network.backendCompatError": "이 네트워크에는 {{implementation}} v{{version}} 필요한 Bitcoin Core v{{requiredVersion}} (또는 그 이하) 노드가 없습니다.",
   "utils.network.incompatibleImplementation": "노드가 {{implementation}} 네트워크 가져 오기는 {{platform}} 지원되지 않습니다.",
   "utils.network.unknownImplementation": "알 수없는 Lightning 구현 '{{implementation}}' 을 (를) 가져올 수 없습니다."
