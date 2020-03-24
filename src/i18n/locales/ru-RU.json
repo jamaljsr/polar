@@ -113,7 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "Отмена",
   "cmps.designer.link.CloseChannelButton.success": "Канал был закрыт",
   "cmps.designer.link.CloseChannelButton.error": "Невозможно закрыть канал",
-  "cmps.designer.link.CloseChannelButton.notStarted": "The source node must be Started",
+  "cmps.designer.link.CloseChannelButton.notStarted": "Исходный узел должен быть запущен",
   "cmps.designer.link.LinkDetails.invalidTitle": "Неверный выбор",
   "cmps.designer.link.LinkDetails.invalidMsg": "Вам каким-то образом удалось выбрать недействительную ссылку. Нажмите значок перезагрузки выше, чтобы убедиться, что ваша диаграмма точно отображает состояние ваших узлов",
   "cmps.designer.link.Peer.title": "Соединение с пирами биткойнов",
@@ -355,7 +355,7 @@
   "store.models.network.removeCompatErr": "Других совместимых бэкэндов для {{lnName}} . Вы должны сначала удалить {{lnName}} узел",
   "store.models.network.exportTitle": "Экспорт '{{name}}'",
   "store.models.network.exportBadStatus": "Сеть должна быть остановлена для экспорта",
-  "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
+  "store.models.network.missingImages": "Невозможно запустить сеть, так как она содержит пользовательские изображения узлов, недоступные на этой машине",
   "utils.network.backendCompatError": "Эта сеть не содержит узла Bitcoin Core v{{requiredVersion}} (или ниже), который требуется для {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "Импорт сетей с {{implementation}} узлами не поддерживается на {{platform}}",
   "utils.network.unknownImplementation": "Невозможно импортировать неизвестную реализацию Lightning '{{implementation}}'"
