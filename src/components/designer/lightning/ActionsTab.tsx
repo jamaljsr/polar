@@ -19,7 +19,7 @@ interface Props {
 
 const ActionsTab: React.FC<Props> = ({ node }) => {
   return (
-    <Form wrapperCol={{ span: 24 }}>
+    <Form labelCol={{ span: 24 }}>
       {node.status === Status.Started && (
         <>
           <Deposit node={node} />
