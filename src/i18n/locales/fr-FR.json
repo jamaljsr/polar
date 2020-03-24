@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "Annuler",
   "cmps.designer.link.CloseChannelButton.success": "La chaîne a été fermée",
   "cmps.designer.link.CloseChannelButton.error": "Impossible de fermer le canal",
+  "cmps.designer.link.CloseChannelButton.notStarted": "The source node must be Started",
   "cmps.designer.link.LinkDetails.invalidTitle": "Selection invalide",
   "cmps.designer.link.LinkDetails.invalidMsg": "Vous avez en quelque sorte réussi à sélectionner un lien non valide. Cliquez sur l'icône de rechargement ci-dessus pour vous assurer que votre graphique représente précisément l'état de vos nœuds",
   "cmps.designer.link.Peer.title": "Connexion d'homologue Bitcoin",
@@ -354,6 +355,7 @@
   "store.models.network.removeCompatErr": "Il n'y a pas d'autre backend compatible pour {{lnName}} auquel se connecter. Vous devez d'abord supprimer le {{lnName}} nœud",
   "store.models.network.exportTitle": "Exporter «{{name}}»",
   "store.models.network.exportBadStatus": "Le réseau doit être arrêté pour être exporté",
+  "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
   "utils.network.backendCompatError": "Ce réseau ne contient pas de nœud Bitcoin Core v{{requiredVersion}} (ou inférieur) requis pour {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "L'importation de réseaux avec {{implementation}} nœuds n'est pas prise en charge sur {{platform}}",
   "utils.network.unknownImplementation": "Impossible d'importer l'implémentation Lightning inconnue '{{implementation}}'"
