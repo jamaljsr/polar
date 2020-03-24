@@ -618,6 +618,16 @@ describe('Network model', () => {
       });
       expect(logMock.info).toBeCalledWith('Failed to connect all LN peers', err);
     });
+
+    it('should throw an error if a custom node image is missing', async () => {
+      const { networks } = store.getState().network;
+      networks[0].nodes.lightning[0].docker.image = 'custom-image:latest';
+      store.getActions().network.setNetworks(networks);
+      const { start } = store.getActions().network;
+      const errMsg =
+        'Cannot start the network because it contains custom node images that are not available on this machine: custom-image:latest';
+      await expect(start(firstNetwork().id)).rejects.toThrow(errMsg);
+    });
   });
 
   describe('Stopping', () => {
