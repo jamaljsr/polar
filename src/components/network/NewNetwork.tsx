@@ -88,7 +88,7 @@ const NewNetwork: React.SFC = () => {
               <Styled.Divider orientation="left">{l('customLabel')}</Styled.Divider>
               <Row>
                 {customNodes.map(node => (
-                  <Col span={8} key={node.id}>
+                  <Col span={6} key={node.id}>
                     <Form.Item
                       name={['customNodes', node.id]}
                       label={node.name}

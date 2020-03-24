@@ -49,7 +49,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
   };
 
   const implGroups: Record<string, NodeImplementation[]> = {
-    Lightning: ['LND', 'c-lightning'],
+    Lightning: ['LND', 'c-lightning', 'eclair'],
     Bitcoin: ['bitcoind'],
   };
 

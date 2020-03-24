@@ -355,6 +355,7 @@
   "store.models.network.removeCompatErr": "There are no other compatible backends for {{lnName}} to connect to. You must remove the {{lnName}} node first",
   "store.models.network.exportTitle": "Export '{{name}}'",
   "store.models.network.exportBadStatus": "The network must be stopped to be exported",
+  "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
   "utils.network.unknownImplementation": "Cannot import unknown Lightning implementation '{{implementation}}'"

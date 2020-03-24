@@ -12,7 +12,7 @@ import {
 } from 'shared/types';
 import { CustomImage, Network, StoreInjections } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { APP_VERSION } from 'utils/constants';
+import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
@@ -21,6 +21,7 @@ import {
   createLndNetworkNode,
   createNetwork,
   filterCompatibleBackends,
+  getMissingImages,
   getOpenPorts,
   importNetworkFromZip,
   OpenPorts,
@@ -488,39 +489,53 @@ const networkModel: NetworkModel = {
       network.status = status;
     }
   }),
-  start: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
-    let network = getState().networks.find(n => n.id === networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId }));
-    const { id } = network;
-    actions.setStatus({ id: id, status: Status.Starting });
-    try {
-      // make sure the node ports are available
-      const ports = await getOpenPorts(network);
-      if (ports) {
-        // at least one port was updated. save the network & composeFile
-        actions.updateNodePorts({ id, ports });
-        // re-fetch the network with the updated ports
-        network = getState().networks.find(n => n.id === networkId) as Network;
-        await actions.save();
-        await injections.dockerService.saveComposeFile(network);
+  start: thunk(
+    async (
+      actions,
+      networkId,
+      { getState, injections, getStoreState, getStoreActions },
+    ) => {
+      let network = getState().networks.find(n => n.id === networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId }));
+      const { dockerImages } = getStoreState().app;
+      // make sure all non-Polar images are available
+      const missingImages = getMissingImages(network, dockerImages).filter(
+        i => !i.startsWith(DOCKER_REPO),
+      );
+      if (missingImages.length) {
+        throw new Error(`${l('missingImages')}: ${missingImages.join(', ')}`);
       }
-      // start the docker containers
-      await injections.dockerService.start(network);
-      // update the list of docker images pulled since new images may be pulled
-      await getStoreActions().app.getDockerImages();
-      // set the status of only the network to Started
-      actions.setStatus({ id, status: Status.Started, all: false });
-      // wait for nodes to startup before updating their status
-      await actions.monitorStartup([
-        ...network.nodes.lightning,
-        ...network.nodes.bitcoin,
-      ]);
-    } catch (e) {
-      actions.setStatus({ id, status: Status.Error });
-      info(`unable to start network '${network.name}'`, e.message);
-      throw e;
-    }
-  }),
+      const { id } = network;
+      actions.setStatus({ id: id, status: Status.Starting });
+      try {
+        // make sure the node ports are available
+        const ports = await getOpenPorts(network);
+        if (ports) {
+          // at least one port was updated. save the network & composeFile
+          actions.updateNodePorts({ id, ports });
+          // re-fetch the network with the updated ports
+          network = getState().networks.find(n => n.id === networkId) as Network;
+          await actions.save();
+          await injections.dockerService.saveComposeFile(network);
+        }
+        // start the docker containers
+        await injections.dockerService.start(network);
+        // update the list of docker images pulled since new images may be pulled
+        await getStoreActions().app.getDockerImages();
+        // set the status of only the network to Started
+        actions.setStatus({ id, status: Status.Started, all: false });
+        // wait for nodes to startup before updating their status
+        await actions.monitorStartup([
+          ...network.nodes.lightning,
+          ...network.nodes.bitcoin,
+        ]);
+      } catch (e) {
+        actions.setStatus({ id, status: Status.Error });
+        info(`unable to start network '${network.name}'`, e.message);
+        throw e;
+      }
+    },
+  ),
   stop: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
