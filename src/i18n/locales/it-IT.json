@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "Annulla",
   "cmps.designer.link.CloseChannelButton.success": "Il canale è stato chiuso",
   "cmps.designer.link.CloseChannelButton.error": "Impossibile chiudere il canale",
+  "cmps.designer.link.CloseChannelButton.notStarted": "The source node must be Started",
   "cmps.designer.link.LinkDetails.invalidTitle": "Selezione non valida",
   "cmps.designer.link.LinkDetails.invalidMsg": "In qualche modo sei riuscito a selezionare un collegamento non valido. Fai clic sull'icona di ricarica sopra per assicurarti che il tuo grafico rappresenti accuratamente lo stato nei tuoi nodi",
   "cmps.designer.link.Peer.title": "Connessione peer bitcoin",
@@ -354,6 +355,7 @@
   "store.models.network.removeCompatErr": "Non ci sono altri backend compatibili per {{lnName}} a cui connettersi. È necessario rimuovere prima il nodo {{lnName}}",
   "store.models.network.exportTitle": "Esporta '{{name}}'",
   "store.models.network.exportBadStatus": "La rete deve essere arrestata per essere esportata",
+  "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
   "utils.network.backendCompatError": "Questa rete non contiene un nodo Bitcoin Core v{{requiredVersion}} (o inferiore) richiesto per {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "L'importazione di reti con {{implementation}} nodi non è supportata su {{platform}}",
   "utils.network.unknownImplementation": "Impossibile importare l'implementazione Lightning sconosciuta '{{implementation}}'"
