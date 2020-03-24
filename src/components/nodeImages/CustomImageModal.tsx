@@ -6,6 +6,7 @@ import { NodeImplementation } from 'shared/types';
 import { useStoreActions } from 'store';
 import { CustomImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
+import { getPolarPlatform } from 'utils/system';
 import DockerImageInput from 'components/common/form/DockerImageInput';
 import { CommandVariables } from './';
 
@@ -48,8 +49,10 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
     form.setFieldsValue({ command: dockerConfigs[value].command });
   };
 
+  const platform = getPolarPlatform();
+  const lnImpls: NodeImplementation[] = ['LND', 'c-lightning', 'eclair'];
   const implGroups: Record<string, NodeImplementation[]> = {
-    Lightning: ['LND', 'c-lightning', 'eclair'],
+    Lightning: lnImpls.filter(i => dockerConfigs[i].platforms.includes(platform)),
     Bitcoin: ['bitcoind'],
   };
 
