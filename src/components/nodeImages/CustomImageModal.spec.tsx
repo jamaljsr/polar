@@ -85,8 +85,8 @@ describe('CustomImageModal Component', () => {
     const { getByLabelText, changeSelect } = await renderComponent(newImage);
     const impl = getByLabelText('Command') as HTMLTextAreaElement;
     expect(impl.value).toContain('lnd');
-    changeSelect('Implementation', 'c-lightning');
-    expect(impl.value).toContain('lightningd');
+    changeSelect('Implementation', 'Eclair');
+    expect(impl.value).toContain('polar-eclair');
   });
 
   it('should display an error notification if fetching docker images fails', async () => {
