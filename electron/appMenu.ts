@@ -62,7 +62,7 @@ export const appMenuTemplate = () => {
       submenu: [
         {
           label: 'Github Repo',
-          click: function() {
+          click: function () {
             shell.openExternal('https://github.com/jamaljsr/polar');
           },
         },

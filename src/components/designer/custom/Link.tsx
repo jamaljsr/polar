@@ -27,8 +27,9 @@ export const generateCurvePath = (startPos: IPosition, endPos: IPosition): strin
 
   // add 0.001 to the last point's coords to workaround gradients disappearing
   // when rendered as a straight line. See https://stackoverflow.com/a/34687362
-  return `M${start.x},${start.y} C ${start.x + curveX},${start.y + curveY} ${end.x -
-    curveX},${end.y - curveY} ${end.x + 0.001},${end.y + 0.001}`;
+  return `M${start.x},${start.y} C ${start.x + curveX},${start.y + curveY} ${
+    end.x - curveX
+  },${end.y - curveY} ${end.x + 0.001},${end.y + 0.001}`;
 };
 
 const CustomLink: React.FC<ILinkDefaultProps> = ({
