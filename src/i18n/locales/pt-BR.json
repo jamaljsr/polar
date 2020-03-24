@@ -113,7 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "Cancelar",
   "cmps.designer.link.CloseChannelButton.success": "O canal foi fechado",
   "cmps.designer.link.CloseChannelButton.error": "Não foi possível fechar o canal",
-  "cmps.designer.link.CloseChannelButton.notStarted": "The source node must be Started",
+  "cmps.designer.link.CloseChannelButton.notStarted": "O nó de origem deve ser iniciado",
   "cmps.designer.link.LinkDetails.invalidTitle": "Seleção inválida",
   "cmps.designer.link.LinkDetails.invalidMsg": "De alguma forma, você conseguiu selecionar um link inválido. Clique no ícone de recarga acima para garantir que seu gráfico represente com precisão o estado em seus nós",
   "cmps.designer.link.Peer.title": "Conexão de pares Bitcoin",
@@ -355,7 +355,7 @@
   "store.models.network.removeCompatErr": "Não há outros back-end compatíveis para conexão com {{lnName}}. Você deve remover o {{lnName}} nó primeiro",
   "store.models.network.exportTitle": "Exportar '{{name}}'",
   "store.models.network.exportBadStatus": "A rede deve estar parada para ser exportada",
-  "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
+  "store.models.network.missingImages": "Não é possível iniciar a rede porque ela contém imagens de nó personalizadas que não estão disponíveis nesta máquina",
   "utils.network.backendCompatError": "Esta rede não contém um nó Bitcoin Core v{{requiredVersion}} (ou inferior) necessário para {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "A importação de redes com {{implementation}} nós não é suportada em {{platform}}",
   "utils.network.unknownImplementation": "Não é possível importar a implementação desconhecida do Lightning '{{implementation}}'"
