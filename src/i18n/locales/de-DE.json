@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "Stornieren",
   "cmps.designer.link.CloseChannelButton.success": "Der Kanal wurde geschlossen",
   "cmps.designer.link.CloseChannelButton.error": "Kanal kann nicht geschlossen werden",
+  "cmps.designer.link.CloseChannelButton.notStarted": "Der Quellknoten muss gestartet werden",
   "cmps.designer.link.LinkDetails.invalidTitle": "Ungültige Auswahl",
   "cmps.designer.link.LinkDetails.invalidMsg": "Sie haben es irgendwie geschafft, einen ungültigen Link auszuwählen. Klicken Sie oben auf das Symbol zum erneuten Laden, um sicherzustellen, dass Ihr Diagramm den Status in Ihren Knoten korrekt darstellt",
   "cmps.designer.link.Peer.title": "Bitcoin Peer Verbindung",
@@ -354,6 +355,7 @@
   "store.models.network.removeCompatErr": "Es gibt keine anderen kompatiblen backends für {{lnName}} mit denen eine Verbindung hergestellt werden kann. Sie müssen zuerst den Knoten {{lnName}} entfernen",
   "store.models.network.exportTitle": "Exportiere '{{name}}'",
   "store.models.network.exportBadStatus": "Das Netzwerk muss gestoppt werden, um exportiert zu werden",
+  "store.models.network.missingImages": "Das Netzwerk kann nicht gestartet werden, da es benutzerdefinierte Knotenbilder enthält, die auf diesem Rechner nicht verfügbar sind",
   "utils.network.backendCompatError": "Dieses Netzwerk enthält keinen Bitcoin Core v{{requiredVersion}} (oder niedrigeren) Knoten, der für {{implementation}} v{{version}} erforderlich ist",
   "utils.network.incompatibleImplementation": "Das Importieren von Netzwerken mit {{implementation}} Knoten wird auf {{platform}} nicht unterstützt",
   "utils.network.unknownImplementation": "Unbekannte Lightning-Implementierung '{{implementation}}' kann nicht importiert werden"

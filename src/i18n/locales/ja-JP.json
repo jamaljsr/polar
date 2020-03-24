@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "キャンセル",
   "cmps.designer.link.CloseChannelButton.success": "チャンネルが閉じられました",
   "cmps.designer.link.CloseChannelButton.error": "チャンネルを閉じることができません",
+  "cmps.designer.link.CloseChannelButton.notStarted": "ソースノードが開始されている必要があります",
   "cmps.designer.link.LinkDetails.invalidTitle": "無効な選択",
   "cmps.designer.link.LinkDetails.invalidMsg": "どうにかして無効なリンクを選択できました。上のリロードアイコンをクリックして、グラフがノードの状態を正確に表していることを確認します",
   "cmps.designer.link.Peer.title": "ビットコインピア接続",
@@ -354,6 +355,7 @@
   "store.models.network.removeCompatErr": "{{lnName}} に接続する他の互換性のあるバックエンドはありません。最初に {{lnName}} ノードを削除する必要があります",
   "store.models.network.exportTitle": "エクスポート '{{name}}'",
   "store.models.network.exportBadStatus": "エクスポートするにはネットワークを停止する必要があります",
+  "store.models.network.missingImages": "ソースノードが開始されている必要があります",
   "utils.network.backendCompatError": "このネットワークには、{{implementation}} v{{version}} 必要な Bitcoin Core v{{requiredVersion}} (またはそれ以下) ノードが含まれていません",
   "utils.network.incompatibleImplementation": "{{implementation}} ノードのネットワークのインポートは {{platform}} ではサポートされていません",
   "utils.network.unknownImplementation": "不明なLightning実装 '{{implementation}}'をインポートできません"

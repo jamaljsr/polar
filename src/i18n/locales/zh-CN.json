@@ -113,6 +113,7 @@
   "cmps.designer.link.CloseChannelButton.cancelBtn": "取消",
   "cmps.designer.link.CloseChannelButton.success": "频道已关闭",
   "cmps.designer.link.CloseChannelButton.error": "无法关闭频道",
+  "cmps.designer.link.CloseChannelButton.notStarted": "源节点必须已启动",
   "cmps.designer.link.LinkDetails.invalidTitle": "选择无效",
   "cmps.designer.link.LinkDetails.invalidMsg": "您已经设法设法选择了无效的链接。单击上方的重新加载图标以确保您的图表准确表示节点中的状态",
   "cmps.designer.link.Peer.title": "比特币对等连接",
@@ -354,6 +355,7 @@
   "store.models.network.removeCompatErr": "没有其他兼容的后端可以连接 {{lnName}} 。您必须先删除 {{lnName}} 节点",
   "store.models.network.exportTitle": "导出'{{name}}'",
   "store.models.network.exportBadStatus": "网络必须停止才能导出",
+  "store.models.network.missingImages": "无法启动网络，因为它包含此计算机上不可用的自定义节点映像",
   "utils.network.backendCompatError": "该网络不包含 {{implementation}} v{{version}} 所需的 Bitcoin Core v{{requiredVersion}} (或更低版本) 节点",
   "utils.network.incompatibleImplementation": "{{platform}} 上不支持导入具有 {{implementation}} 节点的网络",
   "utils.network.unknownImplementation": "无法导入未知的闪电实施“{{implementation}}”"
