@@ -11,6 +11,7 @@ import {
   Status,
 } from 'shared/types';
 import { CustomImage, Network, StoreInjections } from 'types';
+import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
@@ -584,7 +585,8 @@ const networkModel: NetworkModel = {
       const network = getStoreState().network.networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
 
-      const allNodesOnline: Promise<void>[] = [];
+      const lnNodesOnline: Promise<void>[] = [];
+      const btcNodesOnline: Promise<void>[] = [];
       for (const node of nodes) {
         // wait for lnd nodes to come online before updating their status
         if (node.type === 'lightning') {
@@ -599,29 +601,39 @@ const networkModel: NetworkModel = {
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
             );
-          allNodesOnline.push(promise);
+          lnNodesOnline.push(promise);
         } else if (node.type === 'bitcoin') {
           const btc = node as BitcoinNode;
           // wait for bitcoind nodes to come online before updating their status
           // use .then() to continue execution while the promises are waiting to complete
-          injections.bitcoindService
+          const promise = injections.bitcoindService
             .waitUntilOnline(btc)
             .then(async () => {
               actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
               await injections.bitcoindService.connectPeers(btc);
               await getStoreActions().bitcoind.getInfo(btc);
-              await getStoreActions().bitcoind.mineFirstBlock(btc);
             })
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
             );
+          btcNodesOnline.push(promise);
         }
+      }
+      // after all bitcoin nodes are online, mine one block so that Eclair nodes will start
+      if (btcNodesOnline.length) {
+        const node = network.nodes.bitcoin[0];
+        await Promise.all(btcNodesOnline)
+          .then(async () => {
+            await delay(2000);
+            await getStoreActions().bitcoind.mine({ node, blocks: 1 });
+          })
+          .catch(e => info('Failed to mine a block after network startup', e));
       }
       // after all LN nodes are online, connect each of them to each other. This helps
       // ensure that each node is aware of the entire graph and can route payments properly
-      if (allNodesOnline.length) {
-        await Promise.all(allNodesOnline)
+      if (lnNodesOnline.length) {
+        await Promise.all(lnNodesOnline)
           .then(async () => await getStoreActions().lightning.connectAllPeers(network))
           .catch(e => info('Failed to connect all LN peers', e));
       }

@@ -556,11 +556,23 @@ describe('Network model', () => {
       bitcoin.forEach(node => expect(node.errorMsg).toBe('test-error'));
     });
 
-    it('should mine the first block on startup', async () => {
+    it('should mine a block on startup', async () => {
       bitcoindServiceMock.getBlockchainInfo.mockResolvedValue({ blocks: 0 } as any);
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
+      const btcNode = {
+        ...firstNetwork().nodes.bitcoin[0],
+        status: Status.Starting,
+      };
+      expect(bitcoindServiceMock.mine).toBeCalledWith(1, btcNode);
+    });
+
+    it('should not throw when mining a block on startup fails', async () => {
+      bitcoindServiceMock.mine.mockRejectedValue(new Error('test-error'));
+      const { start } = store.getActions().network;
+      const network = firstNetwork();
+      await expect(start(network.id)).resolves.not.toThrow();
       const btcNode = {
         ...firstNetwork().nodes.bitcoin[0],
         status: Status.Starting,
