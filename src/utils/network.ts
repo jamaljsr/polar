@@ -316,16 +316,16 @@ export const createNetwork = (config: {
 
   // add custom lightning nodes
   customImages
-    .filter(
-      i => i.image.implementation === 'LND' || i.image.implementation === 'c-lightning',
-    )
+    .filter(i => ['LND', 'c-lightning', 'eclair'].includes(i.image.implementation))
     .forEach(({ image, count }) => {
       const { latest, compatibility } = repoState.images.LND;
       const docker = { image: image.dockerImage, command: image.command };
       const createFunc =
         image.implementation === 'LND'
           ? createLndNetworkNode
-          : createCLightningNetworkNode;
+          : image.implementation === 'c-lightning'
+          ? createCLightningNetworkNode
+          : createEclairNetworkNode;
       range(count).forEach(() => {
         lightning.push(createFunc(network, latest, compatibility, docker, status));
       });

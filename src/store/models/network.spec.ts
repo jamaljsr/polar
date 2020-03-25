@@ -161,7 +161,7 @@ describe('Network model', () => {
       const custom: CustomImage[] = [
         ...testCustomImages,
         {
-          id: '789',
+          id: '012',
           name: 'Another Custom Image',
           implementation: 'bitcoind',
           dockerImage: 'my-bitcoind:latest',
@@ -180,7 +180,8 @@ describe('Network model', () => {
         customNodes: {
           '123': 1, // LND
           '456': 1, // c-lightning
-          '789': 1, // bitcoind
+          '789': 1, // Eclair
+          '012': 1, // bitcoind
           '999': 1, // invalid
         },
       };

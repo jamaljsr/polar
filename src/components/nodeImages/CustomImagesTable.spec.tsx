@@ -106,7 +106,7 @@ describe('CustomImagesTable Component', () => {
     expect(
       await findByText(`The custom image '${name}' has been removed`),
     ).toBeInTheDocument();
-    expect(store.getState().app.settings.nodeImages.custom.length).toBe(1);
+    expect(store.getState().app.settings.nodeImages.custom.length).toBe(2);
   });
 
   it('should display an error if removing a custom node fails', async () => {

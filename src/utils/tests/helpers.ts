@@ -39,6 +39,13 @@ export const testCustomImages: CustomImage[] = [
     dockerImage: 'my-clightning:latest',
     command: 'another-command',
   },
+  {
+    id: '789',
+    name: 'One More Custom Image',
+    implementation: 'eclair',
+    dockerImage: 'my-eclair:latest',
+    command: 'another-command',
+  },
 ];
 
 export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
