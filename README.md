@@ -5,6 +5,8 @@
 [![Actions Status](https://github.com/jamaljsr/polar/workflows/CI/badge.svg)](https://github.com/jamaljsr/polar/actions)
 [![codecov](https://codecov.io/gh/jamaljsr/polar/branch/master/graph/badge.svg)](https://codecov.io/gh/jamaljsr/polar)
 [![Crowdin](https://badges.crowdin.net/polar/localized.svg)](https://crowdin.com/project/polar)
+[![GitHub license](https://img.shields.io/github/license/jamaljsr/polar.svg)](https://github.com/jamaljsr/polar/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/jamaljsr/polar.svg)](https://GitHub.com/jamaljsr/polar/releases/)
 
 <p align="center">
   <img src="./assets/screen.png" />
@@ -26,16 +28,18 @@ With Polar you can:
 - Open & Close Channels
 - Create & Pay Lightning Invoices
 - Launch a terminal in each bitcoin/lightning node
+- View streaming logs from each node
 - Manually mine new blocks
 - Deposit regtest coins into each Lightning node
 - Export and import networks, for sharing with other Lightning developers
+- Create you own docker images to use as [custom nodes](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md) (ex: master branch, local fork)
 
 Supported Network Node Versions:
 
-- LND v0.8.2, v0.8.0 & v0.7.1
-- Bitcoin Core v0.19.0.1 & v0.18.1
+- LND v0.9.1, v0.9.0, v0.8.2, v0.8.0 & v0.7.1
 - c-lightning v0.8.1 & v0.8.0
-- eclair (coming soon?) \*need to gauge demand for this implementation\*
+- Eclair v0.3.3
+- Bitcoin Core v0.19.1, v0.19.0.1 & v0.18.1
 
 ## Dependencies
 
@@ -48,11 +52,11 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v0.2.1 for
+Download Polar v1.0.0 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v0.2.1/polar-mac-v0.2.1.dmg), [zip](https://github.com/jamaljsr/polar/releases/download/v0.2.1/polar-mac-v0.2.1.zip))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v0.2.1/polar-linux-amd64-v0.2.1.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v0.2.1/polar-linux-x86_64-v0.2.1.AppImage))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v0.2.1/polar-win-v0.2.1.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-mac-v1.0.0.dmg), [zip](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-mac-v1.0.0.zip))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-linux-amd64-v1.0.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-linux-x86_64-v1.0.0.AppImage))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-win-v1.0.0.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 

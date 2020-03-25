@@ -2,7 +2,46 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.2.1](https://github.com/jamaljsr/polar/compare/v0.2.0...v0.2.1)
+## [v1.0.0](https://github.com/jamaljsr/polar/compare/v0.2.1...v1.0.0)
+
+This release was focused on implementing many of the feature requests submitted since the first release, as well as adding support for the Eclair Lightning implementation. You can now use your own custom Docker image, allowing you to run the master branch or your personal fork of each node. Polar now supports importing and exporting networks, which allows you to save snapshots to reuse as a starting point over an over again. We also added a log viewer for nodes which should make it easier to see what your nodes are doing and added right-click menus for nodes & channels so you can perform actions with less clicks. To support more flexible environments, the Lightning P2P and Bitcoin ZMQ ports are now exposed to the host machine, which means you can have nodes outside of Polar communicate with the nodes inside.
+
+I am bumping the version to a major release v1.0.0 to signify that I feel Polar is now pretty stable and fully-functional, with support for the big three Lightning implementations. There are still more improvements which will be added in the future, but what's included now is a solid base.
+
+### Features
+
+- Add support for Eclair v0.3.3 nodes ([#322](https://github.com/jamaljsr/polar/pull/322))
+- Add ability to import & export networks ([#295](https://github.com/jamaljsr/polar/pull/295)) by [@torkelrogstad](https://github.com/torkelrogstad)
+- Add support for custom docker images ([#299](https://github.com/jamaljsr/polar/pull/299))
+- Make bitcoind's ZeroMQ servers reachable on LAN ([#297](https://github.com/jamaljsr/polar/pull/297)) by [@hsjoberg](https://github.com/hsjoberg)
+- Make lightning nodes p2p port reachable on LAN ([#301](https://github.com/jamaljsr/polar/pull/301)) by [@hsjoberg](https://github.com/hsjoberg)
+- Add right-click menus for nodes and channels ([#312](https://github.com/jamaljsr/polar/pull/312))
+- Add ability to view live logs from nodes ([#316](https://github.com/jamaljsr/polar/pull/316))
+
+### Bug Fixes
+
+- Handle errors in Bitcoind logger ([#285](https://github.com/jamaljsr/polar/pull/285)) by [@bolatovumar](https://github.com/bolatovumar)
+- Make sure localBalance is never undefined for pending channel ([#289](https://github.com/jamaljsr/polar/pull/289)) by [@bolatovumar](https://github.com/bolatovumar)
+- Fix corrupt redux state causing errors ([#305](https://github.com/jamaljsr/polar/pull/305))
+- Fix broken line wrapping for long commands in the terminal ([#310](https://github.com/jamaljsr/polar/pull/310))
+- Fix typo in English translations ([#323](https://github.com/jamaljsr/polar/pull/323))
+
+### Docs
+
+- Add CONTRIBUTING documentation ([#294](https://github.com/jamaljsr/polar/pull/294))
+- Add documentation for building custom node images ([custom-node.md](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md))
+
+### Community Contributions
+
+Polar received contributions from a few community members. I'd like to sincerely thank these devs for giving back to the project.
+
+- Torkel Rogstad [@torkelrogstad](https://github.com/torkelrogstad)
+- Hampus Sjöberg [@hsjoberg](https://github.com/hsjoberg)
+- Umar Bolatov [@bolatovumar](https://github.com/bolatovumar)
+
+All feedback and contributions are greatly appreciated.
+
+## [v0.2.1](https://github.com/jamaljsr/polar/compare/v0.2.0...v0.2.1)
 
 This is just a small release to bring back light mode for those who prefer it over dark mode.
 
@@ -18,7 +57,7 @@ This is just a small release to bring back light mode for those who prefer it ov
 
 - fix spelling and add Polar version field to bug template ([#279](https://github.com/jamaljsr/polar/pull/279)) h/t [@bolatovumar](https://github.com/bolatovumar)
 
-## [0.2.0](https://github.com/jamaljsr/polar/compare/v0.1.0...v0.2.0)
+## [v0.2.0](https://github.com/jamaljsr/polar/compare/v0.1.0...v0.2.0)
 
 This release was focused on adding core features that didn't make it in the first release, as well as some UX and stability improvements. The UI has been redesigned to use a dark theme which has been a popular request. Polar now supports the latest versions of LND v0.8.2, Bitcoin Core v0.19.0.1 and adds support for c-lightning v0.8.0. Future released versions of these Lightning & Bitcoin nodes can now be used without needing to release a new version of Polar. This feature will let you start using the new versions as soon as they are out. To maintain support for older LND versions which are not compatible with the latest bitcoind, Polar now supports running multiple bitcoin nodes in a single network. Have fun creating chain splits and block reorgs with the new ability to stop and start individual nodes as well :)
 
@@ -76,7 +115,7 @@ Polar received contributions from a few community members. I'd like to sincerely
 
 All feedback and contributions are greatly appreciated.
 
-## 0.1.0
+## v0.1.0
 
 ### First Release
 
