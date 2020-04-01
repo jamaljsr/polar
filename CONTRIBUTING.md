@@ -1,6 +1,6 @@
 ## Building Polar from Source
 
-This guide will walk you through setting up your local computer to be able to compile and package Polar from the source code. Towards then end, there are steps to follow if you wish to open a PR to fix a bug or add a new feature. You will also find some productivity tips to improve the developer experience when making changes to the code.
+This guide will walk you through setting up your local computer to be able to compile and package Polar from the source code. Towards the end, there are steps to follow if you wish to open a PR to fix a bug or add a new feature. You will also find some productivity tips to improve the developer experience when making changes to the code.
 
 ### Overview
 
