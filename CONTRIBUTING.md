@@ -67,7 +67,7 @@ $ yarn
 
 ## Contributing to Polar
 
-So you'd like to contribute some help make Polar better, here's how...
+So you'd like to contribute some help to make Polar better, here's how...
 
 ### Editor Configuration
 
