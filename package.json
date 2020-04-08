@@ -116,7 +116,7 @@
     "less-loader": "5.0.0",
     "lint-staged": "10.1.2",
     "lndconnect": "0.2.10",
-    "nodemon": "2.0.2",
+    "nodemon": "2.0.3",
     "prettier": "2.0.4",
     "react": "16.13.1",
     "react-async-hook": "3.6.1",
