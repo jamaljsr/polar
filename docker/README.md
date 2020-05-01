@@ -31,6 +31,7 @@ $ docker push polarlightning/bitcoind:<version>
 
 ### Tags
 
+- `0.10.0-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.9.1-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.9.0-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.8.2-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
@@ -56,6 +57,7 @@ $ docker push polarlightning/lnd:<version>
 
 ### Tags
 
+- `0.8.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `0.8.1` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `0.8.0` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 
@@ -97,16 +99,19 @@ $ docker push polarlightning/eclair:<version>
 
 # Out-of-Band Image Updates
 
+> Note: These steps can only be performed by developers with commit access to this GitHub repo and push access to the Docker Hub repo
+
 These docker images can be updated in-between Polar releases. This allows developers to use the latest Bitcoin & Lightning versions shortly after they are released, without needing to download and install a new version of Polar.
 
 To make new docker image versions available:
 
 1. Build the new docker image using the commands above
 1. Push the image to Docker Hub
-1. Update the [`/docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) file
+1. Update the [`docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) file
    - add the new version to the `versions` array of the associated implementation
    - update the `latest` property of the implementation if necessary
    - increment the root-level `version` number by `1`
+1. Update the [`src/utils/constants.ts`](https://github.com/jamaljsr/polar/blob/master/src/utils/constants.ts) file
 
 Once the updated `nodes.json` file is committed to master, the new images can be used in Polar by following these steps:
 
