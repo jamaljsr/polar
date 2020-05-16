@@ -60,30 +60,32 @@ describe('RestartNode', () => {
   });
 
   it('should show the start node modal', async () => {
-    const { getByText } = renderComponent();
+    const { getByText, findByText } = renderComponent();
     expect(getByText('Start')).toBeInTheDocument();
     fireEvent.click(getByText('Start'));
-    expect(getByText('Would you like to start the alice node?')).toBeInTheDocument();
+    expect(
+      await findByText('Would you like to start the alice node?'),
+    ).toBeInTheDocument();
     expect(getByText('Yes')).toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
   });
 
   it('should show the stop node modal', async () => {
-    const { getByText } = renderComponent(Status.Started);
+    const { getByText, findByText } = renderComponent(Status.Started);
     expect(getByText('Stop')).toBeInTheDocument();
     fireEvent.click(getByText('Stop'));
     expect(
-      getByText('Are you sure you want to stop the alice node?'),
+      await findByText('Are you sure you want to stop the alice node?'),
     ).toBeInTheDocument();
     expect(getByText('Yes')).toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
   });
 
   it('should start the node when stopped', async () => {
-    const { getByText, getByLabelText } = renderComponent();
+    const { getByText, findByText, getByLabelText } = renderComponent();
     expect(getByText('Start')).toBeInTheDocument();
     fireEvent.click(getByText('Start'));
-    fireEvent.click(getByText('Yes'));
+    fireEvent.click(await findByText('Yes'));
     // wait for the error notification to be displayed
     await waitForElement(() => getByLabelText('check-circle'));
     expect(getByText('The node alice has been started')).toBeInTheDocument();
@@ -91,10 +93,10 @@ describe('RestartNode', () => {
   });
 
   it('should stop the node when started', async () => {
-    const { getByText, getByLabelText } = renderComponent(Status.Started);
+    const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
     expect(getByText('Stop')).toBeInTheDocument();
     fireEvent.click(getByText('Stop'));
-    fireEvent.click(getByText('Yes'));
+    fireEvent.click(await findByText('Yes'));
     // wait for the error notification to be displayed
     await waitForElement(() => getByLabelText('check-circle'));
     expect(getByText('The node alice has been stopped')).toBeInTheDocument();
@@ -103,13 +105,13 @@ describe('RestartNode', () => {
 
   it('should display an error if starting the node fails', async () => {
     // antd Modal.confirm logs a console error when onOk fails
-    // this supresses those errors from being displayed in test runs
+    // this suppresses those errors from being displayed in test runs
     await suppressConsoleErrors(async () => {
       dockerServiceMock.startNode.mockRejectedValue(new Error('start-error'));
-      const { getByText, getByLabelText } = renderComponent();
+      const { getByText, findByText, getByLabelText } = renderComponent();
       expect(getByText('Start')).toBeInTheDocument();
       fireEvent.click(getByText('Start'));
-      fireEvent.click(getByText('Yes'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('close'));
       expect(getByText('Unable to start the node')).toBeInTheDocument();
@@ -119,13 +121,13 @@ describe('RestartNode', () => {
 
   it('should display an error if stopping the node fails', async () => {
     // antd Modal.confirm logs a console error when onOk fails
-    // this supresses those errors from being displayed in test runs
+    // this suppresses those errors from being displayed in test runs
     await suppressConsoleErrors(async () => {
       dockerServiceMock.stopNode.mockRejectedValue(new Error('stop-error'));
-      const { getByText, getByLabelText } = renderComponent(Status.Started);
+      const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
       expect(getByText('Stop')).toBeInTheDocument();
       fireEvent.click(getByText('Stop'));
-      fireEvent.click(getByText('Yes'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('close'));
       expect(getByText('Unable to stop the node')).toBeInTheDocument();

@@ -34,7 +34,7 @@ const Deposit: React.FC<{ node: LightningNode }> = ({ node }) => {
           max={100 * 100000000}
           formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
-          onChange={v => v && setAmount(v)}
+          onChange={v => setAmount(parseInt(v as any) || 1)}
           style={{ width: '65%' }}
         />
         <Button

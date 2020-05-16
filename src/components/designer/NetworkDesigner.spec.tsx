@@ -150,9 +150,7 @@ describe('NetworkDesigner Component', () => {
     });
     fireEvent.click(await findByText('Actions'));
     fireEvent.click(await findByText('Remove'));
-    act(() => {
-      fireEvent.click(getByText('Yes'));
-    });
+    fireEvent.click(await findByText('Yes'));
     await waitForElementToBeRemoved(() => queryByText('Yes'));
     expect(queryByText('alice')).toBeNull();
   });

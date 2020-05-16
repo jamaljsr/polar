@@ -268,7 +268,7 @@ describe('NetworkView Component', () => {
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Delete'));
       expect(
-        getByText('Are you sure you want to delete this network?'),
+        await findByText('Are you sure you want to delete this network?'),
       ).toBeInTheDocument();
       expect(getByText('Yes')).toBeInTheDocument();
       expect(getByText('Cancel')).toBeInTheDocument();
