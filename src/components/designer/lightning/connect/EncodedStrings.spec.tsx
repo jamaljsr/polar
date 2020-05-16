@@ -1,5 +1,5 @@
 import React from 'react';
-import { wait } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { LndNode } from 'shared/types';
 import * as files from 'utils/files';
 import { getNetwork, renderWithProviders } from 'utils/tests';
@@ -33,7 +33,7 @@ describe('EncodedStrings', () => {
       cert: lnd.paths.tlsCert,
     };
     const { getByText } = renderComponent(lndCreds, 'hex');
-    await wait();
+    await waitFor(() => getByText('TLS Cert'));
     expect(getByText('TLS Cert')).toBeInTheDocument();
     expect(getByText('Admin Macaroon')).toBeInTheDocument();
     expect(getByText('Read-only Macaroon')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('EncodedStrings', () => {
   it('should handle all missing credentials', async () => {
     const missingCreds = {} as ConnectionInfo['credentials'];
     const { queryByText } = renderComponent(missingCreds, 'hex');
-    await wait();
+    await waitFor(() => null); // wait for useAsync to complete
     expect(queryByText('TLS Cert')).not.toBeInTheDocument();
     expect(queryByText('Admin Macaroon')).not.toBeInTheDocument();
     expect(queryByText('Read-only Macaroon')).not.toBeInTheDocument();

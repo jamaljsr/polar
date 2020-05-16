@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/react';
+import { fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { CustomImage } from 'types';
 import { DOCKER_REPO, dockerConfigs } from 'utils/constants';
 import { injections, renderWithProviders, testCustomImages } from 'utils/tests';
@@ -102,7 +102,7 @@ describe('CustomImageModal Component', () => {
     const { getByText, getByLabelText, store } = await renderComponent();
     fireEvent.change(getByLabelText('Command'), { target: { value: 'a' } });
     fireEvent.click(getByText('Save'));
-    await wait(() => {
+    await waitFor(() => {
       expect(store.getState().app.settings.nodeImages.custom[0].command).toBe('a');
     });
     expect(onClose).toHaveBeenCalled();

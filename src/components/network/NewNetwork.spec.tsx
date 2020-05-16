@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitForDomChange } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import os from 'os';
 import { CustomImage } from 'types';
 import { renderWithProviders, suppressConsoleErrors } from 'utils/tests';
@@ -56,10 +56,9 @@ describe('NewNetwork component', () => {
 
   it('should display an error if empty name is submitted', async () => {
     await suppressConsoleErrors(async () => {
-      const { getByText, createBtn } = renderComponent();
+      const { findByText, createBtn } = renderComponent();
       fireEvent.click(createBtn);
-      await waitForDomChange();
-      expect(getByText('required')).toBeInTheDocument();
+      expect(await findByText('required')).toBeInTheDocument();
     });
   });
 
@@ -92,16 +91,18 @@ describe('NewNetwork component', () => {
       const { createBtn, nameInput, history } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
       fireEvent.click(createBtn);
-      await waitForDomChange();
-      expect(history.location.pathname).toEqual(NETWORK_VIEW(1));
+      await waitFor(() => {
+        expect(history.location.pathname).toEqual(NETWORK_VIEW(1));
+      });
     });
 
     it('should call networkManager.create', async () => {
       const { createBtn, nameInput, injections } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
       fireEvent.click(createBtn);
-      await waitForDomChange();
-      expect(injections.dockerService.saveComposeFile).toBeCalled();
+      await waitFor(() => {
+        expect(injections.dockerService.saveComposeFile).toBeCalled();
+      });
     });
   });
 });

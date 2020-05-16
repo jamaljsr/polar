@@ -1,5 +1,10 @@
 import React from 'react';
-import { act, fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
@@ -116,7 +121,7 @@ describe('ChangeBackendModal', () => {
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
     fireEvent.click(getByText('Cancel'));
-    await wait(() => {
+    await waitFor(() => {
       expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
     });
   });
@@ -143,7 +148,7 @@ describe('ChangeBackendModal', () => {
     await suppressConsoleErrors(async () => {
       const { getByText, getAllByText } = await renderComponent(Status.Stopped, '', '');
       fireEvent.click(getByText('Change Backend'));
-      await wait(() => {
+      await waitFor(() => {
         expect(getAllByText('required')).toHaveLength(2);
       });
     });
@@ -152,7 +157,7 @@ describe('ChangeBackendModal', () => {
   it('should do nothing if an invalid node is selected', async () => {
     const { getByText } = await renderComponent(Status.Stopped, 'invalid');
     fireEvent.click(getByText('Change Backend'));
-    await wait(() => {
+    await waitFor(() => {
       expect(getByText('Change Backend')).toBeInTheDocument();
     });
   });
@@ -162,7 +167,7 @@ describe('ChangeBackendModal', () => {
       const { getByText, changeSelect, store } = await renderComponent();
       changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
-      await wait(() => {
+      await waitFor(() => {
         expect(store.getState().modals.changeBackend.visible).toBe(false);
       });
       expect(
@@ -175,7 +180,7 @@ describe('ChangeBackendModal', () => {
       store.getActions().designer.removeLink('alice-backend1');
       changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
-      await wait(() => {
+      await waitFor(() => {
         expect(store.getState().modals.changeBackend.visible).toBe(false);
       });
       expect(
@@ -187,7 +192,7 @@ describe('ChangeBackendModal', () => {
       const { getByText, changeSelect } = await renderComponent(Status.Started);
       changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
-      await wait(() => {
+      await waitFor(() => {
         expect(injections.dockerService.stopNode).toBeCalledTimes(1);
         expect(injections.dockerService.startNode).toBeCalledTimes(1);
       });

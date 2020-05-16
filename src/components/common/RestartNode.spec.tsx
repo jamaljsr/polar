@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitForElement } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -87,7 +87,7 @@ describe('RestartNode', () => {
     fireEvent.click(getByText('Start'));
     fireEvent.click(await findByText('Yes'));
     // wait for the error notification to be displayed
-    await waitForElement(() => getByLabelText('check-circle'));
+    await waitFor(() => getByLabelText('check-circle'));
     expect(getByText('The node alice has been started')).toBeInTheDocument();
     expect(dockerServiceMock.startNode).toBeCalledTimes(1);
   });
@@ -98,7 +98,7 @@ describe('RestartNode', () => {
     fireEvent.click(getByText('Stop'));
     fireEvent.click(await findByText('Yes'));
     // wait for the error notification to be displayed
-    await waitForElement(() => getByLabelText('check-circle'));
+    await waitFor(() => getByLabelText('check-circle'));
     expect(getByText('The node alice has been stopped')).toBeInTheDocument();
     expect(dockerServiceMock.stopNode).toBeCalledTimes(1);
   });
@@ -113,7 +113,7 @@ describe('RestartNode', () => {
       fireEvent.click(getByText('Start'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('close'));
+      await waitFor(() => getByLabelText('close'));
       expect(getByText('Unable to start the node')).toBeInTheDocument();
       expect(getByText('start-error')).toBeInTheDocument();
     });
@@ -129,7 +129,7 @@ describe('RestartNode', () => {
       fireEvent.click(getByText('Stop'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('close'));
+      await waitFor(() => getByLabelText('close'));
       expect(getByText('Unable to stop the node')).toBeInTheDocument();
       expect(getByText('stop-error')).toBeInTheDocument();
     });

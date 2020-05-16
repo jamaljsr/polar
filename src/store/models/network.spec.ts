@@ -1,5 +1,5 @@
 import * as log from 'electron-log';
-import { wait } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
 import { NodeImplementation, Status } from 'shared/types';
@@ -626,7 +626,7 @@ describe('Network model', () => {
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
-      await wait(() => {
+      await waitFor(() => {
         expect(lightningServiceMock.connectPeers).toBeCalledTimes(3);
       });
       expect(logMock.info).toBeCalledWith('Failed to connect all LN peers', err);
@@ -813,7 +813,7 @@ describe('Network model', () => {
     it('should wait for lightning nodes then connect peers', async () => {
       const { monitorStartup } = store.getActions().network;
       await monitorStartup(firstNetwork().nodes.lightning);
-      await wait(() => {
+      await waitFor(() => {
         expect(lightningServiceMock.waitUntilOnline).toBeCalled();
         expect(lightningServiceMock.connectPeers).toBeCalled();
       });
@@ -822,7 +822,7 @@ describe('Network model', () => {
     it('should wait for bitcoin nodes then connect peers', async () => {
       const { monitorStartup } = store.getActions().network;
       await monitorStartup(firstNetwork().nodes.bitcoin);
-      await wait(() => {
+      await waitFor(() => {
         expect(bitcoindServiceMock.waitUntilOnline).toBeCalled();
         expect(bitcoindServiceMock.connectPeers).toBeCalled();
       });

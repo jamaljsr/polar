@@ -1,6 +1,6 @@
 import React from 'react';
 import { shell } from 'electron';
-import { fireEvent, wait, waitForElement } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { LightningNode, Status } from 'shared/types';
 import { Network } from 'types';
 import * as files from 'utils/files';
@@ -88,14 +88,15 @@ describe('LightningDetails', () => {
     it('should not display GRPC Host', async () => {
       const { queryByText, getByText } = renderComponent();
       // first wait for the loader to go away
-      await waitForElement(() => getByText('Status'));
+      await waitFor(() => getByText('Status'));
       // then confirm GRPC Host isn't there
       expect(queryByText('GRPC Host')).toBeNull();
     });
 
     it('should not display start msg in Actions tab', async () => {
       const { queryByText, getByText } = renderComponent(Status.Starting);
-      await wait(() => fireEvent.click(getByText('Actions')));
+      fireEvent.click(getByText('Actions'));
+      await waitFor(() => getByText('Restart Node'));
       expect(queryByText('Node needs to be started to perform actions on it')).toBeNull();
     });
 
@@ -215,7 +216,7 @@ describe('LightningDetails', () => {
       lightningServiceMock.getBalances.mockResolvedValue(null as any);
       const { getByText, queryByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));
-      await wait(() => getByText('Alias'));
+      await waitFor(() => getByText('Alias'));
       expect(queryByText('Confirmed Balance')).not.toBeInTheDocument();
       expect(queryByText('Unconfirmed Balance')).not.toBeInTheDocument();
     });
@@ -224,7 +225,7 @@ describe('LightningDetails', () => {
       lightningServiceMock.getInfo.mockResolvedValue(null as any);
       const { getByText, queryByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Info'));
-      await wait(() => getByText('Confirmed Balance'));
+      await waitFor(() => getByText('Confirmed Balance'));
       expect(queryByText('Alias')).not.toBeInTheDocument();
       expect(queryByText('Pubkey')).not.toBeInTheDocument();
     });
@@ -233,10 +234,16 @@ describe('LightningDetails', () => {
       shell.openExternal = jest.fn().mockResolvedValue(true);
       const { getByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
-      await wait(() => fireEvent.click(getByText('GRPC')));
-      expect(shell.openExternal).toBeCalledWith('https://api.lightning.community/');
-      await wait(() => fireEvent.click(getByText('REST')));
-      expect(shell.openExternal).toBeCalledWith('https://api.lightning.community/rest/');
+      fireEvent.click(getByText('GRPC'));
+      await waitFor(() => {
+        expect(shell.openExternal).toBeCalledWith('https://api.lightning.community/');
+      });
+      fireEvent.click(getByText('REST'));
+      await waitFor(() => {
+        expect(shell.openExternal).toBeCalledWith(
+          'https://api.lightning.community/rest/',
+        );
+      });
     });
 
     it('should handle incoming open channel button click', async () => {
@@ -300,10 +307,12 @@ describe('LightningDetails', () => {
         shell.openExternal = jest.fn().mockResolvedValue(true);
         const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await wait(() => fireEvent.click(getByText('REST')));
-        expect(shell.openExternal).toBeCalledWith(
-          'https://github.com/Ride-The-Lightning/c-lightning-REST',
-        );
+        fireEvent.click(getByText('REST'));
+        await waitFor(() => {
+          expect(shell.openExternal).toBeCalledWith(
+            'https://github.com/Ride-The-Lightning/c-lightning-REST',
+          );
+        });
       });
     });
 
@@ -323,8 +332,10 @@ describe('LightningDetails', () => {
         shell.openExternal = jest.fn().mockResolvedValue(true);
         const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await wait(() => fireEvent.click(getByText('REST')));
-        expect(shell.openExternal).toBeCalledWith('https://acinq.github.io/eclair');
+        fireEvent.click(getByText('REST'));
+        await waitFor(() => {
+          expect(shell.openExternal).toBeCalledWith('https://acinq.github.io/eclair');
+        });
       });
     });
 
@@ -346,9 +357,9 @@ describe('LightningDetails', () => {
         mockFiles.read.mockResolvedValue('test-hex');
         const { findByText, container, getAllByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await waitForElement(() => getAllByText('TLS Cert'));
+        await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'hex');
-        await wait(() => {
+        await waitFor(() => {
           expect(files.read).toBeCalledTimes(3);
           expect(getAllByText('test-hex')).toHaveLength(3);
         });
@@ -367,9 +378,9 @@ describe('LightningDetails', () => {
         mockFiles.read.mockResolvedValue('test-base64');
         const { findByText, container, getAllByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await waitForElement(() => getAllByText('TLS Cert'));
+        await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'base64');
-        await wait(() => {
+        await waitFor(() => {
           expect(files.read).toBeCalledTimes(3);
           expect(getAllByText('test-base64')).toHaveLength(3);
         });
@@ -390,9 +401,9 @@ describe('LightningDetails', () => {
         );
         const { findByText, container, getByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await waitForElement(() => getByText('TLS Cert'));
+        await waitFor(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
-        await waitForElement(() => getByText('LND Connect Url'));
+        await waitFor(() => getByText('LND Connect Url'));
         expect(files.read).toBeCalledTimes(2);
         expect(getByText(/lndconnect/)).toBeInTheDocument();
       });
@@ -405,9 +416,9 @@ describe('LightningDetails', () => {
         );
         const { findByText, container, getByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
-        await waitForElement(() => getByText('TLS Cert'));
+        await waitFor(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
-        await waitForElement(() => getByText('LND Connect Url'));
+        await waitFor(() => getByText('LND Connect Url'));
         expect(getByText('Unable to create LND Connect url')).toBeInTheDocument();
         expect(getByText('lndc-error')).toBeInTheDocument();
       });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitForElement } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { BitcoindLibrary } from 'types';
 import {
   defaultStateInfo,
@@ -74,12 +74,25 @@ describe('Deposit', () => {
     const amount = '250000';
     fireEvent.change(input, { target: { value: amount } });
     fireEvent.click(btn);
-    await waitForElement(() => getByText('Deposited 250,000 sats to alice'));
+    await waitFor(() => getByText('Deposited 250,000 sats to alice'));
     expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
     expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
       expect.anything(),
       'bc1aaaa',
       0.0025,
+    );
+  });
+
+  it('should deposit funds when an invalid value is specified', async () => {
+    const { input, btn, getByText } = renderComponent();
+    fireEvent.change(input, { target: { value: 'asdf' } });
+    fireEvent.click(btn);
+    await waitFor(() => getByText('Deposited 100,000 sats to alice'));
+    expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
+    expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
+      expect.anything(),
+      'bc1aaaa',
+      0.001,
     );
   });
 

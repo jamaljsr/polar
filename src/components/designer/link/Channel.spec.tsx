@@ -1,6 +1,6 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
-import { fireEvent, waitForElement } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -120,7 +120,7 @@ describe('Channel component', () => {
       // antd creates two modals in the DOM for some silly reason. Need to click one
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('check-circle'));
+      await waitFor(() => getByLabelText('check-circle'));
       expect(getByText('The channel has been closed')).toBeInTheDocument();
       expect(lightningServiceMock.closeChannel).toBeCalledTimes(1);
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
@@ -131,7 +131,7 @@ describe('Channel component', () => {
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('close-circle'));
+      await waitFor(() => getByLabelText('close-circle'));
       expect(getByText('Unable to close the channel')).toBeInTheDocument();
       expect(getByText('The source node must be Started')).toBeInTheDocument();
     });
@@ -147,7 +147,7 @@ describe('Channel component', () => {
         // antd creates two modals in the DOM for some silly reason. Need to click one
         fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
-        await waitForElement(() => getByLabelText('close-circle'));
+        await waitFor(() => getByLabelText('close-circle'));
         expect(getByText('Unable to close the channel')).toBeInTheDocument();
         expect(getByText('test error')).toBeInTheDocument();
       });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { ipcChannels } from 'shared';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { Network } from 'types';
@@ -28,8 +28,10 @@ describe('ViewLogsButton', () => {
     const ipcMock = injections.ipc as jest.Mock;
     ipcMock.mockResolvedValue(true);
     const { getByText } = renderComponent(n => n.nodes.lightning[0]);
-    await wait(() => fireEvent.click(getByText('View Logs')));
+    fireEvent.click(getByText('View Logs'));
     const url = '/logs/LND/polar-n1-alice';
-    expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+    await waitFor(() => {
+      expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+    });
   });
 });

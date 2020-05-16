@@ -1,6 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/dom';
+import { fireEvent, waitForElementToBeRemoved } from '@testing-library/dom';
+import { waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -74,7 +75,7 @@ describe('OpenChannelModal', () => {
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     fireEvent.click(getByText('Cancel'));
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByText('Cancel')).not.toBeInTheDocument();
     });
   });
@@ -93,7 +94,7 @@ describe('OpenChannelModal', () => {
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
     fireEvent.click(getByText('Cancel'));
-    await wait(() => {
+    await waitFor(() => {
       expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
     });
   });
@@ -117,7 +118,7 @@ describe('OpenChannelModal', () => {
     const { getByText, getByLabelText } = await renderComponent('invalid', 'invalid2');
     fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
     fireEvent.click(getByText('Open Channel'));
-    await wait(() => {
+    await waitFor(() => {
       expect(getByText('Open Channel')).toBeInTheDocument();
     });
   });
@@ -184,7 +185,7 @@ describe('OpenChannelModal', () => {
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
       fireEvent.click(getByText('Open Channel'));
-      await wait(() => {
+      await waitFor(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const node2 = network.nodes.lightning[1];
@@ -199,7 +200,7 @@ describe('OpenChannelModal', () => {
       );
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       fireEvent.click(getByText('Open Channel'));
-      await wait(() => {
+      await waitFor(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const node2 = network.nodes.lightning[1];
@@ -223,7 +224,7 @@ describe('OpenChannelModal', () => {
         await findByLabelText('Deposit enough funds to bob to open the channel'),
       );
       fireEvent.click(getByText('Open Channel'));
-      await wait(() => {
+      await waitFor(() => {
         expect(getByText('Unable to open the channel')).toBeInTheDocument();
       });
       expect(getByText('error-msg')).toBeInTheDocument();

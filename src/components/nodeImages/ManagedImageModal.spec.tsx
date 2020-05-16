@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { ManagedImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { renderWithProviders, testManagedImages } from 'utils/tests';
@@ -75,7 +75,7 @@ describe('ManagedImageModal Component', () => {
     const { getByText, getByLabelText, store } = renderComponent();
     fireEvent.change(getByLabelText('Command'), { target: { value: 'a' } });
     fireEvent.click(getByText('Save'));
-    await wait(() => {
+    await waitFor(() => {
       expect(store.getState().app.settings.nodeImages.managed[4].command).toBe('a');
     });
     expect(onClose).toHaveBeenCalled();
@@ -84,7 +84,7 @@ describe('ManagedImageModal Component', () => {
   it('should reset the managed image to default', async () => {
     const { getByText, store } = renderComponent();
     fireEvent.click(getByText('Reset to Default'));
-    await wait(() => {
+    await waitFor(() => {
       expect(store.getState().app.settings.nodeImages.managed[4]).toBeUndefined();
     });
     expect(onClose).toHaveBeenCalled();

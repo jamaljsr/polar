@@ -1,5 +1,5 @@
 import { IPosition } from '@mrblenny/react-flow-chart';
-import { wait } from '@testing-library/dom';
+import { waitFor } from '@testing-library/react';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
@@ -320,7 +320,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(firstNetwork().nodes.lightning).toHaveLength(3);
         onCanvasDrop({ data, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
         });
       });
@@ -329,7 +329,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(Object.keys(firstChart().nodes)).toHaveLength(5);
         onCanvasDrop({ data, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(6);
           expect(firstChart().nodes['carol']).toBeDefined();
         });
@@ -340,7 +340,7 @@ describe('Designer model', () => {
         expect(Object.keys(firstChart().nodes)).toHaveLength(5);
         const bitcoinData = { type: 'bitcoind', version: btcLatest };
         onCanvasDrop({ data: bitcoinData, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(6);
           expect(firstChart().nodes['backend2']).toBeDefined();
         });
@@ -363,7 +363,7 @@ describe('Designer model', () => {
         expect(Object.keys(getChart().nodes)).toHaveLength(0);
         const bitcoinData = { type: 'bitcoind', version: btcLatest };
         onCanvasDrop({ data: bitcoinData, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(Object.keys(getChart().nodes)).toHaveLength(1);
           expect(Object.keys(getChart().links)).toHaveLength(0);
           expect(getChart().nodes['backend1']).toBeDefined();
@@ -374,7 +374,7 @@ describe('Designer model', () => {
         mockDockerService.saveComposeFile.mockReset();
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[2].name).toBe('carol');
@@ -386,7 +386,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         const data = { type: 'LND', version: '0.7.1-beta' };
         onCanvasDrop({ data, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(spy).toBeCalledWith(
             expect.objectContaining({
               message: 'Failed to add node',
@@ -403,7 +403,7 @@ describe('Designer model', () => {
         setStatus({ id: firstNetwork().id, status: Status.Starting });
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
           expect(mockNotification.error).toBeCalledWith(
             expect.objectContaining({ message: 'Failed to add node' }),
@@ -414,7 +414,7 @@ describe('Designer model', () => {
       it('should not add an unsupported node type', async () => {
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data: { type: 'other' }, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
         });
       });
@@ -424,7 +424,7 @@ describe('Designer model', () => {
         expect(firstChart().nodes[LOADING_NODE_ID]).toBeUndefined();
         onCanvasDrop({ data, position });
         expect(firstChart().nodes[LOADING_NODE_ID]).toBeDefined();
-        await wait(() => {
+        await waitFor(() => {
           expect(firstChart().nodes[LOADING_NODE_ID]).toBeUndefined();
         });
       });
@@ -436,7 +436,7 @@ describe('Designer model', () => {
         setStatus({ id: firstNetwork().id, status: Status.Started });
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ data, position });
-        await wait(() => {
+        await waitFor(() => {
           expect(mockDockerService.startNode).toBeCalledTimes(1);
           expect(mockDockerService.startNode).toBeCalledWith(
             expect.objectContaining({ name: firstNetwork().name }),

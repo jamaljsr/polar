@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, wait } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -63,7 +63,7 @@ describe('PayInvoiceModal', () => {
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     fireEvent.click(getByText('Cancel'));
-    await wait(() => {
+    await waitFor(() => {
       expect(queryByText('Cancel')).not.toBeInTheDocument();
     });
   });
@@ -100,7 +100,7 @@ describe('PayInvoiceModal', () => {
       const { getByText, getByLabelText, store, network } = await renderComponent();
       fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
       fireEvent.click(getByText('Pay Invoice'));
-      await wait(() => {
+      await waitFor(() => {
         expect(store.getState().modals.payInvoice.visible).toBe(false);
       });
       const node = network.nodes.lightning[0];

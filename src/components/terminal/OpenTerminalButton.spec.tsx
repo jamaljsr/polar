@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { ipcChannels } from 'shared';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { Network } from 'types';
@@ -46,8 +46,10 @@ describe('OpenTerminalButton', () => {
     const ipcMock = injections.ipc as jest.Mock;
     ipcMock.mockResolvedValue(true);
     const { getByText } = renderComponent(n => n.nodes.bitcoin[0]);
-    await wait(() => fireEvent.click(getByText('Launch')));
+    fireEvent.click(getByText('Launch'));
     const url = '/terminal/bitcoind/polar-n1-backend1';
-    expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+    await waitFor(() => {
+      expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+    });
   });
 });

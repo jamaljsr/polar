@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NetworkActions from './NetworkActions';
@@ -38,9 +38,6 @@ describe('NetworkActions Component', () => {
       { initialState },
     );
   };
-
-  beforeEach(jest.useFakeTimers);
-  afterEach(jest.useRealTimers);
 
   it('should render the Starting status', () => {
     const { getByText } = renderComponent(Status.Starting);
@@ -85,29 +82,23 @@ describe('NetworkActions Component', () => {
   });
 
   it('should call onRenameClick when rename menu item clicked', async () => {
-    const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+    const { findByText, getByLabelText } = renderComponent(Status.Stopped);
     fireEvent.mouseOver(getByLabelText('more'));
-    await wait(() => jest.runOnlyPendingTimers());
-    fireEvent.click(getByText('Rename'));
-    await wait(() => jest.runOnlyPendingTimers());
+    fireEvent.click(await findByText('Rename'));
     expect(handleRenameClick).toBeCalled();
   });
 
   it('should call onDeleteClick when rename menu item clicked', async () => {
-    const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+    const { findByText, getByLabelText } = renderComponent(Status.Stopped);
     fireEvent.mouseOver(getByLabelText('more'));
-    await wait(() => jest.runOnlyPendingTimers());
-    fireEvent.click(getByText('Delete'));
-    await wait(() => jest.runOnlyPendingTimers());
+    fireEvent.click(await findByText('Delete'));
     expect(handleDeleteClick).toBeCalled();
   });
 
   it('should call onExportClick when export menu item clicked', async () => {
-    const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+    const { findByText, getByLabelText } = renderComponent(Status.Stopped);
     fireEvent.mouseOver(getByLabelText('more'));
-    await wait(() => jest.runOnlyPendingTimers());
-    fireEvent.click(getByText('Export'));
-    await wait(() => jest.runOnlyPendingTimers());
+    fireEvent.click(await findByText('Export'));
     expect(handleExportClick).toBeCalled();
   });
 
@@ -121,7 +112,7 @@ describe('NetworkActions Component', () => {
     mineMock.mockResolvedValue(true);
     const { getByText, store } = renderComponent(Status.Started);
     fireEvent.click(getByText('Quick Mine'));
-    await wait(() => {
+    await waitFor(() => {
       const node = store.getState().network.networks[0].nodes.bitcoin[0];
       expect(mineMock).toBeCalledWith(1, node);
     });
