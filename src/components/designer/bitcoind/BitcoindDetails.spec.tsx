@@ -1,6 +1,6 @@
 import React from 'react';
 import { shell } from 'electron';
-import { fireEvent, wait, waitForElement } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { bitcoinCredentials } from 'utils/constants';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
@@ -68,7 +68,7 @@ describe('BitcoindDetails', () => {
     it('should not display Block Height', async () => {
       const { queryByText, getByText } = renderComponent();
       // first wait for the loader to go away
-      await waitForElement(() => getByText('Status'));
+      await waitFor(() => getByText('Status'));
       // then confirm GRPC Host isn't there
       expect(queryByText('Block Height')).toBeNull();
     });
@@ -87,10 +87,10 @@ describe('BitcoindDetails', () => {
     });
 
     it('should display start msg in Connect tab', async () => {
-      const { getByText } = renderComponent(Status.Starting);
-      await wait(() => fireEvent.click(getByText('Connect')));
+      const { getByText, findByText } = renderComponent(Status.Starting);
+      fireEvent.click(getByText('Connect'));
       expect(
-        getByText('Node needs to be started to view connection info'),
+        await findByText('Node needs to be started to view connection info'),
       ).toBeInTheDocument();
     });
   });
@@ -166,21 +166,25 @@ describe('BitcoindDetails', () => {
       shell.openExternal = jest.fn().mockResolvedValue(true);
       const { getByText, findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
-      await wait(() => fireEvent.click(getByText('REST')));
-      expect(shell.openExternal).toBeCalledWith(
-        'https://bitcoin.org/en/developer-reference#remote-procedure-calls-rpcs',
-      );
+      fireEvent.click(getByText('REST'));
+      await waitFor(() => {
+        expect(shell.openExternal).toBeCalledWith(
+          'https://bitcoin.org/en/developer-reference#remote-procedure-calls-rpcs',
+        );
+      });
     });
 
     it('should not display start msg in Actions tab', async () => {
       const { getByText, queryByText } = renderComponent(Status.Started);
-      await wait(() => fireEvent.click(getByText('Actions')));
+      fireEvent.click(getByText('Actions'));
+      await waitFor(() => null);
       expect(queryByText('Node needs to be started to perform actions on it')).toBeNull();
     });
 
     it('should not display start msg in Connect tab', async () => {
       const { getByText, queryByText } = renderComponent(Status.Started);
-      await wait(() => fireEvent.click(getByText('Connect')));
+      fireEvent.click(getByText('Connect'));
+      await waitFor(() => null);
       expect(queryByText('Node needs to be started to view connection info')).toBeNull();
     });
   });

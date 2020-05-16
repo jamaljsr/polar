@@ -2,8 +2,7 @@ import React from 'react';
 import electron from 'electron';
 import * as log from 'electron-log';
 import fsExtra from 'fs-extra';
-import { fireEvent, wait, waitForElement } from '@testing-library/dom';
-import { act } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Status } from 'shared/types';
 import * as ipc from 'lib/ipc/ipcService';
@@ -128,7 +127,7 @@ describe('NetworkView Component', () => {
     // should switch to stopping immediately
     expect(primaryBtn).toHaveTextContent('Starting');
     // should change to stopped after some time
-    await wait(() => {
+    await waitFor(() => {
       expect(primaryBtn).toHaveTextContent('Stop');
     });
   });
@@ -140,7 +139,7 @@ describe('NetworkView Component', () => {
     // should switch to stopping immediately
     expect(primaryBtn).toHaveTextContent('Stopping');
     // should change to stopped after some time
-    await wait(() => {
+    await waitFor(() => {
       expect(primaryBtn).toHaveTextContent('Start');
     });
   });
@@ -283,7 +282,7 @@ describe('NetworkView Component', () => {
       fireEvent.click(await findByText('Delete'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('check-circle'));
+      await waitFor(() => getByLabelText('check-circle'));
       expect(
         getByText("The network 'test network' and its data has been deleted!"),
       ).toBeInTheDocument();
@@ -300,7 +299,7 @@ describe('NetworkView Component', () => {
         fireEvent.click(await findByText('Delete'));
         fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
-        await waitForElement(() => getByLabelText('close-circle'));
+        await waitFor(() => getByLabelText('close-circle'));
         expect(getByText('cannot delete')).toBeInTheDocument();
         expect(store.getState().network.networks).toHaveLength(1);
         expect(store.getState().designer.allCharts[1]).toBeDefined();
@@ -334,18 +333,16 @@ describe('NetworkView Component', () => {
     });
 
     it('should not export the network if the user closes the file save dialogue', async () => {
-      jest.useFakeTimers();
       // returns undefined if user closes the window
       dialogMock.showSaveDialog.mockResolvedValue({} as any);
       const { queryByText, findByText, getByLabelText } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
-      await wait(() => jest.runOnlyPendingTimers());
       fireEvent.click(await findByText('Export'));
-      await wait(() => jest.runOnlyPendingTimers());
-      expect(logMock.info).toBeCalledWith('User aborted network export');
+      await waitFor(() => {
+        expect(logMock.info).toBeCalledWith('User aborted network export');
+      });
       expect(dialogMock.showSaveDialog).toBeCalled();
       expect(queryByText("Exported 'test network'", { exact: false })).toBeNull();
-      jest.useRealTimers();
     });
   });
 });

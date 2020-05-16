@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait, waitForElementToBeRemoved } from '@testing-library/react';
+import { fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
@@ -74,7 +74,7 @@ describe('AdvancedOptionsModal', () => {
   it('should do nothing if an invalid node name is used', async () => {
     const { getByText } = await renderComponent(Status.Stopped, 'invalid');
     fireEvent.click(getByText('Save'));
-    await wait(() => {
+    await waitFor(() => {
       expect(getByText('Save')).toBeInTheDocument();
     });
   });
@@ -84,7 +84,7 @@ describe('AdvancedOptionsModal', () => {
       const { getByText, getByLabelText, store } = await renderComponent();
       fireEvent.click(getByLabelText('align-left'));
       fireEvent.click(getByText('Save'));
-      await wait(() => {
+      await waitFor(() => {
         expect(store.getState().modals.advancedOptions.visible).toBe(false);
         expect(
           store.getState().network.networks[0].nodes.lightning[0].docker.command,
@@ -98,7 +98,7 @@ describe('AdvancedOptionsModal', () => {
       const { getByText, getByLabelText } = await renderComponent();
       fireEvent.click(getByLabelText('align-left'));
       fireEvent.click(getByText('Save'));
-      await wait(() => {
+      await waitFor(() => {
         expect(getByText('Failed to update options')).toBeInTheDocument();
         expect(getByText('test-error')).toBeInTheDocument();
       });

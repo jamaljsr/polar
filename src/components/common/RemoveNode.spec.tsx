@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitForElement } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -69,7 +69,7 @@ describe('RemoveNode', () => {
       fireEvent.click(getByText('Remove'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('check-circle'));
+      await waitFor(() => getByLabelText('check-circle'));
       expect(
         getByText('The node alice has been removed from the network'),
       ).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('RemoveNode', () => {
       fireEvent.click(getByText('Remove'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('check-circle'));
+      await waitFor(() => getByLabelText('check-circle'));
       expect(
         getByText('The node alice has been removed from the network'),
       ).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('RemoveNode', () => {
         fireEvent.click(getByText('Remove'));
         fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
-        await waitForElement(() => getByLabelText('close-circle'));
+        await waitFor(() => getByLabelText('close-circle'));
         expect(getByText('Unable to remove the node')).toBeInTheDocument();
         expect(getByText('test error')).toBeInTheDocument();
       });
@@ -133,7 +133,7 @@ describe('RemoveNode', () => {
       fireEvent.click(getByText('Remove'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('check-circle'));
+      await waitFor(() => getByLabelText('check-circle'));
       expect(
         await findByText('The node backend1 has been removed from the network'),
       ).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('RemoveNode', () => {
       fireEvent.click(getByText('Remove'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
-      await waitForElement(() => getByLabelText('check-circle'));
+      await waitFor(() => getByLabelText('check-circle'));
       expect(
         getByText('The node backend1 has been removed from the network'),
       ).toBeInTheDocument();
@@ -169,7 +169,7 @@ describe('RemoveNode', () => {
         fireEvent.click(getByText('Remove'));
         fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
-        await waitForElement(() => getByLabelText('close-circle'));
+        await waitFor(() => getByLabelText('close-circle'));
         expect(getByText('Unable to remove the node')).toBeInTheDocument();
         expect(getByText('test error')).toBeInTheDocument();
       });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -62,7 +62,7 @@ describe('CreateInvoiceModal', () => {
     const btn = getByText('Cancel');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
-    await wait(() => fireEvent.click(getByText('Cancel')));
+    fireEvent.click(getByText('Cancel'));
     expect(store.getState().modals.createInvoice.visible).toBe(false);
   });
 
@@ -81,7 +81,7 @@ describe('CreateInvoiceModal', () => {
       'invalid',
     );
     fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '1000' } });
-    await wait(() => fireEvent.click(getByText('Create Invoice')));
+    fireEvent.click(getByText('Create Invoice'));
     expect(getByText('Create Invoice')).toBeInTheDocument();
   });
 
@@ -95,36 +95,38 @@ describe('CreateInvoiceModal', () => {
         getByText,
         getByLabelText,
         getByDisplayValue,
+        findByText,
         store,
         network,
       } = await renderComponent();
-      await wait(() => {
+      await waitFor(() => {
         store.getActions().modals.showCreateInvoice({ nodeName: 'alice' });
       });
       fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '1000' } });
-      await wait(() => fireEvent.click(getByText('Create Invoice')));
-      expect(getByText('Successfully Created the Invoice')).toBeInTheDocument();
+      fireEvent.click(getByText('Create Invoice'));
+      expect(await findByText('Successfully Created the Invoice')).toBeInTheDocument();
       expect(getByDisplayValue('lnbc1invoice')).toBeInTheDocument();
       const node = network.nodes.lightning[0];
       expect(lightningServiceMock.createInvoice).toBeCalledWith(node, 1000, '');
     });
 
     it('should close the modal', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
+      const { getByText, findByText, getByLabelText, store } = await renderComponent();
       fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '1000' } });
-      await wait(() => fireEvent.click(getByText('Create Invoice')));
-      await wait(() => fireEvent.click(getByText('Copy & Close')));
+      fireEvent.click(getByText('Create Invoice'));
+      fireEvent.click(await findByText('Copy & Close'));
       expect(store.getState().modals.createInvoice.visible).toBe(false);
       expect(getByText('Copied Invoice to the clipboard')).toBeInTheDocument();
     });
 
     it('should display an error when creating the invoice fails', async () => {
       lightningServiceMock.createInvoice.mockRejectedValue(new Error('error-msg'));
-      const { getByText, getByLabelText } = await renderComponent();
+      const { getByText, findByText, getByLabelText } = await renderComponent();
       fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '1000' } });
-      await wait(() => fireEvent.click(getByText('Create Invoice')));
-      expect(getByText('Unable to create the Invoice')).toBeInTheDocument();
-      expect(getByText('error-msg')).toBeInTheDocument();
+      // await waitFor(() => );
+      fireEvent.click(getByText('Create Invoice'));
+      expect(await findByText('Unable to create the Invoice')).toBeInTheDocument();
+      expect(await findByText('error-msg')).toBeInTheDocument();
     });
   });
 });

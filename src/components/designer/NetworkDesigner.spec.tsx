@@ -42,7 +42,7 @@ describe('NetworkDesigner Component', () => {
         },
       },
     };
-    const cmp = <NetworkDesigner network={network} updateStateDelay={3000} />;
+    const cmp = <NetworkDesigner network={network} updateStateDelay={10} />;
     return renderWithProviders(cmp, { initialState });
   };
 

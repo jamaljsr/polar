@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitForDomChange } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/dom';
 import { Status } from 'shared/types';
 import {
   getNetwork,
@@ -43,7 +43,7 @@ describe('MineBlocksInput', () => {
     expect(input).toBeInstanceOf(HTMLInputElement);
   });
 
-  it('should use a default value of 3 for the input', () => {
+  it('should use a default value of 6 for the input', () => {
     const { input } = renderComponent();
     expect(input.value).toEqual('6');
   });
@@ -55,9 +55,22 @@ describe('MineBlocksInput', () => {
     const numBlocks = 5;
     fireEvent.change(input, { target: { value: numBlocks } });
     fireEvent.click(btn);
-    await waitForDomChange();
     const node = store.getState().network.networks[0].nodes.bitcoin[0];
-    expect(mineMock).toBeCalledWith(numBlocks, node);
+    await waitFor(() => {
+      expect(mineMock).toBeCalledWith(numBlocks, node);
+    });
+  });
+
+  it('should mine 1 block when a invalid value is specified', async () => {
+    const mineMock = injections.bitcoindService.mine as jest.Mock;
+    mineMock.mockResolvedValue(true);
+    const { input, btn, store } = renderComponent();
+    fireEvent.change(input, { target: { value: 'asdf' } });
+    fireEvent.click(btn);
+    const node = store.getState().network.networks[0].nodes.bitcoin[0];
+    await waitFor(() => {
+      expect(mineMock).toBeCalledWith(1, node);
+    });
   });
 
   it('should display an error if mining fails', async () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, wait } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import Backend from './Backend';
@@ -65,7 +65,7 @@ describe('Backend component', () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().modals.changeBackend.visible).toBe(false);
     fireEvent.click(getByText('Change Backend'));
-    await wait(() => {
+    await waitFor(() => {
       expect(store.getState().modals.changeBackend.visible).toBe(true);
     });
   });
