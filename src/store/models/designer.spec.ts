@@ -14,7 +14,7 @@ import modalsModel from './modals';
 import networkModel from './network';
 
 jest.mock('antd', () => ({
-  ...jest.requireActual('antd'),
+  ...(jest.requireActual('antd') as any),
   notification: {
     success: jest.fn(),
     error: jest.fn(),
