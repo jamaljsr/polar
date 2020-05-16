@@ -175,7 +175,9 @@ class DockerService implements DockerLibrary {
     info(`Container stopped:\n ${result.out || result.err}`);
 
     info(`Removing stopped docker containers`);
-    result = await this.execute(compose.rm, this.getArgs(network));
+    // the `any` cast is used because `rm` is the only method on compose that takes the
+    // IDockerComposeOptions as the first param and a spread for the remaining
+    result = await this.execute(compose.rm as any, this.getArgs(network));
     info(`Removed:\n ${result.out || result.err}`);
   }
 
