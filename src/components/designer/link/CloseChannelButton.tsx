@@ -49,7 +49,7 @@ const CloseChannelButton: React.FC<Props> = ({ node, channelPoint, type }) => {
   }
 
   return (
-    <Button type="danger" block ghost onClick={showCloseChanModal}>
+    <Button type="default" danger block ghost onClick={showCloseChanModal}>
       {l('btnText')}
     </Button>
   );

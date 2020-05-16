@@ -102,23 +102,23 @@ describe('Channel component', () => {
       bitcoindServiceMock.mine.mockResolvedValue(['txid']);
     });
 
-    it('should show the close channel modal', () => {
-      const { getByText } = renderComponent(Status.Started);
+    it('should show the close channel modal', async () => {
+      const { getByText, findByText } = renderComponent(Status.Started);
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       expect(
-        getByText('Are you sure you want to close this channel?'),
+        await findByText('Are you sure you want to close this channel?'),
       ).toBeInTheDocument();
       expect(getByText('Yes')).toBeInTheDocument();
       expect(getByText('Cancel')).toBeInTheDocument();
     });
 
     it('should close the channel successfully', async () => {
-      const { getByText, getAllByText, getByLabelText } = renderComponent(Status.Started);
+      const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       // antd creates two modals in the DOM for some silly reason. Need to click one
-      fireEvent.click(getAllByText('Yes')[0]);
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('check-circle'));
       expect(getByText('The channel has been closed')).toBeInTheDocument();
@@ -141,13 +141,11 @@ describe('Channel component', () => {
       // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         lightningServiceMock.closeChannel.mockRejectedValue(new Error('test error'));
-        const { getByText, getAllByText, getByLabelText } = renderComponent(
-          Status.Started,
-        );
+        const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
         expect(getByText('Close Channel')).toBeInTheDocument();
         fireEvent.click(getByText('Close Channel'));
         // antd creates two modals in the DOM for some silly reason. Need to click one
-        fireEvent.click(getAllByText('Yes')[0]);
+        fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
         await waitForElement(() => getByLabelText('close-circle'));
         expect(getByText('Unable to close the channel')).toBeInTheDocument();

@@ -61,7 +61,7 @@ const RemoveNode: React.FC<Props> = ({ node, type }) => {
 
   return (
     <Form.Item label={l('title')} colon={false}>
-      <Button type="danger" block ghost onClick={showRemoveModal}>
+      <Button type="primary" danger block ghost onClick={showRemoveModal}>
         {l('btnText')}
       </Button>
     </Form.Item>

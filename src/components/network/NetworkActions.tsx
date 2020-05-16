@@ -45,6 +45,7 @@ const config: {
   [key: number]: {
     label: string;
     type: ButtonType;
+    danger?: boolean;
     icon: ReactNode;
   };
 } = {
@@ -55,7 +56,8 @@ const config: {
   },
   [Status.Started]: {
     label: 'Stop',
-    type: 'danger',
+    type: 'primary',
+    danger: true,
     icon: <StopOutlined />,
   },
   [Status.Stopping]: {
@@ -70,7 +72,8 @@ const config: {
   },
   [Status.Error]: {
     label: 'Restart',
-    type: 'danger',
+    type: 'primary',
+    danger: true,
     icon: <WarningOutlined />,
   },
 };
@@ -88,7 +91,7 @@ const NetworkActions: React.FC<Props> = ({
   const bitcoinNode = nodes.bitcoin[0];
   const loading = status === Status.Starting || status === Status.Stopping;
   const started = status === Status.Started;
-  const { label, type, icon } = config[status];
+  const { label, type, danger, icon } = config[status];
 
   const nodeState = useStoreState(s => s.bitcoind.nodes[bitcoinNode.name]);
   const { notify } = useStoreActions(s => s.app);
@@ -136,6 +139,7 @@ const NetworkActions: React.FC<Props> = ({
       <Styled.Button
         key="start"
         type={type}
+        danger={danger}
         icon={icon}
         loading={loading}
         ghost={started}

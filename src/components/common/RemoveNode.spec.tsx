@@ -53,21 +53,21 @@ describe('RemoveNode', () => {
     });
 
     it('should show the remove node modal', async () => {
-      const { getByText } = renderComponent(Status.Started);
+      const { getByText, findByText } = renderComponent(Status.Started);
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
       expect(
-        getByText('Are you sure you want to remove alice from the network?'),
+        await findByText('Are you sure you want to remove alice from the network?'),
       ).toBeInTheDocument();
       expect(getByText('Yes')).toBeInTheDocument();
       expect(getByText('Cancel')).toBeInTheDocument();
     });
 
     it('should remove the node with the network stopped', async () => {
-      const { getByText, getByLabelText } = renderComponent(Status.Started);
+      const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
-      fireEvent.click(getByText('Yes'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('check-circle'));
       expect(
@@ -77,10 +77,10 @@ describe('RemoveNode', () => {
     });
 
     it('should remove the node with the network started', async () => {
-      const { getByText, getByLabelText } = renderComponent(Status.Started);
+      const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
-      fireEvent.click(getByText('Yes'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('check-circle'));
       expect(
@@ -94,10 +94,10 @@ describe('RemoveNode', () => {
       // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         dockerServiceMock.removeNode.mockRejectedValue(new Error('test error'));
-        const { getByText, getByLabelText } = renderComponent(Status.Started);
+        const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
         expect(getByText('Remove')).toBeInTheDocument();
         fireEvent.click(getByText('Remove'));
-        fireEvent.click(getByText('Yes'));
+        fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
         await waitForElement(() => getByLabelText('close-circle'));
         expect(getByText('Unable to remove the node')).toBeInTheDocument();
@@ -114,34 +114,40 @@ describe('RemoveNode', () => {
     });
 
     it('should show the remove node modal', async () => {
-      const { getByText } = renderComponent(Status.Started, true);
+      const { getByText, findByText } = renderComponent(Status.Started, true);
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
       expect(
-        getByText('Are you sure you want to remove backend1 from the network?'),
+        await findByText('Are you sure you want to remove backend1 from the network?'),
       ).toBeInTheDocument();
       expect(getByText('Yes')).toBeInTheDocument();
       expect(getByText('Cancel')).toBeInTheDocument();
     });
 
     it('should remove the node with the network stopped', async () => {
-      const { getByText, getByLabelText } = renderComponent(Status.Stopped, true);
+      const { getByText, findByText, getByLabelText } = renderComponent(
+        Status.Stopped,
+        true,
+      );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
-      fireEvent.click(getByText('Yes'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('check-circle'));
       expect(
-        getByText('The node backend1 has been removed from the network'),
+        await findByText('The node backend1 has been removed from the network'),
       ).toBeInTheDocument();
       expect(dockerServiceMock.saveComposeFile).toBeCalledTimes(1);
     });
 
     it('should remove the node with the network started', async () => {
-      const { getByText, getByLabelText } = renderComponent(Status.Started, true);
+      const { getByText, findByText, getByLabelText } = renderComponent(
+        Status.Started,
+        true,
+      );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
-      fireEvent.click(getByText('Yes'));
+      fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitForElement(() => getByLabelText('check-circle'));
       expect(
@@ -155,10 +161,13 @@ describe('RemoveNode', () => {
       // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         dockerServiceMock.saveComposeFile.mockRejectedValue(new Error('test error'));
-        const { getByText, getByLabelText } = renderComponent(Status.Stopped, true);
+        const { getByText, findByText, getByLabelText } = renderComponent(
+          Status.Stopped,
+          true,
+        );
         expect(getByText('Remove')).toBeInTheDocument();
         fireEvent.click(getByText('Remove'));
-        fireEvent.click(getByText('Yes'));
+        fireEvent.click(await findByText('Yes'));
         // wait for the error notification to be displayed
         await waitForElement(() => getByLabelText('close-circle'));
         expect(getByText('Unable to remove the node')).toBeInTheDocument();
