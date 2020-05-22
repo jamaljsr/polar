@@ -112,7 +112,7 @@
     "i18next-browser-languagedetector": "4.2.0",
     "i18next-scanner": "2.11.0",
     "jest-environment-jsdom-sixteen": "1.0.3",
-    "js-yaml": "3.13.1",
+    "js-yaml": "3.14.0",
     "less": "3.11.1",
     "less-loader": "6.1.0",
     "lint-staged": "10.2.6",
