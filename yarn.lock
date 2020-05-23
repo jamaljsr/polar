@@ -7386,10 +7386,10 @@ electron-localshortcut@^3.1.0:
     keyboardevent-from-electron-accelerator "^2.0.0"
     keyboardevents-areequal "^0.2.1"
 
-electron-log@4.1.4:
-  version "4.1.4"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.1.4.tgz#b027c76b42b622c59fcf921cf8c67f1588b6a363"
-  integrity sha512-lRXc8yENqbViOLn2U91DzoNno14wgNWuURgliLXxLtXCVTxB1FK6J0zj7o/SrtPAIcXQa2JPXKlM/qRxP8D9iQ==
+electron-log@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.2.0.tgz#44ef0987fcc53097ad0574b94672fc6712b234e1"
+  integrity sha512-Yy1X8iZEzoBA8pu5b7YU07dRHi1GPM9C5jLEOn87Uqtdc9rbe6KbvvQ/AAAtGvn4/GC3azRW/eeiSI4ZF+Hm2A==
 
 electron-publish@22.6.1:
   version "22.6.1"
