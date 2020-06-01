@@ -138,7 +138,7 @@
     "stylelint": "13.5.0",
     "stylelint-config-prettier": "8.0.1",
     "stylelint-config-standard": "20.0.0",
-    "testcafe": "1.8.5",
+    "testcafe": "1.8.6",
     "testcafe-browser-provider-electron": "0.0.14",
     "testcafe-react-selectors": "4.0.0",
     "ts-node": "8.10.2",
