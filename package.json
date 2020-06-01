@@ -113,7 +113,7 @@
     "i18next-scanner": "2.11.0",
     "jest-environment-jsdom-sixteen": "1.0.3",
     "js-yaml": "3.14.0",
-    "less": "3.11.1",
+    "less": "3.11.2",
     "less-loader": "6.1.0",
     "lint-staged": "10.2.7",
     "lndconnect": "0.2.10",
