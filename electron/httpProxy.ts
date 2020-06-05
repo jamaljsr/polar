@@ -17,7 +17,7 @@ export const httpProxy = async (args: {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
-  body?: object;
+  body?: any;
 }): Promise<any> => {
   const { url, method, body, headers } = args;
 

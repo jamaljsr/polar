@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 // Type definitions for bitcoin-core 2.0.0
 // Project: https://github.com/ruimarinho/bitcoin-core
 // Definitions by: Joe Miyamoto <joemphilps@gmail.com>
@@ -11,6 +9,7 @@ declare module 'bitcoin-core' {
     agentOptions?: any;
     headers?: boolean;
     host?: string;
+    // eslint-disable-next-line @typescript-eslint/ban-types
     logger?: Function;
     network?: 'mainnet' | 'regtest' | 'testnet';
     password?: string;
@@ -649,7 +648,7 @@ declare module 'bitcoin-core' {
     to?: string;
   };
 
-  type TransactionInListSinceBlock = {} & WalletTxBase;
+  type TransactionInListSinceBlock = WalletTxBase;
 
   type ListSinceBlockResult = {
     transactions: TransactionInListSinceBlock[];

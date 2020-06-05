@@ -13,7 +13,7 @@ import { StoreInjections } from 'types';
 export const hashHistory = createHashHistory();
 
 export const createReduxStore = (options?: {
-  initialState?: {} | undefined;
+  initialState?: any;
   injections?: StoreInjections;
   history?: History | undefined;
 }) => {
@@ -29,7 +29,7 @@ export const createReduxStore = (options?: {
       collapsed: true,
       diff: true,
       predicate: (getState, action) => {
-        // don't show thunk success asctions in the console.
+        // don't show thunk success actions in the console.
         // they can still be viewed in Redux DevTools if necessary
         return !/.*\(success\)/.test(action.type);
       },

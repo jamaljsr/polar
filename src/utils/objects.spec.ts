@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { snakeKeysToCamel } from './objects';
 
 describe('Objects Util', () => {

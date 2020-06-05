@@ -8,7 +8,7 @@ const request = async <T>(
   node: LightningNode,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   path: string,
-  bodyObj?: object,
+  bodyObj?: any,
 ): Promise<T> => {
   if (node.implementation !== 'c-lightning')
     throw new Error(
@@ -48,7 +48,7 @@ export const httpGet = async <T>(node: LightningNode, path: string): Promise<T> 
 export const httpPost = async <T>(
   node: LightningNode,
   path: string,
-  body: object,
+  body: any,
 ): Promise<T> => {
   return request<T>(node, 'POST', path, body);
 };
