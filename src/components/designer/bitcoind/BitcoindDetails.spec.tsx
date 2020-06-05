@@ -101,7 +101,6 @@ describe('BitcoindDetails', () => {
 
     beforeEach(() => {
       chainMock.mockResolvedValue({ blocks: 123, bestblockhash: 'abcdef' });
-      // eslint-disable-next-line @typescript-eslint/camelcase
       walletMock.mockResolvedValue({ balance: 10, immature_balance: 20 });
     });
 

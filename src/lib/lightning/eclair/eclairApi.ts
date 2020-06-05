@@ -9,7 +9,7 @@ const request = async <T>(
   node: LightningNode,
   method: HttpMethod,
   path: string,
-  body?: object,
+  body?: any,
 ): Promise<T> => {
   if (node.implementation !== 'eclair')
     throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
@@ -33,7 +33,7 @@ const request = async <T>(
 export const httpPost = async <T>(
   node: LightningNode,
   path: string,
-  body?: object,
+  body?: any,
 ): Promise<T> => {
   return request<T>(node, 'POST', path, body);
 };

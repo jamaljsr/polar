@@ -24,6 +24,9 @@ console.warn = (...args) => {
   originalConsoleWarning(...args);
 };
 
+// suppress antd `console.time` calls in `useForm()`
+console.time = () => undefined;
+
 beforeEach(() => {
   // Fix "TypeError: window.matchMedia is not a function" in antd v4
   // https://jestjs.io/docs/en/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom

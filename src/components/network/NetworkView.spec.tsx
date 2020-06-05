@@ -48,7 +48,6 @@ describe('NetworkView Component', () => {
           },
           walletInfo: {
             balance: 10,
-            // eslint-disable-next-line @typescript-eslint/camelcase
             immature_balance: 20,
           },
         },
@@ -203,7 +202,6 @@ describe('NetworkView Component', () => {
       } as any);
       bitcoindServiceMock.getWalletInfo.mockResolvedValue({
         balance: 10,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         immature_balance: 20,
       } as any);
     });

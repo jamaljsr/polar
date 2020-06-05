@@ -62,7 +62,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     customImages: [],
   });
 
-export const mockProperty = <T extends {}, K extends keyof T>(
+export const mockProperty = <T extends unknown, K extends keyof T>(
   object: T,
   property: K,
   value: T[K],
@@ -73,7 +73,7 @@ export const mockProperty = <T extends {}, K extends keyof T>(
 /**
  * Poor man's deep clone. Useful for tests to avoid another dependency
  */
-export const clone = (data: object) => JSON.parse(JSON.stringify(data));
+export const clone = (data: any) => JSON.parse(JSON.stringify(data));
 
 /**
  * Suppresses console errors when executing some code.

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { dockerConfigs } from 'utils/constants';
 /* eslint-disable no-template-curly-in-string */
 import { ComposeService } from './composeFile';

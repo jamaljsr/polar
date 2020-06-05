@@ -44,9 +44,7 @@ describe('EclairService', () => {
   it('should get wallet balance', async () => {
     const ballanceResponse: Partial<WalletInfo> = {
       balance: 0.00001,
-      // eslint-disable-next-line @typescript-eslint/camelcase
       unconfirmed_balance: 0,
-      // eslint-disable-next-line @typescript-eslint/camelcase
       immature_balance: 0,
     };
     bitcoindServiceMock.getWalletInfo.mockResolvedValue(ballanceResponse as any);

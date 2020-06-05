@@ -56,9 +56,9 @@ const listPeers = async (args: { node: LndNode }): Promise<LND.ListPeersResponse
 const connectPeer = async (args: {
   node: LndNode;
   req: LND.ConnectPeerRequest;
-}): Promise<{}> => {
+}): Promise<void> => {
   const rpc = await getRpc(args.node);
-  return await rpc.connectPeer(args.req);
+  await rpc.connectPeer(args.req);
 };
 
 const openChannel = async (args: {
