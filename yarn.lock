@@ -7317,10 +7317,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-easy-peasy@3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.3.0.tgz#1ae7cbaa834dad5aa404f1437726fb8c0eed3cef"
-  integrity sha512-wkTDAG+nRy+4g8Z3/k1vuTyrhxet19oY5MCmuRgOObm8dtZ2m+g5Mk/sdf3UWPuyx/sKIYH5Fy/HXab8iNKjTQ==
+easy-peasy@3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-3.3.1.tgz#46525c31d75e7b4bac2c48e4a09f340df5ff524f"
+  integrity sha512-c1M6xrMQyOl3JCwUdZCMcAMAuKQAxG76n2OydBTpvCPS7OSK7ZVseJL96KeCB3fpvKEvIQC8h8nShObtVPrzaA==
   dependencies:
     debounce "^1.2.0"
     immer-peasy "3.1.3"
