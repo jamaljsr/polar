@@ -136,7 +136,7 @@
     "standard-version": "8.0.0",
     "strip-ansi": "6.0.0",
     "stylelint": "13.6.1",
-    "stylelint-config-prettier": "8.0.1",
+    "stylelint-config-prettier": "8.0.2",
     "stylelint-config-standard": "20.0.0",
     "testcafe": "1.8.6",
     "testcafe-browser-provider-electron": "0.0.14",
