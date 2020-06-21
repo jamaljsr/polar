@@ -3205,10 +3205,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.3.4:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.3.4.tgz#000ddf6d8805dad60d8da214c78a422c253b9805"
-  integrity sha512-8ps2pQlzEhqsOz8Vc6BcPK28bhXqXi79Ece9rHchUNWF+MnrZSF76JQ6/VBRUMOHkBLVHoX04hGfQfIR9Rmr2A==
+antd@4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.3.5.tgz#1bafbc2920a1b5266bcd46496532578b2fd0f98e"
+  integrity sha512-C1qILCKh+G7q06wtm4uqmyvqzAzAaDKKzuTO0BO+rtUbSATjzbUg2Bp5byDEw0ThUGTWfJEQ0J7HZHh0FgiaJA==
   dependencies:
     "@ant-design/css-animation" "^1.7.2"
     "@ant-design/icons" "^4.2.1"
@@ -3247,7 +3247,7 @@ antd@4.3.4:
     rc-tree "~3.3.0"
     rc-tree-select "~4.0.0"
     rc-trigger "~4.3.0"
-    rc-upload "~3.1.0"
+    rc-upload "~3.2.0"
     rc-util "^5.0.1"
     scroll-into-view-if-needed "^2.2.25"
     warning "^4.0.3"
@@ -15258,10 +15258,10 @@ rc-trigger@^4.2.0, rc-trigger@^4.2.1, rc-trigger@^4.3.0, rc-trigger@~4.3.0:
     rc-animate "^3.0.0"
     rc-util "^5.0.1"
 
-rc-upload@~3.1.0:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/rc-upload/-/rc-upload-3.1.1.tgz#be5b33fabfa32abc2415095efb0f85a2acedae96"
-  integrity sha512-Wx8DGKEkDqvRIabeOnaeO7oOoknvWTcd5NtAXgqzVUOlCVm7rnQSa4I7ymn1vdRBEa/8p7pzuB3pcnQadji5kw==
+rc-upload@~3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/rc-upload/-/rc-upload-3.2.0.tgz#251fc3c9105902e808600a414f368f285d63bfba"
+  integrity sha512-/vyOGVxl5QVM3ZE7s+GqYPbCLC/Q/vJq0sjdwnvJw01KvAR5kVOC4jbHEaU56dMss7PFGDfNzc8zO5bWYLDzVQ==
   dependencies:
     classnames "^2.2.5"
 
