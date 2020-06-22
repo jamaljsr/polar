@@ -114,7 +114,7 @@
     "jest-environment-jsdom-sixteen": "1.0.3",
     "js-yaml": "3.14.0",
     "less": "3.11.3",
-    "less-loader": "6.1.1",
+    "less-loader": "6.1.2",
     "lint-staged": "10.2.11",
     "lndconnect": "0.2.10",
     "nodemon": "2.0.4",
