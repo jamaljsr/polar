@@ -90,6 +90,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--alias={{name}}',
       '--externalip={{name}}',
       '--tlsextradomain={{name}}',
+      '--tlsextradomain={{containerName}}',
       '--listen=0.0.0.0:9735',
       '--rpclisten=0.0.0.0:10009',
       '--restlisten=0.0.0.0:8080',
@@ -103,7 +104,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
-    variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
+    variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
   },
   'c-lightning': {
     name: 'c-lightning',

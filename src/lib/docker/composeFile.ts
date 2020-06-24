@@ -72,6 +72,7 @@ class ComposeFile {
     // define the variable substitutions
     const variables = {
       name: node.name,
+      containerName: container,
       backendName: getContainerName(backend),
       rpcUser: bitcoinCredentials.user,
       rpcPass: bitcoinCredentials.pass,
