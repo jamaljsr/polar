@@ -281,7 +281,7 @@
   "cmps.nodeImages.CommandVariables.variable": "変数",
   "cmps.nodeImages.CommandVariables.desc": "説明",
   "cmps.nodeImages.CommandVariables.var-name": "生成されたノードの名前（ 例：アリス）",
-  "cmps.nodeImages.CommandVariables.var-containerName": "The generated name of the docker container (ex: polar-n1-alice)",
+  "cmps.nodeImages.CommandVariables.var-containerName": "ドッカーコンテナの生成された名前 (例: polar-n1-alice)",
   "cmps.nodeImages.CommandVariables.var-backendName": "Lightningノードがバックエンドとして使用するビットコインノードの生成された名前（ 例：backend1）",
   "cmps.nodeImages.CommandVariables.var-rpcUser": "バックエンドビットコインノードの認証に使用されるRPCユーザー名",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "バックエンドビットコインノードの認証に使用されるRPCパスワード",
