@@ -281,7 +281,7 @@
   "cmps.nodeImages.CommandVariables.variable": "变量",
   "cmps.nodeImages.CommandVariables.desc": "描述",
   "cmps.nodeImages.CommandVariables.var-name": "节点的生成名称（例如：alice）",
-  "cmps.nodeImages.CommandVariables.var-containerName": "The generated name of the docker container (ex: polar-n1-alice)",
+  "cmps.nodeImages.CommandVariables.var-containerName": "泊位容器生成的名称 (例如: polar-n1-alice)",
   "cmps.nodeImages.CommandVariables.var-backendName": "闪电节点用作后端的比特币节点的生成名称（例如：backend1）",
   "cmps.nodeImages.CommandVariables.var-rpcUser": "用来验证后端比特币节点的RPC用户名",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "用于验证后端比特币节点的RPC密码",
