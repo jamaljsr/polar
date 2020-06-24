@@ -281,6 +281,7 @@
   "cmps.nodeImages.CommandVariables.variable": "변하기 쉬운",
   "cmps.nodeImages.CommandVariables.desc": "기술",
   "cmps.nodeImages.CommandVariables.var-name": "생성 된 노드 이름 (예 : alice)",
+  "cmps.nodeImages.CommandVariables.var-containerName": "The generated name of the docker container (ex: polar-n1-alice)",
   "cmps.nodeImages.CommandVariables.var-backendName": "Lightning 노드가 백엔드로 사용하는 비트 코인 노드의 생성 된 이름 (예 : backend1)",
   "cmps.nodeImages.CommandVariables.var-rpcUser": "백엔드 비트 코인 노드를 인증하는 데 사용되는 RPC 사용자 이름",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "백엔드 비트 코인 노드를 인증하는 데 사용되는 RPC 비밀번호",
