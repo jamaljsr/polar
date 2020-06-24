@@ -281,6 +281,7 @@
   "cmps.nodeImages.CommandVariables.variable": "Variable",
   "cmps.nodeImages.CommandVariables.desc": "La description",
   "cmps.nodeImages.CommandVariables.var-name": "Le nom généré du nœud (ex: alice)",
+  "cmps.nodeImages.CommandVariables.var-containerName": "The generated name of the docker container (ex: polar-n1-alice)",
   "cmps.nodeImages.CommandVariables.var-backendName": "Le nom généré du nœud Bitcoin que le nœud Lightning utilise comme backend (ex: backend1)",
   "cmps.nodeImages.CommandVariables.var-rpcUser": "Le nom d'utilisateur RPC utilisé pour s'authentifier auprès du nœud Bitcoin backend",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "Le mot de passe RPC utilisé pour s'authentifier auprès du nœud Bitcoin backend",
