@@ -307,9 +307,13 @@ export const createNetwork = (config: {
       });
     });
 
-  // add managed bitcoin noes
+  // add managed bitcoin nodes
   range(bitcoindNodes).forEach(() => {
-    const version = repoState.images.bitcoind.latest;
+    let version = repoState.images.bitcoind.latest;
+    if (lndNodes > 0) {
+      const compat = repoState.images.LND.compatibility as Record<string, string>;
+      version = compat[repoState.images.LND.latest];
+    }
     const cmd = getImageCommand(managedImages, 'bitcoind', version);
     bitcoin.push(createBitcoindNetworkNode(network, version, dockerWrap(cmd), status));
   });
