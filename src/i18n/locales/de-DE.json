@@ -281,7 +281,7 @@
   "cmps.nodeImages.CommandVariables.variable": "Variable",
   "cmps.nodeImages.CommandVariables.desc": "Beschreibung",
   "cmps.nodeImages.CommandVariables.var-name": "Der generierte Name des Knotens (z. B. Alice)",
-  "cmps.nodeImages.CommandVariables.var-containerName": "The generated name of the docker container (ex: polar-n1-alice)",
+  "cmps.nodeImages.CommandVariables.var-containerName": "Der generierte Name des Docker-Containers (z.B. polar-n1-alice)",
   "cmps.nodeImages.CommandVariables.var-backendName": "Der generierte Name des Bitcoin Knotens, den der Lightning Knoten als Backend verwendet (z. B. backend1).",
   "cmps.nodeImages.CommandVariables.var-rpcUser": "Der RPC Benutzername, der zur Authentifizierung beim Backend Bitcoin Knoten verwendet wird",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "Das RPC Kennwort zur Authentifizierung beim Backend Bitcoin Knoten",
