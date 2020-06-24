@@ -281,7 +281,7 @@
   "cmps.nodeImages.CommandVariables.variable": "переменная",
   "cmps.nodeImages.CommandVariables.desc": "Описание",
   "cmps.nodeImages.CommandVariables.var-name": "Сгенерированное имя узла (например, Алиса)",
-  "cmps.nodeImages.CommandVariables.var-containerName": "The generated name of the docker container (ex: polar-n1-alice)",
+  "cmps.nodeImages.CommandVariables.var-containerName": "Генерируемое имя контейнера docker (пример: polar-n1-alice)",
   "cmps.nodeImages.CommandVariables.var-backendName": "Сгенерированное имя узла Биткойн, который узел Lightning использует в качестве бэкэнда (например: backend1)",
   "cmps.nodeImages.CommandVariables.var-rpcUser": "Имя пользователя RPC, используемое для аутентификации на внутреннем биткойн-узле",
   "cmps.nodeImages.CommandVariables.var-rpcPass": "Пароль RPC, используемый для аутентификации на внутреннем биткойн-узле",
