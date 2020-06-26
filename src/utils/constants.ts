@@ -184,6 +184,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-rpcport=18443',
       '-listen=1',
       '-listenonion=0',
+      '-fallbackfee=0.0002',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['rpcUser', 'rpcAuth'],
@@ -212,7 +213,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 8,
+  version: 9,
   images: {
     LND: {
       latest: '0.10.2-beta.rc2',
@@ -229,7 +230,7 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.10.2-beta.rc2': '0.19.1',
+        '0.10.2-beta.rc2': '0.20.0',
         '0.10.1-beta': '0.19.1',
         '0.10.0-beta': '0.19.1',
         '0.9.1-beta': '0.19.1',
@@ -248,8 +249,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.3.3'],
     },
     bitcoind: {
-      latest: '0.19.1',
-      versions: ['0.19.1', '0.19.0.1', '0.18.1'],
+      latest: '0.20.0',
+      versions: ['0.20.0', '0.19.1', '0.19.0.1', '0.18.1'],
     },
     btcd: {
       latest: '',
