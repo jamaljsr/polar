@@ -29,8 +29,8 @@
       "versions": ["0.8.2", "0.8.1", "0.8.0"]
     },
     "eclair": {
-      "latest": "",
-      "versions": []
+      "latest": "0.3.3",
+      "versions": ["0.3.3"]
     },
     "bitcoind": {
       "latest": "0.19.1",
