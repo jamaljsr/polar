@@ -1,6 +1,6 @@
 {
   "name": "polar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://lightningpolar.com",
   "description": "One-click Bitcoin Lightning networks for local app development & testing",
   "author": {
@@ -10,7 +10,7 @@
   },
   "main": "public/main/electron/index.js",
   "scripts": {
-    "build": "cross-env PUBLIC_URL=./ rescripts build",
+    "build": "cross-env CI=false PUBLIC_URL=./ rescripts build",
     "cm": "git add . && git cz",
     "dev": "concurrently --kill-others --success first \"yarn:dev:*\"",
     "dev:app": "yarn theme && cross-env BROWSER=none yarn start",

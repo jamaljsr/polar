@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [v1.0.1](https://github.com/jamaljsr/polar/compare/v1.0.0...v1.0.1)
+
+This is a small patch release which fixes a compatibility issue to support Bitcoin Core v0.20.0. There was a breaking change in this version requiring the use of `-fallbackfee` in regtest environments.
+
+### Features
+
+- **images:** add support for bitcoind v0.20.0 ([a538ca0](https://github.com/jamaljsr/polar/commit/a538ca04ddcb523ac1bd1e3998e553a4c2bfd6ec))
+- **images:** add support for LND v0.10.2-beta.rc2 ([be3a135](https://github.com/jamaljsr/polar/commit/be3a135efd0efbcf2928e1906440f53621ab05c3))
+- **images:** add support for LND v0.10.1-beta ([20e1ed1](https://github.com/jamaljsr/polar/commit/20e1ed1e1d6f70b049a37022ded64f38cfe061e4))
+- **images:** add support for LND v0.10.0 and c-lightning v0.8.2 ([6df87c8](https://github.com/jamaljsr/polar/commit/6df87c8d6458f62fb657391fce01877b80580b10))
+
+### Bug Fixes
+
+- **lnd:** add docker container name as tlsextradomain ([#355](https://github.com/jamaljsr/polar/issues/355))
+
+### Docs
+
+- fix small typos in CONTRIBUTING ([#331](https://github.com/jamaljsr/polar/issues/331) & [#332](https://github.com/jamaljsr/polar/issues/332)) by [@nickycutesc](https://github.com/nickycutesc)
+
 ## [v1.0.0](https://github.com/jamaljsr/polar/compare/v0.2.1...v1.0.0)
 
 This release was focused on implementing many of the feature requests submitted since the first release, as well as adding support for the Eclair Lightning implementation. You can now use your own custom Docker image, allowing you to run the master branch or your personal fork of each node. Polar now supports importing and exporting networks, which allows you to save snapshots to reuse as a starting point over an over again. We also added a log viewer for nodes which should make it easier to see what your nodes are doing and added right-click menus for nodes & channels so you can perform actions with less clicks. To support more flexible environments, the Lightning P2P and Bitcoin ZMQ ports are now exposed to the host machine, which means you can have nodes outside of Polar communicate with the nodes inside.
