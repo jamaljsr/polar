@@ -52,11 +52,11 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v1.0.0 for your OS
+Download Polar v1.0.1 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-mac-v1.0.0.dmg), [zip](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-mac-v1.0.0.zip))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-linux-amd64-v1.0.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-linux-x86_64-v1.0.0.AppImage))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.0.0/polar-win-v1.0.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-mac-v1.0.1.dmg), [zip](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-mac-v1.0.1.zip))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-linux-amd64-v1.0.1.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-linux-x86_64-v1.0.1.AppImage))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-win-v1.0.1.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
