@@ -11930,6 +11930,11 @@ lodash@4.17.15, "lodash@4.6.1 || ^4.16.1", "lodash@>=3.5 <5", lodash@^4.0.0, lod
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
+lodash@^4.17.18:
+  version "4.17.18"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.18.tgz#5c5f072c5c02f386378dd3f6325b529376210427"
+  integrity sha512-au4L1q0HKcaaa37qOdpWWhwzDnB/taYJfRiKULnaT+Ml9UaBIjJ2SOJMeLtSeeLT+zUdyFMm0+ts+j4eeuUpIA==
+
 log-symbols@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/log-symbols/-/log-symbols-2.2.0.tgz#5740e1c5d6f0dfda4ad9323b5332107ef6b4c40a"
@@ -19102,14 +19107,14 @@ w3c-xmlserializer@^2.0.0:
   dependencies:
     xml-name-validator "^3.0.0"
 
-wait-on@5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-5.0.1.tgz#7dadfe83c36fdf034de996a41aa094af5cf23077"
-  integrity sha512-TxzkYIfRWK1hLc9IlUh9bE1mrvIIM3ptPRKQ86Z8Qo0tBQLCHEvWzkRD1Ge4FWprKflHOnAtqIBH2nKmib/lrg==
+wait-on@5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-5.0.2.tgz#1b78f7111aa72949eddcf9b443661a8d4144e721"
+  integrity sha512-c4NqepdinnIfnZ7Vz70xUu9QgAr6Lj3fVCgUR947jdNW1VRtI34H80DQkTPR0NWCev2gh0+0OqQYr+FaswIFvg==
   dependencies:
     "@hapi/joi" "^17.1.1"
     axios "^0.19.2"
-    lodash "^4.17.15"
+    lodash "^4.17.18"
     minimist "^1.2.5"
     rxjs "^6.5.5"
 
