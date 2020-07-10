@@ -19107,10 +19107,10 @@ w3c-xmlserializer@^2.0.0:
   dependencies:
     xml-name-validator "^3.0.0"
 
-wait-on@5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-5.0.3.tgz#763789f77a548bba318a256211f49fae04dc8065"
-  integrity sha512-0v3rQfJfLNVxZS0UP9lSYYMRUh8M+RgtkiSoPQOi7+QOlbG8XeY2uD0OE+rDeG/cJ35n1xMihuweSbjt1uB17w==
+wait-on@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-5.1.0.tgz#b697f21c6fea0908b9c7ad6ed56ace4736768b66"
+  integrity sha512-JM0kgaE+V0nCDvSl72iM05W8NDt2E2M56WC5mzR7M+T+k6xjt2yYpyom+xA8RasSunFGzbxIpAXbVzXqtweAnA==
   dependencies:
     "@hapi/joi" "^17.1.1"
     axios "^0.19.2"
