@@ -19669,10 +19669,10 @@ xterm-addon-fit@0.4.0:
   resolved "https://registry.yarnpkg.com/xterm-addon-fit/-/xterm-addon-fit-0.4.0.tgz#06e0c5d0a6aaacfb009ef565efa1c81e93d90193"
   integrity sha512-p4BESuV/g2L6pZzFHpeNLLnep9mp/DkF3qrPglMiucSFtD8iJxtMufEoEJbN8LZwB4i+8PFpFvVuFrGOSpW05w==
 
-xterm@4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/xterm/-/xterm-4.7.0.tgz#254485811146b03fbea10c911f7f68a99e1d3bfd"
-  integrity sha512-UeH6U/1iknCBP94/AcKAFBeQz6ZicMugJHGXruTmsY8RcZt+mkx+vl8jLLOqNYweXdBbywCg2kK88WDKjcmSmg==
+xterm@4.8.0:
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/xterm/-/xterm-4.8.0.tgz#4b9739059037cda5dd01d7d33197dbdddacb57ad"
+  integrity sha512-IaQJqffyPTd7mh5QiyquTnARX1e1HfZSxt73GufzwuM8UWscjPAH5Wu+AAqwKOt8T3tgpfKgrcj0pviSEKxrjg==
 
 y18n@^3.2.0:
   version "3.2.1"
