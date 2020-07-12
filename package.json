@@ -133,7 +133,7 @@
     "react-scripts": "3.4.1",
     "redux": "4.0.5",
     "redux-logger": "3.0.6",
-    "standard-version": "8.0.0",
+    "standard-version": "8.0.1",
     "strip-ansi": "6.0.0",
     "stylelint": "13.6.1",
     "stylelint-config-prettier": "8.0.2",
