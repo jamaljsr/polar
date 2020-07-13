@@ -11655,7 +11655,22 @@ less-loader@6.2.0:
     loader-utils "^2.0.0"
     schema-utils "^2.7.0"
 
-less@3.11.3, less@^3.11.3:
+less@3.12.0:
+  version "3.12.0"
+  resolved "https://registry.yarnpkg.com/less/-/less-3.12.0.tgz#f23f9bd94ba72495994865d84e3b5ac6ee8a0363"
+  integrity sha512-3mmSHFRP9hGxxQgAKgChfau1LO3ksV/zyZf1qd2ENyBV778NA9Ids99wFRA20jE+5prT7oScKod8PoGlxSe1gg==
+  dependencies:
+    tslib "^1.10.0"
+  optionalDependencies:
+    errno "^0.1.1"
+    graceful-fs "^4.1.2"
+    image-size "~0.5.0"
+    make-dir "^2.1.0"
+    mime "^1.4.1"
+    native-request "^1.0.5"
+    source-map "~0.6.0"
+
+less@^3.11.3:
   version "3.11.3"
   resolved "https://registry.yarnpkg.com/less/-/less-3.11.3.tgz#2d853954fcfe0169a8af869620bcaa16563dcc1c"
   integrity sha512-VkZiTDdtNEzXA3LgjQiC3D7/ejleBPFVvq+aRI9mIj+Zhmif5TvFPM244bT4rzkvOCvJ9q4zAztok1M7Nygagw==
@@ -12752,6 +12767,11 @@ nanomatch@^1.2.9:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
+
+native-request@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/native-request/-/native-request-1.0.5.tgz#da67637c0a0ed0758243d1a688d647612f2d5a0a"
+  integrity sha512-7wU3DvBGAJQxWuMR3F62zrhB7hxNj2DdlC/eBVrCgavc6+ZpFZOqS/PsR7QyUPLMkFk0GvvzoeeOAZGLLnObnA==
 
 natural-compare@^1.4.0:
   version "1.4.0"
