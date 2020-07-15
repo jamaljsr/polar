@@ -9787,10 +9787,10 @@ i18next@*:
   dependencies:
     "@babel/runtime" "^7.3.1"
 
-i18next@19.6.0:
-  version "19.6.0"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.6.0.tgz#3881b8e476e494dcdadcc8983e594080417fd82e"
-  integrity sha512-t+pA7iN2WtwS1UQc4PFKHDIO4HYZIl2Wo8UC8gqt70Q1qY50FflAF5vV4IbQEqy4DuK3I9wv3BL1PMvkk238WA==
+i18next@19.6.1:
+  version "19.6.1"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.6.1.tgz#93400ea8d70ec3686e454ddfafca798ac668507b"
+  integrity sha512-/pp1yfIkHcg3ZtbA7/lL80VQhC+VdpRs39RcztTosdVXpGqN7cQZfg04htfrDpHYGnUx5iTNuo9xXwZuO7FkbA==
   dependencies:
     "@babel/runtime" "^7.10.1"
 
