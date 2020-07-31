@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "images": {
     "LND": {
       "latest": "0.10.3-beta",
