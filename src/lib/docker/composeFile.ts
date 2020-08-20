@@ -40,7 +40,7 @@ class ComposeFile {
 
   addBitcoind(node: BitcoinNode) {
     const { name, version, ports } = node;
-    const { rpc, zmqBlock, zmqTx } = ports;
+    const { rpc, p2p, zmqBlock, zmqTx } = ports;
     const container = getContainerName(node);
     // define the variable substitutions
     const variables = {
@@ -59,6 +59,7 @@ class ComposeFile {
       container,
       image,
       rpc,
+      p2p,
       zmqBlock,
       zmqTx,
       command,

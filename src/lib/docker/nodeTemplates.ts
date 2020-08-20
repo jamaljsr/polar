@@ -10,6 +10,7 @@ export const bitcoind = (
   container: string,
   image: string,
   rpcPort: number,
+  p2pPort: number,
   zmqBlockPort: number,
   zmqTxPort: number,
   command: string,
@@ -33,6 +34,7 @@ export const bitcoind = (
   ],
   ports: [
     `${rpcPort}:18443`, // RPC
+    `${p2pPort}:18444`, // P2P
     `${zmqBlockPort}:28334`, // ZMQ blocks
     `${zmqTxPort}:28335`, // ZMQ txns
   ],

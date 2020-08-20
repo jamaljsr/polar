@@ -240,6 +240,7 @@ export const createBitcoindNetworkNode = (
     status,
     ports: {
       rpc: BasePorts.bitcoind.rest + id,
+      p2p: BasePorts.bitcoind.p2p + id,
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
     },
@@ -445,6 +446,17 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
         ports[bitcoin[index].name] = { rpc: port };
+      });
+    }
+
+    existingPorts = bitcoin.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[bitcoin[index].name] = {
+          ...(ports[bitcoin[index].name] || {}),
+          p2p: port,
+        };
       });
     }
 
