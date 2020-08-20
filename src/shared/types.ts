@@ -63,6 +63,7 @@ export interface BitcoinNode extends CommonNode {
   peers: string[];
   ports: {
     rpc: number;
+    p2p: number;
     zmqBlock: number;
     zmqTx: number;
   };

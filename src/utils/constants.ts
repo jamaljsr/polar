@@ -46,6 +46,7 @@ export const denominationNames: { [key in Denomination]: string } = {
 export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
   bitcoind: {
     rest: 18443,
+    p2p: 19444,
     zmqBlock: 28334,
     zmqTx: 29335,
   },

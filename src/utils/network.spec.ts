@@ -48,11 +48,13 @@ describe('Network Utils', () => {
       mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
       network.nodes.lightning = [];
       const restPort = network.nodes.bitcoin[0].ports.rpc;
+      const p2pPort = network.nodes.bitcoin[0].ports.p2p;
       const zmqBlockPort = network.nodes.bitcoin[0].ports.zmqBlock;
       const zmqTxPort = network.nodes.bitcoin[0].ports.zmqTx;
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].p2p).toBe(p2pPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
     });
@@ -67,6 +69,20 @@ describe('Network Utils', () => {
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
+    });
+
+    it('should update the p2p port for bitcoind', async () => {
+      const portsInUse = [19444];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const p2pPort = network.nodes.bitcoin[0].ports.p2p;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].p2p).toBe(p2pPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
     });

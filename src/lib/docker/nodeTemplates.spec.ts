@@ -7,6 +7,7 @@ describe('nodeTemplates', () => {
       'polar-mynode',
       'bitcoind:v0.8.0',
       18443,
+      19444,
       28334,
       29335,
       '',
