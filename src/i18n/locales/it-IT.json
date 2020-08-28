@@ -50,6 +50,7 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "In attesa che bitcoind arrivi online",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "Impossibile connettersi al nodo",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "Host RPC",
+  "cmps.designer.bitcoind.ConnectTab.p2pHost": "P2P Host",
   "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "Host Blocco ZMQ",
   "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "Host Transazione ZMQ",
   "cmps.designer.bitcoind.ConnectTab.rpcUser": "Nome utente",
