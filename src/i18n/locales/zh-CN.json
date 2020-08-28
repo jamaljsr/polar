@@ -50,6 +50,7 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "等待比特币上线",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "无法连接到节点",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPC主机",
+  "cmps.designer.bitcoind.ConnectTab.p2pHost": "P2P Host",
   "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQ 块主机",
   "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQ 交易主机",
   "cmps.designer.bitcoind.ConnectTab.rpcUser": "用户名",
