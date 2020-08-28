@@ -50,6 +50,7 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "ビットコインがオンラインになるのを待っています",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "ノードに接続できません",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPCホスト",
+  "cmps.designer.bitcoind.ConnectTab.p2pHost": "P2P Host",
   "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQブロックホスト",
   "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQトランザクションホスト",
   "cmps.designer.bitcoind.ConnectTab.rpcUser": "ユーザー名",
