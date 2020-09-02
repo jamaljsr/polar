@@ -63,11 +63,13 @@ export interface DesignerModel {
   onCanvasClick: Action<DesignerModel, Parameters<RFC.IOnCanvasClick>[0]>;
   onDeleteKey: Action<DesignerModel, Parameters<RFC.IOnDeleteKey>[0]>;
   onNodeClick: Action<DesignerModel, Parameters<RFC.IOnNodeClick>[0]>;
+  onNodeDoubleClick: Action<DesignerModel, Parameters<RFC.IOnNodeDoubleClick>[0]>;
   onNodeMouseEnter: Action<DesignerModel, Parameters<RFC.IOnNodeMouseEnter>[0]>;
   onNodeMouseLeave: Action<DesignerModel, Parameters<RFC.IOnNodeMouseLeave>[0]>;
   onNodeSizeChange: Action<DesignerModel, Parameters<RFC.IOnNodeSizeChange>[0]>;
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
+  onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
 }
 
 const designerModel: DesignerModel = {
@@ -303,7 +305,7 @@ const designerModel: DesignerModel = {
   ),
   onDragCanvas: action((state, { config, data }) => {
     const chart = state.allCharts[state.activeId];
-    chart.offset = snap(data, config);
+    chart.offset = snap({ x: data.positionX, y: data.positionY }, config);
   }),
   onDragCanvasStop: action(
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -401,6 +403,15 @@ const designerModel: DesignerModel = {
       };
     }
   }),
+  onNodeDoubleClick: action((state, { nodeId }) => {
+    const chart = state.allCharts[state.activeId];
+    if (chart.selected.id !== nodeId || chart.selected.type !== 'node') {
+      chart.selected = {
+        type: 'node',
+        id: nodeId,
+      };
+    }
+  }),
   onNodeMouseEnter: action((state, { nodeId }) => {
     const chart = state.allCharts[state.activeId];
     chart.hovered = {
@@ -448,11 +459,16 @@ const designerModel: DesignerModel = {
     const chart = state.allCharts[state.activeId];
     chart.nodes[LOADING_NODE_ID] = {
       id: LOADING_NODE_ID,
-      position: snap(position, config),
+      position: snap(position, config, chart.scale),
       type: data.type,
       ports: {},
       properties: {},
     };
+  }),
+  onZoomCanvas: action((state, { config, data }) => {
+    const chart = state.allCharts[state.activeId];
+    chart.offset = snap({ x: data.positionX, y: data.positionY }, config, data.zoom);
+    chart.scale = data.scale;
   }),
 };
 
