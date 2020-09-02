@@ -1,8 +1,8 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import { GlobalOutlined } from '@ant-design/icons';
+import styled from '@emotion/styled';
 import { Button, Dropdown, Menu } from 'antd';
-import { ClickParam } from 'antd/lib/menu';
+import { MenuProps } from 'antd/lib/menu';
 import { useStoreState } from 'easy-peasy';
 import { languages } from 'i18n';
 import { useStoreActions } from 'store';
@@ -16,8 +16,8 @@ const Styled = {
 const LocaleSwitch: React.FC = () => {
   const { settings } = useStoreState(s => s.app);
   const { updateSettings } = useStoreActions(s => s.app);
-  const changeLanguage = (e: ClickParam) => {
-    updateSettings({ lang: e.key });
+  const changeLanguage: MenuProps['onClick'] = e => {
+    updateSettings({ lang: e.key.toString() });
   };
 
   const menu = (
