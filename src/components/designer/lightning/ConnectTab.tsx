@@ -39,6 +39,7 @@ export interface ConnectionInfo {
   credentials: {
     admin?: string;
     readOnly?: string;
+    invoice?: string;
     cert?: string;
     basicAuth?: string;
   };
@@ -72,6 +73,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           credentials: {
             admin: lnd.paths.adminMacaroon,
             readOnly: lnd.paths.readonlyMacaroon,
+            invoice: lnd.paths.invoiceMacaroon,
             cert: lnd.paths.tlsCert,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${lnd.ports.p2p}`,

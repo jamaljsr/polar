@@ -31,6 +31,7 @@ export interface LndNode extends LightningNode {
   paths: {
     tlsCert: string;
     adminMacaroon: string;
+    invoiceMacaroon: string;
     readonlyMacaroon: string;
   };
   ports: {

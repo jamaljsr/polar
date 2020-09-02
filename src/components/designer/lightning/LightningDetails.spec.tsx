@@ -360,8 +360,8 @@ describe('LightningDetails', () => {
         await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'hex');
         await waitFor(() => {
-          expect(files.read).toBeCalledTimes(3);
-          expect(getAllByText('test-hex')).toHaveLength(3);
+          expect(files.read).toBeCalledTimes(4);
+          expect(getAllByText('test-hex')).toHaveLength(4);
         });
       });
 
@@ -381,8 +381,8 @@ describe('LightningDetails', () => {
         await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'base64');
         await waitFor(() => {
-          expect(files.read).toBeCalledTimes(3);
-          expect(getAllByText('test-base64')).toHaveLength(3);
+          expect(files.read).toBeCalledTimes(4);
+          expect(getAllByText('test-base64')).toHaveLength(4);
         });
       });
 
@@ -399,13 +399,15 @@ describe('LightningDetails', () => {
         mockFiles.read.mockImplementation((p, e) =>
           Promise.resolve(e === 'hex' ? 'test-hex' : 'test-data'),
         );
-        const { findByText, container, getByText } = renderComponent(Status.Started);
+        const { findByText, container, getByText, getAllByText } = renderComponent(
+          Status.Started,
+        );
         fireEvent.click(await findByText('Connect'));
         await waitFor(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
-        await waitFor(() => getByText('LND Connect Url'));
-        expect(files.read).toBeCalledTimes(2);
-        expect(getByText(/lndconnect/)).toBeInTheDocument();
+        await waitFor(() => getByText('Admin Macaroon Url'));
+        expect(files.read).toBeCalledTimes(4);
+        expect(getAllByText(/lndconnect/)).toHaveLength(3);
       });
 
       it('should display and error if getting the LND Connect url fails', async () => {
@@ -418,8 +420,7 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         await waitFor(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
-        await waitFor(() => getByText('LND Connect Url'));
-        expect(getByText('Unable to create LND Connect url')).toBeInTheDocument();
+        await waitFor(() => getByText('Unable to create LND Connect url'));
         expect(getByText('lndc-error')).toBeInTheDocument();
       });
 
