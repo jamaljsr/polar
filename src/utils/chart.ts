@@ -28,10 +28,21 @@ export const rotate = (
   return { x, y };
 };
 
-export const snap = (position: IPosition, config?: IConfig) =>
-  config && config.snapToGrid
-    ? { x: Math.round(position.x / 20) * 20, y: Math.round(position.y / 20) * 20 }
-    : position;
+export const snap = (position: IPosition, config?: IConfig, zoom = 1) => {
+  let offset = { x: position.x, y: position.y };
+  if (config && config.snapToGrid) {
+    offset = {
+      x: Math.round(position.x / 20) * 20,
+      y: Math.round(position.y / 20) * 20,
+    };
+  }
+
+  // factor in the zoom level
+  offset.x = offset.x / zoom;
+  offset.y = offset.y / zoom;
+
+  return offset;
+};
 
 export const createLightningChartNode = (ln: LightningNode) => {
   const node: INode = {
@@ -105,6 +116,7 @@ export const initChartFromNetwork = (network: Network): IChart => {
     links: {},
     selected: {},
     hovered: {},
+    scale: 1,
   };
 
   network.nodes.bitcoin.forEach(n => {

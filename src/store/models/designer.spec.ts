@@ -308,6 +308,7 @@ describe('Designer model', () => {
       >;
       const lndLatest = defaultRepoState.images.LND.latest;
       const btcLatest = defaultRepoState.images.bitcoind.latest;
+      const id = 'nodeId';
       const data = { type: 'LND', version: lndLatest };
       const position = { x: 10, y: 10 };
 
@@ -319,7 +320,7 @@ describe('Designer model', () => {
       it('should add a new node to the network', async () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(firstNetwork().nodes.lightning).toHaveLength(3);
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
         });
@@ -328,7 +329,7 @@ describe('Designer model', () => {
       it('should add a new LN node to the chart', async () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(Object.keys(firstChart().nodes)).toHaveLength(5);
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(6);
           expect(firstChart().nodes['carol']).toBeDefined();
@@ -339,7 +340,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(Object.keys(firstChart().nodes)).toHaveLength(5);
         const bitcoinData = { type: 'bitcoind', version: btcLatest };
-        onCanvasDrop({ data: bitcoinData, position });
+        onCanvasDrop({ id, data: bitcoinData, position });
         await waitFor(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(6);
           expect(firstChart().nodes['backend2']).toBeDefined();
@@ -362,7 +363,7 @@ describe('Designer model', () => {
         const getChart = () => store.getState().designer.allCharts[newId];
         expect(Object.keys(getChart().nodes)).toHaveLength(0);
         const bitcoinData = { type: 'bitcoind', version: btcLatest };
-        onCanvasDrop({ data: bitcoinData, position });
+        onCanvasDrop({ id, data: bitcoinData, position });
         await waitFor(() => {
           expect(Object.keys(getChart().nodes)).toHaveLength(1);
           expect(Object.keys(getChart().links)).toHaveLength(0);
@@ -373,7 +374,7 @@ describe('Designer model', () => {
       it('should update docker compose file', async () => {
         mockDockerService.saveComposeFile.mockReset();
         const { onCanvasDrop } = store.getActions().designer;
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
@@ -385,7 +386,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         const spy = jest.spyOn(store.getActions().app, 'notify');
         const data = { type: 'LND', version: '0.7.1-beta' };
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(spy).toBeCalledWith(
             expect.objectContaining({
@@ -402,7 +403,7 @@ describe('Designer model', () => {
         const { setStatus } = store.getActions().network;
         setStatus({ id: firstNetwork().id, status: Status.Starting });
         const { onCanvasDrop } = store.getActions().designer;
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
           expect(mockNotification.error).toBeCalledWith(
@@ -413,7 +414,7 @@ describe('Designer model', () => {
 
       it('should not add an unsupported node type', async () => {
         const { onCanvasDrop } = store.getActions().designer;
-        onCanvasDrop({ data: { type: 'other' }, position });
+        onCanvasDrop({ id, data: { type: 'other' }, position });
         await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
         });
@@ -422,7 +423,7 @@ describe('Designer model', () => {
       it('should add and remove a loading node', async () => {
         const { onCanvasDrop } = store.getActions().designer;
         expect(firstChart().nodes[LOADING_NODE_ID]).toBeUndefined();
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         expect(firstChart().nodes[LOADING_NODE_ID]).toBeDefined();
         await waitFor(() => {
           expect(firstChart().nodes[LOADING_NODE_ID]).toBeUndefined();
@@ -435,7 +436,7 @@ describe('Designer model', () => {
         const { setStatus } = store.getActions().network;
         setStatus({ id: firstNetwork().id, status: Status.Started });
         const { onCanvasDrop } = store.getActions().designer;
-        onCanvasDrop({ data, position });
+        onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(mockDockerService.startNode).toBeCalledTimes(1);
           expect(mockDockerService.startNode).toBeCalledWith(
@@ -472,7 +473,7 @@ describe('Designer model', () => {
 
       it('onDragCanvas', () => {
         const { onDragCanvas } = store.getActions().designer;
-        onDragCanvas({ data: position } as any);
+        onDragCanvas({ data: { positionX: position.x, positionY: position.y } } as any);
         expect(firstChart().offset).toEqual(position);
       });
 
@@ -633,9 +634,21 @@ describe('Designer model', () => {
         onNodeClick({ nodeId: 'alice' });
         expect(firstChart().selected.id).toBe('alice');
         expect(firstChart().selected.type).toBe('node');
-        // delete again does nothing
+        // click again does nothing
         const before = firstChart();
         onNodeClick({ nodeId: 'alice' });
+        expect(firstChart()).toEqual(before);
+      });
+
+      it('onNodeDoubleClick', () => {
+        const { onNodeDoubleClick } = store.getActions().designer;
+        expect(firstChart().selected.id).toBeUndefined();
+        onNodeDoubleClick({ nodeId: 'alice' });
+        expect(firstChart().selected.id).toBe('alice');
+        expect(firstChart().selected.type).toBe('node');
+        // doubleClick again does nothing
+        const before = firstChart();
+        onNodeDoubleClick({ nodeId: 'alice' });
         expect(firstChart()).toEqual(before);
       });
 
@@ -660,6 +673,14 @@ describe('Designer model', () => {
         const node = { ...before.nodes['alice'], size: undefined };
         onPortPositionChange({ node } as any);
         expect(firstChart()).toEqual(before);
+      });
+
+      it('onZoomCanvas', () => {
+        const { onZoomCanvas } = store.getActions().designer;
+        const data = { positionX: 100, positionY: 100, zoom: 0.5, scale: 2 };
+        onZoomCanvas({ data } as any);
+        expect(firstChart().offset).toEqual({ x: 200, y: 200 });
+        expect(firstChart().scale).toEqual(2);
       });
     });
   });
