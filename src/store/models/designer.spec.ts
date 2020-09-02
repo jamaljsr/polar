@@ -621,7 +621,7 @@ describe('Designer model', () => {
         onDeleteKey({});
         expect(firstChart().selected.id).toBeUndefined();
         // delete again does nothing
-        const before = firstChart();
+        const before = firstChart() as any;
         delete before.selected;
         setChart({ id: firstNetwork().id, chart: before });
         onDeleteKey({});
