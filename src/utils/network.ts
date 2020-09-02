@@ -80,6 +80,7 @@ export const getLndFilePaths = (name: string, network: Network) => {
   return {
     tlsCert: lndCertPath(name),
     adminMacaroon: lndMacaroonPath(name, 'admin'),
+    invoiceMacaroon: lndMacaroonPath(name, 'invoice'),
     readonlyMacaroon: lndMacaroonPath(name, 'readonly'),
   };
 };

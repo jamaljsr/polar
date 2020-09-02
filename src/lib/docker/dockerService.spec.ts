@@ -1,6 +1,7 @@
 import * as electron from 'electron';
 import * as fs from 'fs-extra';
 import { join } from 'path';
+import { IChart } from '@mrblenny/react-flow-chart';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
@@ -265,7 +266,7 @@ describe('DockerService', () => {
   });
 
   describe('loading data', () => {
-    const createLegacyNetworksFile = () => {
+    const createTestNetwork = () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
@@ -278,6 +279,11 @@ describe('DockerService', () => {
         customImages: [],
       });
       const chart = initChartFromNetwork(net);
+      return { net, chart };
+    };
+
+    const create010Network = () => {
+      const { net, chart } = createTestNetwork();
       // added in v0.2.0
       net.path = 'ELECTRON_PATH[userData]/data/networks/1';
       delete net.nodes.bitcoin[0].peers;
@@ -289,6 +295,11 @@ describe('DockerService', () => {
           (n as LndNode).paths.tlsCert = `ELECTRON_PATH[userData]/data/networks/1/volumes/lnd/${n.name}/tls.cert`;
         }
       });
+      return { net, chart };
+    };
+
+    const create020Network = () => {
+      const { net, chart } = createTestNetwork();
       // added in v0.3.0
       net.nodes.bitcoin.forEach(n => {
         delete n.docker;
@@ -301,12 +312,46 @@ describe('DockerService', () => {
         // the old LND logo url
         chart.nodes[n.name].properties.icon = '/static/media/lnd.935c28bc.png';
       });
+      return { net, chart };
+    };
+
+    const create101Network = () => {
+      const { net, chart } = createTestNetwork();
+      // added in v1.1.0
+      net.nodes.bitcoin.forEach(n => {
+        delete n.ports.p2p;
+      });
+      net.nodes.lightning.forEach(n => {
+        if (n.implementation === 'LND') {
+          delete (n as LndNode).paths.invoiceMacaroon;
+        }
+      });
+      return { net, chart };
+    };
+
+    const createLegacyNetworksFile = (version = '0.1.0') => {
+      let res: { net: Network; chart: IChart };
+
+      switch (version) {
+        case '0.1.0':
+          res = create010Network();
+          break;
+        case '0.2.0':
+          res = create020Network();
+          break;
+        case '1.0.1':
+          res = create101Network();
+          break;
+        default:
+          res = createTestNetwork();
+          break;
+      }
 
       const fileData: NetworksFile = {
-        version: '0.0.0',
-        networks: [net],
+        version,
+        networks: [res.net],
         charts: {
-          [network.id]: chart,
+          [network.id]: res.chart,
         },
       };
       return JSON.stringify(fileData);
@@ -376,25 +421,48 @@ describe('DockerService', () => {
       expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
     });
 
-    it('should migrate network data from an older version', async () => {
+    it('should migrate network data from v0.1.0', async () => {
       filesMock.exists.mockResolvedValue(true);
-      filesMock.read.mockResolvedValue(createLegacyNetworksFile());
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile('0.1.0'));
       const { networks, charts, version } = await dockerService.loadNetworks();
-      expect(version).toEqual(APP_VERSION);
-      // v0.2.0
-      expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
       const btcNode = networks[0].nodes.bitcoin[0];
-      expect(btcNode.peers).toEqual([]);
       const chart = charts[networks[0].id];
+      expect(version).toEqual(APP_VERSION);
+      // added in v0.2.0
+      expect(networks[0].path).toEqual(join(networksPath, `${networks[0].id}`));
+      expect(btcNode.peers).toEqual([]);
       expect(chart.nodes[btcNode.name].ports['peer-left']).toBeDefined();
       expect(chart.nodes[btcNode.name].ports['peer-right']).toBeDefined();
-      // v0.3.0
+    });
+
+    it('should migrate network data from v0.2.0', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile('0.2.0'));
+      const { networks, version } = await dockerService.loadNetworks();
+      const btcNode = networks[0].nodes.bitcoin[0];
+      expect(version).toEqual(APP_VERSION);
+      // added in v0.3.0
       expect(btcNode.docker).toBeDefined();
       expect(btcNode.ports.zmqBlock).toBeDefined();
       expect(btcNode.ports.zmqTx).toBeDefined();
       networks[0].nodes.lightning.forEach(n => {
         expect(n.docker).toBeDefined();
         expect(n.ports.p2p).toBeDefined();
+      });
+    });
+
+    it('should migrate network data from v1.0.1', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile('1.0.1'));
+      const { networks, version } = await dockerService.loadNetworks();
+      const btcNode = networks[0].nodes.bitcoin[0];
+      expect(version).toEqual(APP_VERSION);
+      // added in v1.1.0
+      expect(btcNode.ports.p2p).toBeDefined();
+      networks[0].nodes.lightning.forEach(n => {
+        if (n.implementation === 'LND') {
+          expect((n as LndNode).paths.invoiceMacaroon).toBeDefined();
+        }
       });
     });
 
@@ -421,12 +489,12 @@ describe('DockerService', () => {
 
     it('should not throw an error if migration fails', async () => {
       filesMock.exists.mockResolvedValue(true);
-      const file = JSON.parse(createLegacyNetworksFile());
+      const file = JSON.parse(createLegacyNetworksFile('0.1.0'));
       file.networks[0] = 'a string instead of a network'; // induce migration error
       const json = JSON.stringify(file);
       filesMock.read.mockResolvedValue(json);
       const { version } = await dockerService.loadNetworks();
-      expect(version).toEqual('0.0.0');
+      expect(version).toEqual('0.1.0');
     });
   });
 

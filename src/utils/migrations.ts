@@ -108,10 +108,35 @@ const v030 = (file: NetworksFile): NetworksFile => {
   return file;
 };
 
+const v110 = (file: NetworksFile): NetworksFile => {
+  debug('Applying v1.1.0 migrations');
+
+  file.networks.forEach(network => {
+    const pre = `[${network.id}] ${network.name}:`;
+    network.nodes.bitcoin.forEach(node => {
+      // the p2p port was added to bitcoin nodes in PR #372
+      if (!node.ports.p2p) {
+        debug(`${pre} set P2P port for Bitcoin node ${node.name}`);
+        node.ports.p2p = BasePorts.bitcoind.p2p;
+      }
+    });
+    network.nodes.lightning.forEach(node => {
+      // set the invoice macaroon path for old networks
+      if (node.implementation === 'LND' && !(node as LndNode).paths.invoiceMacaroon) {
+        debug(`${pre} update LND invoice macaroon path for ${node.name}`);
+        const newPaths = getLndFilePaths(node.name, network);
+        (node as LndNode).paths = newPaths;
+      }
+    });
+  });
+
+  return file;
+};
+
 /**
  * The list of migration functions to execute
  */
-const migrations = [v020, v030];
+const migrations = [v020, v030, v110];
 
 /**
  * Migrates network and chart data from a previous app version

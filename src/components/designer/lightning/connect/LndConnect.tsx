@@ -16,33 +16,33 @@ interface Props {
 const LndConnect: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.connect.LndConnect');
   const { notify } = useStoreActions(s => s.app);
-  const [connectUrl, setConnectUrl] = useState('');
+  const [urls, setUrls] = useState<Record<string, string>>({});
   useAsync(async () => {
-    const { tlsCert, adminMacaroon } = node.paths;
+    const { tlsCert, adminMacaroon, invoiceMacaroon, readonlyMacaroon } = node.paths;
     try {
-      const url = encode({
-        host: `127.0.0.1:${node.ports.grpc}`,
-        cert: await read(tlsCert),
-        macaroon: await read(adminMacaroon, 'hex'),
-      });
-      setConnectUrl(url);
+      const host = `127.0.0.1:${node.ports.grpc}`;
+      const cert = await read(tlsCert);
+      const adminMac = await read(adminMacaroon, 'hex');
+      const invoiceMac = await read(invoiceMacaroon, 'hex');
+      const readonlyMac = await read(readonlyMacaroon, 'hex');
+
+      const values: Record<string, string> = {};
+      values[l('adminUrl')] = encode({ host, cert, macaroon: adminMac });
+      values[l('invoiceUrl')] = encode({ host, cert, macaroon: invoiceMac });
+      values[l('readOnlyUrl')] = encode({ host, cert, macaroon: readonlyMac });
+
+      setUrls(values);
     } catch (error) {
       notify({ message: l('encodeError'), error });
     }
   }, [node.paths, node.status]);
 
-  const details: DetailValues = [
-    {
-      label: l('connectUrl'),
-      value: (
-        <CopyIcon
-          label={l('connectUrl')}
-          value={connectUrl}
-          text={ellipseInner(connectUrl, 34, 1)}
-        />
-      ),
-    },
-  ];
+  const details: DetailValues = Object.entries(urls).map(([label, val]) => {
+    return {
+      label: label,
+      value: <CopyIcon label={label} value={val} text={ellipseInner(val, 34, 1)} />,
+    };
+  });
 
   return <DetailsList details={details} oneCol />;
 };
