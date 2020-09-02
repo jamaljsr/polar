@@ -279,7 +279,8 @@ describe('DockerService', () => {
         customImages: [],
       });
       const chart = initChartFromNetwork(net);
-      return { net, chart };
+      // return 'any' to suppress "The operand of a 'delete' operator must be optional.ts(2790)" error
+      return { net, chart } as any;
     };
 
     const create010Network = () => {
@@ -290,7 +291,7 @@ describe('DockerService', () => {
       const { name } = net.nodes.bitcoin[0];
       delete chart.nodes[name].ports['peer-left'];
       delete chart.nodes[name].ports['peer-right'];
-      net.nodes.lightning.forEach(n => {
+      net.nodes.lightning.forEach((n: any) => {
         if (n.implementation === 'LND') {
           (n as LndNode).paths.tlsCert = `ELECTRON_PATH[userData]/data/networks/1/volumes/lnd/${n.name}/tls.cert`;
         }
@@ -301,12 +302,12 @@ describe('DockerService', () => {
     const create020Network = () => {
       const { net, chart } = createTestNetwork();
       // added in v0.3.0
-      net.nodes.bitcoin.forEach(n => {
+      net.nodes.bitcoin.forEach((n: any) => {
         delete n.docker;
         delete n.ports.zmqBlock;
         delete n.ports.zmqTx;
       });
-      net.nodes.lightning.forEach(n => {
+      net.nodes.lightning.forEach((n: any) => {
         delete n.docker;
         delete n.ports.p2p;
         // the old LND logo url
@@ -318,12 +319,12 @@ describe('DockerService', () => {
     const create101Network = () => {
       const { net, chart } = createTestNetwork();
       // added in v1.1.0
-      net.nodes.bitcoin.forEach(n => {
+      net.nodes.bitcoin.forEach((n: any) => {
         delete n.ports.p2p;
       });
-      net.nodes.lightning.forEach(n => {
+      net.nodes.lightning.forEach((n: any) => {
         if (n.implementation === 'LND') {
-          delete (n as LndNode).paths.invoiceMacaroon;
+          delete n.paths.invoiceMacaroon;
         }
       });
       return { net, chart };
