@@ -679,7 +679,7 @@ describe('Designer model', () => {
         const { onZoomCanvas } = store.getActions().designer;
         const data = { positionX: 100, positionY: 100, zoom: 0.5, scale: 2 };
         onZoomCanvas({ data } as any);
-        expect(firstChart().offset).toEqual({ x: 200, y: 200 });
+        expect(firstChart().offset).toEqual({ x: 100, y: 100 });
         expect(firstChart().scale).toEqual(2);
       });
     });
