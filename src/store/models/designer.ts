@@ -48,6 +48,9 @@ export interface DesignerModel {
   >;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
+  zoomIn: Action<DesignerModel, any>;
+  zoomOut: Action<DesignerModel, any>;
+  zoomReset: Action<DesignerModel, any>;
   // Flowchart component callbacks
   onDragNode: Action<DesignerModel, Parameters<RFC.IOnDragNode>[0]>;
   onDragNodeStop: Action<DesignerModel, Parameters<RFC.IOnDragNodeStop>[0]>;
@@ -253,8 +256,8 @@ const designerModel: DesignerModel = {
   onCanvasDropListener: thunkOn(
     actions => actions.onCanvasDrop,
     async (actions, { payload }, { getStoreState, getStoreActions }) => {
-      const { data, position } = payload;
-      const { activeId } = getStoreState().designer;
+      const { data } = payload;
+      const { activeId, activeChart } = getStoreState().designer;
       const network = getStoreState().network.networkById(activeId);
       if (![Status.Started, Status.Stopped].includes(network.status)) {
         getStoreActions().app.notify({
@@ -272,7 +275,10 @@ const designerModel: DesignerModel = {
             version: data.version,
             customId: data.customId,
           });
-          actions.addNode({ newNode, position });
+          actions.addNode({
+            newNode,
+            position: activeChart.nodes[LOADING_NODE_ID].position,
+          });
           if (network.status === Status.Started) {
             await toggleNode(newNode);
           }
@@ -290,12 +296,25 @@ const designerModel: DesignerModel = {
       }
     },
   ),
+  zoomIn: action(state => {
+    const chart = state.allCharts[state.activeId];
+    chart.scale = chart.scale + 0.1;
+  }),
+  zoomOut: action(state => {
+    const chart = state.allCharts[state.activeId];
+    chart.scale = chart.scale - 0.1;
+  }),
+  zoomReset: action(state => {
+    const chart = state.allCharts[state.activeId];
+    chart.offset = { x: 0, y: 0 };
+    chart.scale = 1;
+  }),
   onDragNode: action((state, { config, data, id }) => {
     const chart = state.allCharts[state.activeId];
     if (chart.nodes[id]) {
       chart.nodes[id] = {
         ...chart.nodes[id],
-        position: snap(data, config),
+        position: snap({ x: data.x, y: data.y }, config),
       };
     }
   }),
@@ -459,7 +478,7 @@ const designerModel: DesignerModel = {
     const chart = state.allCharts[state.activeId];
     chart.nodes[LOADING_NODE_ID] = {
       id: LOADING_NODE_ID,
-      position: snap(position, config, chart.scale),
+      position: snap(position, config),
       type: data.type,
       ports: {},
       properties: {},
@@ -467,7 +486,7 @@ const designerModel: DesignerModel = {
   }),
   onZoomCanvas: action((state, { config, data }) => {
     const chart = state.allCharts[state.activeId];
-    chart.offset = snap({ x: data.positionX, y: data.positionY }, config, data.zoom);
+    chart.offset = snap({ x: data.positionX, y: data.positionY }, config);
     chart.scale = data.scale;
   }),
 };

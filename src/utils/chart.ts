@@ -28,7 +28,7 @@ export const rotate = (
   return { x, y };
 };
 
-export const snap = (position: IPosition, config?: IConfig, zoom = 1) => {
+export const snap = (position: IPosition, config?: IConfig) => {
   let offset = { x: position.x, y: position.y };
   if (config && config.snapToGrid) {
     offset = {
@@ -36,11 +36,6 @@ export const snap = (position: IPosition, config?: IConfig, zoom = 1) => {
       y: Math.round(position.y / 20) * 20,
     };
   }
-
-  // factor in the zoom level
-  offset.x = offset.x / zoom;
-  offset.y = offset.y / zoom;
-
   return offset;
 };
 

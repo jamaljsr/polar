@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
+import { FullscreenOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { FlowChart } from '@mrblenny/react-flow-chart';
+import { Button } from 'antd';
 import { useDebounce } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
@@ -26,6 +28,11 @@ const Styled = {
   FlowChart: styled(FlowChart)`
     height: 100%;
   `,
+  ZoomButtons: styled(Button.Group)`
+    position: absolute;
+    bottom: 16px;
+    right: 390px;
+  `,
 };
 
 interface Props {
@@ -35,7 +42,7 @@ interface Props {
 
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const theme = useTheme();
-  const callbacks = useStoreActions(s => s.designer);
+  const { zoomIn, zoomOut, zoomReset, ...callbacks } = useStoreActions(s => s.designer);
   const {
     openChannel,
     createInvoice,
@@ -69,6 +76,15 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         }}
         callbacks={callbacks}
       />
+      <Styled.ZoomButtons>
+        <Button icon={<ZoomInOutlined />} onClick={zoomIn} />
+        <Button icon={<ZoomOutOutlined />} onClick={zoomOut} />
+        <Button
+          icon={<FullscreenOutlined />}
+          onClick={zoomReset}
+          disabled={chart.scale === 1}
+        />
+      </Styled.ZoomButtons>
       <Sidebar network={network} chart={chart} />
       {openChannel.visible && <OpenChannelModal network={network} />}
       {createInvoice.visible && <CreateInvoiceModal network={network} />}

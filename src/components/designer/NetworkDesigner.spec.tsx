@@ -1,6 +1,6 @@
 import React from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
-import { fireEvent, waitForElementToBeRemoved } from '@testing-library/dom';
+import { fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/dom';
 import { act } from '@testing-library/react';
 import { themeColors } from 'theme/colors';
 import { initChartFromNetwork } from 'utils/chart';
@@ -90,11 +90,26 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('backend1')).toBeInTheDocument();
     expect(queryByText('Node Type')).not.toBeInTheDocument();
     // click the bitcoind node in the chart
-    act(() => {
-      fireEvent.click(getByText('backend1'));
-    });
+    fireEvent.click(getByText('backend1'));
     // ensure text from the sidebar is visible
     expect(await findByText('Node Type')).toBeInTheDocument();
+  });
+
+  it('should update the redux state when zoom buttons are clicked', async () => {
+    const { getByLabelText, store } = renderComponent();
+    expect(store.getState().designer.activeChart.scale).toBe(1);
+    fireEvent.click(getByLabelText('zoom-in'));
+    expect(store.getState().designer.activeChart.scale).toBe(1.1);
+    fireEvent.click(getByLabelText('fullscreen'));
+    expect(store.getState().designer.activeChart.scale).toBe(1.0);
+    await waitFor(() =>
+      expect(getByLabelText('fullscreen').parentElement).toBeDisabled(),
+    );
+    fireEvent.click(getByLabelText('zoom-out'));
+    expect(store.getState().designer.activeChart.scale).toBe(0.9);
+    await waitFor(() =>
+      expect(getByLabelText('fullscreen').parentElement).not.toBeDisabled(),
+    );
   });
 
   it('should display the OpenChannel modal', async () => {
