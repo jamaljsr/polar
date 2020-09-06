@@ -64,16 +64,16 @@ describe('RemoveNode', () => {
     });
 
     it('should remove the node with the network stopped', async () => {
-      const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
+      const { getByText, findByText, getByLabelText } = renderComponent(Status.Stopped);
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
       fireEvent.click(await findByText('Yes'));
       // wait for the error notification to be displayed
       await waitFor(() => getByLabelText('check-circle'));
       expect(
-        getByText('The node alice has been removed from the network'),
+        getByText('The node bob has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
+      expect(dockerServiceMock.removeNode).toBeCalledTimes(0);
     });
 
     it('should remove the node with the network started', async () => {

@@ -119,14 +119,13 @@ const designerModel: DesignerModel = {
   }),
   syncChart: thunk(
     async (actions, network, { getState, getStoreState, getStoreActions }) => {
-      if (network.status === Status.Started) {
-        // fetch data from all of the nodes
-        await Promise.all(
-          network.nodes.lightning
-            .filter(n => n.status === Status.Started)
-            .map(getStoreActions().lightning.getAllInfo),
-        );
-      }
+      if (network.status !== Status.Started) return;
+      // fetch data from all of the nodes
+      await Promise.all(
+        network.nodes.lightning
+          .filter(n => n.status === Status.Started)
+          .map(getStoreActions().lightning.getAllInfo),
+      );
 
       const nodesData = getStoreState().lightning.nodes;
       const { allCharts } = getState();

@@ -128,6 +128,17 @@ describe('Chart Util', () => {
       expect(result.links['backend1-backend2']).not.toBeDefined();
     });
 
+    it('should create bitcoin link for a peer', () => {
+      network.nodes.bitcoin.push(
+        createBitcoindNetworkNode(network, '0.19.0.1', testNodeDocker),
+      );
+      chart = initChartFromNetwork(network);
+      expect(chart.links['backend1-backend2']).toBeDefined();
+      delete chart.links['backend1-backend2'];
+      const result = updateChartFromNodes(chart, network, nodesData);
+      expect(result.links['backend1-backend2']).toBeDefined();
+    });
+
     it('should update the node sizes', () => {
       chart.nodes['alice'].size = { width: 100, height: 20 };
       chart.nodes['bob'].size = undefined;
