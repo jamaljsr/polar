@@ -24,6 +24,7 @@ const Styled = {
       height: 0;
       padding: 0 10px;
       margin-top: 0;
+      border-width: 0;
     }
   `,
   Label: styled.span`
