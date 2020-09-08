@@ -129,7 +129,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const hosts: DetailValues = [
     [l('grpcHost'), grpcUrl, grpcUrl],
     [l('restHost'), restUrl, restUrl],
-    [l('p2pLnUrlInternal'), info.p2pUriExternal, ellipseInner(p2pLnUrlInternal, 3, 17)],
+    [l('p2pLnUrlInternal'), p2pLnUrlInternal, ellipseInner(p2pLnUrlInternal, 3, 17)],
     [
       l('p2pLnUrlExternal'),
       info.p2pUriExternal,
