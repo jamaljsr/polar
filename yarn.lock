@@ -3546,10 +3546,10 @@ archiver-utils@^2.1.0:
     normalize-path "^3.0.0"
     readable-stream "^2.0.0"
 
-archiver@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/archiver/-/archiver-5.0.0.tgz#b1e7dc075a4e18e0aa59afdd7c3e5f3d3321cbeb"
-  integrity sha512-AEWhJz6Yi6hWtN1Sqy/H4sZo/lLMJ/NftXxGaDy/TnOMmmjsRaZc/Ts+U4BsPoBQkuunTN6t8hk7iU9A+HBxLw==
+archiver@5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/archiver/-/archiver-5.0.1.tgz#d7e6dfebd2200a0c96e3f405f07f1ae28fb2fbaa"
+  integrity sha512-DnYH6anESMM9w1gzi0dp2iNXNTsFUYGs0x90Qlm8OhmlxMESZXQLY3800HwKaFASgyqaw4Yri9I8K4DApgnfRg==
   dependencies:
     archiver-utils "^2.1.0"
     async "^3.2.0"
