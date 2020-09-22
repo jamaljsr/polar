@@ -123,7 +123,7 @@
     "react-async-hook": "3.6.1",
     "react-copy-to-clipboard": "5.0.2",
     "react-dom": "16.13.1",
-    "react-hot-loader": "4.12.21",
+    "react-hot-loader": "4.13.0",
     "react-i18next": "11.7.2",
     "react-lazylog": "4.5.3",
     "react-redux": "7.2.1",
