@@ -108,10 +108,6 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       <Form.Item
         name="sats"
         label={l('capacityLabel') + ' (sats)'}
-        help={l('capacityInfo', {
-          min: '20,000 sats',
-          max: '16,777,216 sats',
-        })}
         rules={[{ required: true, message: l('cmps.forms.required') }]}
       >
         <InputNumber
