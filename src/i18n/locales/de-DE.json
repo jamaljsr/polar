@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "Quelle",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "Ziel",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "Kapazität",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "Minimum: {{min}}   Maximum {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Zahlen Sie genug Geld auf {selectedFrom} um den Kanal zu öffnen",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "Ein Kanal von einem Knoten zu sich selbst kann nicht geöffnet werden",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "Stornieren",
