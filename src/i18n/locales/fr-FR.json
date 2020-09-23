@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "La source",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "Destination",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "Capacité",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "Minimum: {{min}} - Maximum {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Déposez suffisamment de fonds à {selectedFrom} pour ouvrir la chaîne",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "Impossible d'ouvrir un canal d'un nœud à lui-même",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "Annuler",

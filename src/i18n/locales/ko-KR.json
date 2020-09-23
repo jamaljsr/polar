@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "출처",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "목적지",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "생산 능력",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "최소: {{min}} 최대 {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "채널을 열기 위해 {selectedFrom} 에 충분한 자금을 입금하십시오",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "노드에서 자체 채널을 열 수 없습니다",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "취소",

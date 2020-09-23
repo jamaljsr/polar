@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "资源",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "目的地",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "容量",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "最小值： {{min}} 最大值 {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "将足够的资金存入 {selectedFrom} 以打开渠道",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "无法打开从节点到其自身的通道",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "取消",

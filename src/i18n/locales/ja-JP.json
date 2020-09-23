@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "ソース",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "先",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "容量",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "最小： {{min}} 最大 {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "チャンネルを開くために十分な資金を {selectedFrom} に入金します",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "ノードからそれ自体へのチャネルを開くことができません",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "キャンセル",

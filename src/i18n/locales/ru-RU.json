@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "Источник",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "Место назначения",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "Вместимость",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "Минимум: {{min}} - Максимум {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Внесите достаточно средств на {selectedFrom} чтобы открыть канал",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "Невозможно открыть канал от узла к себе",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "Отмена",
