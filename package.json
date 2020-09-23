@@ -105,7 +105,7 @@
     "eslint": "6.6.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-prettier": "3.1.4",
-    "eslint-plugin-react": "7.21.0",
+    "eslint-plugin-react": "7.21.1",
     "history": "4.10.1",
     "husky": "4.3.0",
     "i18next": "19.7.0",
