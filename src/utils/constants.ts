@@ -214,7 +214,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 15,
+  version: 16,
   images: {
     LND: {
       latest: '0.11.0-beta',
@@ -248,8 +248,8 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '0.9.0',
-      versions: ['0.9.0', '0.8.2', '0.8.1', '0.8.0'],
+      latest: '0.9.1',
+      versions: ['0.9.1', '0.9.0', '0.8.2', '0.8.1', '0.8.0'],
     },
     eclair: {
       latest: '0.3.3',
