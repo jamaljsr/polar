@@ -159,7 +159,6 @@
   "cmps.designer.lightning.actions.OpenChannelModal.source": "Fonte",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "Destinazione",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "Capacità",
-  "cmps.designer.lightning.actions.OpenChannelModal.capacityInfo": "Minimo: {{min}} - Massimo {{max}}",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Depositare abbastanza fondi su {selectedFrom} per aprire il canale",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "Impossibile aprire un canale da un nodo a se stesso",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "Annulla",
