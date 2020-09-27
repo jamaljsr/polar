@@ -3417,10 +3417,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.6.5:
-  version "4.6.5"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.6.5.tgz#bfa53125d43ea93f7bea1516a29a1767b76c7329"
-  integrity sha512-heB8TuArpJEtSPOIz1tfY+LOpJnPweKWtQHwcjbW4zWQ+hmFJfKTaYkNWOfeb7w/8YELP+nZ1wVyEPkmM10SEg==
+antd@4.6.6:
+  version "4.6.6"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.6.6.tgz#79b3e22ba6ddefaa2948d00d86d2c6130b3562fb"
+  integrity sha512-ruqzFFyohjEEp+Qg5VzBzFgDjqdj0FoPt3V/bGtLjeuQXPqFrPs+y4WWWmqi3ydGmN4VPIGBwd3CybQDrZAN3g==
   dependencies:
     "@ant-design/colors" "^4.0.5"
     "@ant-design/css-animation" "^1.7.2"
@@ -3454,7 +3454,7 @@ antd@4.6.5:
     rc-rate "~2.8.2"
     rc-resize-observer "^0.2.3"
     rc-select "~11.3.2"
-    rc-slider "~9.4.1"
+    rc-slider "~9.5.1"
     rc-steps "~4.1.0"
     rc-switch "~3.2.0"
     rc-table "~7.9.2"
@@ -15572,10 +15572,10 @@ rc-select@~11.3.2:
     rc-virtual-list "^3.0.3"
     warning "^4.0.3"
 
-rc-slider@~9.4.1:
-  version "9.4.1"
-  resolved "https://registry.yarnpkg.com/rc-slider/-/rc-slider-9.4.1.tgz#1ba75899fe53bd0679eb2b4f85dac5fc2992ed9b"
-  integrity sha512-MTynuHuqsT1Gc4arFaEOt4w7JJU/BJTqnuMETp5XyCgJnF6EmMAIH8xp1j3HzlqEhT+OsP+Pxvu5yEeuk71D6A==
+rc-slider@~9.5.1:
+  version "9.5.1"
+  resolved "https://registry.yarnpkg.com/rc-slider/-/rc-slider-9.5.1.tgz#30db11f7887ab618e43d8b560d7376e69b28749c"
+  integrity sha512-MbGH2f2/Kv7jUeBHQp8rcXLUrNdFR3YLyuMR77WcjQrEIMly/zoBuie/VZaWoPXWHlsB3H91ETktF88EfS/PkQ==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "^2.2.5"
