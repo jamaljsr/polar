@@ -334,6 +334,9 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
    COPY eclair-node-gui/modules/assembly.xml eclair-node-gui/modules/assembly.xml
    RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
    # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
+   #################### Polar Modification
+   ENV MAVEN_OPTS=-Xmx256m -XX:MaxPermSize=512m
+   ####################
    RUN mvn install -pl eclair-node -am
    RUN mvn clean
 
@@ -357,7 +360,7 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
 
    # we only need the eclair-node.zip to run
    COPY --from=BUILD /usr/src/eclair-node/target/eclair-node-*.zip ./eclair-node.zip
-   RUN unzip eclair-node.zip && mv eclair-node-* eclair-node
+   RUN unzip eclair-node.zip && mv eclair-node-* eclair-node && chmod +x eclair-node/bin/eclair-node.sh
 
    #################### Polar Modification
    # Original lines:
@@ -365,7 +368,7 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
    # ENV JAVA_OPTS=
    # RUN mkdir -p "$ECLAIR_DATADIR"
    # VOLUME [ "/data" ]
-   # ENTRYPOINT java $JAVA_OPTS -Declair.datadir=$ECLAIR_DATADIR -jar eclair-node.jar
+   # ENTRYPOINT JAVA_OPTS="${JAVA_OPTS}" eclair-node/bin/eclair-node.sh "-Declair.datadir=${ECLAIR_DATADIR}"
    ENV ECLAIR_DATADIR=/home/eclair/
    RUN chmod -R a+x eclair-node/*
    RUN ls -al eclair-node/bin
