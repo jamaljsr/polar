@@ -24,6 +24,20 @@ console.warn = (...args) => {
   originalConsoleWarning(...args);
 };
 
+// Prevent displaying from un-fixable errors in tests
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  if (
+    // antd components not unmounting properly in tests
+    /Warning.*not wrapped in act\(...\)/.test(args[0]) ||
+    // antd components not unmounting properly in tests
+    /Warning: Can't perform a React state update on an unmounted component./.test(args[0])
+  ) {
+    return;
+  }
+  return originalConsoleError(...args);
+};
+
 // suppress antd `console.time` calls in `useForm()`
 console.time = () => undefined;
 

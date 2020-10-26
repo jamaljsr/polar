@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
@@ -67,7 +67,6 @@ describe('AdvancedOptionsModal', () => {
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     fireEvent.click(getByText('Cancel'));
-    await waitForElementToBeRemoved(() => getByText('Cancel'));
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
 
