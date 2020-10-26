@@ -3,9 +3,8 @@ import { GlobalOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Dropdown, Menu } from 'antd';
 import { MenuProps } from 'antd/lib/menu';
-import { useStoreState } from 'easy-peasy';
 import { languages } from 'i18n';
-import { useStoreActions } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 
 const Styled = {
   Button: styled(Button)`
