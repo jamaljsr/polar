@@ -34,6 +34,8 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 # COPY eclair-core/pom.xml eclair-core/pom.xml
 # COPY eclair-node/pom.xml eclair-node/pom.xml
 # COPY eclair-node-gui/pom.xml eclair-node-gui/pom.xml
+# COPY eclair-node/modules/assembly.xml eclair-node/modules/assembly.xml
+# COPY eclair-node-gui/modules/assembly.xml eclair-node-gui/modules/assembly.xml
 # RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
 # # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
 # RUN mvn install -pl eclair-node -am
@@ -54,8 +56,11 @@ RUN cp /usr/repo/pom.xml pom.xml
 RUN mkdir -p eclair-core && cp /usr/repo/eclair-core/pom.xml eclair-core/pom.xml
 RUN mkdir -p eclair-node && cp /usr/repo/eclair-node/pom.xml eclair-node/pom.xml
 RUN mkdir -p eclair-node-gui && cp /usr/repo/eclair-node-gui/pom.xml eclair-node-gui/pom.xml
+RUN mkdir -p eclair-node/modules && cp /usr/repo/eclair-node/modules/assembly.xml eclair-node/modules/assembly.xml
+RUN mkdir -p eclair-node-gui/modules && cp /usr/repo/eclair-node-gui/modules/assembly.xml eclair-node-gui/modules/assembly.xml
 RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
 # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
+ENV MAVEN_OPTS=-Xmx256m -XX:MaxPermSize=512m
 RUN mvn install -pl eclair-node -am
 RUN mvn clean
 # Only then do we copy the sources
@@ -71,15 +76,15 @@ FROM openjdk:11.0.9-jre-slim
 WORKDIR /app
 
 # install jq for eclair-cli
-RUN apt-get update && apt-get install -y bash jq curl gosu
+RUN apt-get update && apt-get install -y bash jq curl unzip gosu
 
 # copy and install eclair-cli executable
 COPY --from=BUILD /usr/src/eclair-core/eclair-cli .
 RUN chmod +x eclair-cli && mv eclair-cli /sbin/eclair-cli
 
-# Eclair only needs the eclair-node-*.jar to run
-COPY --from=BUILD /usr/src/eclair-node/target/eclair-node-*.jar .
-RUN ln `ls` eclair-node.jar
+# we only need the eclair-node.zip to run
+COPY --from=BUILD /usr/src/eclair-node/target/eclair-node-*.zip ./eclair-node.zip
+RUN unzip eclair-node.zip && mv eclair-node-* eclair-node && chmod +x eclair-node/bin/eclair-node.sh
 
 #################### Polar Modification
 # Original lines:
@@ -87,7 +92,11 @@ RUN ln `ls` eclair-node.jar
 # ENV JAVA_OPTS=
 # RUN mkdir -p "$ECLAIR_DATADIR"
 # VOLUME [ "/data" ]
-# ENTRYPOINT java $JAVA_OPTS -Declair.datadir=$ECLAIR_DATADIR -jar eclair-node.jar
+# ENTRYPOINT JAVA_OPTS="${JAVA_OPTS}" eclair-node/bin/eclair-node.sh "-Declair.datadir=${ECLAIR_DATADIR}"
+ENV ECLAIR_DATADIR=/home/eclair/
+RUN chmod -R a+x eclair-node/*
+RUN ls -al eclair-node/bin
+
 COPY docker-entrypoint.sh /entrypoint.sh
 
 RUN chmod a+x /entrypoint.sh
@@ -98,5 +107,5 @@ EXPOSE 9735 8080
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD java $JAVA_OPTS -Declair.datadir=$ECLAIR_DATADIR -jar eclair-node.jar
+CMD $JAVA_OPTS bash eclair-node/bin/eclair-node.sh -Declair.datadir=$ECLAIR_DATADIR
 ####################

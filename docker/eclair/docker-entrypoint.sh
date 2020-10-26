@@ -32,9 +32,9 @@ if [ "$1" = "polar-eclair" ]; then
   JAVA_OPTS="$(sed -e 's/[[:space:]]*$//' <<<${JAVA_OPTS})"
 
   echo "Running as eclair user:"
-  echo "java $JAVA_OPTS -jar eclair-node.jar"
-  exec gosu eclair java $JAVA_OPTS -jar eclair-node.jar
+  echo "bash eclair-node/bin/eclair-node.sh $JAVA_OPTS"
+  exec gosu eclair bash eclair-node/bin/eclair-node.sh $JAVA_OPTS
 fi
 
-echo "$@"
+echo "Running: $@"
 exec "$@"

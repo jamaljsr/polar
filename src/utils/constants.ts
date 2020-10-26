@@ -158,7 +158,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--bitcoind.zmqtx=tcp://{{backendName}}:28335',
       '--datadir=/home/eclair/.eclair',
       '--printToConsole=true',
-      '--on-chain-fees.max-feerate-mismatch=100000',
+      '--on-chain-fees.feerate-tolerance.ratio-low=0.00001',
+      '--on-chain-fees.feerate-tolerance.ratio-high=10000.0',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'eclairPass', 'backendName', 'rpcUser', 'rpcPass'],
@@ -252,8 +253,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.9.1', '0.9.0', '0.8.2', '0.8.1', '0.8.0'],
     },
     eclair: {
-      latest: '0.3.3',
-      versions: ['0.3.3'],
+      latest: '0.4.2',
+      versions: ['0.4.2'],
     },
     bitcoind: {
       latest: '0.20.1',
