@@ -30,7 +30,11 @@ interface Props {
 
 const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   const { activeId } = useStoreState(s => s.designer);
-  const network = useStoreState(s => s.network.networkById(activeId));
+  const networks = useStoreState(s => s.network.networks);
+  const network = networks.find(n => n.id === activeId);
+
+  // don't add a context menu if there is no network found
+  if (!network) return <>{children}</>;
 
   // find the network node by name
   const node = [...network.nodes.bitcoin, ...network.nodes.lightning].find(

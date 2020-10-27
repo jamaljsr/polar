@@ -23,8 +23,12 @@ interface Props {
 
 const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
   const { activeId } = useStoreState(s => s.designer);
-  const network = useStoreState(s => s.network.networkById(activeId));
+  const networks = useStoreState(s => s.network.networks);
+  const network = networks.find(n => n.id === activeId);
   const { type, channelPoint } = (link.properties as LinkProperties) || {};
+
+  // don't add a context menu if there is no network found
+  if (!network) return <>{children}</>;
 
   let menuItem: ReactNode;
   if (type === 'open-channel') {
