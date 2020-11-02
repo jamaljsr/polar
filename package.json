@@ -141,7 +141,7 @@
     "stylelint-config-standard": "20.0.0",
     "testcafe": "1.9.4",
     "testcafe-browser-provider-electron": "0.0.15",
-    "testcafe-react-selectors": "4.0.0",
+    "testcafe-react-selectors": "4.1.0",
     "ts-node": "9.0.0",
     "typescript": "4.0.5",
     "utf-8-validate": "5.0.3",
