@@ -85,7 +85,7 @@
     "@types/ws": "7.2.9",
     "@typescript-eslint/eslint-plugin": "4.6.1",
     "@typescript-eslint/parser": "4.6.1",
-    "antd": "4.8.1",
+    "antd": "4.8.2",
     "babel-plugin-emotion": "10.0.33",
     "babel-plugin-import": "1.13.1",
     "bitcoin-core": "3.0.0",
