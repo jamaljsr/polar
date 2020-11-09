@@ -54,7 +54,7 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 Download Polar v1.0.1 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-mac-v1.0.1.dmg), [zip](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-mac-v1.0.1.zip))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-mac-v1.0.1.dmg))
 - Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-linux-amd64-v1.0.1.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-linux-x86_64-v1.0.1.AppImage))
 - Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.0.1/polar-win-v1.0.1.exe))
 
