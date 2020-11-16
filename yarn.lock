@@ -3445,10 +3445,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.8.3:
-  version "4.8.3"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.8.3.tgz#f0c4cc4bc114359864661f01823fdb7409927739"
-  integrity sha512-Ea70RB3LmJifWtqYg4O1eSM7ypqqZS4te3du1atTEtrrvkygzOEt/u2YUgHrxdZ3xr23kGWFvIr3QjgE8smnHQ==
+antd@4.8.4:
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.8.4.tgz#48fbf35948eb44ce74263a6c7f9db70c312a3c2d"
+  integrity sha512-7GlxN/WxJ3cE32echN+6cNgLkwtgU5/4UB1YSzhtENWH1cO8PHIJ+t1/Ba3tfa/BwWUHvA7ku/sKACwptqtw1g==
   dependencies:
     "@ant-design/colors" "^5.0.0"
     "@ant-design/css-animation" "^1.7.2"
