@@ -34,7 +34,8 @@ describe('DockerStatus component', () => {
   });
 
   it('should not display either versions', () => {
-    const { container } = renderComponent();
-    expect(container.innerText).toBeUndefined();
+    const { queryByText } = renderComponent();
+    expect(queryByText(/Docker/)).toBeNull();
+    expect(queryByText(/Compose/)).toBeNull();
   });
 });
