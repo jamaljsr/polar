@@ -340,7 +340,7 @@ describe('LightningDetails', () => {
     });
 
     describe('connect options', () => {
-      const toggle = (container: HTMLElement, value: string) => {
+      const toggle = (container: Element, value: string) => {
         fireEvent.click(
           container.querySelector(`input[name=authType][value=${value}]`) as Element,
         );
