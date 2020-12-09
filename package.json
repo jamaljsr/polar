@@ -124,7 +124,7 @@
     "react-copy-to-clipboard": "5.0.2",
     "react-dom": "16.14.0",
     "react-hot-loader": "4.13.0",
-    "react-i18next": "11.8.1",
+    "react-i18next": "11.8.2",
     "react-lazylog": "4.5.3",
     "react-redux": "7.2.2",
     "react-router": "5.2.0",
