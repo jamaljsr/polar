@@ -9,6 +9,8 @@ const mockRepoService = injections.repoService as jest.Mocked<
 >;
 
 describe('ImageUpdatesModal', () => {
+  let unmount: () => boolean;
+
   const handleClose = jest.fn();
   const renderComponent = async () => {
     const initialState = {
@@ -17,7 +19,9 @@ describe('ImageUpdatesModal', () => {
       },
     };
     const cmp = <ImageUpdatesModal onClose={handleClose} />;
-    return renderWithProviders(cmp, { initialState });
+    const result = renderWithProviders(cmp, { initialState });
+    unmount = result.unmount;
+    return result;
   };
 
   beforeEach(() => {
@@ -25,6 +29,8 @@ describe('ImageUpdatesModal', () => {
       state: defaultRepoState,
     });
   });
+
+  afterEach(() => unmount());
 
   it('should display title & buttons', async () => {
     const { getByText, getByLabelText } = await renderComponent();

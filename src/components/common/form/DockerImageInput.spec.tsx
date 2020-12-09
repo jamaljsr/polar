@@ -23,7 +23,6 @@ describe('DockerImageInput', () => {
     expect(getByText('Docker Image')).toBeInTheDocument();
     expect(getByLabelText('Docker Image')).toBeInstanceOf(HTMLInputElement);
     const input = getByLabelText('Docker Image') as HTMLInputElement;
-    input.focus();
     fireEvent.change(input, { target: { value: 'a' } });
     expect(getAllByText('aaa')).toHaveLength(2);
     expect(queryAllByText('bbb')).toHaveLength(0);

@@ -73,10 +73,11 @@ describe('ManagedImagesTable Component', () => {
   });
 
   it('should show the Customize Managed Node modal', async () => {
-    const { getAllByText, findByText } = renderComponent();
+    const { getAllByText, getByLabelText, findByText } = renderComponent();
     // click on the first Edit link
     fireEvent.click(getAllByText('Edit')[0]);
     expect(await findByText(/Customize Managed Node - */)).toBeInTheDocument();
+    fireEvent.click(getByLabelText('close'));
   });
 
   it('should hide the Customize Managed Node modal', async () => {

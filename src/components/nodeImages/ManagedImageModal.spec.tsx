@@ -6,6 +6,7 @@ import { renderWithProviders, testManagedImages } from 'utils/tests';
 import ManagedImageModal from './ManagedImageModal';
 
 describe('ManagedImageModal Component', () => {
+  let unmount: () => boolean;
   const onClose = jest.fn();
 
   const renderComponent = () => {
@@ -29,11 +30,14 @@ describe('ManagedImageModal Component', () => {
       <ManagedImageModal image={image} onClose={onClose} />,
       { initialState },
     );
+    unmount = result.unmount;
     return {
       ...result,
       image,
     };
   };
+
+  afterEach(() => unmount());
 
   it('should display title', () => {
     const { getByText } = renderComponent();

@@ -10,6 +10,8 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<
 >;
 
 describe('AdvancedOptionsModal', () => {
+  let unmount: () => boolean;
+
   const renderComponent = async (status?: Status, nodeName = 'alice') => {
     const network = getNetwork(1, 'test network', status);
     const initialState = {
@@ -32,11 +34,14 @@ describe('AdvancedOptionsModal', () => {
     };
     const cmp = <AdvancedOptionsModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
+    unmount = result.unmount;
     return {
       ...result,
       network,
     };
   };
+
+  afterEach(() => unmount());
 
   it('should render labels', async () => {
     const { getByText } = await renderComponent();

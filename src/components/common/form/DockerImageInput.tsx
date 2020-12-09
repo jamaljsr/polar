@@ -15,7 +15,10 @@ const DockerImageInput: React.FC<Props> = ({ name, label, disabled }) => {
 
   const { dockerImages } = useStoreState(s => s.app);
   const images = useMemo(() => {
-    return dockerImages.filter(i => !i.startsWith(DOCKER_REPO)).map(i => ({ value: i }));
+    return dockerImages
+      .filter(i => !i.startsWith(DOCKER_REPO))
+      .sort()
+      .map(i => ({ value: i }));
   }, [dockerImages]);
   const [options, setOptions] = useState<{ value: string }[]>([]);
 
@@ -23,7 +26,7 @@ const DockerImageInput: React.FC<Props> = ({ name, label, disabled }) => {
     if (!text) {
       setOptions(images);
     } else {
-      setOptions(images.filter(({ value }) => value.startsWith(text)));
+      setOptions(images.filter(({ value }) => value.includes(text)));
     }
   };
 
@@ -36,7 +39,7 @@ const DockerImageInput: React.FC<Props> = ({ name, label, disabled }) => {
       <AutoComplete
         options={options}
         onSearch={handleSearch}
-        onFocus={() => handleSearch('')}
+        placeholder="my-docker-image:latest"
         disabled={disabled}
       />
     </Form.Item>

@@ -10,6 +10,8 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<
 >;
 
 describe('CustomImageModal Component', () => {
+  let unmount: () => boolean;
+
   const onClose = jest.fn();
   const newImage: CustomImage = {
     id: '',
@@ -36,6 +38,7 @@ describe('CustomImageModal Component', () => {
       <CustomImageModal image={image} onClose={onClose} />,
       { initialState },
     );
+    unmount = result.unmount;
     // wait for the loader to go away
     await waitForElementToBeRemoved(() => result.getByLabelText('loading'));
     return {
@@ -47,6 +50,8 @@ describe('CustomImageModal Component', () => {
   beforeEach(() => {
     dockerServiceMock.getImages.mockResolvedValue(['aaa', 'bbb', `${DOCKER_REPO}/lnd`]);
   });
+
+  afterEach(() => unmount());
 
   it('should display title and notice', async () => {
     const { getByText } = await renderComponent();

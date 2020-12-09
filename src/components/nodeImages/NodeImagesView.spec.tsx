@@ -81,9 +81,10 @@ describe('NodeImagesView Component', () => {
   });
 
   it('should open the Add Custom Image modal', async () => {
-    const { getByText, findByText } = renderComponent();
+    const { getByText, getByLabelText, findByText } = renderComponent();
     fireEvent.click(getByText('Add a Custom Node'));
     expect(await findByText('Custom Node Details')).toBeInTheDocument();
+    fireEvent.click(getByLabelText('close'));
   });
 
   it('should close the Add Custom Image modal', async () => {

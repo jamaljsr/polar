@@ -113,48 +113,53 @@ describe('NetworkDesigner Component', () => {
   });
 
   it('should display the OpenChannel modal', async () => {
-    const { findByText, store } = renderComponent();
+    const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showOpenChannel({});
     });
     expect(await findByText('Capacity (sats)')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
   });
 
   it('should display the CreateInvoice modal', async () => {
-    const { findByText, store } = renderComponent();
+    const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showCreateInvoice({});
     });
     expect(await findByText('Amount (sats)')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
   });
 
   it('should display the PayInvoice modal', async () => {
-    const { findByText, store } = renderComponent();
+    const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showPayInvoice({});
     });
     expect(await findByText('BOLT 11 Invoice')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
   });
 
   it('should display the ChangeBackend modal', async () => {
-    const { findByText, store } = renderComponent();
+    const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showChangeBackend({});
     });
     expect(await findByText('Lightning Node')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
   });
 
   it('should display the AdvancedOptions modal', async () => {
-    const { findByText, store } = renderComponent();
+    const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
       store.getActions().modals.showAdvancedOptions({});
     });
     expect(await findByText('Docker Startup Command')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
   });
 
   it('should remove a node from the network', async () => {

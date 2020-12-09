@@ -6,6 +6,12 @@ import Home from './Home';
 describe('Home component', () => {
   const renderComponent = (initialNetworks?: Network[]) => {
     const initialState = {
+      app: {
+        dockerVersions: {
+          docker: '1.2.3',
+          compose: '4.5.6',
+        },
+      },
       network: {
         networks: initialNetworks || [
           getNetwork(1, 'my network 1'),

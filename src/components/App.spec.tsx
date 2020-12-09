@@ -4,9 +4,10 @@ import App from './App';
 
 describe('App Component', () => {
   it('renders without crashing', async () => {
-    const { getByText } = render(<App />);
+    const { getByText, unmount } = render(<App />);
     await waitFor(() => {
       expect(getByText('Polar')).toBeInTheDocument();
     });
+    unmount();
   });
 });

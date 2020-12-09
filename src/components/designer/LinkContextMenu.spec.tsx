@@ -27,7 +27,7 @@ describe('LinkContextMenu', () => {
       type: 'backend',
     },
   });
-  const renderComponent = (link: ILink) => {
+  const renderComponent = (link: ILink, activeId?: number) => {
     const network = getNetwork(1, 'test network');
     const chart = initChartFromNetwork(network);
     chart.links[link.id] = link;
@@ -36,7 +36,7 @@ describe('LinkContextMenu', () => {
         networks: [network],
       },
       designer: {
-        activeId: network.id,
+        activeId: activeId || network.id,
         allCharts: {
           [network.id]: chart,
         },
@@ -52,6 +52,11 @@ describe('LinkContextMenu', () => {
     fireEvent.contextMenu(result.getByText('test-child'));
     return result;
   };
+
+  it('should not render menu with no network', () => {
+    const { queryByText } = renderComponent(createChannelLink(), -1);
+    expect(queryByText('Close Channel')).not.toBeInTheDocument();
+  });
 
   it('should display the correct options for an open channel', async () => {
     const { getByText } = renderComponent(createChannelLink());

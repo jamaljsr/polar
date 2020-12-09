@@ -13,6 +13,8 @@ const mockDockerService = injections.dockerService as jest.Mocked<
 >;
 
 describe('DetectDockerModal component', () => {
+  let unmount: () => boolean;
+
   const renderComponent = (docker?: string, compose?: string) => {
     const initialState = {
       app: {
@@ -22,12 +24,16 @@ describe('DetectDockerModal component', () => {
         },
       },
     };
-    return renderWithProviders(<DetectDockerModal />, { initialState });
+    const result = renderWithProviders(<DetectDockerModal />, { initialState });
+    unmount = result.unmount;
+    return result;
   };
 
   beforeEach(() => {
     mockOS.platform.mockReturnValue('darwin');
   });
+
+  afterEach(() => unmount());
 
   it('should display UI elements', () => {
     const { getByText, getAllByText } = renderComponent();

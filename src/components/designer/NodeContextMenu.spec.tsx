@@ -8,7 +8,7 @@ import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import NodeContextMenu from './NodeContextMenu';
 
 describe('NodeContextMenu', () => {
-  const renderComponent = (nodeName: string, status?: Status) => {
+  const renderComponent = (nodeName: string, status?: Status, activeId?: number) => {
     const network = getNetwork(1, 'test network', status);
     const chart = initChartFromNetwork(network);
     if (nodeName === 'invalid') {
@@ -20,7 +20,7 @@ describe('NodeContextMenu', () => {
         networks: [network],
       },
       designer: {
-        activeId: network.id,
+        activeId: activeId || network.id,
         allCharts: {
           [network.id]: chart,
         },
@@ -36,6 +36,11 @@ describe('NodeContextMenu', () => {
     fireEvent.contextMenu(result.getByText('test-child'));
     return result;
   };
+
+  it('should not render menu with no network', () => {
+    const { queryByText } = renderComponent('alice', Status.Stopped, -1);
+    expect(queryByText('Start')).not.toBeInTheDocument();
+  });
 
   it('should display the correct options for a started lightning node', async () => {
     const { getByText } = renderComponent('alice', Status.Started);
