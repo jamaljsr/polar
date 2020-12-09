@@ -4,7 +4,15 @@ import { HOME, NETWORK_IMPORT, NETWORK_NEW, Routes } from 'components/routing';
 
 describe('App container', () => {
   const renderComponent = (route: string) => {
-    return renderWithProviders(<Routes />, { route });
+    const initialState = {
+      app: {
+        dockerVersions: {
+          docker: '1.2.3',
+          compose: '4.5.6',
+        },
+      },
+    };
+    return renderWithProviders(<Routes />, { route, initialState });
   };
 
   it('should render the home page', async () => {

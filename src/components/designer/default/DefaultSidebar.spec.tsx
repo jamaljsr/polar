@@ -99,6 +99,7 @@ describe('DefaultSidebar Component', () => {
     expect(getByText('Check for new Node Versions')).toBeInTheDocument();
     fireEvent.click(getByText('Check for new Node Versions'));
     expect(await findByText('You are up to date!')).toBeInTheDocument();
+    fireEvent.click(getByText('Close'));
   });
 
   it('should not display c-lightning nodes on Windows', () => {

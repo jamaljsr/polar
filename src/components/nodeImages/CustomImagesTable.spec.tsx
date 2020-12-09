@@ -73,10 +73,11 @@ describe('CustomImagesTable Component', () => {
   });
 
   it('should show the Custom Node Details modal', async () => {
-    const { getAllByText, findByText } = renderComponent();
+    const { getAllByText, getByLabelText, findByText } = renderComponent();
     // click on the first Edit link
     fireEvent.click(getAllByText('Edit')[0]);
     expect(await findByText('Custom Node Details')).toBeInTheDocument();
+    fireEvent.click(getByLabelText('close'));
   });
 
   it('should hide the Custom Node Details modal', async () => {

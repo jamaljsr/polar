@@ -14,6 +14,8 @@ import {
 import ChangeBackendModal from './ChangeBackendModal';
 
 describe('ChangeBackendModal', () => {
+  let unmount: () => boolean;
+
   const renderComponent = async (
     status?: Status,
     lnName = 'alice',
@@ -56,11 +58,14 @@ describe('ChangeBackendModal', () => {
     };
     const cmp = <ChangeBackendModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
+    unmount = result.unmount;
     return {
       ...result,
       network,
     };
   };
+
+  afterEach(() => unmount());
 
   it('should render labels', async () => {
     const { getByText } = await renderComponent();

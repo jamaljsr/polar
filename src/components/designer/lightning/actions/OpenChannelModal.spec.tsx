@@ -18,6 +18,8 @@ import OpenChannelModal from './OpenChannelModal';
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('OpenChannelModal', () => {
+  let unmount: () => boolean;
+
   const renderComponent = async (from = 'alice', to?: string) => {
     const network = getNetwork(1, 'test network', Status.Started);
     const initialState = {
@@ -40,6 +42,7 @@ describe('OpenChannelModal', () => {
     };
     const cmp = <OpenChannelModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
+    unmount = result.unmount;
     // wait for the loader to go away
     await waitForElementToBeRemoved(() => result.getByLabelText('loading'));
     return {
@@ -47,6 +50,8 @@ describe('OpenChannelModal', () => {
       network,
     };
   };
+
+  afterEach(() => unmount());
 
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
