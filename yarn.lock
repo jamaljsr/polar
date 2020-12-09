@@ -2248,12 +2248,12 @@
     pkg-dir "^2.0.0"
     ts-protoc-gen "^0.8.0"
 
-"@rescripts/cli@0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.14.tgz#1ec700148e754337bff1cedaefd757e016664978"
-  integrity sha512-BPDm8xwYFdzOe8uardwbybrlFu9C6f9463CHPs1M1gtWK+gyXxfWxsYuNMxWlxAnogRHpqLYSYFHGphx2ocGEg==
+"@rescripts/cli@0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.15.tgz#4ebd51bf506bed7eb97dc6309a3dc8b6851944ba"
+  integrity sha512-hfOdcfBLIJcUGwETviliTmGU50rfJz2vDUbzxknY6rb6oQm5V16tjnUwE6kNXSevp7K1zWL6uIaJzvIH5qHINA==
   dependencies:
-    "@rescripts/utilities" "^0.0.7"
+    "@rescripts/utilities" "^0.0.8"
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
@@ -2268,6 +2268,13 @@
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.7.tgz#fac07a981fcc9674c9b55cedb9da67f03dadda52"
   integrity sha512-kdk4qvNYXOH7mVJCP/URokp5J+1HCR+tT1Zgtp8X9hLywn6WoKlU/tQ2ECB/NPOHrZjp/DGXWeQBAchLXV8q2w==
+  dependencies:
+    ramda "^0.26.0"
+
+"@rescripts/utilities@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.8.tgz#7f7c0269e1046fa5162328c813102da9b85ba823"
+  integrity sha512-4SA7rQpawKumDDWhUfDZ/Er8+Maup7d1nv3AcyVxqdUd6RRuR0x5W5npYjefnTaSUUDV3+okhPFTDWkiSOAWNg==
   dependencies:
     ramda "^0.26.0"
 
