@@ -67,7 +67,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         const lnd = node as LndNode;
         return {
           restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
-          restDocsUrl: 'https://api.lightning.community/rest/',
+          restDocsUrl: 'https://api.lightning.community/#lnd-rest-api-reference',
           grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
           grpcDocsUrl: 'https://api.lightning.community/',
           credentials: {

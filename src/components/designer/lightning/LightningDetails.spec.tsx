@@ -241,7 +241,7 @@ describe('LightningDetails', () => {
       fireEvent.click(getByText('REST'));
       await waitFor(() => {
         expect(shell.openExternal).toBeCalledWith(
-          'https://api.lightning.community/rest/',
+          'https://api.lightning.community/#lnd-rest-api-reference',
         );
       });
     });
