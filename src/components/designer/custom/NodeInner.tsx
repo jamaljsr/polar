@@ -19,6 +19,9 @@ const Styled = {
     justify-content: space-between;
     height: ${({ size }) => (size ? `${size.height}px` : 'auto')};
     width: ${({ size }) => (size ? `${size.width}px` : 'auto')};
+    &:hover {
+      cursor: grab;
+    }
   `,
 };
 
