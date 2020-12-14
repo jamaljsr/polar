@@ -3775,10 +3775,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.9.2:
-  version "4.9.2"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.9.2.tgz#382a409187fc2e5395ad4b1769bd7a0ec8da62f9"
-  integrity sha512-unZxnwihmIzHDGchZxuJDJe2tfeKWpsZHrrIdQR2hIie7I1lYSn4GyFZvn8MAkQvpum7Mj41eTJKib5TVfYxQw==
+antd@4.9.3:
+  version "4.9.3"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.9.3.tgz#a9666fe3d7e0b18818e7f8bdb81abbf8a4a3e7d2"
+  integrity sha512-91+YwXG/CUND+Za5HLIE4SHfIjxCZFM+Cy9DreKM51llvCZimoLMXbIuhHOB5quTwTlA7ZO2g10SR08yvZWdBQ==
   dependencies:
     "@ant-design/colors" "^5.0.0"
     "@ant-design/icons" "^4.3.0"
