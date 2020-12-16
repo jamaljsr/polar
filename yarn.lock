@@ -18717,10 +18717,10 @@ testcafe-legacy-api@4.0.0:
     pinkie "^2.0.1"
     strip-bom "^2.0.0"
 
-testcafe-react-selectors@4.1.2:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/testcafe-react-selectors/-/testcafe-react-selectors-4.1.2.tgz#82deeb70a820da78325e9289e6c609a33ced128c"
-  integrity sha512-sRINtITjm4BYvPCgRL+607bLOZnkgsTDZ/W7Ex6fWbTb75Du23MkPODj/ULoGipNkz+EkQazutGOLLHwhplPzQ==
+testcafe-react-selectors@4.1.3:
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/testcafe-react-selectors/-/testcafe-react-selectors-4.1.3.tgz#e7ad48ead14cb82a1f1c135550b25e3d192ef96a"
+  integrity sha512-9RAHon0N5Utnh76+0gV+rnYHPuNKI/BsCVCQ4zv+SzGauWWW0kivrFAcCoDPlMLKb0pfiW93QqhPkpqI8oI1MA==
 
 testcafe-reporter-json@^2.1.0:
   version "2.2.0"
