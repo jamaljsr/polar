@@ -4040,10 +4040,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.9.3:
-  version "4.9.3"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.9.3.tgz#a9666fe3d7e0b18818e7f8bdb81abbf8a4a3e7d2"
-  integrity sha512-91+YwXG/CUND+Za5HLIE4SHfIjxCZFM+Cy9DreKM51llvCZimoLMXbIuhHOB5quTwTlA7ZO2g10SR08yvZWdBQ==
+antd@4.9.4:
+  version "4.9.4"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.9.4.tgz#129092bc4a67c774145cb2450e4046d27a1acbb1"
+  integrity sha512-kieGi1Isb/ddnn9E/AJVFCUgSZIqDv6HtFg7r5WWI0s6zf+nfCOtpes0oX8TdHO6mE/dL39pJG52aHNe8MwkJg==
   dependencies:
     "@ant-design/colors" "^5.0.0"
     "@ant-design/icons" "^4.3.0"
