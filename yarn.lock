@@ -18628,10 +18628,10 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
-testcafe-browser-provider-electron@0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.15.tgz#4c0d084222349501cf2eb400ccac50029cb454ae"
-  integrity sha512-nmsYcaf0HXv+8yDQxHR9b8kWkPwRPDVV5cwrZUCR2bh43pCozkcmgvWCFn9uD2twFo/oead61oBh9eMMxdTdZA==
+testcafe-browser-provider-electron@0.0.16:
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.16.tgz#cb4255b775bdec226ec76699f408a4aba20a8146"
+  integrity sha512-3qBIXdlV2gN0I3pLYbEdVlhe6rgfGdihaB6hc/339ZYVtpXE/AOt4CW+EubBJLG6gkwJI+39rv8azzQ6NebgKg==
   dependencies:
     babel-runtime "^6.25.0"
     chrome-remote-interface "^0.27.0"
