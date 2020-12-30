@@ -80,7 +80,7 @@
     "@types/react-dom": "16.9.9",
     "@types/react-redux": "7.1.14",
     "@types/react-router": "5.1.9",
-    "@types/react-router-dom": "5.1.6",
+    "@types/react-router-dom": "5.1.7",
     "@types/redux-logger": "3.0.8",
     "@types/unzipper": "0.10.3",
     "@types/ws": "7.4.0",
