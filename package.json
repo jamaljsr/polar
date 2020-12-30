@@ -65,7 +65,7 @@
     "@mrblenny/react-flow-chart": "0.0.14",
     "@rescripts/cli": "0.0.15",
     "@rescripts/rescript-use-babel-config": "0.0.10",
-    "@testing-library/jest-dom": "5.11.6",
+    "@testing-library/jest-dom": "5.11.7",
     "@testing-library/react": "11.2.2",
     "@testing-library/user-event": "12.6.0",
     "@types/archiver": "3.1.1",
