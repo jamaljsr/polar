@@ -184,6 +184,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-rpcbind=0.0.0.0',
       '-rpcallowip=0.0.0.0/0',
       '-rpcport=18443',
+      '-rest',
       '-listen=1',
       '-listenonion=0',
       '-fallbackfee=0.0002',
