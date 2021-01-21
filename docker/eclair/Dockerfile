@@ -72,7 +72,7 @@ RUN mvn package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.comm
 # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
 
 # We currently use a debian image for runtime because of some jni-related issue with sqlite
-FROM openjdk:11.0.9-jre-slim
+FROM openjdk:11.0.10-jre-slim
 WORKDIR /app
 
 # install jq for eclair-cli
