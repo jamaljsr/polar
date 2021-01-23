@@ -1,4 +1,4 @@
-import * as LND from '@radar/lnrpc';
+import * as LND from '@jamaljsr/lnrpc';
 import { ipcChannels } from './';
 
 const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
@@ -23,6 +23,7 @@ export const defaultLndInfo = (
   numInactiveChannels: 0,
   color: '',
   features: [],
+  commitHash: '',
   ...value,
 });
 
@@ -77,6 +78,9 @@ export const defaultLndChannel = (value: Partial<LND.Channel>): LND.Channel => (
   lifetime: 0,
   uptime: 0,
   closeAddress: '',
+  commitmentType: LND.CommitmentType.STATIC_REMOTE_KEY,
+  pushAmountSat: 0,
+  thawHeight: 0,
   ...value,
 });
 
@@ -96,6 +100,8 @@ export const defaultLndPendingChannel = (
   remoteBalance: '0',
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
+  initiator: LND.Initiator.INITIATOR_LOCAL,
+  commitmentType: LND.CommitmentType.STATIC_REMOTE_KEY,
   ...value,
 });
 
@@ -136,6 +142,7 @@ export const defaultLndForceClosedChannel = (
     blocksTilMaturity: 0,
     recoveredBalance: '0',
     pendingHtlcs: [],
+    anchor: LND.AnchorState.LIMBO,
     ...rest,
   };
 };
