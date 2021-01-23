@@ -1,4 +1,4 @@
-import * as LND from '@radar/lnrpc';
+import * as LND from '@jamaljsr/lnrpc';
 import { ipcChannels } from 'shared';
 import { LndNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';

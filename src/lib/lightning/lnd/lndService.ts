@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import * as LND from '@radar/lnrpc';
+import * as LND from '@jamaljsr/lnrpc';
 import { LightningNode, LndNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
