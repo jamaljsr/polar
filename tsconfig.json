@@ -17,5 +17,6 @@
     "baseUrl": "src",
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["examples"]
 }
