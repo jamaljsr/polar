@@ -39,6 +39,8 @@ class WindowManager {
       icon: join(APP_ROOT, 'assets', 'icon.png'),
       webPreferences: {
         nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: true,
       },
     });
     this.mainWindow.setMenuBarVisibility(false);

@@ -25,6 +25,8 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
     show: false,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
     },
   });
   window.setMenuBarVisibility(false);
