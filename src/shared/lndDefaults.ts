@@ -78,7 +78,7 @@ export const defaultLndChannel = (value: Partial<LND.Channel>): LND.Channel => (
   lifetime: 0,
   uptime: 0,
   closeAddress: '',
-  commitmentType: LND.CommitmentType.STATIC_REMOTE_KEY,
+  commitmentType: 1, // LND.CommitmentType.STATIC_REMOTE_KEY
   pushAmountSat: 0,
   thawHeight: 0,
   ...value,
@@ -100,8 +100,8 @@ export const defaultLndPendingChannel = (
   remoteBalance: '0',
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
-  initiator: LND.Initiator.INITIATOR_LOCAL,
-  commitmentType: LND.CommitmentType.STATIC_REMOTE_KEY,
+  initiator: 1, // LND.Initiator.INITIATOR_LOCAL
+  commitmentType: 1, // LND.CommitmentType.STATIC_REMOTE_KEY
   ...value,
 });
 
@@ -142,7 +142,7 @@ export const defaultLndForceClosedChannel = (
     blocksTilMaturity: 0,
     recoveredBalance: '0',
     pendingHtlcs: [],
-    anchor: LND.AnchorState.LIMBO,
+    anchor: 0, // LND.AnchorState.LIMBO
     ...rest,
   };
 };
