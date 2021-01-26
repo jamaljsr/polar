@@ -2264,7 +2264,7 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@jamaljsr/lnrpc@^0.11.1-beta.1":
+"@jamaljsr/lnrpc@0.11.1-beta.1":
   version "0.11.1-beta.1"
   resolved "https://registry.yarnpkg.com/@jamaljsr/lnrpc/-/lnrpc-0.11.1-beta.1.tgz#c3198c6fc5e998d8cb329aabae348ac051f99d1b"
   integrity sha512-ui+UIkF3/QCz09/ogjs1gCy4YRj5WU98KYNDfGrr17vy2EF3gYOLsj9CK7NHZrUjCaauwGWcp+8ljFbwrZ0BzA==

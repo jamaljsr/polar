@@ -39,7 +39,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@jamaljsr/lnrpc": "^0.11.1-beta.1",
+    "@jamaljsr/lnrpc": "0.11.1-beta.1",
     "@types/detect-port": "1.3.0",
     "archiver": "5.2.0",
     "detect-port": "1.3.0",
