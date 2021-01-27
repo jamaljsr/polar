@@ -53,7 +53,7 @@ export const createReduxStore = (options?: {
 };
 
 // using injections allows for more easily mocking of dependencies in store actions
-// see https://easy-peasy.now.sh/docs/testing/testing-components.html#mocking-calls-to-services
+// see https://easy-peasy.now.sh/docs/tutorials/testing.html#mocking-calls-to-services
 const injections: StoreInjections = {
   ipc: createIpcSender('AppModel', 'app'),
   settingsService,
