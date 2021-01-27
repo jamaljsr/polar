@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [v1.2.0](https://github.com/jamaljsr/polar/compare/v1.0.1...v1.2.0)
+
+This is a minor release which adds a small set of improvements and fixes some bugs. All of the node implementations have been updated to their latest versions.
+
+This release is required to run Bitcoin Core v0.21.0 nodes due to a small breaking change. The default wallet is no longer created automatically during `bitcoind` startup, so Polar must create the wallet once `bitcoind` comes online.
+
+### Features
+
+- **chart:** add zoom support to the designer ([#378](https://github.com/jamaljsr/polar/issues/378))
+- **bitcoind:** expose Bitcoin Core P2P port ([#372](https://github.com/jamaljsr/polar/issues/372)) by [@lukechilds](https://github.com/lukechilds)
+- **bitcoind:** expose REST interface by default ([#419](https://github.com/jamaljsr/polar/issues/419)) by [@valentinewallace](https://github.com/valentinewallace)
+- **lnd:** add invoice macaroon to Connect tab ([#376](https://github.com/jamaljsr/polar/issues/376))
+- **images:** add support for bitcoind v0.21.0 ([f59dd1b](https://github.com/jamaljsr/polar/commit/f59dd1be55a39fabac0cbfd9c287702295bb7729))
+- **images:** add support for c-lightning v0.9.3 ([f3c3c0d](https://github.com/jamaljsr/polar/commit/f3c3c0dade8ea74deaab8f2bbafa94683c1284d9))
+- **images:** add support for eclair v0.5.0 ([47af8c2](https://github.com/jamaljsr/polar/commit/47af8c2453796951028d4fd0380a7ed4ca794877))
+- **images:** add support for LND v0.12.0-beta ([57fc766](https://github.com/jamaljsr/polar/commit/57fc766c92289e01f1dce199a278e89ea121a313))
+
+### Bug Fixes
+
+- **bitcoind:** create default wallet when starting bitcoind v0.21.0 ([548a138](https://github.com/jamaljsr/polar/commit/548a1383a10aeb703089efcfd602c1cf4e2eb0a1))
+- **designer:** fix channels hiding when removing a node in a stopped network ([534892c](https://github.com/jamaljsr/polar/commit/534892cbbb59c369e09a61015fd9279487a42995))
+- **designer:** add hover state for node ([#406](https://github.com/jamaljsr/polar/issues/406)) by [@murtyjones](https://github.com/murtyjones)
+- **lnd:** correct REST url ([#407](https://github.com/jamaljsr/polar/issues/407)) by [@murtyjones](https://github.com/murtyjones)
+- **lnd:** fixes clipboard copy value for p2pLnUrlInternal ([#381](https://github.com/jamaljsr/polar/issues/381)) by [@Jasonvdb](https://github.com/Jasonvdb)
+- **networks:** fix error when deleting an imported network ([b53de1a](https://github.com/jamaljsr/polar/commit/b53de1afbf22908bf7734dc07b0e48963d45b878))
+- **sidebar:** remove extra space between collapsed sidebar nodes ([17643aa](https://github.com/jamaljsr/polar/commit/17643aa6ac06d2a04f8d86476566cbb32f09dc7c))
+- **chore:** update dead link in code comment ([#422](https://github.com/jamaljsr/polar/issues/422)) by [@murtyjones](https://github.com/murtyjones)
+
+### Docs
+
+- **eclair:** update custom nodes doc for eclair v0.5.0 ([#390](https://github.com/jamaljsr/polar/issues/390)) by [@halseth](https://github.com/halseth)
+
 ## [v1.0.1](https://github.com/jamaljsr/polar/compare/v1.0.0...v1.0.1)
 
 This is a small patch release which fixes a compatibility issue to support Bitcoin Core v0.20.0. There was a breaking change in this version requiring the use of `-fallbackfee` in regtest environments.
