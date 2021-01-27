@@ -6,7 +6,7 @@ import { renderWithProviders, testManagedImages } from 'utils/tests';
 import ManagedImageModal from './ManagedImageModal';
 
 describe('ManagedImageModal Component', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
   const onClose = jest.fn();
 
   const renderComponent = () => {

@@ -13,7 +13,7 @@ const mockDockerService = injections.dockerService as jest.Mocked<
 >;
 
 describe('DetectDockerModal component', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
 
   const renderComponent = (docker?: string, compose?: string) => {
     const initialState = {

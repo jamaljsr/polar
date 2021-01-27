@@ -18,7 +18,7 @@ import OpenChannelModal from './OpenChannelModal';
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('OpenChannelModal', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
 
   const renderComponent = async (from = 'alice', to?: string) => {
     const network = getNetwork(1, 'test network', Status.Started);

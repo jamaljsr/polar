@@ -10,7 +10,7 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<
 >;
 
 describe('AdvancedOptionsModal', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
 
   const renderComponent = async (status?: Status, nodeName = 'alice') => {
     const network = getNetwork(1, 'test network', status);

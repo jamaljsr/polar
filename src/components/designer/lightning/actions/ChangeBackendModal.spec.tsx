@@ -14,7 +14,7 @@ import {
 import ChangeBackendModal from './ChangeBackendModal';
 
 describe('ChangeBackendModal', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
 
   const renderComponent = async (
     status?: Status,
