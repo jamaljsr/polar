@@ -555,6 +555,7 @@ declare module 'bitcoin-core' {
     | 'setnetworkactive'
     | 'combinerawtransaction'
     | 'createrawtransaction'
+    | 'createwallet'
     | 'decoderawtransaction'
     | 'decodescript'
     | 'fundrawtransaction'
@@ -711,6 +712,16 @@ declare module 'bitcoin-core' {
       locktime: number,
       replacable: boolean,
     ): Promise<string>;
+
+    createWallet(
+      wallet_name: string,
+      disable_private_keys?: boolean,
+      blank?: boolean,
+      passphrase?: string,
+      avoid_reuse?: boolean,
+      descriptors?: boolean,
+      load_on_startup?: boolean,
+    ): Promise<{ name: string; warning: string }>;
 
     /**
      * @deprecated

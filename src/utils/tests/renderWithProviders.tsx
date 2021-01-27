@@ -47,6 +47,7 @@ export const injections: StoreInjections = {
   },
   bitcoindService: {
     waitUntilOnline: jest.fn(),
+    createDefaultWallet: jest.fn(),
     getBlockchainInfo: jest.fn(),
     getWalletInfo: jest.fn(),
     getNewAddress: jest.fn(),

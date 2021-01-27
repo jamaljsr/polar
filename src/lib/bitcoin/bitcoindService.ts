@@ -21,6 +21,14 @@ class BitcoindService implements BitcoindLibrary {
     });
   }
 
+  async createDefaultWallet(node: BitcoinNode) {
+    const client = this.creatClient(node);
+    const wallets = await client.listWallets();
+    if (wallets.length === 0) {
+      await client.createWallet('');
+    }
+  }
+
   async getBlockchainInfo(node: BitcoinNode) {
     return await this.creatClient(node).getBlockchainInfo();
   }

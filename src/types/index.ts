@@ -120,6 +120,7 @@ export interface RepoServiceInjection {
 
 export interface BitcoindLibrary {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
+  createDefaultWallet: (node: BitcoinNode) => Promise<void>;
   getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
   getWalletInfo: (node: BitcoinNode) => Promise<WalletInfo>;
   getNewAddress: (node: BitcoinNode) => Promise<string>;

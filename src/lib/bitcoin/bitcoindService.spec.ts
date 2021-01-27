@@ -19,11 +19,26 @@ describe('BitcoindService', () => {
 
   beforeEach(() => {
     // update the prototype of new classes to specify the return values
+    mockProto.listWallets = jest.fn().mockResolvedValue(['']);
+    mockProto.createWallet = jest.fn().mockResolvedValue({ name: '' });
     mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 10 });
     mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 5 });
     mockProto.getNewAddress = jest.fn().mockResolvedValue('abcdef');
     mockProto.sendToAddress = jest.fn().mockResolvedValue('txid');
     mockProto.generateToAddress = jest.fn().mockResolvedValue(['blockhash1']);
+  });
+
+  it('should create a default wallet', async () => {
+    mockProto.listWallets = jest.fn().mockResolvedValue([]);
+    await bitcoindService.createDefaultWallet(node);
+    expect(getInst().listWallets).toBeCalledTimes(1);
+    expect(getInst().createWallet).toBeCalledTimes(1);
+  });
+
+  it('should not create a default wallet', async () => {
+    await bitcoindService.createDefaultWallet(node);
+    expect(getInst().listWallets).toBeCalledTimes(1);
+    expect(getInst().createWallet).toBeCalledTimes(0);
   });
 
   it('should get blockchain info', async () => {

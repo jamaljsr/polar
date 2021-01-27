@@ -612,6 +612,8 @@ const networkModel: NetworkModel = {
               actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
               await injections.bitcoindService.connectPeers(btc);
+              // create a default wallet since it's not automatic on v0.21.0 and up
+              await injections.bitcoindService.createDefaultWallet(btc);
               await getStoreActions().bitcoind.getInfo(btc);
             })
             .catch(error =>
