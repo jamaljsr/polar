@@ -76,21 +76,22 @@ $ docker push polarlightning/lnd:<version>
 
 ```sh
 $ cd clightning
-$ docker build --build-arg CLN_VERSION=0.9.2 -t polarlightning/clightning:0.9.2 .
+$ docker build --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version> .
 ```
 
-Replace `0.9.2` with the desired c-lightning version (ex: `0.8.0`).
+Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
 
 **Push to Docker Hub**
 
 ```sh
-$ docker push polarlightning/clightning:0.9.2
+$ docker push polarlightning/clightning:<version>
 ```
 
 ## Eclair
 
 ### Tags
 
+- `0.5.0` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
 - `0.4.2` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
 - `0.3.3` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
 
