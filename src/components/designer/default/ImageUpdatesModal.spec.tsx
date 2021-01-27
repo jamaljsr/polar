@@ -9,7 +9,7 @@ const mockRepoService = injections.repoService as jest.Mocked<
 >;
 
 describe('ImageUpdatesModal', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
 
   const handleClose = jest.fn();
   const renderComponent = async () => {

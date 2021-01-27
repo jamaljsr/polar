@@ -10,7 +10,7 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<
 >;
 
 describe('CustomImageModal Component', () => {
-  let unmount: () => boolean;
+  let unmount: () => void;
 
   const onClose = jest.fn();
   const newImage: CustomImage = {
