@@ -16164,10 +16164,10 @@ react-router-dom@5.2.0:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
-react-router-transition@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-router-transition/-/react-router-transition-2.0.0.tgz#c00a4240f0aad5f44152cf1de49c682bf00e43ac"
-  integrity sha512-jcEU/MblHx3KUj6TrYEUk1X3iv4cCZ8tLpoyytpaDjqP45K6vD7nfI2IW8ax1eHolvvz+6GCYc9uXZi+pAxL2A==
+react-router-transition@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/react-router-transition/-/react-router-transition-2.1.0.tgz#07011711d25972400211f706a36ea96985d5ab5c"
+  integrity sha512-vL0JczAcs4s5MjWm1DSitoap9KRqE1m7YZopIXiT4x6NVrqXs9CGH1uLBBSZ3rJFwGBQRgsfY7NFe2ygDfGQ2Q==
   dependencies:
     prop-types "^15.7.2"
     react-motion "^0.5.2"
