@@ -1,4 +1,4 @@
-import { Channel, PendingChannel } from '@jamaljsr/lnrpc';
+import { Channel, PendingChannel } from '@radar/lnrpc';
 import { LightningNodeChannel } from 'lib/lightning/types';
 
 const txid = (channelPoint: string) => channelPoint.split(':')[0];

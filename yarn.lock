@@ -2264,17 +2264,6 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
-"@jamaljsr/lnrpc@0.11.1-beta.1":
-  version "0.11.1-beta.1"
-  resolved "https://registry.yarnpkg.com/@jamaljsr/lnrpc/-/lnrpc-0.11.1-beta.1.tgz#c3198c6fc5e998d8cb329aabae348ac051f99d1b"
-  integrity sha512-ui+UIkF3/QCz09/ogjs1gCy4YRj5WU98KYNDfGrr17vy2EF3gYOLsj9CK7NHZrUjCaauwGWcp+8ljFbwrZ0BzA==
-  dependencies:
-    "@grpc/grpc-js" "^1.2.4"
-    "@grpc/proto-loader" "^0.4.0"
-    "@types/google-protobuf" "^3.2.7"
-    pkg-dir "^2.0.0"
-    ts-protoc-gen "^0.8.0"
-
 "@jest/console@^26.6.2":
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/@jest/console/-/console-26.6.2.tgz#4e04bc464014358b03ab4937805ee36a0aeb98f2"
@@ -2611,6 +2600,17 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
+
+"@radar/lnrpc@0.11.1-beta.1":
+  version "0.11.1-beta.1"
+  resolved "https://registry.yarnpkg.com/@radar/lnrpc/-/lnrpc-0.11.1-beta.1.tgz#ba2306018da21a4573bd6c8cce0c83f69933092d"
+  integrity sha512-WxoIzVryHM+mUS5O4pniaEtIxBQhat0dnJUW+6lQyCiAO95YX11F05YXRoN1gpBNkNg5QweudDlcb9lUH5Fdlw==
+  dependencies:
+    "@grpc/grpc-js" "^1.2.4"
+    "@grpc/proto-loader" "^0.4.0"
+    "@types/google-protobuf" "^3.2.7"
+    pkg-dir "^2.0.0"
+    ts-protoc-gen "^0.8.0"
 
 "@rescripts/cli@0.0.15":
   version "0.0.15"

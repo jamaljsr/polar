@@ -1,4 +1,4 @@
-import * as LND from '@jamaljsr/lnrpc';
+import * as LND from '@radar/lnrpc';
 import { ipcChannels } from './';
 
 const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);

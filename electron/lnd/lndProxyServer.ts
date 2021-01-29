@@ -1,6 +1,6 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import createLndRpc, * as LND from '@jamaljsr/lnrpc';
+import createLndRpc, * as LND from '@radar/lnrpc';
 import { DefaultsKey, ipcChannels, withDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
