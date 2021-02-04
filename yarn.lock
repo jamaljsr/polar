@@ -4028,10 +4028,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.12.1:
-  version "4.12.1"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.12.1.tgz#6b3e0434752b330e84858fc4ce71962506500087"
-  integrity sha512-XvAzPIM9E/gu7yoVI8hWyLMp6optwdfiPX5K/AfSh3bm0ebNld0EUxeUmpgZhB7ajxB7bQcbG+oXf3yWyjk8Bw==
+antd@4.12.2:
+  version "4.12.2"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.12.2.tgz#3e00b21de418c94a358bf1fc064de15654a30161"
+  integrity sha512-xB7sGg2qM/Sl3azjbc2RbJQ6cTr2Fos0AYZw2gTLLWtKhOyO3FUH7EBsL17GOkVnEDwMmBYtVXLhMgPM+e4gbA==
   dependencies:
     "@ant-design/colors" "^5.0.0"
     "@ant-design/icons" "^4.4.0"
