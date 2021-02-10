@@ -556,7 +556,7 @@ describe('DockerService', () => {
       );
       expect(composeMock.rm).toBeCalledWith(
         expect.objectContaining({ cwd: network.path }),
-        undefined,
+        node.name,
       );
     });
 
