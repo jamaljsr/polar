@@ -61,7 +61,7 @@
     "@commitlint/config-conventional": "11.0.0",
     "@emotion/core": "10.1.1",
     "@emotion/styled": "10.0.27",
-    "@hot-loader/react-dom": "16.13.0",
+    "@hot-loader/react-dom": "16.14.0",
     "@mrblenny/react-flow-chart": "0.0.14",
     "@rescripts/cli": "0.0.15",
     "@rescripts/rescript-use-babel-config": "0.0.10",
