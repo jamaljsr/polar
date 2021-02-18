@@ -133,7 +133,7 @@
     "react-scripts": "4.0.2",
     "redux": "4.0.5",
     "redux-logger": "3.0.6",
-    "standard-version": "9.1.0",
+    "standard-version": "9.1.1",
     "strip-ansi": "6.0.0",
     "styled-components": "5.2.1",
     "stylelint": "13.10.0",
