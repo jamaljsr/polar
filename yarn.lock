@@ -2668,10 +2668,10 @@
     pkg-dir "^2.0.0"
     ts-protoc-gen "^0.8.0"
 
-"@rescripts/cli@0.0.15":
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.15.tgz#4ebd51bf506bed7eb97dc6309a3dc8b6851944ba"
-  integrity sha512-hfOdcfBLIJcUGwETviliTmGU50rfJz2vDUbzxknY6rb6oQm5V16tjnUwE6kNXSevp7K1zWL6uIaJzvIH5qHINA==
+"@rescripts/cli@0.0.16":
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.16.tgz#dcde29317874f3849b038973d43eff0aa15b0a78"
+  integrity sha512-F6BRPyOeOAzb0QWPxYat6Y2G3wWqMXKlQKuUfs/kEVo3QOlYWndtWrKUIG7FCdDvAFOSInceyxlWeZUn5sSKqw==
   dependencies:
     "@rescripts/utilities" "^0.0.8"
     ramda "^0.26.0"
