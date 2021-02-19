@@ -64,7 +64,7 @@
     "@hot-loader/react-dom": "16.14.0",
     "@mrblenny/react-flow-chart": "0.0.14",
     "@rescripts/cli": "0.0.16",
-    "@rescripts/rescript-use-babel-config": "0.0.10",
+    "@rescripts/rescript-use-babel-config": "0.0.12",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.5",
     "@testing-library/user-event": "12.7.1",
