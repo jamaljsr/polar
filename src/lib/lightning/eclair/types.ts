@@ -33,13 +33,39 @@ export enum ChannelState {
   ERR_INFORMATION_LEAK = 'ERR_INFORMATION_LEAK',
 }
 
+/**
+ * 0 is private, 1 is public
+ */
+type ChannelFlags = 0 | 1;
+
+/**
+ * This interface is incomplete, it only has the data we use.
+ * See docs for what the actual channel data would look like here:
+ * https://acinq.github.io/eclair/#channel
+ */
+interface ChannelData {
+  commitments: {
+    localParams: {
+      isFunder: boolean;
+    };
+    channelFlags: ChannelFlags;
+    localCommit: {
+      spec: {
+        toLocal: number;
+        toRemote: number;
+      };
+    };
+    commitInput: {
+      amountSatoshis: number;
+    };
+  };
+}
+
 export interface ChannelResponse {
   nodeId: string;
   channelId: string;
   state: ChannelState;
-  // there's a ton of data under this key that isn't needed, so just
-  // use any to avoid having to maintain the structure for each release
-  data: any;
+  data: ChannelData;
 }
 
 export interface PeerResponse {
@@ -54,7 +80,7 @@ export interface OpenChannelRequest {
   fundingSatoshis: number;
   pushMsat?: number;
   fundingFeerateSatByte?: number;
-  channelFlags?: number;
+  channelFlags?: ChannelFlags;
   openTimeoutSeconds?: number;
 }
 

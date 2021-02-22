@@ -1,6 +1,6 @@
 import { debug } from 'electron-log';
 import * as LND from '@radar/lnrpc';
-import { LightningNode, LndNode } from 'shared/types';
+import { LightningNode, LndNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -81,11 +81,12 @@ class LndService implements LightningService {
     }
   }
 
-  async openChannel(
-    from: LightningNode,
-    toRpcUrl: string,
-    amount: string,
-  ): Promise<PLN.LightningNodeChannelPoint> {
+  async openChannel({
+    from,
+    toRpcUrl,
+    amount,
+    isPrivate,
+  }: OpenChannelOptions): Promise<PLN.LightningNodeChannelPoint> {
     const lndFrom = this.cast(from);
 
     // add peer if not connected already
@@ -97,6 +98,7 @@ class LndService implements LightningService {
     const req: LND.OpenChannelRequest = {
       nodePubkeyString: toPubKey,
       localFundingAmount: amount,
+      private: isPrivate,
     };
     const res = await proxy.openChannel(lndFrom, req);
     return {

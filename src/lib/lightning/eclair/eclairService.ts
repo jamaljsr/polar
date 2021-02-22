@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { BitcoinNode, LightningNode } from 'shared/types';
+import { BitcoinNode, LightningNode, OpenChannelOptions } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -79,10 +79,11 @@ class EclairService implements LightningService {
           uniqueId: c.channelId.slice(-12),
           channelPoint: c.channelId,
           pubkey: c.nodeId,
-          capacity: commitInput.amountSatoshis,
+          capacity: commitInput.amountSatoshis.toString(10),
           localBalance: this.toSats(localCommit.spec.toLocal),
           remoteBalance: this.toSats(localCommit.spec.toRemote),
           status,
+          isPrivate: c.data.commitments.channelFlags === 0,
         };
       });
   }
@@ -112,11 +113,12 @@ class EclairService implements LightningService {
     }
   }
 
-  async openChannel(
-    from: LightningNode,
-    toRpcUrl: string,
-    amount: string,
-  ): Promise<PLN.LightningNodeChannelPoint> {
+  async openChannel({
+    from,
+    toRpcUrl,
+    amount,
+    isPrivate,
+  }: OpenChannelOptions): Promise<PLN.LightningNodeChannelPoint> {
     // add peer if not connected already
     await this.connectPeers(from, [toRpcUrl]);
     // get pubkey of dest node
@@ -126,6 +128,7 @@ class EclairService implements LightningService {
     const body: ELN.OpenChannelRequest = {
       nodeId: toPubKey,
       fundingSatoshis: parseInt(amount),
+      channelFlags: isPrivate ? 0 : 1, // 0 is private, 1 is public: https://acinq.github.io/eclair/#open-2
     };
     const res = await httpPost<string>(from, 'open', body);
 

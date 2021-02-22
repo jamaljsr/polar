@@ -18,7 +18,7 @@ interface Props {
 
 const Channel: React.FC<Props> = ({ link, from, to }) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.Channel');
-  const { type, fromBalance, toBalance, capacity, status, channelPoint } =
+  const { type, fromBalance, toBalance, capacity, status, channelPoint, isPrivate } =
     link.properties as LinkProperties;
 
   const channelDetails: DetailValues = [
@@ -36,6 +36,7 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
         />
       ),
     },
+    { label: l('isPrivate'), value: isPrivate ? 'true' : 'false' },
   ];
 
   const [fromDetails, toDetails] = [from, to].map(node => [

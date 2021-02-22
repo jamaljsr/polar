@@ -121,11 +121,12 @@ describe('CLightningService', () => {
       clightningApiMock.httpPost.mockResolvedValueOnce(openChanResponse);
 
       const expected = { txid: 'xyz', index: 0 };
-      const actual = await clightningService.openChannel(
-        node,
-        'asdf@1.1.1.1:9735',
-        '1000',
-      );
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: false,
+      });
       expect(actual).toEqual(expected);
       expect(clightningApiMock.httpPost).toBeCalledTimes(1);
       expect(clightningApiMock.httpGet).toBeCalledTimes(1);
@@ -141,11 +142,12 @@ describe('CLightningService', () => {
         .mockResolvedValueOnce(openChanResponse);
 
       const expected = { txid: 'xyz', index: 0 };
-      const actual = await clightningService.openChannel(
-        node,
-        'asdf@1.1.1.1:9735',
-        '1000',
-      );
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: false,
+      });
       expect(actual).toEqual(expected);
       expect(clightningApiMock.httpPost).toBeCalledTimes(2);
       expect(clightningApiMock.httpGet).toBeCalledTimes(1);

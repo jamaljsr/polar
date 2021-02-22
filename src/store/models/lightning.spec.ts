@@ -151,7 +151,7 @@ describe('Lightning Model', () => {
     const sats = '1000';
     const { openChannel, getInfo } = store.getActions().lightning;
     await getInfo(to);
-    await openChannel({ from, to, sats, autoFund: false });
+    await openChannel({ from, to, sats, autoFund: false, isPrivate: false });
     expect(lightningServiceMock.getInfo).toBeCalledTimes(1);
     expect(lightningServiceMock.openChannel).toBeCalledTimes(1);
     expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
@@ -171,7 +171,7 @@ describe('Lightning Model', () => {
     const sats = '1000';
     const { openChannel, getInfo } = store.getActions().lightning;
     await getInfo(to);
-    await openChannel({ from, to, sats, autoFund: false });
+    await openChannel({ from, to, sats, autoFund: false, isPrivate: false });
     const btcNode = store.getState().network.networks[0].nodes.bitcoin[0];
     expect(bitcoindServiceMock.mine).toBeCalledWith(6, btcNode);
   });

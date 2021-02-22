@@ -40,6 +40,7 @@ export interface LightningNodeChannel {
     | 'Waiting to Close'
     | 'Closed'
     | 'Error';
+  isPrivate: boolean;
 }
 
 export interface LightningNodeChannelPoint {

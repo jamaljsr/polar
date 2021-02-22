@@ -60,13 +60,25 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     }
   }, [selectedFrom, selectedSats, nodes, sameNode, openChanAsync.loading]);
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = (values: {
+    isPrivate: boolean;
+    autoFund: boolean;
+    to: string;
+    from: string;
+    sats: string;
+  }) => {
     const { lightning } = network.nodes;
     const fromNode = lightning.find(n => n.name === values.from);
     const toNode = lightning.find(n => n.name === values.to);
     if (!fromNode || !toNode) return;
     const autoFund = showDeposit && values.autoFund;
-    openChanAsync.execute({ from: fromNode, to: toNode, sats: values.sats, autoFund });
+    openChanAsync.execute({
+      from: fromNode,
+      to: toNode,
+      sats: values.sats,
+      autoFund,
+      isPrivate: values.isPrivate,
+    });
   };
 
   let cmp = (
@@ -125,6 +137,9 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
           </Checkbox>
         </Form.Item>
       )}
+      <Form.Item name="isPrivate" valuePropName="checked">
+        <Checkbox disabled={openChanAsync.loading}>Make channel private</Checkbox>
+      </Form.Item>
     </Form>
   );
 
