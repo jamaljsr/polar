@@ -5,6 +5,7 @@ import {
   CommonNode,
   LightningNode,
   NodeImplementation,
+  OpenChannelOptions,
   Status,
 } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
@@ -140,11 +141,7 @@ export interface LightningService {
   getChannels: (node: LightningNode) => Promise<PLN.LightningNodeChannel[]>;
   getPeers: (node: LightningNode) => Promise<PLN.LightningNodePeer[]>;
   connectPeers: (node: LightningNode, rpcUrls: string[]) => Promise<void>;
-  openChannel: (
-    from: LightningNode,
-    toRpcUrl: string,
-    amount: string,
-  ) => Promise<PLN.LightningNodeChannelPoint>;
+  openChannel: (options: OpenChannelOptions) => Promise<PLN.LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
   createInvoice: (node: LightningNode, amount: number, memo?: string) => Promise<string>;
   payInvoice: (

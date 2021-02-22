@@ -73,6 +73,7 @@ describe('EclairService', () => {
       state: ELN.ChannelState.NORMAL,
       data: {
         commitments: {
+          channelFlags: 1,
           localParams: {
             isFunder: true,
           },
@@ -140,7 +141,12 @@ describe('EclairService', () => {
     eclairApiMock.httpPost.mockResolvedValueOnce('txid'); // open
     const rpcUrl = 'abc@1.1.1.1:9735';
     const amountSats = '100000';
-    const res = await eclairService.openChannel(node, rpcUrl, amountSats);
+    const res = await eclairService.openChannel({
+      from: node,
+      toRpcUrl: rpcUrl,
+      amount: amountSats,
+      isPrivate: false,
+    });
     expect(res.txid).toEqual('txid');
     expect(res.index).toEqual(0);
   });

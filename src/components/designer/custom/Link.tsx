@@ -88,6 +88,16 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
     };
   }, [link.properties, theme]);
 
+  const opacity = (() => {
+    if (link.properties) {
+      const { isPrivate } = link.properties as LinkProperties;
+      if (isPrivate) {
+        return 0.5;
+      }
+    }
+    return 1;
+  })();
+
   // use link id since the gradient element must be unique in the dom
   const gradientId = `lg-${link.id}`;
 
@@ -112,7 +122,13 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
         </defs>
         <circle r="4" cx={startPos.x} cy={startPos.y} fill={`url(#${gradientId})`} />
         {/* Main line */}
-        <path d={points} stroke={`url(#${gradientId})`} strokeWidth="3" fill="none" />
+        <path
+          d={points}
+          opacity={opacity}
+          stroke={`url(#${gradientId})`}
+          strokeWidth="3"
+          fill="none"
+        />
         {/* Thick line to make selection easier */}
         <path
           d={points}

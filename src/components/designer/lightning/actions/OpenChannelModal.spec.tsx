@@ -194,7 +194,11 @@ describe('OpenChannelModal', () => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const node2 = network.nodes.lightning[1];
-      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
+      expect(lightningServiceMock.openChannel).toBeCalledWith({
+        from: node2,
+        toRpcUrl: 'asdf@host',
+        amount: 1000,
+      });
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
 
@@ -209,7 +213,11 @@ describe('OpenChannelModal', () => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const node2 = network.nodes.lightning[1];
-      expect(lightningServiceMock.openChannel).toBeCalledWith(node2, 'asdf@host', 1000);
+      expect(lightningServiceMock.openChannel).toBeCalledWith({
+        from: node2,
+        toRpcUrl: 'asdf@host',
+        amount: 1000,
+      });
       expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
       expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
       expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);

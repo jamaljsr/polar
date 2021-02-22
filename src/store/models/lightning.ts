@@ -27,6 +27,7 @@ export interface OpenChannelPayload {
   to: LightningNode;
   sats: string;
   autoFund: boolean;
+  isPrivate: boolean;
 }
 
 export interface CreateInvoicePayload {
@@ -176,7 +177,7 @@ const lightningModel: LightningModel = {
   openChannel: thunk(
     async (
       actions,
-      { from, to, sats, autoFund },
+      { from, to, sats, autoFund, isPrivate },
       { injections, getStoreState, getStoreActions },
     ) => {
       // automatically deposit funds when the node doesn't have enough to open the channel
@@ -192,7 +193,7 @@ const lightningModel: LightningModel = {
         .info as PLN.LightningNodeInfo;
       // open the channel via lightning node
       const api = injections.lightningFactory.getService(from);
-      await api.openChannel(from, rpcUrl, sats);
+      await api.openChannel({ from, toRpcUrl: rpcUrl, amount: sats, isPrivate });
       // wait for the unconfirmed tx to be processed by the bitcoin node
       await delay(500);
       // mine some blocks to confirm the txn

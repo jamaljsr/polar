@@ -38,5 +38,6 @@ export const defaultStateChannel = (
   localBalance: '',
   remoteBalance: '',
   status: 'Open',
+  isPrivate: false,
   ...value,
 });

@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { LightningNode } from 'shared/types';
+import { LightningNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -73,6 +73,7 @@ class CLightningService implements LightningService {
             localBalance: this.toSats(c.msatoshiToUs),
             remoteBalance: this.toSats(c.msatoshiTotal - c.msatoshiToUs),
             status,
+            isPrivate: c.private,
           };
         })
     );
@@ -105,11 +106,12 @@ class CLightningService implements LightningService {
     }
   }
 
-  async openChannel(
-    from: LightningNode,
-    toRpcUrl: string,
-    amount: string,
-  ): Promise<PLN.LightningNodeChannelPoint> {
+  async openChannel({
+    from,
+    toRpcUrl,
+    amount,
+    isPrivate,
+  }: OpenChannelOptions): Promise<PLN.LightningNodeChannelPoint> {
     // add peer if not connected already
     await this.connectPeers(from, [toRpcUrl]);
     // get pubkey of dest node
@@ -120,6 +122,7 @@ class CLightningService implements LightningService {
       id: toPubKey,
       satoshis: amount,
       feeRate: '253perkw', // min relay fee for bitcoind
+      announce: !isPrivate,
     };
     const res = await httpPost<CLN.OpenChannelResponse>(
       from,

@@ -73,3 +73,10 @@ export interface BitcoinNode extends CommonNode {
 export type NodeImplementation =
   | BitcoinNode['implementation']
   | LightningNode['implementation'];
+
+export interface OpenChannelOptions {
+  from: LightningNode;
+  toRpcUrl: string;
+  amount: string;
+  isPrivate: boolean;
+}

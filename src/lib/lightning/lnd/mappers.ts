@@ -12,6 +12,7 @@ export const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
   localBalance: chan.localBalance,
   remoteBalance: chan.remoteBalance,
   status: 'Open',
+  isPrivate: chan.private,
 });
 
 export const mapPendingChannel =
@@ -25,4 +26,5 @@ export const mapPendingChannel =
     localBalance: chan.localBalance,
     remoteBalance: chan.remoteBalance,
     status,
+    isPrivate: false,
   });

@@ -13,6 +13,7 @@ export interface LinkProperties {
   toBalance: string;
   direction: 'ltr' | 'rtl';
   status: string;
+  isPrivate: boolean;
 }
 
 export const rotate = (
@@ -170,21 +171,24 @@ const updateLinksAndPorts = (
     properties: { nodeId: toNode.id },
   };
 
+  const properties: LinkProperties = {
+    type: chan.pending ? 'pending-channel' : 'open-channel',
+    channelPoint: chan.channelPoint,
+    capacity: chan.capacity,
+    fromBalance: chan.localBalance,
+    toBalance: chan.remoteBalance,
+    direction: fromOnLeftSide ? 'ltr' : 'rtl',
+    status: chan.status,
+    isPrivate: chan.isPrivate,
+  };
+
   // create or update the link
   links[chanId] = {
     ...(links[chanId] || {}),
     id: chanId,
     from: { nodeId: fromNode.id, portId: chanId },
     to: { nodeId: toName, portId: chanId },
-    properties: {
-      type: chan.pending ? 'pending-channel' : 'open-channel',
-      channelPoint: chan.channelPoint,
-      capacity: chan.capacity,
-      fromBalance: chan.localBalance,
-      toBalance: chan.remoteBalance,
-      direction: fromOnLeftSide ? 'ltr' : 'rtl',
-      status: chan.status,
-    },
+    properties,
   };
 };
 
