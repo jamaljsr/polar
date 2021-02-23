@@ -88,7 +88,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
     };
   }, [link.properties, theme]);
 
-  const opacity = (() => {
+  const opacity = useMemo(() => {
     if (link.properties) {
       const { isPrivate } = link.properties as LinkProperties;
       if (isPrivate) {
@@ -96,7 +96,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
       }
     }
     return 1;
-  })();
+  }, [link.properties]);
 
   // use link id since the gradient element must be unique in the dom
   const gradientId = `lg-${link.id}`;
