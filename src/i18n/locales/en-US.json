@@ -104,7 +104,7 @@
   "cmps.designer.link.Channel.capacity": "Capacity",
   "cmps.designer.link.Channel.sourceBalance": "Source Balance",
   "cmps.designer.link.Channel.destinationBalance": "Destination Balance",
-  "cmps.designer.link.Channel.isPrivate": "Is private",
+  "cmps.designer.link.Channel.isPrivate": "Is Private",
   "cmps.designer.link.Channel.channelPoint": "Channel Point",
   "cmps.designer.link.Channel.name": "Name",
   "cmps.designer.link.Channel.implementation": "Implementation",
