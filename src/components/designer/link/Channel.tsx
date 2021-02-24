@@ -36,7 +36,7 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
         />
       ),
     },
-    { label: l('isPrivate'), value: isPrivate ? 'true' : 'false' },
+    { label: l('isPrivate'), value: isPrivate.toString() },
   ];
 
   const [fromDetails, toDetails] = [from, to].map(node => [
