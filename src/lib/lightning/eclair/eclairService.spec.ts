@@ -151,6 +151,38 @@ describe('EclairService', () => {
     expect(res.index).toEqual(0);
   });
 
+  it('should open a private channel', async () => {
+    eclairApiMock.httpPost.mockResolvedValueOnce(['p@x.x.x.x:9735']); // peers
+    eclairApiMock.httpPost.mockResolvedValueOnce(undefined); // connect
+    eclairApiMock.httpPost.mockResolvedValueOnce('txid'); // open
+    const rpcUrl = 'abc@1.1.1.1:9735';
+    const amountSats = '100000';
+    const res = await eclairService.openChannel({
+      from: node,
+      toRpcUrl: rpcUrl,
+      amount: amountSats,
+      isPrivate: true,
+    });
+    expect(res.txid).toEqual('txid');
+    expect(res.index).toEqual(0);
+    expect(eclairApiMock.httpPost).toHaveBeenCalledWith(
+      {
+        backendName: 'backend1',
+        docker: { command: '', image: '' },
+        id: 2,
+        implementation: 'eclair',
+        name: 'carol',
+        networkId: 1,
+        ports: { p2p: 9937, rest: 8283 },
+        status: 3,
+        type: 'lightning',
+        version: '0.5.0',
+      },
+      'open',
+      { channelFlags: 0, fundingSatoshis: 100000, nodeId: 'abc' },
+    );
+  });
+
   it('should close a channel', async () => {
     eclairApiMock.httpPost.mockResolvedValueOnce('txid'); // close
     const res = await eclairService.closeChannel(node, 'chanId');
