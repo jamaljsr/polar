@@ -32,6 +32,7 @@ describe('Channel component', () => {
         toBalance: '400',
         direction: 'ltr',
         status: 'Open',
+        isPrivate: false,
       },
     };
     const initialState = {

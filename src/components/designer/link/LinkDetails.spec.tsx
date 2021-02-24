@@ -1,6 +1,7 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { createBitcoindNetworkNode } from 'utils/network';
+import { LinkProperties } from 'utils/chart';
 import { getNetwork, renderWithProviders, testNodeDocker } from 'utils/tests';
 import LinkDetails from './LinkDetails';
 
@@ -22,13 +23,15 @@ describe('LinkDetails component', () => {
   };
 
   it('should display channel details', () => {
-    const properties = {
+    const properties: LinkProperties = {
       type: 'open-channel',
       capacity: '1000',
       fromBalance: '600',
       toBalance: '400',
       direction: 'ltr',
       status: 'Open',
+      isPrivate: false,
+      channelPoint: 'xxxxxxxxxxxxxxxx:0',
     };
     const { getByText } = renderComponent('alice', 'bob', properties);
     expect(getByText('Channel Details')).toBeInTheDocument();

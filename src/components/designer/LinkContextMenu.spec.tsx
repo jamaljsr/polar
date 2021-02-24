@@ -17,6 +17,7 @@ describe('LinkContextMenu', () => {
       toBalance: '400',
       direction: 'ltr',
       status: 'Open',
+      isPrivate: false,
     },
   });
   const createBackendLink = (): ILink => ({
