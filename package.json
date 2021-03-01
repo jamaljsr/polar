@@ -100,7 +100,7 @@
     "dockerode": "3.2.1",
     "easy-peasy": "4.0.1",
     "electron": "11.2.1",
-    "electron-builder": "22.9.1",
+    "electron-builder": "22.10.5",
     "electron-devtools-installer": "3.1.1",
     "eslint": "7.11.0",
     "eslint-config-prettier": "6.15.0",
