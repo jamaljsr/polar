@@ -132,6 +132,33 @@ describe('CLightningService', () => {
       expect(clightningApiMock.httpGet).toBeCalledTimes(1);
     });
 
+    it('should open a private channel successfully', async () => {
+      const listPeersResponse: Partial<CLN.Peer>[] = [
+        { id: 'asdf', connected: true, netaddr: ['1.1.1.1:9735'] },
+      ];
+      const openChanResponse: Partial<CLN.OpenChannelResponse> = { txid: 'xyz' };
+      clightningApiMock.httpGet.mockResolvedValueOnce(listPeersResponse);
+      clightningApiMock.httpPost.mockResolvedValueOnce(openChanResponse);
+
+      const expected = { txid: 'xyz', index: 0 };
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: true,
+      });
+      expect(actual).toEqual(expected);
+      expect(clightningApiMock.httpPost).toBeCalledTimes(1);
+      expect(
+        clightningApiMock.httpPost,
+      ).toHaveBeenLastCalledWith(
+        expect.objectContaining({ implementation: 'c-lightning' }),
+        'channel/openChannel',
+        { announce: 'false', feeRate: '253perkw', id: 'asdf', satoshis: '1000' },
+      );
+      expect(clightningApiMock.httpGet).toBeCalledTimes(1);
+    });
+
     it('should connect peer then open the channel', async () => {
       const listPeersResponse: Partial<CLN.Peer>[] = [{ id: 'fdsa', connected: true }];
       const connectResponse = { id: 'asdf' };

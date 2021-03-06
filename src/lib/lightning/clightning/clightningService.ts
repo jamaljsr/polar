@@ -122,7 +122,7 @@ class CLightningService implements LightningService {
       id: toPubKey,
       satoshis: amount,
       feeRate: '253perkw', // min relay fee for bitcoind
-      announce: !isPrivate,
+      announce: isPrivate ? 'false' : 'true',
     };
     const res = await httpPost<CLN.OpenChannelResponse>(
       from,

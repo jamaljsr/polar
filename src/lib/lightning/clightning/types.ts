@@ -82,7 +82,7 @@ export interface OpenChannelRequest {
   satoshis: string;
   feeRate?: number | string;
   /** Whether to announce the channel: https://lightning.readthedocs.io/lightning-openchannel_init.7.html */
-  announce?: boolean;
+  announce?: 'false' | 'true';
   minConf?: number;
 }
 
