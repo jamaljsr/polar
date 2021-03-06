@@ -147,7 +147,7 @@
     "utf-8-validate": "5.0.4",
     "wait-on": "5.2.1",
     "webpack": "4.44.2",
-    "ws": "7.4.3"
+    "ws": "7.4.4"
   },
   "husky": {
     "hooks": {
