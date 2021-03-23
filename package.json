@@ -126,7 +126,7 @@
     "react-hot-loader": "4.13.0",
     "react-i18next": "11.8.10",
     "react-lazylog": "4.5.3",
-    "react-redux": "7.2.2",
+    "react-redux": "7.2.3",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
     "react-router-transition": "2.1.0",
