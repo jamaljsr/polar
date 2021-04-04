@@ -69,7 +69,7 @@ describe('MineBlocksInput', () => {
     fireEvent.click(btn);
     const node = store.getState().network.networks[0].nodes.bitcoin[0];
     await waitFor(() => {
-      expect(mineMock).toBeCalledWith(1, node);
+      expect(mineMock).toBeCalledWith(6, node);
     });
   });
 

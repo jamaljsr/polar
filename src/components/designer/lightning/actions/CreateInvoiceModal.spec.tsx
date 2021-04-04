@@ -75,6 +75,7 @@ describe('CreateInvoiceModal', () => {
     await suppressConsoleErrors(async () => {
       const { getByText, getByLabelText, findByText } = await renderComponent();
       fireEvent.change(getByLabelText('Amount (sats)'), { target: { value: '' } });
+      fireEvent.blur(getByLabelText('Amount (sats)'));
       fireEvent.click(getByText('Create Invoice'));
       expect(await findByText('required')).toBeInTheDocument();
     });

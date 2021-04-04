@@ -86,13 +86,14 @@ describe('Deposit', () => {
   it('should deposit funds when an invalid value is specified', async () => {
     const { input, btn, getByText } = renderComponent();
     fireEvent.change(input, { target: { value: 'asdf' } });
+    fireEvent.blur(input);
     fireEvent.click(btn);
-    await waitFor(() => getByText('Deposited 100,000 sats to alice'));
+    await waitFor(() => getByText('Deposited 1,000,000 sats to alice'));
     expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
     expect(bitcoindServiceMock.sendFunds).toBeCalledWith(
       expect.anything(),
       'bc1aaaa',
-      0.001,
+      0.01,
     );
   });
 
