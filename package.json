@@ -25,6 +25,7 @@
     "package:electron": "electron-builder build -c.extraMetadata.main=build/main/electron/index.js --config .electronbuildrc",
     "postinstall": "electron-builder install-app-deps",
     "prebuild": "tsc -p electron/tsconfig.json && yarn theme",
+    "prepare": "husky install",
     "release": "standard-version --no-verify --skip.commit --skip.tag",
     "start": "rescripts start",
     "test": "cross-env DEBUG_PRINT_LIMIT=15000 rescripts test --env=jest-environment-jsdom-sixteen",
@@ -107,7 +108,7 @@
     "eslint-plugin-prettier": "3.3.1",
     "eslint-plugin-react": "7.23.1",
     "history": "4.10.1",
-    "husky": "6.0.0",
+    "husky": "^6.0.0",
     "i18next": "20.1.0",
     "i18next-browser-languagedetector": "6.1.0",
     "i18next-scanner": "3.0.0",
@@ -148,12 +149,6 @@
     "wait-on": "5.3.0",
     "webpack": "4.44.2",
     "ws": "7.4.4"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
-    }
   },
   "jest": {
     "collectCoverageFrom": [
