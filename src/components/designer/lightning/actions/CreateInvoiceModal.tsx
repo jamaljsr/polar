@@ -73,11 +73,11 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
               label={l('amountLabel') + ' (sats)'}
               rules={[{ required: true, message: l('cmps.forms.required') }]}
             >
-              <InputNumber
+              <InputNumber<number>
                 min={1}
                 disabled={createAsync.loading}
                 formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
+                parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
                 style={{ width: '100%' }}
               />
             </Form.Item>

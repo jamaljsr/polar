@@ -11,7 +11,7 @@
   "main": "public/main/electron/index.js",
   "scripts": {
     "build": "cross-env CI=false PUBLIC_URL=./ rescripts build",
-    "cm": "git add . && git cz",
+    "ci": "yarn lint:all && yarn test:ci",
     "dev": "concurrently --kill-others --success first \"yarn:dev:*\"",
     "dev:app": "yarn theme && cross-env BROWSER=none yarn start",
     "dev:electron": "wait-on http://localhost:3000 && nodemon -I --watch ./electron/ --watch ./src/shared/ --ext ts --exec electron ./public/dev.js",

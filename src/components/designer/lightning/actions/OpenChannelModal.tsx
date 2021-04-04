@@ -110,11 +110,10 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         label={l('capacityLabel') + ' (sats)'}
         rules={[{ required: true, message: l('cmps.forms.required') }]}
       >
-        <InputNumber
-          min={20000}
+        <InputNumber<number>
           disabled={openChanAsync.loading}
           formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
+          parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
           style={{ width: '100%' }}
           onChange={v => setSelectedSats(v as number)}
         />

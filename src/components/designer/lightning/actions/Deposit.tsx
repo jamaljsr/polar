@@ -30,11 +30,10 @@ const Deposit: React.FC<{ node: LightningNode }> = ({ node }) => {
       <InputGroup compact>
         <InputNumber
           value={amount}
-          min={1}
           max={100 * 100000000}
           formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          parser={v => `${v}`.replace(/(undefined|,*)/g, '')}
-          onChange={v => setAmount(parseInt(v as any) || 100000)}
+          parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
+          onChange={v => setAmount(parseInt((v as any) || 1000000))}
           style={{ width: '65%' }}
         />
         <Button
