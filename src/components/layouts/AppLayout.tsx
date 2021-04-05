@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { css, Global } from '@emotion/core';
+import { css, Global } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Layout } from 'antd';
 import { useTheme } from 'hooks/useTheme';

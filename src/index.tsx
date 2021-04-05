@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { info } from 'electron-log';
-import { css, Global } from '@emotion/core';
+import { css, Global } from '@emotion/react';
 import './i18n';
 import { initLogger } from 'shared/utils';
 import App from './components/App';
