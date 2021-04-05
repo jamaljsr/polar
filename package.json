@@ -17,7 +17,7 @@
     "dev:electron": "wait-on http://localhost:3000 && nodemon -I --watch ./electron/ --watch ./src/shared/ --ext ts --exec electron ./public/dev.js",
     "eject": "rescripts eject",
     "langs": "i18next-scanner --config ./.i18next-scanner.js",
-    "lint": "eslint --ext .ts,.tsx --ignore-path .gitignore .",
+    "lint": "eslint --ext .ts,.tsx --ignore-path .eslintignore .",
     "lint:all": "yarn tsc && yarn lint",
     "lint:fix": "yarn lint --fix",
     "package": "yarn build && yarn package:electron",
