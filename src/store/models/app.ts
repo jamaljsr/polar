@@ -38,22 +38,22 @@ export interface AppModel {
   computedManagedImages: Computed<AppModel, ManagedImage[]>;
   setInitialized: Action<AppModel, boolean>;
   setSettings: Action<AppModel, Partial<AppSettings>>;
-  loadSettings: Thunk<AppModel, any, StoreInjections, RootModel>;
+  loadSettings: Thunk<AppModel, void, StoreInjections, RootModel>;
   updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
   updateManagedImage: Thunk<AppModel, ManagedImage, StoreInjections, RootModel>;
   saveCustomImage: Thunk<AppModel, CustomImage, StoreInjections, RootModel>;
   removeCustomImage: Thunk<AppModel, CustomImage, StoreInjections, RootModel>;
-  initialize: Thunk<AppModel, any, StoreInjections, RootModel>;
+  initialize: Thunk<AppModel, void, StoreInjections, RootModel>;
   setDockerVersions: Action<AppModel, DockerVersions>;
   getDockerVersions: Thunk<AppModel, { throwErr?: boolean }, StoreInjections, RootModel>;
   setDockerImages: Action<AppModel, string[]>;
-  getDockerImages: Thunk<AppModel, any, StoreInjections, RootModel>;
+  getDockerImages: Thunk<AppModel, void, StoreInjections, RootModel>;
   setRepoState: Action<AppModel, DockerRepoState>;
-  loadRepoState: Thunk<AppModel, any, StoreInjections, RootModel>;
+  loadRepoState: Thunk<AppModel, void, StoreInjections, RootModel>;
   saveRepoState: Thunk<AppModel, DockerRepoState, StoreInjections, RootModel>;
   checkForRepoUpdates: Thunk<
     AppModel,
-    any,
+    void,
     StoreInjections,
     RootModel,
     Promise<DockerRepoUpdates>

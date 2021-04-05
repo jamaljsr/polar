@@ -49,8 +49,8 @@ export interface NetworkModel {
   setNetworks: Action<NetworkModel, Network[]>;
   updateNodePorts: Action<NetworkModel, { id: number; ports: OpenPorts }>;
   updateNodeCommand: Action<NetworkModel, { id: number; name: string; command: string }>;
-  load: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
-  save: Thunk<NetworkModel, any, StoreInjections, RootModel, Promise<void>>;
+  load: Thunk<NetworkModel, void, StoreInjections, RootModel, Promise<void>>;
+  save: Thunk<NetworkModel, void, StoreInjections, RootModel, Promise<void>>;
   add: Action<NetworkModel, Network>;
   addNetwork: Thunk<
     NetworkModel,

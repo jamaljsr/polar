@@ -43,19 +43,19 @@ export interface ModalsModel {
   advancedOptions: AdvancedOptionsModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
-  hideOpenChannel: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setChangeBackend: Action<ModalsModel, ChangeBackendModel>;
   showChangeBackend: Thunk<ModalsModel, Partial<ChangeBackendModel>, StoreInjections>;
-  hideChangeBackend: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  hideChangeBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setCreateInvoice: Action<ModalsModel, CreateInvoiceModel>;
   showCreateInvoice: Thunk<ModalsModel, Partial<CreateInvoiceModel>, StoreInjections>;
-  hideCreateInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  hideCreateInvoice: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setPayInvoice: Action<ModalsModel, PayInvoiceModel>;
   showPayInvoice: Thunk<ModalsModel, Partial<PayInvoiceModel>, StoreInjections>;
-  hidePayInvoice: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  hidePayInvoice: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setAdvancedOptions: Action<ModalsModel, AdvancedOptionsModel>;
   showAdvancedOptions: Thunk<ModalsModel, Partial<AdvancedOptionsModel>, StoreInjections>;
-  hideAdvancedOptions: Thunk<ModalsModel, any, StoreInjections, RootModel>;
+  hideAdvancedOptions: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
