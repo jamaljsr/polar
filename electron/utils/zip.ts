@@ -32,7 +32,7 @@ export const unzip = (args: { filePath: string; destination: string }): Promise<
  * @param source the folder path containing the files to zip
  * @param destination the file path of where to store the zip
  */
-export const zip = (args: { source: string; destination: string }): Promise<any> =>
+export const zip = (args: { source: string; destination: string }): Promise<void> =>
   new Promise(async (resolve, reject) => {
     const { source, destination } = args;
     info(`zipping ${source} to ${destination}`);
