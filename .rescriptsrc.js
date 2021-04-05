@@ -19,11 +19,11 @@ module.exports = [
       plugins: [
         // babel optimizations for emotion styles
         [
-          'emotion',
+          '@emotion',
           {
             // sourceMap is on by default but source maps are dead code eliminated in production
             sourceMap: true,
-            autoLabel: true,
+            autoLabel: 'always',
             labelFormat: 'x-[local]',
             cssPropOptimization: true,
           },
