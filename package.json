@@ -60,7 +60,7 @@
     "@ant-design/icons": "4.6.2",
     "@commitlint/cli": "12.1.1",
     "@commitlint/config-conventional": "12.1.1",
-    "@emotion/core": "11.0.0",
+    "@emotion/react": "11.1.5",
     "@emotion/styled": "11.1.5",
     "@hot-loader/react-dom": "17.0.1",
     "@mrblenny/react-flow-chart": "0.0.14",
