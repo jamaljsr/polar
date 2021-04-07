@@ -7833,10 +7833,10 @@ electron-localshortcut@^3.1.0:
     keyboardevent-from-electron-accelerator "^2.0.0"
     keyboardevents-areequal "^0.2.1"
 
-electron-log@4.3.2:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.3.2.tgz#213334c69f0498fac677a7a73eae4a61fb69949e"
-  integrity sha512-PJPWE8JDzQ137UlxX9K917nI8GTcwgiJpE2PMPXZo+I6C4AaZU+JWQ3lW5NjQ1Lg8Qk8qbze+Ly0yAiqhbmpeA==
+electron-log@4.3.3:
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.3.3.tgz#84f37795b916e1801e7dcd66d21cb59f5a1a60a8"
+  integrity sha512-WNPZm56O6YAxdQ2ESTaYr6nEid+jqobNjHMuDCfY2l76uPwz5UBOO+8sGv0XeXG8IQvygcagcwjpVuK9/IggYg==
 
 electron-publish@22.10.5:
   version "22.10.5"
