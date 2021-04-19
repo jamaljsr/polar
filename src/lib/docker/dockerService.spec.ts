@@ -69,10 +69,11 @@ describe('DockerService', () => {
   describe('detecting versions', () => {
     const dockerVersion = mockDockerode.prototype.version;
     const composeVersion = composeMock.version;
+    const versionResult = { ...mockResult, out: '4.5.6', data: { version: '4.5.6' } };
 
     it('should get both versions successfully', async () => {
       dockerVersion.mockResolvedValue({ Version: '1.2.3' });
-      composeVersion.mockResolvedValue({ ...mockResult, out: '4.5.6' });
+      composeVersion.mockResolvedValue(versionResult);
       const versions = await dockerService.getVersions(true);
       expect(versions.docker).toBe('1.2.3');
       expect(versions.compose).toBe('4.5.6');
@@ -88,7 +89,7 @@ describe('DockerService', () => {
 
     it('should return compose version if docker version fails', async () => {
       dockerVersion.mockRejectedValue(new Error('docker-error'));
-      composeVersion.mockResolvedValue({ ...mockResult, out: '4.5.6' });
+      composeVersion.mockResolvedValue(versionResult);
       const versions = await dockerService.getVersions();
       expect(versions.docker).toBe('');
       expect(versions.compose).toBe('4.5.6');
@@ -104,7 +105,7 @@ describe('DockerService', () => {
 
     it('should throw an error if docker version fails', async () => {
       dockerVersion.mockRejectedValue(new Error('docker-error'));
-      composeVersion.mockResolvedValue({ ...mockResult, out: '4.5.6' });
+      composeVersion.mockResolvedValue(versionResult);
       await expect(dockerService.getVersions(true)).rejects.toThrow('docker-error');
     });
 
