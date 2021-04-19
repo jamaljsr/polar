@@ -135,7 +135,7 @@
     "redux": "4.0.5",
     "redux-logger": "3.0.6",
     "standard-version": "9.2.0",
-    "strip-ansi": "6.0.0",
+    "strip-ansi": "7.0.0",
     "styled-components": "5.2.3",
     "stylelint": "13.12.0",
     "stylelint-config-prettier": "8.0.2",
