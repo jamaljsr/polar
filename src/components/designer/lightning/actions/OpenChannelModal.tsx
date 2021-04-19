@@ -88,7 +88,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
             disabled={openChanAsync.loading}
             status={Status.Started}
             initialValue={from}
-            onChange={v => setSelectedFrom(v.toString())}
+            onChange={v => setSelectedFrom(v?.toString())}
             nodes={nodes}
           />
         </Col>
@@ -100,7 +100,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
             disabled={openChanAsync.loading}
             status={Status.Started}
             initialValue={to}
-            onChange={v => setSelectedTo(v.toString())}
+            onChange={v => setSelectedTo(v?.toString())}
             nodes={nodes}
           />
         </Col>
