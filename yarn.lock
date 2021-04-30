@@ -4140,10 +4140,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.15.3:
-  version "4.15.3"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.15.3.tgz#000b460c5fa9c3f5a33eb14f6ddf360723dec5e2"
-  integrity sha512-SQdr8FpwubyV8NOrVyYLZGEp7gYLeaV/WXQuMy11EHtk3pBH48T645ts0hhdb1vl7z92+ViWlgHADEjKJVCJaw==
+antd@4.15.4:
+  version "4.15.4"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.15.4.tgz#43d0a2d821412f5765dc5eec765c817effcae79d"
+  integrity sha512-1c0ykHGomcd7QhEeRtynxN3i7fb7JBdnEq2/Yqhf7yzMIhGSfZm+h+A2lTqMOMheCVL6q2ie7lxqhtNLq6sWoQ==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.6.2"
@@ -4162,7 +4162,7 @@ antd@4.15.3:
     rc-dropdown "~3.2.0"
     rc-field-form "~1.20.0"
     rc-image "~5.2.4"
-    rc-input-number "~7.0.1"
+    rc-input-number "~7.1.0"
     rc-mentions "~1.5.0"
     rc-menu "~8.10.0"
     rc-motion "^2.4.0"
@@ -15710,14 +15710,14 @@ rc-image@~5.2.4:
     rc-dialog "~8.5.0"
     rc-util "^5.0.6"
 
-rc-input-number@~7.0.1:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/rc-input-number/-/rc-input-number-7.0.3.tgz#395664847700a3131c0c4c2e4ce4396d948b5f21"
-  integrity sha512-y0nVqVANWyxQbm/vdhz1p5E1V5Y6Yd2+3MGKntSzCxrYgw0F7/COXkbRdcTECnXwiDv8ZrbYQ1pTP3u43PqE4Q==
+rc-input-number@~7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/rc-input-number/-/rc-input-number-7.1.0.tgz#fd5f7f00d7e6c2761cf1eaf025bddb2bb522d4a6"
+  integrity sha512-ewgtKZaDmwbOWX8DXBGV+amp1IiGS8G+5xDqn85CK1BiQMwsQdrmMEqNkbTdxO8EmYbwN1iQQ4t82IkAaIoa3A==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "^2.2.5"
-    rc-util "^5.0.1"
+    rc-util "^5.9.8"
 
 rc-mentions@~1.5.0:
   version "1.5.3"
@@ -15998,6 +15998,15 @@ rc-util@^5.9.4:
   version "5.9.4"
   resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-5.9.4.tgz#f3a5240df47299fff7ef45864a4abeaf4c60ff98"
   integrity sha512-pzFmYZsKLJ1p+Uv4NqA4aNBaFh8/hOQxOOxA5G4TiyPboa0o/PjminxUCKvoSwVJVW5YgleSM2XPCTpTV6DCsQ==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
+    react-is "^16.12.0"
+    shallowequal "^1.1.0"
+
+rc-util@^5.9.8:
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-5.12.1.tgz#026e889546ad957bd8201512951923821f6dab63"
+  integrity sha512-PrvX/LUPONoeIaJ35hiS5SeXP6DhwAfpoJG6X4Kc5X7NDgCgk/NfXrNfmijuSh8suHkWk1Quz93d2JdjomwOQA==
   dependencies:
     "@babel/runtime" "^7.12.5"
     react-is "^16.12.0"
