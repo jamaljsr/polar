@@ -4139,10 +4139,10 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
     "@types/color-name" "^1.1.1"
     color-convert "^2.0.1"
 
-antd@4.15.4:
-  version "4.15.4"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.15.4.tgz#43d0a2d821412f5765dc5eec765c817effcae79d"
-  integrity sha512-1c0ykHGomcd7QhEeRtynxN3i7fb7JBdnEq2/Yqhf7yzMIhGSfZm+h+A2lTqMOMheCVL6q2ie7lxqhtNLq6sWoQ==
+antd@4.15.5:
+  version "4.15.5"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.15.5.tgz#c54bf3a8a7e537c57395165b47c6caa4f9ea4860"
+  integrity sha512-zpdwZmdxZfSCVq6t329jXzq4oHZDDrMsD3L/bNilBJz9Y8yJZ0b4wGrWK7TSRipP2KcUB5Udm+bmfv2RBuzzNA==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.6.2"
@@ -4178,7 +4178,7 @@ antd@4.15.4:
     rc-table "~7.13.0"
     rc-tabs "~11.7.0"
     rc-textarea "~0.3.0"
-    rc-tooltip "~5.1.0"
+    rc-tooltip "~5.1.1"
     rc-tree "~4.1.0"
     rc-tree-select "~4.3.0"
     rc-trigger "^5.2.1"
@@ -16004,10 +16004,10 @@ rc-tooltip@^5.0.1:
     "@babel/runtime" "^7.11.2"
     rc-trigger "^5.0.0"
 
-rc-tooltip@~5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/rc-tooltip/-/rc-tooltip-5.1.0.tgz#abb453c463c31a705aa01d268279f4ae6ae3b15f"
-  integrity sha512-pFqD1JZwNIpbdcefB7k5xREoHAWM/k3yQwYF0iminbmDXERgq4rvBfUwIvlCqqZSM7HDr9hYeYr6ZsVNaKtvCQ==
+rc-tooltip@~5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/rc-tooltip/-/rc-tooltip-5.1.1.tgz#94178ed162d0252bc4993b725f5dc2ac0fccf154"
+  integrity sha512-alt8eGMJulio6+4/uDm7nvV+rJq9bsfxFDCI0ljPdbuoygUscbsMYb6EQgwib/uqsXQUvzk+S7A59uYHmEgmDA==
   dependencies:
     "@babel/runtime" "^7.11.2"
     rc-trigger "^5.0.0"
