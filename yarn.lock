@@ -19039,10 +19039,10 @@ testcafe-reporter-xunit@^2.1.0:
   resolved "https://registry.yarnpkg.com/testcafe-reporter-xunit/-/testcafe-reporter-xunit-2.1.0.tgz#e6d66c572ce15af266706af0fd610b2a841dd443"
   integrity sha1-5tZsVyzhWvJmcGrw/WELKoQd1EM=
 
-testcafe@1.14.1:
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/testcafe/-/testcafe-1.14.1.tgz#69a8098cad6c644886f6f8d35437b78ce42024ab"
-  integrity sha512-69EHXA53eL5AsK8PNeNn4wtF41ztXdn9qP8K9QnDovu2S0qvjLOH9IffhQF4BJVJm9D+vJLLpzvtsgbunUeddQ==
+testcafe@1.14.2:
+  version "1.14.2"
+  resolved "https://registry.yarnpkg.com/testcafe/-/testcafe-1.14.2.tgz#8268a35a3bd2e4848fdb04a0eb5526ea74f8c1f2"
+  integrity sha512-QSvCwS4J3jzXRMcDBAlnm+SUf/PoWEkKZEnsIYzdbFheJYFNNIOXL/SeNA9L4cDWH7AjsOQxfALlRQOkQVSamw==
   dependencies:
     "@babel/core" "^7.12.1"
     "@babel/plugin-proposal-async-generator-functions" "^7.12.1"
@@ -19091,7 +19091,7 @@ testcafe@1.14.1:
     is-ci "^1.0.10"
     is-docker "^2.0.0"
     is-glob "^2.0.1"
-    is-stream "^1.1.0"
+    is-stream "^2.0.0"
     json5 "^2.1.0"
     lodash "^4.17.13"
     log-update-async-hook "^2.0.2"
