@@ -10398,10 +10398,10 @@ i18next@*:
   dependencies:
     "@babel/runtime" "^7.3.1"
 
-i18next@20.2.3:
-  version "20.2.3"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-20.2.3.tgz#66634bf5d4f7009b60938bd8ac9e5232073ab284"
-  integrity sha512-sSBob9VgFZayUNw27mS8Yl0vPK/cyDI+HMzLJrWKMWpX4Ie+Gvnhabo6P5d56/4Xz2I28PWvnDxFX40XrN15lg==
+i18next@20.2.4:
+  version "20.2.4"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-20.2.4.tgz#972220f19dfef0075a70890d3e8b1f7cf64c5bd6"
+  integrity sha512-goE1LCA/IZOGG26PkkqoOl2KWR7YP606SvokVQZ29J6QwE02KycrzNetoMUJeqYrTxs4rmiiZgZp+q8qofQL6Q==
   dependencies:
     "@babel/runtime" "^7.12.0"
 
