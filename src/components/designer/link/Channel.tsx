@@ -18,14 +18,8 @@ interface Props {
 
 const Channel: React.FC<Props> = ({ link, from, to }) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.Channel');
-  const {
-    type,
-    fromBalance,
-    toBalance,
-    capacity,
-    status,
-    channelPoint,
-  } = link.properties as LinkProperties;
+  const { type, fromBalance, toBalance, capacity, status, channelPoint } =
+    link.properties as LinkProperties;
 
   const channelDetails: DetailValues = [
     { label: l('status'), value: status },

@@ -14,15 +14,15 @@ export const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
   status: 'Open',
 });
 
-export const mapPendingChannel = (status: LightningNodeChannel['status']) => (
-  chan: PendingChannel,
-): LightningNodeChannel => ({
-  pending: true,
-  uniqueId: txid(chan.channelPoint).slice(-12),
-  channelPoint: chan.channelPoint,
-  pubkey: chan.remoteNodePub,
-  capacity: chan.capacity,
-  localBalance: chan.localBalance,
-  remoteBalance: chan.remoteBalance,
-  status,
-});
+export const mapPendingChannel =
+  (status: LightningNodeChannel['status']) =>
+  (chan: PendingChannel): LightningNodeChannel => ({
+    pending: true,
+    uniqueId: txid(chan.channelPoint).slice(-12),
+    channelPoint: chan.channelPoint,
+    pubkey: chan.remoteNodePub,
+    capacity: chan.capacity,
+    localBalance: chan.localBalance,
+    remoteBalance: chan.remoteBalance,
+    status,
+  });

@@ -909,9 +909,7 @@ declare module 'bitcoin-core' {
 
     getUnconfirmedBalance(): Promise<number>;
 
-    getUnspentTransactionOutputs(
-      outpoints: Outpoint[],
-    ): Promise<{
+    getUnspentTransactionOutputs(outpoints: Outpoint[]): Promise<{
       chainHeight: number;
       chaintipHash: string;
       bipmap: string;

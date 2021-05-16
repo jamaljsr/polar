@@ -5,7 +5,7 @@ import { getNetwork, testNodeDocker } from 'utils/tests';
 import bitcoindService from './bitcoindService';
 
 jest.mock('bitcoin-core');
-const mockBitcoin = (BitcoinCore as unknown) as jest.Mock<BitcoinCore>;
+const mockBitcoin = BitcoinCore as unknown as jest.Mock<BitcoinCore>;
 
 describe('BitcoindService', () => {
   const network = getNetwork();

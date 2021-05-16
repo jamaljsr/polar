@@ -97,14 +97,8 @@ describe('CreateInvoiceModal', () => {
     });
 
     it('should create invoice successfully', async () => {
-      const {
-        getByText,
-        getByLabelText,
-        getByDisplayValue,
-        findByText,
-        store,
-        network,
-      } = await renderComponent();
+      const { getByText, getByLabelText, getByDisplayValue, findByText, store, network } =
+        await renderComponent();
       await waitFor(() => {
         store.getActions().modals.showCreateInvoice({ nodeName: 'alice' });
       });

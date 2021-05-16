@@ -217,12 +217,8 @@ describe('OpenChannelModal', () => {
 
     it('should display an error when opening a channel fails', async () => {
       lightningServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
-      const {
-        getByText,
-        getByLabelText,
-        findByLabelText,
-        changeSelect,
-      } = await renderComponent('bob');
+      const { getByText, getByLabelText, findByLabelText, changeSelect } =
+        await renderComponent('bob');
       fireEvent.change(getByLabelText('Capacity (sats)'), { target: { value: '1000' } });
       changeSelect('Destination', 'alice');
       fireEvent.click(

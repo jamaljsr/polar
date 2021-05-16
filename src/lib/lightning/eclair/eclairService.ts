@@ -8,29 +8,27 @@ import * as PLN from '../types';
 import { httpPost } from './eclairApi';
 import * as ELN from './types';
 
-const ChannelStateToStatus: Record<
-  ELN.ChannelState,
-  PLN.LightningNodeChannel['status']
-> = {
-  WAIT_FOR_INIT_INTERNAL: 'Opening',
-  WAIT_FOR_OPEN_CHANNEL: 'Opening',
-  WAIT_FOR_ACCEPT_CHANNEL: 'Opening',
-  WAIT_FOR_FUNDING_INTERNAL: 'Opening',
-  WAIT_FOR_FUNDING_CREATED: 'Opening',
-  WAIT_FOR_FUNDING_SIGNED: 'Opening',
-  WAIT_FOR_FUNDING_CONFIRMED: 'Opening',
-  WAIT_FOR_FUNDING_LOCKED: 'Opening',
-  NORMAL: 'Open',
-  SHUTDOWN: 'Closed',
-  NEGOTIATING: 'Opening',
-  CLOSING: 'Closing',
-  CLOSED: 'Closed',
-  OFFLINE: 'Open',
-  SYNCING: 'Open',
-  WAIT_FOR_REMOTE_PUBLISH_FUTURE_COMMITMENT: 'Opening',
-  ERR_FUNDING_LOST: 'Error',
-  ERR_INFORMATION_LEAK: 'Error',
-};
+const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['status']> =
+  {
+    WAIT_FOR_INIT_INTERNAL: 'Opening',
+    WAIT_FOR_OPEN_CHANNEL: 'Opening',
+    WAIT_FOR_ACCEPT_CHANNEL: 'Opening',
+    WAIT_FOR_FUNDING_INTERNAL: 'Opening',
+    WAIT_FOR_FUNDING_CREATED: 'Opening',
+    WAIT_FOR_FUNDING_SIGNED: 'Opening',
+    WAIT_FOR_FUNDING_CONFIRMED: 'Opening',
+    WAIT_FOR_FUNDING_LOCKED: 'Opening',
+    NORMAL: 'Open',
+    SHUTDOWN: 'Closed',
+    NEGOTIATING: 'Opening',
+    CLOSING: 'Closing',
+    CLOSED: 'Closed',
+    OFFLINE: 'Open',
+    SYNCING: 'Open',
+    WAIT_FOR_REMOTE_PUBLISH_FUTURE_COMMITMENT: 'Opening',
+    ERR_FUNDING_LOST: 'Error',
+    ERR_INFORMATION_LEAK: 'Error',
+  };
 
 class EclairService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
