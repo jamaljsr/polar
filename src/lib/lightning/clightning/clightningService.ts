@@ -6,20 +6,18 @@ import { waitFor } from 'utils/async';
 import { httpDelete, httpGet, httpPost } from './clightningApi';
 import * as CLN from './types';
 
-const ChannelStateToStatus: Record<
-  CLN.ChannelState,
-  PLN.LightningNodeChannel['status']
-> = {
-  CHANNELD_AWAITING_LOCKIN: 'Opening',
-  CHANNELD_NORMAL: 'Open',
-  CHANNELD_SHUTTING_DOWN: 'Closing',
-  CLOSINGD_SIGEXCHANGE: 'Closing',
-  CLOSINGD_COMPLETE: 'Waiting to Close',
-  AWAITING_UNILATERAL: 'Force Closing',
-  FUNDING_SPEND_SEEN: 'Waiting to Close',
-  ONCHAIN: 'Closed',
-  CLOSED: 'Closed',
-};
+const ChannelStateToStatus: Record<CLN.ChannelState, PLN.LightningNodeChannel['status']> =
+  {
+    CHANNELD_AWAITING_LOCKIN: 'Opening',
+    CHANNELD_NORMAL: 'Open',
+    CHANNELD_SHUTTING_DOWN: 'Closing',
+    CLOSINGD_SIGEXCHANGE: 'Closing',
+    CLOSINGD_COMPLETE: 'Waiting to Close',
+    AWAITING_UNILATERAL: 'Force Closing',
+    FUNDING_SPEND_SEEN: 'Waiting to Close',
+    ONCHAIN: 'Closed',
+    CLOSED: 'Closed',
+  };
 
 class CLightningService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {

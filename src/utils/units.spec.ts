@@ -33,6 +33,6 @@ describe('Units util', () => {
     expect(toSats('1', true)).toEqual('100,000,000');
     expect(format(100000000)).toEqual('100,000,000');
     expect(format('100000000')).toEqual('100,000,000');
-    expect(format((null as unknown) as string)).toBeNull();
+    expect(format(null as unknown as string)).toBeNull();
   });
 });

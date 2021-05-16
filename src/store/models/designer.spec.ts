@@ -303,7 +303,8 @@ describe('Designer model', () => {
 
     describe('onCanvasDrop', () => {
       const mockDockerService = injections.dockerService as jest.Mocked<DockerLibrary>;
-      const mockBitcoindService = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
+      const mockBitcoindService =
+        injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
       const lndLatest = defaultRepoState.images.LND.latest;
       const btcLatest = defaultRepoState.images.bitcoind.latest;
       const id = 'nodeId';
@@ -553,11 +554,8 @@ describe('Designer model', () => {
       });
 
       it('onLinkMouseEnter - onLinkMouseLeave', () => {
-        const {
-          onLinkMouseEnter,
-          onLinkMouseLeave,
-          onLinkStart,
-        } = store.getActions().designer;
+        const { onLinkMouseEnter, onLinkMouseLeave, onLinkStart } =
+          store.getActions().designer;
         // happy path
         expect(firstChart().hovered.id).toBeUndefined();
         onLinkMouseEnter({ linkId: 'alice-backend1' });

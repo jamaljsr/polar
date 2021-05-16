@@ -236,9 +236,8 @@ describe('NetworkView Component', () => {
     });
 
     it('should rename the network', async () => {
-      const { getByLabelText, findByText, findByDisplayValue, store } = renderComponent(
-        '1',
-      );
+      const { getByLabelText, findByText, findByDisplayValue, store } =
+        renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Rename'));
       const input = await findByDisplayValue('test network');

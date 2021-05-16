@@ -90,13 +90,8 @@ describe('CustomImagesTable Component', () => {
   });
 
   it('should remove a custom node', async () => {
-    const {
-      getByText,
-      getAllByLabelText,
-      findByText,
-      nodeImages,
-      store,
-    } = renderComponent();
+    const { getByText, getAllByLabelText, findByText, nodeImages, store } =
+      renderComponent();
     const { name } = nodeImages.custom[0];
     expect(getByText(name)).toBeInTheDocument();
     // click on the first Delete icon

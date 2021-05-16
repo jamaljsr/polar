@@ -28,7 +28,7 @@ const fsMock = fs as jest.Mocked<typeof fs>;
 const filesMock = files as jest.Mocked<typeof files>;
 const composeMock = compose as jest.Mocked<typeof compose>;
 const electronMock = electron as jest.Mocked<typeof electron>;
-const mockDockerode = (Dockerode as unknown) as jest.Mock<Dockerode>;
+const mockDockerode = Dockerode as unknown as jest.Mock<Dockerode>;
 
 describe('DockerService', () => {
   let network: Network;
@@ -294,7 +294,9 @@ describe('DockerService', () => {
       delete chart.nodes[name].ports['peer-right'];
       net.nodes.lightning.forEach((n: any) => {
         if (n.implementation === 'LND') {
-          (n as LndNode).paths.tlsCert = `ELECTRON_PATH[userData]/data/networks/1/volumes/lnd/${n.name}/tls.cert`;
+          (
+            n as LndNode
+          ).paths.tlsCert = `ELECTRON_PATH[userData]/data/networks/1/volumes/lnd/${n.name}/tls.cert`;
         }
       });
       return { net, chart };

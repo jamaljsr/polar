@@ -89,7 +89,7 @@ describe('Network model', () => {
 
     it('should fail to fetch a node with invalid id', () => {
       store.getActions().network.addNetwork(addNetworkArgs);
-      [99, '99', 'asdf', undefined, (null as unknown) as string].forEach(v => {
+      [99, '99', 'asdf', undefined, null as unknown as string].forEach(v => {
         expect(() => store.getState().network.networkById(v)).toThrow();
       });
     });

@@ -17,14 +17,14 @@ describe('strings util', () => {
       expect(ellipseInner('xxxxxxyyyyzzzzzz', 0)).toEqual('xxxxxx...zzzzzz');
       expect(ellipseInner('xxxxxxyyyyzzzzzz', -1)).toEqual('xxxxxx...zzzzzz');
       expect(ellipseInner('xxxxxxyyyyzzzzzz', NaN)).toEqual('xxxxxx...zzzzzz');
-      expect(ellipseInner('xxxxxxyyyyzzzzzz', (undefined as unknown) as number)).toEqual(
+      expect(ellipseInner('xxxxxxyyyyzzzzzz', undefined as unknown as number)).toEqual(
         'xxxxxx...zzzzzz',
       );
     });
 
     it('should handle empty text', () => {
-      expect(ellipseInner((undefined as unknown) as string)).toBeUndefined();
-      expect(ellipseInner((null as unknown) as string)).toBeNull();
+      expect(ellipseInner(undefined as unknown as string)).toBeUndefined();
+      expect(ellipseInner(null as unknown as string)).toBeNull();
       expect(ellipseInner('')).toEqual('');
     });
   });

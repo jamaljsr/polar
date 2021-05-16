@@ -43,13 +43,8 @@ interface Props {
 const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) => {
   const theme = useTheme();
   const { zoomIn, zoomOut, zoomReset, ...callbacks } = useStoreActions(s => s.designer);
-  const {
-    openChannel,
-    createInvoice,
-    payInvoice,
-    changeBackend,
-    advancedOptions,
-  } = useStoreState(s => s.modals);
+  const { openChannel, createInvoice, payInvoice, changeBackend, advancedOptions } =
+    useStoreState(s => s.modals);
 
   const { save } = useStoreActions(s => s.network);
   const chart = useStoreState(s => s.designer.activeChart);
