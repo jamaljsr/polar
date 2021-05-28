@@ -17,8 +17,10 @@ export const write = async (filePath: string, content: string) =>
  * Reads data from a file located in the app's data directory
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  */
-export const read = async (filePath: string, encoding?: string): Promise<string> =>
-  (await readFile(abs(filePath))).toString(encoding);
+export const read = async (
+  filePath: string,
+  encoding?: BufferEncoding,
+): Promise<string> => (await readFile(abs(filePath))).toString(encoding);
 
 /**
  * Checks to see if a file exists
@@ -34,7 +36,7 @@ export const exists = async (filePath: string): Promise<boolean> =>
 export const rm = async (path: string): Promise<void> => await remove(abs(path));
 
 /**
- * Returns a promise that will ressolve when the file exists or the timeout expires
+ * Returns a promise that will resolve when the file exists or the timeout expires
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  * @param interval the interval to check if the file exists
  * @param timeout the absolute timeout to abort checking
