@@ -26,7 +26,10 @@ const request = async <T>(
     },
   };
   const ipc = createIpcSender('EclairApi', 'app');
-  const res = await ipc(ipcChannels.http, args);
+  const res = await ipc<any>(ipcChannels.http, args);
+
+  if (res.error) throw new Error(res.error);
+
   return res as T;
 };
 
