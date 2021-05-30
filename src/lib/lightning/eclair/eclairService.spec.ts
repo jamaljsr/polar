@@ -1,5 +1,6 @@
 import { WalletInfo } from 'bitcoin-core';
 import bitcoindService from 'lib/bitcoin/bitcoindService';
+import { defaultRepoState } from 'utils/constants';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
 import { eclairService } from './';
 import * as eclairApi from './eclairApi';
@@ -176,7 +177,7 @@ describe('EclairService', () => {
         ports: { p2p: 9937, rest: 8283 },
         status: 3,
         type: 'lightning',
-        version: '0.5.0',
+        version: defaultRepoState.images.eclair.latest,
       },
       'open',
       { channelFlags: 0, fundingSatoshis: 100000, nodeId: 'abc' },
