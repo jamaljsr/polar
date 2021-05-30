@@ -57,7 +57,7 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
     <Dropdown
       overlay={
         <Menu style={{ width: 200 }}>
-          <Styled.MenuItem>{menuItem}</Styled.MenuItem>
+          <Styled.MenuItem key="item">{menuItem}</Styled.MenuItem>
         </Menu>
       }
       trigger={['contextMenu']}
