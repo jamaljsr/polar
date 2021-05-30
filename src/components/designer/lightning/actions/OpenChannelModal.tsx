@@ -133,12 +133,12 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       {showDeposit && (
         <Form.Item name="autoFund" valuePropName="checked">
           <Checkbox disabled={openChanAsync.loading}>
-            Deposit enough funds to {selectedFrom} to open the channel
+            {l('deposit', { selectedFrom })}
           </Checkbox>
         </Form.Item>
       )}
       <Form.Item name="isPrivate" valuePropName="checked">
-        <Checkbox disabled={openChanAsync.loading}>Make channel private</Checkbox>
+        <Checkbox disabled={openChanAsync.loading}>{l('private')}</Checkbox>
       </Form.Item>
     </Form>
   );
