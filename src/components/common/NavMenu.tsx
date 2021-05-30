@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  DatabaseOutlined,
-  ImportOutlined,
-  MenuOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { DatabaseOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Menu } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -14,14 +9,10 @@ import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 const Styled = {
   Menu: styled.div`
     float: right;
-  `,
-  MenuIcon: styled(MenuOutlined)`
-    font-size: 1.2rem;
-    color: #fff;
-  `,
-  ImportIcon: styled(ImportOutlined)`
-    font-size: 1.2rem;
-    color: #fff;
+
+    .ant-menu-overflow-item-rest {
+      display: none;
+    }
   `,
 };
 
@@ -31,17 +22,17 @@ const NavMenu: React.FC = () => {
   return (
     <Styled.Menu>
       <Menu theme="dark" mode="horizontal" selectable={false}>
-        <Menu.Item onClick={() => navigateTo(NETWORK_NEW)}>
+        <Menu.Item key="createNetwork" onClick={() => navigateTo(NETWORK_NEW)}>
           <PlusOutlined />
-          {l('createNetwork')}
+          <span>{l('createNetwork')}</span>
         </Menu.Item>
-        <Menu.Item onClick={() => navigateTo(NETWORK_IMPORT)}>
+        <Menu.Item key="importNetwork" onClick={() => navigateTo(NETWORK_IMPORT)}>
           <ImportOutlined />
-          {l('importNetwork')}
+          <span>{l('importNetwork')}</span>
         </Menu.Item>
-        <Menu.Item onClick={() => navigateTo(NODE_IMAGES)}>
+        <Menu.Item key="manageNodes" onClick={() => navigateTo(NODE_IMAGES)}>
           <DatabaseOutlined />
-          {l('manageNodes')}
+          <span>{l('manageNodes')}</span>
         </Menu.Item>
       </Menu>
     </Styled.Menu>
