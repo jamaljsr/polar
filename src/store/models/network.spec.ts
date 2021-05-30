@@ -12,6 +12,7 @@ import {
   injections,
   lightningServiceMock,
   testCustomImages,
+  testRepoState,
 } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
@@ -414,6 +415,7 @@ describe('Network model', () => {
     });
 
     it('should throw an error if a LN node depends on the bitcoin node being removed', async () => {
+      store.getActions().app.setRepoState(testRepoState);
       const { removeBitcoinNode, addNode } = store.getActions().network;
       const { id } = firstNetwork();
       // add old bitcoin and LN nodes

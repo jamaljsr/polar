@@ -86,7 +86,8 @@ describe('DefaultSidebar Component', () => {
   it('should display old versions when the toggle is clicked', () => {
     const { getByText, getAllByText, getByRole } = renderComponent();
     fireEvent.click(getByRole('switch'));
-    expect(getByText(`LND v0.8.0-beta`)).toBeInTheDocument();
+    const prevVersion = defaultRepoState.images.LND.versions[2];
+    expect(getByText(`LND v${prevVersion}`)).toBeInTheDocument();
     expect(getAllByText('latest')).toHaveLength(4);
   });
 

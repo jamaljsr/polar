@@ -10,6 +10,7 @@ import {
   renderWithProviders,
   suppressConsoleErrors,
   testNodeDocker,
+  testRepoState,
 } from 'utils/tests';
 import ChangeBackendModal from './ChangeBackendModal';
 
@@ -126,7 +127,8 @@ describe('ChangeBackendModal', () => {
   });
 
   it('should display the compatibility warning for older bitcoin node', async () => {
-    const { getByText, queryByText, changeSelect } = await renderComponent();
+    const { getByText, queryByText, changeSelect, store } = await renderComponent();
+    store.getActions().app.setRepoState(testRepoState);
     const bitcoindVersion = defaultRepoState.images.bitcoind.latest;
     const warning =
       'erin is running LND v0.7.1-beta which is compatible with Bitcoin Core v0.18.1 and older.' +
