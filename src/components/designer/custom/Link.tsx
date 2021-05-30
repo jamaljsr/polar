@@ -47,15 +47,20 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
   const theme = useTheme();
 
   // memoize these calculations for a bit of perf
-  const { leftStop, rightStop, leftColor, rightColor } = useMemo(() => {
+  const { leftStop, rightStop, leftColor, rightColor, opacity } = useMemo(() => {
     const [blue, green, orange] = ['#6495ED', '#52c41a', '#fa8c16'];
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes
     let leftColor = theme.link.default;
     let rightColor = theme.link.default;
+    let opacity = 1;
     if (link.properties) {
-      const { type, direction, toBalance, capacity } = link.properties as LinkProperties;
+      const { type, direction, toBalance, capacity, isPrivate } =
+        link.properties as LinkProperties;
+
+      if (isPrivate) opacity = 0.5;
+
       if (type === 'open-channel') {
         // convert numeric strings to BigInts
         const [to, total] = [toBalance, capacity].map(BigInt);
@@ -85,18 +90,9 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
       rightStop,
       leftColor,
       rightColor,
+      opacity,
     };
   }, [link.properties, theme]);
-
-  const opacity = useMemo(() => {
-    if (link.properties) {
-      const { isPrivate } = link.properties as LinkProperties;
-      if (isPrivate) {
-        return 0.5;
-      }
-    }
-    return 1;
-  }, [link.properties]);
 
   // use link id since the gradient element must be unique in the dom
   const gradientId = `lg-${link.id}`;
