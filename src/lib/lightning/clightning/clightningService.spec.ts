@@ -149,9 +149,7 @@ describe('CLightningService', () => {
       });
       expect(actual).toEqual(expected);
       expect(clightningApiMock.httpPost).toBeCalledTimes(1);
-      expect(
-        clightningApiMock.httpPost,
-      ).toHaveBeenLastCalledWith(
+      expect(clightningApiMock.httpPost).toHaveBeenLastCalledWith(
         expect.objectContaining({ implementation: 'c-lightning' }),
         'channel/openChannel',
         { announce: 'false', feeRate: '253perkw', id: 'asdf', satoshis: '1000' },
