@@ -8,7 +8,9 @@ import { httpRequest } from '../src/shared/utils';
 const encodeBody = (body?: any) => {
   if (body) {
     const params = new URLSearchParams();
-    Object.keys(body).forEach(key => params.append(key, body[key]));
+    Object.keys(body).forEach(key => {
+      if (body[key] !== undefined) params.append(key, body[key]);
+    });
     return params.toString();
   }
 };
@@ -16,15 +18,20 @@ const encodeBody = (body?: any) => {
 export const httpProxy = async (args: {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  headers?: Record<string, string>;
+  headers: Record<string, string>;
   body?: any;
 }): Promise<any> => {
   const { url, method, body, headers } = args;
 
+  const formBody = encodeBody(body);
+  if (formBody) {
+    headers['Content-Length'] = formBody.length.toString();
+  }
+
   const response = await httpRequest(url, {
     method,
     headers,
-    body: encodeBody(body),
+    body: formBody,
   });
 
   const json = JSON.parse(response);
