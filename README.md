@@ -52,23 +52,13 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v1.2.0 for your OS
+Download Polar v1.3.0 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.2.0/polar-mac-v1.2.0.dmg))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.2.0/polar-linux-amd64-v1.2.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.2.0/polar-linux-x86_64-v1.2.0.AppImage))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.2.0/polar-win-v1.2.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.3.0/polar-mac-v1.3.0.dmg))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.3.0/polar-linux-amd64-v1.3.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.3.0/polar-linux-x86_64-v1.3.0.AppImage))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.3.0/polar-win-v1.3.0.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
-
-## Polar's Future
-
-The overall goal of Polar is to minimize the time & effort needed for a developer new to Lightning to get started building their next killer app. In addition, Polar aims to be a useful tool for experienced Lightning App developers to iterate faster on their projects. Less time setting up nodes, more time building your app.
-
-Here's a short list of ideas for features that may be beneficial to add in future releases (in no particular order):
-
-- Importing network templates from external sources (such as GitHub) to allow for community contributions. This may require a scripting system built-in.
-- Sample app projects/code in different languages (Python, Typescript/JS, Go, C#) showing how to connect to the Lightning/Bitcoin nodes from an external app.
-- Bitcoin Block Explorer & GRPC/REST API Explorers to have access to all of the node RPC API's graphically, without needing to fallback to the Terminal.
 
 ## Help Translate
 
