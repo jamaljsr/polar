@@ -5,7 +5,7 @@ import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
-import { injections, lightningServiceMock } from 'utils/tests';
+import { injections, lightningServiceMock, testRepoState } from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
@@ -382,6 +382,7 @@ describe('Designer model', () => {
       });
 
       it('should throw an error when adding an incompatible LN node', async () => {
+        store.getActions().app.setRepoState(testRepoState);
         const { onCanvasDrop } = store.getActions().designer;
         const spy = jest.spyOn(store.getActions().app, 'notify');
         const data = { type: 'LND', version: '0.7.1-beta' };

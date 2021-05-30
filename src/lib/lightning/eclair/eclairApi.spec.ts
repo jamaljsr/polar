@@ -23,6 +23,12 @@ describe('EclairApi', () => {
     await expect(httpPost(node, 'getinfo')).rejects.toThrow('api-error');
   });
 
+  it('should perform an successful httpPost with an error', async () => {
+    const sender = jest.fn().mockResolvedValue({ error: 'api-error' });
+    ipcMock.createIpcSender.mockReturnValue(sender);
+    await expect(httpPost(node, 'getinfo')).rejects.toThrow('api-error');
+  });
+
   it('should perform a successful httpPost', async () => {
     const sender = jest.fn().mockResolvedValue('asdf');
     ipcMock.createIpcSender.mockReturnValue(sender);

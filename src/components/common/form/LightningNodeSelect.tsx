@@ -43,7 +43,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   }, [selected, nodes, l]);
 
   const handleChange = (value: SelectValue, option: any) => {
-    setSelected(value?.toString() || '');
+    setSelected(`${value}`);
     if (onChange) onChange(value, option);
   };
 
