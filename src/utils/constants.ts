@@ -216,48 +216,23 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 27,
+  version: 28,
   images: {
     LND: {
       latest: '0.12.1-beta',
-      versions: [
-        '0.13.0-beta.rc3',
-        '0.12.1-beta',
-        '0.12.0-beta',
-        '0.11.1-beta',
-        '0.11.0-beta',
-        '0.10.3-beta',
-        '0.10.2-beta',
-        '0.10.1-beta',
-        '0.10.0-beta',
-        '0.9.1-beta',
-        '0.9.0-beta',
-        '0.8.2-beta',
-        '0.8.0-beta',
-        '0.7.1-beta',
-      ],
+      versions: ['0.13.0-beta.rc3', '0.12.1-beta', '0.11.1-beta', '0.10.3-beta'],
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
         '0.13.0-beta.rc3': '0.21.1',
         '0.12.1-beta': '0.21.1',
-        '0.12.0-beta': '0.21.1',
         '0.11.1-beta': '0.21.1',
-        '0.11.0-beta': '0.21.1',
         '0.10.3-beta': '0.21.1',
-        '0.10.2-beta': '0.21.1',
-        '0.10.1-beta': '0.19.1',
-        '0.10.0-beta': '0.19.1',
-        '0.9.1-beta': '0.19.1',
-        '0.9.0-beta': '0.19.1',
-        '0.8.2-beta': '0.19.1',
-        '0.8.0-beta': '0.18.1',
-        '0.7.1-beta': '0.18.1',
       },
     },
     'c-lightning': {
       latest: '0.10.0',
-      versions: ['0.10.0', '0.9.3', '0.9.2', '0.9.1', '0.9.0', '0.8.2', '0.8.1', '0.8.0'],
+      versions: ['0.10.0', '0.9.3', '0.8.2'],
     },
     eclair: {
       latest: '0.6.0',
@@ -265,7 +240,7 @@ export const defaultRepoState: DockerRepoState = {
     },
     bitcoind: {
       latest: '0.21.1',
-      versions: ['0.21.1', '0.21.0', '0.20.1', '0.20.0', '0.19.1', '0.19.0.1', '0.18.1'],
+      versions: ['0.21.1'],
     },
     btcd: {
       latest: '',
