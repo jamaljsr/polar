@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [v1.3.0](https://github.com/jamaljsr/polar/compare/v1.2.0...v1.3.0)
+
+This is a minor release which adds a small set of improvements and fixes some bugs. All of the node implementations have been updated to their latest versions.
+
+### Features
+
+- **channels:** add private channel option ([#430](https://github.com/jamaljsr/polar/issues/430)) by [@bolatovumar](https://github.com/bolatovumar)
+- **examples**: add example of an LND TypeScript app ([#414](https://github.com/jamaljsr/polar/issues/414)) by [@murtyjones](https://github.com/murtyjones)
+- **images:** add support for Bitcoin Core v0.21.1 ([6d368ee](https://github.com/jamaljsr/polar/commit/6d368eeaeb549890887c25ea33058d9d54947674))
+- **images:** add support for c-lightning v0.10.0 ([cabf9bf](https://github.com/jamaljsr/polar/commit/cabf9bf1f45a601cefeb2f4aa2097e09c78eaa84))
+- **images:** add support for eclair v0.6.0 ([625f025](https://github.com/jamaljsr/polar/commit/625f02515c73a3bf40b2653911e19f49c8b27bbc))
+- **images:** add support for LND v0.12.1-beta ([6d368ee](https://github.com/jamaljsr/polar/commit/6d368eeaeb549890887c25ea33058d9d54947674))
+- **images:** add support for LND v0.13.0-beta.rc3 ([5667b3b](https://github.com/jamaljsr/polar/commit/5667b3be4e431151849d64b50ecbf1b574ba8042))
+- **images:** remove outdated node implementations ([2ba55ae](https://github.com/jamaljsr/polar/commit/2ba55aef637c8e400a83fe1bffe54e2bfff3745e))
+
+### Bug Fixes
+
+- **layout:** fix nav menu icon spacing ([120f4c0](https://github.com/jamaljsr/polar/commit/120f4c06a97d466c4e94d1f20e41f7dde1455780))
+- **menu:** fix context menu runtime console warning ([aee7563](https://github.com/jamaljsr/polar/commit/aee7563e49dffeb853b439cdbca9a5576f686579))
+- **network:** fix docker error when removing a started node ([a521d74](https://github.com/jamaljsr/polar/commit/a521d74e866db947e0a4af87bc3e336f972c5326))
+- **nodes:** increase node startup timeout from 60 to 120 secs ([0d052c0](https://github.com/jamaljsr/polar/commit/0d052c0d055ee97586321341daf51b61c714285e))
+
 ## [v1.2.0](https://github.com/jamaljsr/polar/compare/v1.0.1...v1.2.0)
 
 This is a minor release which adds a small set of improvements and fixes some bugs. All of the node implementations have been updated to their latest versions.
