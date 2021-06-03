@@ -562,12 +562,22 @@ const networkModel: NetworkModel = {
   }),
   toggleNode: thunk(async (actions, node, { getState, injections }) => {
     const { networkId } = node;
-    const network = getState().networks.find(n => n.id === networkId);
+    let network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     const only = node.name;
     if (node.status === Status.Stopped || node.status === Status.Error) {
       // start the node container
       actions.setStatus({ id: network.id, status: Status.Starting, only });
+      // make sure the node ports are available
+      const ports = await getOpenPorts(network);
+      if (ports) {
+        // at least one port was updated. save the network & composeFile
+        actions.updateNodePorts({ id: node.networkId, ports });
+        // re-fetch the network with the updated ports
+        network = getState().networks.find(n => n.id === networkId) as Network;
+        await actions.save();
+        await injections.dockerService.saveComposeFile(network);
+      }
       await injections.dockerService.startNode(network, node);
       await actions.monitorStartup([node]);
     } else if (node.status === Status.Started) {

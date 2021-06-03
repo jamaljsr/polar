@@ -746,6 +746,7 @@ describe('Network model', () => {
     const firstNode = () => firstNetwork().nodes.lightning[0];
 
     beforeEach(() => {
+      detectPortMock.mockImplementation(port => Promise.resolve(port));
       const { addNetwork } = store.getActions().network;
       addNetwork(addNetworkArgs);
     });
@@ -789,6 +790,19 @@ describe('Network model', () => {
       const node = firstNode();
       node.networkId = 10;
       await expect(toggleNode(node)).rejects.toThrow();
+    });
+
+    it('should update node ports when starting', async () => {
+      const portsInUse = [8084];
+      detectPortMock.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const { toggleNode } = store.getActions().network;
+      let node = firstNetwork().nodes.lightning[3];
+      await toggleNode(node);
+      // get a reference to the updated nodes
+      node = firstNetwork().nodes.lightning[3];
+      expect(node.ports.rest).toBe(8085);
     });
   });
 
