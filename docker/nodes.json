@@ -1,9 +1,9 @@
 {
-  "version": 28,
+  "version": 29,
   "images": {
     "LND": {
       "latest": "0.12.1-beta",
-      "versions": ["0.13.0-beta.rc3", "0.12.1-beta", "0.11.1-beta", "0.10.3-beta"],
+      "versions": ["0.13.0-beta.rc5", "0.12.1-beta", "0.11.1-beta", "0.10.3-beta"],
       "compatibility": {
         "0.13.0-beta.rc3": "0.21.1",
         "0.12.1-beta": "0.21.1",
