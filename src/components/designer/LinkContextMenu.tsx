@@ -13,6 +13,10 @@ const Styled = {
       margin: -5px -12px;
       padding: 5px 12px;
       display: block;
+
+      svg {
+        margin-right: 5px;
+      }
     }
   `,
 };
