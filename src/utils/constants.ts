@@ -242,8 +242,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.10.0', '0.9.3', '0.8.2'],
     },
     eclair: {
-      latest: '0.6.0',
-      versions: ['0.6.0', '0.5.0', '0.4.2'],
+      latest: '0.6.1',
+      versions: ['0.6.1', '0.6.0', '0.5.0', '0.4.2'],
     },
     bitcoind: {
       latest: '0.21.1',
