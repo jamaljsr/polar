@@ -20852,10 +20852,10 @@ write@1.0.3:
   dependencies:
     mkdirp "^0.5.1"
 
-ws@8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.1.0.tgz#75e5ec608f66d3d3934ec6dbc4ebc8a34a68638c"
-  integrity sha512-0UWlCD2s3RSclw8FN+D0zDTUyMO+1kHwJQQJzkgUh16S8d3NYON0AKCEQPffE0ez4JyRFu76QDA9KR5bOG/7jw==
+ws@8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.2.0.tgz#0b738cd484bfc9303421914b11bb4011e07615bb"
+  integrity sha512-uYhVJ/m9oXwEI04iIVmgLmugh2qrZihkywG9y5FfZV2ATeLIzHf93qs+tUNqlttbQK957/VX3mtwAS+UfIwA4g==
 
 ws@^6.1.0, ws@^6.2.1:
   version "6.2.1"
