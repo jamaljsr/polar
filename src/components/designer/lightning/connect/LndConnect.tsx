@@ -29,16 +29,16 @@ const LndConnect: React.FC<Props> = ({ node }) => {
       const readonlyMac = await read(readonlyMacaroon, 'hex');
 
       const values: Record<string, string> = {};
-      values[l('GRPCadminUrl')] = encode({ host, cert, macaroon: adminMac });
-      values[l('GRPCinvoiceUrl')] = encode({ host, cert, macaroon: invoiceMac });
-      values[l('GRPCreadOnlyUrl')] = encode({ host, cert, macaroon: readonlyMac });
-      values[l('RESTadminUrl')] = encode({ host: resthost, cert, macaroon: adminMac });
-      values[l('RESTinvoiceUrl')] = encode({
+      values[l('grpcadminUrl')] = encode({ host, cert, macaroon: adminMac });
+      values[l('grpcinvoiceUrl')] = encode({ host, cert, macaroon: invoiceMac });
+      values[l('grpcreadOnlyUrl')] = encode({ host, cert, macaroon: readonlyMac });
+      values[l('restadminUrl')] = encode({ host: resthost, cert, macaroon: adminMac });
+      values[l('restinvoiceUrl')] = encode({
         host: resthost,
         cert,
         macaroon: invoiceMac,
       });
-      values[l('RESTreadOnlyUrl')] = encode({
+      values[l('restreadOnlyUrl')] = encode({
         host: resthost,
         cert,
         macaroon: readonlyMac,
