@@ -405,9 +405,9 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         await waitFor(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
-        await waitFor(() => getByText('Admin Macaroon Url'));
+        await waitFor(() => getByText('GRPC Admin Macaroon Url'));
         expect(files.read).toBeCalledTimes(4);
-        expect(getAllByText(/lndconnect/)).toHaveLength(3);
+        expect(getAllByText(/lndconnect/)).toHaveLength(6);
       });
 
       it('should display and error if getting the LND Connect url fails', async () => {
