@@ -21,16 +21,28 @@ const LndConnect: React.FC<Props> = ({ node }) => {
     const { tlsCert, adminMacaroon, invoiceMacaroon, readonlyMacaroon } = node.paths;
     try {
       const host = `127.0.0.1:${node.ports.grpc}`;
+      const resthost = `127.0.0.1:${node.ports.rest}`;
+
       const cert = await read(tlsCert);
       const adminMac = await read(adminMacaroon, 'hex');
       const invoiceMac = await read(invoiceMacaroon, 'hex');
       const readonlyMac = await read(readonlyMacaroon, 'hex');
 
       const values: Record<string, string> = {};
-      values[l('adminUrl')] = encode({ host, cert, macaroon: adminMac });
-      values[l('invoiceUrl')] = encode({ host, cert, macaroon: invoiceMac });
-      values[l('readOnlyUrl')] = encode({ host, cert, macaroon: readonlyMac });
-
+      values[l('grpcAdminUrl')] = encode({ host, cert, macaroon: adminMac });
+      values[l('grpcInvoiceUrl')] = encode({ host, cert, macaroon: invoiceMac });
+      values[l('grpcReadOnlyUrl')] = encode({ host, cert, macaroon: readonlyMac });
+      values[l('restAdminUrl')] = encode({ host: resthost, cert, macaroon: adminMac });
+      values[l('restInvoiceUrl')] = encode({
+        host: resthost,
+        cert,
+        macaroon: invoiceMac,
+      });
+      values[l('restReadOnlyUrl')] = encode({
+        host: resthost,
+        cert,
+        macaroon: readonlyMac,
+      });
       setUrls(values);
     } catch (error) {
       notify({ message: l('encodeError'), error });
