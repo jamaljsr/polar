@@ -109,7 +109,7 @@
     "eslint-plugin-react": "7.25.1",
     "history": "4.10.1",
     "husky": "7.0.2",
-    "i18next": "20.5.0",
+    "i18next": "20.6.0",
     "i18next-browser-languagedetector": "6.1.2",
     "i18next-scanner": "3.0.0",
     "jest-environment-jsdom-sixteen": "1.0.3",
