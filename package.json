@@ -51,7 +51,7 @@
     "electron-log": "4.4.1",
     "electron-window-state": "5.0.3",
     "fs-extra": "10.0.0",
-    "shell-env": "4.0.0",
+    "shell-env": "4.0.1",
     "unzipper": "0.10.11",
     "xterm": "4.14.1",
     "xterm-addon-fit": "0.5.0"
