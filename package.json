@@ -148,7 +148,7 @@
     "utf-8-validate": "5.0.5",
     "wait-on": "6.0.0",
     "webpack": "4.44.2",
-    "ws": "8.2.2"
+    "ws": "8.2.3"
   },
   "jest": {
     "collectCoverageFrom": [
