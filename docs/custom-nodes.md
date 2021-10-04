@@ -1,6 +1,6 @@
 # Build Custom Node Images
 
-Polar v1.0.0 supports using custom docker images for nodes in your networks. The instructions below will walk you through the process of creating custom images using the `master` branch of each implementation. There are some limitations, such as running as a non-root user to be compatible across multiple platforms. Feel free to customize these Dockerfiles to you specific needs.
+Polar v1.0.0 supports using custom docker images for nodes in your networks. The instructions below will walk you through the process of creating custom images using the `master` branch of each implementation. There are some limitations, such as running as a non-root user to be compatible across multiple platforms. Feel free to customize these Dockerfiles to your specific needs.
 
 > Note: The Dockerfiles for each implementation will likely change in the future. Please be mindful to make updates as needed when necessary.
 
