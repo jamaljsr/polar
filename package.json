@@ -116,7 +116,7 @@
     "js-yaml": "4.1.0",
     "less": "4.1.2",
     "less-loader": "10.0.1",
-    "lint-staged": "11.2.2",
+    "lint-staged": "11.2.3",
     "lndconnect": "0.2.10",
     "nodemon": "2.0.13",
     "prettier": "2.4.1",
