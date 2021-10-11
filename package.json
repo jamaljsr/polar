@@ -138,7 +138,7 @@
     "strip-ansi": "6.0.1",
     "styled-components": "5.3.1",
     "stylelint": "13.13.1",
-    "stylelint-config-prettier": "8.0.2",
+    "stylelint-config-prettier": "9.0.2",
     "stylelint-config-standard": "22.0.0",
     "testcafe": "1.16.1",
     "testcafe-browser-provider-electron": "0.0.16",
