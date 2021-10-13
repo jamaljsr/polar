@@ -91,7 +91,7 @@
     "antd": "4.16.13",
     "babel-plugin-import": "1.13.3",
     "bitcoin-core": "3.0.0",
-    "bufferutil": "4.0.3",
+    "bufferutil": "4.0.5",
     "commitizen": "4.2.4",
     "concurrently": "6.3.0",
     "connected-react-router": "6.9.1",
