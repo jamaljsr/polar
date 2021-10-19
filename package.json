@@ -61,7 +61,7 @@
     "@commitlint/cli": "13.2.1",
     "@commitlint/config-conventional": "13.2.0",
     "@emotion/babel-plugin": "11.3.0",
-    "@emotion/react": "11.4.1",
+    "@emotion/react": "11.5.0",
     "@emotion/styled": "11.3.0",
     "@hot-loader/react-dom": "17.0.1",
     "@mrblenny/react-flow-chart": "0.0.14",
