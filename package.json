@@ -108,7 +108,7 @@
     "eslint-plugin-prettier": "3.4.1",
     "eslint-plugin-react": "7.26.1",
     "history": "4.10.1",
-    "husky": "7.0.2",
+    "husky": "7.0.4",
     "i18next": "20.6.1",
     "i18next-browser-languagedetector": "6.1.2",
     "i18next-scanner": "3.1.0",
