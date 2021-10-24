@@ -77,7 +77,7 @@
     "@types/jest": "27.0.2",
     "@types/js-yaml": "4.0.4",
     "@types/node": "14.17.29",
-    "@types/react": "17.0.31",
+    "@types/react": "17.0.32",
     "@types/react-copy-to-clipboard": "5.0.2",
     "@types/react-dom": "17.0.10",
     "@types/react-redux": "7.1.20",
