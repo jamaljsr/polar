@@ -9,6 +9,7 @@
     "babel-loader",
     "eslint",
     "jest",
+    "shell-env",
     "webpack",
     "webpack-dev-server",
     "@radar/lnrpc",
