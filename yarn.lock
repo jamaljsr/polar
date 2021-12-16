@@ -8017,10 +8017,10 @@ electron-localshortcut@^3.1.0:
     keyboardevent-from-electron-accelerator "^2.0.0"
     keyboardevents-areequal "^0.2.1"
 
-electron-log@4.4.1:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.1.tgz#28ebeb474eccba2ebf194a96c40d6328e5353e4d"
-  integrity sha512-nK/DwxPLtwWbggPCm27eMQhYHc3gzoZ+cokBK99diO4WsZJKrv5l44EUW8mRfWpmC8ZubnMyp6GTUIJyTc9AJA==
+electron-log@4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.2.tgz#5ccc66772dee9a0c9ddd885d46e6f16068fa5968"
+  integrity sha512-j7k9ouX75PNlvh4MeApz1mWs11R2RIFwi9SzlGNChZLssys6RiuQ8B2z9BHmGbrnoh5HCZ9mtwuqWgiHZKqvZA==
 
 electron-publish@22.10.5:
   version "22.10.5"
