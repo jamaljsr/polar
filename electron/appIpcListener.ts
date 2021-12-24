@@ -94,7 +94,7 @@ export const initAppIpcListener = (ipc: IpcMain) => {
         log(`send response "${uniqueChan}"`, JSON.stringify(result, null, 2));
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
-      } catch (err) {
+      } catch (err: any) {
         // reply with an error message if the execution fails
         log(`send error "${uniqueChan}"`, JSON.stringify(err, null, 2));
         event.reply(uniqueChan, { err: err.message });

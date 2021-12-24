@@ -99,7 +99,7 @@ const NetworkActions: React.FC<Props> = ({
   const mineAsync = useAsyncCallback(async () => {
     try {
       await mine({ blocks: 1, node: bitcoinNode });
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('mineError'), error });
     }
   });

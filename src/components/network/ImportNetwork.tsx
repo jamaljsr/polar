@@ -41,7 +41,7 @@ const ImportNetwork: React.FC = () => {
       const network = await importNetwork(file.path);
       notify({ message: l('importSuccess', { name: network.name }) });
       await navigateToNetwork(network.id);
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('importError', { file: file.name }), error });
     }
   });

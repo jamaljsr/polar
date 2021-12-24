@@ -18,7 +18,7 @@ const Home: React.FC = () => {
     async () => {
       try {
         await initialize();
-      } catch (error) {
+      } catch (error: any) {
         notify({ message: l('loadError'), error });
       }
     },

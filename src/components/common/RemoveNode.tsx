@@ -38,7 +38,7 @@ const RemoveNode: React.FC<Props> = ({ node, type }) => {
             await removeBitcoinNode({ node: node as BitcoinNode });
           }
           notify({ message: l('success', { name }) });
-        } catch (error) {
+        } catch (error: any) {
           notify({ message: l('error'), error });
           throw error;
         }

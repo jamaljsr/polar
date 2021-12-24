@@ -283,7 +283,7 @@ const lightningModel: LightningModel = {
           .map(async n => {
             try {
               await actions.getAllInfo(n);
-            } catch (error) {
+            } catch (error: any) {
               notify({ message: `Unable to retrieve node info from ${n.name}`, error });
             }
           }),

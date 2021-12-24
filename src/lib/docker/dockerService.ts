@@ -36,7 +36,7 @@ class DockerService implements DockerLibrary {
       const dockerVersion = await new Dockerode().version();
       debug(`Result: ${JSON.stringify(dockerVersion)}`);
       versions.docker = dockerVersion.Version;
-    } catch (error) {
+    } catch (error: any) {
       debug(`Failed: ${error.message}`);
       if (throwOnError) throw error;
     }
@@ -46,7 +46,7 @@ class DockerService implements DockerLibrary {
       const composeVersion = await this.execute(compose.version, this.getArgs());
       debug(`Result: ${JSON.stringify(composeVersion)}`);
       versions.compose = composeVersion.out.trim();
-    } catch (error) {
+    } catch (error: any) {
       debug(`Failed: ${error.message}`);
       if (throwOnError) throw error;
     }
@@ -70,7 +70,7 @@ class DockerService implements DockerLibrary {
       );
       debug(`Image Names: ${JSON.stringify(uniqueNames)}`);
       return uniqueNames;
-    } catch (error) {
+    } catch (error: any) {
       debug(`Failed: ${error.message}`);
       return [];
     }
@@ -228,7 +228,7 @@ class DockerService implements DockerLibrary {
     try {
       info(`copying data from v0.1.0 app dir '${legacyPath}' to '${networksPath}'`);
       await copy(legacyPath, networksPath);
-    } catch (error) {
+    } catch (error: any) {
       info(`failed to copy folder\nfrom: ${legacyPath}\nto: ${networksPath}\n`, error);
     }
   }
@@ -248,7 +248,7 @@ class DockerService implements DockerLibrary {
       result.out = stripAnsi(result.out);
       result.err = stripAnsi(result.err);
       return result;
-    } catch (e) {
+    } catch (e: any) {
       e.err = stripAnsi(e.err);
       info(`docker cmd failed: ${JSON.stringify(e)}`);
       throw new Error(e.err || JSON.stringify(e));

@@ -21,7 +21,7 @@ const SyncButton: React.FC<Props> = ({ network }) => {
       notify({
         message: l('syncSuccess'),
       });
-    } catch (error) {
+    } catch (error: any) {
       notify({
         message: l('syncError'),
         error,

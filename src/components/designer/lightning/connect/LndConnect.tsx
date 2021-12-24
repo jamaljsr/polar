@@ -44,7 +44,7 @@ const LndConnect: React.FC<Props> = ({ node }) => {
         macaroon: readonlyMac,
       });
       setUrls(values);
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('encodeError'), error });
     }
   }, [node.paths, node.status]);

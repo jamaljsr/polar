@@ -98,7 +98,7 @@ const DockerLogs: React.FC = () => {
     const connect = async () => {
       try {
         setPort(await startWebSocketServer(name));
-      } catch (error) {
+      } catch (error: any) {
         notify({ message: l('connectErr'), error });
       }
     };

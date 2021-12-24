@@ -72,7 +72,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     try {
       await rename(payload);
       setEditing(false);
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('renameError'), error });
     }
   });
@@ -86,7 +86,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
           description: l('exportSuccessDesc', { destination }),
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('exportError'), error });
     }
   });
@@ -103,7 +103,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
           await remove(networkId);
           notify({ message: l('deleteSuccess', { name }) });
           // no need to navigate away since it will be done by useEffect below
-        } catch (error) {
+        } catch (error: any) {
           notify({ message: l('deleteError'), error });
           throw error;
         }
@@ -124,7 +124,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
         if (!(bitcoinData && bitcoinData[name] && bitcoinData[name].chainInfo)) {
           try {
             await getInfo(network.nodes.bitcoin[0]);
-          } catch (error) {
+          } catch (error: any) {
             notify({ message: l('getInfoError'), error });
           }
         }

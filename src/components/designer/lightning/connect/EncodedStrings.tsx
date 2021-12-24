@@ -26,7 +26,7 @@ const EncodedStrings: React.FC<Props> = ({ encoding, credentials }) => {
       if (invoice) values[l('invoiceMacaroon')] = await read(invoice, encoding);
       if (readOnly) values[l('readOnlyMacaroon')] = await read(readOnly, encoding);
       setEncodedValues(values);
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('error'), error });
     }
   }, [credentials, encoding]);

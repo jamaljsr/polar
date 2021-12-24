@@ -36,7 +36,7 @@ export const waitFor = async (
         const result = await conditionFunc();
         clearInterval(timer);
         return resolve(result);
-      } catch (error) {
+      } catch (error: any) {
         // only reject when the timeout expires, otherwise ignore the error
         // and retry on the next interval
         if (timesToCheck <= 0) {

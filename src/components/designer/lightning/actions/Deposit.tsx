@@ -20,7 +20,7 @@ const Deposit: React.FC<{ node: LightningNode }> = ({ node }) => {
       notify({
         message: l('depositSuccess', { amount: format(amount), node: node.name }),
       });
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('depositError'), error });
     }
   });

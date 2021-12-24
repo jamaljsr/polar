@@ -219,7 +219,7 @@ const designerModel: DesignerModel = {
       let network: Network;
       try {
         network = getStoreState().network.networkById(activeId);
-      } catch (error) {
+      } catch (error: any) {
         return showError(error);
       }
       if (fromNode.type === 'lightning' && toNode.type === 'lightning') {
@@ -281,7 +281,7 @@ const designerModel: DesignerModel = {
           if (network.status === Status.Started) {
             await toggleNode(newNode);
           }
-        } catch (error) {
+        } catch (error: any) {
           getStoreActions().app.notify({
             message: l('dropErrTitle'),
             error,

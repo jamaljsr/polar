@@ -52,7 +52,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
         description: l('successDesc', { ln, backend }),
       });
       hideChangeBackend();
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('submitError'), error });
     }
   });

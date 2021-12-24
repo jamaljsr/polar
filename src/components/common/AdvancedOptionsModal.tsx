@@ -27,7 +27,7 @@ const AdvancedOptionsModal: React.FC<Props> = ({ network }) => {
       await updateAdvancedOptions({ node, command });
       hideAdvancedOptions();
       notify({ message: l('success', { name: node.name }) });
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('error'), error });
     }
   });

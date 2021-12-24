@@ -36,7 +36,7 @@ const RestartNode: React.FC<Props> = ({ node, menuType }) => {
         try {
           await toggleNode(node);
           notify({ message: l(`${mode}Success`, { name }) });
-        } catch (error) {
+        } catch (error: any) {
           notify({ message: l(`${mode}Error`), error });
           throw error;
         }
