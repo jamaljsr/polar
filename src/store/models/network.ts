@@ -378,7 +378,7 @@ const networkModel: NetworkModel = {
               remaining,
             );
             n.backendName = backends[0].name;
-          } catch (error) {
+          } catch (error: any) {
             throw new Error(l('removeCompatErr', { lnName: n.name }));
           }
         });
@@ -530,7 +530,7 @@ const networkModel: NetworkModel = {
           ...network.nodes.lightning,
           ...network.nodes.bitcoin,
         ]);
-      } catch (e) {
+      } catch (e: any) {
         actions.setStatus({ id, status: Status.Error });
         info(`unable to start network '${network.name}'`, e.message);
         throw e;
@@ -544,7 +544,7 @@ const networkModel: NetworkModel = {
     try {
       await injections.dockerService.stop(network);
       actions.setStatus({ id: network.id, status: Status.Stopped });
-    } catch (e) {
+    } catch (e: any) {
       actions.setStatus({ id: network.id, status: Status.Error });
       info(`unable to stop network '${network.name}'`, e.message);
       throw e;

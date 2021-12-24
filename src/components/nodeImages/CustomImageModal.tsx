@@ -26,7 +26,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
   const fetchImagesAsync = useAsync(async () => {
     try {
       await getDockerImages();
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('loadImagesError'), error });
     }
   }, [image]);
@@ -35,7 +35,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
     try {
       await saveCustomImage(imageToSave);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('saveError'), error });
     }
   });

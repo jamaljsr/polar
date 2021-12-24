@@ -34,7 +34,7 @@ const ManagedImageModal: React.FC<Props> = ({ image, onClose }) => {
       image.command = command;
       await updateManagedImage(image);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('saveError'), error });
     }
   });

@@ -187,7 +187,7 @@ const DockerTerminal: React.FC = () => {
       try {
         await connectStreams(term, name, type, l);
         term.focus();
-      } catch (error) {
+      } catch (error: any) {
         notify({ message: l('connectErr'), error });
       }
     };

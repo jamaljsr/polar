@@ -72,7 +72,7 @@ class LndService implements LightningService {
         const [toPubKey, host] = toRpcUrl.split('@');
         const addr: LND.LightningAddress = { pubkey: toPubKey, host };
         await proxy.connectPeer(this.cast(node), { addr });
-      } catch (error) {
+      } catch (error: any) {
         debug(
           `Failed to connect peer '${toRpcUrl}' to LND node ${node.name}:`,
           error.message,

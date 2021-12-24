@@ -65,7 +65,7 @@ const CustomImagesTable: React.FC<Props> = ({ images }) => {
         try {
           await removeCustomImage(image);
           notify({ message: l('success', { name }) });
-        } catch (error) {
+        } catch (error: any) {
           notify({ message: l('error'), error });
           throw error;
         }

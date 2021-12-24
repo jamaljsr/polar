@@ -26,7 +26,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const mineAsync = useAsyncCallback(async () => {
     try {
       await mine({ blocks: value, node });
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('error'), error });
     }
   });

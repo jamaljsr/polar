@@ -104,7 +104,7 @@ class EclairService implements LightningService {
       try {
         const body = { uri: toRpcUrl };
         await httpPost<{ uri: string }>(node, 'connect', body);
-      } catch (error) {
+      } catch (error: any) {
         debug(
           `Failed to connect peer '${toRpcUrl}' to Eclair node ${node.name}:`,
           error.message,

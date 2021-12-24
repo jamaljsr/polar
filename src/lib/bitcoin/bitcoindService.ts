@@ -46,7 +46,7 @@ class BitcoindService implements BitcoindLibrary {
     for (const peer of node.peers) {
       try {
         await client.addNode(peer, 'add');
-      } catch (error) {
+      } catch (error: any) {
         logger.debug(`Failed to add peer '${peer}' to bitcoind node ${node.name}`, error);
       }
     }

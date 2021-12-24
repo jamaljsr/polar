@@ -30,7 +30,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
     try {
       const invoice = await createInvoice({ node, amount, memo: '' });
       await showCreateInvoice({ nodeName: node.name, amount, invoice });
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('submitError'), error });
     }
   });

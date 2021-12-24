@@ -30,7 +30,7 @@ const CloseChannelButton: React.FC<Props> = ({ node, channelPoint, type }) => {
         try {
           await closeChannel({ node, channelPoint });
           notify({ message: l('success') });
-        } catch (error) {
+        } catch (error: any) {
           notify({ message: l('error'), error });
           throw error;
         }

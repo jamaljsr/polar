@@ -172,7 +172,7 @@ export const initLndProxy = (ipc: IpcMain) => {
         result = withDefaults(result, channel as DefaultsKey);
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
-      } catch (err) {
+      } catch (err: any) {
         // reply with an error message if the execution fails
         debug(`LndProxyServer: send error "${uniqueChan}"`, JSON.stringify(err, null, 2));
         event.reply(uniqueChan, { err: err.message });

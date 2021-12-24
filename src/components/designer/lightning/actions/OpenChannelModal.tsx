@@ -40,7 +40,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     try {
       await openChannel(payload);
       hideOpenChannel();
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('submitError'), error });
     }
   });

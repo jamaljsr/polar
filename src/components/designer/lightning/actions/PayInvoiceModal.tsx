@@ -29,7 +29,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
         description: l('successDesc', { amount: format(amount), nodeName }),
       });
       await hidePayInvoice();
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('submitError'), error });
     }
   });

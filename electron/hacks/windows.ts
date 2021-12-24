@@ -11,7 +11,7 @@ function setWindowsAppTheme(light: boolean) {
       } /f`,
       { windowsHide: true },
     );
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(
       'No permission to modify AppsUseLightTheme value. Electron will hang.',
     );
@@ -27,7 +27,7 @@ function isCurrentAppThemeLight(): boolean {
       'REG QUERY HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize /v AppsUseLightTheme /t REG_DWORD',
       { encoding: 'utf8', windowsHide: true },
     );
-  } catch (error) {
+  } catch (error: any) {
     // Value doesn't exist.
     throw new Error('Could not find registry value');
   }
@@ -48,7 +48,7 @@ export const initWindowsDarkHack = (): boolean => {
   if (process.platform !== 'win32') return false;
   try {
     if (isCurrentAppThemeLight()) return false;
-  } catch (error) {
+  } catch (error: any) {
     // Unsupported Windows version.
     return false;
   }

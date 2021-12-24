@@ -58,7 +58,7 @@ const ImageUpdatesModal: React.FC<Props> = ({ onClose }) => {
       }
       onClose();
       notify({ message: l('addSuccess') });
-    } catch (error) {
+    } catch (error: any) {
       notify({ message: l('addError'), error });
     }
   });
