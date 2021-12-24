@@ -128,7 +128,7 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     customImages: [],
   });
 
-export const mockProperty = <T extends unknown, K extends keyof T>(
+export const mockProperty = <T, K extends keyof T>(
   object: T,
   property: K,
   value: T[K],
