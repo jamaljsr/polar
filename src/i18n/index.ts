@@ -47,7 +47,7 @@ const detectLang = () => {
   return defaultLanguage;
 };
 
-const whitelist = Object.keys(languages).reduce((acc: string[], lang) => {
+const supportedLngs = Object.keys(languages).reduce((acc: string[], lang) => {
   acc.push(lang);
 
   if (lang.includes('-')) {
@@ -60,7 +60,7 @@ const whitelist = Object.keys(languages).reduce((acc: string[], lang) => {
 i18n.use(initReactI18next).init({
   lng: detectLang(),
   resources,
-  whitelist,
+  supportedLngs,
   fallbackLng: defaultLanguage,
   keySeparator: false,
   interpolation: {
