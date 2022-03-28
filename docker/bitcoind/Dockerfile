@@ -12,7 +12,14 @@ RUN curl -SLO https://bitcoin.org/bin/bitcoin-core-${BITCOIN_VERSION}/bitcoin-${
   && tar -xzf *.tar.gz -C /opt \
   && rm *.tar.gz
 
+RUN curl -SLO https://raw.githubusercontent.com/bitcoin/bitcoin/master/contrib/bitcoin-cli.bash-completion \
+  && mkdir /etc/bash_completion.d \
+  && mv bitcoin-cli.bash-completion /etc/bash_completion.d/ \
+  && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
+  && mv bash_completion /usr/share/bash-completion/
+
 COPY docker-entrypoint.sh /entrypoint.sh
+COPY bashrc /home/bitcoin/.bashrc
 
 RUN chmod a+x /entrypoint.sh
 

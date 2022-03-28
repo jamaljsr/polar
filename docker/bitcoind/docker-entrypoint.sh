@@ -11,6 +11,7 @@ if ! id bitcoin > /dev/null 2>&1; then
   echo "adding user bitcoin ($USERID:$GROUPID)"
   groupadd -f -g $GROUPID bitcoin
   useradd -r -u $USERID -g $GROUPID bitcoin
+  chown -R $USERID:$GROUPID /home/bitcoin
 fi
 
 if [ $(echo "$1" | cut -c1) = "-" ]; then
