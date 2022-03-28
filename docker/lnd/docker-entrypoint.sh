@@ -11,6 +11,7 @@ if ! id lnd > /dev/null 2>&1; then
   echo "adding user lnd ($USERID:$GROUPID)"
   groupadd -f -g $GROUPID lnd
   useradd -r -u $USERID -g $GROUPID lnd
+  chown -R $USERID:$GROUPID /home/lnd
 fi
 
 if [ $(echo "$1" | cut -c1) = "-" ]; then

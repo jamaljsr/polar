@@ -49,11 +49,15 @@ export const testCustomImages: CustomImage[] = [
 ];
 
 export const testRepoState: DockerRepoState = {
-  version: 27,
+  version: 35,
   images: {
     LND: {
-      latest: '0.12.1-beta',
+      latest: '0.14.2-beta',
       versions: [
+        '0.14.2-beta',
+        '0.14.1-beta',
+        '0.13.1-beta',
+        '0.13.0-beta',
         '0.12.1-beta',
         '0.12.0-beta',
         '0.11.1-beta',
@@ -71,6 +75,10 @@ export const testRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.14.2-beta': '22.0',
+        '0.14.1-beta': '22.0',
+        '0.13.1-beta': '22.0',
+        '0.13.0-beta': '22.0',
         '0.12.1-beta': '22.0',
         '0.12.0-beta': '22.0',
         '0.11.1-beta': '22.0',
