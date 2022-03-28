@@ -99,8 +99,8 @@ export const testRepoState: DockerRepoState = {
       versions: ['0.10.0', '0.9.3', '0.9.2', '0.9.1', '0.9.0', '0.8.2', '0.8.1', '0.8.0'],
     },
     eclair: {
-      latest: '0.6.0',
-      versions: ['0.6.0', '0.5.0', '0.4.2'],
+      latest: '0.7.0',
+      versions: ['0.7.0', '0.6.2', '0.6.1', '0.6.0', '0.5.0', '0.4.2'],
     },
     bitcoind: {
       latest: '22.0',

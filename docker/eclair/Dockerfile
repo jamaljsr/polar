@@ -28,7 +28,7 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 # The easiest way to reliably get dependencies is to build the project with no sources
 #################### Polar Modification
 # No need to copy local files
-# Original lines: 
+# Original lines:
 # WORKDIR /usr/src
 # COPY pom.xml pom.xml
 # COPY eclair-core/pom.xml eclair-core/pom.xml
@@ -56,9 +56,7 @@ RUN cp /usr/repo/pom.xml pom.xml
 RUN mkdir -p eclair-core && cp /usr/repo/eclair-core/pom.xml eclair-core/pom.xml
 RUN mkdir -p eclair-front && cp /usr/repo/eclair-front/pom.xml eclair-front/pom.xml
 RUN mkdir -p eclair-node && cp /usr/repo/eclair-node/pom.xml eclair-node/pom.xml
-RUN mkdir -p eclair-node-gui && cp /usr/repo/eclair-node-gui/pom.xml eclair-node-gui/pom.xml
 RUN mkdir -p eclair-node/modules && cp /usr/repo/eclair-node/modules/assembly.xml eclair-node/modules/assembly.xml
-RUN mkdir -p eclair-node-gui/modules && cp /usr/repo/eclair-node-gui/modules/assembly.xml eclair-node-gui/modules/assembly.xml
 RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
 # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
 ENV MAVEN_OPTS=-Xmx256m -XX:MaxPermSize=512m
@@ -98,7 +96,14 @@ ENV ECLAIR_DATADIR=/home/eclair/
 RUN chmod -R a+x eclair-node/*
 RUN ls -al eclair-node/bin
 
+RUN curl -SLO https://raw.githubusercontent.com/ACINQ/eclair/master/contrib/eclair-cli.bash-completion \
+  && mkdir /etc/bash_completion.d \
+  && mv eclair-cli.bash-completion /etc/bash_completion.d/ \
+  && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
+  && mv bash_completion /usr/share/bash-completion/
+
 COPY docker-entrypoint.sh /entrypoint.sh
+COPY bashrc /home/eclair/.bashrc
 
 RUN chmod a+x /entrypoint.sh
 
