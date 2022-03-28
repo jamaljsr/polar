@@ -154,7 +154,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--bitcoind.rpcport=18443',
       '--bitcoind.rpcuser={{rpcUser}}',
       '--bitcoind.rpcpassword={{rpcPass}}',
-      '--bitcoind.zmqblock=tcp://{{backendName}}:28334',
+      '--bitcoind.zmqblock=tcp://{{backendName}}:28336',
       '--bitcoind.zmqtx=tcp://{{backendName}}:28335',
       '--datadir=/home/eclair/.eclair',
       '--printToConsole=true',
@@ -178,6 +178,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-debug=1',
       '-zmqpubrawblock=tcp://0.0.0.0:28334',
       '-zmqpubrawtx=tcp://0.0.0.0:28335',
+      '-zmqpubhashblock=tcp://0.0.0.0:28336',
       '-txindex=1',
       '-dnsseed=0',
       '-upnp=0',
@@ -246,8 +247,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.10.0', '0.9.3', '0.8.2'],
     },
     eclair: {
-      latest: '0.6.1',
-      versions: ['0.6.1', '0.6.0', '0.5.0', '0.4.2'],
+      latest: '0.7.0',
+      versions: ['0.7.0', '0.6.2', '0.6.1', '0.6.0', '0.5.0', '0.4.2'],
     },
     bitcoind: {
       latest: '22.0',

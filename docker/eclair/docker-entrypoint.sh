@@ -16,7 +16,7 @@ if ! id eclair > /dev/null 2>&1; then
   useradd -r -u $USERID -g $GROUPID eclair
   # ensure correct ownership of user home dir
   mkdir -p /home/eclair
-  chown eclair:eclair /home/eclair
+  chown -R $USERID:$GROUPID /home/eclair
 fi
 
 if [ "$1" = "polar-eclair" ]; then
