@@ -25,7 +25,7 @@ function stripLeftZeros(str: string) {
 export const format = (value: string | number): string => {
   if (!value) return value as string;
   const num = typeof value === 'string' ? parseFloat(value) : value;
-  return isNaN(num) ? '0' : num.toLocaleString();
+  return isNaN(num) ? '0' : num.toLocaleString('en-US');
 };
 
 /**
