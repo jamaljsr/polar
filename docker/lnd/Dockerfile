@@ -12,10 +12,7 @@ RUN curl -SLO https://github.com/lightningnetwork/lnd/releases/download/v${LND_V
   && tar -xzf *.tar.gz -C /opt \
   && rm *.tar.gz
 
-RUN curl -SLO https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/lnd-linux-amd64-v${LND_VERSION}.tar.gz \
-  && tar -xzf *.tar.gz -C /opt \
-  && rm *.tar.gz \
-  && curl -SLO https://raw.githubusercontent.com/lightningnetwork/lnd/master/contrib/lncli.bash-completion \
+RUN curl -SLO https://raw.githubusercontent.com/lightningnetwork/lnd/master/contrib/lncli.bash-completion \
   && mkdir /etc/bash_completion.d \
   && mv lncli.bash-completion /etc/bash_completion.d/ \
   && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
