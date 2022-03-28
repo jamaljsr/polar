@@ -16,7 +16,7 @@ if ! id clightning > /dev/null 2>&1; then
   useradd -r -u $USERID -g $GROUPID clightning
   # ensure correct ownership of user home dir
   mkdir -p /home/clightning
-  chown clightning:clightning /home/clightning
+  chown -R $USERID:$GROUPID /home/clightning
 fi
 
 if [ $(echo "$1" | cut -c1) = "-" ]; then
