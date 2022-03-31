@@ -3083,10 +3083,10 @@
     "@testing-library/dom" "^8.0.0"
     "@types/react-dom" "*"
 
-"@testing-library/user-event@14.0.0":
-  version "14.0.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-14.0.0.tgz#3906aa6f0e56fd012d73559f5f05c02e63ba18dd"
-  integrity sha512-hZhjNrle/DMi1ziHwHy8LS0fYJtf+cID7fuG5+4h+Bk83xQaRDQT/DlqfL4hJYw3mxW6KTIxoODrhGnhqJebdQ==
+"@testing-library/user-event@14.0.1":
+  version "14.0.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-14.0.1.tgz#26864fefd3ccee372f4d9c201d3469290e58fb97"
+  integrity sha512-HKI9UVLg31Y8uKRzZ/mFDPnuXTTWA9Zv/nGxtniOwS230QHyWaLmQUJdQT4mX1WlIM9Tn4hyrwfyKFqVvz9EeA==
 
 "@tootallnate/once@2":
   version "2.0.0"
