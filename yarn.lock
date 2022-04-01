@@ -16827,10 +16827,10 @@ react-motion@^0.5.2:
     prop-types "^15.5.8"
     raf "^3.1.0"
 
-react-redux@7.2.7:
-  version "7.2.7"
-  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.2.7.tgz#f5edd4e4bc34ec8787451d77d16663abf12f8be9"
-  integrity sha512-kpstUHhXgT5HOLwzoRhDr3AWHO7H5mgTN5pX1H02OuoIMaZiOLYlul8vgan2WE8eEttAEMew8Npgzd3C6Asdow==
+react-redux@7.2.8:
+  version "7.2.8"
+  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-7.2.8.tgz#a894068315e65de5b1b68899f9c6ee0923dd28de"
+  integrity sha512-6+uDjhs3PSIclqoCk0kd6iX74gzrGc3W5zcAjbrFgEdIjRSQObdIwfx80unTkVUYvbQ95Y8Av3OvFHq1w5EOUw==
   dependencies:
     "@babel/runtime" "^7.15.4"
     "@types/react-redux" "^7.1.20"
