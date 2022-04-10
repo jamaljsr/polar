@@ -60,7 +60,7 @@
     "@ant-design/icons": "4.7.0",
     "@commitlint/cli": "16.2.3",
     "@commitlint/config-conventional": "16.2.1",
-    "@emotion/babel-plugin": "11.7.2",
+    "@emotion/babel-plugin": "11.9.2",
     "@emotion/react": "11.9.0",
     "@emotion/styled": "11.8.1",
     "@hot-loader/react-dom": "17.0.2",
