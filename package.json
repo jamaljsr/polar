@@ -132,7 +132,7 @@
     "react-router-dom": "5.3.1",
     "react-router-transition": "2.1.0",
     "react-scripts": "4.0.3",
-    "redux": "4.1.2",
+    "redux": "4.2.0",
     "redux-logger": "3.0.6",
     "standard-version": "9.3.2",
     "strip-ansi": "6.0.1",
