@@ -15,7 +15,7 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
 1. Overwrite `Dockerfile` with the following:
 
    ```
-   FROM golang:1.13-alpine as builder
+   FROM golang:1.18-alpine as builder
 
    # Force Go to use the cgo based DNS resolver. This is required to ensure DNS
    # queries required to connect to linked containers succeed.
