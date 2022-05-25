@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@ant-design/icons": "4.7.0",
-    "@commitlint/cli": "17.0.0",
+    "@commitlint/cli": "17.0.1",
     "@commitlint/config-conventional": "17.0.0",
     "@emotion/babel-plugin": "11.9.2",
     "@emotion/react": "11.9.0",
