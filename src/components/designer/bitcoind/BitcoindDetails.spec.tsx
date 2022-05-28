@@ -2,7 +2,7 @@ import React from 'react';
 import { shell } from 'electron';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
-import { bitcoinCredentials } from 'utils/constants';
+import { bitcoinCredentials, dockerConfigs } from 'utils/constants';
 import { getNetwork, injections, renderWithProviders } from 'utils/tests';
 import BitcoindDetails from './BitcoindDetails';
 
@@ -44,7 +44,9 @@ describe('BitcoindDetails', () => {
     it('should display Implementation', async () => {
       const { findByText, node } = renderComponent();
       expect(await findByText('Implementation')).toBeInTheDocument();
-      expect(await findByText(node.implementation)).toBeInTheDocument();
+      expect(
+        await findByText(dockerConfigs[node.implementation].name),
+      ).toBeInTheDocument();
     });
 
     it('should display Version', async () => {

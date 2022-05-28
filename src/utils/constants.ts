@@ -108,7 +108,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
   },
   'c-lightning': {
-    name: 'c-lightning',
+    name: 'Core Lightning',
     imageName: 'polarlightning/clightning',
     logo: clightningLogo,
     platforms: ['mac', 'linux'],
@@ -247,8 +247,8 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '0.10.2',
-      versions: ['0.10.2', '0.10.0', '0.9.3', '0.8.2'],
+      latest: '0.11.1',
+      versions: ['0.11.1', '0.10.2', '0.10.0', '0.9.3', '0.8.2'],
     },
     eclair: {
       latest: '0.7.0',

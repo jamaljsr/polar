@@ -66,7 +66,7 @@ describe('NewNetwork component', () => {
     mockOS.platform.mockReturnValue('darwin');
     const { getByLabelText, queryByText } = renderComponent();
     expect(getByLabelText('LND')).toHaveValue('1');
-    expect(getByLabelText('c-lightning')).toHaveValue('1');
+    expect(getByLabelText('Core Lightning')).toHaveValue('1');
     expect(getByLabelText('Eclair')).toHaveValue('1');
     expect(getByLabelText('Bitcoin Core')).toHaveValue('1');
     expect(queryByText('My Test Image')).not.toBeInTheDocument();
@@ -80,7 +80,7 @@ describe('NewNetwork component', () => {
   it('should disable c-lightning input on Windows', () => {
     mockOS.platform.mockReturnValue('win32');
     const { getByLabelText, getByText } = renderComponent();
-    expect(getByLabelText('c-lightning')).toHaveValue('0');
+    expect(getByLabelText('Core Lightning')).toHaveValue('0');
     expect(getByLabelText('LND')).toHaveValue('2');
     expect(getByLabelText('Eclair')).toHaveValue('1');
     expect(getByText('Not supported on Windows yet.')).toBeInTheDocument();

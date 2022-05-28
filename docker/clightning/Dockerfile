@@ -9,14 +9,14 @@
 # BEGIN ElementsProject/lightning/Dockerfile
 #########################
 
-# This dockerfile is meant to compile a c-lightning x64 image
+# This dockerfile is meant to compile a core-lightning x64 image
 # It is using multi stage build:
-# * downloader: Download litecoin/bitcoin and qemu binaries needed for c-lightning
-# * builder: Compile c-lightning dependencies, then c-lightning itself with static linking
+# * downloader: Download litecoin/bitcoin and qemu binaries needed for core-lightning
+# * builder: Compile core-lightning dependencies, then core-lightning itself with static linking
 # * final: Copy the binaries required at runtime
 # The resulting image uploaded to dockerhub will only contain what is needed for runtime.
 # From the root of the repository, run "docker build -t yourimage:yourtag ."
-FROM debian:buster-slim as downloader
+FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
   && apt-get update \
@@ -28,16 +28,16 @@ RUN wget -qO /opt/tini "https://github.com/krallin/tini/releases/download/v0.18.
   && echo "12d20136605531b09a2c2dac02ccee85e1b874eb322ef6baf7561cd93f93c855 /opt/tini" | sha256sum -c - \
   && chmod +x /opt/tini
 
-ARG BITCOIN_VERSION=0.18.1
+ARG BITCOIN_VERSION=22.0
 ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz
 ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
-ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS.asc
+ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
 
 RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
   && wget -qO $BITCOIN_TARBALL "$BITCOIN_URL" \
-  && wget -qO bitcoin.asc "$BITCOIN_ASC_URL" \
-  && grep $BITCOIN_TARBALL bitcoin.asc | tee SHA256SUMS.asc \
-  && sha256sum -c SHA256SUMS.asc \
+  && wget -qO bitcoin "$BITCOIN_ASC_URL" \
+  && grep $BITCOIN_TARBALL bitcoin | tee SHA256SUMS \
+  && sha256sum -c SHA256SUMS \
   && BD=bitcoin-$BITCOIN_VERSION/bin \
   && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
   && rm $BITCOIN_TARBALL
@@ -56,17 +56,37 @@ RUN mkdir /opt/litecoin && cd /opt/litecoin \
   && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
   && rm litecoin.tar.gz
 
-FROM debian:buster-slim as builder
+FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=master
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates autoconf automake build-essential git libtool python3 python3-pip python3-setuptools python3-mako wget gnupg dirmngr git gettext
+RUN apt-get update -qq && \
+  apt-get install -qq -y --no-install-recommends \
+  autoconf \
+  automake \
+  build-essential \
+  ca-certificates \
+  curl \
+  dirmngr \
+  gettext \
+  git \
+  gnupg \
+  libpq-dev \
+  libtool \
+  libffi-dev \
+  python3 \
+  python3-dev \
+  python3-mako \
+  python3-pip \
+  python3-venv \
+  python3-setuptools \
+  wget
 
-RUN wget -q https://zlib.net/zlib-1.2.11.tar.gz \
-  && tar xvf zlib-1.2.11.tar.gz \
-  && cd zlib-1.2.11 \
+RUN wget -q https://zlib.net/zlib-1.2.12.tar.gz \
+  && tar xvf zlib-1.2.12.tar.gz \
+  && cd zlib-1.2.12 \
   && ./configure \
   && make \
-  && make install && cd .. && rm zlib-1.2.11.tar.gz && rm -rf zlib-1.2.11
+  && make install && cd .. && rm zlib-1.2.12.tar.gz && rm -rf zlib-1.2.12
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
   && wget -q https://www.sqlite.org/2019/sqlite-src-3290000.zip \
@@ -82,6 +102,11 @@ RUN wget -q https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz \
   && ./configure --disable-assembly \
   && make \
   && make install && cd .. && rm gmp-6.1.2.tar.xz && rm -rf gmp-6.1.2
+
+ENV RUST_PROFILE=release
+ENV PATH=$PATH:/root/.cargo/bin/
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 
 WORKDIR /opt/lightningd
 #################### Polar Modification
@@ -101,14 +126,18 @@ ARG DEVELOPER=1
 ####################
 
 ENV PYTHON_VERSION=3
-RUN apt-get install -y --no-install-recommends python3-dev
-RUN pip3 install -U pip && pip3 install -r requirements.lock
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
+  && pip3 install -U pip \
+  && pip3 install -U wheel \
+  && /root/.local/bin/poetry config virtualenvs.create false \
+  && /root/.local/bin/poetry install
+
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j3 DEVELOPER=${DEVELOPER} && make install
 
-FROM debian:buster-slim as final
+FROM debian:bullseye-slim as final
 
 COPY --from=downloader /opt/tini /usr/bin/tini
-RUN apt-get update && apt-get install -y --no-install-recommends socat inotify-tools python3 python3-pip \
+RUN apt-get update && apt-get install -y --no-install-recommends socat inotify-tools python3 python3-pip libpq5\
   && rm -rf /var/lib/apt/lists/*
 
 ENV LIGHTNINGD_DATA=/root/.lightning
@@ -162,7 +191,7 @@ RUN chmod a+x /entrypoint.sh
 VOLUME ["/home/clightning"]
 VOLUME ["/opt/c-lightning-rest/certs"]
 
-EXPOSE 9735 8080 10000
+EXPOSE 9735 9835 8080 10000
 
 ENTRYPOINT ["/entrypoint.sh"]
 

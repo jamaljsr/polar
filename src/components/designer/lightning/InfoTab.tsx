@@ -3,6 +3,7 @@ import { Alert, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
+import { dockerConfigs } from 'utils/constants';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { StatusBadge } from 'components/common';
@@ -18,7 +19,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   const { nodes } = useStoreState(s => s.lightning);
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
-    { label: l('implementation'), value: node.implementation },
+    { label: l('implementation'), value: dockerConfigs[node.implementation]?.name },
     { label: l('version'), value: node.docker.image ? 'custom' : `v${node.version}` },
     {
       label: l('status'),
