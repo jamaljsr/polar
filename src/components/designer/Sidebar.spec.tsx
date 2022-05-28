@@ -45,7 +45,7 @@ describe('Sidebar Component', () => {
   it('should display bitcoind details', async () => {
     const { findByText } = renderComponent('node', 'backend1');
     expect(await findByText('bitcoin')).toBeInTheDocument();
-    expect(await findByText('bitcoind')).toBeInTheDocument();
+    expect(await findByText('Bitcoin Core')).toBeInTheDocument();
   });
 
   it('should display lnd details', async () => {
