@@ -1,6 +1,6 @@
 import React from 'react';
 import { waitFor } from '@testing-library/react';
-import { LndNode } from 'shared/types';
+import { CLightningNode, LndNode } from 'shared/types';
 import * as files from 'utils/files';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import { ConnectionInfo } from '../ConnectTab';
@@ -25,7 +25,7 @@ describe('EncodedStrings', () => {
     filesMock.read.mockResolvedValue('file-content');
   });
 
-  it('should display credentials', async () => {
+  it('should display credentials for LND', async () => {
     const lnd = network.nodes.lightning[0] as LndNode;
     const lndCreds: ConnectionInfo['credentials'] = {
       admin: lnd.paths.adminMacaroon,
@@ -44,6 +44,29 @@ describe('EncodedStrings', () => {
     );
     expect(filesMock.read).toBeCalledWith(
       expect.stringContaining('readonly.macaroon'),
+      'hex',
+    );
+  });
+
+  it('should display credentials for Core Lightning', async () => {
+    const cln = network.nodes.lightning[1] as CLightningNode;
+    const clnCreds: ConnectionInfo['credentials'] = {
+      admin: cln.paths.macaroon,
+      cert: cln.paths.tlsCert,
+      certKey: cln.paths.tlsKey,
+    };
+    const { getByText } = renderComponent(clnCreds, 'hex');
+    await waitFor(() => getByText('TLS Cert'));
+    expect(getByText('TLS Cert')).toBeInTheDocument();
+    expect(getByText('TLS Key')).toBeInTheDocument();
+    expect(getByText('Admin Macaroon')).toBeInTheDocument();
+    expect(filesMock.read).toBeCalledWith(expect.stringContaining('client.pem'), 'hex');
+    expect(filesMock.read).toBeCalledWith(
+      expect.stringContaining('client-key.pem'),
+      'hex',
+    );
+    expect(filesMock.read).toBeCalledWith(
+      expect.stringContaining('access.macaroon'),
       'hex',
     );
   });

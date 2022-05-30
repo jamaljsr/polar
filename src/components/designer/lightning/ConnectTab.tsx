@@ -41,6 +41,7 @@ export interface ConnectionInfo {
     readOnly?: string;
     invoice?: string;
     cert?: string;
+    certKey?: string;
     basicAuth?: string;
   };
   p2pUriExternal: string;
@@ -84,8 +85,11 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         return {
           restUrl: `http://127.0.0.1:${cln.ports.rest}`,
           restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
+          grpcUrl: cln.ports.grpc ? `127.0.0.1:${cln.ports.grpc}` : undefined,
           credentials: {
             admin: cln.paths.macaroon,
+            cert: cln.paths.tlsCert,
+            certKey: cln.paths.tlsKey,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${cln.ports.p2p}`,
           authTypes: ['paths', 'hex', 'base64'],

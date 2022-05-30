@@ -58,6 +58,7 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
   'c-lightning': {
     rest: 8181,
     p2p: 9835,
+    grpc: 11001,
   },
   eclair: {
     rest: 8281,
@@ -125,6 +126,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--log-level=debug',
       '--dev-bitcoind-poll=2',
       '--dev-fast-gossip',
+      '--grpc-port=11001',
       '--plugin=/opt/c-lightning-rest/plugin.js',
       '--rest-port=8080',
       '--rest-protocol=http',

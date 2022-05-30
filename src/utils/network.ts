@@ -85,10 +85,16 @@ export const getLndFilePaths = (name: string, network: Network) => {
   };
 };
 
-export const getCLightningFilePaths = (name: string, network: Network) => {
+export const getCLightningFilePaths = (
+  name: string,
+  withTls: boolean,
+  network: Network,
+) => {
   const path = nodePath(network, 'c-lightning', name);
   return {
     macaroon: join(path, 'rest-api', 'access.macaroon'),
+    tlsCert: withTls ? join(path, 'lightningd', 'regtest', 'client.pem') : undefined,
+    tlsKey: withTls ? join(path, 'lightningd', 'regtest', 'client-key.pem') : undefined,
   };
 };
 
@@ -164,6 +170,8 @@ export const createCLightningNetworkNode = (
     compatibility,
     bitcoin,
   );
+  // determines if GRPC is supported in a version of Core Lightning provided
+  const supportsGrpc = !isVersionCompatible(version, '0.10.2');
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   return {
@@ -176,9 +184,10 @@ export const createCLightningNetworkNode = (
     status,
     // alternate between backend nodes
     backendName: backends[id % backends.length].name,
-    paths: getCLightningFilePaths(name, network),
+    paths: getCLightningFilePaths(name, supportsGrpc, network),
     ports: {
       rest: BasePorts['c-lightning'].rest + id,
+      grpc: supportsGrpc ? BasePorts['c-lightning'].grpc + id : 0,
       p2p: BasePorts['c-lightning'].p2p + id,
     },
     docker,
@@ -407,6 +416,11 @@ export const getOpenPortRange = async (requestedPorts: number[]): Promise<number
   const openPorts: number[] = [];
 
   for (let port of requestedPorts) {
+    // keep 0 port as this indicates the port isn't type isn't supported for the node
+    if (port === 0) {
+      openPorts.push(0);
+      continue;
+    }
     if (openPorts.length) {
       // adjust to check after the previous open port if necessary, since the last
       // open port may have increased
@@ -530,6 +544,14 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
       });
     }
 
+    existingPorts = clightning.map(n => n.ports.grpc);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[clightning[index].name] = { grpc: port };
+      });
+    }
+
     existingPorts = clightning.map(n => n.ports.p2p);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
@@ -638,7 +660,8 @@ export const importNetworkFromZip = async (
       lnd.paths = getLndFilePaths(lnd.name, network);
     } else if (ln.implementation === 'c-lightning') {
       const cln = ln as CLightningNode;
-      cln.paths = getCLightningFilePaths(cln.name, network);
+      const supportsGrpc = cln.ports.grpc !== 0;
+      cln.paths = getCLightningFilePaths(cln.name, supportsGrpc, network);
     } else if (ln.implementation !== 'eclair') {
       throw new Error(l('unknownImplementation', { implementation: ln.implementation }));
     }
