@@ -90,7 +90,7 @@ class ComposeFile {
 
   addClightning(node: CLightningNode, backend: CommonNode) {
     const { name, version, ports } = node;
-    const { rest, p2p } = ports;
+    const { rest, p2p, grpc } = ports;
     const container = getContainerName(node);
     // define the variable substitutions
     const variables = {
@@ -103,11 +103,21 @@ class ComposeFile {
     const image =
       node.docker.image || `${dockerConfigs['c-lightning'].imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs['c-lightning'].command;
+    let nodeCommand = node.docker.command || dockerConfigs['c-lightning'].command;
+    // do not include the GRPC port arg in the command for unsupported versions
+    if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = clightning(name, container, image, rest, p2p, command);
+    this.content.services[name] = clightning(
+      name,
+      container,
+      image,
+      rest,
+      grpc,
+      p2p,
+      command,
+    );
   }
 
   addEclair(node: EclairNode, backend: CommonNode) {

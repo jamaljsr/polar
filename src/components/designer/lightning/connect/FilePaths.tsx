@@ -11,10 +11,11 @@ interface Props {
 
 const FilePaths: React.FC<Props> = ({ credentials }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.connect.FilePaths');
-  const { cert, admin, invoice, readOnly } = credentials;
+  const { cert, certKey, admin, invoice, readOnly } = credentials;
 
   const auth: DetailValues = [
     [l('tlsCert'), cert, cert && ellipseInner(cert, 14, 22)],
+    [l('tlsKey'), certKey, certKey && ellipseInner(certKey, 14, 22)],
     [l('adminMacaroon'), admin, admin && ellipseInner(admin, 14, 22)],
     [l('invoiceMacaroon'), invoice, invoice && ellipseInner(invoice, 14, 22)],
     [l('readOnlyMacaroon'), readOnly, readOnly && ellipseInner(readOnly, 14, 22)],
