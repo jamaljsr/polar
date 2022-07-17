@@ -92,7 +92,7 @@
     "babel-plugin-import": "1.13.5",
     "bitcoin-core": "3.0.0",
     "bufferutil": "4.0.6",
-    "commitizen": "4.2.4",
+    "commitizen": "4.2.5",
     "concurrently": "7.2.2",
     "connected-react-router": "6.9.3",
     "cross-env": "7.0.3",
