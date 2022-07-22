@@ -95,8 +95,9 @@ export const testRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '0.10.2',
+      latest: '0.11.2',
       versions: [
+        '0.11.2',
         '0.10.2',
         '0.10.0',
         '0.9.3',
