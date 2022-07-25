@@ -5275,10 +5275,10 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bitcoin-core@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/bitcoin-core/-/bitcoin-core-3.1.0.tgz#cbdb96b7c138b5bfeca23e2a5c1539cbf436694c"
-  integrity sha512-X6QzzxcN3mb1eIs75EwZSHKlL3zk9MthDksnBdTwvJdTJKZpAG3PsL81fjtXcL3NkMWttr7o32pjEcngM9qUGA==
+bitcoin-core@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/bitcoin-core/-/bitcoin-core-4.0.0.tgz#41890d1425da6395998fb17eecfe936d2c006138"
+  integrity sha512-D/GwxhdTmTem+bm14P3gQrTLlq2ReU5tX2fSxunIq2C3npNg2ZEICGThTQhmRRzT1R7GySXq/y2+9xpedpN/Vw==
   dependencies:
     "@uphold/request-logger" "^2.0.0"
     debugnyan "^1.0.0"
