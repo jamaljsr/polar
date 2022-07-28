@@ -168,7 +168,7 @@ COPY --from=builder /opt/lightningd/contrib/lightning-cli.bash-completion /etc/b
 # install nodejs
 RUN apt-get update -y \
   && apt-get install -y curl gosu git \
-  && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+  && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
   && apt-get install -y nodejs \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
