@@ -19,7 +19,7 @@ const Home: React.FC = () => {
       try {
         await initialize();
       } catch (error: any) {
-        notify({ message: l('loadError'), error });
+        notify({ message: l('initError'), error });
       }
     },
     [],

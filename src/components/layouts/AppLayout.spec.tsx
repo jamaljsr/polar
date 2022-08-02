@@ -1,8 +1,13 @@
 import React from 'react';
 import { getI18n, useTranslation } from 'react-i18next';
 import { fireEvent } from '@testing-library/react';
-import { renderWithProviders } from 'utils/tests';
+import { defaultRepoState } from 'utils/constants';
+import { injections, renderWithProviders } from 'utils/tests';
 import AppLayout from './AppLayout';
+
+const mockRepoService = injections.repoService as jest.Mocked<
+  typeof injections.repoService
+>;
 
 describe('AppLayout component', () => {
   const renderComponent = (route?: string) => {
@@ -42,6 +47,20 @@ describe('AppLayout component', () => {
     const { findByAltText, history } = renderComponent('/network');
     fireEvent.click(await findByAltText('logo'));
     expect(history.location.pathname).toEqual('/');
+  });
+
+  describe('Updates Button', () => {
+    it('should display the Image Updates Modal', async () => {
+      mockRepoService.checkForUpdates.mockResolvedValue({
+        state: defaultRepoState,
+      });
+      const { getByText, findByText } = renderComponent();
+      fireEvent.click(getByText('Update'));
+      expect(getByText('Check for new Node Versions')).toBeInTheDocument();
+      fireEvent.click(getByText('Check for new Node Versions'));
+      expect(await findByText('You are up to date!')).toBeInTheDocument();
+      fireEvent.click(getByText('Close'));
+    });
   });
 
   describe('Language Switcher', () => {

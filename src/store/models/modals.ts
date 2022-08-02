@@ -35,12 +35,17 @@ interface AdvancedOptionsModel {
   defaultCommand?: string;
 }
 
+interface ImageUpdatesModel {
+  visible: boolean;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
   createInvoice: CreateInvoiceModel;
   payInvoice: PayInvoiceModel;
   advancedOptions: AdvancedOptionsModel;
+  imageUpdates: ImageUpdatesModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -56,6 +61,9 @@ export interface ModalsModel {
   setAdvancedOptions: Action<ModalsModel, AdvancedOptionsModel>;
   showAdvancedOptions: Thunk<ModalsModel, Partial<AdvancedOptionsModel>, StoreInjections>;
   hideAdvancedOptions: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setImageUpdates: Action<ModalsModel, ImageUpdatesModel>;
+  showImageUpdates: Thunk<ModalsModel, void, StoreInjections>;
+  hideImageUpdates: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -64,6 +72,7 @@ const modalsModel: ModalsModel = {
   createInvoice: { visible: false },
   payInvoice: { visible: false },
   advancedOptions: { visible: false },
+  imageUpdates: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -156,6 +165,18 @@ const modalsModel: ModalsModel = {
       command: undefined,
       defaultCommand: undefined,
     });
+  }),
+  setImageUpdates: action((state, payload) => {
+    state.imageUpdates = {
+      ...state.imageUpdates,
+      ...payload,
+    };
+  }),
+  showImageUpdates: thunk(actions => {
+    actions.setImageUpdates({ visible: true });
+  }),
+  hideImageUpdates: thunk(actions => {
+    actions.setImageUpdates({ visible: false });
   }),
 };
 
