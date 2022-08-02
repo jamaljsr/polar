@@ -95,12 +95,11 @@ describe('DefaultSidebar Component', () => {
     mockRepoService.checkForUpdates.mockResolvedValue({
       state: defaultRepoState,
     });
-    const { getByText, findByText, getByRole } = renderComponent();
+    const { getByText, getByRole, store } = renderComponent();
     fireEvent.click(getByRole('switch'));
     expect(getByText('Check for new Node Versions')).toBeInTheDocument();
     fireEvent.click(getByText('Check for new Node Versions'));
-    expect(await findByText('You are up to date!')).toBeInTheDocument();
-    fireEvent.click(getByText('Close'));
+    expect(store.getState().modals.imageUpdates.visible).toBe(true);
   });
 
   it('should not display c-lightning nodes on Windows', () => {

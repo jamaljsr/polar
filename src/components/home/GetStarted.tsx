@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { CloudSyncOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { useStoreActions } from 'store';
 import { NETWORK_NEW } from 'components/routing';
 import logobw from 'resources/logo_bw.png';
 
@@ -27,10 +29,15 @@ const Styled = {
   ImportLink: styled(Link)`
     margin-top: 15px;
   `,
+  UpdatesButton: styled(Button)`
+    margin-top: 30px;
+  `,
 };
 
 const GetStarted: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.home.GetStarted');
+  const { showImageUpdates } = useStoreActions(s => s.modals);
+  const toggleModal = () => showImageUpdates();
 
   return (
     <Styled.GetStarted>
@@ -40,6 +47,14 @@ const GetStarted: React.FC = () => {
           {l('createBtn')}
         </Button>
       </Link>
+      <Styled.UpdatesButton
+        type="link"
+        block
+        icon={<CloudSyncOutlined />}
+        onClick={toggleModal}
+      >
+        {l('checkUpdates')}
+      </Styled.UpdatesButton>
     </Styled.GetStarted>
   );
 };
