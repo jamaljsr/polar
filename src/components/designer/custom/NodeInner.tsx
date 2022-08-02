@@ -30,7 +30,7 @@ const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
 
   return node.id === LOADING_NODE_ID ? (
     <Styled.Node size={node.size} colors={theme.node}>
-      <Loader size="16px" />
+      <Loader size={1} />
     </Styled.Node>
   ) : (
     <NodeContextMenu node={node}>
