@@ -3,6 +3,7 @@ import { defaultRepoState } from 'utils/constants';
 import { injections } from 'utils/tests';
 import appModel from './app';
 import designerModel from './designer';
+import modalsModel from './modals';
 import networkModel from './network';
 
 const mockDockerService = injections.dockerService as jest.Mocked<
@@ -21,6 +22,7 @@ describe('App model', () => {
     app: appModel,
     network: networkModel,
     designer: designerModel,
+    modals: modalsModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -37,6 +39,7 @@ describe('App model', () => {
     mockSettingsService.load.mockResolvedValue({
       lang: 'en-US',
       showAllNodeVersions: true,
+      checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
     });
@@ -70,6 +73,51 @@ describe('App model', () => {
   it('should update settings', async () => {
     store.getActions().app.updateSettings({ showAllNodeVersions: true });
     expect(store.getState().app.settings.showAllNodeVersions).toBe(true);
+  });
+
+  describe('check for updates', () => {
+    beforeEach(() => {
+      mockSettingsService.load.mockResolvedValue({
+        lang: 'en-US',
+        showAllNodeVersions: true,
+        checkForUpdatesOnStartup: true,
+        theme: 'dark',
+        nodeImages: { custom: [], managed: [] },
+      });
+    });
+
+    it('should check for updates on startup', async () => {
+      mockRepoService.checkForUpdates.mockResolvedValue({
+        state: defaultRepoState,
+      });
+      await store.getActions().app.initialize();
+      expect(store.getState().app.initialized).toBe(true);
+      expect(mockRepoService.checkForUpdates).toBeCalledTimes(1);
+      expect(store.getState().modals.imageUpdates.visible).toBe(false);
+    });
+
+    it('should display updates modal on startup', async () => {
+      mockRepoService.checkForUpdates.mockResolvedValue({
+        state: defaultRepoState,
+        updates: {
+          LND: ['0.99.0-beta'], // a new version available for LND
+          'c-lightning': [],
+          eclair: [],
+          bitcoind: [],
+          btcd: [],
+        },
+      });
+
+      await store.getActions().app.initialize();
+      expect(store.getState().app.initialized).toBe(true);
+      expect(mockRepoService.checkForUpdates).toBeCalledTimes(1);
+      expect(store.getState().modals.imageUpdates.visible).toBe(true);
+    });
+
+    it('should not throw an error', async () => {
+      mockRepoService.checkForUpdates.mockRejectedValue(new Error('something'));
+      expect(store.getActions().app.initialize()).resolves.not.toThrow();
+    });
   });
 
   describe('with mocked actions', () => {
