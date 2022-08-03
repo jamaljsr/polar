@@ -12,7 +12,7 @@ export interface Props extends SelectProps<SelectValue> {
   network: Network;
   name: string;
   label?: string;
-  status?: Status;
+  nodeStatus?: Status;
   initialValue?: string;
   nodes?: {
     [key: string]: LightningNodeModel;
@@ -23,7 +23,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   network,
   name,
   label,
-  status,
+  nodeStatus,
   initialValue,
   nodes,
   onChange,
@@ -48,8 +48,8 @@ const LightningNodeSelect: React.FC<Props> = ({
   };
 
   let lnNodes = network.nodes.lightning;
-  if (status !== undefined) {
-    lnNodes = lnNodes.filter(n => n.status === status);
+  if (nodeStatus !== undefined) {
+    lnNodes = lnNodes.filter(n => n.status === nodeStatus);
   }
 
   return (
