@@ -51,6 +51,7 @@ export interface AppModel {
   setRepoState: Action<AppModel, DockerRepoState>;
   loadRepoState: Thunk<AppModel, void, StoreInjections, RootModel>;
   saveRepoState: Thunk<AppModel, DockerRepoState, StoreInjections, RootModel>;
+  queryRepoUpdates: Thunk<AppModel, void, StoreInjections, RootModel>;
   checkForRepoUpdates: Thunk<
     AppModel,
     void,
@@ -73,6 +74,7 @@ const appModel: AppModel = {
     lang: getI18n().language,
     theme: 'dark',
     showAllNodeVersions: false,
+    checkForUpdatesOnStartup: false,
     nodeImages: {
       managed: [],
       custom: [],
@@ -104,12 +106,15 @@ const appModel: AppModel = {
   setInitialized: action((state, initialized) => {
     state.initialized = initialized;
   }),
-  initialize: thunk(async (actions, _, { getStoreActions }) => {
+  initialize: thunk(async (actions, _, { getStoreActions, getState }) => {
     await actions.loadSettings();
     await actions.loadRepoState();
     await getStoreActions().network.load();
     await actions.getDockerVersions({});
     await actions.getDockerImages();
+    if (getState().settings.checkForUpdatesOnStartup) {
+      await actions.queryRepoUpdates();
+    }
     actions.setInitialized(true);
   }),
   setSettings: action((state, settings) => {
@@ -199,6 +204,17 @@ const appModel: AppModel = {
   saveRepoState: thunk(async (actions, repoState, { injections }) => {
     await injections.repoService.save(repoState);
     actions.setRepoState(repoState);
+  }),
+  queryRepoUpdates: thunk(async (actions, payload, { getStoreActions }) => {
+    try {
+      const res = await actions.checkForRepoUpdates();
+      if (res.updates) {
+        getStoreActions().modals.showImageUpdates();
+      }
+    } catch (error) {
+      // just log errors and don't display them in the UI
+      warn('Failed to check for image updates', error);
+    }
   }),
   checkForRepoUpdates: thunk(async (actions, payload, { injections, getState }) => {
     const { dockerRepoState } = getState();

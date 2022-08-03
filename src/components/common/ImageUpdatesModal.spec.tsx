@@ -58,6 +58,15 @@ describe('ImageUpdatesModal', () => {
     expect(await findByText('test-error')).toBeInTheDocument();
   });
 
+  it('should toggle check for updates on startup', async () => {
+    const { findByText, getByText, store } = await renderComponent();
+    expect(await findByText('You are up to date!')).toBeInTheDocument();
+    fireEvent.click(getByText('Automatically check for updates on startup'));
+    expect(store.getState().app.settings.checkForUpdatesOnStartup).toBe(true);
+    fireEvent.click(getByText('Automatically check for updates on startup'));
+    expect(store.getState().app.settings.checkForUpdatesOnStartup).toBe(false);
+  });
+
   describe('with available updates', () => {
     beforeEach(() => {
       mockRepoService.checkForUpdates.mockResolvedValue({

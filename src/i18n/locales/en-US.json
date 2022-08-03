@@ -88,6 +88,7 @@
   "cmps.designer.default.ImageUpdatesModal.addError": "Failed to add the new versions",
   "cmps.designer.default.ImageUpdatesModal.success": "The new Docker Images can now be used",
   "cmps.designer.default.ImageUpdatesModal.error": "Unable to update",
+  "cmps.designer.default.ImageUpdatesModal.checkForUpdates": "Automatically check for updates on startup",
   "cmps.designer.link.Backend.title": "Chain Backend Connection",
   "cmps.designer.link.Backend.desc": "Lightning nodes rely on blockchain nodes to send transactions and receive confirmation notifications about transactions they care about. You can change this connection if you'd like to.",
   "cmps.designer.link.Backend.lightningTitle": "Lightning Node",

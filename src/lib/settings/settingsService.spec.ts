@@ -17,6 +17,7 @@ describe('SettingsService', () => {
     settings = {
       lang: 'en-US',
       showAllNodeVersions: true,
+      checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
     };

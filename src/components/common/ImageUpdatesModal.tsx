@@ -1,10 +1,11 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useCallback, useState } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Modal, Result } from 'antd';
+import { Checkbox, Modal, Result } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
-import { useStoreActions } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 import { DockerRepoUpdates } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { DetailsList, Loader } from 'components/common';
@@ -42,13 +43,20 @@ const ImageUpdatesModal: React.FC<Props> = ({ onClose }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.ImageUpdatesModal');
 
   const [repoUpdates, setRepoUpdates] = useState<DockerRepoUpdates>();
-  const { notify, checkForRepoUpdates, saveRepoState } = useStoreActions(s => s.app);
+  const { settings } = useStoreState(s => s.app);
+  const { notify, checkForRepoUpdates, saveRepoState, updateSettings } = useStoreActions(
+    s => s.app,
+  );
 
   const checkAsync = useAsync(async () => {
     const res = await checkForRepoUpdates();
     if (res.updates) {
       setRepoUpdates(res);
     }
+  }, []);
+
+  const handleUpdatesToggled = useCallback((e: CheckboxChangeEvent) => {
+    updateSettings({ checkForUpdatesOnStartup: e.target.checked });
   }, []);
 
   const updateAsync = useAsyncCallback(async () => {
@@ -111,6 +119,14 @@ const ImageUpdatesModal: React.FC<Props> = ({ onClose }) => {
       onOk={updateAsync.execute}
     >
       {cmp}
+      <Styled.Details>
+        <Checkbox
+          onChange={handleUpdatesToggled}
+          checked={settings.checkForUpdatesOnStartup}
+        >
+          {l('checkForUpdates')}
+        </Checkbox>
+      </Styled.Details>
     </Modal>
   );
 };
