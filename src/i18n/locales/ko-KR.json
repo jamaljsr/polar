@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "관리 노드는 몇 개입니까?",
   "cmps.network.NewNetwork.clightningWindows": "Windows에서는 아직 지원되지 않습니다.",
   "cmps.network.NewNetwork.btnCreate": "네트워크 만들기",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "디렉토리를 생성할 수 없습니다.",
   "cmps.nodeImages.CommandVariables.header": "명령 변수 대체",
   "cmps.nodeImages.CommandVariables.tableTitle": "아래 변수를 이중 괄호로 묶어 명령에 사용하십시오.",
   "cmps.nodeImages.CommandVariables.variable": "변하기 쉬운",
