@@ -1,5 +1,5 @@
 import detectPort from 'detect-port';
-import { LndNode, NodeImplementation, Status } from 'shared/types';
+import { CLightningNode, LndNode, NodeImplementation, Status } from 'shared/types';
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import { getImageCommand, getOpenPortRange, getOpenPorts, OpenPorts } from './network';
@@ -125,6 +125,20 @@ describe('Network Utils', () => {
       expect(ports).toBeDefined();
       expect(ports[network.nodes.lightning[0].name].grpc).toBe(10002);
       expect(ports[network.nodes.lightning[3].name].grpc).toBe(10004);
+    });
+
+    it("should not update zero'd grpc port for c-lightning nodes", async () => {
+      const portsInUse = [8182, 10001];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.bitcoin = [];
+      // set port to 0, mimicking an old c-lightning node
+      (network.nodes.lightning[1] as CLightningNode).ports.grpc = 0;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.lightning[1].name].rest).toBe(8183);
+      expect(ports[network.nodes.lightning[1].name].grpc).toBeUndefined();
     });
 
     it('should update the rest ports for lightning nodes', async () => {
