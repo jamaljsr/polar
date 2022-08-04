@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import {
@@ -41,15 +42,19 @@ const NewNetwork: React.SFC = () => {
 
   const { l } = usePrefixedTranslation('cmps.network.NewNetwork');
   const theme = useTheme();
-  const { navigateTo } = useStoreActions(s => s.app);
+  const { navigateTo, notify } = useStoreActions(s => s.app);
   const { addNetwork } = useStoreActions(s => s.network);
   const { settings } = useStoreState(s => s.app);
   const { custom: customNodes } = settings.nodeImages;
 
-  const handleSubmit = (values: any) => {
-    values.customNodes = values.customNodes || {};
-    addNetwork(values);
-  };
+  const createAsync = useAsyncCallback(async (values: any) => {
+    try {
+      values.customNodes = values.customNodes || {};
+      await addNetwork(values);
+    } catch (error: any) {
+      notify({ message: l('createError'), error });
+    }
+  });
 
   const initialCustomValues = customNodes.reduce((result, node) => {
     result[node.id] = 0;
@@ -74,7 +79,7 @@ const NewNetwork: React.SFC = () => {
             bitcoindNodes: 1,
             customNodes: initialCustomValues,
           }}
-          onFinish={handleSubmit}
+          onFinish={createAsync.execute}
         >
           <Form.Item
             name="name"
@@ -142,7 +147,7 @@ const NewNetwork: React.SFC = () => {
             </Col>
           </Row>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={createAsync.loading}>
               {l('btnCreate')}
             </Button>
           </Form.Item>

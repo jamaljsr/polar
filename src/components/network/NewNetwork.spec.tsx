@@ -2,13 +2,16 @@ import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
 import os from 'os';
 import { CustomImage } from 'types';
-import { renderWithProviders, suppressConsoleErrors } from 'utils/tests';
+import { injections, renderWithProviders, suppressConsoleErrors } from 'utils/tests';
 import { HOME, NETWORK_VIEW } from 'components/routing';
 import NewNetwork from './NewNetwork';
 
 jest.mock('os');
 
 const mockOS = os as jest.Mocked<typeof os>;
+const mockDockerService = injections.dockerService as jest.Mocked<
+  typeof injections.dockerService
+>;
 
 describe('NewNetwork component', () => {
   const customImages: CustomImage[] = [
@@ -103,6 +106,15 @@ describe('NewNetwork component', () => {
       await waitFor(() => {
         expect(injections.dockerService.saveComposeFile).toBeCalled();
       });
+    });
+
+    it('should display an error if the submission fails', async () => {
+      mockDockerService.saveComposeFile.mockRejectedValue(new Error('asdf'));
+      const { createBtn, nameInput, findByText } = renderComponent();
+      fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.click(createBtn);
+      expect(await findByText('Unable to create the new network')).toBeInTheDocument();
+      expect(await findByText('asdf')).toBeInTheDocument();
     });
   });
 });

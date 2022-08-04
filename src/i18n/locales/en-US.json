@@ -288,6 +288,7 @@
   "cmps.network.NewNetwork.managedLabel": "How many Managed Nodes?",
   "cmps.network.NewNetwork.clightningWindows": "Not supported on Windows yet.",
   "cmps.network.NewNetwork.btnCreate": "Create Network",
+  "cmps.network.NewNetwork.createError": "Unable to create the new network",
   "cmps.nodeImages.CommandVariables.header": "Command Variable Substitutions",
   "cmps.nodeImages.CommandVariables.tableTitle": "Wrap the variables below in double braces to use them in the command",
   "cmps.nodeImages.CommandVariables.variable": "Variable",
