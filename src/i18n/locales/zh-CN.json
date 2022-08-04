@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "多少个受管节点？",
   "cmps.network.NewNetwork.clightningWindows": "Windows尚不支持。",
   "cmps.network.NewNetwork.btnCreate": "建立网络",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "无法创建新网络",
   "cmps.nodeImages.CommandVariables.header": "命令变量替换",
   "cmps.nodeImages.CommandVariables.tableTitle": "将以下变量用大括号括起来，以在命令中使用它们",
   "cmps.nodeImages.CommandVariables.variable": "变量",
