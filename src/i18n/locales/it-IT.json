@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "Quanti nodi gestiti?",
   "cmps.network.NewNetwork.clightningWindows": "Non supportato ancora su Windows.",
   "cmps.network.NewNetwork.btnCreate": "Crea rete",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "Impossibile creare la nuova rete",
   "cmps.nodeImages.CommandVariables.header": "Sostituzioni di variabili di comando",
   "cmps.nodeImages.CommandVariables.tableTitle": "Avvolgi le variabili seguenti tra parentesi graffe doppie per usarle nel comando",
   "cmps.nodeImages.CommandVariables.variable": "Variabile",
