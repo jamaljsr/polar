@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "Сколько управляемых узлов?",
   "cmps.network.NewNetwork.clightningWindows": "Пока не поддерживается в Windows.",
   "cmps.network.NewNetwork.btnCreate": "Создать сеть",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "Не удалось создать новую сеть",
   "cmps.nodeImages.CommandVariables.header": "Подстановки переменных команды",
   "cmps.nodeImages.CommandVariables.tableTitle": "Оберните указанные ниже переменные в двойные скобки, чтобы использовать их в команде",
   "cmps.nodeImages.CommandVariables.variable": "переменная",
