@@ -86,6 +86,20 @@ describe('ComposeFile', () => {
     expect(service.volumes[0]).toContain('/bob/lightningd:');
   });
 
+  it('should have the grpc port for c-lightning', () => {
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.command).toContain('--grpc-port');
+  });
+
+  it('should not have the grpc port for c-lightning', () => {
+    clnNode.version = '0.10.1';
+    clnNode.ports.grpc = 0;
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.command).not.toContain('--grpc-port');
+  });
+
   it('should use the c-lightning nodes docker data', () => {
     clnNode.docker = { image: 'my-image', command: 'my-command' };
     composeFile.addClightning(clnNode, btcNode);

@@ -4,6 +4,7 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { LightningNode, Status } from 'shared/types';
 import { Network } from 'types';
 import * as files from 'utils/files';
+import { createCLightningNetworkNode } from 'utils/network';
 import {
   defaultStateBalances,
   defaultStateInfo,
@@ -301,6 +302,27 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         expect(getByText('REST Host')).toBeInTheDocument();
         expect(getByText('http://127.0.0.1:8182')).toBeInTheDocument();
+      });
+
+      it('should display the GRPC Host', async () => {
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(getByText('GRPC Host')).toBeInTheDocument();
+        expect(getByText('127.0.0.1:11002')).toBeInTheDocument();
+      });
+
+      it('should not display grpc host for unsupported versions', async () => {
+        // add an older version c-lightning node that doesn't support GRPC
+        node = createCLightningNetworkNode(
+          network,
+          '0.10.0', // version before GRPC is supported
+          undefined,
+          { image: '', command: '' },
+        );
+        network.nodes.lightning.push(node);
+        const { queryByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(queryByText('GRPC Host')).not.toBeInTheDocument();
       });
 
       it('should open API Doc links in the browser', async () => {

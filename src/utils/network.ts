@@ -416,7 +416,7 @@ export const getOpenPortRange = async (requestedPorts: number[]): Promise<number
   const openPorts: number[] = [];
 
   for (let port of requestedPorts) {
-    // keep 0 port as this indicates the port isn't type isn't supported for the node
+    // keep 0 port as this indicates the port isn't supported for the node
     if (port === 0) {
       openPorts.push(0);
       continue;
