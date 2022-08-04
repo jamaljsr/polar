@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "管理対象ノードはいくつですか？",
   "cmps.network.NewNetwork.clightningWindows": "Windowsではまだサポートされていません。",
   "cmps.network.NewNetwork.btnCreate": "ネットワークを作成",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "新しいネットワークを作成できません",
   "cmps.nodeImages.CommandVariables.header": "コマンド変数の置換",
   "cmps.nodeImages.CommandVariables.tableTitle": "以下の変数を二重括弧で囲み、コマンドで使用します",
   "cmps.nodeImages.CommandVariables.variable": "変数",
