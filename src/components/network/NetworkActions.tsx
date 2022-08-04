@@ -31,6 +31,9 @@ const Styled = {
   ExportIcon: styled(ExportOutlined)`
     margin-right: 5px;
   `,
+  Dropdown: styled(Dropdown)`
+    margin-left: 12px;
+  `,
 };
 
 interface Props {
@@ -147,9 +150,9 @@ const NetworkActions: React.FC<Props> = ({
       >
         {l(`primaryBtn${label}`)}
       </Styled.Button>
-      <Dropdown key="options" overlay={menu}>
+      <Styled.Dropdown key="options" overlay={menu}>
         <Button icon={<MoreOutlined />} />
-      </Dropdown>
+      </Styled.Dropdown>
     </>
   );
 };
