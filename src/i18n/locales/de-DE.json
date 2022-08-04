@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "Wie viele verwaltete Knoten?",
   "cmps.network.NewNetwork.clightningWindows": "Wird unter Windows noch nicht unterstützt.",
   "cmps.network.NewNetwork.btnCreate": "Netzwerk erstellen",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "Das neue Netzwerk konnte nicht erstellt werden",
   "cmps.nodeImages.CommandVariables.header": "Befehlsvariablenersetzungen",
   "cmps.nodeImages.CommandVariables.tableTitle": "Schließen Sie die folgenden Variablen in doppelte Klammern ein, um sie im Befehl zu verwenden",
   "cmps.nodeImages.CommandVariables.variable": "Variable",
