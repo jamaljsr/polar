@@ -290,7 +290,7 @@
   "cmps.network.NewNetwork.managedLabel": "Combien de nœuds gérés?",
   "cmps.network.NewNetwork.clightningWindows": "Pas encore pris en charge sous Windows.",
   "cmps.network.NewNetwork.btnCreate": "Créer un réseau",
-  "cmps.network.NewNetwork.createError": "Unable to create the new network",
+  "cmps.network.NewNetwork.createError": "Impossible de créer le nouveau réseau",
   "cmps.nodeImages.CommandVariables.header": "Substitutions de variables de commande",
   "cmps.nodeImages.CommandVariables.tableTitle": "Enveloppez les variables ci-dessous entre crochets pour les utiliser dans la commande",
   "cmps.nodeImages.CommandVariables.variable": "Variable",
