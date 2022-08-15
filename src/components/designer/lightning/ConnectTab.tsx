@@ -41,7 +41,8 @@ export interface ConnectionInfo {
     readOnly?: string;
     invoice?: string;
     cert?: string;
-    certKey?: string;
+    clientCert?: string;
+    clientKey?: string;
     basicAuth?: string;
   };
   p2pUriExternal: string;
@@ -89,7 +90,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           credentials: {
             admin: cln.paths.macaroon,
             cert: cln.paths.tlsCert,
-            certKey: cln.paths.tlsKey,
+            clientCert: cln.paths.tlsClientCert,
+            clientKey: cln.paths.tlsClientKey,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${cln.ports.p2p}`,
           authTypes: ['paths', 'hex', 'base64'],
