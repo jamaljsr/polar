@@ -53,13 +53,16 @@ describe('EncodedStrings', () => {
     const clnCreds: ConnectionInfo['credentials'] = {
       admin: cln.paths.macaroon,
       cert: cln.paths.tlsCert,
-      certKey: cln.paths.tlsKey,
+      clientCert: cln.paths.tlsClientCert,
+      clientKey: cln.paths.tlsClientKey,
     };
     const { getByText } = renderComponent(clnCreds, 'hex');
     await waitFor(() => getByText('TLS Cert'));
     expect(getByText('TLS Cert')).toBeInTheDocument();
-    expect(getByText('TLS Key')).toBeInTheDocument();
+    expect(getByText('TLS Client Cert')).toBeInTheDocument();
+    expect(getByText('TLS Client Key')).toBeInTheDocument();
     expect(getByText('Admin Macaroon')).toBeInTheDocument();
+    expect(filesMock.read).toBeCalledWith(expect.stringContaining('ca.pem'), 'hex');
     expect(filesMock.read).toBeCalledWith(expect.stringContaining('client.pem'), 'hex');
     expect(filesMock.read).toBeCalledWith(
       expect.stringContaining('client-key.pem'),

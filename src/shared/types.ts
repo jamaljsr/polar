@@ -45,7 +45,8 @@ export interface CLightningNode extends LightningNode {
   paths: {
     macaroon: string;
     tlsCert?: string;
-    tlsKey?: string;
+    tlsClientCert?: string;
+    tlsClientKey?: string;
   };
   ports: {
     rest: number;
