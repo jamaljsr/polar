@@ -3213,7 +3213,7 @@
     "@testing-library/dom" "^8.0.0"
     "@types/react-dom" "<18.0.0"
 
-"@testing-library/user-event@14.4.3", "@testing-library/user-event@^14.4.2":
+"@testing-library/user-event@14.4.3":
   version "14.4.3"
   resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-14.4.3.tgz#af975e367743fa91989cd666666aec31a8f50591"
   integrity sha512-kCUc5MEwaEMakkO5x7aoD+DLi02ehmEM2QCGWvNqAS1dV/fAvORWEjnjsEIvml59M7Y5kCkWN6fCCyPOe8OL6Q==
@@ -4519,17 +4519,16 @@ ansi-styles@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.1.0.tgz#87313c102b8118abd57371afab34618bf7350ed3"
   integrity sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==
 
-antd@4.22.5:
-  version "4.22.5"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.22.5.tgz#4617a12dee3a427fc82e5d15bfb9232025622e05"
-  integrity sha512-+qIEyzsenM9bllZHfE6ueZbI9EWulCIWeQhUeiIC6p8J2+M8w2tG2t6anbxxsOb5FnmML60ipVLL/rbm+oFKyw==
+antd@4.22.6:
+  version "4.22.6"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.22.6.tgz#f9b90072ab2550f931def2e2e93b26281760529e"
+  integrity sha512-cyGq4CFrKcHISkyvXHODqhV8X0W7r6GHP37H/KvvmYibz/1sdts3Sa0FoAPy/c165TjAcSC/ZHxJhuGbo42zvA==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.7.0"
     "@ant-design/react-slick" "~0.29.1"
     "@babel/runtime" "^7.18.3"
     "@ctrl/tinycolor" "^3.4.0"
-    "@testing-library/user-event" "^14.4.2"
     classnames "^2.2.6"
     copy-to-clipboard "^3.2.0"
     lodash "^4.17.21"
@@ -4546,7 +4545,7 @@ antd@4.22.5:
     rc-input "~0.0.1-alpha.5"
     rc-input-number "~7.3.5"
     rc-mentions "~1.9.1"
-    rc-menu "~9.6.0"
+    rc-menu "~9.6.3"
     rc-motion "^2.6.1"
     rc-notification "~4.6.0"
     rc-pagination "~3.1.17"
@@ -16696,6 +16695,19 @@ rc-menu@~9.6.0:
   version "9.6.0"
   resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-9.6.0.tgz#3263a729a81ae49cfdadee112e97d3c702922829"
   integrity sha512-d26waws42U/rVwW/+rOE2FN9pX6wUc9bDy38vVQYoie6gE85auWIpl5oChGlnW6nE2epnTwUsgWl8ipOPgmnUA==
+  dependencies:
+    "@babel/runtime" "^7.10.1"
+    classnames "2.x"
+    rc-motion "^2.4.3"
+    rc-overflow "^1.2.0"
+    rc-trigger "^5.1.2"
+    rc-util "^5.12.0"
+    shallowequal "^1.1.0"
+
+rc-menu@~9.6.3:
+  version "9.6.3"
+  resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-9.6.3.tgz#f0373d0391a97db94147106cddffe87b1e4f4e36"
+  integrity sha512-KY9QilKWgkJZ0JSpOBgIpQF2wMRRodRxpIMYyIJ3Nd5N6xfVLOxXCxevHcBplt+Ez7MhUF+I03MuAKqWQJLZgw==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "2.x"
