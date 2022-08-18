@@ -1,10 +1,11 @@
 import { debug, error } from 'electron-log';
 import { join } from 'path';
-import { LndNode } from 'shared/types';
+import { CLightningNode, LndNode } from 'shared/types';
 import { NetworksFile } from 'types';
 import { networksPath } from './config';
 import { APP_VERSION, BasePorts, dockerConfigs } from './constants';
-import { getLndFilePaths } from './network';
+import { getCLightningFilePaths, getLndFilePaths } from './network';
+import { isVersionCompatible } from './strings';
 
 const v020 = (file: NetworksFile): NetworksFile => {
   debug('Applying v0.2.0 migrations');
@@ -133,10 +134,33 @@ const v110 = (file: NetworksFile): NetworksFile => {
   return file;
 };
 
+const v140 = (file: NetworksFile): NetworksFile => {
+  debug('Applying v1.4.0 migrations');
+
+  file.networks.forEach(network => {
+    const pre = `[${network.id}] ${network.name}:`;
+    network.nodes.lightning.forEach(node => {
+      // the TLS paths were changed in PR #584
+      const supportsGrpc = !isVersionCompatible(node.version, '0.10.2');
+      if (
+        node.implementation === 'c-lightning' &&
+        supportsGrpc &&
+        !(node as CLightningNode).paths.tlsClientCert
+      ) {
+        debug(`${pre} update c-lightning TLS paths for ${node.name}`);
+        const newPaths = getCLightningFilePaths(node.name, true, network);
+        (node as CLightningNode).paths = newPaths;
+      }
+    });
+  });
+
+  return file;
+};
+
 /**
  * The list of migration functions to execute
  */
-const migrations = [v020, v030, v110];
+const migrations = [v020, v030, v110, v140];
 
 /**
  * Migrates network and chart data from a previous app version
