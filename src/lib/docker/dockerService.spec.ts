@@ -5,7 +5,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
-import { LndNode } from 'shared/types';
+import { CLightningNode, LndNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -333,6 +333,20 @@ describe('DockerService', () => {
       return { net, chart };
     };
 
+    const create130Network = () => {
+      const { net, chart } = createTestNetwork();
+      net.nodes.lightning.forEach((n: any) => {
+        if (n.implementation === 'c-lightning') {
+          // removed in v1.4.0
+          n.paths.tlsKey = 'dummy key';
+          // added in v1.4.0
+          delete n.paths.tlsClientCert;
+          delete n.paths.tlsClientKey;
+        }
+      });
+      return { net, chart };
+    };
+
     const createLegacyNetworksFile = (version = '0.1.0') => {
       let res: { net: Network; chart: IChart };
 
@@ -345,6 +359,9 @@ describe('DockerService', () => {
           break;
         case '1.0.1':
           res = create101Network();
+          break;
+        case '1.3.0':
+          res = create130Network();
           break;
         default:
           res = createTestNetwork();
@@ -466,6 +483,22 @@ describe('DockerService', () => {
       networks[0].nodes.lightning.forEach(n => {
         if (n.implementation === 'LND') {
           expect((n as LndNode).paths.invoiceMacaroon).toBeDefined();
+        }
+      });
+    });
+
+    it('should migrate network data from v1.3.0', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile('1.3.0'));
+      const { networks, version } = await dockerService.loadNetworks();
+      expect(version).toEqual(APP_VERSION);
+      // added in v1.4.0
+      networks[0].nodes.lightning.forEach(n => {
+        if (n.implementation === 'c-lightning') {
+          expect((n as any).paths.tlsKey).toBeUndefined();
+          expect((n as CLightningNode).paths.tlsCert).toBeDefined();
+          expect((n as CLightningNode).paths.tlsClientCert).toBeDefined();
+          expect((n as CLightningNode).paths.tlsClientKey).toBeDefined();
         }
       });
     });
