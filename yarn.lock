@@ -2017,6 +2017,11 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
+"@balena/dockerignore@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@balena/dockerignore/-/dockerignore-1.0.2.tgz#9ffe4726915251e8eb69f44ef3547e0da2c03e0d"
+  integrity sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==
+
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
@@ -7990,11 +7995,12 @@ docker-modem@^3.0.0:
     split-ca "^1.0.1"
     ssh2 "^0.8.7"
 
-dockerode@3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.3.3.tgz#7504db10d23866c6f267e7b0b7b4a75fc2203e8d"
-  integrity sha512-lvKV6/NGf2/CYLt5V4c0fd6Fl9XZSCo1Z2HBT9ioKrKLMB2o+gA62Uza8RROpzGvYv57KJx2dKu+ZwSpB//OIA==
+dockerode@3.3.4:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.3.4.tgz#875de614a1be797279caa9fe27e5637cf0e40548"
+  integrity sha512-3EUwuXnCU+RUlQEheDjmBE0B7q66PV9Rw5NiH1sXwINq0M9c5ERP9fxgkw36ZHOtzf4AGEEYySnkx/sACC9EgQ==
   dependencies:
+    "@balena/dockerignore" "^1.0.2"
     docker-modem "^3.0.0"
     tar-fs "~2.0.1"
 
