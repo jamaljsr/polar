@@ -4524,10 +4524,10 @@ ansi-styles@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.1.0.tgz#87313c102b8118abd57371afab34618bf7350ed3"
   integrity sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==
 
-antd@4.22.6:
-  version "4.22.6"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.22.6.tgz#f9b90072ab2550f931def2e2e93b26281760529e"
-  integrity sha512-cyGq4CFrKcHISkyvXHODqhV8X0W7r6GHP37H/KvvmYibz/1sdts3Sa0FoAPy/c165TjAcSC/ZHxJhuGbo42zvA==
+antd@4.22.7:
+  version "4.22.7"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.22.7.tgz#3c94bbc37466a727f6f4eac2ca6adb5fb0eb7a25"
+  integrity sha512-CMf5tYHtlhP1blYjwNTRsB7G/bocwKmIFHgYYk4pZNgo1kk/XnPPI2/MKRCXWc54wuCQQlnmL/2AKtE7HWaE8g==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.7.0"
