@@ -2,11 +2,12 @@ import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
 import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, Menu } from 'antd';
-import { LightningNode, Status } from 'shared/types';
+import { BitcoinNode, LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
+import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
 
 const Styled = {
@@ -48,6 +49,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   if (!node) return <>{children}</>;
 
   const isLN = node.type === 'lightning';
+  const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
 
   const menu = (
@@ -72,6 +74,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
           'incoming',
           <OpenChannelButtons menuType="incoming" node={node as LightningNode} />,
           isLN,
+        ),
+        createItem(
+          'sendonchain',
+          <SendOnChainButton type="menu" node={node as BitcoinNode} />,
+          isBackend,
         ),
         createItem('terminal', <OpenTerminalButton type="menu" node={node} />),
         <Menu.Divider key="divider" />,

@@ -6,6 +6,7 @@ import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/commo
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import MineBlocksInput from './actions/MineBlocksInput';
+import SendOnChainButton from './actions/SendOnChainButton';
 
 const Styled = {
   Spacer: styled.div`
@@ -23,6 +24,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
       {node.status === Status.Started && (
         <>
           <MineBlocksInput node={node} />
+          <SendOnChainButton node={node} />
           <OpenTerminalButton node={node} />
           <ViewLogsButton node={node} />
           <Styled.Spacer />

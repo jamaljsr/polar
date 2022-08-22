@@ -152,6 +152,16 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the Send Onchain modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showSendOnChain({});
+    });
+    expect(await findByText('Send To Onchain Address')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
   it('should display the AdvancedOptions modal', async () => {
     const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
