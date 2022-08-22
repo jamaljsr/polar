@@ -39,6 +39,13 @@ interface ImageUpdatesModel {
   visible: boolean;
 }
 
+interface SendOnChainModel {
+  visible: boolean;
+  backendName?: string;
+  toAddress?: string;
+  amount?: number;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -46,6 +53,7 @@ export interface ModalsModel {
   payInvoice: PayInvoiceModel;
   advancedOptions: AdvancedOptionsModel;
   imageUpdates: ImageUpdatesModel;
+  sendOnChain: SendOnChainModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -64,6 +72,9 @@ export interface ModalsModel {
   setImageUpdates: Action<ModalsModel, ImageUpdatesModel>;
   showImageUpdates: Thunk<ModalsModel, void, StoreInjections>;
   hideImageUpdates: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setSendOnChain: Action<ModalsModel, SendOnChainModel>;
+  showSendOnChain: Thunk<ModalsModel, Partial<SendOnChainModel>, StoreInjections>;
+  hideSendOnChain: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -73,6 +84,7 @@ const modalsModel: ModalsModel = {
   payInvoice: { visible: false },
   advancedOptions: { visible: false },
   imageUpdates: { visible: false },
+  sendOnChain: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -177,6 +189,23 @@ const modalsModel: ModalsModel = {
   }),
   hideImageUpdates: thunk(actions => {
     actions.setImageUpdates({ visible: false });
+  }),
+  setSendOnChain: action((state, payload) => {
+    state.sendOnChain = {
+      ...state.sendOnChain,
+      ...payload,
+    };
+  }),
+  showSendOnChain: thunk((actions, { toAddress, backendName, amount }) => {
+    actions.setSendOnChain({ visible: true, toAddress, backendName, amount });
+  }),
+  hideSendOnChain: thunk(actions => {
+    actions.setSendOnChain({
+      visible: false,
+      toAddress: undefined,
+      backendName: undefined,
+      amount: undefined,
+    });
   }),
 };
 

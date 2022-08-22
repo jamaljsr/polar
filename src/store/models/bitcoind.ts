@@ -32,6 +32,13 @@ export interface BitcoindModel {
     StoreInjections,
     RootModel
   >;
+  sendFunds: Thunk<
+    BitcoindModel,
+    { node: BitcoinNode; toAddress: string; amount: number; autoMine: boolean },
+    StoreInjections,
+    RootModel,
+    Promise<string>
+  >;
 }
 
 const bitcoindModel: BitcoindModel = {
@@ -66,6 +73,13 @@ const bitcoindModel: BitcoindModel = {
       network.nodes.bitcoin.filter(n => n.status === Status.Started).map(actions.getInfo),
     );
   }),
+  sendFunds: thunk(
+    async (actions, { node, toAddress, amount, autoMine }, { injections }) => {
+      const txid = await injections.bitcoindService.sendFunds(node, toAddress, amount);
+      if (autoMine) await actions.mine({ blocks: 6, node });
+      return txid;
+    },
+  ),
 };
 
 export default bitcoindModel;

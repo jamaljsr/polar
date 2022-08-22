@@ -70,6 +70,7 @@ describe('NodeContextMenu', () => {
 
   it('should display the correct options for a started bitcoin node', async () => {
     const { getByText } = renderComponent('backend1', Status.Started);
+    expect(getByText('Send to Address')).toBeInTheDocument();
     expect(getByText('Launch Terminal')).toBeInTheDocument();
     expect(getByText('Stop')).toBeInTheDocument();
     expect(getByText('View Logs')).toBeInTheDocument();
@@ -79,6 +80,7 @@ describe('NodeContextMenu', () => {
 
   it('should display the correct options for a stopped bitcoin node', async () => {
     const { getByText, queryByText } = renderComponent('backend1', Status.Stopped);
+    expect(queryByText('Send to Address')).not.toBeInTheDocument();
     expect(queryByText('Launch Terminal')).not.toBeInTheDocument();
     expect(queryByText('View Logs')).not.toBeInTheDocument();
     expect(getByText('Start')).toBeInTheDocument();
@@ -92,6 +94,7 @@ describe('NodeContextMenu', () => {
     expect(queryByText('Pay Invoice')).not.toBeInTheDocument();
     expect(queryByText('Open Outgoing Channel')).not.toBeInTheDocument();
     expect(queryByText('Open Incoming Channel')).not.toBeInTheDocument();
+    expect(queryByText('Send to Address')).not.toBeInTheDocument();
     expect(queryByText('Launch Terminal')).not.toBeInTheDocument();
     expect(queryByText('Stop')).not.toBeInTheDocument();
     expect(queryByText('View Logs')).not.toBeInTheDocument();
@@ -127,6 +130,14 @@ describe('NodeContextMenu', () => {
     fireEvent.click(getByText('Open Incoming Channel'));
     expect(store.getState().modals.openChannel.visible).toBe(true);
     expect(store.getState().modals.openChannel.to).toBe('alice');
+  });
+
+  it('should show the open send coins modal', async () => {
+    const { getByText, store } = renderComponent('backend1', Status.Started);
+    expect(store.getState().modals.sendOnChain.visible).toBe(false);
+    fireEvent.click(getByText('Send to Address'));
+    expect(store.getState().modals.sendOnChain.visible).toBe(true);
+    expect(store.getState().modals.sendOnChain.backendName).toBe('backend1');
   });
 
   it('should open the terminal', async () => {

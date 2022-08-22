@@ -38,6 +38,7 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
           value={value}
           max={1000}
           onChange={v => setValue(parseInt(v as any))}
+          disabled={mineAsync.loading}
         />
         <Styled.Button
           onClick={mineAsync.execute}
