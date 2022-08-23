@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DatabaseOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Menu } from 'antd';
+import { Menu, MenuProps } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
@@ -19,22 +19,23 @@ const Styled = {
 const NavMenu: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.common.NavMenu');
   const { navigateTo } = useStoreActions(s => s.app);
+  const handleClick: MenuProps['onClick'] = useCallback(info => navigateTo(info.key), []);
+
+  const items: MenuProps['items'] = [
+    { label: l('createNetwork'), key: NETWORK_NEW, icon: <PlusOutlined /> },
+    { label: l('importNetwork'), key: NETWORK_IMPORT, icon: <ImportOutlined /> },
+    { label: l('manageNodes'), key: NODE_IMAGES, icon: <DatabaseOutlined /> },
+  ];
+
   return (
     <Styled.Menu>
-      <Menu theme="dark" mode="horizontal" selectable={false}>
-        <Menu.Item key="createNetwork" onClick={() => navigateTo(NETWORK_NEW)}>
-          <PlusOutlined />
-          <span>{l('createNetwork')}</span>
-        </Menu.Item>
-        <Menu.Item key="importNetwork" onClick={() => navigateTo(NETWORK_IMPORT)}>
-          <ImportOutlined />
-          <span>{l('importNetwork')}</span>
-        </Menu.Item>
-        <Menu.Item key="manageNodes" onClick={() => navigateTo(NODE_IMAGES)}>
-          <DatabaseOutlined />
-          <span>{l('manageNodes')}</span>
-        </Menu.Item>
-      </Menu>
+      <Menu
+        theme="dark"
+        mode="horizontal"
+        selectable={false}
+        items={items}
+        onClick={handleClick}
+      />
     </Styled.Menu>
   );
 };

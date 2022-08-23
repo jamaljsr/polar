@@ -48,10 +48,10 @@ const RestartNode: React.FC<Props> = ({ node, menuType }) => {
   if (menuType) {
     const icon = menuType === 'start' ? <PlayCircleOutlined /> : <PoweroffOutlined />;
     return (
-      <span onClick={() => showConfirmModal(menuType)}>
+      <div onClick={() => showConfirmModal(menuType)}>
         {icon}
         <span>{l(`${menuType}Btn`)}</span>
-      </span>
+      </div>
     );
   }
 

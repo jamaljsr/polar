@@ -52,10 +52,10 @@ const RemoveNode: React.FC<Props> = ({ node, type }) => {
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {
     return (
-      <span onClick={showRemoveModal}>
+      <div onClick={showRemoveModal}>
         <CloseOutlined />
         <span>{l('btnText')}</span>
-      </span>
+      </div>
     );
   }
 

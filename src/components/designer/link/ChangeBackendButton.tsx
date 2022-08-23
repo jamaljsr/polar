@@ -21,10 +21,10 @@ const ChangeBackendButton: React.FC<Props> = ({ lnName, backendName, type }) => 
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {
     return (
-      <span onClick={handleChangeClick}>
+      <div onClick={handleChangeClick}>
         <ApiOutlined />
         <span>{l('btnText')}</span>
-      </span>
+      </div>
     );
   }
 

@@ -1,15 +1,15 @@
 import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { ILink } from '@mrblenny/react-flow-chart';
-import { Dropdown, Menu } from 'antd';
+import { Dropdown, Menu, MenuProps } from 'antd';
 import { useStoreState } from 'store';
 import { LinkProperties } from 'utils/chart';
 import ChangeBackendButton from './link/ChangeBackendButton';
 import CloseChannelButton from './link/CloseChannelButton';
 
 const Styled = {
-  MenuItem: styled(Menu.Item)`
-    & > span {
+  Menu: styled(Menu)`
+    .ant-dropdown-menu-title-content {
       margin: -5px -12px;
       padding: 5px 12px;
       display: block;
@@ -57,13 +57,11 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
   // don't add a context menu if there is no menu item
   if (!menuItem) return <>{children}</>;
 
+  const items: MenuProps['items'] = [{ key: 'item', label: menuItem }];
+
   return (
     <Dropdown
-      overlay={
-        <Menu style={{ width: 200 }}>
-          <Styled.MenuItem key="item">{menuItem}</Styled.MenuItem>
-        </Menu>
-      }
+      overlay={<Styled.Menu style={{ width: 200 }} items={items} />}
       trigger={['contextMenu']}
     >
       {children}

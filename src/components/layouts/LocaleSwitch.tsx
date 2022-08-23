@@ -19,14 +19,13 @@ const LocaleSwitch: React.FC = () => {
     updateSettings({ lang: e.key.toString() });
   };
 
+  const items: MenuProps['items'] = Object.entries(languages).map(([key, lang]) => ({
+    key,
+    label: `${lang} (${key})`,
+  }));
+
   const menu = (
-    <Menu onClick={changeLanguage} selectedKeys={[settings.lang]}>
-      {Object.entries(languages).map(([key, lang]) => (
-        <Menu.Item key={key}>
-          {lang} ({key})
-        </Menu.Item>
-      ))}
-    </Menu>
+    <Menu onClick={changeLanguage} selectedKeys={[settings.lang]} items={items} />
   );
 
   return (
