@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled';
 import { INode } from '@mrblenny/react-flow-chart';
-import { Dropdown, Menu } from 'antd';
+import { Dropdown, Menu, MenuProps } from 'antd';
 import { BitcoinNode, LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
@@ -11,8 +11,8 @@ import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
 
 const Styled = {
-  MenuItem: styled(Menu.Item)`
-    & > span {
+  Menu: styled(Menu)`
+    .ant-dropdown-menu-title-content {
       margin: -5px -12px;
       padding: 5px 12px;
       display: block;
@@ -24,9 +24,13 @@ const Styled = {
   `,
 };
 
-const createItem = (key: string, cmp: ReactElement, condition?: boolean) => {
-  if (condition === false) return null;
-  return <Styled.MenuItem key={key}>{cmp}</Styled.MenuItem>;
+const addItemIf = (
+  key: string,
+  cmp: ReactElement,
+  condition?: boolean,
+): { key: string; label: ReactElement }[] => {
+  if (condition === false) return [];
+  return [{ key, label: cmp }];
 };
 
 interface Props {
@@ -52,59 +56,59 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
 
-  const menu = (
-    <Menu style={{ width: 200 }}>
-      {isStarted && [
-        createItem(
-          'inv',
-          <PaymentButtons menuType="create" node={node as LightningNode} />,
-          isLN,
-        ),
-        createItem(
-          'pay',
-          <PaymentButtons menuType="pay" node={node as LightningNode} />,
-          isLN,
-        ),
-        createItem(
-          'outgoing',
-          <OpenChannelButtons menuType="outgoing" node={node as LightningNode} />,
-          isLN,
-        ),
-        createItem(
-          'incoming',
-          <OpenChannelButtons menuType="incoming" node={node as LightningNode} />,
-          isLN,
-        ),
-        createItem(
-          'sendonchain',
-          <SendOnChainButton type="menu" node={node as BitcoinNode} />,
-          isBackend,
-        ),
-        createItem('terminal', <OpenTerminalButton type="menu" node={node} />),
-        <Menu.Divider key="divider" />,
-      ]}
-      {createItem(
-        'start',
-        <RestartNode menuType="start" node={node} />,
-        [Status.Stopped, Status.Error].includes(node.status),
-      )}
-      {createItem(
-        'stop',
-        <RestartNode menuType="stop" node={node} />,
-        [Status.Started].includes(node.status),
-      )}
-      {createItem(
-        'logs',
-        <ViewLogsButton type="menu" node={node} />,
-        [Status.Starting, Status.Started, Status.Error].includes(node.status),
-      )}
-      {createItem('options', <AdvancedOptionsButton type="menu" node={node} />)}
-      {createItem('remove', <RemoveNode type="menu" node={node} />)}
-    </Menu>
+  let items: MenuProps['items'] = [];
+  items = items.concat(
+    addItemIf(
+      'inv',
+      <PaymentButtons menuType="create" node={node as LightningNode} />,
+      isStarted && isLN,
+    ),
+    addItemIf(
+      'pay',
+      <PaymentButtons menuType="pay" node={node as LightningNode} />,
+      isStarted && isLN,
+    ),
+    addItemIf(
+      'outgoing',
+      <OpenChannelButtons menuType="outgoing" node={node as LightningNode} />,
+      isStarted && isLN,
+    ),
+    addItemIf(
+      'incoming',
+      <OpenChannelButtons menuType="incoming" node={node as LightningNode} />,
+      isStarted && isLN,
+    ),
+    addItemIf(
+      'sendonchain',
+      <SendOnChainButton type="menu" node={node as BitcoinNode} />,
+      isStarted && isBackend,
+    ),
+    addItemIf('terminal', <OpenTerminalButton type="menu" node={node} />, isStarted),
+    isStarted ? [{ type: 'divider' }] : [],
+    addItemIf(
+      'start',
+      <RestartNode menuType="start" node={node} />,
+      [Status.Stopped, Status.Error].includes(node.status),
+    ),
+    addItemIf(
+      'stop',
+      <RestartNode menuType="stop" node={node} />,
+      [Status.Started].includes(node.status),
+    ),
+    addItemIf(
+      'logs',
+      <ViewLogsButton type="menu" node={node} />,
+      [Status.Starting, Status.Started, Status.Error].includes(node.status),
+    ),
+    addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
+    addItemIf('remove', <RemoveNode type="menu" node={node} />),
   );
 
   return (
-    <Dropdown overlay={menu} trigger={['contextMenu']}>
+    <Dropdown
+      overlay={<Styled.Menu style={{ width: 200 }} items={items} />}
+      trigger={['contextMenu']}
+    >
       {children}
     </Dropdown>
   );

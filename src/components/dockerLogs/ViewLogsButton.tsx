@@ -24,10 +24,10 @@ const ViewLogsButton: React.FC<Props> = ({ node, type }) => {
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {
     return (
-      <span onClick={openAsync.execute}>
+      <div onClick={openAsync.execute}>
         <FileTextOutlined />
         <span>{l('btn')}</span>
-      </span>
+      </div>
     );
   }
 

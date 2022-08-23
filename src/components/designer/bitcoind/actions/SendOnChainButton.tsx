@@ -21,10 +21,10 @@ const SendOnChainButton: React.FC<Props> = ({ node, type }) => {
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {
     return (
-      <span onClick={handleClick}>
+      <div onClick={handleClick}>
         <LinkOutlined />
         <span>{l('menu')}</span>
-      </span>
+      </div>
     );
   }
 

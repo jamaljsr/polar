@@ -41,10 +41,10 @@ const CloseChannelButton: React.FC<Props> = ({ node, channelPoint, type }) => {
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {
     return (
-      <span onClick={showCloseChanModal}>
+      <div onClick={showCloseChanModal}>
         <CloseOutlined />
         <span>{l('btnText')}</span>
-      </span>
+      </div>
     );
   }
 

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import {
   CloseOutlined,
@@ -11,7 +11,7 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Divider, Dropdown, Menu, Tag } from 'antd';
+import { Button, Divider, Dropdown, Menu, MenuProps, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
@@ -22,14 +22,12 @@ const Styled = {
   Button: styled(Button)`
     margin-left: 0;
   `,
-  FormIcon: styled(FormOutlined)`
-    margin-right: 5px;
-  `,
-  CloseIcon: styled(CloseOutlined)`
-    margin-right: 5px;
-  `,
-  ExportIcon: styled(ExportOutlined)`
-    margin-right: 5px;
+  Menu: styled(Menu)`
+    .ant-dropdown-menu-title-content {
+      svg {
+        margin-right: 5px;
+      }
+    }
   `,
   Dropdown: styled(Dropdown)`
     margin-left: 12px;
@@ -107,22 +105,25 @@ const NetworkActions: React.FC<Props> = ({
     }
   });
 
-  const menu = (
-    <Menu theme="dark">
-      <Menu.Item key="rename" onClick={onRenameClick}>
-        <Styled.FormIcon />
-        {l('menuRename')}
-      </Menu.Item>
-      <Menu.Item key="export" onClick={onExportClick}>
-        <Styled.ExportIcon />
-        {l('menuExport')}
-      </Menu.Item>
-      <Menu.Item key="delete" onClick={onDeleteClick}>
-        <Styled.CloseIcon />
-        {l('menuDelete')}
-      </Menu.Item>
-    </Menu>
-  );
+  const handleClick: MenuProps['onClick'] = useCallback(info => {
+    switch (info.key) {
+      case 'rename':
+        onRenameClick();
+        break;
+      case 'export':
+        onExportClick();
+        break;
+      case 'delete':
+        onDeleteClick();
+        break;
+    }
+  }, []);
+
+  const items: MenuProps['items'] = [
+    { key: 'rename', label: l('menuRename'), icon: <FormOutlined /> },
+    { key: 'export', label: l('menuExport'), icon: <ExportOutlined /> },
+    { key: 'delete', label: l('menuDelete'), icon: <CloseOutlined /> },
+  ];
 
   return (
     <>
@@ -150,7 +151,10 @@ const NetworkActions: React.FC<Props> = ({
       >
         {l(`primaryBtn${label}`)}
       </Styled.Button>
-      <Styled.Dropdown key="options" overlay={menu}>
+      <Styled.Dropdown
+        key="options"
+        overlay={<Styled.Menu theme="dark" items={items} onClick={handleClick} />}
+      >
         <Button icon={<MoreOutlined />} />
       </Styled.Dropdown>
     </>

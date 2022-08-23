@@ -26,10 +26,10 @@ const PaymentButtons: React.FC<Props> = ({ node, menuType }) => {
     const icon = menuType === 'pay' ? <ThunderboltOutlined /> : <FileProtectOutlined />;
     const action = menuType === 'pay' ? showPayInvoice : showCreateInvoice;
     return (
-      <span onClick={() => action({ nodeName: node.name })}>
+      <div onClick={() => action({ nodeName: node.name })}>
         {icon}
         <span>{l(`${menuType}Invoice`)}</span>
-      </span>
+      </div>
     );
   }
 

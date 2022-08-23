@@ -28,10 +28,10 @@ const OpenChannelButtons: React.FC<Props> = ({ node, menuType }) => {
     const icon = menuType === 'incoming' ? <DownloadOutlined /> : <UploadOutlined />;
     const args = menuType === 'incoming' ? { to: node.name } : { from: node.name };
     return (
-      <span onClick={() => showOpenChannel(args)}>
+      <div onClick={() => showOpenChannel(args)}>
         {icon}
         <span>{l(`${menuType}Menu`)}</span>
-      </span>
+      </div>
     );
   }
 
