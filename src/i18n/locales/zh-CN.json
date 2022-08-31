@@ -251,7 +251,7 @@
   "cmps.designer.lightning.LightningDetails.connectError": "无法连接到 {{implementation}} 节点",
   "cmps.designer.SyncButton.syncSuccess": "设计器已与Lightning节点同步",
   "cmps.designer.SyncButton.syncError": "同步网络失败",
-  "cmps.designer.SyncButton.syncBtnTip": "Update graph from nodes",
+  "cmps.designer.SyncButton.syncBtnTip": "从节点更新图表",
   "cmps.dockerLogs.DockerLogs.connectErr": "无法连接到容器",
   "cmps.dockerLogs.ViewLogsButton.title": "Docker节点日志",
   "cmps.dockerLogs.ViewLogsButton.btn": "查看日志",
