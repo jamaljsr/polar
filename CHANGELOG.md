@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/jamaljsr/polar/compare/v1.3.0...v1.4.0)
+
+While Polar has kept up with the new node implementation releases via the out-of-band updates, it hasn't had any new features added in a long while. This release packages up all those node updates so that you don't need to manually update after the initial install. We now also have automatic updates. You can opt-in to checking for new node versions on startup, instead of having to do it manually. Links to check for updates have also been added to the start screen and footer to make it easier to get to.
+
+There are a bunch of first-time contributors in this release. They've added some great updates which you can see listed below. Thank you all for your PRs.
+
+This release is required to run Core Lightning v0.12.0 due to an API that Polar requires being deprecated.
+
+### Features
+
+- **lnd:** added LND connect URL for REST API by @NehaK745 in https://github.com/jamaljsr/polar/pull/484
+- **images:** add support for Bitcoin Core v22.0 by @cstenglein in https://github.com/jamaljsr/polar/pull/510
+- **images:** add support for LND v0.14.1-beta by @qustavo in https://github.com/jamaljsr/polar/pull/519
+- **images:** update lightning nodes, add cli completion by @jonafll in https://github.com/jamaljsr/polar/pull/541
+- **images:** add support for the latest node implementations by @jamaljsr in https://github.com/jamaljsr/polar/pull/559
+- **lightningd:** add Core Lightning GRPC info to sidebar by @jamaljsr in https://github.com/jamaljsr/polar/pull/560
+- **images:** add support for LND v0.15.0-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/563
+- **images:** add support for CLN v0.11.2 by @ktecho in https://github.com/jamaljsr/polar/pull/572
+- **app:** check for updates on startup by @jamaljsr in https://github.com/jamaljsr/polar/pull/578
+- **nodes:** better visually know what node is selected by @ktecho in https://github.com/jamaljsr/polar/pull/583
+- **images:** add support for LND v0.15.1-beta.rc1 by @jamaljsr in https://github.com/jamaljsr/polar/pull/585
+- **bitcoind:** send funds to onchain address by @jamaljsr in https://github.com/jamaljsr/polar/pull/586
+- **images:** add support for LND v0.15.1 and CLN v0.12.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/588
+- **designer:** move sync button to actions toolbar by @jamaljsr in https://github.com/jamaljsr/polar/pull/589
+
+### Bug Fixes
+
+- **home:** fix loading animation on home screen by @jamaljsr in https://github.com/jamaljsr/polar/pull/577
+- **network:** add error handling when creating a new network by @jamaljsr in https://github.com/jamaljsr/polar/pull/580
+- **lightningd:** display CA cert and distinguish it from client cert and key by @louneskmt in https://github.com/jamaljsr/polar/pull/584
+
+### Docs
+
+- removing duplicates from CONTRIBUTING file by @ktecho in https://github.com/jamaljsr/polar/pull/570
+- Update custom-nodes.md - fix typo by @git-sgmoore in https://github.com/jamaljsr/polar/pull/497
+- Update custom-nodes.md by @niteshbalusu11 in https://github.com/jamaljsr/polar/pull/550
+
 ## [v1.3.0](https://github.com/jamaljsr/polar/compare/v1.2.0...v1.3.0)
 
 This is a minor release which adds a small set of improvements and fixes some bugs. All of the node implementations have been updated to their latest versions.
