@@ -29,7 +29,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       return <LinkDetails link={link} network={network} />;
     }
 
-    return <DefaultSidebar network={network} />;
+    return <DefaultSidebar />;
   }, [network, chart.selected, chart.links]);
 
   return <>{cmp}</>;

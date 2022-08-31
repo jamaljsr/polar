@@ -17,6 +17,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
+import SyncButton from 'components/designer/SyncButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -137,6 +138,7 @@ const NetworkActions: React.FC<Props> = ({
           >
             {l('mineBtn')}
           </Button>
+          <SyncButton network={network} />
           <Divider type="vertical" />
         </>
       )}

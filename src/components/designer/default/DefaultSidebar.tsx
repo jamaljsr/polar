@@ -5,11 +5,9 @@ import { Button, Switch } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { Network } from 'types';
 import { dockerConfigs } from 'utils/constants';
 import { getPolarPlatform } from 'utils/system';
 import SidebarCard from '../SidebarCard';
-import SyncButton from '../SyncButton';
 import DraggableNode from './DraggableNode';
 
 const Styled = {
@@ -30,11 +28,7 @@ const Styled = {
   `,
 };
 
-interface Props {
-  network: Network;
-}
-
-const DefaultSidebar: React.FC<Props> = ({ network }) => {
+const DefaultSidebar: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
   const { updateSettings } = useStoreActions(s => s.app);
@@ -82,7 +76,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   });
 
   return (
-    <SidebarCard title={l('title')} extra={<SyncButton network={network} />}>
+    <SidebarCard title={l('title')}>
       <p>{l('mainDesc')}</p>
       <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
