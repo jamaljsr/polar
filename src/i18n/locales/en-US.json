@@ -251,7 +251,7 @@
   "cmps.designer.lightning.LightningDetails.connectError": "Unable to connect to {{implementation}} node",
   "cmps.designer.SyncButton.syncSuccess": "The designer has been synced with the Lightning nodes",
   "cmps.designer.SyncButton.syncError": "Failed to sync the network",
-  "cmps.designer.SyncButton.syncBtnTip": "Update channels from nodes",
+  "cmps.designer.SyncButton.syncBtnTip": "Update graph from nodes",
   "cmps.dockerLogs.DockerLogs.connectErr": "Unable to connect to the container",
   "cmps.dockerLogs.ViewLogsButton.title": "Docker Node Logs",
   "cmps.dockerLogs.ViewLogsButton.btn": "View Logs",
