@@ -251,7 +251,7 @@
   "cmps.designer.lightning.LightningDetails.connectError": "Impossibile connettersi al nodo {{implementation}}",
   "cmps.designer.SyncButton.syncSuccess": "Il designer è stato sincronizzato con i nodi Lightning",
   "cmps.designer.SyncButton.syncError": "Sincronizzazione della rete non riuscita",
-  "cmps.designer.SyncButton.syncBtnTip": "Update graph from nodes",
+  "cmps.designer.SyncButton.syncBtnTip": "Aggiorna il grafico dai nodi",
   "cmps.dockerLogs.DockerLogs.connectErr": "Impossibile connettersi al contenitore",
   "cmps.dockerLogs.ViewLogsButton.title": "Log del nodo Docker",
   "cmps.dockerLogs.ViewLogsButton.btn": "Visualizza registri",
