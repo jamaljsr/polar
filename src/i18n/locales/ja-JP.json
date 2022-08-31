@@ -251,7 +251,7 @@
   "cmps.designer.lightning.LightningDetails.connectError": "{{implementation}} ノードに接続できません",
   "cmps.designer.SyncButton.syncSuccess": "デザイナーはLightningノードと同期されました",
   "cmps.designer.SyncButton.syncError": "ネットワークの同期に失敗しました",
-  "cmps.designer.SyncButton.syncBtnTip": "Update graph from nodes",
+  "cmps.designer.SyncButton.syncBtnTip": "ノードからグラフを更新",
   "cmps.dockerLogs.DockerLogs.connectErr": "コンテナに接続できません",
   "cmps.dockerLogs.ViewLogsButton.title": "Dockerノードログ",
   "cmps.dockerLogs.ViewLogsButton.btn": "ログを見る",
