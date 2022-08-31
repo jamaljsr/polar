@@ -251,7 +251,7 @@
   "cmps.designer.lightning.LightningDetails.connectError": "Verbindung zu {{implementation}} Knoten nicht möglich",
   "cmps.designer.SyncButton.syncSuccess": "Der Designer wurde mit den Lightning Knoten synchronisiert",
   "cmps.designer.SyncButton.syncError": "Netzwerk konnte nicht synchronisiert werden",
-  "cmps.designer.SyncButton.syncBtnTip": "Update graph from nodes",
+  "cmps.designer.SyncButton.syncBtnTip": "Graph von Knoten aktualisieren",
   "cmps.dockerLogs.DockerLogs.connectErr": "Es kann keine Verbindung zum Container hergestellt werden",
   "cmps.dockerLogs.ViewLogsButton.title": "Docker-Knotenprotokolle",
   "cmps.dockerLogs.ViewLogsButton.btn": "Protokolle anzeigen",
