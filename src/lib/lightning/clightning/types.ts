@@ -66,6 +66,7 @@ export interface GetChannelsResponse {
   theirChannelReserveSatoshis: number;
   fundingAllocationMsat: Record<string, number>;
   initiator?: number;
+  opener: string;
 }
 
 export interface Peer {
