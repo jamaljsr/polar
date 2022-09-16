@@ -53,7 +53,7 @@
     "fs-extra": "10.1.0",
     "shell-env": "3.0.1",
     "unzipper": "0.10.11",
-    "xterm": "4.19.0",
+    "xterm": "5.0.0",
     "xterm-addon-fit": "0.6.0"
   },
   "devDependencies": {
