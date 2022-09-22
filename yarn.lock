@@ -7856,10 +7856,10 @@ detect-port-alt@1.1.6:
     address "^1.0.1"
     debug "^2.6.0"
 
-detect-port@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/detect-port/-/detect-port-1.5.0.tgz#e40d67a0e93b464cbb7dda1e27a6edddd258d2a6"
-  integrity sha512-XA/tO5uCPYgRO8jWazmM/yaJQtqpya6x3Tm0iQVuKSRq6/dNB0TcoegMSGQWSl8AjFZNJPBBvnz7u12edNAwEQ==
+detect-port@1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/detect-port/-/detect-port-1.5.1.tgz#451ca9b6eaf20451acb0799b8ab40dff7718727b"
+  integrity sha512-aBzdj76lueB6uUst5iAs7+0H/oOjqI5D16XUWxlWMIMROhcM0rfsNVk93zTngq1dDNpoXRr++Sus7ETAExppAQ==
   dependencies:
     address "^1.0.1"
     debug "4"
