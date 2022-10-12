@@ -118,6 +118,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       'lightningd',
       '--alias={{name}}',
       '--addr={{name}}',
+      '--addr=0.0.0.0:9735',
       '--network=regtest',
       '--bitcoin-rpcuser={{rpcUser}}',
       '--bitcoin-rpcpassword={{rpcPass}}',
