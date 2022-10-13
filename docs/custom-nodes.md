@@ -101,7 +101,7 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
 
    ```
 
-1. `docker build -t lnd-master .`
+1. `docker build -t lnd-master .` or for a fresh build run `docker build --no-cache -t lnd-master .`
 
 ### c-lightning
 
