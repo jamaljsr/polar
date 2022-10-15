@@ -55,6 +55,12 @@ export interface AppSettings {
     managed: ManagedImage[];
     custom: CustomImage[];
   };
+  customDockerPaths: {
+    /** The path to the Docker socket file */
+    dockerSocketPath: string;
+    /** The path to the `docker-compose` CLI executable */
+    composeFilePath: string;
+  };
 }
 
 export interface SettingsInjection {
@@ -102,6 +108,7 @@ export interface DockerRepoUpdates {
 }
 
 export interface DockerLibrary {
+  setPaths: (dockerSocketPath: string, composeFilePath: string) => void;
   getVersions: (throwOnError?: boolean) => Promise<DockerVersions>;
   getImages: () => Promise<string[]>;
   saveComposeFile: (network: Network) => Promise<void>;

@@ -20,6 +20,10 @@ describe('SettingsService', () => {
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
+      customDockerPaths: {
+        dockerSocketPath: '',
+        composeFilePath: '',
+      },
     };
   });
 

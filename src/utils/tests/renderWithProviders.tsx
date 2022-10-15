@@ -29,6 +29,7 @@ export const injections: StoreInjections = {
     save: jest.fn(),
   },
   dockerService: {
+    setPaths: jest.fn(),
     getVersions: jest.fn(),
     getImages: jest.fn(),
     saveComposeFile: jest.fn(),

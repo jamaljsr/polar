@@ -1,6 +1,7 @@
 import React from 'react';
 import { shell } from 'electron';
 import { fireEvent } from '@testing-library/dom';
+import { waitFor } from '@testing-library/react';
 import os from 'os';
 import { injections, renderWithProviders } from 'utils/tests';
 import DetectDockerModal, { dockerLinks } from './DetectDockerModal';
@@ -126,5 +127,51 @@ describe('DetectDockerModal component', () => {
     fireEvent.click(getByText('Check Again'));
     expect(await findByText('Docker Error')).toBeInTheDocument();
     expect(await findByText('test-error')).toBeInTheDocument();
+  });
+
+  it('should display the correct placeholders', () => {
+    mockOS.platform.mockReturnValue('darwin');
+    const { getByText, getByLabelText } = renderComponent();
+    fireEvent.click(getByText('Specify custom paths for Docker and Compose files'));
+    expect(getByLabelText('Path to Docker Unix Socket')).toHaveAttribute(
+      'placeholder',
+      '/var/run/docker.sock',
+    );
+    expect(getByLabelText('Path to docker-compose executable')).toHaveAttribute(
+      'placeholder',
+      '/usr/local/bin/docker-compose',
+    );
+  });
+
+  it('should display the correct placeholders on windows', () => {
+    mockOS.platform.mockReturnValue('win32');
+    const { getByText, getByLabelText } = renderComponent();
+    fireEvent.click(getByText('Specify custom paths for Docker and Compose files'));
+    expect(getByLabelText('Path to Docker Unix Socket')).toHaveAttribute(
+      'placeholder',
+      '//./pipe/docker_engine',
+    );
+    expect(getByLabelText('Path to docker-compose executable')).toHaveAttribute(
+      'placeholder',
+      'C:\\Program Files\\Docker Toolbox\\docker-compose',
+    );
+  });
+
+  it('should accept custom docker paths', () => {
+    mockDockerService.getVersions.mockResolvedValue({ docker: '', compose: '' });
+    const { getByText, getByLabelText } = renderComponent();
+    fireEvent.click(getByText('Specify custom paths for Docker and Compose files'));
+    expect(getByText('Path to Docker Unix Socket')).toBeInTheDocument();
+    expect(getByText('Path to docker-compose executable')).toBeInTheDocument();
+    fireEvent.change(getByLabelText('Path to Docker Unix Socket'), {
+      target: { value: '/test/docker.sock' },
+    });
+    fireEvent.change(getByLabelText('Path to docker-compose executable'), {
+      target: { value: '/test/docker-compose' },
+    });
+    fireEvent.click(getByText('Check Again'));
+    waitFor(() => {
+      expect(mockDockerService.setPaths).toBeCalledWith('a', 'b');
+    });
   });
 });

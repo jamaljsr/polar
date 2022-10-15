@@ -79,6 +79,10 @@ const appModel: AppModel = {
       managed: [],
       custom: [],
     },
+    customDockerPaths: {
+      dockerSocketPath: '',
+      composeFilePath: '',
+    },
   },
   dockerVersions: { docker: '', compose: '' },
   dockerImages: [],
@@ -129,6 +133,10 @@ const appModel: AppModel = {
       actions.setSettings(settings);
       await getI18n().changeLanguage(settings.lang);
       changeTheme(settings.theme || 'dark');
+      if (settings.customDockerPaths) {
+        const { dockerSocketPath, composeFilePath } = settings.customDockerPaths;
+        injections.dockerService.setPaths(dockerSocketPath, composeFilePath);
+      }
     }
   }),
   updateSettings: thunk(async (actions, updates, { injections, getState }) => {
@@ -137,6 +145,10 @@ const appModel: AppModel = {
     await injections.settingsService.save(settings);
     if (updates.lang) await getI18n().changeLanguage(settings.lang);
     if (updates.theme) changeTheme(updates.theme);
+    if (updates.customDockerPaths) {
+      const { dockerSocketPath, composeFilePath } = updates.customDockerPaths;
+      injections.dockerService.setPaths(dockerSocketPath, composeFilePath);
+    }
   }),
   updateManagedImage: thunk(async (actions, node, { getState }) => {
     const { nodeImages } = getState().settings;

@@ -3,7 +3,7 @@ import { debug, info } from 'electron-log';
 import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import * as compose from 'docker-compose';
-import Dockerode from 'dockerode';
+import Dockerode, { DockerOptions } from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
 import {
@@ -24,6 +24,27 @@ import { isLinux } from 'utils/system';
 import ComposeFile from './composeFile';
 
 class DockerService implements DockerLibrary {
+  /** The path to the Docker socket file */
+  private dockerSocketPath?: string;
+  /** The path to the `docker-compose` CLI executable */
+  private composeFilePath?: string;
+
+  /** A `Dockerode` instance */
+  get docker() {
+    const opts: DockerOptions = {};
+    if (this.dockerSocketPath) opts.socketPath = this.dockerSocketPath;
+    return new Dockerode(opts);
+  }
+
+  /**
+   * Store the custom docker paths so that these values won't need to be passed
+   * for every function that is called
+   */
+  setPaths(dockerSocketPath: string, composeFilePath: string) {
+    this.dockerSocketPath = dockerSocketPath || undefined;
+    this.composeFilePath = composeFilePath || undefined;
+  }
+
   /**
    * Gets the versions of docker and docker-compose installed
    * @param throwOnError set to true to throw an Error if detection fails
@@ -33,7 +54,7 @@ class DockerService implements DockerLibrary {
 
     try {
       debug('fetching docker version');
-      const dockerVersion = await new Dockerode().version();
+      const dockerVersion = await this.docker.version();
       debug(`Result: ${JSON.stringify(dockerVersion)}`);
       versions.docker = dockerVersion.Version;
     } catch (error: any) {
@@ -43,7 +64,7 @@ class DockerService implements DockerLibrary {
 
     try {
       debug('getting docker-compose version');
-      const composeVersion = await this.execute(compose.version, this.getArgs());
+      const composeVersion = await this.execute(compose.version, this.getOpts());
       debug(`Result: ${JSON.stringify(composeVersion)}`);
       versions.compose = composeVersion.out.trim();
     } catch (error: any) {
@@ -60,7 +81,7 @@ class DockerService implements DockerLibrary {
   async getImages(): Promise<string[]> {
     try {
       debug('fetching docker images');
-      const allImages = await new Dockerode().listImages();
+      const allImages = await this.docker.listImages();
       debug(`All Images: ${JSON.stringify(allImages)}`);
       const imageNames = ([] as string[])
         .concat(...allImages.map(i => i.RepoTags || []))
@@ -119,7 +140,7 @@ class DockerService implements DockerLibrary {
 
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
-    const result = await this.execute(compose.upAll, this.getArgs(network));
+    const result = await this.execute(compose.upAll, this.getOpts(network));
     info(`Network started:\n ${result.out || result.err}`);
   }
 
@@ -130,7 +151,7 @@ class DockerService implements DockerLibrary {
   async stop(network: Network) {
     info(`Stopping docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
-    const result = await this.execute(compose.down, this.getArgs(network));
+    const result = await this.execute(compose.down, this.getOpts(network));
     info(`Network stopped:\n ${result.out || result.err}`);
   }
 
@@ -147,7 +168,7 @@ class DockerService implements DockerLibrary {
 
     info(`Starting docker container for ${node.name}`);
     info(` - path: ${network.path}`);
-    const result = await this.execute(compose.upOne, node.name, this.getArgs(network));
+    const result = await this.execute(compose.upOne, node.name, this.getOpts(network));
     info(`Container started:\n ${result.out || result.err}`);
   }
 
@@ -159,7 +180,7 @@ class DockerService implements DockerLibrary {
   async stopNode(network: Network, node: CommonNode) {
     info(`Stopping docker container for ${node.name}`);
     info(` - path: ${network.path}`);
-    const result = await this.execute(compose.stopOne, node.name, this.getArgs(network));
+    const result = await this.execute(compose.stopOne, node.name, this.getOpts(network));
     info(`Container stopped:\n ${result.out || result.err}`);
   }
 
@@ -171,19 +192,19 @@ class DockerService implements DockerLibrary {
   async removeNode(network: Network, node: CommonNode) {
     info(`Stopping docker container for ${node.name}`);
     info(` - path: ${network.path}`);
-    let result = await this.execute(compose.stopOne, node.name, this.getArgs(network));
+    let result = await this.execute(compose.stopOne, node.name, this.getOpts(network));
     info(`Container stopped:\n ${result.out || result.err}`);
 
     info(`Removing stopped docker containers`);
     // the `any` cast is used because `rm` is the only method on compose that takes the
     // IDockerComposeOptions as the first param and a spread for the remaining
-    result = await this.execute(compose.rm as any, this.getArgs(network), node.name);
+    result = await this.execute(compose.rm as any, this.getOpts(network), node.name);
     info(`Removed:\n ${result.out || result.err}`);
   }
 
   /**
    * Saves the given networks to disk
-   * @param networks the list of networks to save
+   * @param data the list of networks to save
    */
   async saveNetworks(data: NetworksFile) {
     const json = JSON.stringify(data, null, 2);
@@ -236,7 +257,8 @@ class DockerService implements DockerLibrary {
   /**
    * Helper method to trap and format exceptions thrown and
    * @param cmd the compose function to call
-   * @param args the arguments to the compose function
+   * @param arg1 the first argument to the compose function
+   * @param arg2 the second argument to the compose function
    */
   private async execute<A, B>(
     cmd: (arg1: A, arg2?: B) => Promise<compose.IDockerComposeResult>,
@@ -255,8 +277,11 @@ class DockerService implements DockerLibrary {
     }
   }
 
-  private getArgs(network?: Network) {
-    const args = {
+  /**
+   * Returns options for all docker compose calls
+   */
+  private getOpts(network?: Network) {
+    const opts: compose.IDockerComposeOptions = {
       cwd: network ? network.path : __dirname,
       env: {
         ...process.env,
@@ -264,20 +289,25 @@ class DockerService implements DockerLibrary {
       },
     };
 
+    if (this.composeFilePath) {
+      opts.executablePath = this.composeFilePath;
+    }
+
     if (isLinux()) {
       const { uid, gid } = os.userInfo();
       debug(`env: uid=${uid} gid=${gid}`);
-      args.env = {
-        ...args.env,
+      opts.env = {
+        ...opts.env,
         // add user/group id's to env so that file permissions on the
         // docker volumes are set correctly. containers cannot write
         // to disk on linux if permissions aren't set correctly
         USERID: `${uid}`,
         GROUPID: `${gid}`,
-      };
+      } as NodeJS.ProcessEnv;
     }
 
-    return args;
+    debug('docker-compose options', opts);
+    return opts;
   }
 
   private async ensureDirs(network: Network, nodes: CommonNode[]) {

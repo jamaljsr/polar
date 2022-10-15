@@ -66,6 +66,36 @@ describe('DockerService', () => {
     );
   });
 
+  it('should use the provided custom docker paths', async () => {
+    dockerService.setPaths('/test/docker.sock', '/test/docker-compose');
+    await dockerService.getVersions();
+    expect(composeMock.version).toBeCalledWith(
+      expect.objectContaining({
+        executablePath: '/test/docker-compose',
+      }),
+      undefined,
+    );
+    expect(mockDockerode.prototype.constructor).toBeCalledWith({
+      socketPath: '/test/docker.sock',
+    });
+  });
+
+  it('should use default custom docker paths', async () => {
+    dockerService.setPaths('', '');
+    await dockerService.getVersions();
+    expect(composeMock.version).toBeCalledWith(
+      expect.not.objectContaining({
+        executablePath: '',
+      }),
+      undefined,
+    );
+    expect(mockDockerode.prototype.constructor).toBeCalledWith(
+      expect.not.objectContaining({
+        socketPath: '/test/docker.sock',
+      }),
+    );
+  });
+
   describe('detecting versions', () => {
     const dockerVersion = mockDockerode.prototype.version;
     const composeVersion = composeMock.version;

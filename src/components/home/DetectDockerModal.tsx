@@ -1,8 +1,13 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useCallback, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { AppleOutlined, DownloadOutlined, WindowsOutlined } from '@ant-design/icons';
+import {
+  AppleOutlined,
+  DownloadOutlined,
+  SettingOutlined,
+  WindowsOutlined,
+} from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Modal, Result } from 'antd';
+import { Button, Form, Input, Modal, Result } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { getPolarPlatform, PolarPlatform } from 'utils/system';
@@ -18,6 +23,11 @@ const Styled = {
   Details: styled.div`
     width: 70%;
     margin: auto;
+  `,
+  CustomizeSection: styled.div<{ collapsed?: boolean }>`
+    overflow: hidden;
+    max-height: ${props => (props.collapsed ? '0' : '300px')};
+    transition: max-height 0.5s;
   `,
 };
 
@@ -45,12 +55,25 @@ const buttonIcons: Record<PolarPlatform, ReactNode> = {
 const DetectDockerModal: React.FC = () => {
   const platform = getPolarPlatform();
   const { l } = usePrefixedTranslation('cmps.home.DetectDockerModal');
+  const [form] = Form.useForm();
+  const [collapsed, setCollapsed] = useState(true);
   const {
     dockerVersions: { docker, compose },
+    settings: { customDockerPaths },
   } = useStoreState(s => s.app);
-  const { openInBrowser, getDockerVersions, notify } = useStoreActions(s => s.app);
+  const { openInBrowser, getDockerVersions, notify, updateSettings } = useStoreActions(
+    s => s.app,
+  );
+  const toggleCustomize = useCallback(() => setCollapsed(v => !v), []);
   const checkAsync = useAsyncCallback(async () => {
     try {
+      const { dockerSocketPath, composeFilePath } = form.getFieldsValue();
+      await updateSettings({
+        customDockerPaths: {
+          dockerSocketPath,
+          composeFilePath,
+        },
+      });
       await getDockerVersions({ throwErr: true });
     } catch (error: any) {
       notify({ message: l('dockerError'), error });
@@ -99,6 +122,42 @@ const DetectDockerModal: React.FC = () => {
       />
       <Styled.Details>
         <DetailsList title={l('versionsTitle')} details={details} />
+
+        <Styled.CustomizeSection collapsed={collapsed}>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={{
+              dockerSocketPath: customDockerPaths.dockerSocketPath,
+              composeFilePath: customDockerPaths.composeFilePath,
+            }}
+          >
+            <Form.Item name="dockerSocketPath" label={l('dockerSocketPath')}>
+              <Input
+                placeholder={
+                  platform === 'windows'
+                    ? 'npipe:////./pipe/docker_engine'
+                    : '/var/run/docker.sock'
+                }
+                allowClear
+              />
+            </Form.Item>
+            <Form.Item name="composeFilePath" label={l('composeFilePath')}>
+              <Input
+                placeholder={
+                  platform === 'windows'
+                    ? 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker-compose'
+                    : '/usr/local/bin/docker-compose'
+                }
+                allowClear
+              />
+            </Form.Item>
+          </Form>
+        </Styled.CustomizeSection>
+
+        <Button type="link" block icon={<SettingOutlined />} onClick={toggleCustomize}>
+          {l('customize')}
+        </Button>
       </Styled.Details>
     </Modal>
   );

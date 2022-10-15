@@ -42,6 +42,10 @@ describe('App model', () => {
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
+      customDockerPaths: {
+        dockerSocketPath: '',
+        composeFilePath: '',
+      },
     });
     mockRepoService.load.mockResolvedValue({
       ...defaultRepoState,
@@ -83,6 +87,10 @@ describe('App model', () => {
         checkForUpdatesOnStartup: true,
         theme: 'dark',
         nodeImages: { custom: [], managed: [] },
+        customDockerPaths: {
+          dockerSocketPath: '',
+          composeFilePath: '',
+        },
       });
     });
 
