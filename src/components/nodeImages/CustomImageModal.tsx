@@ -59,7 +59,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
   return (
     <Modal
       title={l('title', image)}
-      visible
+      open
       width={600}
       destroyOnClose
       maskClosable={false}
