@@ -111,7 +111,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
     <>
       <Modal
         title={l('title')}
-        visible={visible}
+        open={visible}
         onCancel={() => hideCreateInvoice()}
         destroyOnClose
         footer={invoice ? null : undefined}

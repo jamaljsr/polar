@@ -57,7 +57,7 @@ const SendOnChainModal: React.FC<Props> = ({ network }) => {
     <>
       <Modal
         title={l('title')}
-        visible={visible}
+        open={visible}
         onCancel={() => hideSendOnChain()}
         destroyOnClose
         cancelText={l('cancelBtn')}

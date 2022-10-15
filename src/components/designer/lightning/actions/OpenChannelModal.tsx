@@ -159,7 +159,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     <>
       <Modal
         title={l('title')}
-        visible={visible}
+        open={visible}
         onCancel={() => hideOpenChannel()}
         destroyOnClose
         cancelText={l('cancelBtn')}

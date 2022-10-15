@@ -43,7 +43,7 @@ const AdvancedOptionsModal: React.FC<Props> = ({ network }) => {
   return (
     <Modal
       title={l('title')}
-      visible={visible}
+      open={visible}
       onCancel={() => hideAdvancedOptions()}
       destroyOnClose
       cancelText={l('cancelBtn')}

@@ -66,7 +66,7 @@ const DetectDockerModal: React.FC = () => {
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       closable={false}
       width={600}
       centered
