@@ -44,7 +44,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   return (
     <Modal
       title={l('title')}
-      visible={visible}
+      open={visible}
       onCancel={() => hidePayInvoice()}
       destroyOnClose
       cancelText={l('cancelBtn')}
