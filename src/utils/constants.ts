@@ -220,11 +220,13 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 41,
+  version: 42,
   images: {
     LND: {
-      latest: '0.15.2-beta',
+      latest: '0.15.4-beta',
       versions: [
+        '0.15.4-beta',
+        '0.15.3-beta',
         '0.15.2-beta',
         '0.15.1-beta',
         '0.15.0-beta',
@@ -234,6 +236,8 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.15.4-beta': '23.0',
+        '0.15.3-beta': '23.0',
         '0.15.2-beta': '23.0',
         '0.15.1-beta': '23.0',
         '0.15.0-beta': '23.0',
