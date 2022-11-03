@@ -110,7 +110,7 @@
     "history": "4.10.1",
     "husky": "8.0.1",
     "i18next": "21.10.0",
-    "i18next-browser-languagedetector": "7.0.0",
+    "i18next-browser-languagedetector": "7.0.1",
     "i18next-scanner": "4.1.0",
     "jest-environment-jsdom-sixteen": "1.0.3",
     "js-yaml": "4.1.0",
