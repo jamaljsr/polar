@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
-import { remote } from 'electron';
+import { remote, clipboard } from 'electron';
 import { debug, info } from 'electron-log';
 import styled from '@emotion/styled';
 import 'xterm/css/xterm.css';
@@ -13,17 +13,9 @@ import { FitAddon } from 'xterm-addon-fit';
 import { useStoreActions } from 'store';
 import { eclairCredentials } from 'utils/constants';
 import { nord } from './themes';
+import { message } from 'antd';
 
 const docker = new Docker();
-const termOptions: ITerminalOptions = {
-  fontFamily: "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace",
-  fontSize: 12,
-  lineHeight: 1.2,
-  cursorBlink: true,
-  cursorStyle: 'bar',
-  allowTransparency: true,
-  theme: nord,
-};
 
 // exec command and options configuration
 const execCommand = {
@@ -138,28 +130,117 @@ interface RouteParams {
   name: string;
 }
 
+enum FontSizeChangeType {
+  INCREASE = 'INCREASE',
+  DECREASE = 'DECREASE',
+  RESET = 'RESET',
+}
+
+const FONT_SIZE_DEFAULT = 12;
+const FONT_SIZE_MIN = 10;
+const FONT_SIZE_MAX = 20;
+
+const termOptions: ITerminalOptions = {
+  fontFamily: "source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace",
+  fontSize: FONT_SIZE_DEFAULT,
+  lineHeight: 1.2,
+  cursorBlink: true,
+  cursorStyle: 'bar',
+  allowTransparency: true,
+  theme: nord,
+};
+
 const DockerTerminal: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.terminal.DockerTerminal');
   const { notify } = useStoreActions(s => s.app);
   const { type, name } = useParams<RouteParams>();
   const termEl = useRef<HTMLDivElement>(null);
+  const terminal = useRef<Terminal>();
+
+  const fitAddon = new FitAddon();
+  const resize = () => fitAddon.fit();
+
+  const changeFontSize = (changeType: FontSizeChangeType) => {
+    if (terminal?.current?.options.fontSize) {
+      const currentFontSize = terminal.current.options.fontSize;
+
+      switch (changeType) {
+        case FontSizeChangeType.INCREASE:
+          if (currentFontSize < FONT_SIZE_MAX) {
+            terminal.current.options.fontSize += 1;
+            resize();
+          }
+          break;
+        case FontSizeChangeType.DECREASE:
+          if (currentFontSize > FONT_SIZE_MIN) {
+            terminal.current.options.fontSize -= 1;
+            resize();
+          }
+          break;
+        case FontSizeChangeType.RESET:
+          terminal.current.options.fontSize = FONT_SIZE_DEFAULT;
+          resize();
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const contextMenuHandler = () => {
+    const menu = remote.Menu.buildFromTemplate([
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+    ]);
+    menu.popup({ window: remote.getCurrentWindow() });
+  };
+
+  const keyupEventHandler = (e: KeyboardEvent) => {
+    if (e.ctrlKey) {
+      switch (e.key) {
+        case '+':
+        case '=':
+          changeFontSize(FontSizeChangeType.INCREASE);
+          break;
+        case '-':
+          changeFontSize(FontSizeChangeType.DECREASE);
+          break;
+        case '0':
+          changeFontSize(FontSizeChangeType.RESET);
+          break;
+        case 'c':
+        case 'C':
+          if (e.shiftKey && terminal.current) {
+            const selection = terminal.current.getSelection();
+            if (selection) {
+              clipboard.writeText(selection);
+              message.info(l('cmps.common.CopyIcon.message', { label: '' }));
+            }
+          }
+          break;
+        case 'v':
+        case 'V':
+          if (e.shiftKey && terminal.current) {
+            terminal.current.paste(clipboard.readText() || '');
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  };
 
   // add context menu
   useEffect(() => {
-    window.addEventListener(
-      'contextmenu',
-      e => {
-        e.preventDefault();
-        const menu = remote.Menu.buildFromTemplate([
-          { role: 'cut' },
-          { role: 'copy' },
-          { role: 'paste' },
-        ]);
-        menu.popup({ window: remote.getCurrentWindow() });
-      },
-      false,
-    );
-  });
+    window.addEventListener('contextmenu', contextMenuHandler, false);
+    window.addEventListener('keyup', keyupEventHandler, false);
+
+    return () => {
+      window.removeEventListener('contextmenu', contextMenuHandler, false);
+      window.removeEventListener('keyup', keyupEventHandler, false);
+    };
+  }, []);
 
   useEffect(() => {
     info('Rendering DockerTerminal component');
@@ -167,7 +248,7 @@ const DockerTerminal: React.FC = () => {
 
     // load the terminal UI
     const term = new Terminal(termOptions);
-    const fitAddon = new FitAddon();
+    terminal.current = term;
     term.loadAddon(fitAddon);
     term.open(termEl.current as HTMLDivElement);
     // write Polar logo to the console
@@ -177,7 +258,6 @@ const DockerTerminal: React.FC = () => {
     term.writeln('');
 
     // listen to resize events
-    const resize = () => fitAddon.fit();
     window.addEventListener('resize', resize);
     // resize immediately
     resize();
