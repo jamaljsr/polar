@@ -5,8 +5,8 @@ import { useStoreActions, useStoreState } from 'easy-peasy';
 import { usePrefixedTranslation } from 'hooks';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RootModel } from 'store/models';
-import { AutoMineMode, AutoMinerModel } from 'store/models/network';
-import { Network } from 'types';
+import { AutoMinerModel } from 'store/models/network';
+import { AutoMineMode, Network } from 'types';
 
 const barCssTransition = 'width 400ms ease-in-out';
 

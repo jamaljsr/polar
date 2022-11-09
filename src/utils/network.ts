@@ -17,6 +17,7 @@ import {
 } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import {
+  AutoMineMode,
   CustomImage,
   DockerRepoImage,
   DockerRepoState,
@@ -31,7 +32,6 @@ import { range } from './numbers';
 import { isVersionCompatible } from './strings';
 import { getPolarPlatform } from './system';
 import { prefixTranslation } from './translate';
-import { AutoMineMode } from 'store/models/network';
 
 const { l } = prefixTranslation('utils.network');
 

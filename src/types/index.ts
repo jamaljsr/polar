@@ -11,7 +11,6 @@ import {
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
 import { PolarPlatform } from 'utils/system';
-import { AutoMineMode } from 'store/models/network';
 
 export interface Network {
   id: number;
@@ -171,4 +170,12 @@ export interface NetworksFile {
   version: string;
   networks: Network[];
   charts: Record<number, IChart>;
+}
+
+export enum AutoMineMode {
+  AutoOff = '0',
+  Auto30s = '30',
+  Auto1m = '60',
+  Auto5m = '300',
+  Auto10m = '600',
 }

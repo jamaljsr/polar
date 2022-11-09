@@ -11,7 +11,7 @@ import {
   NodeImplementation,
   Status,
 } from 'shared/types';
-import { CustomImage, Network, StoreInjections } from 'types';
+import { AutoMineMode, CustomImage, Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -41,14 +41,6 @@ interface AddNetworkArgs {
   eclairNodes: number;
   bitcoindNodes: number;
   customNodes: Record<string, number>;
-}
-
-export enum AutoMineMode {
-  AutoOff = '0',
-  Auto30s = '30',
-  Auto1m = '60',
-  Auto5m = '300',
-  Auto10m = '600',
 }
 
 export interface AutoMinerModel {
