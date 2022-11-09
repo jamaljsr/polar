@@ -31,6 +31,7 @@ import { range } from './numbers';
 import { isVersionCompatible } from './strings';
 import { getPolarPlatform } from './system';
 import { prefixTranslation } from './translate';
+import { AutoMineMode } from 'store/models/network';
 
 const { l } = prefixTranslation('utils.network');
 
@@ -307,6 +308,7 @@ export const createNetwork = (config: {
       bitcoin: [],
       lightning: [],
     },
+    autoMineMode: AutoMineMode.AutoOff,
   };
 
   const { bitcoin, lightning } = network.nodes;

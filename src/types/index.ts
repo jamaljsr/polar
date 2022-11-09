@@ -11,12 +11,14 @@ import {
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
 import { PolarPlatform } from 'utils/system';
+import { AutoMineMode } from 'store/models/network';
 
 export interface Network {
   id: number;
   name: string;
   status: Status;
   path: string;
+  autoMineMode: AutoMineMode;
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];

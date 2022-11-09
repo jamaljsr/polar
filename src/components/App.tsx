@@ -7,19 +7,22 @@ import { StoreProvider } from 'easy-peasy';
 import store, { hashHistory } from 'store';
 import { Routes } from 'components/routing';
 
+const StoreProviderOverride = StoreProvider as any;
+const ConnectedRouterOverride = ConnectedRouter as any;
+
 const App: React.FC = () => {
   useEffect(() => info('Rendering App component'), []);
   return (
     // store provider for easy-peasy hooks
-    <StoreProvider store={store}>
+    <StoreProviderOverride store={store}>
       {/* react-redux provider for router state */}
       <Provider store={store as any}>
         {/* connected-react-router  */}
-        <ConnectedRouter history={hashHistory}>
+        <ConnectedRouterOverride history={hashHistory}>
           <Routes />
-        </ConnectedRouter>
+        </ConnectedRouterOverride>
       </Provider>
-    </StoreProvider>
+    </StoreProviderOverride>
   );
 };
 

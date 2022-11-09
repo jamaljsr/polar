@@ -1,5 +1,3 @@
-import React, { ReactNode, useCallback } from 'react';
-import { useAsyncCallback } from 'react-async-hook';
 import {
   CloseOutlined,
   ExportOutlined,
@@ -13,11 +11,15 @@ import {
 import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, Menu, MenuProps, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
-import { usePrefixedTranslation } from 'hooks';
-import { Status } from 'shared/types';
-import { useStoreActions, useStoreState } from 'store';
-import { Network } from 'types';
+import AutoMineButton from 'components/designer/AutoMineButton';
+import { useMiningAsync } from 'hooks/useMiningAsync';
 import SyncButton from 'components/designer/SyncButton';
+import { usePrefixedTranslation } from 'hooks';
+import React, { ReactNode, useCallback } from 'react';
+import { Status } from 'shared/types';
+import { useStoreState } from 'store';
+import { Network } from 'types';
+import { getNetworkBackendId } from 'store/models/bitcoind';
 
 const Styled = {
   Button: styled(Button)`
@@ -95,16 +97,11 @@ const NetworkActions: React.FC<Props> = ({
   const started = status === Status.Started;
   const { label, type, danger, icon } = config[status];
 
-  const nodeState = useStoreState(s => s.bitcoind.nodes[bitcoinNode.name]);
-  const { notify } = useStoreActions(s => s.app);
-  const { mine } = useStoreActions(s => s.bitcoind);
-  const mineAsync = useAsyncCallback(async () => {
-    try {
-      await mine({ blocks: 1, node: bitcoinNode });
-    } catch (error: any) {
-      notify({ message: l('mineError'), error });
-    }
-  });
+  const nodeState = useStoreState(
+    (s: any) => s.bitcoind.nodes[getNetworkBackendId(bitcoinNode)],
+  );
+
+  const mineAsync = useMiningAsync(network);
 
   const handleClick: MenuProps['onClick'] = useCallback(info => {
     switch (info.key) {
@@ -128,7 +125,7 @@ const NetworkActions: React.FC<Props> = ({
 
   return (
     <>
-      {bitcoinNode.status === Status.Started && nodeState && nodeState.chainInfo && (
+      {bitcoinNode.status === Status.Started && nodeState?.chainInfo && (
         <>
           <Tag>height: {nodeState.chainInfo.blocks}</Tag>
           <Button
@@ -138,6 +135,7 @@ const NetworkActions: React.FC<Props> = ({
           >
             {l('mineBtn')}
           </Button>
+          <AutoMineButton network={network} />
           <SyncButton network={network} />
           <Divider type="vertical" />
         </>

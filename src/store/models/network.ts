@@ -1,8 +1,9 @@
+import { NETWORK_VIEW } from 'components/routing';
+import { push } from 'connected-react-router';
+import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
 import { join } from 'path';
-import { push } from 'connected-react-router';
-import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   BitcoinNode,
   CommonNode,
@@ -29,7 +30,6 @@ import {
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
-import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.network');
@@ -41,6 +41,20 @@ interface AddNetworkArgs {
   eclairNodes: number;
   bitcoindNodes: number;
   customNodes: Record<string, number>;
+}
+
+export enum AutoMineMode {
+  AutoOff = '0',
+  Auto30s = '30',
+  Auto1m = '60',
+  Auto5m = '300',
+  Auto10m = '600',
+}
+
+export interface AutoMinerModel {
+  startTime: number;
+  timer: number;
+  mining: boolean;
 }
 
 export interface NetworkModel {
@@ -147,11 +161,26 @@ export interface NetworkModel {
     RootModel,
     Promise<Network>
   >;
+
+  /**
+   * Auto Mining state and store actions
+   */
+  autoMiners: { [id: number]: AutoMinerModel };
+  autoMine: Thunk<
+    NetworkModel,
+    { id: number; mode: AutoMineMode; networkLoading?: boolean },
+    StoreInjections,
+    RootModel
+  >;
+  setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
+  setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
+  mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
 }
 
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
+  autoMiners: {},
   // computed properties/functions
   networkById: computed(state => (id?: string | number) => {
     const networkId = typeof id === 'number' ? id : parseInt(id || '');
@@ -185,6 +214,13 @@ const networkModel: NetworkModel = {
       actions.setNetworks(networks);
     }
     getStoreActions().designer.setAllCharts(charts);
+    networks.forEach(network => {
+      actions.autoMine({
+        id: network.id,
+        mode: network.autoMineMode || AutoMineMode.AutoOff,
+        networkLoading: true,
+      });
+    });
   }),
   save: thunk(async (actions, payload, { getState, injections, getStoreState }) => {
     const data = {
@@ -397,7 +433,7 @@ const networkModel: NetworkModel = {
       // remove the node from the network
       network.nodes.bitcoin = bitcoin.filter(n => n !== node);
       // remove the node's data from the bitcoind redux state
-      bitcoind.removeNode(node.name);
+      bitcoind.removeNode(node);
       if (network.status === Status.Started) {
         // restart the whole network if it is running
         await actions.stop(network.id);
@@ -540,6 +576,7 @@ const networkModel: NetworkModel = {
   stop: thunk(async (actions, networkId, { getState, injections }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    actions.autoMine({ id: network.id, mode: AutoMineMode.AutoOff });
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
       await injections.dockerService.stop(network);
@@ -677,7 +714,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
-    network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n.name));
+    network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),
@@ -728,6 +765,60 @@ const networkModel: NetworkModel = {
       return network;
     },
   ),
+  setAutoMineMode: action((state, { id, mode }) => {
+    const network = state.networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { id }));
+
+    network.autoMineMode = mode;
+  }),
+  setMiningState: action((state, { id, mining }) => {
+    state.autoMiners[id].mining = mining;
+  }),
+  mineBlock: thunk(async (actions, { id }, { getStoreState, getStoreActions }) => {
+    const { networks } = getStoreState().network;
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { id }));
+
+    const { bitcoind } = getStoreActions();
+    const node = network.nodes.bitcoin[0];
+
+    actions.setMiningState({ id, mining: true });
+
+    bitcoind.mine({ node, blocks: 1 }).finally(() => {
+      bitcoind.getInfo(node);
+      actions.setMiningState({ id, mining: false });
+    });
+  }),
+  autoMine: thunk(async (actions, { id, mode, networkLoading }, { getState }) => {
+    const { networks, autoMiners } = getState();
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { id }));
+
+    if (!autoMiners[id]) {
+      autoMiners[id] = {
+        mining: false,
+        startTime: 0,
+        timer: 0,
+      };
+    }
+
+    if (networkLoading || network.autoMineMode !== mode) {
+      await actions.save();
+
+      if (mode !== AutoMineMode.AutoOff) {
+        autoMiners[id].startTime = Date.now();
+        autoMiners[id].timer = +setInterval(
+          () => actions.mineBlock({ id }),
+          1000 * +mode,
+        );
+      } else {
+        clearInterval(autoMiners[id].timer);
+        autoMiners[id].timer = 0;
+      }
+    }
+
+    actions.setAutoMineMode({ id, mode });
+  }),
 };
 
 export default networkModel;

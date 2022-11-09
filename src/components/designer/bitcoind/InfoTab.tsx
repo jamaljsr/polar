@@ -7,6 +7,7 @@ import { dockerConfigs } from 'utils/constants';
 import { ellipseInner } from 'utils/strings';
 import { CopyIcon, DetailsList, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
+import { getNetworkBackendId } from 'store/models/bitcoind';
 
 interface Props {
   node: BitcoinNode;
@@ -34,7 +35,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     details.splice(3, 0, { label: l('customImage'), value: node.docker.image });
   }
 
-  const nodeState = nodes[node.name];
+  const nodeState = nodes[getNetworkBackendId(node)];
   if (
     node.status === Status.Started &&
     nodeState &&

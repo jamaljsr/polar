@@ -8,7 +8,11 @@ import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.bitcoind');
 
+export const getNetworkBackendId = (node: BitcoinNode) =>
+  `${node.networkId}-${node.name}`;
+
 export interface BitcoindNodeMapping {
+  // key must be unique across networks. use getNetworkBackendId(node)
   [key: string]: BitcoindNodeModel;
 }
 
@@ -19,7 +23,7 @@ export interface BitcoindNodeModel {
 
 export interface BitcoindModel {
   nodes: BitcoindNodeMapping;
-  removeNode: Action<BitcoindModel, string>;
+  removeNode: Action<BitcoindModel, BitcoinNode>;
   clearNodes: Action<BitcoindModel, void>;
   setInfo: Action<
     BitcoindModel,
@@ -43,18 +47,18 @@ export interface BitcoindModel {
 
 const bitcoindModel: BitcoindModel = {
   // computed properties/functions
-  nodes: {},
-  // reducer actions (mutations allowed thx to immer)
-  removeNode: action((state, name) => {
-    delete state.nodes[name];
+  nodes: {}, // reducer actions (mutations allowed thx to immer)
+  removeNode: action((state, node) => {
+    delete state.nodes[getNetworkBackendId(node)];
   }),
   clearNodes: action(state => {
     state.nodes = {};
   }),
   setInfo: action((state, { node, chainInfo, walletInfo }) => {
-    if (!state.nodes[node.name]) state.nodes[node.name] = {};
-    state.nodes[node.name].chainInfo = chainInfo;
-    state.nodes[node.name].walletInfo = walletInfo;
+    const id = getNetworkBackendId(node);
+    if (!state.nodes[id]) state.nodes[id] = {};
+    state.nodes[id].chainInfo = chainInfo;
+    state.nodes[id].walletInfo = walletInfo;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
     const chainInfo = await injections.bitcoindService.getBlockchainInfo(node);

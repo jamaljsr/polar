@@ -83,12 +83,14 @@ export const renderWithProviders = (
   // provide initial state if any
   const initialState = options.initialState || {};
   const store = createReduxStore({ initialState, injections, history });
+  const StoreProviderOverride = StoreProvider as any;
+  const ConnectedRouterOverride = ConnectedRouter as any;
   const result = render(
-    <StoreProvider store={store}>
+    <StoreProviderOverride store={store}>
       <Provider store={store as any}>
-        <ConnectedRouter history={history}>{component}</ConnectedRouter>
+        <ConnectedRouterOverride history={history}>{component}</ConnectedRouterOverride>
       </Provider>
-    </StoreProvider>,
+    </StoreProviderOverride>,
   );
 
   // a helper to change the value of an antd <Select> component
