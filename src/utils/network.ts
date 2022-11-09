@@ -719,3 +719,6 @@ export const zipNetwork = async (
   await ipc(ipcChannels.zip, { source: network.path, destination: zipPath });
   // await zip(network.path, zipPath);
 };
+
+export const getNetworkBackendId = (node: BitcoinNode) =>
+  `${node.networkId}-${node.name}`;

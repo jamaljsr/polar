@@ -7,7 +7,7 @@ import { dockerConfigs } from 'utils/constants';
 import { ellipseInner } from 'utils/strings';
 import { CopyIcon, DetailsList, StatusBadge } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
-import { getNetworkBackendId } from 'store/models/bitcoind';
+import { getNetworkBackendId } from 'utils/network';
 
 interface Props {
   node: BitcoinNode;

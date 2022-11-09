@@ -3,13 +3,11 @@ import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, Status } from 'shared/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
+import { getNetworkBackendId } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.bitcoind');
-
-export const getNetworkBackendId = (node: BitcoinNode) =>
-  `${node.networkId}-${node.name}`;
 
 export interface BitcoindNodeMapping {
   // key must be unique across networks. use getNetworkBackendId(node)

@@ -19,7 +19,7 @@ import React, { ReactNode, useCallback } from 'react';
 import { Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { Network } from 'types';
-import { getNetworkBackendId } from 'store/models/bitcoind';
+import { getNetworkBackendId } from 'utils/network';
 
 const Styled = {
   Button: styled(Button)`
