@@ -1,25 +1,10 @@
 import React, { ReactNode } from 'react';
-import styled from '@emotion/styled';
 import { ILink } from '@mrblenny/react-flow-chart';
-import { Dropdown, Menu, MenuProps } from 'antd';
+import { Dropdown, MenuProps } from 'antd';
 import { useStoreState } from 'store';
 import { LinkProperties } from 'utils/chart';
 import ChangeBackendButton from './link/ChangeBackendButton';
 import CloseChannelButton from './link/CloseChannelButton';
-
-const Styled = {
-  Menu: styled(Menu)`
-    .ant-dropdown-menu-title-content {
-      margin: -5px -12px;
-      padding: 5px 12px;
-      display: block;
-
-      svg {
-        margin-right: 5px;
-      }
-    }
-  `,
-};
 
 interface Props {
   link: ILink;
@@ -61,8 +46,9 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
 
   return (
     <Dropdown
-      overlay={<Styled.Menu style={{ width: 200 }} items={items} />}
+      menu={{ items }}
       trigger={['contextMenu']}
+      overlayClassName="polar-context-menu"
     >
       {children}
     </Dropdown>

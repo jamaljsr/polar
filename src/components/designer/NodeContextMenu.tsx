@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react';
-import styled from '@emotion/styled';
 import { INode } from '@mrblenny/react-flow-chart';
-import { Dropdown, Menu, MenuProps } from 'antd';
+import { Dropdown, MenuProps } from 'antd';
 import { BitcoinNode, LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
@@ -9,20 +8,6 @@ import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
-
-const Styled = {
-  Menu: styled(Menu)`
-    .ant-dropdown-menu-title-content {
-      margin: -5px -12px;
-      padding: 5px 12px;
-      display: block;
-
-      svg {
-        margin-right: 5px;
-      }
-    }
-  `,
-};
 
 const addItemIf = (
   key: string,
@@ -106,8 +91,9 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
 
   return (
     <Dropdown
-      overlay={<Styled.Menu style={{ width: 200 }} items={items} />}
+      menu={{ items }}
       trigger={['contextMenu']}
+      overlayClassName="polar-context-menu"
     >
       {children}
     </Dropdown>

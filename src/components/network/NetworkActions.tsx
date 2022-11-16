@@ -11,7 +11,7 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Divider, Dropdown, Menu, MenuProps, Tag } from 'antd';
+import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
@@ -22,13 +22,6 @@ import SyncButton from 'components/designer/SyncButton';
 const Styled = {
   Button: styled(Button)`
     margin-left: 0;
-  `,
-  Menu: styled(Menu)`
-    .ant-dropdown-menu-title-content {
-      svg {
-        margin-right: 5px;
-      }
-    }
   `,
   Dropdown: styled(Dropdown)`
     margin-left: 12px;
@@ -155,7 +148,7 @@ const NetworkActions: React.FC<Props> = ({
       </Styled.Button>
       <Styled.Dropdown
         key="options"
-        overlay={<Styled.Menu theme="dark" items={items} onClick={handleClick} />}
+        menu={{ theme: 'dark', items, onClick: handleClick }}
       >
         <Button icon={<MoreOutlined />} />
       </Styled.Dropdown>
