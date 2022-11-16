@@ -7,7 +7,7 @@ import i18n, { TOptions } from 'i18next';
 export const prefixTranslation = (prefix: string) => {
   // the new `t` function that will append the prefix
   const translate = (key: string, options?: string | TOptions<any> | undefined) => {
-    return i18n.t<string>(`${prefix}.${key}`, options);
+    return i18n.t<string>(`${prefix}.${key}`, options).toString();
   };
 
   return {
