@@ -45,7 +45,7 @@ interface AddNetworkArgs {
 
 export interface AutoMinerModel {
   startTime: number;
-  timer: number;
+  timer?: NodeJS.Timer;
   mining: boolean;
 }
 
@@ -776,10 +776,14 @@ const networkModel: NetworkModel = {
 
     actions.setMiningState({ id, mining: true });
 
-    bitcoind.mine({ node, blocks: 1 }).finally(() => {
-      bitcoind.getInfo(node);
-      actions.setMiningState({ id, mining: false });
-    });
+    try {
+      await bitcoind.mine({ node, blocks: 1 });
+    } catch (e) {
+      // No error displayed to the user since this is could be a background running task
+    }
+
+    bitcoind.getInfo(node);
+    actions.setMiningState({ id, mining: false });
   }),
   autoMine: thunk(async (actions, { id, mode, networkLoading }, { getState }) => {
     const { networks, autoMiners } = getState();
@@ -790,7 +794,7 @@ const networkModel: NetworkModel = {
       autoMiners[id] = {
         mining: false,
         startTime: 0,
-        timer: 0,
+        timer: undefined,
       };
     }
 
@@ -799,13 +803,10 @@ const networkModel: NetworkModel = {
 
       if (mode !== AutoMineMode.AutoOff) {
         autoMiners[id].startTime = Date.now();
-        autoMiners[id].timer = +setInterval(
-          () => actions.mineBlock({ id }),
-          1000 * +mode,
-        );
+        autoMiners[id].timer = setInterval(() => actions.mineBlock({ id }), 1000 * +mode);
       } else {
         clearInterval(autoMiners[id].timer);
-        autoMiners[id].timer = 0;
+        autoMiners[id].timer = undefined;
       }
     }
 

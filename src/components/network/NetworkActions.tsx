@@ -98,7 +98,7 @@ const NetworkActions: React.FC<Props> = ({
   const { label, type, danger, icon } = config[status];
 
   const nodeState = useStoreState(
-    (s: any) => s.bitcoind.nodes[getNetworkBackendId(bitcoinNode)],
+    s => s.bitcoind.nodes[getNetworkBackendId(bitcoinNode)],
   );
 
   const mineAsync = useMiningAsync(network);

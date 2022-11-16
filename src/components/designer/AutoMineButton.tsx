@@ -1,6 +1,6 @@
 import { FieldTimeOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import { Button, Dropdown, Menu, Tooltip, MenuProps } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStoreActions, useStoreState } from 'store';
@@ -13,9 +13,6 @@ const Styled = {
     margin-left: 8px;
   `,
   RemainingBar: styled.div`
-    -webkit-transition: ${barCssTransition};
-    -moz-transition: ${barCssTransition};
-    -o-transition: ${barCssTransition};
     transition: ${barCssTransition};
     background: #d46b08;
     position: absolute;
@@ -79,17 +76,17 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
     };
   }, [l]);
 
-  const handleAutoMineModeChanged = useCallback(
-    (e: any) => {
+  const handleAutoMineModeChanged: MenuProps['onClick'] = useCallback(
+    info => {
       autoMine({
-        mode: e.key,
+        mode: info.key,
         id: network.id,
       });
     },
     [network, autoMine],
   );
 
-  const menuItems = useMemo<any[]>(() => {
+  const menuItems: MenuProps['items'] = useMemo(() => {
     return [
       {
         label: l('autoOff'),
@@ -131,7 +128,7 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
   return (
     <Tooltip title={l('autoMineBtnTip')}>
       <Dropdown overlay={MenuElement} trigger={['hover']}>
-        <Styled.Button icon={<FieldTimeOutlined />} loading={autoMiner.mining}>
+        <Styled.Button icon={<FieldTimeOutlined />} loading={autoMiner?.mining}>
           {l('autoMine')}: {autoMineStatusShortMap[network.autoMineMode]}
           <Styled.RemainingBar
             style={{

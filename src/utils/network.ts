@@ -38,6 +38,9 @@ const { l } = prefixTranslation('utils.network');
 export const getContainerName = (node: CommonNode) =>
   `polar-n${node.networkId}-${node.name}`;
 
+export const getNetworkBackendId = (node: BitcoinNode) =>
+  `${node.networkId}-${node.name}`;
+
 const groupNodes = (network: Network) => {
   const { bitcoin, lightning } = network.nodes;
   return {
@@ -719,6 +722,3 @@ export const zipNetwork = async (
   await ipc(ipcChannels.zip, { source: network.path, destination: zipPath });
   // await zip(network.path, zipPath);
 };
-
-export const getNetworkBackendId = (node: BitcoinNode) =>
-  `${node.networkId}-${node.name}`;
