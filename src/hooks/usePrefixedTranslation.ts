@@ -12,7 +12,8 @@ const usePrefixedTranslation = (prefix: string) => {
   const translate = useCallback(
     (key: string, options?: string | TOptions<any> | undefined) => {
       // if the key contains a '.', then don't add the prefix
-      return key.includes('.') ? t(key, options) : t(`${prefix}.${key}`, options);
+      const res = key.includes('.') ? t(key, options) : t(`${prefix}.${key}`, options);
+      return res.toString();
     },
     [prefix, t],
   );
