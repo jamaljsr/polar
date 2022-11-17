@@ -4535,10 +4535,10 @@ ansi-styles@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.1.0.tgz#87313c102b8118abd57371afab34618bf7350ed3"
   integrity sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==
 
-antd@4.24.2:
-  version "4.24.2"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.24.2.tgz#3c3d8f42846857e34eba86a1374ad63423a1d282"
-  integrity sha512-ItSltW72hkQCPE/xjl27n58STTGEhL85+Gj2I6TPnu5JYsAKHWfHu7hyGWXPXV015Oh48tqL1QUovxd/kCaUtg==
+antd@4.24.3:
+  version "4.24.3"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.24.3.tgz#f712b3490622d9c642dd450a6dc14f4de614bd7f"
+  integrity sha512-3Jv9ktv3Zy1shiVdwnvCgbwRExyGj9Ha8P+GA2rQXBP/t3G7EvpSijSx7cdIy6eLYjEKjuNTqNv0c2kxQX5obQ==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.7.0"
