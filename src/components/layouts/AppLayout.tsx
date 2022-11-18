@@ -84,6 +84,19 @@ const AntdOverrides: React.FC = () => {
         .ant-badge-status-default {
           background-color: ${theme.statusBadge.default};
         }
+        .polar-context-menu {
+          width: 200px;
+
+          .ant-dropdown-menu-title-content {
+            margin: -5px -12px;
+            padding: 5px 12px;
+            display: block;
+
+            svg {
+              margin-right: 5px;
+            }
+          }
+        }
       `}
     />
   );
