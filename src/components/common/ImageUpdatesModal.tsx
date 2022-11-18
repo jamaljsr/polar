@@ -107,7 +107,7 @@ const ImageUpdatesModal: React.FC<Props> = ({ onClose }) => {
       title={l('title')}
       onCancel={onClose}
       destroyOnClose
-      visible
+      open
       width={600}
       centered
       cancelText={l('closeBtn')}

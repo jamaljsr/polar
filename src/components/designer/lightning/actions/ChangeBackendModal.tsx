@@ -85,7 +85,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
     <>
       <Modal
         title={l('title')}
-        visible={visible}
+        open={visible}
         onCancel={() => hideChangeBackend()}
         destroyOnClose
         cancelText={l('cancelBtn')}
