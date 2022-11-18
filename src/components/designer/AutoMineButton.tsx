@@ -31,7 +31,7 @@ const getRemainingPercentage = (mode: AutoMineMode, startTime: number) => {
   if (mode === AutoMineMode.AutoOff) return 0;
   else {
     const elapsedTime = Date.now() - startTime;
-    const autoMineInterval = 1000 * +mode;
+    const autoMineInterval = 1000 * mode;
     const remainingTime = autoMineInterval - (elapsedTime % autoMineInterval);
     const remainingPercentage = Math.round((100 * remainingTime) / autoMineInterval);
 
@@ -79,7 +79,7 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
   const handleAutoMineModeChanged: MenuProps['onClick'] = useCallback(
     info => {
       autoMine({
-        mode: info.key,
+        mode: +info.key,
         id: network.id,
       });
     },
@@ -111,14 +111,17 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
         label: l('autoTenMinutes'),
         key: AutoMineMode.Auto10m,
       },
-    ];
+    ].map(item => ({
+      ...item,
+      key: String(item.key),
+    }));
   }, [l]);
 
   const MenuElement = useMemo(
     () => (
       <Menu
         items={menuItems}
-        selectedKeys={[network.autoMineMode || AutoMineMode.AutoOff]}
+        selectedKeys={[String(network.autoMineMode || AutoMineMode.AutoOff)]}
         onClick={handleAutoMineModeChanged}
       />
     ),

@@ -173,9 +173,9 @@ export interface NetworksFile {
 }
 
 export enum AutoMineMode {
-  AutoOff = '0',
-  Auto30s = '30',
-  Auto1m = '60',
-  Auto5m = '300',
-  Auto10m = '600',
+  AutoOff = 0,
+  Auto30s = 30,
+  Auto1m = 60,
+  Auto5m = 300,
+  Auto10m = 600,
 }
