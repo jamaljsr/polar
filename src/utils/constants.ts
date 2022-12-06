@@ -222,7 +222,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 43,
+  version: 44,
   images: {
     LND: {
       latest: '0.15.4-beta',
@@ -239,14 +239,14 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.15.5-beta.rc1': '23.0',
-        '0.15.4-beta': '23.0',
-        '0.15.3-beta': '23.0',
-        '0.15.2-beta': '23.0',
-        '0.15.1-beta': '23.0',
-        '0.15.0-beta': '23.0',
-        '0.14.3-beta': '23.0',
-        '0.13.1-beta': '23.0',
+        '0.15.5-beta.rc1': '24.0',
+        '0.15.4-beta': '24.0',
+        '0.15.3-beta': '24.0',
+        '0.15.2-beta': '24.0',
+        '0.15.1-beta': '24.0',
+        '0.15.0-beta': '24.0',
+        '0.14.3-beta': '24.0',
+        '0.13.1-beta': '24.0',
       },
     },
     'c-lightning': {
@@ -258,8 +258,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.7.0', '0.6.2', '0.5.0'],
     },
     bitcoind: {
-      latest: '23.0',
-      versions: ['23.0', '22.0', '0.21.1'],
+      latest: '24.0',
+      versions: ['24.0', '23.0', '22.0', '0.21.1'],
     },
     btcd: {
       latest: '',
