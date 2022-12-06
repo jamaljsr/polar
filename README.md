@@ -39,7 +39,7 @@ Supported Network Node Versions:
 - [LND](https://github.com/lightningnetwork/lnd) - v0.15.4, v0.15.3, v0.15.2, v0.15.1, v0.15.0, v0.14.3, v0.13.1
 - [Core Lightning](https://github.com/ElementsProject/lightning) - v0.12.0, v0.11.2, v0.10.2
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.7.0, v0.6.2, v0.5.0
-- [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v23.0, v22.0, v0.21.1
+- [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v24.0, v23.0, v22.0, v0.21.1
 
 ## Dependencies
 
