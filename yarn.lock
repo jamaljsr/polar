@@ -4552,10 +4552,10 @@ ansi-styles@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.1.0.tgz#87313c102b8118abd57371afab34618bf7350ed3"
   integrity sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==
 
-antd@4.24.3:
-  version "4.24.3"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.24.3.tgz#f712b3490622d9c642dd450a6dc14f4de614bd7f"
-  integrity sha512-3Jv9ktv3Zy1shiVdwnvCgbwRExyGj9Ha8P+GA2rQXBP/t3G7EvpSijSx7cdIy6eLYjEKjuNTqNv0c2kxQX5obQ==
+antd@4.24.5:
+  version "4.24.5"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.24.5.tgz#e2489fe7929b53044f239f0893f22baf52e43c48"
+  integrity sha512-1dgDd6OqVP0OGNenNm6bPppYsCO1wkT4SFLcpS/QiiiVZQoDCErQYvEH0ULmPWAEler1Brzal260wwpm0uPeeg==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.7.0"
@@ -4576,8 +4576,8 @@ antd@4.24.3:
     rc-image "~5.12.0"
     rc-input "~0.1.4"
     rc-input-number "~7.3.9"
-    rc-mentions "~1.11.0"
-    rc-menu "~9.7.2"
+    rc-mentions "~1.13.1"
+    rc-menu "~9.8.0"
     rc-motion "^2.6.1"
     rc-notification "~4.6.0"
     rc-pagination "~3.2.0"
@@ -4591,7 +4591,7 @@ antd@4.24.3:
     rc-steps "~5.0.0-alpha.2"
     rc-switch "~3.2.0"
     rc-table "~7.26.0"
-    rc-tabs "~12.3.0"
+    rc-tabs "~12.4.1"
     rc-textarea "~0.4.5"
     rc-tooltip "~5.2.0"
     rc-tree "~5.7.0"
@@ -16735,22 +16735,22 @@ rc-input@~0.1.4:
     classnames "^2.2.1"
     rc-util "^5.18.1"
 
-rc-mentions@~1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/rc-mentions/-/rc-mentions-1.11.0.tgz#ffbe046af52a0ec057393073d0b1ca4210c3325e"
-  integrity sha512-0C78O4wvG8UwsT7DtcwV8j7k4T+urrM0VuRT9gmSGbX187Ftl/JbCXL6WMGHSWBYI+LxInw1x4gw0Zi6qOcaig==
+rc-mentions@~1.13.1:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/rc-mentions/-/rc-mentions-1.13.1.tgz#c884b70e1505a197f1b32a7c6b39090db6992a72"
+  integrity sha512-FCkaWw6JQygtOz0+Vxz/M/NWqrWHB9LwqlY2RtcuFqWJNFK9njijOOzTSsBGANliGufVUzx/xuPHmZPBV0+Hgw==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "^2.2.6"
-    rc-menu "~9.7.2"
+    rc-menu "~9.8.0"
     rc-textarea "^0.4.0"
     rc-trigger "^5.0.4"
     rc-util "^5.22.5"
 
-rc-menu@~9.7.2:
-  version "9.7.2"
-  resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-9.7.2.tgz#0b400e2d81377c8001795559139cb29871143be1"
-  integrity sha512-zyri6Qwr955SOdjzDn7/ylz7Zj8r89wGyoRw0lV9G8K6a3VBfSrP2XMYEc0JgeC62OTghUcRWad7KFqNXysxaA==
+rc-menu@~9.8.0:
+  version "9.8.1"
+  resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-9.8.1.tgz#988cd807f78d2f92eab686f6813f50b165f78405"
+  integrity sha512-179weouypfjWJSRvvoo/vPy+StojsMzK2XC5jRNhL1ryt/N/8wAFESte8K6jZJkNp9DHDLFTe+dCGmikKpiFuA==
   dependencies:
     "@babel/runtime" "^7.10.1"
     classnames "2.x"
@@ -16971,15 +16971,15 @@ rc-table@~7.26.0:
     rc-util "^5.22.5"
     shallowequal "^1.1.0"
 
-rc-tabs@~12.3.0:
-  version "12.3.0"
-  resolved "https://registry.yarnpkg.com/rc-tabs/-/rc-tabs-12.3.0.tgz#a346cafa7eafbe5faeeeb8c07b8ad95197f985dc"
-  integrity sha512-/mOHuq4h/mNC0QmB3iEOrYeiNMvciosSo/v7SMtvoc+jfk63AzZtQzwsC50t6kkL9ViEqyjDqj4bFfxKdQtozA==
+rc-tabs@~12.4.1:
+  version "12.4.1"
+  resolved "https://registry.yarnpkg.com/rc-tabs/-/rc-tabs-12.4.1.tgz#a45aa7560ae4e2a91426e74a2e76566f5c8ec9cc"
+  integrity sha512-yViBZypldDnPffk3IPTarplF1RAv8VQDDnOt9sHDU7pjCnqE72csCU+7kjbLPtPpYniIMQJYyWxh/lsBUcagSA==
   dependencies:
     "@babel/runtime" "^7.11.2"
     classnames "2.x"
     rc-dropdown "~4.0.0"
-    rc-menu "~9.7.2"
+    rc-menu "~9.8.0"
     rc-motion "^2.6.2"
     rc-resize-observer "^1.0.0"
     rc-util "^5.16.0"
