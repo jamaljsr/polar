@@ -59,7 +59,7 @@ RUN mkdir -p eclair-node && cp /usr/repo/eclair-node/pom.xml eclair-node/pom.xml
 RUN mkdir -p eclair-node/modules && cp /usr/repo/eclair-node/modules/assembly.xml eclair-node/modules/assembly.xml
 RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
 # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
-ENV MAVEN_OPTS=-Xmx256m -XX:MaxPermSize=512m
+ENV MAVEN_OPTS=-Xmx512m -XX:MaxPermSize=1024m
 RUN mvn install -pl eclair-node -am
 RUN mvn clean
 # Only then do we copy the sources
