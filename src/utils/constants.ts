@@ -250,8 +250,8 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '0.12.0',
-      versions: ['0.12.0', '0.11.2', '0.10.2'],
+      latest: '22.11',
+      versions: ['22.11', '0.12.0', '0.11.2', '0.10.2'],
     },
     eclair: {
       latest: '0.8.0',
