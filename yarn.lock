@@ -8196,10 +8196,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-easy-peasy@5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-5.1.0.tgz#5fbd3a2d4803ef982b42083be47badf553227341"
-  integrity sha512-Gd5jzTRrWrE6r59014GXTzpcq5abJ5AMGxc4fzd9sM8PCy18evzxVF9MYlkkzdTnUI/Rbvf0sQW50ev8DXyNjw==
+easy-peasy@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-5.2.0.tgz#aee9a06d4bf72aa1e20442d5019306a552f350a0"
+  integrity sha512-QHRRJTsF15ZLK5vLcCLDF3A7sMrE4+7S/8ggZempfMbXX3xNsH2R3HVA+Xo5rZA65Rg8Zf5X6fflEMGuzfgwTw==
   dependencies:
     "@babel/runtime" "^7.17.2"
     fast-deep-equal "^3.1.3"
