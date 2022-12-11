@@ -11104,10 +11104,10 @@ i18next@*:
   dependencies:
     "@babel/runtime" "^7.3.1"
 
-i18next@22.4.0:
-  version "22.4.0"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-22.4.0.tgz#fd79558f3d7855589c1fe447a5e10c0550f41195"
-  integrity sha512-1P6s/V/phMB1uQzV3EIaD/BJimz1d0P6sLZmfcMFbsfyfQ/2NiKcPyxP84aIrobhK2rMpkcOVAdneuH/NI/wBg==
+i18next@22.4.1:
+  version "22.4.1"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-22.4.1.tgz#90041c018ab93a59b6e09d6b20b35e5500f32827"
+  integrity sha512-BZWjrTX+OVaSxV5s94s2M+7wSlevdPgNtjeL/xXHl0CKkPGyjHNlkN6eN+0e0ex+EO8ec57OALRDUpiSSCo54g==
   dependencies:
     "@babel/runtime" "^7.20.6"
 
