@@ -1,9 +1,10 @@
 {
-  "version": 44,
+  "version": 45,
   "images": {
     "LND": {
       "latest": "0.15.5-beta",
       "versions": [
+        "2022.12.28-master",
         "0.15.5-beta",
         "0.15.4-beta",
         "0.15.3-beta",
@@ -14,6 +15,7 @@
         "0.13.1-beta"
       ],
       "compatibility": {
+        "2022.12.28-master": "24.0",
         "0.15.5-beta": "24.0",
         "0.15.4-beta": "24.0",
         "0.15.3-beta": "24.0",
@@ -26,7 +28,7 @@
     },
     "c-lightning": {
       "latest": "22.11",
-      "versions": ["22.11", "0.12.0", "0.11.1", "0.10.2"]
+      "versions": ["22.11", "0.12.0", "0.11.2", "0.10.2"]
     },
     "eclair": {
       "latest": "0.8.0",
@@ -39,6 +41,10 @@
     "btcd": {
       "latest": "",
       "versions": []
+    },
+    "tarod": {
+      "latest": "2022.12.28-master",
+      "versions": ["2022.12.28-master"]
     }
   }
 }

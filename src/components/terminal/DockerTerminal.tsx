@@ -2,10 +2,11 @@
 /* istanbul ignore file */
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
-import { remote, clipboard } from 'electron';
+import { clipboard, remote } from 'electron';
 import { debug, info } from 'electron-log';
 import styled from '@emotion/styled';
 import 'xterm/css/xterm.css';
+import { message } from 'antd';
 import Docker from 'dockerode';
 import { usePrefixedTranslation } from 'hooks';
 import { ITerminalOptions, Terminal } from 'xterm';
@@ -13,7 +14,6 @@ import { FitAddon } from 'xterm-addon-fit';
 import { useStoreActions } from 'store';
 import { eclairCredentials } from 'utils/constants';
 import { nord } from './themes';
-import { message } from 'antd';
 
 const docker = new Docker();
 
@@ -71,6 +71,10 @@ const nodeConfig: Record<string, { user: string; alias: string }> = {
   bitcoind: {
     user: 'bitcoin',
     alias: 'alias bitcoin-cli="bitcoin-cli -regtest"',
+  },
+  tarod: {
+    user: 'taro',
+    alias: 'alias tarocli="tarocli --network regtest"',
   },
 };
 

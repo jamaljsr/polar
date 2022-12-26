@@ -4,11 +4,13 @@ import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
+  AnyNode,
   BitcoinNode,
   CommonNode,
   LightningNode,
   NodeImplementation,
   Status,
+  TaroNode,
 } from 'shared/types';
 import { CustomImage, Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
@@ -21,6 +23,7 @@ import {
   createEclairNetworkNode,
   createLndNetworkNode,
   createNetwork,
+  createTarodNetworkNode,
   filterCompatibleBackends,
   getMissingImages,
   getOpenPorts,
@@ -69,7 +72,7 @@ export interface NetworkModel {
     },
     StoreInjections,
     RootModel,
-    Promise<LightningNode | BitcoinNode>
+    Promise<AnyNode>
   >;
   updateAdvancedOptions: Thunk<
     NetworkModel,
@@ -247,7 +250,7 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-      let node: LightningNode | BitcoinNode;
+      let node: AnyNode;
       // lookup custom image and startup command
       const docker = { image: '', command: '' };
       if (customId) {
@@ -293,6 +296,10 @@ const networkModel: NetworkModel = {
         case 'bitcoind':
           node = createBitcoindNetworkNode(network, version, docker);
           network.nodes.bitcoin.push(node);
+          break;
+        case 'tarod':
+          node = createTarodNetworkNode(network, version, docker);
+          network.nodes.taro.push(node);
           break;
         default:
           throw new Error(`Cannot add unknown node type '${type}' to the network`);
@@ -480,11 +487,13 @@ const networkModel: NetworkModel = {
       // only update a specific node's status
       network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
       network.nodes.bitcoin.filter(n => n.name === only).forEach(setNodeStatus);
+      network.nodes.taro.filter(n => n.name === only).forEach(setNodeStatus);
     } else if (all) {
       // update all node statuses
       network.status = status;
       network.nodes.bitcoin.forEach(setNodeStatus);
       network.nodes.lightning.forEach(setNodeStatus);
+      network.nodes.taro.forEach(setNodeStatus);
     } else {
       // if no specific node name provided, just update the network status
       network.status = status;
@@ -529,6 +538,7 @@ const networkModel: NetworkModel = {
         await actions.monitorStartup([
           ...network.nodes.lightning,
           ...network.nodes.bitcoin,
+          ...network.nodes.taro,
         ]);
       } catch (e: any) {
         actions.setStatus({ id, status: Status.Error });
@@ -630,6 +640,10 @@ const networkModel: NetworkModel = {
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
             );
           btcNodesOnline.push(promise);
+        } else if (node.type === 'taro') {
+          const taro = node as TaroNode;
+          // TARO-TODO: wait until the taro node is actually online
+          actions.setStatus({ id, status: Status.Started, only: taro.name });
         }
       }
       // after all bitcoin nodes are online, mine one block so that Eclair nodes will start

@@ -14,6 +14,7 @@ import {
   LndNode,
   NodeImplementation,
   Status,
+  TarodNode,
 } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import {
@@ -100,6 +101,18 @@ export const getCLightningFilePaths = (
     tlsClientKey: withTls
       ? join(path, 'lightningd', 'regtest', 'client-key.pem')
       : undefined,
+  };
+};
+
+export const getTarodFilePaths = (name: string, network: Network) => {
+  // returns /volumes/tarod/tarod-1
+  const tarodDataPath = nodePath(network, 'tarod', name);
+
+  return {
+    // returns /volumes/tarod/tarod-1/tls.cert
+    tlsCert: join(tarodDataPath, 'tls.cert'),
+    // returns /volumes/tarod/tarod-1/data/regtest/admin.macaroon
+    adminMacaroon: join(tarodDataPath, 'data', 'regtest', 'admin.macaroon'),
   };
 };
 
@@ -272,6 +285,39 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
+export const createTarodNetworkNode = (
+  network: Network,
+  version: string,
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+): TarodNode => {
+  const { taro, lightning } = network.nodes;
+  const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
+
+  const lndNodes = lightning.filter(n => n.implementation === 'LND');
+  const lndBackend = lndNodes[id % lndNodes.length];
+
+  const name = `${lndBackend.name}-taro`;
+  const node: TarodNode = {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'taro',
+    implementation: 'tarod',
+    version,
+    status,
+    lndName: lndBackend.name,
+    paths: getTarodFilePaths(name, network),
+    ports: {
+      rest: BasePorts.tarod.rest + id,
+      grpc: BasePorts.tarod.grpc + id,
+    },
+    docker,
+  };
+
+  return node;
+};
+
 export const createNetwork = (config: {
   id: number;
   name: string;
@@ -306,6 +352,7 @@ export const createNetwork = (config: {
     nodes: {
       bitcoin: [],
       lightning: [],
+      taro: [],
     },
   };
 

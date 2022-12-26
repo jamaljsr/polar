@@ -130,6 +130,10 @@ export const testRepoState: DockerRepoState = {
       latest: '',
       versions: [],
     },
+    tarod: {
+      latest: '0.1.1-alpha',
+      versions: ['0.1.1-alpha'],
+    },
   },
 };
 
