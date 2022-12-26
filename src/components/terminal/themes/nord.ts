@@ -35,7 +35,7 @@ const nord: ITheme = {
   /** The accent color of the cursor (fg color for a block cursor) */
   cursorAccent: colors.nord3,
   /** The selection background color (can be transparent) */
-  selection: colors.nord5 + '66',
+  selectionBackground: colors.nord5 + '66',
   /** ANSI black (eg. `\x1b[30m`) */
   black: colors.nord1,
   /** ANSI red (eg. `\x1b[31m`) */
