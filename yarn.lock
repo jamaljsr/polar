@@ -4559,10 +4559,10 @@ ansi-styles@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.1.0.tgz#87313c102b8118abd57371afab34618bf7350ed3"
   integrity sha512-VbqNsoz55SYGczauuup0MFUyXNQviSpFTj1RQtFzmQLk18qbVSpTFFGMT293rmDaQuKCT6InmbuEyUne4mTuxQ==
 
-antd@4.24.5:
-  version "4.24.5"
-  resolved "https://registry.yarnpkg.com/antd/-/antd-4.24.5.tgz#e2489fe7929b53044f239f0893f22baf52e43c48"
-  integrity sha512-1dgDd6OqVP0OGNenNm6bPppYsCO1wkT4SFLcpS/QiiiVZQoDCErQYvEH0ULmPWAEler1Brzal260wwpm0uPeeg==
+antd@4.24.6:
+  version "4.24.6"
+  resolved "https://registry.yarnpkg.com/antd/-/antd-4.24.6.tgz#ca1bd1deccbede9325c75c127790ba8d78c95da6"
+  integrity sha512-x4tTXI3aOJukcG/MWQ7PdWHIqGEFInkKPhSHJpSiDvZI5BAvgLicW57WWhnBpJ6m9H9e9FRohC5FRJf0NIwsWQ==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.7.0"
@@ -4577,10 +4577,10 @@ antd@4.24.5:
     rc-checkbox "~2.3.0"
     rc-collapse "~3.4.2"
     rc-dialog "~9.0.2"
-    rc-drawer "~6.0.0"
+    rc-drawer "~6.1.0"
     rc-dropdown "~4.0.0"
     rc-field-form "~1.27.0"
-    rc-image "~5.12.0"
+    rc-image "~5.13.0"
     rc-input "~0.1.4"
     rc-input-number "~7.3.9"
     rc-mentions "~1.13.1"
@@ -16703,10 +16703,10 @@ rc-dialog@~9.0.0, rc-dialog@~9.0.2:
     rc-motion "^2.3.0"
     rc-util "^5.21.0"
 
-rc-drawer@~6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/rc-drawer/-/rc-drawer-6.0.0.tgz#1cbb5743d3eb672ea33ced4979b055baf30f59c9"
-  integrity sha512-4k/g1q+yfATY9fgPB7ec+OTj51NF3BW/HzESkGtZNQZurMJr/uAHe0T4nsQ5Xd1ESR0MlS6lbQn4iB+L4sZFOg==
+rc-drawer@~6.1.0:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/rc-drawer/-/rc-drawer-6.1.1.tgz#c53548365de225b5cdb63dcc5148146375ddd11b"
+  integrity sha512-w2SZHY05/gjcVacJLkr+MrJKOF5d7Qmn1zWjFVhmfA66eI25RERajumHz1OI/94MJSlUPuZtGr+a5B+8gR7AFQ==
   dependencies:
     "@babel/runtime" "^7.10.1"
     "@rc-component/portal" "^1.0.0-6"
@@ -16733,15 +16733,16 @@ rc-field-form@~1.27.0:
     async-validator "^4.1.0"
     rc-util "^5.8.0"
 
-rc-image@~5.12.0:
-  version "5.12.0"
-  resolved "https://registry.yarnpkg.com/rc-image/-/rc-image-5.12.0.tgz#20bf4b7e8cfc63e05c47e8fb470a299ba83a7ca6"
-  integrity sha512-ubZIPfT81jmb0hLf/sIKbgi7kJT2+26RxWPshppDElhXoJZ9Xb0y+QRBcYGgCAPy76RIuaKT2RL5x8Owvhrcjg==
+rc-image@~5.13.0:
+  version "5.13.0"
+  resolved "https://registry.yarnpkg.com/rc-image/-/rc-image-5.13.0.tgz#1ed9b852a40b5eff34786ba7d2f0e9d26eeab874"
+  integrity sha512-iZTOmw5eWo2+gcrJMMcnd7SsxVHl3w5xlyCgsULUdJhJbnuI8i/AL0tVOsE7aLn9VfOh1qgDT3mC2G75/c7mqg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@rc-component/portal" "^1.0.2"
     classnames "^2.2.6"
     rc-dialog "~9.0.0"
+    rc-motion "^2.6.2"
     rc-util "^5.0.6"
 
 rc-input-number@~7.3.9:
