@@ -31,9 +31,8 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   if (!network) return <>{children}</>;
 
   // find the network node by name
-  const node = [...network.nodes.bitcoin, ...network.nodes.lightning].find(
-    n => n.name === id,
-  );
+  const { bitcoin, lightning, taro } = network.nodes;
+  const node = [...bitcoin, ...lightning, ...taro].find(n => n.name === id);
   // don't add a context menu if the node is not valid
   if (!node) return <>{children}</>;
 

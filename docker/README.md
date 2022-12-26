@@ -144,6 +144,33 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg ECLAIR_VERS
 
 Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
 
+**Push to Docker Hub**
+
+```sh
+$ docker push polarlightning/eclair:<version>
+```
+
+## Taro
+
+### Tags
+
+- `0.1.1-alpha` ([taro/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/taro/Dockerfile))
+
+**Building the image**
+
+```sh
+$ cd tarod
+$ docker build --build-arg TAROD_VERSION=<version> -t polarlightning/tarod:<version> .
+```
+
+Replace `<version>` with the desired Taro version (ex: `0.1.1-alpha`).
+
+**Push to Docker Hub**
+
+```sh
+$ docker push polarlightning/tarod:<version>
+```
+
 # Out-of-Band Image Updates
 
 > Note: These steps can only be performed by developers with commit access to this GitHub repo and push access to the Docker Hub repo

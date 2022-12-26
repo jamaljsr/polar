@@ -2,12 +2,12 @@ import React from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoinNode, LightningNode } from 'shared/types';
+import { AnyNode } from 'shared/types';
 import { useStoreActions } from 'store';
 import { dockerConfigs } from 'utils/constants';
 
 interface Props {
-  node: LightningNode | BitcoinNode;
+  node: AnyNode;
   type?: 'button' | 'menu';
 }
 

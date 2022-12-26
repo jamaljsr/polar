@@ -7,6 +7,7 @@ import {
   NodeImplementation,
   OpenChannelOptions,
   Status,
+  TaroNode,
 } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
@@ -21,6 +22,7 @@ export interface Network {
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];
+    taro: TaroNode[];
   };
 }
 

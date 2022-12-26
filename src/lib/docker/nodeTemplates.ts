@@ -134,3 +134,35 @@ export const eclair = (
     `${p2pPort}:9735`, // p2p
   ],
 });
+
+export const tarod = (
+  name: string,
+  container: string,
+  image: string,
+  restPort: number,
+  grpcPort: number,
+  lndName: string,
+  command: string,
+): ComposeService => ({
+  image,
+  container_name: container,
+  environment: {
+    USERID: '${USERID:-1000}',
+    GROUPID: '${GROUPID:-1000}',
+  },
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [
+    `./volumes/${dockerConfigs.LND.volumeDirName}/${lndName}:/home/taro/.lnd`,
+    `./volumes/taro/${name}:/home/taro/.taro`,
+  ],
+  expose: [
+    '8089', // REST
+    '10029', // gRPC
+  ],
+  ports: [
+    `${restPort}:8089`, // REST
+    `${grpcPort}:10029`, // gRPC
+  ],
+});

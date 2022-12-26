@@ -3,13 +3,13 @@ import { useAsyncCallback } from 'react-async-hook';
 import { FileTextOutlined } from '@ant-design/icons';
 import { Button, Form, message } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoinNode, LightningNode } from 'shared/types';
+import { AnyNode } from 'shared/types';
 import { useStoreActions } from 'store';
 import { getContainerName } from 'utils/network';
 import { LOGS } from 'components/routing';
 
 interface Props {
-  node: LightningNode | BitcoinNode;
+  node: AnyNode;
   type?: 'button' | 'menu';
 }
 
