@@ -11,11 +11,12 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { BitcoinNode, LightningNode, Status } from 'shared/types';
+import { AnyNode, Status, TarodNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createBitcoinChartNode,
   createLightningChartNode,
+  createTarodChartNode,
   rotate,
   snap,
   updateChartFromNodes,
@@ -42,10 +43,7 @@ export interface DesignerModel {
   removeLink: Action<DesignerModel, string>;
   updateBackendLink: Action<DesignerModel, { lnName: string; backendName: string }>;
   removeNode: Action<DesignerModel, string>;
-  addNode: Action<
-    DesignerModel,
-    { newNode: LightningNode | BitcoinNode; position: IPosition }
-  >;
+  addNode: Action<DesignerModel, { newNode: AnyNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   zoomIn: Action<DesignerModel, any>;
@@ -195,7 +193,9 @@ const designerModel: DesignerModel = {
     const { node, link } =
       newNode.type === 'lightning'
         ? createLightningChartNode(newNode)
-        : createBitcoinChartNode(newNode);
+        : newNode.type === 'bitcoin'
+        ? createBitcoinChartNode(newNode)
+        : createTarodChartNode(newNode as TarodNode);
     node.position = position;
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
@@ -265,7 +265,9 @@ const designerModel: DesignerModel = {
         });
         // remove the loading node added in onCanvasDrop
         actions.removeNode(LOADING_NODE_ID);
-      } else if (['LND', 'c-lightning', 'eclair', 'bitcoind'].includes(data.type)) {
+      } else if (
+        ['LND', 'c-lightning', 'eclair', 'bitcoind', 'tarod'].includes(data.type)
+      ) {
         const { addNode, toggleNode } = getStoreActions().network;
         try {
           const newNode = await addNode({

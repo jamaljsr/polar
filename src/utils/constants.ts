@@ -4,6 +4,7 @@ import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import lndLogo from 'resources/lnd.png';
+import taroLogo from 'resources/taro.svg';
 import packageJson from '../../package.json';
 
 // App
@@ -65,6 +66,10 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     p2p: 9935,
   },
   btcd: {},
+  tarod: {
+    grpc: 12029,
+    rest: 8289,
+  },
 };
 
 export const bitcoinCredentials = {
@@ -207,6 +212,23 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     command: '',
     variables: [],
   },
+  tarod: {
+    name: 'Taro',
+    imageName: 'polarlightning/tarod',
+    logo: taroLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'tarod',
+    command: [
+      'tarod',
+      '--network=regtest',
+      '--debuglevel=debug',
+      '--lnd.host={{lndName}}:10009',
+      '--lnd.macaroonpath=/home/taro/.lnd/data/chain/bitcoin/regtest/admin.macaroon',
+      '--lnd.tlspath=/home/taro/.lnd/tls.cert',
+    ].join('\n  '),
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
+    variables: ['lndName'],
+  },
 };
 
 /**
@@ -260,6 +282,10 @@ export const defaultRepoState: DockerRepoState = {
     btcd: {
       latest: '',
       versions: [],
+    },
+    tarod: {
+      latest: '2022.12.28-master',
+      versions: ['2022.12.28-master'],
     },
   },
 };

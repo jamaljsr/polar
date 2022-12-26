@@ -1,5 +1,5 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
-import { BitcoinNode, LightningNode } from 'shared/types';
+import { BitcoinNode, LightningNode, TarodNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
@@ -57,12 +57,43 @@ export const createLightningChartNode = (ln: LightningNode) => {
     },
   };
 
+  if (ln.implementation === 'LND') {
+    node.ports['lndbackend'] = { id: 'lndbackend', type: 'top' };
+  }
+
   const link: ILink = {
     id: `${ln.name}-${ln.backendName}`,
     from: { nodeId: ln.name, portId: 'backend' },
     to: { nodeId: ln.backendName, portId: 'backend' },
     properties: {
       type: 'backend',
+    },
+  };
+
+  return { node, link };
+};
+
+export const createTarodChartNode = (taro: TarodNode) => {
+  const node: INode = {
+    id: taro.name,
+    type: 'taro',
+    position: { x: taro.id * 250 + 50, y: taro.id % 2 === 0 ? 100 : 200 },
+    ports: {
+      lndbackend: { id: 'lndbackend', type: 'bottom' },
+    },
+    size: { width: 200, height: 36 },
+    properties: {
+      status: taro.status,
+      icon: dockerConfigs[taro.implementation].logo,
+    },
+  };
+
+  const link: ILink = {
+    id: `${taro.name}-${taro.lndName}`,
+    from: { nodeId: taro.name, portId: 'lndbackend' },
+    to: { nodeId: taro.lndName, portId: 'lndbackend' },
+    properties: {
+      type: 'lndbackend',
     },
   };
 
@@ -125,6 +156,14 @@ export const initChartFromNetwork = (network: Network): IChart => {
     const { node, link } = createLightningChartNode(n);
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;
+  });
+
+  network.nodes.taro.forEach(n => {
+    if (n.implementation === 'tarod') {
+      const { node, link } = createTarodChartNode(n as TarodNode);
+      chart.nodes[node.id] = node;
+      chart.links[link.id] = link;
+    }
   });
 
   return chart;
@@ -267,6 +306,25 @@ export const updateChartFromNodes = (
     linksToKeep.push(id);
   });
 
+  // ensure all tarod -> lnd backend links exists
+  network.nodes.taro.forEach(taro => {
+    if (taro.implementation === 'tarod') {
+      const tarod = taro as TarodNode;
+      const id = `${tarod.name}-${tarod.lndName}`;
+      if (!links[id]) {
+        links[id] = {
+          id,
+          from: { nodeId: tarod.name, portId: 'lndbackend' },
+          to: { nodeId: tarod.lndName, portId: 'lndbackend' },
+          properties: {
+            type: 'lndbackend',
+          },
+        };
+      }
+      linksToKeep.push(id);
+    }
+  });
+
   // remove links for channels that no longer exist
   Object.keys(links).forEach(linkId => {
     // don't remove links for existing channels
@@ -279,7 +337,14 @@ export const updateChartFromNodes = (
   Object.values(nodes).forEach(node => {
     Object.keys(node.ports).forEach(portId => {
       // don't remove special ports
-      const special = ['empty-left', 'empty-right', 'backend', 'peer-left', 'peer-right'];
+      const special = [
+        'empty-left',
+        'empty-right',
+        'backend',
+        'peer-left',
+        'peer-right',
+        'lndbackend',
+      ];
       if (special.includes(portId)) return;
       // don't remove ports for existing channels
       if (linksToKeep.includes(portId)) return;

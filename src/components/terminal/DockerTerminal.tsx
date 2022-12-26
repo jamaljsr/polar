@@ -70,6 +70,10 @@ const nodeConfig: Record<string, { user: string; alias: string }> = {
     user: 'bitcoin',
     alias: 'alias bitcoin-cli="bitcoin-cli -regtest"',
   },
+  tarod: {
+    user: 'taro',
+    alias: 'alias tarocli="tarocli --network regtest"',
+  },
 };
 
 /**
