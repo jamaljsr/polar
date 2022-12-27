@@ -149,6 +149,8 @@ class ComposeFile {
     const container = getContainerName(node);
     // define the variable substitutions
     const variables = {
+      name: node.name,
+      containerName: container,
       lndName: getContainerName(lndBackend),
     };
     // use the node's custom image or the default for the implementation

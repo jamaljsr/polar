@@ -199,7 +199,7 @@ const defaults = {
   [ipcChannels.pendingChannels]: defaultLndPendingChannels,
 };
 
-export type DefaultsKey = keyof typeof defaults;
+export type LndDefaultsKey = keyof typeof defaults;
 
 /**
  * The LND API will omit falsey values in responses. This function will ensure the response
@@ -207,7 +207,7 @@ export type DefaultsKey = keyof typeof defaults;
  * @param values the actual values received from the LND API
  * @param key the key of the defaults object containing the default values for the response
  */
-export const withDefaults = (values: any, key: DefaultsKey): any => {
+export const withLndDefaults = (values: any, key: LndDefaultsKey): any => {
   const func = defaults[key];
   return func ? func(values) : values;
 };
