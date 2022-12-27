@@ -5,7 +5,8 @@ import { join } from 'path';
 import { initAppIpcListener } from './appIpcListener';
 import { appMenuTemplate } from './appMenu';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
-import { clearProxyCache, initLndProxy } from './lnd/lndProxyServer';
+import { clearLndProxyCache, initLndProxy } from './lnd/lndProxyServer';
+import { initTarodProxy } from './tarod/tarodProxyServer';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
@@ -14,6 +15,7 @@ class WindowManager {
     app.on('ready', async () => {
       await this.createMainWindow();
       initLndProxy(ipcMain);
+      initTarodProxy(ipcMain);
       initAppIpcListener(ipcMain);
     });
     app.on('window-all-closed', this.onAllClosed);
@@ -55,7 +57,7 @@ class WindowManager {
     this.mainWindow.loadURL(BASE_URL);
 
     // clear the proxy cached data if the window is reloaded
-    this.mainWindow.webContents.on('did-finish-load', clearProxyCache);
+    this.mainWindow.webContents.on('did-finish-load', clearLndProxyCache);
 
     mainState.manage(this.mainWindow);
   }

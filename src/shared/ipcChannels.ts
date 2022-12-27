@@ -18,4 +18,8 @@ export default {
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',
+  // tarod proxy channels
+  taro: {
+    listAssets: 'taro-list-assets',
+  },
 };

@@ -1,5 +1,6 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
+import * as TARO from 'shared/tarodTypes';
 import {
   BitcoinNode,
   CommonNode,
@@ -158,6 +159,15 @@ export interface LightningFactoryInjection {
   getService: (node: LightningNode) => LightningService;
 }
 
+export interface TaroService {
+  waitUntilOnline: (node: TaroNode) => Promise<void>;
+  listAssets: (node: TaroNode) => Promise<TARO.ListAssetsResponse>;
+}
+
+export interface TaroFactoryInjection {
+  getService: (node: TaroNode) => TaroService;
+}
+
 export interface StoreInjections {
   ipc: IpcSender;
   settingsService: SettingsInjection;
@@ -165,6 +175,7 @@ export interface StoreInjections {
   repoService: RepoServiceInjection;
   bitcoindService: BitcoindLibrary;
   lightningFactory: LightningFactoryInjection;
+  taroFactory: TaroFactoryInjection;
 }
 
 export interface NetworksFile {

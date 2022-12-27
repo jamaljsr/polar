@@ -1,7 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import createLndRpc, * as LND from '@radar/lnrpc';
-import { DefaultsKey, ipcChannels, withDefaults } from '../../src/shared';
+import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
 /**
@@ -169,7 +169,7 @@ export const initLndProxy = (ipc: IpcMain) => {
           `LndProxyServer: send response "${uniqueChan}"`,
           JSON.stringify(result, null, 2),
         );
-        result = withDefaults(result, channel as DefaultsKey);
+        result = withLndDefaults(result, channel as LndDefaultsKey);
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
       } catch (err: any) {
@@ -184,6 +184,6 @@ export const initLndProxy = (ipc: IpcMain) => {
 /**
  * Clears the cached rpc instances
  */
-export const clearProxyCache = () => {
+export const clearLndProxyCache = () => {
   rpcCache = {};
 };

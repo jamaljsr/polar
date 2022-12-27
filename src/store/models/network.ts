@@ -642,8 +642,15 @@ const networkModel: NetworkModel = {
           btcNodesOnline.push(promise);
         } else if (node.type === 'taro') {
           const taro = node as TaroNode;
-          // TARO-TODO: wait until the taro node is actually online
-          actions.setStatus({ id, status: Status.Started, only: taro.name });
+          injections.taroFactory
+            .getService(taro)
+            .waitUntilOnline(taro)
+            .then(async () => {
+              actions.setStatus({ id, status: Status.Started, only: taro.name });
+            })
+            .catch(error =>
+              actions.setStatus({ id, status: Status.Error, only: taro.name, error }),
+            );
         }
       }
       // after all bitcoin nodes are online, mine one block so that Eclair nodes will start
