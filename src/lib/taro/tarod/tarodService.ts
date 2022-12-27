@@ -1,12 +1,29 @@
-import { ListAssetsResponse } from 'shared/tarodTypes';
+import { GenesisInfo } from '@hodlone/taro-api/dist/types/tarorpc/GenesisInfo';
 import { TarodNode, TaroNode } from 'shared/types';
+import * as PTARO from 'lib/taro/types';
 import { TaroService } from 'types';
 import { waitFor } from 'utils/async';
 import { tarodProxyClient as proxy } from './';
 
+/** Converts a byte[] value from the RPC into hex format */
+const hex = (value: string | Buffer | Uint8Array) => Buffer.from(value).toString('hex');
+
 class TarodService implements TaroService {
-  async listAssets(node: TaroNode): Promise<ListAssetsResponse> {
-    return await proxy.listAssets(this.cast(node));
+  async listAssets(node: TaroNode): Promise<PTARO.TaroAsset[]> {
+    const { assets } = await proxy.listAssets(this.cast(node));
+    return assets.map<PTARO.TaroAsset>(asset => {
+      // cast the nested object to be Required to avoid a bunch of
+      // conditionals to please Typescript
+      const genesis = asset.assetGenesis as Required<GenesisInfo>;
+      return {
+        id: hex(genesis.assetId),
+        name: genesis.name,
+        meta: Buffer.from(genesis.meta).toString('ascii'),
+        amount: asset.amount,
+        genesisPoint: genesis.genesisPoint,
+        genesisBootstrapInfo: hex(genesis.genesisBootstrapInfo),
+      };
+    });
   }
 
   /**
