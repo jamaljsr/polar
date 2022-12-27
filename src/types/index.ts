@@ -1,6 +1,5 @@
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import * as TARO from 'shared/tarodTypes';
 import {
   BitcoinNode,
   CommonNode,
@@ -12,6 +11,7 @@ import {
 } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
+import * as PTARO from 'lib/taro/types';
 import { PolarPlatform } from 'utils/system';
 
 export interface Network {
@@ -161,7 +161,7 @@ export interface LightningFactoryInjection {
 
 export interface TaroService {
   waitUntilOnline: (node: TaroNode) => Promise<void>;
-  listAssets: (node: TaroNode) => Promise<TARO.ListAssetsResponse>;
+  listAssets: (node: TaroNode) => Promise<PTARO.TaroAsset[]>;
 }
 
 export interface TaroFactoryInjection {
