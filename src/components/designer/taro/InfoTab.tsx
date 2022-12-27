@@ -1,12 +1,13 @@
 import React from 'react';
-import { Alert, Divider } from 'antd';
+import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status, TaroNode } from 'shared/types';
+import { TaroBalance } from 'lib/taro/types';
 import { useStoreState } from 'store';
 import { dockerConfigs } from 'utils/constants';
-import { format } from 'utils/units';
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
+import AssetsList from './info/AssetsList';
 
 interface Props {
   node: TaroNode;
@@ -34,20 +35,11 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     details.splice(3, 0, { label: l('customImage'), value: node.docker.image });
   }
 
-  const assetDetails: DetailValues = [];
+  let balances: TaroBalance[] | undefined = undefined;
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
-    if (nodeState.assets) {
-      nodeState.assets.forEach(asset => {
-        assetDetails.push({
-          label: asset.name,
-          value: format(asset.amount),
-        });
-      });
-      details.push({
-        label: l('numAssets'),
-        value: nodeState.assets.length,
-      });
+    if (nodeState.balances) {
+      balances = nodeState.balances;
     }
   }
 
@@ -63,12 +55,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         />
       )}
       <DetailsList details={details} />
-      {assetDetails.length > 0 && (
-        <>
-          <Divider>{l('assets')}</Divider>
-          <DetailsList details={assetDetails} />
-        </>
-      )}
+      {balances && <AssetsList title={l('assets')} balances={balances} />}
     </>
   );
 };
