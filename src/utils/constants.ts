@@ -222,12 +222,16 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       'tarod',
       '--network=regtest',
       '--debuglevel=debug',
+      '--tlsextradomain={{name}}',
+      '--tlsextradomain={{containerName}}',
+      '--rpclisten=0.0.0.0:10029',
+      '--restlisten=0.0.0.0:8089',
       '--lnd.host={{lndName}}:10009',
       '--lnd.macaroonpath=/home/taro/.lnd/data/chain/bitcoin/regtest/admin.macaroon',
       '--lnd.tlspath=/home/taro/.lnd/tls.cert',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
-    variables: ['lndName'],
+    variables: ['name', 'containerName', 'lndName'],
   },
 };
 

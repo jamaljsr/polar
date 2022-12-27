@@ -155,7 +155,7 @@ export const tarod = (
   restart: 'always',
   volumes: [
     `./volumes/${dockerConfigs.LND.volumeDirName}/${lndName}:/home/taro/.lnd`,
-    `./volumes/taro/${name}:/home/taro/.taro`,
+    `./volumes/${dockerConfigs.tarod.volumeDirName}/${name}:/home/taro/.taro`,
   ],
   expose: [
     '8089', // REST
