@@ -19,11 +19,32 @@ class TarodService implements TaroService {
         id: hex(genesis.assetId),
         name: genesis.name,
         meta: Buffer.from(genesis.meta).toString('ascii'),
+        type: asset.assetType,
         amount: asset.amount,
         genesisPoint: genesis.genesisPoint,
         genesisBootstrapInfo: hex(genesis.genesisBootstrapInfo),
       };
     });
+  }
+
+  async listBalances(node: TaroNode): Promise<PTARO.TaroBalance[]> {
+    const balances: PTARO.TaroBalance[] = [];
+    const res = await proxy.listBalances(this.cast(node), { assetId: true });
+    Object.values(res.assetBalances).forEach(asset => {
+      // cast the nested object to be Required to avoid a bunch of
+      // conditionals to please Typescript
+      const genesis = asset.assetGenesis as Required<GenesisInfo>;
+      balances.push({
+        id: hex(genesis.assetId),
+        name: genesis.name,
+        meta: Buffer.from(genesis.meta).toString('ascii'),
+        type: asset.assetType,
+        balance: asset.balance,
+        genesisPoint: genesis.genesisPoint,
+        genesisBootstrapInfo: hex(genesis.genesisBootstrapInfo),
+      });
+    });
+    return balances;
   }
 
   /**

@@ -21,5 +21,6 @@ export default {
   // tarod proxy channels
   taro: {
     listAssets: 'taro-list-assets',
+    listBalances: 'taro-list-balances',
   },
 };

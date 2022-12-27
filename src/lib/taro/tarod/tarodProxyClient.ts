@@ -1,5 +1,5 @@
 import { ipcChannels } from 'shared';
-import { ListAssetsResponse } from 'shared/tarodTypes';
+import * as TARO from 'shared/tarodTypes';
 import { TarodNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 
@@ -10,8 +10,15 @@ class TarodProxyClient {
     this.ipc = createIpcSender('TarodProxyClient', 'tarod');
   }
 
-  async listAssets(node: TarodNode): Promise<ListAssetsResponse> {
+  async listAssets(node: TarodNode): Promise<TARO.ListAssetResponse> {
     return await this.ipc(ipcChannels.taro.listAssets, { node });
+  }
+
+  async listBalances(
+    node: TarodNode,
+    req: TARO.ListBalancesRequest,
+  ): Promise<TARO.ListBalancesResponse> {
+    return await this.ipc(ipcChannels.taro.listBalances, { node, req });
   }
 }
 

@@ -163,6 +163,7 @@ export interface LightningFactoryInjection {
 export interface TaroService {
   waitUntilOnline: (node: TaroNode) => Promise<void>;
   listAssets: (node: TaroNode) => Promise<PTARO.TaroAsset[]>;
+  listBalances: (node: TaroNode) => Promise<PTARO.TaroBalance[]>;
 }
 
 export interface TaroFactoryInjection {

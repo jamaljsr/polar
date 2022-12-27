@@ -3,7 +3,7 @@ import { debug } from 'electron-log';
 import { readFile } from 'fs-extra';
 import TaroClientOptions, { TaroApi } from '@hodlone/taro-api';
 import { ipcChannels, TarodDefaultsKey, withTarodDefaults } from '../../src/shared';
-import { ListAssetsResponse } from '../../src/shared/tarodTypes';
+import * as TARO from '../../src/shared/tarodTypes';
 import { TarodNode } from '../../src/shared/types';
 
 /**
@@ -32,9 +32,18 @@ const getRpc = async (node: TarodNode): Promise<TaroApi> => {
   return rpcCache[id];
 };
 
-const listAssets = async (args: { node: TarodNode }): Promise<ListAssetsResponse> => {
+const listAssets = async (args: { node: TarodNode }): Promise<TARO.ListAssetResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.listAssets();
+};
+
+const listBalances = async (args: {
+  node: TarodNode;
+}): Promise<TARO.ListBalancesResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.listBalances({
+    assetId: true,
+  });
 };
 
 /**
@@ -45,6 +54,7 @@ const listeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
   [ipcChannels.taro.listAssets]: listAssets,
+  [ipcChannels.taro.listBalances]: listBalances,
 };
 
 /**

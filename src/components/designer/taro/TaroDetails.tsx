@@ -5,13 +5,11 @@ import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status, TaroNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
+import ActionsTab from './ActionsTab';
+import ConnectTab from './ConnectTab';
 import InfoTab from './InfoTab';
-
-// import ActionsTab from './ActionsTab';
-// import ConnectTab from './ConnectTab';
 
 interface Props {
   node: TaroNode;
@@ -20,22 +18,22 @@ interface Props {
 const TaroDetails: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.taro.TaroDetails');
   const [activeTab, setActiveTab] = useState('info');
-  const { getAssets } = useStoreActions(s => s.taro);
+  const { getAssets, getBalances } = useStoreActions(s => s.taro);
   const getInfoAsync = useAsync(
     async (node: TaroNode) => {
       if (node.status !== Status.Started) return;
       await getAssets(node);
+      await getBalances(node);
     },
     [node],
   );
 
   let extra: ReactNode | undefined;
-  const { nodes } = useStoreState(s => s.lightning);
+  const { nodes } = useStoreState(s => s.taro);
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
-    if (nodeState.walletBalance) {
-      const { confirmed } = nodeState.walletBalance;
-      extra = <strong>{abbreviate(confirmed)} sats</strong>;
+    if (nodeState.balances) {
+      extra = <strong>{nodeState.balances.length} assets</strong>;
     }
   }
 
@@ -46,8 +44,8 @@ const TaroDetails: React.FC<Props> = ({ node }) => {
   ];
   const tabContents: Record<string, ReactNode> = {
     info: <InfoTab node={node} />,
-    connect: <div>TODO: Connect</div>, //<ConnectTab node={node} />,
-    actions: <div>TODO: Actions</div>, // <ActionsTab node={node} />,
+    connect: <ConnectTab node={node} />,
+    actions: <ActionsTab node={node} />,
   };
   return (
     <SidebarCard
