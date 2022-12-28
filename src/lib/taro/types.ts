@@ -11,6 +11,7 @@ export interface TaroAsset {
   amount: string;
   genesisPoint: string;
   genesisBootstrapInfo: string;
+  anchorOutpoint: string;
 }
 
 export interface TaroBalance {

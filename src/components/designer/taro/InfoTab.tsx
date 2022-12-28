@@ -55,7 +55,9 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         />
       )}
       <DetailsList details={details} />
-      {balances && <AssetsList title={l('assets')} balances={balances} />}
+      {balances && (
+        <AssetsList title={l('assets')} balances={balances} nodeName={node.name} />
+      )}
     </>
   );
 };
