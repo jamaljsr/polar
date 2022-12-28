@@ -62,13 +62,14 @@ interface Props {
   details: DetailValues;
   title?: string;
   oneCol?: boolean;
+  className?: string;
 }
 
-const DetailsList: React.SFC<Props> = ({ details, title, oneCol }) => {
+const DetailsList: React.SFC<Props> = ({ details, title, oneCol, className }) => {
   return (
     <>
       {title && <h3>{title}</h3>}
-      <Styled.Details>
+      <Styled.Details className={className}>
         <tbody>
           {details.map((d, i) =>
             oneCol ? (

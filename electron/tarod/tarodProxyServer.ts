@@ -2,7 +2,12 @@ import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import { readFile } from 'fs-extra';
 import TaroClientOptions, { TaroApi } from '@hodlone/taro-api';
-import { ipcChannels, TarodDefaultsKey, withTarodDefaults } from '../../src/shared';
+import {
+  convertUInt8ArraysToHex,
+  ipcChannels,
+  TarodDefaultsKey,
+  withTarodDefaults,
+} from '../../src/shared';
 import * as TARO from '../../src/shared/tarodTypes';
 import { TarodNode } from '../../src/shared/types';
 
@@ -88,7 +93,10 @@ export const initTarodProxy = (ipc: IpcMain) => {
           `TarodProxyServer: send response "${uniqueChan}"`,
           JSON.stringify(result, null, 2),
         );
+        // add default values for missing objects
         result = withTarodDefaults(result, channel as TarodDefaultsKey);
+        // convert UInt8Arrays to hex
+        result = convertUInt8ArraysToHex(result);
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
       } catch (err: any) {

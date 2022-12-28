@@ -46,6 +46,12 @@ interface SendOnChainModel {
   amount?: number;
 }
 
+interface AssetInfoModel {
+  visible: boolean;
+  nodeName?: string;
+  assetId?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -54,6 +60,7 @@ export interface ModalsModel {
   advancedOptions: AdvancedOptionsModel;
   imageUpdates: ImageUpdatesModel;
   sendOnChain: SendOnChainModel;
+  assetInfo: AssetInfoModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -75,6 +82,9 @@ export interface ModalsModel {
   setSendOnChain: Action<ModalsModel, SendOnChainModel>;
   showSendOnChain: Thunk<ModalsModel, Partial<SendOnChainModel>, StoreInjections>;
   hideSendOnChain: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setAssetInfo: Action<ModalsModel, AssetInfoModel>;
+  showAssetInfo: Thunk<ModalsModel, Partial<AssetInfoModel>, StoreInjections>;
+  hideAssetInfo: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -85,6 +95,7 @@ const modalsModel: ModalsModel = {
   advancedOptions: { visible: false },
   imageUpdates: { visible: false },
   sendOnChain: { visible: false },
+  assetInfo: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -205,6 +216,22 @@ const modalsModel: ModalsModel = {
       toAddress: undefined,
       backendName: undefined,
       amount: undefined,
+    });
+  }),
+  setAssetInfo: action((state, payload) => {
+    state.assetInfo = {
+      ...state.assetInfo,
+      ...payload,
+    };
+  }),
+  showAssetInfo: thunk((actions, { assetId, nodeName }) => {
+    actions.setAssetInfo({ visible: true, assetId, nodeName });
+  }),
+  hideAssetInfo: thunk(actions => {
+    actions.setAssetInfo({
+      visible: false,
+      assetId: undefined,
+      nodeName: undefined,
     });
   }),
 };

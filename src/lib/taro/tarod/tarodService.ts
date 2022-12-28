@@ -1,12 +1,10 @@
+import { AnchorInfo } from '@hodlone/taro-api/dist/types/tarorpc/AnchorInfo';
 import { GenesisInfo } from '@hodlone/taro-api/dist/types/tarorpc/GenesisInfo';
 import { TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { TaroService } from 'types';
 import { waitFor } from 'utils/async';
 import { tarodProxyClient as proxy } from './';
-
-/** Converts a byte[] value from the RPC into hex format */
-const hex = (value: string | Buffer | Uint8Array) => Buffer.from(value).toString('hex');
 
 class TarodService implements TaroService {
   async listAssets(node: TaroNode): Promise<PTARO.TaroAsset[]> {
@@ -15,14 +13,16 @@ class TarodService implements TaroService {
       // cast the nested object to be Required to avoid a bunch of
       // conditionals to please Typescript
       const genesis = asset.assetGenesis as Required<GenesisInfo>;
+      const anchor = asset.chainAnchor as Required<AnchorInfo>;
       return {
-        id: hex(genesis.assetId),
+        id: genesis.assetId.toString(),
         name: genesis.name,
-        meta: Buffer.from(genesis.meta).toString('ascii'),
+        meta: Buffer.from(genesis.meta.toString(), 'hex').toString('ascii'),
         type: asset.assetType,
         amount: asset.amount,
         genesisPoint: genesis.genesisPoint,
-        genesisBootstrapInfo: hex(genesis.genesisBootstrapInfo),
+        genesisBootstrapInfo: genesis.genesisBootstrapInfo.toString(),
+        anchorOutpoint: anchor.anchorOutpoint,
       };
     });
   }
@@ -30,18 +30,18 @@ class TarodService implements TaroService {
   async listBalances(node: TaroNode): Promise<PTARO.TaroBalance[]> {
     const balances: PTARO.TaroBalance[] = [];
     const res = await proxy.listBalances(this.cast(node), { assetId: true });
-    Object.values(res.assetBalances).forEach(asset => {
+    Object.entries(res.assetBalances).forEach(([id, asset]) => {
       // cast the nested object to be Required to avoid a bunch of
       // conditionals to please Typescript
       const genesis = asset.assetGenesis as Required<GenesisInfo>;
       balances.push({
-        id: hex(genesis.assetId),
+        id,
         name: genesis.name,
-        meta: Buffer.from(genesis.meta).toString('ascii'),
+        meta: Buffer.from(genesis.meta.toString(), 'hex').toString('ascii'),
         type: asset.assetType,
         balance: asset.balance,
         genesisPoint: genesis.genesisPoint,
-        genesisBootstrapInfo: hex(genesis.genesisBootstrapInfo),
+        genesisBootstrapInfo: genesis.genesisBootstrapInfo.toString(),
       });
     });
     return balances;
