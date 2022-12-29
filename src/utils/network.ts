@@ -43,7 +43,7 @@ export const getNetworkBackendId = (node: BitcoinNode) =>
   `${node.networkId}-${node.name}`;
 
 const groupNodes = (network: Network) => {
-  const { bitcoin, lightning } = network.nodes;
+  const { bitcoin, lightning, taro } = network.nodes;
   return {
     bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
     lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
@@ -51,6 +51,7 @@ const groupNodes = (network: Network) => {
       n => n.implementation === 'c-lightning',
     ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair') as EclairNode[],
+    tarod: taro.filter(n => n.implementation === 'tarod') as TarodNode[],
   };
 };
 
@@ -555,7 +556,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  let { lnd, clightning, eclair } = groupNodes(network);
+  let { lnd, clightning, eclair, tarod } = groupNodes(network);
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);
@@ -643,6 +644,27 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
+  tarod = tarod.filter(n => n.status !== Status.Started);
+  if (tarod.length) {
+    let existingPorts = tarod.map(n => n.ports.grpc);
+    let openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[tarod[index].name] = { grpc: port };
+      });
+    }
+
+    existingPorts = tarod.map(n => n.ports.rest);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[tarod[index].name] = {
+          ...(ports[tarod[index].name] || {}),
+          rest: port,
+        };
+      });
+    }
+  }
   // return undefined if no ports where updated
   return Object.keys(ports).length > 0 ? ports : undefined;
 };
