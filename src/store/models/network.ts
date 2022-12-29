@@ -100,6 +100,7 @@ export interface NetworkModel {
     StoreInjections,
     RootModel
   >;
+  removeTaroNode: Thunk<NetworkModel, { node: TaroNode }, StoreInjections, RootModel>;
   removeBitcoinNode: Thunk<
     NetworkModel,
     { node: BitcoinNode },
@@ -374,6 +375,34 @@ const networkModel: NetworkModel = {
       await injections.dockerService.saveComposeFile(network);
       // clear cached RPC data
       if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
+      // remove the node from the chart's redux state
+      getStoreActions().designer.removeNode(node.name);
+      // update the network in the redux state and save to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      // delete the docker volume data from disk
+      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      rm(join(network.path, 'volumes', volumeDir, node.name));
+      // sync the chart
+      await getStoreActions().designer.syncChart(network);
+    },
+  ),
+  removeTaroNode: thunk(
+    async (actions, { node }, { getState, injections, getStoreActions }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      // remove the node from the network
+      network.nodes.taro = network.nodes.taro.filter(n => n !== node);
+      // remove the node's data from the lightning redux state
+      getStoreActions().taro.removeNode(node.name);
+      // remove the node rom the running docker network
+      if (network.status === Status.Started) {
+        await injections.dockerService.removeNode(network, node);
+      }
+      await injections.dockerService.saveComposeFile(network);
+      // clear cached RPC data
+      if (node.implementation === 'tarod') getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
       // update the network in the redux state and save to disk

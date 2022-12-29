@@ -39,9 +39,11 @@
   "cmps.common.RemoveNode.confirmTitle": "Are you sure you want to remove {{name}} from the network?",
   "cmps.common.RemoveNode.confirmLightning": "Any open channels with this node will be inoperable and not displayed in the designer.",
   "cmps.common.RemoveNode.confirmBitcoin": "Any lightning nodes using this node as a backend will be connected to the first bitcoin node.",
+  "cmps.common.RemoveNode.confirmTaro": "All stored assets and proofs will be lost.",
   "cmps.common.RemoveNode.restartText": "The network will be restarted to connect LN nodes to another backend and bitcoin nodes to other peers. This can take up to a minute to complete.",
   "cmps.common.RemoveNode.confirmBtn": "Yes",
   "cmps.common.RemoveNode.cancelBtn": "Cancel",
+  "cmps.common.RemoveNode.invalidType": "Unknown node type '{{type}}'",
   "cmps.common.RemoveNode.success": "The node {{name}} has been removed from the network",
   "cmps.common.RemoveNode.error": "Unable to remove the node",
   "cmps.designer.bitcoind.BitcoinDetails.info": "Info",
@@ -431,6 +433,7 @@
   "store.models.network.exportBadStatus": "The network must be stopped to be exported",
   "store.models.network.missingImages": "Cannot start the network because it contains custom node images that are not available on this machine",
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
+  "utils.network.lndBackendCompatError": "This network does not contain an available LND node running the master branch which is required for Taro nodes",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
   "utils.network.unknownImplementation": "Cannot import unknown Lightning implementation '{{implementation}}'"
 }
