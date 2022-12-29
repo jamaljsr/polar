@@ -77,6 +77,7 @@ export interface BitcoinNode extends CommonNode {
 export interface TaroNode extends CommonNode {
   type: 'taro';
   implementation: 'tarod';
+  ports: Record<string, number | undefined>;
 }
 
 export interface TarodNode extends TaroNode {

@@ -181,6 +181,9 @@ const networkModel: NetworkModel = {
     network.nodes.lightning
       .filter(n => !!ports[n.name])
       .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
+    network.nodes.taro
+      .filter(n => !!ports[n.name])
+      .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
   }),
   load: thunk(async (actions, payload, { injections, getStoreActions }) => {
     const { networks, charts } = await injections.dockerService.loadNetworks();
