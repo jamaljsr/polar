@@ -286,17 +286,33 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
+const filterLndBackends = (network: Network) => {
+  const { taro, lightning } = network.nodes;
+  const backendsInUse = taro
+    .filter(n => n.implementation === 'tarod')
+    .map(n => (n as TarodNode).lndName);
+  const lndBackends = lightning.filter(
+    n =>
+      n.implementation === 'LND' &&
+      n.version.includes('master') &&
+      !backendsInUse.includes(n.name),
+  );
+  if (lndBackends.length === 0) {
+    throw new Error(l('lndBackendCompatError'));
+  }
+  return lndBackends;
+};
+
 export const createTarodNetworkNode = (
   network: Network,
   version: string,
   docker: CommonNode['docker'],
   status = Status.Stopped,
 ): TarodNode => {
-  const { taro, lightning } = network.nodes;
+  const { taro } = network.nodes;
   const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
-
-  const lndNodes = lightning.filter(n => n.implementation === 'LND');
-  const lndBackend = lndNodes[id % lndNodes.length];
+  const lndBackends = filterLndBackends(network);
+  const lndBackend = lndBackends[id % lndBackends.length];
 
   const name = `${lndBackend.name}-taro`;
   const node: TarodNode = {
