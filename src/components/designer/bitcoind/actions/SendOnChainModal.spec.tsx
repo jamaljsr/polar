@@ -24,6 +24,7 @@ describe('SendOnChainModal', () => {
       id: 1,
       name: 'test network',
       lndNodes: 2,
+      taroNodes: 0,
       clightningNodes: 1,
       eclairNodes: 1,
       bitcoindNodes: 3,

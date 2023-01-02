@@ -39,6 +39,7 @@ const { l } = prefixTranslation('store.models.network');
 
 interface AddNetworkArgs {
   name: string;
+  taroNodes: number;
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
@@ -208,7 +209,15 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      { name, lndNodes, clightningNodes, eclairNodes, bitcoindNodes, customNodes },
+      {
+        name,
+        taroNodes,
+        lndNodes,
+        clightningNodes,
+        eclairNodes,
+        bitcoindNodes,
+        customNodes,
+      },
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
@@ -225,6 +234,7 @@ const networkModel: NetworkModel = {
       const network = createNetwork({
         id: nextId,
         name,
+        taroNodes,
         lndNodes,
         clightningNodes,
         eclairNodes,
