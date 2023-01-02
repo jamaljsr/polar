@@ -12,6 +12,7 @@ import {
   EclairNode,
   LightningNode,
   LndNode,
+  TaroNode,
   NodeImplementation,
   Status,
   TarodNode,
@@ -338,6 +339,7 @@ export const createTarodNetworkNode = (
 export const createNetwork = (config: {
   id: number;
   name: string;
+  taroNodes: number;
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
@@ -350,6 +352,7 @@ export const createNetwork = (config: {
   const {
     id,
     name,
+    taroNodes,
     lndNodes,
     clightningNodes,
     eclairNodes,
@@ -373,7 +376,7 @@ export const createNetwork = (config: {
     },
   };
 
-  const { bitcoin, lightning } = network.nodes;
+  const { bitcoin, lightning, taro } = network.nodes;
   const dockerWrap = (command: string) => ({ image: '', command });
 
   // add custom bitcoin nodes
@@ -444,6 +447,12 @@ export const createNetwork = (config: {
         createEclairNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
       );
     }
+  });
+  // add Tarod nodes only if compatible lightning nodes are present
+  range(taroNodes).forEach(i => {
+    const version = repoState.images.tarod.latest;
+    const cmd = getImageCommand(managedImages, 'tarod', version);
+    taro.push(createTarodNetworkNode(network, version, dockerWrap(cmd), status));
   });
 
   return network;
