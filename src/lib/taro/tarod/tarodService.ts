@@ -1,12 +1,23 @@
 import { AnchorInfo } from '@hodlone/taro-api/dist/types/tarorpc/AnchorInfo';
 import { GenesisInfo } from '@hodlone/taro-api/dist/types/tarorpc/GenesisInfo';
 import { TarodNode, TaroNode } from 'shared/types';
+import * as TARO from 'shared/tarodTypes';
 import * as PTARO from 'lib/taro/types';
 import { TaroService } from 'types';
 import { waitFor } from 'utils/async';
 import { tarodProxyClient as proxy } from './';
 
 class TarodService implements TaroService {
+  async mintAsset(
+    node: TaroNode,
+    req: TARO.MintAssetRequest,
+  ): Promise<TARO.MintAssetResponse> {
+    const res = await proxy.mintAsset(this.cast(node), req);
+    return {
+      batchKey: Buffer.from(res.batchKey.toString(), 'hex'),
+    };
+  }
+
   async listAssets(node: TaroNode): Promise<PTARO.TaroAsset[]> {
     const { assets } = await proxy.listAssets(this.cast(node));
     return assets.map<PTARO.TaroAsset>(asset => {

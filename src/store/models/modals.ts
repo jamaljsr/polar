@@ -1,6 +1,8 @@
+import { actions } from '@mrblenny/react-flow-chart';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { StoreInjections } from 'types';
 import { RootModel } from './';
+import * as TARO from 'shared/tarodTypes';
 
 interface OpenChannelModel {
   visible: boolean;
@@ -52,6 +54,11 @@ interface AssetInfoModel {
   assetId?: string;
 }
 
+interface MintAssetModel {
+  visible: boolean;
+  nodeName?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -61,9 +68,16 @@ export interface ModalsModel {
   imageUpdates: ImageUpdatesModel;
   sendOnChain: SendOnChainModel;
   assetInfo: AssetInfoModel;
+
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+
+  mintAsset: MintAssetModel;
+  setMintAsset: Action<ModalsModel, MintAssetModel>;
+  showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections>;
+  hideMintAsset: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+
   setChangeBackend: Action<ModalsModel, ChangeBackendModel>;
   showChangeBackend: Thunk<ModalsModel, Partial<ChangeBackendModel>, StoreInjections>;
   hideChangeBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -89,6 +103,7 @@ export interface ModalsModel {
 
 const modalsModel: ModalsModel = {
   openChannel: { visible: false },
+  mintAsset: { visible: false },
   changeBackend: { visible: false },
   createInvoice: { visible: false },
   payInvoice: { visible: false },
@@ -102,6 +117,19 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
+  showMintAsset: thunk((actions, { nodeName }) => {
+    actions.setMintAsset({ visible: true, nodeName });
+  }),
+  hideMintAsset: thunk((actions, payload, { getStoreActions, getState }) => {
+    actions.setMintAsset({ visible: false });
+  }),
+  setMintAsset: action((state, payload) => {
+    state.mintAsset = {
+      ...state.mintAsset,
+      ...payload,
+    };
+  }),
+
   showOpenChannel: thunk((actions, { to, from, linkId }) => {
     actions.setOpenChannel({ visible: true, to, from, linkId });
   }),

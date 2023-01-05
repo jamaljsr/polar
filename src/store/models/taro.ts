@@ -1,8 +1,12 @@
 import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
-import { Status, TaroNode } from 'shared/types';
+import { Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
 import { RootModel } from './';
+import { TarOptions } from 'archiver';
+import * as TARO from 'shared/tarodTypes';
+import { useStoreActions, useStoreState } from 'store';
+import React, { useState } from 'react';
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -11,6 +15,7 @@ export interface TaroNodeMapping {
 export interface TaroNodeModel {
   assets?: PTARO.TaroAsset[];
   balances?: PTARO.TaroBalance[];
+  batchKey?: string;
 }
 
 export interface TaroModel {
@@ -21,7 +26,15 @@ export interface TaroModel {
   getAssets: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
   setBalances: Action<TaroModel, { node: TaroNode; balances: PTARO.TaroBalance[] }>;
   getBalances: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
+  getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
+  mintAsset: Thunk<
+    TaroModel,
+    { node: TaroNode; req: TARO.MintAssetRequest },
+    StoreInjections,
+    RootModel
+  >;
+  setBatchKey: Action<TaroModel, { node: TaroNode; newBatchKey: string }>;
 }
 
 const taroModel: TaroModel = {
@@ -53,6 +66,22 @@ const taroModel: TaroModel = {
     const api = injections.taroFactory.getService(node);
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
+  }),
+  getAllInfo: thunk(async (actions, node) => {
+    await actions.getAssets(node);
+    await actions.getBalances(node);
+  }),
+
+  mintAsset: thunk(async (actions, { node, req }, { injections }) => {
+    const api = injections.taroFactory.getService(node);
+    const res = await api.mintAsset(node, req);
+    if (res.batchKey) {
+      actions.setBatchKey({ node, newBatchKey: res.batchKey.toString('hex') });
+    }
+  }),
+  setBatchKey: action((state, { node, newBatchKey }) => {
+    if (!state.nodes[node.name]) state.nodes[node.name] = {};
+    state.nodes[node.name].batchKey = newBatchKey;
   }),
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,

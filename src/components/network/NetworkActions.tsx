@@ -91,9 +91,14 @@ const NetworkActions: React.FC<Props> = ({
   const nodeState = useStoreState(s => s.bitcoind.nodes[bitcoinNode.name]);
   const { notify } = useStoreActions(s => s.app);
   const { mine } = useStoreActions(s => s.bitcoind);
+  const { getAssets, getBalances } = useStoreActions(s => s.taro);
   const mineAsync = useAsyncCallback(async () => {
     try {
       await mine({ blocks: 1, node: bitcoinNode });
+      nodes.taro.forEach(node => {
+        getAssets(node);
+        getBalances(node);
+      });
     } catch (error: any) {
       notify({ message: l('mineError'), error });
     }

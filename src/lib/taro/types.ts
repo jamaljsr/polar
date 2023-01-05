@@ -24,3 +24,7 @@ export interface TaroBalance {
   genesisBootstrapInfo: string;
   groupKey?: string;
 }
+
+export interface TaroAssetReciept {
+  batchKey: string;
+}
