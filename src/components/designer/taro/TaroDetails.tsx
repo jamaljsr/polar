@@ -29,7 +29,7 @@ const TaroDetails: React.FC<Props> = ({ node }) => {
   );
 
   let extra: ReactNode | undefined;
-  const { nodes } = useStoreState(s => s.taro);
+  const { nodes: nodes } = useStoreState(s => s.taro);
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.balances) {

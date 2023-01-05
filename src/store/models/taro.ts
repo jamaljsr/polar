@@ -4,7 +4,6 @@ import * as TARO from 'shared/tarodTypes';
 import { LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
-import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
 //This is the minimum balance that a taro node must have access to in order to mint assets
@@ -17,6 +16,18 @@ export interface TaroNodeMapping {
 export interface TaroNodeModel {
   assets?: PTARO.TaroAsset[];
   balances?: PTARO.TaroBalance[];
+  batchKey?: string;
+}
+
+export interface MintAssetPayload {
+  node: TarodNode;
+  assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
+  name: string;
+  amount: number;
+  metaData: string;
+  enableEmission: boolean;
+  skipBatch: boolean;
+  autoFund: boolean;
 }
 
 export interface MintAssetPayload {
