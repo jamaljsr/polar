@@ -1,7 +1,6 @@
 import { AnchorInfo } from '@hodlone/taro-api/dist/types/tarorpc/AnchorInfo';
 import { GenesisInfo } from '@hodlone/taro-api/dist/types/tarorpc/GenesisInfo';
 import { TarodNode, TaroNode } from 'shared/types';
-import * as TARO from 'shared/tarodTypes';
 import * as PTARO from 'lib/taro/types';
 import { TaroService } from 'types';
 import { waitFor } from 'utils/async';

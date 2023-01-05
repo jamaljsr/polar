@@ -3,7 +3,6 @@ import * as TARO from 'shared/tarodTypes';
 import { LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
-import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
 export const TARO_MIN_LND_BALANCE = 10000;
@@ -15,6 +14,18 @@ export interface TaroNodeMapping {
 export interface TaroNodeModel {
   assets?: PTARO.TaroAsset[];
   balances?: PTARO.TaroBalance[];
+  batchKey?: string;
+}
+
+export interface MintAssetPayload {
+  node: TarodNode;
+  assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
+  name: string;
+  amount: number;
+  metaData: string;
+  enableEmission: boolean;
+  skipBatch: boolean;
+  autoFund: boolean;
 }
 
 export interface MintAssetPayload {
