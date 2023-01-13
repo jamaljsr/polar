@@ -5,25 +5,23 @@ import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { Network } from 'types';
 import { format } from 'utils/units';
-import { TaroNodeModel } from 'store/models/taro';
+import { TaroNodeModel, TaroNodeMapping } from 'store/models/taro';
 import { CommonNode } from 'shared/types';
 
 export interface Props extends SelectProps<SelectValue> {
-  network: Network;
   name: string;
   label?: string;
+  help?: string;
   nodeStatus?: Status;
   initialValue?: string;
-  nodes?: {
-    [key: string]: TaroNodeModel;
-  };
+  nodes?: TaroNodeMapping;
   networkNodes?: CommonNode[];
 }
 
 const TaroNodeSelect: React.FC<Props> = ({
-  network,
   name,
   label,
+  help,
   nodeStatus,
   initialValue,
   nodes,
@@ -32,17 +30,7 @@ const TaroNodeSelect: React.FC<Props> = ({
   ...rest
 }) => {
   const { l } = usePrefixedTranslation('cmps.common.form.TaroNodeSelect');
-  const [help, setHelp] = useState<string>();
   const [selected, setSelected] = useState(initialValue || '');
-
-  // useMemo(() => {
-  //     if (nodes && nodes[selected] && nodes[selected].walletBalance) {
-  //         setHelp(`${l('balance')}: ${format(nodes[selected].walletBalance)} sats`);
-  //     } else {
-  //         setHelp('');
-  //     }
-  // }
-  // , [selected, nodes, l]);
 
   const handleChange = (value: SelectValue, option: any) => {
     setSelected(`${value}`);
@@ -57,7 +45,7 @@ const TaroNodeSelect: React.FC<Props> = ({
     <Form.Item
       name={name}
       label={label}
-      extra={help}
+      help={help}
       rules={[{ required: true, message: l('cmps.forms.required') }]}
     >
       <Select {...rest} onChange={handleChange}>

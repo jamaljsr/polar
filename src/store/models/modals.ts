@@ -1,4 +1,4 @@
-import { actions } from '@mrblenny/react-flow-chart';
+//import { actions } from '@mrblenny/react-flow-chart';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { StoreInjections } from 'types';
 import { RootModel } from './';
@@ -58,9 +58,19 @@ interface MintAssetModel {
   nodeName?: string;
 }
 
-interface MintAssetModel {
+interface SendAssetModel {
+  visible: boolean;
+  balanceIndex?: number;
+  to?: string;
+  amount?: number;
+}
+
+interface NewAddressModel {
   visible: boolean;
   nodeName?: string;
+  amount?: string;
+  genesisBootstrapInfo?: string;
+  address?: string;
 }
 
 export interface ModalsModel {
@@ -73,15 +83,10 @@ export interface ModalsModel {
   sendOnChain: SendOnChainModel;
   assetInfo: AssetInfoModel;
   mintAsset: MintAssetModel;
+  newAddress: NewAddressModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
-
-  mintAsset: MintAssetModel;
-  setMintAsset: Action<ModalsModel, MintAssetModel>;
-  showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections>;
-  hideMintAsset: Thunk<ModalsModel, void, StoreInjections, RootModel>;
-
   setChangeBackend: Action<ModalsModel, ChangeBackendModel>;
   showChangeBackend: Thunk<ModalsModel, Partial<ChangeBackendModel>, StoreInjections>;
   hideChangeBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -106,11 +111,20 @@ export interface ModalsModel {
   setMintAsset: Action<ModalsModel, Partial<MintAssetModel>>;
   showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections>;
   hideMintAsset: Thunk<ModalsModel>;
+  sendAsset: SendAssetModel;
+  setSendAsset: Action<ModalsModel, SendAssetModel>;
+  hideSendAsset: Thunk<ModalsModel>;
+  showSendAsset: Thunk<ModalsModel>;
+  showNewAddress: Thunk<ModalsModel>;
+  hideNewAddress: Thunk<ModalsModel>;
+  setNewAddress: Action<ModalsModel, Partial<NewAddressModel>>;
 }
 
 const modalsModel: ModalsModel = {
   openChannel: { visible: false },
   mintAsset: { visible: false },
+  sendAsset: { visible: false },
+  newAddress: { visible: false },
   changeBackend: { visible: false },
   createInvoice: { visible: false },
   payInvoice: { visible: false },
@@ -124,19 +138,6 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  showMintAsset: thunk((actions, { nodeName }) => {
-    actions.setMintAsset({ visible: true, nodeName });
-  }),
-  hideMintAsset: thunk((actions, payload, { getStoreActions, getState }) => {
-    actions.setMintAsset({ visible: false });
-  }),
-  setMintAsset: action((state, payload) => {
-    state.mintAsset = {
-      ...state.mintAsset,
-      ...payload,
-    };
-  }),
-
   showOpenChannel: thunk((actions, { to, from, linkId }) => {
     actions.setOpenChannel({ visible: true, to, from, linkId });
   }),
@@ -278,6 +279,32 @@ const modalsModel: ModalsModel = {
   setMintAsset: action((state, payload) => {
     state.mintAsset = {
       ...state.mintAsset,
+      ...payload,
+    };
+  }),
+  //Send Taro Asset Modal
+  showSendAsset: thunk(actions => {
+    actions.setSendAsset({ visible: true });
+  }),
+  hideSendAsset: thunk(actions => {
+    actions.setSendAsset({ visible: false });
+  }),
+  setSendAsset: action((state, payload) => {
+    state.sendAsset = {
+      ...state.sendAsset,
+      ...payload,
+    };
+  }),
+  //New Taro Address Modal
+  showNewAddress: thunk(actions => {
+    actions.setNewAddress({ visible: true });
+  }),
+  hideNewAddress: thunk(actions => {
+    actions.setNewAddress({ visible: false });
+  }),
+  setNewAddress: action((state, payload) => {
+    state.newAddress = {
+      ...state.newAddress,
       ...payload,
     };
   }),

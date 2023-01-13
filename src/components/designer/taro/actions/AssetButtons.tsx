@@ -3,11 +3,16 @@ import styled from '@emotion/styled';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TaroNode } from 'shared/types';
-import { default as OpenMintAssetModal } from './OpenMintAssetModal';
+import OpenMintAssetModal from './OpenMintAssetModal';
+import OpenNewAddressModal from './OpenNewAddressModal';
+import OpenSendAssetModal from './OpenSendAssetModal';
 
 const Styled = {
   Button: styled(Button)`
     width: 50%;
+  `,
+  Spacer: styled.div`
+    height: 12px;
   `,
 };
 
@@ -21,12 +26,10 @@ const AssetButtons: React.FC<Props> = ({ node }) => {
   return (
     <Form.Item label={l('title')} colon={false}>
       <OpenMintAssetModal node={node} />
-      {/* <Styled.Button
-        onClick={() => showMintAsset({ nodeName: node.name })}
-        icon={<ExportOutlined />}
-      >
-        {l('send')}
-      </Styled.Button> */}
+      <Styled.Spacer />
+      <OpenNewAddressModal />
+      <Styled.Spacer />
+      <OpenSendAssetModal />
     </Form.Item>
   );
 };

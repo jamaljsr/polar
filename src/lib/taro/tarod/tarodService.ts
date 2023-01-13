@@ -7,6 +7,36 @@ import { waitFor } from 'utils/async';
 import { tarodProxyClient as proxy } from './';
 
 class TarodService implements TaroService {
+  async newAddress(
+    node: TaroNode,
+    req: TARO.NewAddressRequest,
+  ): Promise<PTARO.TaroAddress> {
+    const res = await proxy.newAddress(this.cast(node), req);
+    return {
+      encoded: res.encoded,
+      id: res.assetId.toString(),
+      type: res.assetType,
+      amount: res.amount,
+      family: res.groupKey ? res.groupKey.toString() : undefined,
+      scriptKey: res.scriptKey.toString(),
+      internalKey: res.internalKey.toString(),
+      taprootOutputKey: res.taprootOutputKey.toString(),
+    };
+  }
+  async sendAsset(
+    from: TaroNode,
+    req: TARO.SendAssetRequest,
+  ): Promise<PTARO.TaroSendAssetReciept> {
+    const res = await proxy.sendAsset(this.cast(from), req);
+    console.log(JSON.stringify(res.taroTransfer, null, 2));
+    return {
+      transferTxid: res.transferTxid.toString(),
+      anchorOutputIndex: res.anchorOutputIndex,
+      transferTxBytes: res.transferTxBytes.toString(),
+      totalFeeSats: res.totalFeeSats,
+    };
+  }
+
   async mintAsset(
     node: TaroNode,
     req: TARO.MintAssetRequest,

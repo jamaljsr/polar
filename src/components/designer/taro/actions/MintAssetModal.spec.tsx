@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/react';
-import '';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
 import appModel from 'store/models/app';
@@ -86,7 +85,6 @@ describe('MintAssetModal', () => {
   beforeEach(() => {
     store = createStore(rootModel, { injections });
     store.getState().network.networks.push(network);
-    //store.getState().modals.mintAsset = { visible: true, nodeName: 'alice-taro' };
 
     store.getActions().network.addNode({
       id: network.id,

@@ -17,7 +17,6 @@ class TarodProxyClient {
   }
 
   async listAssets(node: TarodNode): Promise<TARO.ListAssetResponse> {
-    console.log('listing assets');
     return await this.ipc(ipcChannels.taro.listAssets, { node });
   }
 
@@ -26,6 +25,18 @@ class TarodProxyClient {
     req: TARO.ListBalancesRequest,
   ): Promise<TARO.ListBalancesResponse> {
     return await this.ipc(ipcChannels.taro.listBalances, { node, req });
+  }
+  async newAddress(
+    node: TarodNode,
+    req: TARO.NewAddressRequest,
+  ): Promise<TARO.NewAddressResponse> {
+    return await this.ipc(ipcChannels.taro.newAddress, { node, req });
+  }
+  async sendAsset(
+    node: TarodNode,
+    req: TARO.SendAssetRequest,
+  ): Promise<TARO.SendAssetResponse> {
+    return await this.ipc(ipcChannels.taro.sendAsset, { node, req });
   }
 }
 

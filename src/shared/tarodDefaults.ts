@@ -16,9 +16,7 @@ export const defaultTarodListBalances = (
   ...value,
 });
 
-export const defaultTarodMintAsset = (
-  value: Partial<MintAssetResponse>,
-): MintAssetResponse => ({
+export const defaultTarodMintAsset = (): MintAssetResponse => ({
   batchKey: Buffer.from('none'),
 });
 

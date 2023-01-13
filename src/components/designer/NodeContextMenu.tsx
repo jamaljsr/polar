@@ -1,14 +1,13 @@
 import React, { ReactElement } from 'react';
 import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, MenuProps } from 'antd';
-import { BitcoinNode, LightningNode, Status, TaroNode } from 'shared/types';
+import { BitcoinNode, LightningNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
-import { OpenMintAssetModal } from './taro/actions';
 
 const addItemIf = (
   key: string,
@@ -38,6 +37,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   if (!node) return <>{children}</>;
 
   const isTaro = node.type === 'taro';
+  const isTaro = node.type === 'taro';
   const isLN = node.type === 'lightning';
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
@@ -47,6 +47,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     addItemIf(
       'mintAsset',
       <OpenMintAssetModal node={node as TaroNode} isContextMenu={true} />,
+      isStarted && isTaro,
+    ),
+    addItemIf(
+      'mintAsset',
+      <OpenSendAssetModal isContextMenu={true} />,
       isStarted && isTaro,
     ),
     addItemIf(

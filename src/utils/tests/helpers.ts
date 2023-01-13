@@ -1,9 +1,13 @@
 import { CommonNode, Status } from 'shared/types';
 import { CustomImage, DockerRepoState, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from '../network';
-
+import { createNetwork, getImageCommand, createTarodNetworkNode } from '../network';
 export const testNodeDocker: CommonNode['docker'] = { image: '', command: '' };
+
+/**
+ * Poor man's deep clone. Useful for tests to avoid another dependency
+ */
+export const clone = (data: any) => JSON.parse(JSON.stringify(data));
 
 export const testManagedImages: ManagedImage[] = [
   { implementation: 'LND', version: defaultRepoState.images.LND.latest, command: '' },
@@ -136,6 +140,38 @@ export const testRepoState: DockerRepoState = {
   },
 };
 
+export const getTaroNetwork = (
+  networkId = 1,
+  name?: string,
+  status?: Status,
+): Network => {
+  const tmpManagedImages = clone(testManagedImages);
+  tmpManagedImages[0].version = testRepoState.images.LND.latest;
+  const network = createNetwork({
+    id: networkId,
+    name: name || 'my-test',
+    lndNodes: 2,
+    clightningNodes: 0,
+    eclairNodes: 0,
+    bitcoindNodes: 1,
+    status: Status.Started,
+    repoState: testRepoState,
+    managedImages: tmpManagedImages,
+    customImages: [],
+  });
+  const { latest } = testRepoState.images.tarod;
+  const cmd = getImageCommand(tmpManagedImages, 'tarod', latest);
+  const taroAlice = createTarodNetworkNode(
+    network,
+    latest,
+    { image: '', command: cmd },
+    Status.Started,
+  );
+  network.nodes.taro = [taroAlice];
+
+  return network;
+};
+
 export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
   createNetwork({
     id: networkId,
@@ -157,11 +193,6 @@ export const mockProperty = <T, K extends keyof T>(
 ) => {
   Object.defineProperty(object, property, { get: () => value });
 };
-
-/**
- * Poor man's deep clone. Useful for tests to avoid another dependency
- */
-export const clone = (data: any) => JSON.parse(JSON.stringify(data));
 
 /**
  * Suppresses console errors when executing some code.

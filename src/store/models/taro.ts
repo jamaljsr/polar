@@ -1,11 +1,10 @@
+import React from 'react';
 import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
 import * as TARO from 'shared/tarodTypes';
 import { LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
 import { RootModel } from './';
-
-export const TARO_MIN_LND_BALANCE = 10000;
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -14,7 +13,6 @@ export interface TaroNodeMapping {
 export interface TaroNodeModel {
   assets?: PTARO.TaroAsset[];
   balances?: PTARO.TaroBalance[];
-  batchKey?: string;
 }
 
 export interface MintAssetPayload {
@@ -27,16 +25,17 @@ export interface MintAssetPayload {
   skipBatch: boolean;
   autoFund: boolean;
 }
-
-export interface MintAssetPayload {
+export interface NewAddressPayload {
   node: TarodNode;
-  assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
-  name: string;
+  genesisBootstrapInfo: string;
+  amount: string;
+}
+
+export interface SendAssetPayload {
+  from: TaroNode;
+  to: TaroNode;
+  genesisBootstrapInfo: string;
   amount: number;
-  metaData: string;
-  enableEmission: boolean;
-  skipBatch: boolean;
-  autoFund: boolean;
 }
 
 export interface TaroModel {
@@ -47,6 +46,7 @@ export interface TaroModel {
   getAssets: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
   setBalances: Action<TaroModel, { node: TaroNode; balances: PTARO.TaroBalance[] }>;
   getBalances: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
+  getNewAddress: Thunk<TaroModel, NewAddressPayload, StoreInjections, RootModel>;
   getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
   mintAsset: Thunk<TaroModel, MintAssetPayload, StoreInjections, RootModel>;
@@ -82,6 +82,7 @@ const taroModel: TaroModel = {
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
   }),
+
   getAllInfo: thunk(async (actions, node) => {
     await actions.getAssets(node);
     await actions.getBalances(node);
@@ -106,7 +107,10 @@ const taroModel: TaroModel = {
       ) as LightningNode;
       //fund lnd node
       if (autoFund) {
-        await getStoreActions().lightning.depositFunds({ node: lndNode, sats: '10000' });
+        await getStoreActions().lightning.depositFunds({
+          node: lndNode,
+          sats: PTARO.TARO_MIN_LND_BALANCE.toString(),
+        });
       }
 
       //mint taro asset
@@ -129,8 +133,31 @@ const taroModel: TaroModel = {
           blocks: BLOCKS_TIL_CONFIRMED,
           node: btcNode,
         });
+        //await getStoreActions().lightning.waitForNodes([lndNode]);
       })();
       return res;
+    },
+  ),
+  getNewAddress: thunk(async (actions, payload, { injections }) => {
+    const api = injections.taroFactory.getService(payload.node);
+    const address = await api.newAddress(payload.node, {
+      genesisBootstrapInfo: Buffer.from(payload.genesisBootstrapInfo as string, 'hex'),
+      amt: payload.amount,
+    });
+    return address;
+  }),
+  sendAsset: thunk(
+    async (actions, { from, to, genesisBootstrapInfo, amount }, { injections }) => {
+      const api = injections.taroFactory.getService(from);
+      const address = await api.newAddress(to, {
+        genesisBootstrapInfo: Buffer.from(genesisBootstrapInfo as string, 'hex'),
+        amt: amount.toString(),
+      });
+      actions.getBalances(to);
+      const sendReq: TARO.SendAssetRequest = {
+        taroAddr: address.encoded,
+      };
+      await api.sendAsset(from, sendReq);
     },
   ),
 
