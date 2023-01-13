@@ -47,7 +47,6 @@ export interface TaroSendAssetReciept {
   transferTxid: string;
   anchorOutputIndex: number;
   transferTxBytes: string;
-  //taroTransfer: _tarorpc_TaroTransfer__Output | null;
   totalFeeSats: string;
 }
 

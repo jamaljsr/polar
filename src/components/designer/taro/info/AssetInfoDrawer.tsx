@@ -17,7 +17,7 @@ const Styled = {
 
 /** A helper hook to query the info of a specific Taro asset from the store */
 const useAssetState = (nodeName?: string, assetId?: string) => {
-  const { nodes: nodes } = useStoreState(s => s.taro);
+  const { nodes } = useStoreState(s => s.taro);
   return useMemo(() => {
     const result: { assets: TaroAsset[]; balance?: TaroBalance } = {
       assets: [],

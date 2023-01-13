@@ -31,7 +31,6 @@ export interface DesignerModel {
   activeId: number;
   allCharts: Record<number, IChart>;
   redraw: boolean;
-  selectedNode: Computed<DesignerModel, { type?: string; id?: string }>;
   activeChart: Computed<DesignerModel, IChart>;
   setActiveId: Action<DesignerModel, number>;
   clearActiveId: Action<DesignerModel>;
@@ -72,7 +71,6 @@ export interface DesignerModel {
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
-  getSelectedNode: Action<DesignerModel>;
 }
 
 const designerModel: DesignerModel = {
@@ -80,7 +78,6 @@ const designerModel: DesignerModel = {
   activeId: -1,
   allCharts: {},
   redraw: false,
-  selectedNode: computed(state => state.allCharts[state.activeId]?.selected),
   // computed properties/functions
   activeChart: computed(state => state.allCharts[state.activeId]),
   // reducer actions (mutations allowed thx to immer)
@@ -430,9 +427,6 @@ const designerModel: DesignerModel = {
         id: nodeId,
       };
     }
-  }),
-  getSelectedNode: action(state => {
-    const chart = state.allCharts[state.activeId];
   }),
   onNodeDoubleClick: action((state, { nodeId }) => {
     const chart = state.allCharts[state.activeId];

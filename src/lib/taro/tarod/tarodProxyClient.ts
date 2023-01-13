@@ -17,7 +17,6 @@ class TarodProxyClient {
   }
 
   async listAssets(node: TarodNode): Promise<TARO.ListAssetResponse> {
-    console.log('listing assets');
     return await this.ipc(ipcChannels.taro.listAssets, { node });
   }
 

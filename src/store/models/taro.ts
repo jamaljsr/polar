@@ -16,7 +16,6 @@ export interface TaroNodeMapping {
 export interface TaroNodeModel {
   assets?: PTARO.TaroAsset[];
   balances?: PTARO.TaroBalance[];
-  batchKey?: string;
 }
 
 export interface MintAssetPayload {
@@ -29,16 +28,17 @@ export interface MintAssetPayload {
   skipBatch: boolean;
   autoFund: boolean;
 }
-
-export interface MintAssetPayload {
+export interface NewAddressPayload {
   node: TarodNode;
-  assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
-  name: string;
+  genesisBootstrapInfo: string;
+  amount: string;
+}
+
+export interface SendAssetPayload {
+  from: TaroNode;
+  to: TaroNode;
+  genesisBootstrapInfo: string;
   amount: number;
-  metaData: string;
-  enableEmission: boolean;
-  skipBatch: boolean;
-  autoFund: boolean;
 }
 export interface NewAddressPayload {
   node: TarodNode;
