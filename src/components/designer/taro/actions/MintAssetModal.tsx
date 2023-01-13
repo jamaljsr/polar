@@ -36,7 +36,6 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   const thisTaroNode = network.nodes.taro.find(
     node => node.name === nodeName,
   ) as TarodNode;
-  console.log(network.nodes.taro);
   const assets = taroNodes[thisTaroNode?.name]?.assets || [];
 
   const mintAssetAsync = useAsyncCallback(async (payload: MintAssetPayload) => {
