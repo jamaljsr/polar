@@ -95,7 +95,10 @@ const taroModel: TaroModel = {
       ) as LightningNode;
       //fund lnd node
       if (autoFund) {
-        await getStoreActions().lightning.depositFunds({ node: lndNode, sats: '10000' });
+        await getStoreActions().lightning.depositFunds({
+          node: lndNode,
+          sats: TARO_MIN_LND_BALANCE.toString(),
+        });
       }
 
       //mint taro asset
