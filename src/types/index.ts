@@ -12,6 +12,7 @@ import {
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
 import * as PTARO from 'lib/taro/types';
+import * as TARO from 'shared/tarodTypes';
 import { PolarPlatform } from 'utils/system';
 
 export interface Network {
@@ -164,6 +165,10 @@ export interface TaroService {
   waitUntilOnline: (node: TaroNode) => Promise<void>;
   listAssets: (node: TaroNode) => Promise<PTARO.TaroAsset[]>;
   listBalances: (node: TaroNode) => Promise<PTARO.TaroBalance[]>;
+  mintAsset: (
+    node: TaroNode,
+    req: TARO.MintAssetRequest,
+  ) => Promise<TARO.MintAssetResponse>;
 }
 
 export interface TaroFactoryInjection {

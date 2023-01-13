@@ -124,6 +124,11 @@ const designerModel: DesignerModel = {
           .filter(n => n.status === Status.Started)
           .map(getStoreActions().lightning.getAllInfo),
       );
+      await Promise.all(
+        network.nodes.taro
+          .filter(n => n.status === Status.Started)
+          .map(getStoreActions().taro.getAllInfo),
+      );
 
       const nodesData = getStoreState().lightning.nodes;
       const { allCharts } = getState();
