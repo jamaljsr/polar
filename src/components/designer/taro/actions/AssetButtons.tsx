@@ -28,8 +28,8 @@ const AssetButtons: React.FC<Props> = ({ node }) => {
       <OpenMintAssetModal node={node} />
       <Styled.Spacer />
       <OpenNewAddressModal />
-      <Styled.Spacer />
-      <OpenSendAssetModal />
+      {/* <Styled.Spacer />
+      <OpenSendAssetModal /> */}
     </Form.Item>
   );
 };
