@@ -27,7 +27,7 @@ const AssetButtons: React.FC<Props> = ({ node }) => {
     <Form.Item label={l('title')} colon={false}>
       <OpenMintAssetModal node={node} />
       <Styled.Spacer />
-      <OpenNewAddressModal />
+      <OpenNewAddressModal node={node} />
       {/* <Styled.Spacer />
       <OpenSendAssetModal /> */}
     </Form.Item>
