@@ -51,6 +51,14 @@ const listBalances = async (args: {
   });
 };
 
+const mintAsset = async (args: {
+  node: TarodNode;
+  req: TARO.MintAssetRequest;
+}): Promise<TARO.MintAssetResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.mintAssets(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -60,6 +68,7 @@ const listeners: {
 } = {
   [ipcChannels.taro.listAssets]: listAssets,
   [ipcChannels.taro.listBalances]: listBalances,
+  [ipcChannels.taro.mintAsset]: mintAsset,
 };
 
 /**

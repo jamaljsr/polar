@@ -5,6 +5,7 @@ import { Status, TaroNode } from 'shared/types';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
+import { AssetButtons } from './actions';
 
 const Styled = {
   Spacer: styled.div`
@@ -21,6 +22,11 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
     <Form labelCol={{ span: 24 }}>
       {node.status === Status.Started && (
         <>
+          <>
+            <AssetButtons node={node} />
+            <Styled.Spacer />
+          </>
+
           <OpenTerminalButton node={node} />
           <ViewLogsButton node={node} />
           <Styled.Spacer />

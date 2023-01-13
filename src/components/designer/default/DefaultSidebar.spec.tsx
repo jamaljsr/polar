@@ -81,7 +81,7 @@ describe('DefaultSidebar Component', () => {
     fireEvent.click(getByRole('switch'));
     const prevVersion = defaultRepoState.images.LND.versions[2];
     expect(getByText(`LND v${prevVersion}`)).toBeInTheDocument();
-    expect(getAllByText('latest')).toHaveLength(4);
+    expect(getAllByText('latest')).toHaveLength(5);
   });
 
   it('should display the Image Updates Modal', async () => {
@@ -100,7 +100,7 @@ describe('DefaultSidebar Component', () => {
     const { queryByText, getAllByText, getByRole } = renderComponent();
     expect(queryByText('c-lightning')).not.toBeInTheDocument();
     fireEvent.click(getByRole('switch'));
-    expect(getAllByText('latest')).toHaveLength(3);
+    expect(getAllByText('latest')).toHaveLength(4);
   });
 
   it('should display custom images', () => {
