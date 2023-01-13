@@ -22,5 +22,6 @@ export default {
   taro: {
     listAssets: 'taro-list-assets',
     listBalances: 'taro-list-balances',
+    mintAsset: 'taro-mint-asset',
   },
 };

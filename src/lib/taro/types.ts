@@ -24,3 +24,12 @@ export interface TaroBalance {
   genesisBootstrapInfo: string;
   groupKey?: string;
 }
+
+export interface TaroAssetReceipt {
+  batchKey: string;
+}
+
+export enum TARO_ASSET_TYPE {
+  NORMAL = 'NORMAL',
+  COLLECTIBLE = 'COLLECTIBLE',
+}
