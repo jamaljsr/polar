@@ -32,8 +32,6 @@ export interface TaroAssetReceipt {
   batchKey: string;
 }
 
-export const TARO_MIN_LND_BALANCE = 10000;
-
 export interface TaroAddress {
   encoded: string;
   id: string;

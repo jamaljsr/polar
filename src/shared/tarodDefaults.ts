@@ -1,5 +1,5 @@
 import ipcChannels from './ipcChannels';
-import { ListAssetResponse, ListBalancesResponse } from './tarodTypes';
+import { ListAssetResponse, ListBalancesResponse, MintAssetResponse } from './tarodTypes';
 
 export const defaultTarodListAssets = (
   value: Partial<ListAssetResponse>,

@@ -4,7 +4,10 @@ import * as TARO from 'shared/tarodTypes';
 import { LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
+import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
+
+export const TARO_MIN_LND_BALANCE = 10000;
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -109,7 +112,7 @@ const taroModel: TaroModel = {
       if (autoFund) {
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
-          sats: PTARO.TARO_MIN_LND_BALANCE.toString(),
+          sats: TARO_MIN_LND_BALANCE.toString(),
         });
       }
 

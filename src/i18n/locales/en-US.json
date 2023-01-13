@@ -279,6 +279,7 @@
   "cmps.designer.taro.ActionsTab.MintAsset.send": "Send",
   "cmps.designer.taro.ActionsTab.MintAsset.mintAssetHelp": "Mint a Taro Asset",
   "cmps.designer.taro.ActionsTab.MintAsset.sendAssetHelp": "Send a Taro Asset",
+  "cmps.designer.taro.ActionsTab.NewAddress.create": "New Address",
   "cmps.designer.taro.actions.MintAssetModal.title": "Mint an asset for {{name}}",
   "cmps.designer.taro.actions.MintAssetModal.type": "Type",
   "cmps.designer.taro.actions.MintAssetModal.okBtn": "Mint",
@@ -302,6 +303,16 @@
   "cmps.designer.taro.actions.MintAssetModal.mintError": "Failed to mint {{amount}} {{assetType}}",
   "cmps.designer.taro.actions.MintAssetModal.deposit": "Deposit enough funds to {{selectedFrom}}",
   "cmps.designer.taro.actions.MintAssetModal.lndBalanceError": "Insufficient balance on lnd node {{lndNode}}",
+  "cmps.designer.taro.actions.NewAddressModal.title": "Generate new Taro address for {{name}}",
+  "cmps.designer.taro.actions.NewAddressModal.genesisBootstrapInfo": "Genesis Bootstrap Info",
+  "cmps.designer.taro.actions.NewAddressModal.import": "Import from Taro Nodes",
+  "cmps.designer.taro.actions.NewAddressModal.amount": "Amount",
+  "cmps.designer.taro.actions.NewAddressModal.amountPlaceholder": "1",
+  "cmps.designer.taro.actions.NewAddressModal.address": "Address",
+  "cmps.designer.taro.actions.NewAddressModal.addressPlaceholder": "Address",
+  "cmps.designer.taro.actions.NewAddressModal.okBtn": "Generate",
+  "cmps.designer.taro.actions.NewAddressModal.cancelBtn": "Cancel",
+
   "cmps.designer.taro.InfoTab.nodeType": "Node Type",
   "cmps.designer.taro.InfoTab.implementation": "Implementation",
   "cmps.designer.taro.InfoTab.customImage": "Docker Image",
@@ -456,4 +467,5 @@
   "utils.network.lndBackendCompatError": "This network does not contain an available LND node running the master branch which is required for Taro nodes",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
   "utils.network.unknownImplementation": "Cannot import unknown Lightning implementation '{{implementation}}'"
+  
 }
