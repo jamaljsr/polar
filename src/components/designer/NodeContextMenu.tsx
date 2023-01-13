@@ -8,7 +8,7 @@ import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
-import { OpenMintAssetModal, OpenSendAssetModal } from './taro/actions';
+import { OpenMintAssetModal, OpenNewAddressModal } from './taro/actions';
 
 const addItemIf = (
   key: string,
@@ -45,15 +45,20 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   let items: MenuProps['items'] = [];
   items = items.concat(
     addItemIf(
-      'mintAsset',
-      <OpenMintAssetModal node={node as TaroNode} isContextMenu={true} />,
+      'newAddress',
+      <OpenNewAddressModal node={node as TaroNode} isContextMenu={true} />,
       isStarted && isTaro,
     ),
     addItemIf(
       'mintAsset',
-      <OpenSendAssetModal isContextMenu={true} />,
+      <OpenMintAssetModal node={node as TaroNode} isContextMenu={true} />,
       isStarted && isTaro,
     ),
+    // addItemIf(
+    //   'mintAsset',
+    //   <OpenSendAssetModal isContextMenu={true} />,
+    //   isStarted && isTaro,
+    // ),
     addItemIf(
       'inv',
       <PaymentButtons menuType="create" node={node as LightningNode} />,

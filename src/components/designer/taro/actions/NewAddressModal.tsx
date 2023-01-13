@@ -37,7 +37,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { syncChart } = useStoreActions(s => s.designer);
 
   //modal state
-  const { visible } = useStoreState(s => s.modals.newAddress);
+  const { visible, nodeName } = useStoreState(s => s.modals.newAddress);
   const { hideNewAddress } = useStoreActions(s => s.modals);
 
   //taro model
@@ -56,10 +56,10 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
 
   //component local variables
   const [form] = Form.useForm();
-  const thisTaroNode = getSelectedTaroNode(network);
-  const otherTaroNodes = network.nodes.taro.filter(
-    node => node.name !== thisTaroNode.name,
-  );
+  const thisTaroNode = network.nodes.taro.find(
+    node => node.name === nodeName,
+  ) as TarodNode;
+  const otherTaroNodes = network.nodes.taro.filter(node => node.name !== nodeName);
 
   useEffect(() => syncChart(network), []);
 
