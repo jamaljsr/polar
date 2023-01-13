@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/react';
-import '';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
 import appModel from 'store/models/app';
