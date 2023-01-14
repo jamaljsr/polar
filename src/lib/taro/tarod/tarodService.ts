@@ -1,6 +1,6 @@
 import { AnchorInfo } from '@hodlone/taro-api/dist/types/tarorpc/AnchorInfo';
 import { GenesisInfo } from '@hodlone/taro-api/dist/types/tarorpc/GenesisInfo';
-import { NewAddressRequest, SendAssetRequest } from 'shared/tarodTypes';
+import * as TARO from 'shared/tarodTypes';
 import { TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { TaroService } from 'types';
@@ -8,7 +8,10 @@ import { waitFor } from 'utils/async';
 import { tarodProxyClient as proxy } from './';
 
 class TarodService implements TaroService {
-  async newAddress(node: TaroNode, req: NewAddressRequest): Promise<PTARO.TaroAddress> {
+  async newAddress(
+    node: TaroNode,
+    req: TARO.NewAddressRequest,
+  ): Promise<PTARO.TaroAddress> {
     const res = await proxy.newAddress(this.cast(node), req);
     return {
       encoded: res.encoded,
@@ -23,7 +26,7 @@ class TarodService implements TaroService {
   }
   async sendAsset(
     from: TaroNode,
-    req: SendAssetRequest,
+    req: TARO.SendAssetRequest,
   ): Promise<PTARO.TaroSendAssetReciept> {
     const res = await proxy.sendAsset(this.cast(from), req);
     console.log(JSON.stringify(res.taroTransfer, null, 2));
