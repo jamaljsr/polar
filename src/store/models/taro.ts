@@ -7,6 +7,7 @@ import { StoreInjections } from 'types';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
+//This is the minimum balance that a taro node must have access to in order to mint assets
 export const TARO_MIN_LND_BALANCE = 10000;
 
 export interface TaroNodeMapping {
@@ -177,8 +178,7 @@ const taroModel: TaroModel = {
           .map(async n => {
             try {
               await (async () => {
-                actions.getAssets(n);
-                actions.getBalances(n);
+                actions.getAllInfo(n);
               })();
             } catch (error: any) {
               notify({ message: `Unable to retrieve assets for ${n.name}`, error });
