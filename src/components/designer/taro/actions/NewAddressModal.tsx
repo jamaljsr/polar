@@ -51,6 +51,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const [genesisBootstrapInfoError, setGenesisBootstrapInfoError] = useState<
     string | undefined
   >();
+  const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
 
   //component local variables
   const [form] = Form.useForm();
@@ -129,7 +130,11 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           />
         </Form.Item>
         <Styled.Spacer />
-        <Collapse>
+        <Collapse
+          onChange={v => {
+            setIsMenuCollapsed(!isMenuCollapsed);
+          }}
+        >
           <Collapse.Panel header={l('import')} key="1">
             <Row gutter={10}>
               <Col span={12}>
@@ -156,7 +161,10 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
             min={'1'}
             max={selectedBalance?.balance}
-            disabled={selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE}
+            disabled={
+              !isMenuCollapsed &&
+              selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE
+            }
           />
         </Form.Item>
         <Form.Item label={l('address')} name="address">
