@@ -9,6 +9,7 @@ import * as PTARO from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/taro';
 import { Network } from 'types';
+import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import TaroAssetSelect from 'components/common/form/TaroAssetSelect';
 import TaroNodeSelect from 'components/common/form/TaroNodeSelect';
@@ -19,10 +20,6 @@ const Styled = {
   `,
 };
 
-const getSelectedTaroNode = (network: Network) => {
-  const { selected: selectedNode } = useStoreState(s => s.designer.activeChart);
-  return network.nodes.taro.find(node => node.name === selectedNode.id) as TarodNode;
-};
 interface Props {
   network: Network;
 }
@@ -48,7 +45,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const [selectedTaroNode, setSelectedTaroNode] = useState('');
   const [selectedAmount, setSelectedAmount] = useState('1');
   const [selectedGenesisBootstrapInfo, setSelectedGenesisBootstrapInfo] = useState('');
-  const [assets, setAssets] = useState<PTARO.TaroAsset[]>();
+  const [balances, setBalances] = useState<PTARO.TaroBalance[]>();
+  const [selectedBalance, setSelectedBalance] = useState<PTARO.TaroBalance>();
   const [taroAddress, setTaroAddress] = useState('');
   const [genesisBootstrapInfoError, setGenesisBootstrapInfoError] = useState<
     string | undefined
@@ -64,10 +62,13 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   useEffect(() => syncChart(network), []);
 
   const handleSelectedAsset = (value: number) => {
-    if (assets) {
-      setSelectedGenesisBootstrapInfo(assets[value].genesisBootstrapInfo);
+    if (balances) {
+      setSelectedBalance(balances[value]);
+      setSelectedGenesisBootstrapInfo(balances[value].genesisBootstrapInfo);
+      setSelectedAmount(balances[value].balance);
       form.setFieldsValue({
-        genesisBootstrapInfo: assets[value].genesisBootstrapInfo,
+        genesisBootstrapInfo: balances[value].genesisBootstrapInfo,
+        amount: balances[value].balance,
       });
     }
   };
@@ -98,7 +99,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   }, [selectedGenesisBootstrapInfo, selectedAmount]);
 
   useMemo(() => {
-    selectedTaroNode && setAssets(taroNodes[selectedTaroNode]?.assets);
+    selectedTaroNode && setBalances(taroNodes[selectedTaroNode]?.balances);
   }, [network.nodes.taro, taroNodes, selectedTaroNode]);
 
   const cmp = (
@@ -142,7 +143,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
               <Col span={12}>
                 <TaroAssetSelect
                   name="assetName"
-                  items={assets}
+                  items={balances}
                   onChange={v => handleSelectedAsset(v?.valueOf() as number)}
                 />
               </Col>
@@ -154,6 +155,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           <InputNumber
             onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
             min={'1'}
+            max={selectedBalance?.balance}
+            disabled={selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE}
           />
         </Form.Item>
         <Form.Item label={l('address')} name="address">
@@ -171,7 +174,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
                   <CopyIcon
                     label={taroAddress}
                     value={taroAddress as string}
-                    text={taroAddress}
+                    text={ellipseInner(taroAddress, 20, 30)}
                   />
                 )
               }

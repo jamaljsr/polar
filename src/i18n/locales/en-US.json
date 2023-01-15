@@ -307,7 +307,7 @@
   "cmps.designer.taro.actions.NewAddressModal.addressPlaceholder": "Address",
   "cmps.designer.taro.actions.NewAddressModal.okBtn": "Generate",
   "cmps.designer.taro.actions.NewAddressModal.cancelBtn": "Cancel",
-
+  "cmps.designer.taro.actions.NewAddressModal.submitError": "Error: {{error}}",
   "cmps.designer.taro.InfoTab.nodeType": "Node Type",
   "cmps.designer.taro.InfoTab.implementation": "Implementation",
   "cmps.designer.taro.InfoTab.customImage": "Docker Image",
