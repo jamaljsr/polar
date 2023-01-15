@@ -14,6 +14,8 @@ import CopyIcon from 'components/common/CopyIcon';
 import TaroAssetSelect from 'components/common/form/TaroAssetSelect';
 import TaroNodeSelect from 'components/common/form/TaroNodeSelect';
 
+const TaroBalanceSelect = TaroAssetSelect;
+
 const Styled = {
   Spacer: styled.div`
     height: 12px;
@@ -62,7 +64,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
 
   useEffect(() => syncChart(network), []);
 
-  const handleSelectedAsset = (value: number) => {
+  const handleSelectedBalance = (value: number) => {
     if (balances) {
       setSelectedBalance(balances[value]);
       setSelectedGenesisBootstrapInfo(balances[value].genesisBootstrapInfo);
@@ -72,6 +74,11 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         amount: balances[value].balance,
       });
     }
+  };
+
+  const handleGenesisBootstrapInfo = (value: string) => {
+    !isMenuCollapsed && setIsMenuCollapsed(true);
+    setSelectedGenesisBootstrapInfo(value);
   };
 
   //submit
@@ -126,14 +133,16 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             rows={5}
             status={genesisBootstrapInfoError && 'error'}
             placeholder={l('genesisBootstrapInfo')}
-            onChange={e => setSelectedGenesisBootstrapInfo(e.target.value)}
+            onChange={e => handleGenesisBootstrapInfo(e.target.value)}
           />
         </Form.Item>
         <Styled.Spacer />
         <Collapse
+          collapsible="header"
           onChange={v => {
             setIsMenuCollapsed(!isMenuCollapsed);
           }}
+          activeKey={isMenuCollapsed ? [] : ['1']}
         >
           <Collapse.Panel header={l('import')} key="1">
             <Row gutter={10}>
@@ -146,10 +155,10 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
                 />
               </Col>
               <Col span={12}>
-                <TaroAssetSelect
-                  name="assetName"
+                <TaroBalanceSelect
+                  name="balanceName"
                   items={balances}
-                  onChange={v => handleSelectedAsset(v?.valueOf() as number)}
+                  onChange={v => handleSelectedBalance(v?.valueOf() as number)}
                 />
               </Col>
             </Row>
@@ -160,9 +169,10 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           <InputNumber
             onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
             min={'1'}
-            max={selectedBalance?.balance}
+            max={isMenuCollapsed ? undefined : selectedBalance?.balance}
             disabled={
               !isMenuCollapsed &&
+              selectedGenesisBootstrapInfo !== undefined &&
               selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE
             }
           />
