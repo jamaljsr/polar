@@ -154,26 +154,14 @@ const taroModel: TaroModel = {
       return res;
     },
   ),
-  getNewAddress: thunk(async (actions, payload, { injections }) => {
-    const api = injections.taroFactory.getService(payload.node);
-    const address = await api.newAddress(payload.node, {
-      genesisBootstrapInfo: Buffer.from(payload.genesisBootstrapInfo as string, 'hex'),
-      amt: payload.amount,
-    });
-    return address;
-  }),
-  sendAsset: thunk(
-    async (actions, { from, to, genesisBootstrapInfo, amount }, { injections }) => {
-      const api = injections.taroFactory.getService(from);
-      const address = await api.newAddress(to, {
+  getNewAddress: thunk(
+    async (actions, { node, genesisBootstrapInfo, amount }, { injections }) => {
+      const api = injections.taroFactory.getService(node);
+      const address = await api.newAddress(node, {
         genesisBootstrapInfo: Buffer.from(genesisBootstrapInfo as string, 'hex'),
-        amt: amount.toString(),
+        amt: amount,
       });
-      actions.getBalances(to);
-      const sendReq: TARO.SendAssetRequest = {
-        taroAddr: address.encoded,
-      };
-      await api.sendAsset(from, sendReq);
+      return address;
     },
   ),
 
