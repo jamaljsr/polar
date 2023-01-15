@@ -5,6 +5,7 @@ import { Status, TaroNode } from 'shared/types';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
+import { NewAddressButton } from './actions';
 import MintAssetButton from './actions/MintAssetButton';
 
 const Styled = {
@@ -24,6 +25,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         <>
           <>
             <MintAssetButton node={node} />
+            <NewAddressButton node={node} />
             <Styled.Spacer />
           </>
 

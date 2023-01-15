@@ -276,6 +276,8 @@
   "cmps.designer.taro.ConnectTab.base64Strings": "Base64",
   "cmps.designer.taro.ActionsTab.MintAssetButton.title": "Mint Asset",
   "cmps.designer.taro.ActionsTab.MintAssetButton.mint": "Mint",
+  "cmps.designer.taro.ActionsTab.NewAddressButton.title": "Addresses",
+  "cmps.designer.taro.ActionsTab.NewAddressButton.newAddress": "New Address",
   "cmps.designer.taro.actions.MintAssetModal.title": "Mint an asset for {{name}}",
   "cmps.designer.taro.actions.MintAssetModal.okBtn": "Mint",
   "cmps.designer.taro.actions.MintAssetModal.cancelBtn": "Cancel",

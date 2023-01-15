@@ -8,7 +8,7 @@ import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
-import { MintAssetButton, OpenNewAddressModal } from './taro/actions';
+import { MintAssetButton, NewAddressButton } from './taro/actions';
 
 const addItemIf = (
   key: string,
@@ -46,7 +46,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   items = items.concat(
     addItemIf(
       'newAddress',
-      <OpenNewAddressModal node={node as TaroNode} isContextMenu={true} />,
+      <NewAddressButton type={'menu'} node={node as TaroNode} />,
       isStarted && isTaro,
     ),
     addItemIf(
