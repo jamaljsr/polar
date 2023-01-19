@@ -111,7 +111,7 @@
     "husky": "8.0.3",
     "i18next": "22.4.9",
     "i18next-browser-languagedetector": "7.0.1",
-    "i18next-scanner": "4.1.0",
+    "i18next-scanner": "4.1.1",
     "jest-environment-jsdom-sixteen": "1.0.3",
     "js-yaml": "4.1.0",
     "less": "4.1.3",
