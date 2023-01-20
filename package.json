@@ -57,7 +57,7 @@
     "xterm-addon-fit": "0.7.0"
   },
   "devDependencies": {
-    "@ant-design/icons": "5.0.0",
+    "@ant-design/icons": "5.0.1",
     "@commitlint/cli": "17.4.2",
     "@commitlint/config-conventional": "17.4.2",
     "@emotion/babel-plugin": "11.10.5",
