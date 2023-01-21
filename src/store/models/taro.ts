@@ -113,16 +113,17 @@ const taroModel: TaroModel = {
         skipBatch,
       };
       const res = await taroapi.mintAsset(node, req);
-      (async () => {
-        //update network
-        const btcNode =
-          network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
-          network.nodes.bitcoin[0];
-        await getStoreActions().bitcoind.mine({
-          blocks: BLOCKS_TIL_CONFIRMED,
-          node: btcNode,
-        });
-      })();
+
+      //update network
+      const btcNode =
+        network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
+        network.nodes.bitcoin[0];
+      //missing await is intentional, we dont have to wait for bitcoin to mine
+      getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_CONFIRMED,
+        node: btcNode,
+      });
+
       return res;
     },
   ),
@@ -139,9 +140,7 @@ const taroModel: TaroModel = {
           .filter(n => n.status === Status.Started)
           .map(async n => {
             try {
-              await (async () => {
-                actions.getAllInfo(n);
-              })();
+              actions.getAllInfo(n);
             } catch (error: any) {
               notify({ message: `Unable to retrieve assets for ${n.name}`, error });
             }
