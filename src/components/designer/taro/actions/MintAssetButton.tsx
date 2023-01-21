@@ -17,7 +17,7 @@ interface Props {
 }
 
 const MintAssetButton: React.FC<Props> = ({ node, type }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.taro.ActionsTab.MintAssetButton');
+  const { l } = usePrefixedTranslation('cmps.designer.taro.actions.MintAssetButton');
   const { showMintAsset } = useStoreActions(s => s.modals);
 
   if (type === 'menu') {

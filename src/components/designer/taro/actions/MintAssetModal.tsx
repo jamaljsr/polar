@@ -54,6 +54,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   });
 
   useEffect(() => {
+    //When polar is first opened, we need to populate the state with the lightning node data
     syncChart(network);
   }, []);
 
