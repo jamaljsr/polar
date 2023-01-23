@@ -1,5 +1,5 @@
 import ipcChannels from './ipcChannels';
-import { ListAssetResponse, ListBalancesResponse } from './tarodTypes';
+import { ListAssetResponse, ListBalancesResponse, MintAssetResponse } from './tarodTypes';
 
 export const defaultTarodListAssets = (
   value: Partial<ListAssetResponse>,
@@ -16,9 +16,14 @@ export const defaultTarodListBalances = (
   ...value,
 });
 
+export const defaultTarodMintAsset = (): MintAssetResponse => ({
+  batchKey: Buffer.from('none'),
+});
+
 const defaults = {
   [ipcChannels.taro.listAssets]: defaultTarodListAssets,
   [ipcChannels.taro.listBalances]: defaultTarodListBalances,
+  [ipcChannels.taro.mintAsset]: defaultTarodMintAsset,
 };
 
 export type TarodDefaultsKey = keyof typeof defaults;

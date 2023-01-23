@@ -52,6 +52,11 @@ interface AssetInfoModel {
   assetId?: string;
 }
 
+interface MintAssetModel {
+  visible: boolean;
+  nodeName?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -61,6 +66,7 @@ export interface ModalsModel {
   imageUpdates: ImageUpdatesModel;
   sendOnChain: SendOnChainModel;
   assetInfo: AssetInfoModel;
+  mintAsset: MintAssetModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -85,10 +91,14 @@ export interface ModalsModel {
   setAssetInfo: Action<ModalsModel, AssetInfoModel>;
   showAssetInfo: Thunk<ModalsModel, Partial<AssetInfoModel>, StoreInjections>;
   hideAssetInfo: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setMintAsset: Action<ModalsModel, Partial<MintAssetModel>>;
+  showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections>;
+  hideMintAsset: Thunk<ModalsModel>;
 }
 
 const modalsModel: ModalsModel = {
   openChannel: { visible: false },
+  mintAsset: { visible: false },
   changeBackend: { visible: false },
   createInvoice: { visible: false },
   payInvoice: { visible: false },
@@ -233,6 +243,18 @@ const modalsModel: ModalsModel = {
       assetId: undefined,
       nodeName: undefined,
     });
+  }),
+  showMintAsset: thunk((actions, { nodeName }) => {
+    actions.setMintAsset({ visible: true, nodeName });
+  }),
+  hideMintAsset: thunk(actions => {
+    actions.setMintAsset({ visible: false });
+  }),
+  setMintAsset: action((state, payload) => {
+    state.mintAsset = {
+      ...state.mintAsset,
+      ...payload,
+    };
   }),
 };
 

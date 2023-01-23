@@ -1,8 +1,13 @@
 import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
-import { Status, TaroNode } from 'shared/types';
+import * as TARO from 'shared/tarodTypes';
+import { LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
+import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
+
+//This is the minimum balance that a taro node must have access to in order to mint assets
+export const TARO_MIN_LND_BALANCE = 10000;
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -13,6 +18,17 @@ export interface TaroNodeModel {
   balances?: PTARO.TaroBalance[];
 }
 
+export interface MintAssetPayload {
+  node: TarodNode;
+  assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
+  name: string;
+  amount: number;
+  metaData: string;
+  enableEmission: boolean;
+  skipBatch: boolean;
+  autoFund: boolean;
+}
+
 export interface TaroModel {
   nodes: TaroNodeMapping;
   removeNode: Action<TaroModel, string>;
@@ -21,7 +37,9 @@ export interface TaroModel {
   getAssets: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
   setBalances: Action<TaroModel, { node: TaroNode; balances: PTARO.TaroBalance[] }>;
   getBalances: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
+  getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
+  mintAsset: Thunk<TaroModel, MintAssetPayload, StoreInjections, RootModel>;
 }
 
 const taroModel: TaroModel = {
@@ -54,6 +72,62 @@ const taroModel: TaroModel = {
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
   }),
+  getAllInfo: thunk(async (actions, node) => {
+    await actions.getAssets(node);
+    await actions.getBalances(node);
+  }),
+
+  mintAsset: thunk(
+    async (actions, payload, { injections, getStoreState, getStoreActions }) => {
+      const {
+        node,
+        assetType,
+        name,
+        amount,
+        metaData,
+        enableEmission,
+        skipBatch,
+        autoFund,
+      } = payload;
+
+      const network = getStoreState().network.networkById(node.networkId);
+      const lndNode = network.nodes.lightning.find(
+        n => n.name === node.lndName,
+      ) as LightningNode;
+      //fund lnd node
+      if (autoFund) {
+        await getStoreActions().lightning.depositFunds({
+          node: lndNode,
+          sats: TARO_MIN_LND_BALANCE.toString(),
+        });
+      }
+
+      //mint taro asset
+      const taroapi = injections.taroFactory.getService(node);
+      const req: TARO.MintAssetRequest = {
+        assetType,
+        name,
+        amount: assetType === PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? 1 : amount,
+        metaData: Buffer.from(metaData, 'hex'),
+        enableEmission,
+        skipBatch,
+      };
+      const res = await taroapi.mintAsset(node, req);
+
+      //update network
+      const btcNode =
+        network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
+        network.nodes.bitcoin[0];
+      //missing await is intentional, we dont have to wait for bitcoin to mine
+      getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_CONFIRMED,
+        node: btcNode,
+      });
+
+      return res;
+    },
+  ),
+
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,
     async (actions, { payload }, { getStoreState, getStoreActions }) => {
@@ -66,7 +140,7 @@ const taroModel: TaroModel = {
           .filter(n => n.status === Status.Started)
           .map(async n => {
             try {
-              await actions.getAssets(n);
+              actions.getAllInfo(n);
             } catch (error: any) {
               notify({ message: `Unable to retrieve assets for ${n.name}`, error });
             }
