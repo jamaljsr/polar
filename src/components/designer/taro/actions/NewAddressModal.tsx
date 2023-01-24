@@ -52,7 +52,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const [taroAddress, setTaroAddress] = useState('');
   const [genesisBootstrapInfoError, setGenesisBootstrapInfoError] = useState<
     string | undefined
-  >();
+  >(undefined);
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
 
   //component local variables
@@ -124,11 +124,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         }}
         onFinish={handleSubmit}
       >
-        <Form.Item
-          name="genesisBootstrapInfo"
-          label={l('genesisBootstrapInfo')}
-          help={genesisBootstrapInfoError}
-        >
+        <Form.Item name="genesisBootstrapInfo" label={l('genesisBootstrapInfo')}>
           <Input.TextArea
             rows={5}
             status={genesisBootstrapInfoError && 'error'}
@@ -178,7 +174,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           />
         </Form.Item>
         <Form.Item label={l('address')} name="address">
-          {
+          {selectedGenesisBootstrapInfo && (
             <Alert
               type={
                 selectedAmount &&
@@ -189,22 +185,20 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
                   : 'error'
               }
               message={
-                selectedAmount &&
-                selectedGenesisBootstrapInfo &&
-                taroAddress && (
+                selectedGenesisBootstrapInfo && (
                   <CopyIcon
                     label={taroAddress}
                     value={taroAddress as string}
                     text={
                       !genesisBootstrapInfoError
                         ? ellipseInner(taroAddress, 20, 30)
-                        : 'Bad Gensesis Info'
+                        : genesisBootstrapInfoError
                     }
                   />
                 )
               }
             />
-          }
+          )}
         </Form.Item>
       </Form>
     </>
