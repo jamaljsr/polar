@@ -85,7 +85,6 @@ describe('MintAssetModal', () => {
   beforeEach(() => {
     store = createStore(rootModel, { injections });
     store.getState().network.networks.push(network);
-    //store.getState().modals.mintAsset = { visible: true, nodeName: 'alice-taro' };
 
     store.getActions().network.addNode({
       id: network.id,

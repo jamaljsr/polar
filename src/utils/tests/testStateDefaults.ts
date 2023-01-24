@@ -3,6 +3,7 @@ import {
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
+import { TaroAsset, TaroBalance } from 'lib/taro/types';
 
 export const defaultStateInfo = (
   value: Partial<LightningNodeInfo>,
@@ -40,4 +41,27 @@ export const defaultStateChannel = (
   status: 'Open',
   isPrivate: false,
   ...value,
+});
+
+export const defaultTaroAsset = (value: Partial<TaroAsset>): TaroAsset => ({
+  id: '',
+  name: '',
+  meta: '',
+  type: '',
+  amount: '',
+  genesisPoint: '',
+  genesisBootstrapInfo: '',
+  anchorOutpoint: '',
+  ...value,
+});
+
+export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => ({
+  id: '',
+  name: '',
+  meta: '',
+  type: '',
+  balance: '',
+  genesisPoint: '',
+  genesisBootstrapInfo: '',
+  groupKey: '',
 });
