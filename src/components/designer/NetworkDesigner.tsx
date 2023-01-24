@@ -17,8 +17,8 @@ import {
   OpenChannelModal,
   PayInvoiceModal,
 } from './lightning/actions';
-import { MintAssetModal } from './taro/actions';
 import Sidebar from './Sidebar';
+import { MintAssetModal, NewAddressModal } from './taro/actions';
 
 const Styled = {
   Designer: styled.div`
@@ -48,6 +48,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
   const {
     openChannel,
     mintAsset,
+    newAddress,
     createInvoice,
     payInvoice,
     changeBackend,
@@ -97,6 +98,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {sendOnChain.visible && <SendOnChainModal network={network} />}
       {advancedOptions.visible && <AdvancedOptionsModal network={network} />}
       {mintAsset.visible && <MintAssetModal network={network} />}
+      {newAddress.visible && <NewAddressModal network={network} />}
     </Styled.Designer>
   );
 };

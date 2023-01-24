@@ -59,6 +59,23 @@ const mintAsset = async (args: {
   return await rpc.mintAssets(args.req);
 };
 
+const newAddress = async (args: {
+  node: TarodNode;
+  req: TARO.NewAddressRequest;
+}): Promise<TARO.NewAddressResponse> => {
+  const rpc = await getRpc(args.node);
+  debug('newAddress req', JSON.stringify(args, null, 2));
+  return await rpc.newAddr(args.req);
+};
+
+const sendAsset = async (args: {
+  node: TarodNode;
+  req: TARO.SendAssetRequest;
+}): Promise<TARO.SendAssetResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.sendAsset(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -69,6 +86,8 @@ const listeners: {
   [ipcChannels.taro.listAssets]: listAssets,
   [ipcChannels.taro.listBalances]: listBalances,
   [ipcChannels.taro.mintAsset]: mintAsset,
+  [ipcChannels.taro.newAddress]: newAddress,
+  [ipcChannels.taro.sendAsset]: sendAsset,
 };
 
 /**
