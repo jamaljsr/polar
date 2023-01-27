@@ -8,7 +8,7 @@ import { useStoreActions } from 'store';
 
 const Styled = {
   Button: styled(Button)`
-    width: 50%;
+    width: 100%;
   `,
 };
 interface Props {
