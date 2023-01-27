@@ -1,7 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
-import { Alert, Col, Collapse, Form, Input, InputNumber, Modal, Row } from 'antd';
+import {
+  Button,
+  Col,
+  Collapse,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Result,
+  Row,
+} from 'antd';
 import CollapsePanel from 'antd/lib/collapse/CollapsePanel';
 import { usePrefixedTranslation } from 'hooks';
 import { Status, TarodNode } from 'shared/types';
@@ -10,7 +22,9 @@ import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/taro';
 import { Network } from 'types';
 import { ellipseInner } from 'utils/strings';
+import { format } from 'utils/units';
 import CopyIcon from 'components/common/CopyIcon';
+import CopyableInput from 'components/common/form/CopyableInput';
 import TaroAssetSelect from 'components/common/form/TaroAssetSelect';
 import TaroNodeSelect from 'components/common/form/TaroNodeSelect';
 
@@ -50,9 +64,6 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const [balances, setBalances] = useState<PTARO.TaroBalance[]>();
   const [selectedBalance, setSelectedBalance] = useState<PTARO.TaroBalance>();
   const [taroAddress, setTaroAddress] = useState('');
-  const [genesisBootstrapInfoError, setGenesisBootstrapInfoError] = useState<
-    string | undefined
-  >(undefined);
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
 
   //component local variables
@@ -77,7 +88,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   };
 
   const handleGenesisBootstrapInfo = (value: string) => {
-    !isMenuCollapsed && setIsMenuCollapsed(true);
+    setIsMenuCollapsed(!isMenuCollapsed);
     setSelectedGenesisBootstrapInfo(value);
   };
 
@@ -86,9 +97,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     try {
       const res = await getNewAddress(payload);
       setTaroAddress(res.encoded);
-      setGenesisBootstrapInfoError(undefined);
     } catch (error: any) {
-      setGenesisBootstrapInfoError(l('submitError', { error: error.message }));
+      notify({ message: l('submitError'), error });
     }
   });
 
@@ -102,107 +112,107 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       newAddressAsync.execute(payload);
     }
   };
-  useMemo(() => {
-    handleSubmit();
-  }, [selectedGenesisBootstrapInfo, selectedAmount]);
 
   useMemo(() => {
     selectedTaroNode && setBalances(taroNodes[selectedTaroNode]?.balances);
   }, [network.nodes.taro, taroNodes, selectedTaroNode]);
 
-  const cmp = (
-    <>
-      <Form
-        form={form}
-        layout="vertical"
-        colon={false}
-        initialValues={{
-          balanceIndex: 0,
-          amount: '1',
-          node: '',
-          genesisBootstrapInfo: '',
-        }}
-        onFinish={handleSubmit}
-      >
-        <Form.Item name="genesisBootstrapInfo" label={l('genesisBootstrapInfo')}>
-          <Input.TextArea
-            rows={5}
-            status={genesisBootstrapInfoError && 'error'}
-            placeholder={l('genesisBootstrapInfo')}
-            onChange={e => handleGenesisBootstrapInfo(e.target.value)}
-          />
-        </Form.Item>
-        <Styled.Spacer />
-        <Collapse
-          collapsible="header"
-          onChange={v => {
-            setIsMenuCollapsed(!isMenuCollapsed);
+  const handleCopy = () => {
+    message.success(l('copied', { address: ellipseInner(taroAddress, 10, 10) }), 2);
+    hideNewAddress();
+  };
+
+  let cmp: ReactNode;
+  if (!taroAddress) {
+    cmp = (
+      <>
+        <Form
+          form={form}
+          layout="vertical"
+          colon={false}
+          initialValues={{
+            balanceIndex: 0,
+            amount: '1',
+            node: '',
+            genesisBootstrapInfo: '',
           }}
-          activeKey={isMenuCollapsed ? [] : ['1']}
+          onFinish={handleSubmit}
         >
-          <Collapse.Panel header={l('import')} key="1">
-            <Row gutter={10}>
-              <Col span={12}>
-                <TaroNodeSelect
-                  name="node"
-                  networkNodes={otherTaroNodes}
-                  nodeStatus={Status.Started}
-                  onChange={v => setSelectedTaroNode(v?.valueOf() as string)}
-                />
-              </Col>
-              <Col span={12}>
-                <TaroBalanceSelect
-                  name="balanceName"
-                  items={balances}
-                  onChange={v => handleSelectedBalance(v?.valueOf() as number)}
-                />
-              </Col>
-            </Row>
-          </Collapse.Panel>
-        </Collapse>
-        <Styled.Spacer />
-        <Form.Item label={l('amount')} name="amount">
-          <InputNumber
-            onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
-            min={'1'}
-            max={isMenuCollapsed ? undefined : selectedBalance?.balance}
-            disabled={
-              !isMenuCollapsed &&
-              selectedGenesisBootstrapInfo !== undefined &&
-              selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE
-            }
-          />
-        </Form.Item>
-        <Form.Item label={l('address')} name="address">
-          {selectedGenesisBootstrapInfo && (
-            <Alert
-              type={
-                selectedAmount &&
-                selectedGenesisBootstrapInfo &&
-                taroAddress &&
-                !genesisBootstrapInfoError
-                  ? 'success'
-                  : 'error'
-              }
-              message={
-                selectedGenesisBootstrapInfo && (
-                  <CopyIcon
-                    label={taroAddress}
-                    value={taroAddress as string}
-                    text={
-                      !genesisBootstrapInfoError
-                        ? ellipseInner(taroAddress, 20, 30)
-                        : genesisBootstrapInfoError
-                    }
+          <Form.Item name="genesisBootstrapInfo" label={l('genesisBootstrapInfo')}>
+            <Input.TextArea
+              rows={5}
+              placeholder={l('genesisBootstrapInfo')}
+              onChange={e => handleGenesisBootstrapInfo(e.target.value)}
+            />
+          </Form.Item>
+          <Styled.Spacer />
+          <Collapse
+            collapsible="header"
+            onChange={v => {
+              setIsMenuCollapsed(!isMenuCollapsed);
+            }}
+            activeKey={isMenuCollapsed ? [] : ['1']}
+          >
+            <Collapse.Panel header={l('import')} key="1">
+              <Row gutter={10}>
+                <Col span={12}>
+                  <TaroNodeSelect
+                    name="node"
+                    networkNodes={otherTaroNodes}
+                    nodeStatus={Status.Started}
+                    onChange={v => setSelectedTaroNode(v?.valueOf() as string)}
                   />
-                )
+                </Col>
+                <Col span={12}>
+                  <TaroBalanceSelect
+                    name="balanceName"
+                    items={balances}
+                    onChange={v => handleSelectedBalance(v?.valueOf() as number)}
+                  />
+                </Col>
+              </Row>
+            </Collapse.Panel>
+          </Collapse>
+          <Styled.Spacer />
+          <Form.Item label={l('amount')} name="amount">
+            <InputNumber
+              onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
+              min={'1'}
+              max={isMenuCollapsed ? undefined : selectedBalance?.balance}
+              disabled={
+                !isMenuCollapsed &&
+                selectedGenesisBootstrapInfo !== undefined &&
+                selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE
               }
             />
-          )}
-        </Form.Item>
-      </Form>
-    </>
-  );
+          </Form.Item>
+        </Form>
+      </>
+    );
+  } else {
+    cmp = (
+      <Result
+        status="success"
+        title={l('successTitle')}
+        subTitle={l('successDesc', {
+          assetName: selectedBalance?.name,
+          amount: format(`${selectedAmount}`),
+        })}
+        extra={
+          <Form>
+            <Form.Item>
+              <CopyableInput label="Invoice" value={taroAddress} />
+            </Form.Item>
+            <Form.Item>
+              <CopyToClipboard text={taroAddress} onCopy={handleCopy}>
+                <Button type="primary">{l('copyClose')}</Button>
+              </CopyToClipboard>
+            </Form.Item>
+          </Form>
+        }
+      />
+    );
+  }
 
   return (
     <>
@@ -213,9 +223,6 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         cancelText={l('cancelBtn')}
         okText={l('okBtn')}
         onCancel={() => hideNewAddress()}
-        okButtonProps={{
-          disabled: genesisBootstrapInfoError !== undefined,
-        }}
         onOk={form.submit}
       >
         {cmp}

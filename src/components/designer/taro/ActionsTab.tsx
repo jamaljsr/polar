@@ -22,11 +22,9 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
     <Form labelCol={{ span: 24 }}>
       {node.status === Status.Started && (
         <>
-          <>
-            <MintAssetButton node={node} />
-            <NewAddressButton node={node} />
-            <Styled.Spacer />
-          </>
+          <MintAssetButton node={node} />
+          <NewAddressButton node={node} />
+          <Styled.Spacer />
 
           <OpenTerminalButton node={node} />
           <ViewLogsButton node={node} />
