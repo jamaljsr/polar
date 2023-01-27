@@ -6189,14 +6189,6 @@ chownr@^2.0.0:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-2.0.0.tgz#15bfbe53d2eab4cf70f18a8cd68ebe5b3cb1dece"
   integrity sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==
 
-chrome-remote-interface@^0.27.0:
-  version "0.27.2"
-  resolved "https://registry.yarnpkg.com/chrome-remote-interface/-/chrome-remote-interface-0.27.2.tgz#e5605605f092b7ef8575d95304e004039c9d0ab9"
-  integrity sha512-pVLljQ29SAx8KIv5tSa9sIf8GrEsAZdPJoeWOmY3/nrIzFmE+EryNNHvDkddGod0cmAFTv+GmPG0uvzxi2NWsA==
-  dependencies:
-    commander "2.11.x"
-    ws "^6.1.0"
-
 chrome-remote-interface@^0.31.3:
   version "0.31.3"
   resolved "https://registry.yarnpkg.com/chrome-remote-interface/-/chrome-remote-interface-0.31.3.tgz#bd01b89f5f0e968f7eeb37b8b7c5ac20e6e1f4d0"
@@ -19935,13 +19927,13 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
-testcafe-browser-provider-electron@0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.18.tgz#c4294a7fefe5006c5eb85c06db9ca620f2ba919b"
-  integrity sha512-s2Oz62uMi+FygttEm6Ab+cCgBFdbDhoZmA2Q02jQePYK/cVmn8vFL9MDxqppwIcZeknZCtg33hFNX4MgQndPlA==
+testcafe-browser-provider-electron@0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/testcafe-browser-provider-electron/-/testcafe-browser-provider-electron-0.0.19.tgz#739d0671630c4074e212ca4a23e71e58ef6cc677"
+  integrity sha512-ecSf71hRPpT7ezUWwG3eB7l+hn7t2yVXXdu4k+uTn/REa+naBzT0Koa4WiDRug7HsV8QPbA7G87A3fQ8+7PfMA==
   dependencies:
     babel-runtime "^6.25.0"
-    chrome-remote-interface "^0.27.0"
+    chrome-remote-interface "^0.31.3"
     debug "4.1.1"
     dedent "^0.7.0"
     endpoint-utils "^1.0.2"
@@ -21686,7 +21678,7 @@ ws@8.12.0:
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.12.0.tgz#485074cc392689da78e1828a9ff23585e06cddd8"
   integrity sha512-kU62emKIdKVeEIOIKVegvqpXMSTAMLJozpHZaJNDYqBjzlSYXQGviYwN1osDLJ9av68qHd4a2oSjd7yD4pacig==
 
-ws@^6.1.0, ws@^6.2.1:
+ws@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.1.tgz#442fdf0a47ed64f59b6a5d8ff130f4748ed524fb"
   integrity sha512-GIyAXC2cB7LjvpgMt9EKS2ldqr0MTrORaleiOno6TweZ6r3TKtoFQWay/2PceJ3RuBasOHzXNn5Lrw1X0bEjqA==
