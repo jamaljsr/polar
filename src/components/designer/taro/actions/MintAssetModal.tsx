@@ -107,7 +107,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         initialValues={{
           enableEmission: false,
           assetType: 0,
-          amount: 1,
+          amount: 1000,
           skipBatch: true,
           autoFund: false,
           metaData: '',

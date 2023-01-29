@@ -82,7 +82,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       setSelectedAmount(balances[value].balance);
       form.setFieldsValue({
         genesisBootstrapInfo: balances[value].genesisBootstrapInfo,
-        amount: balances[value].balance,
+        amount: Math.min(parseInt(balances[value].balance), 10),
       });
     }
   };
@@ -179,11 +179,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
               onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
               min={'1'}
               max={isMenuCollapsed ? undefined : selectedBalance?.balance}
-              disabled={
-                !isMenuCollapsed &&
-                selectedGenesisBootstrapInfo !== undefined &&
-                selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE
-              }
+              disabled={selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE}
             />
           </Form.Item>
         </Form>
@@ -220,6 +216,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         title={l('title', { name: nodeName })}
         open={visible}
         destroyOnClose
+        footer={taroAddress ? null : undefined}
         cancelText={l('cancelBtn')}
         okText={l('okBtn')}
         onCancel={() => hideNewAddress()}
