@@ -24,19 +24,6 @@ class TarodService implements TaroService {
       taprootOutputKey: res.taprootOutputKey.toString(),
     };
   }
-  async sendAsset(
-    from: TaroNode,
-    req: TARO.SendAssetRequest,
-  ): Promise<PTARO.TaroSendAssetReciept> {
-    const res = await proxy.sendAsset(this.cast(from), req);
-    console.log(JSON.stringify(res.taroTransfer, null, 2));
-    return {
-      transferTxid: res.transferTxid.toString(),
-      anchorOutputIndex: res.anchorOutputIndex,
-      transferTxBytes: res.transferTxBytes.toString(),
-      totalFeeSats: res.totalFeeSats,
-    };
-  }
 
   async mintAsset(
     node: TaroNode,

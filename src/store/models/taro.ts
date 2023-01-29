@@ -28,29 +28,7 @@ export interface MintAssetPayload {
   skipBatch: boolean;
   autoFund: boolean;
 }
-export interface NewAddressPayload {
-  node: TarodNode;
-  genesisBootstrapInfo: string;
-  amount: string;
-}
 
-export interface SendAssetPayload {
-  from: TaroNode;
-  to: TaroNode;
-  genesisBootstrapInfo: string;
-  amount: number;
-}
-
-export interface MintAssetPayload {
-  node: TarodNode;
-  assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
-  name: string;
-  amount: number;
-  metaData: string;
-  enableEmission: boolean;
-  skipBatch: boolean;
-  autoFund: boolean;
-}
 export interface NewAddressPayload {
   node: TarodNode;
   genesisBootstrapInfo: string;
