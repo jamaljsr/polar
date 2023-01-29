@@ -14,7 +14,6 @@ import {
   Result,
   Row,
 } from 'antd';
-import CollapsePanel from 'antd/lib/collapse/CollapsePanel';
 import { usePrefixedTranslation } from 'hooks';
 import { Status, TarodNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
@@ -23,7 +22,6 @@ import { NewAddressPayload } from 'store/models/taro';
 import { Network } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
-import CopyIcon from 'components/common/CopyIcon';
 import CopyableInput from 'components/common/form/CopyableInput';
 import TaroAssetSelect from 'components/common/form/TaroAssetSelect';
 import TaroNodeSelect from 'components/common/form/TaroNodeSelect';
@@ -54,7 +52,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { hideNewAddress } = useStoreActions(s => s.modals);
 
   //taro model
-  const { nodes: taroNodes } = useStoreState(s => s.taro);
+  const { nodes } = useStoreState(s => s.taro);
   const { getNewAddress } = useStoreActions(s => s.taro);
 
   //component state
@@ -88,7 +86,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   };
 
   const handleGenesisBootstrapInfo = (value: string) => {
-    setIsMenuCollapsed(!isMenuCollapsed);
+    setIsMenuCollapsed(true);
     setSelectedGenesisBootstrapInfo(value);
   };
 
@@ -114,8 +112,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   };
 
   useMemo(() => {
-    selectedTaroNode && setBalances(taroNodes[selectedTaroNode]?.balances);
-  }, [network.nodes.taro, taroNodes, selectedTaroNode]);
+    selectedTaroNode && setBalances(nodes[selectedTaroNode]?.balances);
+  }, [network.nodes.taro, nodes, selectedTaroNode]);
 
   const handleCopy = () => {
     message.success(l('copied', { address: ellipseInner(taroAddress, 10, 10) }), 2);
@@ -131,7 +129,6 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           layout="vertical"
           colon={false}
           initialValues={{
-            balanceIndex: 0,
             amount: '1',
             node: '',
             genesisBootstrapInfo: '',
@@ -148,7 +145,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           <Styled.Spacer />
           <Collapse
             collapsible="header"
-            onChange={v => {
+            onChange={() => {
               setIsMenuCollapsed(!isMenuCollapsed);
             }}
             activeKey={isMenuCollapsed ? [] : ['1']}
@@ -221,6 +218,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         okText={l('okBtn')}
         onCancel={() => hideNewAddress()}
         onOk={form.submit}
+        okButtonProps={{ disabled: selectedGenesisBootstrapInfo.length === 0 }}
       >
         {cmp}
       </Modal>
