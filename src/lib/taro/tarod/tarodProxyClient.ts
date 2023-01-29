@@ -32,12 +32,6 @@ class TarodProxyClient {
   ): Promise<TARO.NewAddressResponse> {
     return await this.ipc(ipcChannels.taro.newAddress, { node, req });
   }
-  async sendAsset(
-    node: TarodNode,
-    req: TARO.SendAssetRequest,
-  ): Promise<TARO.SendAssetResponse> {
-    return await this.ipc(ipcChannels.taro.sendAsset, { node, req });
-  }
 }
 
 export default new TarodProxyClient();
