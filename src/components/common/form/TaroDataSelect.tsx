@@ -4,12 +4,9 @@ import Select, { SelectProps, SelectValue } from 'antd/lib/select';
 import { TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { useStoreState } from 'store';
+import { TaroNodeModel } from 'store/models/taro';
 
-type TaroData = PTARO.TaroAsset | PTARO.TaroBalance;
-type TaroDataMapping = {
-  [key: string]: TaroData[];
-};
-
+type TaroModelData = PTARO.TaroAsset | PTARO.TaroBalance;
 const cantorPairing = (a: number, b: number): number => {
   a += 1;
   b += 1;
@@ -35,56 +32,41 @@ const TaroDataSelect: React.FC<Props> = ({
 }) => {
   //store state
   const { nodes } = useStoreState(s => s.taro);
-  console.log(nodes);
-  console.log(taroNetworkNodes);
 
   //component state
-  const [taroData, setTaroData] = useState<TaroDataMapping>({});
+  const [taroOptions, setTaroOptions] = useState<any>([]);
 
   //component methods
   const handleChange = (value: SelectValue, option: any) => {
-    const data: any = taroData[option.taroNode]?.[option.dataIndex];
-    if (onChange && data) onChange(data, option);
+    if (onChange) onChange(option, option);
   };
 
   useEffect(() => {
-    const data = taroNetworkNodes.reduce(
-      (taroDataMap: TaroDataMapping, taroNetworkNode: TaroNode) => {
-        if (nodes[taroNetworkNode.name]) {
-          const balancesOrAssets = selectBalances
-            ? nodes[taroNetworkNode.name].balances
-            : nodes[taroNetworkNode.name].assets;
-          if (balancesOrAssets) {
-            taroDataMap[taroNetworkNode.name] = balancesOrAssets;
-          }
+    const resourceKey = (selectBalances ? 'balances' : 'assets') as keyof TaroNodeModel;
+    const data = taroNetworkNodes.map((taroNetworkNode: TaroNode, i) => {
+      const node: TaroNodeModel = nodes[taroNetworkNode.name];
+      if (node) {
+        const data: TaroModelData[] = node[resourceKey] as TaroModelData[];
+        if (data) {
+          return {
+            label: taroNetworkNode.name,
+            options: data.map((taroData: TaroModelData, j: number) => ({
+              label: taroData.name,
+              value: `${taroData.name}-${i}`,
+              key: cantorPairing(i, j),
+              ...taroData,
+            })),
+          };
         }
-        return taroDataMap;
-      },
-      {} as TaroDataMapping,
-    );
-    console.log(JSON.stringify(data));
-    setTaroData(data);
+      }
+      return {};
+    });
+    setTaroOptions(data);
   }, [nodes]);
 
   return (
     <Form.Item name={name} label={label} help={help}>
-      {taroData && (
-        <Select
-          {...rest}
-          onChange={handleChange}
-          options={Object.entries(taroData).map(([taroNode, data], i) => {
-            return {
-              label: taroNode,
-              options: data.map((taroData: TaroData, j: number) => ({
-                value: `${taroData.name}-${i}`,
-                taroNode,
-                dataIndex: j,
-                key: cantorPairing(i, j),
-              })),
-            };
-          })}
-        />
-      )}
+      {taroOptions && <Select {...rest} onChange={handleChange} options={taroOptions} />}
     </Form.Item>
   );
 };
