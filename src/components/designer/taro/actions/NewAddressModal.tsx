@@ -4,7 +4,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
 import { Button, Form, Input, InputNumber, message, Modal, Result } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { Status, TarodNode, TaroNode } from 'shared/types';
+import { TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/taro';
@@ -124,7 +124,6 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             name="node"
             label={l('selectBalance')}
             taroNetworkNodes={otherTaroNodes}
-            nodeStatus={Status.Started}
             selectBalances
             onChange={v => handleSelectedBalance(v?.valueOf() as PTARO.TaroBalance)}
           />
