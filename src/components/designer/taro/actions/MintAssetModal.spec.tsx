@@ -174,7 +174,7 @@ describe('MintAssetModal', () => {
     });
 
     it('should mint asset', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
+      const { getByText, getByLabelText } = await renderComponent();
       const btn = getByText('Mint');
       expect(btn).toBeInTheDocument();
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
