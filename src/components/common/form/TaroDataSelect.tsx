@@ -43,7 +43,7 @@ const TaroDataSelect: React.FC<Props> = ({
 
   useEffect(() => {
     const resourceKey = (selectBalances ? 'balances' : 'assets') as keyof TaroNodeModel;
-    const data = taroNetworkNodes.map((taroNetworkNode: TaroNode, i) => {
+    const data = taroNetworkNodes.map((taroNetworkNode: TaroNode, i: number) => {
       const node: TaroNodeModel = nodes[taroNetworkNode.name];
       if (node) {
         const data: TaroModelData[] = node[resourceKey] as TaroModelData[];
