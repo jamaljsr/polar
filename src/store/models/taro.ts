@@ -136,7 +136,7 @@ const taroModel: TaroModel = {
     async (actions, { node, genesisBootstrapInfo, amount }, { injections }) => {
       const api = injections.taroFactory.getService(node);
       const address = await api.newAddress(node, {
-        genesisBootstrapInfo: Buffer.from(genesisBootstrapInfo as string, 'hex'),
+        genesisBootstrapInfo: Buffer.from(genesisBootstrapInfo, 'hex'),
         amt: amount,
       });
       return address;

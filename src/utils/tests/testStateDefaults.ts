@@ -64,4 +64,5 @@ export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => 
   genesisPoint: '',
   genesisBootstrapInfo: '',
   groupKey: '',
+  ...value,
 });

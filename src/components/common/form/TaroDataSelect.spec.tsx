@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import { Form } from 'antd';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
@@ -13,8 +13,14 @@ import taroModel from 'store/models/taro';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
-import { injections, testManagedImages, testRepoState } from 'utils/tests';
-import TaroNodeSelect from './TaroNodeSelect';
+import {
+  defaultTaroBalance,
+  injections,
+  renderWithProviders,
+  testManagedImages,
+  testRepoState,
+} from 'utils/tests';
+import TaroDataSelect from './TaroDataSelect';
 
 describe('TaroNodeSelect', () => {
   const rootModel = {
@@ -65,6 +71,30 @@ describe('TaroNodeSelect', () => {
   const chart = initChartFromNetwork(store.getState().network.networks[0]);
   store.getActions().designer.setChart({ id: network.id, chart });
   store.getActions().designer.setActiveId(network.id);
+  store.getActions().designer.syncChart(store.getState().network.networks[0]);
+  const initialState = {
+    taro: {
+      nodes: {
+        'alice-taro': {
+          balances: [],
+          assets: [],
+        },
+        'bob-taro': {
+          balances: [defaultTaroBalance({ name: 'bobs-test-asset' })],
+          assets: [],
+        },
+      },
+    },
+    network: {
+      networks: [store.getState().network.networks[0]],
+    },
+    designer: {
+      activeId: network.id,
+      allCharts: {
+        [network.id]: chart,
+      },
+    },
+  };
 
   const renderComponent = () => {
     const TestForm = () => {
@@ -75,17 +105,17 @@ describe('TaroNodeSelect', () => {
           form={form}
           initialValues={{ taronode: 'alice-taro' }}
         >
-          <TaroNodeSelect
+          <TaroDataSelect
             name="taronode"
             label={'Select Taro Node'}
-            networkNodes={store.getState().network.networks[0].nodes.taro}
-            nodeStatus={Status.Stopped}
+            taroNetworkNodes={store.getState().network.networks[0].nodes.taro}
+            selectBalances={true}
           />
         </Form>
       );
     };
-
-    const result = render(<TestForm />);
+    const cmp = <TestForm />;
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     return {
       ...result,
       network,
@@ -98,10 +128,10 @@ describe('TaroNodeSelect', () => {
     expect(getByText('alice-taro')).toBeInTheDocument();
   });
   it('should select and display bob-taro ', () => {
-    const { getByLabelText, getAllByText, network } = renderComponent();
-    console.log(JSON.stringify(network.nodes.taro));
+    const { getByLabelText, getAllByText } = renderComponent();
     fireEvent.mouseDown(getByLabelText('Select Taro Node'));
     fireEvent.click(getAllByText('bob-taro')[0]);
     expect(getAllByText('bob-taro')[0]).toBeInTheDocument();
+    expect(getAllByText('bobs-test-asset-1')[0]).toBeInTheDocument();
   });
 });

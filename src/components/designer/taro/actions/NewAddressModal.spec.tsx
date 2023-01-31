@@ -116,7 +116,7 @@ describe('NewAddressModal', () => {
     ).toBeInTheDocument();
     expect(getByLabelText('Amount')).toBeInTheDocument();
     expect(getByLabelText('Genesis Bootstrap Info')).toBeInTheDocument();
-    expect(getByText('Choose asset from Taro node')).toBeInTheDocument();
+    expect(getByText('Choose a balance from Taro node')).toBeInTheDocument();
   });
 
   it('should render button', async () => {
@@ -169,7 +169,7 @@ describe('NewAddressModal', () => {
       const node = network.nodes.taro[0];
       expect(taroServiceMock.newAddress).toBeCalledWith(node, {
         genesisBootstrapInfo: Buffer.from('taro1', 'hex'),
-        amt: '100',
+        amt: 100,
       });
     });
 
