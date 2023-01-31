@@ -1,21 +1,10 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
-import {
-  Button,
-  Col,
-  Collapse,
-  Form,
-  Input,
-  InputNumber,
-  message,
-  Modal,
-  Result,
-  Row,
-} from 'antd';
+import { Button, Form, Input, InputNumber, message, Modal, Result } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { Status, TarodNode } from 'shared/types';
+import { Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/taro';
@@ -23,14 +12,14 @@ import { Network } from 'types';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
-import TaroAssetSelect from 'components/common/form/TaroAssetSelect';
-import TaroNodeSelect from 'components/common/form/TaroNodeSelect';
-
-const TaroBalanceSelect = TaroAssetSelect;
+import TaroDataSelect from 'components/common/form/TaroDataSelect';
 
 const Styled = {
   Spacer: styled.div`
     height: 12px;
+  `,
+  TaroDataSelect: styled(TaroDataSelect)`
+    width: 100%;
   `,
 };
 
@@ -52,42 +41,33 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { hideNewAddress } = useStoreActions(s => s.modals);
 
   //taro model
-  const { nodes } = useStoreState(s => s.taro);
   const { getNewAddress } = useStoreActions(s => s.taro);
 
   //component state
-  const [selectedTaroNode, setSelectedTaroNode] = useState('');
-  const [selectedAmount, setSelectedAmount] = useState('1');
+  const [selectedAmount, setSelectedAmount] = useState('10');
   const [selectedGenesisBootstrapInfo, setSelectedGenesisBootstrapInfo] = useState('');
-  const [balances, setBalances] = useState<PTARO.TaroBalance[]>();
   const [selectedBalance, setSelectedBalance] = useState<PTARO.TaroBalance>();
   const [taroAddress, setTaroAddress] = useState('');
-  const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
 
   //component local variables
   const [form] = Form.useForm();
   const thisTaroNode = network.nodes.taro.find(
     node => node.name === nodeName,
   ) as TarodNode;
-  const otherTaroNodes = network.nodes.taro.filter(node => node.name !== nodeName);
+  const otherTaroNodes: TaroNode[] = network.nodes.taro.filter(
+    node => node.name !== nodeName,
+  );
 
+  //When polar is first opened, we need to populate the state with the lightning node data
   useEffect(() => syncChart(network), []);
 
-  const handleSelectedBalance = (value: number) => {
-    if (balances) {
-      setSelectedBalance(balances[value]);
-      setSelectedGenesisBootstrapInfo(balances[value].genesisBootstrapInfo);
-      setSelectedAmount(balances[value].balance);
-      form.setFieldsValue({
-        genesisBootstrapInfo: balances[value].genesisBootstrapInfo,
-        amount: Math.min(parseInt(balances[value].balance), 10),
-      });
-    }
-  };
-
-  const handleGenesisBootstrapInfo = (value: string) => {
-    setIsMenuCollapsed(true);
-    setSelectedGenesisBootstrapInfo(value);
+  const handleSelectedBalance = (value: PTARO.TaroBalance) => {
+    setSelectedBalance(value);
+    setSelectedGenesisBootstrapInfo(value.genesisBootstrapInfo);
+    form.setFieldsValue({
+      genesisBootstrapInfo: value.genesisBootstrapInfo,
+      amount: value.type == PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? 1 : 10,
+    });
   };
 
   //submit
@@ -100,20 +80,16 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  const handleSubmit = () => {
-    if (selectedAmount && selectedGenesisBootstrapInfo) {
+  const handleSubmit = (values: { genesisBootstrapInfo: string; amount: string }) => {
+    if (selectedGenesisBootstrapInfo) {
       const payload: NewAddressPayload = {
         node: thisTaroNode,
-        genesisBootstrapInfo: selectedGenesisBootstrapInfo,
-        amount: selectedAmount,
+        genesisBootstrapInfo: values.genesisBootstrapInfo,
+        amount: values.amount,
       };
       newAddressAsync.execute(payload);
     }
   };
-
-  useMemo(() => {
-    selectedTaroNode && setBalances(nodes[selectedTaroNode]?.balances);
-  }, [network.nodes.taro, nodes, selectedTaroNode]);
 
   const handleCopy = () => {
     message.success(l('copied', { address: ellipseInner(taroAddress, 10, 10) }), 2);
@@ -129,7 +105,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           layout="vertical"
           colon={false}
           initialValues={{
-            amount: '1',
+            amount: '10',
             node: '',
             genesisBootstrapInfo: '',
           }}
@@ -139,43 +115,24 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             <Input.TextArea
               rows={5}
               placeholder={l('genesisBootstrapInfo')}
-              onChange={e => handleGenesisBootstrapInfo(e.target.value)}
+              onChange={e => setSelectedGenesisBootstrapInfo(e.target.value)}
             />
           </Form.Item>
           <Styled.Spacer />
-          <Collapse
-            collapsible="header"
-            onChange={() => {
-              setIsMenuCollapsed(!isMenuCollapsed);
-            }}
-            activeKey={isMenuCollapsed ? [] : ['1']}
-          >
-            <Collapse.Panel header={l('import')} key="1">
-              <Row gutter={10}>
-                <Col span={12}>
-                  <TaroNodeSelect
-                    name="node"
-                    networkNodes={otherTaroNodes}
-                    nodeStatus={Status.Started}
-                    onChange={v => setSelectedTaroNode(v?.valueOf() as string)}
-                  />
-                </Col>
-                <Col span={12}>
-                  <TaroBalanceSelect
-                    name="balanceName"
-                    items={balances}
-                    onChange={v => handleSelectedBalance(v?.valueOf() as number)}
-                  />
-                </Col>
-              </Row>
-            </Collapse.Panel>
-          </Collapse>
+
+          <Styled.TaroDataSelect
+            name="node"
+            label={l('selectBalance')}
+            taroNetworkNodes={otherTaroNodes}
+            nodeStatus={Status.Started}
+            selectBalances
+            onChange={v => handleSelectedBalance(v?.valueOf() as PTARO.TaroBalance)}
+          />
           <Styled.Spacer />
           <Form.Item label={l('amount')} name="amount">
             <InputNumber
               onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
               min={'1'}
-              max={isMenuCollapsed ? undefined : selectedBalance?.balance}
               disabled={selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE}
             />
           </Form.Item>

@@ -19,13 +19,12 @@ interface Props {
 const OpenSendAssetModal: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.designer.taro.actions.NewAddressButton');
   const { showNewAddress } = useStoreActions(s => s.modals);
-  const btnlabel = l('newAddress');
 
   if (type === 'menu') {
     return (
       <div onClick={() => showNewAddress({ nodeName: node.name })}>
         <QrcodeOutlined />
-        <span>{btnlabel}</span>
+        <span>{l('newAddress')}</span>
       </div>
     );
   }
@@ -36,7 +35,7 @@ const OpenSendAssetModal: React.FC<Props> = ({ node, type }) => {
         onClick={() => showNewAddress({ nodeName: node.name })}
         icon={<QrcodeOutlined />}
       >
-        {btnlabel}
+        {l('newAddress')}
       </Styled.Button>
     </Form.Item>
   );

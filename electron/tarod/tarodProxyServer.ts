@@ -64,7 +64,6 @@ const newAddress = async (args: {
   req: TARO.NewAddressRequest;
 }): Promise<TARO.NewAddressResponse> => {
   const rpc = await getRpc(args.node);
-  debug('newAddress req', JSON.stringify(args, null, 2));
   return await rpc.newAddr(args.req);
 };
 
