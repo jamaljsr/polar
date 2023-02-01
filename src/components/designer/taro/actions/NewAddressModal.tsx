@@ -44,7 +44,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { getNewAddress } = useStoreActions(s => s.taro);
 
   //component state
-  const [selectedAmount, setSelectedAmount] = useState('10');
+  const [selectedAmount, setSelectedAmount] = useState(10);
   const [selectedGenesisBootstrapInfo, setSelectedGenesisBootstrapInfo] = useState('');
   const [selectedBalance, setSelectedBalance] = useState<PTARO.TaroBalance>();
   const [taroAddress, setTaroAddress] = useState('');
@@ -125,14 +125,16 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             label={l('selectBalance')}
             taroNetworkNodes={otherTaroNodes}
             selectBalances
-            onChange={v => handleSelectedBalance(v?.valueOf() as PTARO.TaroBalance)}
+            onChange={v => handleSelectedBalance(v)}
           />
           <Styled.Spacer />
           <Form.Item label={l('amount')} name="amount">
-            <InputNumber
-              onChange={v => setSelectedAmount(v?.valueOf()?.toString() as string)}
-              min={'1'}
+            <InputNumber<number>
+              onChange={v => setSelectedAmount(v as number)}
+              min={1}
               disabled={selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE}
+              formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
             />
           </Form.Item>
         </Form>
@@ -150,7 +152,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         extra={
           <Form>
             <Form.Item>
-              <CopyableInput label="Invoice" value={taroAddress} />
+              <CopyableInput label="Address" value={taroAddress} />
             </Form.Item>
             <Form.Item>
               <CopyToClipboard text={taroAddress} onCopy={handleCopy}>
