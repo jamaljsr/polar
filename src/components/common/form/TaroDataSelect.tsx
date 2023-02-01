@@ -7,11 +7,6 @@ import { useStoreState } from 'store';
 import { TaroNodeModel } from 'store/models/taro';
 
 type TaroModelData = PTARO.TaroAsset | PTARO.TaroBalance;
-const cantorPairing = (a: number, b: number): number => {
-  a += 1;
-  b += 1;
-  return ((a + b) * (a + b + 1)) / 2 + a;
-};
 
 export interface Props extends SelectProps<SelectValue> {
   name: string;
@@ -19,6 +14,7 @@ export interface Props extends SelectProps<SelectValue> {
   help?: string;
   taroNetworkNodes: TaroNode[];
   selectBalances?: boolean;
+  onChange?: (option: any) => void;
 }
 
 const TaroDataSelect: React.FC<Props> = ({
@@ -38,7 +34,7 @@ const TaroDataSelect: React.FC<Props> = ({
 
   //component methods
   const handleChange = (value: SelectValue, option: any) => {
-    if (onChange) onChange(option, option);
+    if (onChange) onChange(option as TaroModelData);
   };
 
   useEffect(() => {
@@ -53,7 +49,6 @@ const TaroDataSelect: React.FC<Props> = ({
             options: data.map((taroData: TaroModelData, j: number) => ({
               label: taroData.name,
               value: `${taroData.name}-${i}`,
-              key: cantorPairing(i, j),
               ...taroData,
             })),
           };
