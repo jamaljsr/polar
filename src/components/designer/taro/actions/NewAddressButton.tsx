@@ -6,11 +6,6 @@ import { usePrefixedTranslation } from 'hooks';
 import { TaroNode } from 'shared/types';
 import { useStoreActions } from 'store';
 
-const Styled = {
-  Button: styled(Button)`
-    width: 100%;
-  `,
-};
 interface Props {
   node: TaroNode;
   type?: 'button' | 'menu';
@@ -31,12 +26,13 @@ const OpenSendAssetModal: React.FC<Props> = ({ node, type }) => {
 
   return (
     <Form.Item label={l('title')} colon={false}>
-      <Styled.Button
+      <Button
         onClick={() => showNewAddress({ nodeName: node.name })}
         icon={<QrcodeOutlined />}
+        block
       >
         {l('newAddress')}
-      </Styled.Button>
+      </Button>
     </Form.Item>
   );
 };
