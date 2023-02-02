@@ -1,16 +1,10 @@
 import React from 'react';
 import { WalletOutlined } from '@ant-design/icons';
-import styled from '@emotion/styled';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TaroNode } from 'shared/types';
 import { useStoreActions } from 'store';
 
-const Styled = {
-  Button: styled(Button)`
-    width: 50%;
-  `,
-};
 interface Props {
   node: TaroNode;
   type?: 'button' | 'menu';
@@ -30,12 +24,13 @@ const MintAssetButton: React.FC<Props> = ({ node, type }) => {
   }
   return (
     <Form.Item label={l('title')} colon={false}>
-      <Styled.Button
+      <Button
         onClick={() => showMintAsset({ nodeName: node.name })}
         icon={<WalletOutlined />}
+        block
       >
         {l('mint')}
-      </Styled.Button>
+      </Button>
     </Form.Item>
   );
 };

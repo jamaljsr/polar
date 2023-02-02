@@ -29,6 +29,12 @@ export interface MintAssetPayload {
   autoFund: boolean;
 }
 
+export interface NewAddressPayload {
+  node: TarodNode;
+  genesisBootstrapInfo: string;
+  amount: string;
+}
+
 export interface TaroModel {
   nodes: TaroNodeMapping;
   removeNode: Action<TaroModel, string>;
@@ -37,6 +43,7 @@ export interface TaroModel {
   getAssets: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
   setBalances: Action<TaroModel, { node: TaroNode; balances: PTARO.TaroBalance[] }>;
   getBalances: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
+  getNewAddress: Thunk<TaroModel, NewAddressPayload, StoreInjections, RootModel>;
   getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
   mintAsset: Thunk<TaroModel, MintAssetPayload, StoreInjections, RootModel>;
@@ -113,7 +120,6 @@ const taroModel: TaroModel = {
         skipBatch,
       };
       const res = await taroapi.mintAsset(node, req);
-
       //update network
       const btcNode =
         network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
@@ -123,8 +129,17 @@ const taroModel: TaroModel = {
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
-
       return res;
+    },
+  ),
+  getNewAddress: thunk(
+    async (actions, { node, genesisBootstrapInfo, amount }, { injections }) => {
+      const api = injections.taroFactory.getService(node);
+      const address = await api.newAddress(node, {
+        genesisBootstrapInfo: Buffer.from(genesisBootstrapInfo, 'hex'),
+        amt: amount,
+      });
+      return address;
     },
   ),
 

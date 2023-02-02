@@ -57,6 +57,14 @@ interface MintAssetModel {
   nodeName?: string;
 }
 
+interface NewAddressModel {
+  visible: boolean;
+  nodeName?: string;
+  amount?: string;
+  genesisBootstrapInfo?: string;
+  address?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -67,6 +75,7 @@ export interface ModalsModel {
   sendOnChain: SendOnChainModel;
   assetInfo: AssetInfoModel;
   mintAsset: MintAssetModel;
+  newAddress: NewAddressModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -94,11 +103,15 @@ export interface ModalsModel {
   setMintAsset: Action<ModalsModel, Partial<MintAssetModel>>;
   showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections>;
   hideMintAsset: Thunk<ModalsModel>;
+  showNewAddress: Thunk<ModalsModel, Partial<NewAddressModel>, StoreInjections>;
+  hideNewAddress: Thunk<ModalsModel>;
+  setNewAddress: Action<ModalsModel, Partial<NewAddressModel>>;
 }
 
 const modalsModel: ModalsModel = {
   openChannel: { visible: false },
   mintAsset: { visible: false },
+  newAddress: { visible: false },
   changeBackend: { visible: false },
   createInvoice: { visible: false },
   payInvoice: { visible: false },
@@ -253,6 +266,19 @@ const modalsModel: ModalsModel = {
   setMintAsset: action((state, payload) => {
     state.mintAsset = {
       ...state.mintAsset,
+      ...payload,
+    };
+  }),
+  //New Taro Address Modal
+  showNewAddress: thunk((actions, { nodeName }) => {
+    actions.setNewAddress({ visible: true, nodeName });
+  }),
+  hideNewAddress: thunk(actions => {
+    actions.setNewAddress({ visible: false });
+  }),
+  setNewAddress: action((state, payload) => {
+    state.newAddress = {
+      ...state.newAddress,
       ...payload,
     };
   }),

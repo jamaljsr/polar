@@ -6,3 +6,6 @@ export type { ListBalancesResponse__Output as ListBalancesResponse } from '@hodl
 
 export type { MintAssetRequest } from '@hodlone/taro-api/dist/types/tarorpc/MintAssetRequest';
 export type { MintAssetResponse__Output as MintAssetResponse } from '@hodlone/taro-api/dist/types/tarorpc/MintAssetResponse';
+
+export type { NewAddrRequest as NewAddressRequest } from '@hodlone/taro-api/dist/types/tarorpc/NewAddrRequest';
+export type { Addr__Output as NewAddressResponse } from '@hodlone/taro-api/dist/types/tarorpc/Addr';

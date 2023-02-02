@@ -23,5 +23,6 @@ export default {
     listAssets: 'taro-list-assets',
     listBalances: 'taro-list-balances',
     mintAsset: 'taro-mint-asset',
+    newAddress: 'taro-new-address',
   },
 };

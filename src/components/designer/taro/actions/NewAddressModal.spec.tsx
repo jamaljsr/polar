@@ -10,23 +10,19 @@ import lightningModel from 'store/models/lightning';
 import modalsModel from 'store/models/modals';
 import networkModel from 'store/models/network';
 import taroModel from 'store/models/taro';
-import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import {
   injections,
-  lightningServiceMock,
   renderWithProviders,
   taroServiceMock,
   testManagedImages,
   testRepoState,
 } from 'utils/tests';
-import MintAssetModal from './MintAssetModal';
+import NewAddressModal from './NewAddressModal';
 
-const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
-
-describe('MintAssetModal', () => {
+describe('NewAddressModal', () => {
   let unmount: () => void;
 
   const rootModel = {
@@ -66,14 +62,14 @@ describe('MintAssetModal', () => {
         },
       },
       modals: {
-        mintAsset: {
+        newAddress: {
           visible: true,
           nodeName: 'alice-taro',
         },
       },
     };
-    const cmp = <MintAssetModal network={network} />;
-    const result = renderWithProviders(cmp, { initialState });
+    const cmp = <NewAddressModal network={network} />;
+    const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     unmount = result.unmount;
     return {
       ...result,
@@ -113,27 +109,19 @@ describe('MintAssetModal', () => {
 
   afterEach(() => unmount());
 
-  it('should render labels', async () => {
-    const { getByText } = await renderComponent();
-    expect(getByText('Mint an asset for alice-taro')).toBeInTheDocument();
-    expect(getByText('Asset Type')).toBeInTheDocument();
-    expect(getByText('Amount')).toBeInTheDocument();
-    expect(getByText('Asset Name')).toBeInTheDocument();
-    expect(getByText('Meta Data')).toBeInTheDocument();
-    expect(getByText('Support ongoing emission of this asset')).toBeInTheDocument();
-    expect(getByText('Skip batch to mint asset immediately')).toBeInTheDocument();
-  });
-
   it('should render form inputs', async () => {
-    const { getByLabelText } = await renderComponent();
+    const { getByLabelText, getByText } = await renderComponent();
+    expect(
+      getByLabelText('Generate new Taro address for alice-taro'),
+    ).toBeInTheDocument();
     expect(getByLabelText('Amount')).toBeInTheDocument();
-    expect(getByLabelText('Asset Name')).toBeInTheDocument();
-    expect(getByLabelText('Meta Data')).toBeInTheDocument();
+    expect(getByLabelText('Genesis Bootstrap Info')).toBeInTheDocument();
+    expect(getByText('Choose a balance from Taro node')).toBeInTheDocument();
   });
 
   it('should render button', async () => {
     const { getByText } = await renderComponent();
-    const btn = getByText('Mint');
+    const btn = getByText('Generate');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
   });
@@ -150,45 +138,67 @@ describe('MintAssetModal', () => {
     });
   });
 
-  describe('mint asset', () => {
-    const balances = (confirmed: string) => ({
-      confirmed,
-      unconfirmed: '200',
-      total: '300',
-    });
-
+  describe('with form submitted', () => {
     beforeEach(() => {
       // make each node's balance different
-      lightningServiceMock.getBalances.mockImplementation(node =>
-        Promise.resolve(balances((node.id + 100).toString())),
-      );
-      taroServiceMock.mintAsset.mockResolvedValue({
-        batchKey: Buffer.from('mocked success!'),
-      });
-
-      lightningServiceMock.getBalances.mockResolvedValue({
-        confirmed: '10000',
-        unconfirmed: '20000',
-        total: '30000',
+      taroServiceMock.newAddress.mockResolvedValue({
+        encoded: 'taro1address',
+        id: 'id',
+        type: 'NORMAL',
+        amount: '10',
+        family: undefined,
+        scriptKey: 'scriptKey',
+        internalKey: 'internalKey',
+        taprootOutputKey: 'taprootOutputKey',
       });
     });
 
-    it('should mint asset', async () => {
-      const { getByText, getByLabelText } = await renderComponent();
-      const btn = getByText('Mint');
+    it('should generate address', async () => {
+      const { getByText, getByLabelText, getByDisplayValue, findByText } =
+        await renderComponent();
+      const btn = getByText('Generate');
       expect(btn).toBeInTheDocument();
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
+      fireEvent.change(getByLabelText('Genesis Bootstrap Info'), {
+        target: { value: 'taro1' },
+      });
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
-      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
-      fireEvent.change(getByLabelText('Meta Data'), {
-        target: { value: 'test' },
+      fireEvent.click(getByText('Generate'));
+      expect(await findByText('Successfully created address')).toBeInTheDocument();
+      expect(getByDisplayValue('taro1address')).toBeInTheDocument();
+      const node = network.nodes.taro[0];
+      expect(taroServiceMock.newAddress).toBeCalledWith(node, {
+        genesisBootstrapInfo: Buffer.from('taro1', 'hex'),
+        amt: 100,
       });
-      fireEvent.click(getByText('Mint'));
-      await waitFor(() => {
-        //expect(store.getState().modals.mintAsset.visible).toBe(false);
-        expect(taroServiceMock.mintAsset).toHaveBeenCalled();
-        expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+    });
+
+    it('should close the modal', async () => {
+      const { getByText, findByText, getByLabelText, store } = await renderComponent();
+      fireEvent.change(getByLabelText('Genesis Bootstrap Info'), {
+        target: { value: 'taro1' },
       });
+      fireEvent.change(getByLabelText('Amount'), {
+        target: { value: '1000' },
+      });
+      fireEvent.click(getByText('Generate'));
+      fireEvent.click(await findByText('Copy & Close'));
+      expect(store.getState().modals.newAddress.visible).toBe(false);
+      expect(getByText('Copied taro1address to the clipboard')).toBeInTheDocument();
+    });
+
+    it('should display an error when creating the taro address fails', async () => {
+      taroServiceMock.newAddress.mockRejectedValue(new Error('error-msg'));
+      const { getByText, findByText, getByLabelText } = await renderComponent();
+      fireEvent.change(getByLabelText('Genesis Bootstrap Info'), {
+        target: { value: 'taro1' },
+      });
+      fireEvent.change(getByLabelText('Amount'), {
+        target: { value: '1000' },
+      });
+      // await waitFor(() => );
+      fireEvent.click(getByText('Generate'));
+      expect(await findByText('error-msg')).toBeInTheDocument();
     });
   });
 });
