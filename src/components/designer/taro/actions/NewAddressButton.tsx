@@ -1,6 +1,5 @@
 import React from 'react';
 import { QrcodeOutlined } from '@ant-design/icons';
-import styled from '@emotion/styled';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TaroNode } from 'shared/types';
