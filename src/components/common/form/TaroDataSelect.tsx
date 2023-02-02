@@ -46,7 +46,7 @@ const TaroDataSelect: React.FC<Props> = ({
         if (data) {
           return {
             label: taroNetworkNode.name,
-            options: data.map((taroData: TaroModelData, j: number) => ({
+            options: data.map((taroData: TaroModelData) => ({
               label: taroData.name,
               value: `${taroData.name}-${i}`,
               ...taroData,
