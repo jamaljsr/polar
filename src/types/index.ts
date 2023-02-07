@@ -170,6 +170,14 @@ export interface TaroService {
     req: TARO.MintAssetRequest,
   ) => Promise<TARO.MintAssetResponse>;
   newAddress: (node: TaroNode, req: TARO.NewAddressRequest) => Promise<PTARO.TaroAddress>;
+  sendAsset: (
+    from: TaroNode,
+    req: TARO.SendAssetRequest,
+  ) => Promise<PTARO.TaroSendAssetReciept>;
+  decodeAddress: (
+    node: TaroNode,
+    req: TARO.DecodeAddressRequest,
+  ) => Promise<PTARO.TaroAddress>;
 }
 
 export interface TaroFactoryInjection {

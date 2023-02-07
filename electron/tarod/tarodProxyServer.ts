@@ -62,9 +62,25 @@ const mintAsset = async (args: {
 const newAddress = async (args: {
   node: TarodNode;
   req: TARO.NewAddressRequest;
-}): Promise<TARO.NewAddressResponse> => {
+}): Promise<TARO.AddressResponse> => {
   const rpc = await getRpc(args.node);
   return await rpc.newAddr(args.req);
+};
+
+const sendAsset = async (args: {
+  node: TarodNode;
+  req: TARO.SendAssetRequest;
+}): Promise<TARO.SendAssetResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.sendAsset(args.req);
+};
+
+const decodeAddress = async (args: {
+  node: TarodNode;
+  req: TARO.DecodeAddressRequest;
+}): Promise<TARO.AddressResponse> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.decodeAddr(args.req);
 };
 
 /**
@@ -78,6 +94,8 @@ const listeners: {
   [ipcChannels.taro.listBalances]: listBalances,
   [ipcChannels.taro.mintAsset]: mintAsset,
   [ipcChannels.taro.newAddress]: newAddress,
+  [ipcChannels.taro.sendAsset]: sendAsset,
+  [ipcChannels.taro.decodeAddress]: decodeAddress,
 };
 
 /**

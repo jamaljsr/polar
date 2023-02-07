@@ -7,7 +7,7 @@ import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
 //This is the minimum balance that a taro node must have access to in order to mint assets
-export const TARO_MIN_LND_BALANCE = 10000;
+export const TARO_MIN_LND_BALANCE = 15000;
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -28,11 +28,21 @@ export interface MintAssetPayload {
   skipBatch: boolean;
   autoFund: boolean;
 }
-
 export interface NewAddressPayload {
   node: TarodNode;
   genesisBootstrapInfo: string;
   amount: string;
+}
+
+export interface SendAssetPayload {
+  node: TarodNode;
+  address: string;
+  autoFund: boolean;
+}
+
+export interface DecodeAddressPayload {
+  node: TarodNode;
+  address: string;
 }
 
 export interface TaroModel {
@@ -43,10 +53,13 @@ export interface TaroModel {
   getAssets: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
   setBalances: Action<TaroModel, { node: TaroNode; balances: PTARO.TaroBalance[] }>;
   getBalances: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
-  getNewAddress: Thunk<TaroModel, NewAddressPayload, StoreInjections, RootModel>;
+
   getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
   mintAsset: Thunk<TaroModel, MintAssetPayload, StoreInjections, RootModel>;
+  getNewAddress: Thunk<TaroModel, NewAddressPayload, StoreInjections, RootModel>;
+  sendAsset: Thunk<TaroModel, SendAssetPayload, StoreInjections, RootModel>;
+  decodeAddress: Thunk<TaroModel, DecodeAddressPayload, StoreInjections, RootModel>;
 }
 
 const taroModel: TaroModel = {
@@ -79,6 +92,7 @@ const taroModel: TaroModel = {
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
   }),
+
   getAllInfo: thunk(async (actions, node) => {
     await actions.getAssets(node);
     await actions.getBalances(node);
@@ -132,16 +146,56 @@ const taroModel: TaroModel = {
       return res;
     },
   ),
-  getNewAddress: thunk(
-    async (actions, { node, genesisBootstrapInfo, amount }, { injections }) => {
+  getNewAddress: thunk(async (actions, payload, { injections }) => {
+    const api = injections.taroFactory.getService(payload.node);
+    const address = await api.newAddress(payload.node, {
+      genesisBootstrapInfo: Buffer.from(payload.genesisBootstrapInfo as string, 'hex'),
+      amt: payload.amount,
+    });
+    return address;
+  }),
+  sendAsset: thunk(
+    async (
+      actions,
+      { node, address, autoFund },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      const network = getStoreState().network.networkById(node.networkId);
+      const lndNode = network.nodes.lightning.find(
+        n => n.name === node.lndName,
+      ) as LightningNode;
+      //fund lnd node
+      if (autoFund) {
+        await getStoreActions().lightning.depositFunds({
+          node: lndNode,
+          sats: TARO_MIN_LND_BALANCE.toString(),
+        });
+      }
       const api = injections.taroFactory.getService(node);
-      const address = await api.newAddress(node, {
-        genesisBootstrapInfo: Buffer.from(genesisBootstrapInfo, 'hex'),
-        amt: amount,
+      const sendReq: TARO.SendAssetRequest = {
+        taroAddr: address,
+      };
+      const res = await api.sendAsset(node, sendReq);
+      //update network
+      const btcNode =
+        network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
+        network.nodes.bitcoin[0];
+      //missing await is intentional, we dont have to wait for bitcoin to mine
+      getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_CONFIRMED,
+        node: btcNode,
       });
-      return address;
+      return res;
     },
   ),
+  decodeAddress: thunk(async (actions, { node, address }, { injections }) => {
+    const api = injections.taroFactory.getService(node);
+    const sendReq: TARO.DecodeAddressRequest = {
+      addr: address,
+    };
+    const res = await api.decodeAddress(node, sendReq);
+    return res;
+  }),
 
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,
