@@ -3,7 +3,7 @@ import {
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
-import { TaroAsset, TaroBalance } from 'lib/taro/types';
+import { TaroAddress, TaroAsset, TaroBalance } from 'lib/taro/types';
 
 export const defaultStateInfo = (
   value: Partial<LightningNodeInfo>,
@@ -64,5 +64,17 @@ export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => 
   genesisPoint: '',
   genesisBootstrapInfo: '',
   groupKey: '',
+  ...value,
+});
+
+export const defaultTaroAddress = (value: Partial<TaroAddress>): TaroAddress => ({
+  encoded: 'asdf',
+  id: '',
+  type: '',
+  amount: '',
+  family: '',
+  scriptKey: '',
+  internalKey: '',
+  taprootOutputKey: '',
   ...value,
 });

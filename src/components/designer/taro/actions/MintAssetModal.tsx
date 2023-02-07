@@ -21,9 +21,9 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   const { nodes: taroNodes } = useStoreState(s => s.taro);
 
   const { hideMintAsset } = useStoreActions(s => s.modals);
-  const { mintAsset } = useStoreActions(s => s.taro);
+  const { mintAsset, getAssets } = useStoreActions(s => s.taro);
   const { notify } = useStoreActions(s => s.app);
-  const { syncChart } = useStoreActions(s => s.designer);
+  const { getWalletBalance } = useStoreActions(s => s.lightning);
 
   const [isCollectible, setIsCollectible] = useState<boolean>(false);
   const [isAssetNameUnique, setIsAssetNameUnique] = useState<boolean>(true);
@@ -53,10 +53,14 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
       notify({ message: l('mintError', { amount, name }), error });
     }
   });
-
+  //replace this with getBallance and get assets
   useEffect(() => {
     //When polar is first opened, we need to populate the state with the lightning node data
-    syncChart(network);
+    const lndNode = network.nodes.lightning.find(n => n.name === thisTaroNode?.lndName);
+    if (lndNode) {
+      getWalletBalance(lndNode);
+      getAssets(thisTaroNode);
+    }
   }, []);
 
   useMemo(() => {
@@ -158,11 +162,13 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
             message={l('lndBalanceError', { lndNode: thisTaroNode?.lndName })}
           />
         )}
-        <Form.Item name="autoFund" valuePropName="checked">
-          <Checkbox onChange={e => setAutoDepositFunds(e.target.checked)}>
-            {l('deposit', { selectedFrom: thisTaroNode?.lndName })}
-          </Checkbox>
-        </Form.Item>
+        {isLNDBalanceLow && (
+          <Form.Item name="autoFund" valuePropName="checked">
+            <Checkbox onChange={e => setAutoDepositFunds(e.target.checked)}>
+              {l('deposit', { selectedFrom: thisTaroNode?.lndName })}
+            </Checkbox>
+          </Form.Item>
+        )}
       </Form>
     </>
   );
