@@ -24,5 +24,7 @@ export default {
     listBalances: 'taro-list-balances',
     mintAsset: 'taro-mint-asset',
     newAddress: 'taro-new-address',
+    sendAsset: 'taro-send-asset',
+    decodeAddress: 'taro-decode-address',
   },
 };

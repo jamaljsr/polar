@@ -8,7 +8,7 @@ import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
-import { MintAssetButton, NewAddressButton } from './taro/actions';
+import { MintAssetButton, NewAddressButton, SendAssetButton } from './taro/actions';
 
 const addItemIf = (
   key: string,
@@ -52,6 +52,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     addItemIf(
       'mintAsset',
       <MintAssetButton type={'menu'} node={node as TaroNode} />,
+      isStarted && isTaro,
+    ),
+    addItemIf(
+      'sendAsset',
+      <SendAssetButton type={'menu'} node={node as TaroNode} />,
       isStarted && isTaro,
     ),
     addItemIf(

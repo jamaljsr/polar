@@ -4,7 +4,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
 import { Button, Form, Input, InputNumber, message, Modal, Result } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TarodNode, TaroNode } from 'shared/types';
+import { TarodNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/taro';
@@ -54,9 +54,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const thisTaroNode = network.nodes.taro.find(
     node => node.name === nodeName,
   ) as TarodNode;
-  const otherTaroNodes: TaroNode[] = network.nodes.taro.filter(
-    node => node.name !== nodeName,
-  );
+  const otherTaroNodes = network.nodes.taro.filter(node => node.name !== nodeName);
 
   //When polar is first opened, we need to populate the state with the lightning node data
   useEffect(() => syncChart(network), []);
