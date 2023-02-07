@@ -1,9 +1,8 @@
-import { NETWORK_VIEW } from 'components/routing';
-import { push } from 'connected-react-router';
-import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
 import { join } from 'path';
+import { push } from 'connected-react-router';
+import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
   BitcoinNode,
@@ -33,6 +32,7 @@ import {
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
+import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.network');
@@ -402,7 +402,7 @@ const networkModel: NetworkModel = {
       }
       await injections.dockerService.saveComposeFile(network);
       // clear cached RPC data
-      if (node.implementation === 'tarod') getStoreActions().app.clearAppCache();
+      getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
       // update the network in the redux state and save to disk
@@ -764,6 +764,7 @@ const networkModel: NetworkModel = {
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n));
+    network.nodes.taro.forEach(n => getStoreActions().taro.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),

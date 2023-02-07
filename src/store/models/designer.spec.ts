@@ -12,6 +12,7 @@ import designerModel from './designer';
 import lightningModel from './lightning';
 import modalsModel from './modals';
 import networkModel from './network';
+import taroModel from './taro';
 
 jest.mock('antd', () => ({
   ...(jest.requireActual('antd') as any),
@@ -31,6 +32,7 @@ describe('Designer model', () => {
     bitcoind: bitcoindModel,
     designer: designerModel,
     modals: modalsModel,
+    taro: taroModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -307,6 +309,7 @@ describe('Designer model', () => {
         injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
       const lndLatest = defaultRepoState.images.LND.latest;
       const btcLatest = defaultRepoState.images.bitcoind.latest;
+      const tarodLatest = defaultRepoState.images.tarod.latest;
       const id = 'nodeId';
       const data = { type: 'LND', version: lndLatest };
       const position = { x: 10, y: 10 };
@@ -343,6 +346,65 @@ describe('Designer model', () => {
         await waitFor(() => {
           expect(Object.keys(firstChart().nodes)).toHaveLength(6);
           expect(firstChart().nodes['backend2']).toBeDefined();
+        });
+      });
+
+      it('should add a new tarod node to the chart', async () => {
+        const { addNetwork } = store.getActions().network;
+        const { onCanvasDrop, setActiveId } = store.getActions().designer;
+        await addNetwork({
+          name: 'test 3',
+          lndNodes: 0,
+          clightningNodes: 0,
+          eclairNodes: 0,
+          bitcoindNodes: 1,
+          customNodes: {},
+        });
+        const newId = store.getState().network.networks[1].id;
+        setActiveId(newId);
+        const getChart = () => store.getState().designer.allCharts[newId];
+        expect(Object.keys(getChart().nodes)).toHaveLength(1);
+        const lndData = { type: 'LND', version: testRepoState.images.LND.versions[0] };
+        onCanvasDrop({ id, data: lndData, position });
+        const tarodData = { type: 'tarod', version: tarodLatest };
+        onCanvasDrop({ id, data: tarodData, position });
+        await waitFor(() => {
+          expect(Object.keys(getChart().nodes)).toHaveLength(3);
+          expect(getChart().nodes['alice-taro']).toBeDefined();
+        });
+      });
+
+      it('should throw an error when adding an incompatible Taro node', async () => {
+        store.getActions().app.setRepoState(testRepoState);
+        const { addNetwork } = store.getActions().network;
+        const { onCanvasDrop, setActiveId } = store.getActions().designer;
+        await addNetwork({
+          name: 'test 3',
+          lndNodes: 0,
+          clightningNodes: 0,
+          eclairNodes: 0,
+          bitcoindNodes: 1,
+          customNodes: {},
+        });
+        const newId = store.getState().network.networks[1].id;
+        setActiveId(newId);
+        const getChart = () => store.getState().designer.allCharts[newId];
+        expect(Object.keys(getChart().nodes)).toHaveLength(1);
+        const lndData = { type: 'LND', version: lndLatest };
+        onCanvasDrop({ id, data: lndData, position });
+
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        const tarodData = { type: 'tarod', version: tarodLatest };
+        onCanvasDrop({ id, data: tarodData, position });
+        await waitFor(() => {
+          expect(spy).toBeCalledWith(
+            expect.objectContaining({
+              message: 'Failed to add node',
+              error: new Error(
+                'This network does not contain an available LND node running the master branch which is required for Taro nodes',
+              ),
+            }),
+          );
         });
       });
 

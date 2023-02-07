@@ -2,11 +2,7 @@
  * Shared types to normalize interfaces between the different
  * Taro implementations
  */
-export interface TaroAssetCommon {
-  balance?: string;
-  amount?: string;
-}
-export interface TaroAsset extends TaroAssetCommon {
+export interface TaroAsset {
   id: string;
   name: string;
   meta: string;
@@ -17,7 +13,7 @@ export interface TaroAsset extends TaroAssetCommon {
   anchorOutpoint: string;
 }
 
-export interface TaroBalance extends TaroAssetCommon {
+export interface TaroBalance {
   id: string;
   name: string;
   meta: string;

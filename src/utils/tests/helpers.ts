@@ -1,7 +1,7 @@
 import { CommonNode, Status } from 'shared/types';
 import { CustomImage, DockerRepoState, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from '../network';
+import { createLndNetworkNode, createNetwork, createTarodNetworkNode } from '../network';
 
 export const testNodeDocker: CommonNode['docker'] = { image: '', command: '' };
 
@@ -136,8 +136,13 @@ export const testRepoState: DockerRepoState = {
   },
 };
 
-export const getNetwork = (networkId = 1, name?: string, status?: Status): Network =>
-  createNetwork({
+export const getNetwork = (
+  networkId = 1,
+  name?: string,
+  status?: Status,
+  taroNodeCount = 0,
+): Network => {
+  const config = {
     id: networkId,
     name: name || 'my-test',
     lndNodes: 2,
@@ -148,7 +153,36 @@ export const getNetwork = (networkId = 1, name?: string, status?: Status): Netwo
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
-  });
+  };
+  if (taroNodeCount > 0) {
+    config.lndNodes = 0;
+    config.clightningNodes = 0;
+    config.eclairNodes = 0;
+  }
+  const network = createNetwork(config);
+
+  for (let i = 0; i < taroNodeCount; i++) {
+    network.nodes.lightning.push(
+      createLndNetworkNode(
+        network,
+        testRepoState.images.LND.latest,
+        testRepoState.images.LND.compatibility,
+        testNodeDocker,
+        status,
+      ),
+    );
+    network.nodes.taro.push(
+      createTarodNetworkNode(
+        network,
+        testRepoState.images.tarod.latest,
+        testNodeDocker,
+        status,
+      ),
+    );
+  }
+
+  return network;
+};
 
 export const mockProperty = <T, K extends keyof T>(
   object: T,

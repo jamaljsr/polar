@@ -253,6 +253,8 @@ const appModel: AppModel = {
     getStoreActions().lightning.clearNodes();
     // reset the bitcoin nodes state
     getStoreActions().bitcoind.clearNodes();
+    // reset the taro nodes state
+    getStoreActions().taro.clearNodes();
     // change the route
     dispatch(push(NETWORK_VIEW(id)));
   }),

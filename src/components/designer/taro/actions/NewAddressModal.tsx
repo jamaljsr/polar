@@ -81,14 +81,12 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   });
 
   const handleSubmit = (values: { genesisBootstrapInfo: string; amount: string }) => {
-    if (selectedGenesisBootstrapInfo) {
-      const payload: NewAddressPayload = {
-        node: thisTaroNode,
-        genesisBootstrapInfo: values.genesisBootstrapInfo,
-        amount: values.amount,
-      };
-      newAddressAsync.execute(payload);
-    }
+    const payload: NewAddressPayload = {
+      node: thisTaroNode,
+      genesisBootstrapInfo: values.genesisBootstrapInfo,
+      amount: values.amount,
+    };
+    newAddressAsync.execute(payload);
   };
 
   const handleCopy = () => {

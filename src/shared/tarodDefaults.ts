@@ -1,5 +1,10 @@
 import ipcChannels from './ipcChannels';
-import { ListAssetResponse, ListBalancesResponse, MintAssetResponse } from './tarodTypes';
+import {
+  ListAssetResponse,
+  ListBalancesResponse,
+  MintAssetResponse,
+  NewAddressResponse,
+} from './tarodTypes';
 
 export const defaultTarodListAssets = (
   value: Partial<ListAssetResponse>,
@@ -17,13 +22,28 @@ export const defaultTarodListBalances = (
 });
 
 export const defaultTarodMintAsset = (): MintAssetResponse => ({
-  batchKey: Buffer.from('none'),
+  batchKey: Buffer.from(''),
+});
+
+export const defaultTarodNewAddress = (
+  value: Partial<NewAddressResponse>,
+): NewAddressResponse => ({
+  encoded: '',
+  assetId: Buffer.from(''),
+  assetType: 'NORMAL',
+  amount: '',
+  groupKey: Buffer.from(''),
+  scriptKey: Buffer.from(''),
+  internalKey: Buffer.from(''),
+  taprootOutputKey: Buffer.from(''),
+  ...value,
 });
 
 const defaults = {
   [ipcChannels.taro.listAssets]: defaultTarodListAssets,
   [ipcChannels.taro.listBalances]: defaultTarodListBalances,
   [ipcChannels.taro.mintAsset]: defaultTarodMintAsset,
+  [ipcChannels.taro.newAddress]: defaultTarodNewAddress,
 };
 
 export type TarodDefaultsKey = keyof typeof defaults;
