@@ -5,6 +5,8 @@ import './i18n';
 import '@testing-library/jest-dom/extend-expect';
 // this is needed for antd v4 components
 import 'regenerator-runtime/runtime';
+//
+import 'jest-canvas-mock';
 
 // Prevent displaying some un-fixable warnings in tests
 const originalConsoleWarning = console.warn;

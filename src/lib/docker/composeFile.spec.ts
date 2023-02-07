@@ -1,4 +1,4 @@
-import { CLightningNode, LndNode } from 'shared/types';
+import { CLightningNode, LndNode, Status, TarodNode } from 'shared/types';
 import { bitcoinCredentials } from 'utils/constants';
 import { getNetwork } from 'utils/tests';
 import ComposeFile from './composeFile';
@@ -9,6 +9,11 @@ describe('ComposeFile', () => {
   const btcNode = network.nodes.bitcoin[0];
   const lndNode = network.nodes.lightning[0] as LndNode;
   const clnNode = network.nodes.lightning[1] as CLightningNode;
+  // create a separate network for taro nodes because it won't include any
+  // c-lightning nodes
+  const taroNetwork = getNetwork(2, 'taro', Status.Stopped, 2);
+  const taroNode = taroNetwork.nodes.taro[0] as TarodNode;
+  const taroLndNode = network.nodes.lightning[0] as LndNode;
 
   beforeEach(() => {
     composeFile = new ComposeFile();
@@ -104,6 +109,29 @@ describe('ComposeFile', () => {
     clnNode.docker = { image: 'my-image', command: 'my-command' };
     composeFile.addClightning(clnNode, btcNode);
     const service = composeFile.content.services['bob'];
+    expect(service.image).toBe('my-image');
+    expect(service.command).toBe('my-command');
+  });
+
+  it('should add an taro config', () => {
+    composeFile.addTarod(taroNode, taroLndNode);
+    expect(composeFile.content.services['alice-taro']).not.toBeUndefined();
+  });
+
+  it('should create the correct tarod docker compose values', () => {
+    composeFile.addTarod(taroNode, taroLndNode);
+    const service = composeFile.content.services['alice-taro'];
+    expect(service.image).toContain('tarod');
+    expect(service.container_name).toEqual('polar-n2-alice-taro');
+    expect(service.command).toContain('lnd.host=polar-n1-alice');
+    expect(service.volumes[0]).toContain('/alice:');
+    expect(service.volumes[1]).toContain('/alice-taro:');
+  });
+
+  it('should use the tarod nodes custom docker data', () => {
+    taroNode.docker = { image: 'my-image', command: 'my-command' };
+    composeFile.addTarod(taroNode, taroLndNode);
+    const service = composeFile.content.services['alice-taro'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
   });

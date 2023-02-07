@@ -77,6 +77,7 @@ describe('ImageUpdatesModal', () => {
           eclair: [],
           bitcoind: ['4.5.6'],
           btcd: [],
+          tarod: [],
         },
       });
     });

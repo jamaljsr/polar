@@ -374,7 +374,7 @@ const networkModel: NetworkModel = {
       }
       await injections.dockerService.saveComposeFile(network);
       // clear cached RPC data
-      if (node.implementation === 'tarod') getStoreActions().app.clearAppCache();
+      getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
       // update the network in the redux state and save to disk
@@ -731,6 +731,7 @@ const networkModel: NetworkModel = {
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n.name));
+    network.nodes.taro.forEach(n => getStoreActions().taro.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),

@@ -293,7 +293,7 @@
   "cmps.designer.taro.actions.MintAssetModal.metaData": "Meta Data",
   "cmps.designer.taro.actions.MintAssetModal.metaDataPlaceholder": "Optional",
   "cmps.designer.taro.actions.MintAssetModal.mintSuccess": "Successfully minted asset: '{{name}}' with batchkey: {{batchKey}}",
-  "cmps.designer.taro.actions.MintAssetModal.mintError": "Failed to mint {{amount}} {{assetType}}",
+  "cmps.designer.taro.actions.MintAssetModal.mintError": "Failed to mint {{amount}} {{name}}",
   "cmps.designer.taro.actions.MintAssetModal.deposit": "Deposit enough funds to {{selectedFrom}}",
   "cmps.designer.taro.actions.MintAssetModal.lndBalanceError": "Insufficient balance on lnd node {{lndNode}}",
   "cmps.designer.taro.actions.NewAddressButton.title": "Addresses",
@@ -465,6 +465,5 @@
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
   "utils.network.lndBackendCompatError": "This network does not contain an available LND node running the master branch which is required for Taro nodes",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
-  "utils.network.unknownImplementation": "Cannot import unknown Lightning implementation '{{implementation}}'"
-  
+  "utils.network.unknownImplementation": "Cannot import unknown node implementation '{{implementation}}'"
 }

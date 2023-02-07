@@ -5,7 +5,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
-import { CLightningNode, LndNode } from 'shared/types';
+import { CLightningNode, LndNode, TarodNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -254,6 +254,36 @@ describe('DockerService', () => {
         expect.not.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
         ),
+      );
+    });
+
+    it('should save the tarod node with the named LND node as backend', () => {
+      const net = getNetwork(1, 'my network', undefined, 2);
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`--lnd.host=polar-n1-${net.nodes.lightning[1].name}`),
+      );
+    });
+
+    it('should save the tarod node with the first LND node as backend', () => {
+      const net = getNetwork(1, 'my network', undefined, 2);
+      const taroNode = net.nodes.taro[0] as TarodNode;
+      taroNode.lndName = 'invalid';
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`--lnd.host=polar-n1-${net.nodes.lightning[0].name}`),
+      );
+    });
+
+    it('should not save unknown taro implementation', () => {
+      const net = getNetwork(1, 'my network', undefined, 2);
+      net.nodes.taro[0].implementation = 'unknown' as any;
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toBeCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.not.stringContaining(`container_name: polar-n1-${net.nodes.taro[0].name}`),
       );
     });
 

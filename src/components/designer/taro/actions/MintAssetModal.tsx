@@ -49,7 +49,8 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
       });
       hideMintAsset();
     } catch (error: any) {
-      notify({ message: l('mintError'), error });
+      const { amount, name } = payload;
+      notify({ message: l('mintError', { amount, name }), error });
     }
   });
 

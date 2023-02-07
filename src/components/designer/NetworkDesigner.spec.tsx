@@ -2,6 +2,7 @@ import React from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/dom';
 import { act } from '@testing-library/react';
+import { Status } from 'shared/types';
 import { themeColors } from 'theme/colors';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
@@ -19,7 +20,7 @@ describe('NetworkDesigner Component', () => {
   });
 
   const renderComponent = (charts?: Record<number, IChart>, theme = 'dark') => {
-    const network = getNetwork(1, 'test network');
+    const network = getNetwork(1, 'test network', Status.Stopped, 2);
     const allCharts = charts || {
       1: initChartFromNetwork(network),
     };
@@ -39,6 +40,11 @@ describe('NetworkDesigner Component', () => {
       lightning: {
         nodes: {
           alice: {},
+        },
+      },
+      taro: {
+        nodes: {
+          'alice-taro': {},
         },
       },
     };
@@ -162,6 +168,28 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the Mint Asset modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showMintAsset({ nodeName: 'alice-taro' });
+    });
+    expect(await findByText('Mint an asset for alice-taro')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
+  it('should display the New Address modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showNewAddress({ nodeName: 'alice-taro' });
+    });
+    expect(
+      await findByText('Generate new Taro address for alice-taro'),
+    ).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
   it('should display the AdvancedOptions modal', async () => {
     const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
@@ -183,6 +211,19 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(await findByText('Yes'));
     await waitForElementToBeRemoved(() => queryByText('Yes'));
     expect(queryByText('alice')).toBeNull();
+  });
+
+  it('should remove a Taro node from the network', async () => {
+    const { getByText, findByText, queryByText } = renderComponent();
+    expect(await findByText('alice-taro')).toBeInTheDocument();
+    act(() => {
+      fireEvent.click(getByText('alice-taro'));
+    });
+    fireEvent.click(await findByText('Actions'));
+    fireEvent.click(await findByText('Remove'));
+    fireEvent.click(await findByText('Yes'));
+    await waitForElementToBeRemoved(() => queryByText('Yes'));
+    expect(queryByText('alice-taro')).toBeNull();
   });
 
   it('should render the dark links', async () => {

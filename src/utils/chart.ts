@@ -159,11 +159,9 @@ export const initChartFromNetwork = (network: Network): IChart => {
   });
 
   network.nodes.taro.forEach(n => {
-    if (n.implementation === 'tarod') {
-      const { node, link } = createTarodChartNode(n as TarodNode);
-      chart.nodes[node.id] = node;
-      chart.links[link.id] = link;
-    }
+    const { node, link } = createTarodChartNode(n as TarodNode);
+    chart.nodes[node.id] = node;
+    chart.links[link.id] = link;
   });
 
   return chart;
@@ -308,21 +306,19 @@ export const updateChartFromNodes = (
 
   // ensure all tarod -> lnd backend links exists
   network.nodes.taro.forEach(taro => {
-    if (taro.implementation === 'tarod') {
-      const tarod = taro as TarodNode;
-      const id = `${tarod.name}-${tarod.lndName}`;
-      if (!links[id]) {
-        links[id] = {
-          id,
-          from: { nodeId: tarod.name, portId: 'lndbackend' },
-          to: { nodeId: tarod.lndName, portId: 'lndbackend' },
-          properties: {
-            type: 'lndbackend',
-          },
-        };
-      }
-      linksToKeep.push(id);
+    const tarod = taro as TarodNode;
+    const id = `${tarod.name}-${tarod.lndName}`;
+    if (!links[id]) {
+      links[id] = {
+        id,
+        from: { nodeId: tarod.name, portId: 'lndbackend' },
+        to: { nodeId: tarod.lndName, portId: 'lndbackend' },
+        properties: {
+          type: 'lndbackend',
+        },
+      };
     }
+    linksToKeep.push(id);
   });
 
   // remove links for channels that no longer exist

@@ -11,6 +11,7 @@ import {
   getNetwork,
   injections,
   lightningServiceMock,
+  taroServiceMock,
   testCustomImages,
   testRepoState,
 } from 'utils/tests';
@@ -19,6 +20,7 @@ import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import lightningModel from './lightning';
 import networkModel from './network';
+import taroModel from './taro';
 
 jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
@@ -39,6 +41,7 @@ describe('Network model', () => {
     lightning: lightningModel,
     bitcoind: bitcoindModel,
     designer: designerModel,
+    taro: taroModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -803,6 +806,41 @@ describe('Network model', () => {
       // get a reference to the updated nodes
       node = firstNetwork().nodes.lightning[3];
       expect(node.ports.rest).toBe(8085);
+    });
+  });
+
+  describe('Taro network', () => {
+    beforeEach(() => {
+      const network = getNetwork(1, 'test network', Status.Stopped, 2);
+      store.getActions().network.setNetworks([network]);
+      const chart = initChartFromNetwork(network);
+      store.getActions().designer.setChart({ id: network.id, chart });
+      store.getActions().designer.setActiveId(network.id);
+    });
+
+    it('should remove a taro network', async () => {
+      await store.getActions().network.remove(firstNetwork().id);
+      expect(firstNetwork()).toBeUndefined();
+    });
+
+    it('should throw when removing a node with an invalid network id', async () => {
+      const node = {
+        ...firstNetwork().nodes.taro[0],
+        networkId: 999,
+      };
+      const { removeTaroNode } = store.getActions().network;
+      await expect(removeTaroNode({ node })).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+
+    it('should set taro node status to error if the node startup fails', async () => {
+      taroServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
+      const { start } = store.getActions().network;
+      await start(firstNetwork().id);
+      const { taro } = firstNetwork().nodes;
+      taro.forEach(node => expect(node.status).toBe(Status.Error));
+      taro.forEach(node => expect(node.errorMsg).toBe('test-error'));
     });
   });
 

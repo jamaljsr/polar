@@ -1,56 +1,22 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/react';
-import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
-import appModel from 'store/models/app';
-import bitcoindModel from 'store/models/bitcoind';
-import designerModel from 'store/models/designer';
-import lightningModel from 'store/models/lightning';
-import modalsModel from 'store/models/modals';
-import networkModel from 'store/models/network';
-import taroModel from 'store/models/taro';
 import { initChartFromNetwork } from 'utils/chart';
-import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from 'utils/network';
 import {
-  injections,
+  defaultTaroBalance,
+  getNetwork,
   renderWithProviders,
   taroServiceMock,
-  testManagedImages,
-  testRepoState,
 } from 'utils/tests';
 import NewAddressModal from './NewAddressModal';
 
 describe('NewAddressModal', () => {
   let unmount: () => void;
 
-  const rootModel = {
-    app: appModel,
-    network: networkModel,
-    lightning: lightningModel,
-    bitcoind: bitcoindModel,
-    designer: designerModel,
-    taro: taroModel,
-    modals: modalsModel,
-  };
-  // initialize store for type inference
-  let store = createStore(rootModel, { injections });
-
-  const network = createNetwork({
-    id: 1,
-    name: 'my-test',
-    lndNodes: 0,
-    clightningNodes: 0,
-    eclairNodes: 0,
-    bitcoindNodes: 1,
-    status: Status.Started,
-    repoState: defaultRepoState,
-    managedImages: testManagedImages,
-    customImages: [],
-  });
-
   const renderComponent = async () => {
+    const network = getNetwork(1, 'test network', Status.Started, 2);
+
     const initialState = {
       network: {
         networks: [network],
@@ -74,38 +40,8 @@ describe('NewAddressModal', () => {
     return {
       ...result,
       network,
-      store,
     };
   };
-
-  beforeEach(() => {
-    store = createStore(rootModel, { injections });
-    store.getState().network.networks.push(network);
-
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'LND',
-      version: testRepoState.images.LND.latest,
-    });
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'LND',
-      version: testRepoState.images.LND.latest,
-    });
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'tarod',
-      version: testRepoState.images.tarod.latest,
-    });
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'tarod',
-      version: testRepoState.images.tarod.latest,
-    });
-    const chart = initChartFromNetwork(store.getState().network.networks[0]);
-    store.getActions().designer.setChart({ id: network.id, chart });
-    store.getActions().designer.setActiveId(network.id);
-  });
 
   afterEach(() => unmount());
 
@@ -124,6 +60,50 @@ describe('NewAddressModal', () => {
     const btn = getByText('Generate');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('should fill genesis bootstrap info from another node', async () => {
+    taroServiceMock.listBalances.mockImplementation(async node => {
+      return node.name === 'bob-taro'
+        ? [
+            defaultTaroBalance({
+              name: 'LUSD',
+              type: 'NORMAL',
+              balance: '100',
+              genesisBootstrapInfo: 'test-bootstrap-info',
+            }),
+          ]
+        : [];
+    });
+    const { getByLabelText, changeSelect, store } = await renderComponent();
+    await waitFor(() => {
+      expect(store.getState().taro.nodes['bob-taro']?.balances).toBeDefined();
+    });
+    changeSelect('Choose a balance from Taro node', 'LUSD');
+    expect(getByLabelText('Genesis Bootstrap Info')).toHaveValue('test-bootstrap-info');
+    expect(getByLabelText('Amount')).toHaveValue('10');
+  });
+
+  it('should set the amount to 1 when a collectible is chosen', async () => {
+    taroServiceMock.listBalances.mockImplementation(async node => {
+      return node.name === 'bob-taro'
+        ? [
+            defaultTaroBalance({
+              name: 'LUSD',
+              type: 'COLLECTIBLE',
+              balance: '100',
+              genesisBootstrapInfo: 'test-bootstrap-info',
+            }),
+          ]
+        : [];
+    });
+    const { getByLabelText, changeSelect, store } = await renderComponent();
+    await waitFor(() => {
+      expect(store.getState().taro.nodes['bob-taro']?.balances).toBeDefined();
+    });
+    changeSelect('Choose a balance from Taro node', 'LUSD');
+    expect(getByLabelText('Genesis Bootstrap Info')).toHaveValue('test-bootstrap-info');
+    expect(getByLabelText('Amount')).toHaveValue('1');
   });
 
   it('should hide modal when cancel is clicked', async () => {
@@ -154,7 +134,7 @@ describe('NewAddressModal', () => {
     });
 
     it('should generate address', async () => {
-      const { getByText, getByLabelText, getByDisplayValue, findByText } =
+      const { getByText, getByLabelText, getByDisplayValue, findByText, network } =
         await renderComponent();
       const btn = getByText('Generate');
       expect(btn).toBeInTheDocument();
