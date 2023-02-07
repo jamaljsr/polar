@@ -27,6 +27,8 @@ export const taroServiceMock: jest.Mocked<TaroService> = {
   waitUntilOnline: jest.fn(),
   mintAsset: jest.fn(),
   newAddress: jest.fn(),
+  sendAsset: jest.fn(),
+  decodeAddress: jest.fn(),
 };
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
