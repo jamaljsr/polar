@@ -164,17 +164,23 @@ describe('MintAssetModal', () => {
     });
 
     it('should deposit enough funds to mint', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '0',
+        unconfirmed: '0',
+        total: '0',
+      });
       const { getByText, getByLabelText } = await renderComponent();
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
       fireEvent.change(getByLabelText('Meta Data'), {
         target: { value: 'test' },
       });
+
+      await waitFor(() => {
+        expect(lightningServiceMock.getBalances).toBeCalled();
+      });
       fireEvent.click(getByText('Deposit enough funds to alice'));
       fireEvent.click(getByText('Mint'));
-      await waitFor(() => {
-        expect(lightningServiceMock.getNewAddress).toBeCalled();
-      });
     });
 
     it('should show an error for duplicate names', async () => {
