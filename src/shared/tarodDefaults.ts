@@ -1,9 +1,9 @@
 import ipcChannels from './ipcChannels';
 import {
+  AddressResponse,
   ListAssetResponse,
   ListBalancesResponse,
   MintAssetResponse,
-  NewAddressResponse,
 } from './tarodTypes';
 
 export const defaultTarodListAssets = (
@@ -26,8 +26,8 @@ export const defaultTarodMintAsset = (): MintAssetResponse => ({
 });
 
 export const defaultTarodNewAddress = (
-  value: Partial<NewAddressResponse>,
-): NewAddressResponse => ({
+  value: Partial<AddressResponse>,
+): AddressResponse => ({
   encoded: '',
   assetId: Buffer.from(''),
   assetType: 'NORMAL',
