@@ -102,6 +102,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {advancedOptions.visible && <AdvancedOptionsModal network={network} />}
       {mintAsset.visible && <MintAssetModal network={network} />}
       {newAddress.visible && <NewAddressModal network={network} />}
+      {sendAsset.visible && <SendAssetModal network={network} />}
       {changeTaroBackend.visible && <ChangeTaroBackendModal network={network} />}
       {sendAsset.visible && <SendAssetModal network={network} />}
     </Styled.Designer>

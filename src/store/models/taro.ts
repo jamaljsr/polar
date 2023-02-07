@@ -7,7 +7,7 @@ import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
 //This is the minimum balance that a taro node must have access to in order to mint assets
-export const TARO_MIN_LND_BALANCE = 10000;
+export const TARO_MIN_LND_BALANCE = 15000;
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -104,6 +104,7 @@ const taroModel: TaroModel = {
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
   }),
+
   getAllInfo: thunk(async (actions, node) => {
     await actions.getAssets(node);
     await actions.getBalances(node);

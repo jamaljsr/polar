@@ -88,6 +88,7 @@ export interface ModalsModel {
   assetInfo: AssetInfoModel;
   mintAsset: MintAssetModel;
   newAddress: NewAddressModel;
+  sendAsset: SendAssetModel;
   changeTaroBackend: ChangeTaroBackendModel;
   sendAsset: SendAssetModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
@@ -120,6 +121,9 @@ export interface ModalsModel {
   showNewAddress: Thunk<ModalsModel, Partial<NewAddressModel>, StoreInjections>;
   hideNewAddress: Thunk<ModalsModel>;
   setNewAddress: Action<ModalsModel, Partial<NewAddressModel>>;
+  setSendAsset: Action<ModalsModel, SendAssetModel>;
+  hideSendAsset: Thunk<ModalsModel>;
+  showSendAsset: Thunk<ModalsModel, Partial<SendAssetModel>, StoreInjections>;
   showChangeTaroBackend: Thunk<
     ModalsModel,
     Partial<ChangeTaroBackendModel>,
@@ -305,6 +309,19 @@ const modalsModel: ModalsModel = {
   setNewAddress: action((state, payload) => {
     state.newAddress = {
       ...state.newAddress,
+      ...payload,
+    };
+  }),
+  //Send Taro Asset Modal
+  showSendAsset: thunk((actions, { nodeName }) => {
+    actions.setSendAsset({ visible: true, nodeName });
+  }),
+  hideSendAsset: thunk(actions => {
+    actions.setSendAsset({ visible: false });
+  }),
+  setSendAsset: action((state, payload) => {
+    state.sendAsset = {
+      ...state.sendAsset,
       ...payload,
     };
   }),

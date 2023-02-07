@@ -3,7 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Form, Input, InputNumber, Modal, Select } from 'antd';
 import { SelectValue } from 'antd/lib/select';
 import { usePrefixedTranslation } from 'hooks';
-import { Status, TarodNode } from 'shared/types';
+import { TarodNode } from 'shared/types';
 import { TARO_ASSET_TYPE } from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import { MintAssetPayload, TARO_MIN_LND_BALANCE } from 'store/models/taro';
@@ -57,9 +57,10 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   useEffect(() => {
     //When polar is first opened, we need to populate the state with the lightning node data
     const lndNode = network.nodes.lightning.find(n => n.name === thisTaroNode?.lndName);
-    if (lndNode?.status !== Status.Started) return;
-    getWalletBalance(lndNode);
-    getAssets(thisTaroNode);
+    if (lndNode) {
+      getWalletBalance(lndNode);
+      getAssets(thisTaroNode);
+    }
   }, []);
 
   useMemo(() => {
