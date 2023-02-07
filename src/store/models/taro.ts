@@ -155,7 +155,7 @@ const taroModel: TaroModel = {
           .filter(n => n.status === Status.Started)
           .map(async n => {
             try {
-              actions.getAllInfo(n);
+              await actions.getAllInfo(n);
             } catch (error: any) {
               notify({ message: `Unable to retrieve assets for ${n.name}`, error });
             }

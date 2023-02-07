@@ -1,6 +1,7 @@
 import React from 'react';
+
 import { fireEvent, waitFor } from '@testing-library/react';
-import { Status } from 'shared/types';
+import { CommonNode, Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
@@ -11,6 +12,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
+  taroServiceMock,
   testNodeDocker,
 } from 'utils/tests';
 import RemoveNode from './RemoveNode';
@@ -19,8 +21,12 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<DockerLibrary>
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('RemoveNode', () => {
-  const renderComponent = (status?: Status, useBitcoinNode = false) => {
-    const network = getNetwork(1, 'test network', status);
+  const renderComponent = (
+    status?: Status,
+    nodeName = 'alice',
+    nodeType?: CommonNode['type'],
+  ) => {
+    const network = getNetwork(1, 'test network', status, 2);
     if (status === Status.Error) {
       network.nodes.lightning.forEach(n => (n.errorMsg = 'test-error'));
     }
@@ -39,10 +45,11 @@ describe('RemoveNode', () => {
         activeId: 1,
       },
     };
-    const { lightning, bitcoin } = network.nodes;
-    const node = useBitcoinNode
-      ? bitcoin[0]
-      : lightning[status === Status.Started ? 0 : 1];
+    const { lightning, bitcoin, taro } = network.nodes;
+    const node = [...lightning, ...bitcoin, ...taro].find(
+      n => n.name === nodeName,
+    ) as CommonNode;
+    if (nodeType) node.type = nodeType;
     const cmp = <RemoveNode node={node} />;
     return renderWithProviders(cmp, { initialState, wrapForm: true });
   };
@@ -64,7 +71,10 @@ describe('RemoveNode', () => {
     });
 
     it('should remove the node with the network stopped', async () => {
-      const { getByText, findByText, getByLabelText } = renderComponent(Status.Stopped);
+      const { getByText, findByText, getByLabelText } = renderComponent(
+        Status.Stopped,
+        'bob',
+      );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
       fireEvent.click(await findByText('Yes'));
@@ -111,10 +121,11 @@ describe('RemoveNode', () => {
       lightningServiceMock.getChannels.mockResolvedValue([]);
       lightningServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
       bitcoindServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
+      taroServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
     });
 
     it('should show the remove node modal', async () => {
-      const { getByText, findByText } = renderComponent(Status.Started, true);
+      const { getByText, findByText } = renderComponent(Status.Started, 'backend1');
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
       expect(
@@ -127,7 +138,7 @@ describe('RemoveNode', () => {
     it('should remove the node with the network stopped', async () => {
       const { getByText, findByText, getByLabelText } = renderComponent(
         Status.Stopped,
-        true,
+        'backend1',
       );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
@@ -143,7 +154,7 @@ describe('RemoveNode', () => {
     it('should remove the node with the network started', async () => {
       const { getByText, findByText, getByLabelText } = renderComponent(
         Status.Started,
-        true,
+        'backend1',
       );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
@@ -163,7 +174,7 @@ describe('RemoveNode', () => {
         dockerServiceMock.saveComposeFile.mockRejectedValue(new Error('test error'));
         const { getByText, findByText, getByLabelText } = renderComponent(
           Status.Stopped,
-          true,
+          'backend1',
         );
         expect(getByText('Remove')).toBeInTheDocument();
         fireEvent.click(getByText('Remove'));
@@ -172,6 +183,88 @@ describe('RemoveNode', () => {
         await waitFor(() => getByLabelText('close-circle'));
         expect(getByText('Unable to remove the node')).toBeInTheDocument();
         expect(getByText('test error')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('taro node', () => {
+    it('should show the remove node modal', async () => {
+      const { getByText, findByText } = renderComponent(Status.Started, 'alice-taro');
+      expect(getByText('Remove')).toBeInTheDocument();
+      fireEvent.click(getByText('Remove'));
+      expect(
+        await findByText('Are you sure you want to remove alice-taro from the network?'),
+      ).toBeInTheDocument();
+      expect(getByText('Yes')).toBeInTheDocument();
+      expect(getByText('Cancel')).toBeInTheDocument();
+    });
+
+    it('should remove the node with the network stopped', async () => {
+      const { getByText, findByText, getByLabelText } = renderComponent(
+        Status.Stopped,
+        'bob-taro',
+      );
+      expect(getByText('Remove')).toBeInTheDocument();
+      fireEvent.click(getByText('Remove'));
+      fireEvent.click(await findByText('Yes'));
+      // wait for the error notification to be displayed
+      await waitFor(() => getByLabelText('check-circle'));
+      expect(
+        getByText('The node bob-taro has been removed from the network'),
+      ).toBeInTheDocument();
+      expect(dockerServiceMock.removeNode).toBeCalledTimes(0);
+    });
+
+    it('should remove the node with the network started', async () => {
+      const { getByText, findByText, getByLabelText } = renderComponent(
+        Status.Started,
+        'alice-taro',
+      );
+      expect(getByText('Remove')).toBeInTheDocument();
+      fireEvent.click(getByText('Remove'));
+      fireEvent.click(await findByText('Yes'));
+      // wait for the error notification to be displayed
+      await waitFor(() => getByLabelText('check-circle'));
+      expect(
+        getByText('The node alice-taro has been removed from the network'),
+      ).toBeInTheDocument();
+      expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
+    });
+
+    it('should display an error if removing the node fails', async () => {
+      // antd Modal.confirm logs a console error when onOk fails
+      // this suppresses those errors from being displayed in test runs
+      await suppressConsoleErrors(async () => {
+        dockerServiceMock.removeNode.mockRejectedValue(new Error('test error'));
+        const { getByText, findByText, getByLabelText } = renderComponent(
+          Status.Started,
+          'alice-taro',
+        );
+        expect(getByText('Remove')).toBeInTheDocument();
+        fireEvent.click(getByText('Remove'));
+        fireEvent.click(await findByText('Yes'));
+        // wait for the error notification to be displayed
+        await waitFor(() => getByLabelText('close-circle'));
+        expect(getByText('Unable to remove the node')).toBeInTheDocument();
+        expect(getByText('test error')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('invalid node type', () => {
+    it('should display the invalid node msg', async () => {
+      // antd Modal.confirm logs a console error when onOk fails
+      // this suppresses those errors from being displayed in test runs
+      await suppressConsoleErrors(async () => {
+        const { getByText, findByText } = renderComponent(
+          Status.Started,
+          'alice',
+          'invalid-type' as CommonNode['type'],
+        );
+        expect(getByText('Remove')).toBeInTheDocument();
+        fireEvent.click(getByText('Remove'));
+        fireEvent.click(await findByText('Yes'));
+        expect(await findByText(`Unknown node type 'invalid-type'`)).toBeInTheDocument();
       });
     });
   });

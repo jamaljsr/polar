@@ -1,26 +1,16 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/react';
-import { createStore } from 'easy-peasy';
-import { Status } from 'shared/types';
-import appModel from 'store/models/app';
-import bitcoindModel from 'store/models/bitcoind';
-import designerModel from 'store/models/designer';
-import lightningModel from 'store/models/lightning';
-import modalsModel from 'store/models/modals';
-import networkModel from 'store/models/network';
-import taroModel from 'store/models/taro';
+import { Status, TaroNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
-import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from 'utils/network';
 import {
+  defaultTaroAsset,
+  getNetwork,
   injections,
   lightningServiceMock,
   renderWithProviders,
   taroServiceMock,
-  testManagedImages,
-  testRepoState,
 } from 'utils/tests';
 import MintAssetModal from './MintAssetModal';
 
@@ -28,33 +18,12 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLi
 
 describe('MintAssetModal', () => {
   let unmount: () => void;
-
-  const rootModel = {
-    app: appModel,
-    network: networkModel,
-    lightning: lightningModel,
-    bitcoind: bitcoindModel,
-    designer: designerModel,
-    taro: taroModel,
-    modals: modalsModel,
-  };
-  // initialize store for type inference
-  let store = createStore(rootModel, { injections });
-
-  const network = createNetwork({
-    id: 1,
-    name: 'my-test',
-    lndNodes: 0,
-    clightningNodes: 0,
-    eclairNodes: 0,
-    bitcoindNodes: 1,
-    status: Status.Started,
-    repoState: defaultRepoState,
-    managedImages: testManagedImages,
-    customImages: [],
-  });
+  let node: TaroNode;
 
   const renderComponent = async () => {
+    const network = getNetwork(1, 'test network', Status.Started, 2);
+    node = network.nodes.taro[0];
+
     const initialState = {
       network: {
         networks: [network],
@@ -78,38 +47,8 @@ describe('MintAssetModal', () => {
     return {
       ...result,
       network,
-      store,
     };
   };
-
-  beforeEach(() => {
-    store = createStore(rootModel, { injections });
-    store.getState().network.networks.push(network);
-
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'LND',
-      version: testRepoState.images.LND.latest,
-    });
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'LND',
-      version: testRepoState.images.LND.latest,
-    });
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'tarod',
-      version: testRepoState.images.tarod.latest,
-    });
-    store.getActions().network.addNode({
-      id: network.id,
-      type: 'tarod',
-      version: testRepoState.images.tarod.latest,
-    });
-    const chart = initChartFromNetwork(store.getState().network.networks[0]);
-    store.getActions().designer.setChart({ id: network.id, chart });
-    store.getActions().designer.setActiveId(network.id);
-  });
 
   afterEach(() => unmount());
 
@@ -171,10 +110,83 @@ describe('MintAssetModal', () => {
         unconfirmed: '20000',
         total: '30000',
       });
+      taroServiceMock.listAssets.mockResolvedValue([
+        defaultTaroAsset({
+          name: 'LUSD',
+          type: 'NORMAL',
+          amount: '100',
+        }),
+      ]);
     });
 
-    it('should mint asset', async () => {
+    it('should mint normal asset', async () => {
       const { getByText, getByLabelText } = await renderComponent();
+      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
+      fireEvent.change(getByLabelText('Meta Data'), {
+        target: { value: 'test' },
+      });
+      fireEvent.click(getByText('Mint'));
+      await waitFor(() => {
+        expect(taroServiceMock.mintAsset).toHaveBeenCalled();
+        expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+      });
+    });
+
+    it('should mint collectible asset', async () => {
+      const { getByText, getByLabelText, changeSelect } = await renderComponent();
+      changeSelect('Asset Type', 'Collectible');
+      expect(getByLabelText('Amount')).toHaveAttribute('disabled');
+      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
+      fireEvent.change(getByLabelText('Meta Data'), {
+        target: { value: 'test' },
+      });
+      fireEvent.click(getByText('Mint'));
+      await waitFor(() => {
+        expect(taroServiceMock.mintAsset).toHaveBeenCalledWith(
+          node,
+          expect.objectContaining({ assetType: 'COLLECTIBLE' }),
+        );
+        expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+      });
+    });
+
+    it('should display a warning when the LND balance is low', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '0',
+        unconfirmed: '0',
+        total: '0',
+      });
+      const { findByText } = await renderComponent();
+      expect(
+        await findByText('Insufficient balance on lnd node alice'),
+      ).toBeInTheDocument();
+    });
+
+    it('should deposit enough funds to mint', async () => {
+      const { getByText, getByLabelText } = await renderComponent();
+      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
+      fireEvent.change(getByLabelText('Meta Data'), {
+        target: { value: 'test' },
+      });
+      fireEvent.click(getByText('Deposit enough funds to alice'));
+      fireEvent.click(getByText('Mint'));
+      await waitFor(() => {
+        expect(lightningServiceMock.getNewAddress).toBeCalled();
+      });
+    });
+
+    it('should show an error for duplicate names', async () => {
+      const { findByText, getByLabelText, store } = await renderComponent();
+      await store.getActions().taro.getAssets(node);
+      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'LUSD' } });
+      expect(await findByText('Asset with this name already exists')).toBeInTheDocument();
+    });
+
+    it('should display an error when minting fails', async () => {
+      taroServiceMock.mintAsset.mockRejectedValue(new Error('error-msg'));
+      const { getByText, getByLabelText, findByText } = await renderComponent();
       const btn = getByText('Mint');
       expect(btn).toBeInTheDocument();
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
@@ -184,11 +196,8 @@ describe('MintAssetModal', () => {
         target: { value: 'test' },
       });
       fireEvent.click(getByText('Mint'));
-      await waitFor(() => {
-        //expect(store.getState().modals.mintAsset.visible).toBe(false);
-        expect(taroServiceMock.mintAsset).toHaveBeenCalled();
-        expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
-      });
+      expect(await findByText('Failed to mint 100 test')).toBeInTheDocument();
+      expect(await findByText('error-msg')).toBeInTheDocument();
     });
   });
 });

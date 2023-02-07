@@ -88,7 +88,12 @@ const AssetInfoModal: React.FC = () => {
   }
 
   return (
-    <Drawer title={l('title')} open={visible} onClose={() => hideAssetInfo()}>
+    <Drawer
+      title={l('title')}
+      open={visible}
+      onClose={() => hideAssetInfo()}
+      destroyOnClose
+    >
       {cmp}
     </Drawer>
   );

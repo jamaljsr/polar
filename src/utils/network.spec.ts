@@ -177,6 +177,48 @@ describe('Network Utils', () => {
       expect(ports).toBeUndefined();
     });
 
+    it('should update the grpc ports for Taro nodes', async () => {
+      network = getNetwork(1, 'taro network', undefined, 3);
+      const portsInUse = [12030];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.bitcoin = [];
+      network.nodes.lightning = [];
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.taro[0].name].grpc).toBe(12029);
+      expect(ports[network.nodes.taro[1].name].grpc).toBe(12031);
+      expect(ports[network.nodes.taro[2].name].grpc).toBe(12032);
+    });
+
+    it('should update the rest ports for Taro nodes', async () => {
+      network = getNetwork(1, 'taro network', undefined, 3);
+      const portsInUse = [8290];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.bitcoin = [];
+      network.nodes.lightning = [];
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.taro[0].name].rest).toBe(8289);
+      expect(ports[network.nodes.taro[1].name].rest).toBe(8291);
+      expect(ports[network.nodes.taro[2].name].rest).toBe(8292);
+    });
+
+    it('should not update Taro ports if none are in use', async () => {
+      network = getNetwork(1, 'taro network', undefined, 3);
+      const portsInUse: number[] = [];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.bitcoin = [];
+      network.nodes.lightning = [];
+      const ports = await getOpenPorts(network);
+      expect(ports).toBeUndefined();
+    });
+
     it('should not update ports for started nodes', async () => {
       mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
       network.nodes.lightning[0].status = Status.Started;

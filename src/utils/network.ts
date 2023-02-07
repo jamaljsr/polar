@@ -761,6 +761,17 @@ export const importNetworkFromZip = async (
       throw new Error(l('unknownImplementation', { implementation: ln.implementation }));
     }
   });
+  network.nodes.taro.forEach(taro => {
+    taro.networkId = id;
+    if (taro.implementation === 'tarod') {
+      const tarod = taro as TarodNode;
+      tarod.paths = getTarodFilePaths(tarod.name, network);
+    } else {
+      throw new Error(
+        l('unknownImplementation', { implementation: taro.implementation }),
+      );
+    }
+  });
 
   // confirms all nodes in the network are supported on the current OS
   const platform = getPolarPlatform();

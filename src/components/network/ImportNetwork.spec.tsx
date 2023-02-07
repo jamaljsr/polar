@@ -4,6 +4,7 @@ import { join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { fireEvent } from '@testing-library/react';
 import * as os from 'os';
+import { Status } from 'shared/types';
 import * as ipc from 'lib/ipc/ipcService';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -152,7 +153,32 @@ describe('ImportNetwork component', () => {
     const { findByText, fileInput } = renderComponent();
     fireEvent.change(fileInput);
     expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
-    const msg = "Cannot import unknown Lightning implementation 'asdf'";
+    const msg = "Cannot import unknown node implementation 'asdf'";
+    expect(await findByText(msg)).toBeInTheDocument();
+  });
+
+  it('should import a Taro network successfully', async () => {
+    network = getNetwork(1, 'taro network', Status.Stopped, 2);
+    chart = initChartFromNetwork(network);
+    filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
+    const { queryByLabelText, findByText, fileInput } = renderComponent();
+    expect(queryByLabelText('loading')).not.toBeInTheDocument();
+    fireEvent.change(fileInput);
+    expect(queryByLabelText('loading')).toBeInTheDocument();
+    expect(
+      await findByText("Imported network 'taro network' successfully"),
+    ).toBeInTheDocument();
+  });
+
+  it('should throw for an unknown Taro implementation', async () => {
+    network = getNetwork(1, 'taro network', Status.Stopped, 2);
+    chart = initChartFromNetwork(network);
+    network.nodes.taro[0].implementation = 'asdf' as any;
+    filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
+    const { findByText, fileInput } = renderComponent();
+    fireEvent.change(fileInput);
+    expect(await findByText("Could not import 'file.zip'")).toBeInTheDocument();
+    const msg = "Cannot import unknown node implementation 'asdf'";
     expect(await findByText(msg)).toBeInTheDocument();
   });
 });

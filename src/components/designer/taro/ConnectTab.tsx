@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status, TarodNode, TaroNode } from 'shared/types';
-import { useStoreActions, useStoreState } from 'store';
+import { useStoreActions } from 'store';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { EncodedStrings, FilePaths } from 'components/designer/lightning/connect';
@@ -47,8 +47,6 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.taro.ConnectTab');
   const [authType, setAuthType] = useState<string>('paths');
   const { openInBrowser } = useStoreActions(s => s.app);
-  const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
-  const pubkey = nodeState && nodeState.info ? nodeState.info.pubkey : '';
 
   const info = useMemo((): ConnectionInfo => {
     if (node.status === Status.Started) {
@@ -72,7 +70,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       apiDocsUrl: '',
       credentials: {},
     } as ConnectionInfo;
-  }, [node, pubkey]);
+  }, [node]);
 
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;

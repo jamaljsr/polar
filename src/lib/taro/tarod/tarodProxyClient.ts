@@ -9,6 +9,7 @@ class TarodProxyClient {
   constructor() {
     this.ipc = createIpcSender('TarodProxyClient', 'tarod');
   }
+
   async mintAsset(
     node: TarodNode,
     req: TARO.MintAssetRequest,
@@ -26,6 +27,7 @@ class TarodProxyClient {
   ): Promise<TARO.ListBalancesResponse> {
     return await this.ipc(ipcChannels.taro.listBalances, { node, req });
   }
+
   async newAddress(
     node: TarodNode,
     req: TARO.NewAddressRequest,
