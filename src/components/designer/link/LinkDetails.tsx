@@ -1,6 +1,7 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { usePrefixedTranslation } from 'hooks';
+import { LndNode } from 'shared/types';
 import { Network } from 'types';
 import { LinkProperties } from 'utils/chart';
 import SidebarCard from '../SidebarCard';
@@ -8,6 +9,7 @@ import SyncButton from '../SyncButton';
 import Backend from './Backend';
 import Channel from './Channel';
 import Peer from './Peer';
+import TaroLnd from './TaroLnd';
 
 interface Props {
   link: ILink;
@@ -23,7 +25,7 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
     </SidebarCard>
   );
 
-  const { bitcoin, lightning } = network.nodes;
+  const { bitcoin, lightning, taro } = network.nodes;
   const { type } = (link.properties as LinkProperties) || {};
   switch (type) {
     case 'backend':
@@ -46,6 +48,13 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
       const toPeer = bitcoin.find(n => n.name === link.to.nodeId);
       if (fromPeer && toPeer) {
         cmp = <Peer from={fromPeer} to={toPeer} />;
+      }
+      break;
+    case 'lndbackend':
+      const taroNode = taro.find(n => n.name === link.from.nodeId);
+      const lndNode = lightning.find(n => n.name === link.to.nodeId);
+      if (taroNode && lndNode) {
+        cmp = <TaroLnd from={taroNode} to={lndNode as LndNode} />;
       }
   }
 
