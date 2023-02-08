@@ -1,12 +1,13 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
+import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import { NETWORK_VIEW } from 'components/routing';
 import NetworkCard from './NetworkCard';
 
 describe('NetworkCard component', () => {
-  const network = getNetwork(1, 'my network 1');
+  const network = getNetwork(1, 'my network 1', Status.Stopped, 4);
   const renderComponent = () => {
     const initialState = {
       network: {
@@ -26,9 +27,9 @@ describe('NetworkCard component', () => {
     expect(getByText('my network 1')).toBeInTheDocument();
   });
 
-  it('should display the number of lightning nodes', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('4')).toBeInTheDocument();
+  it('should display the number of lightning and taro nodes', () => {
+    const { getAllByText } = renderComponent();
+    expect(getAllByText('4')).toHaveLength(2);
   });
 
   it('should display the number of bitcoin nodes', () => {
