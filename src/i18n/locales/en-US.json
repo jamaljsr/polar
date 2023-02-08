@@ -353,6 +353,7 @@
   "cmps.home.Home.initError": "Unable to initialize the application state",
   "cmps.home.NetworkCard.lightningNodes": "Lightning Nodes",
   "cmps.home.NetworkCard.bitcoinNodes": "Bitcoin Nodes",
+  "cmps.home.NetworkCard.taroNodes": "Taro Nodes",
   "cmps.layouts.ThemeSwitch.light": "Light",
   "cmps.layouts.ThemeSwitch.dark": "Dark",
   "cmps.layouts.CheckForUpdatesButton.updates": "Update",
