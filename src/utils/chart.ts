@@ -6,7 +6,7 @@ import { Network } from 'types';
 import { dockerConfigs } from './constants';
 
 export interface LinkProperties {
-  type: 'backend' | 'pending-channel' | 'open-channel' | 'btcpeer';
+  type: 'backend' | 'pending-channel' | 'open-channel' | 'btcpeer' | 'lndbackend';
   channelPoint: string;
   capacity: string;
   fromBalance: string;
