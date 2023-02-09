@@ -10,8 +10,8 @@ interface Props {
   to: LndNode;
 }
 
-const TaroLnd: React.FC<Props> = ({ from, to }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.link.lndbackend');
+const TaroBackend: React.FC<Props> = ({ from, to }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.link.tarobackend');
 
   const fromDetails: DetailValues = [
     { label: l('name'), value: from.name },
@@ -42,4 +42,4 @@ const TaroLnd: React.FC<Props> = ({ from, to }) => {
   );
 };
 
-export default TaroLnd;
+export default TaroBackend;

@@ -80,6 +80,6 @@ describe('LinkDetails component', () => {
   it('should display message for Taro to Lnd connection', () => {
     const properties = { type: 'lndbackend' };
     const { getByText } = renderComponent('alice-taro', 'alice', properties);
-    expect(getByText('Taro Lnd Connection')).toBeInTheDocument();
+    expect(getByText('Taro Backend Connection')).toBeInTheDocument();
   });
 });
