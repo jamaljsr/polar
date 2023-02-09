@@ -27,13 +27,14 @@ class TarodService implements TaroService {
   async sendAsset(
     node: TaroNode,
     req: TARO.SendAssetRequest,
-  ): Promise<PTARO.TaroSendAssetReciept> {
+  ): Promise<PTARO.TaroSendAssetReceipt> {
     const res = await proxy.sendAsset(this.cast(node), req);
     return {
       transferTxid: res.transferTxid.toString(),
       anchorOutputIndex: res.anchorOutputIndex,
       transferTxBytes: res.transferTxBytes.toString(),
       totalFeeSats: res.totalFeeSats,
+      taroTransfer: null,
     };
   }
   async newAddress(

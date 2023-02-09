@@ -39,11 +39,12 @@ export interface TaroAddress {
   taprootOutputKey: string;
 }
 
-export interface TaroSendAssetReciept {
+export interface TaroSendAssetReceipt {
   transferTxid: string;
   anchorOutputIndex: number;
   transferTxBytes: string;
   totalFeeSats: string;
+  taroTransfer: null;
 }
 
 export enum TARO_ASSET_TYPE {

@@ -68,7 +68,7 @@ export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => 
 });
 
 export const defaultTaroAddress = (value: Partial<TaroAddress>): TaroAddress => ({
-  encoded: 'asdf',
+  encoded: '',
   id: '',
   type: '',
   amount: '',
