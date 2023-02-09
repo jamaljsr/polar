@@ -173,7 +173,7 @@ export interface TaroService {
   sendAsset: (
     from: TaroNode,
     req: TARO.SendAssetRequest,
-  ) => Promise<PTARO.TaroSendAssetReciept>;
+  ) => Promise<PTARO.TaroSendAssetReceipt>;
   decodeAddress: (
     node: TaroNode,
     req: TARO.DecodeAddressRequest,

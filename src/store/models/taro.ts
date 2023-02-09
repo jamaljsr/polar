@@ -7,7 +7,7 @@ import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
 //This is the minimum balance that a taro node must have access to in order to mint assets
-export const TARO_MIN_LND_BALANCE = 15000;
+export const TARO_MIN_LND_BALANCE = 10000;
 
 export interface TaroNodeMapping {
   [key: string]: TaroNodeModel;
@@ -57,9 +57,21 @@ export interface TaroModel {
   getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
   mintAsset: Thunk<TaroModel, MintAssetPayload, StoreInjections, RootModel>;
-  getNewAddress: Thunk<TaroModel, NewAddressPayload, StoreInjections, RootModel>;
+  getNewAddress: Thunk<
+    TaroModel,
+    NewAddressPayload,
+    StoreInjections,
+    RootModel,
+    Promise<PTARO.TaroAddress>
+  >;
   sendAsset: Thunk<TaroModel, SendAssetPayload, StoreInjections, RootModel>;
-  decodeAddress: Thunk<TaroModel, DecodeAddressPayload, StoreInjections, RootModel>;
+  decodeAddress: Thunk<
+    TaroModel,
+    DecodeAddressPayload,
+    StoreInjections,
+    RootModel,
+    Promise<PTARO.TaroAddress>
+  >;
 }
 
 const taroModel: TaroModel = {
@@ -92,7 +104,6 @@ const taroModel: TaroModel = {
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
   }),
-
   getAllInfo: thunk(async (actions, node) => {
     await actions.getAssets(node);
     await actions.getBalances(node);
@@ -168,7 +179,7 @@ const taroModel: TaroModel = {
       if (autoFund) {
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
-          sats: TARO_MIN_LND_BALANCE.toString(),
+          sats: (2 * TARO_MIN_LND_BALANCE).toString(),
         });
       }
       const api = injections.taroFactory.getService(node);

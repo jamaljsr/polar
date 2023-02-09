@@ -181,6 +181,9 @@ describe('MintAssetModal', () => {
       });
       fireEvent.click(getByText('Deposit enough funds to alice'));
       fireEvent.click(getByText('Mint'));
+      await waitFor(() => {
+        expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();
+      });
     });
 
     it('should show an error for duplicate names', async () => {
