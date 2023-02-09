@@ -1,14 +1,14 @@
 import React from 'react';
 import { LndNode, Status } from 'shared/types';
 import { getNetwork, renderWithProviders } from 'utils/tests';
-import TaroLnd from './TaroLnd';
+import TaroBackend from './TaroBackend';
 
 describe('Taro Lnd Link Component', () => {
   const renderComponent = () => {
     const network = getNetwork(1, 'test network', Status.Stopped, 1);
     const from = network.nodes.taro[0];
     const to = network.nodes.lightning[0] as LndNode;
-    const result = renderWithProviders(<TaroLnd from={from} to={to} />);
+    const result = renderWithProviders(<TaroBackend from={from} to={to} />);
     return {
       ...result,
       from,
