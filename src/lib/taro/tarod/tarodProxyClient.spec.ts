@@ -57,4 +57,24 @@ describe('TarodProxyClient', () => {
       req,
     });
   });
+  it('should call the send ipc', () => {
+    const req = {
+      taroAddr: 'taro1test',
+    };
+    tarodProxyClient.sendAsset(node, req);
+    expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.sendAsset, {
+      node,
+      req,
+    });
+  });
+  it('should call the decodeAddress ipc', () => {
+    const req = {
+      addr: 'taro1test',
+    };
+    tarodProxyClient.decodeAddress(node, req);
+    expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.decodeAddress, {
+      node,
+      req,
+    });
+  });
 });

@@ -62,7 +62,7 @@ const mintAsset = async (args: {
 const newAddress = async (args: {
   node: TarodNode;
   req: TARO.NewAddressRequest;
-}): Promise<TARO.AddressResponse> => {
+}): Promise<TARO.Addr> => {
   const rpc = await getRpc(args.node);
   return await rpc.newAddr(args.req);
 };
@@ -78,7 +78,7 @@ const sendAsset = async (args: {
 const decodeAddress = async (args: {
   node: TarodNode;
   req: TARO.DecodeAddressRequest;
-}): Promise<TARO.AddressResponse> => {
+}): Promise<TARO.Addr> => {
   const rpc = await getRpc(args.node);
   return await rpc.decodeAddr(args.req);
 };

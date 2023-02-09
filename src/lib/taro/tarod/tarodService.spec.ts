@@ -5,6 +5,7 @@ import {
   defaultTarodListBalances,
   defaultTarodMintAsset,
   defaultTarodNewAddress,
+  defaultTarodSendAsset,
 } from 'shared';
 import { TarodNode } from 'shared/types';
 import { getNetwork } from 'utils/tests';
@@ -92,6 +93,41 @@ describe('TarodService', () => {
     const expected = expect.objectContaining({ batchKey: expect.anything() });
     tarodProxyClient.mintAsset = jest.fn().mockResolvedValue(apiResponse);
     const actual = await tarodService.mintAsset(node, {});
+    expect(actual).toEqual(expected);
+  });
+
+  it('should send an asset', async () => {
+    const apiResponse = defaultTarodSendAsset({});
+    const expected = expect.objectContaining({
+      transferTxid: expect.anything(),
+      anchorOutputIndex: expect.anything(),
+      transferTxBytes: expect.anything(),
+      totalFeeSats: expect.anything(),
+    });
+
+    tarodProxyClient.sendAsset = jest.fn().mockResolvedValue(apiResponse);
+    const actual = await tarodService.sendAsset(node, {
+      taroAddr: 'addr',
+    });
+    expect(actual).toEqual(expected);
+  });
+
+  it('shoud decode an address', async () => {
+    const apiResponse = defaultTarodNewAddress({});
+    const expected = expect.objectContaining({
+      encoded: expect.anything(),
+      id: expect.anything(),
+      type: expect.anything(),
+      amount: expect.anything(),
+      family: expect.anything(),
+      scriptKey: expect.anything(),
+      internalKey: expect.anything(),
+      taprootOutputKey: expect.anything(),
+    });
+    tarodProxyClient.decodeAddress = jest.fn().mockResolvedValue(apiResponse);
+    const actual = await tarodService.decodeAddress(node, {
+      addr: 'addr',
+    });
     expect(actual).toEqual(expected);
   });
 

@@ -249,6 +249,15 @@ describe('TaroDetails', () => {
       expect(nodeName).toEqual(node.name);
     });
 
+    it('should handle send address button click', async () => {
+      const { findByText, node, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Send Asset'));
+      const { visible, nodeName } = store.getState().modals.sendAsset;
+      expect(visible).toEqual(true);
+      expect(nodeName).toEqual(node.name);
+    });
+
     it('should handle advanced options button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
