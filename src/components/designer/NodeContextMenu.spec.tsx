@@ -97,6 +97,7 @@ describe('NodeContextMenu', () => {
     expect(getByText('View Logs')).toBeInTheDocument();
     expect(getByText('Advanced Options')).toBeInTheDocument();
     expect(getByText('Remove')).toBeInTheDocument();
+    expect(getByText('Send Asset')).toBeInTheDocument();
   });
 
   it('should display the correct options for a stopped taro node', async () => {
@@ -176,6 +177,14 @@ describe('NodeContextMenu', () => {
     fireEvent.click(getByText('New Address'));
     expect(store.getState().modals.newAddress.visible).toBe(true);
     expect(store.getState().modals.newAddress.nodeName).toBe('alice-taro');
+  });
+
+  it('should show the send asset modal', async () => {
+    const { getByText, store } = renderComponent('alice-taro', Status.Started);
+    expect(store.getState().modals.sendAsset.visible).toBe(false);
+    fireEvent.click(getByText('Send Asset'));
+    expect(store.getState().modals.sendAsset.visible).toBe(true);
+    expect(store.getState().modals.sendAsset.nodeName).toBe('alice-taro');
   });
 
   it('should open the terminal', async () => {

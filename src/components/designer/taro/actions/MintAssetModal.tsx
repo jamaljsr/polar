@@ -57,10 +57,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   useEffect(() => {
     //When polar is first opened, we need to populate the state with the lightning node data
     const lndNode = network.nodes.lightning.find(n => n.name === thisTaroNode?.lndName);
-    if (lndNode) {
-      getWalletBalance(lndNode);
-      getAssets(thisTaroNode);
-    }
+    lndNode && getWalletBalance(lndNode) && getAssets(thisTaroNode);
   }, []);
 
   useMemo(() => {

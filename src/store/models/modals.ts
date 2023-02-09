@@ -68,9 +68,6 @@ interface NewAddressModel {
 interface SendAssetModel {
   visible: boolean;
   nodeName?: string;
-  balanceIndex?: number;
-  to?: string;
-  amount?: number;
 }
 
 export interface ModalsModel {

@@ -34,6 +34,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
   const [autoDepositFunds, setAutoDepositFunds] = useState<boolean>(false);
   const [decodedAddress, setDecodedAddress] = useState<TaroAddress>();
   const [assetName, setAssetName] = useState<string>();
+  const [error, setError] = useState<boolean>(false);
 
   //store model
   const { nodes: lightningNodes } = useStoreState(s => s.lightning);
@@ -96,10 +97,12 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         const assetName = assets.find(asset => asset.id === res.id);
         setAssetName(assetName?.name);
         setDecodedAddress(res);
+        setError(false);
       }
     } catch (error: any) {
       setAssetName(undefined);
       setDecodedAddress(undefined);
+      setError(true);
     }
   });
 
@@ -107,8 +110,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     if (taroAddress.length > 0) {
       decodeAddressAsync.execute({ address: taroAddress, node: thisTaroNode });
     } else {
-      setAssetName(undefined);
-      setDecodedAddress(undefined);
+      setError(false);
     }
   };
 
@@ -146,7 +148,6 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     );
   }, [decodedAddress, taroNodes]);
 
-  const badDecode: boolean = !decodedAddress && form.getFieldValue('address')?.length > 0;
   const cmp = (
     <>
       <Form
@@ -159,21 +160,22 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         }}
         onFinish={handleSubmit}
       >
-        <Form.Item
-          name="address"
-          label={l('address')}
-          help={badDecode && l('decodingError')}
-        >
+        <Form.Item name="address" label={l('address')} help={error && l('decodingError')}>
           <Input.TextArea
             rows={5}
-            status={badDecode ? 'error' : ''}
+            status={error ? 'error' : ''}
             placeholder={l('address')}
             onChange={e => handleAddress(e.target.value)}
+            onKeyUp={e => handleAddress(e.currentTarget.value)}
           />
         </Form.Item>
         <div>
-          <Divider>{l('addressInfo')}</Divider>
-          {decodedAddress && (assetName ? successDescriptionCmp : missingAssetCmp)}
+          {decodedAddress && (
+            <>
+              <Divider>{l('addressInfo')}</Divider>
+              {assetName ? successDescriptionCmp : missingAssetCmp}
+            </>
+          )}
         </div>
         {isLNDBalanceLow && !autoDepositFunds && (
           <>
