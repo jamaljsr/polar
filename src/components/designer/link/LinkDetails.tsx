@@ -9,7 +9,7 @@ import SyncButton from '../SyncButton';
 import Backend from './Backend';
 import Channel from './Channel';
 import Peer from './Peer';
-import TaroLnd from './TaroLnd';
+import TaroBackend from './TaroBackend';
 
 interface Props {
   link: ILink;
@@ -54,7 +54,7 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
       const taroNode = taro.find(n => n.name === link.from.nodeId);
       const lndNode = lightning.find(n => n.name === link.to.nodeId);
       if (taroNode && lndNode) {
-        cmp = <TaroLnd from={taroNode} to={lndNode as LndNode} />;
+        cmp = <TaroBackend from={taroNode} to={lndNode as LndNode} />;
       }
   }
 
