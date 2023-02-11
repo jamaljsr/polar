@@ -135,9 +135,7 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
             </Col>
           </Row>
           {network.status === Status.Started && (
-            <Styled.Restart>
-              {l('restartNotice', { name: selectedLNDBackend })}
-            </Styled.Restart>
+            <Styled.Restart>{l('restartNotice', { name: selectedTaro })}</Styled.Restart>
           )}
           {compatWarning && (
             <Alert type="warning" message={compatWarning} closable={false} showIcon />
