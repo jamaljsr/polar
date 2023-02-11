@@ -28,6 +28,14 @@ describe('LinkContextMenu', () => {
       type: 'backend',
     },
   });
+  const createTaroBackendLink = (): ILink => ({
+    id: 'alice-taro-alice',
+    from: { nodeId: 'alice-taro', portId: 'lndbackend' },
+    to: { nodeId: 'alice', portId: 'lndbackend' },
+    properties: {
+      type: 'lndbackend',
+    },
+  });
   const renderComponent = (link: ILink, activeId?: number) => {
     const network = getNetwork(1, 'test network');
     const chart = initChartFromNetwork(network);
@@ -66,6 +74,10 @@ describe('LinkContextMenu', () => {
 
   it('should display the correct options for a backend connection', async () => {
     const { getByText } = renderComponent(createBackendLink());
+    expect(getByText('Change Backend')).toBeInTheDocument();
+  });
+  it('should display the correct options for a backend connection', async () => {
+    const { getByText } = renderComponent(createTaroBackendLink());
     expect(getByText('Change Backend')).toBeInTheDocument();
   });
 

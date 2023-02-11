@@ -61,7 +61,7 @@ describe('Backend component', () => {
     });
   });
 
-  it('should display the ChangeBackend modal', async () => {
+  it('should display the ChangeTaroBackend modal', async () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().modals.changeBackend.visible).toBe(false);
     fireEvent.click(getByText('Change Backend'));

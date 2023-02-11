@@ -1,15 +1,10 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createLndNetworkNode } from 'utils/network';
-import {
-  getNetwork,
-  renderWithProviders,
-  testNodeDocker,
-  testRepoState,
-} from 'utils/tests';
+import { getNetwork, injections, renderWithProviders, testNodeDocker } from 'utils/tests';
 import ChangeTaroBackendModal from './ChangeTaroBackendModal';
 
 describe('ChangeTaroBackendModal', () => {
@@ -92,16 +87,16 @@ describe('ChangeTaroBackendModal', () => {
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
   it('should display the compatibility warning for older bitcoin node', async () => {
-    const { getByText, queryByText, changeSelect, store } = await renderComponent();
-    store.getActions().app.setRepoState(testRepoState);
-    const bitcoindVersion = defaultRepoState.images.bitcoind.latest;
+    const { getByText, queryByText, changeSelect } = await renderComponent();
     const warning =
-      `alice is running Taro v2022.12.28-master which is only compatible with LND v2022.12.28-master and newer.` +
+      `alice-taro is running tarod v2022.12.28-master which is compatible with LND v2022.12.28-master and newer.` +
       ` dave is running LND v0.7.1-beta so it cannot be used.`;
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
-    changeSelect('Lnd Node', 'dave');
+    changeSelect('LND Node', 'dave');
     expect(getByText(warning)).toBeInTheDocument();
+    changeSelect('LND Node', 'alice');
+    expect(queryByText(warning)).not.toBeInTheDocument();
   });
 
   describe('with form submitted', () => {

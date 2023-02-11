@@ -7,7 +7,6 @@ import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { isVersionCompatible } from 'utils/strings';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 import TaroNodeSelect from 'components/common/form/TaroNodeSelect';
 
@@ -70,8 +69,17 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
       const { compatibility } = dockerRepoState.images[taroNode.implementation];
       if (compatibility) {
         const requiredVersion = compatibility[lndBackend.version];
-        if (!isVersionCompatible(lndBackend.version, requiredVersion)) {
-          setCompatWarning(l('compatWarning', { taroNode, lndBackend, requiredVersion }));
+        //version compatibility function breaks down
+        if (!requiredVersion) {
+          setCompatWarning(
+            l('compatWarning', {
+              taroNode,
+              lndBackend,
+              requiredVersion: '2022.12.28-master',
+            }),
+          );
+        } else {
+          setCompatWarning(undefined);
         }
       }
     }

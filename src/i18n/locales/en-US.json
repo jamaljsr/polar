@@ -184,7 +184,7 @@
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.cancelBtn": "Cancel",
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.okBtn": "Change Backend",
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.submitError": "Unable to change the backend node",
-  "cmps.designer.lightning.actions.ChangeTaroBackendModal.compatWarning": "{{taroNode.name}} is running {{taroNode.implementation}} v{{taroNode.version}} which is compatible with LND v{{requiredVersion}} and newer. {{lndBackend.name}} is running v{{lndBackend.version}} so it cannot be used.",
+  "cmps.designer.lightning.actions.ChangeTaroBackendModal.compatWarning": "{{taroNode.name}} is running {{taroNode.implementation}} v{{taroNode.version}} which is compatible with LND v{{requiredVersion}} and newer. {{lndBackend.name}} is running LND v{{lndBackend.version}} so it cannot be used.",
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.successTitle": "Successfully updated the backend node",
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.successDesc": "The {{taroName}} node will use {{LNDName}}",
   "cmps.designer.lightning.actions.Deposit.title": "Deposit Funds",
