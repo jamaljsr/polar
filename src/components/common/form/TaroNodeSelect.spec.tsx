@@ -35,8 +35,7 @@ describe('TaroNodeSelect', () => {
   });
 
   it('should display the nodes', async () => {
-    const { getAllByText, getByLabelText, findByText, queryAllByText } =
-      renderComponent();
+    const { getAllByText, getByLabelText } = renderComponent();
     fireEvent.mouseDown(getByLabelText('Taro Nodes'));
     expect(getAllByText('alice-taro')[0]).toBeInTheDocument();
     expect(getAllByText('bob-taro')[0]).toBeInTheDocument();

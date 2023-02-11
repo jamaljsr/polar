@@ -528,8 +528,8 @@ const networkModel: NetworkModel = {
       if (!lndNode) throw new Error(l('nodeByNameErr', { name: lndName }));
       const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
       if (!taroNode) throw new Error(l('nodeByNameErr', { name: taroName }));
-      if (lndNode.backendName === lndName)
-        throw new Error(l('connectedErr', { taroName, lndName }));
+      if (taroNode.lndName === lndName)
+        throw new Error(l('connectedErr', { lnName: taroName, backendName: lndName }));
 
       if (network.status === Status.Started) {
         // stop the Taro node container

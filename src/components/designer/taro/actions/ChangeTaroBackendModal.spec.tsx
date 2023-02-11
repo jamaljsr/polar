@@ -1,10 +1,15 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createLndNetworkNode } from 'utils/network';
-import { getNetwork, injections, renderWithProviders, testNodeDocker } from 'utils/tests';
+import {
+  getNetwork,
+  renderWithProviders,
+  testNodeDocker,
+  testRepoState,
+} from 'utils/tests';
 import ChangeTaroBackendModal from './ChangeTaroBackendModal';
 
 describe('ChangeTaroBackendModal', () => {
@@ -14,7 +19,7 @@ describe('ChangeTaroBackendModal', () => {
     taroName = 'alice-taro',
     lndName = 'alice',
   ) => {
-    const network = getNetwork(1, 'test network', status, 1);
+    const network = getNetwork(1, 'test network', status, 2);
     const { compatibility } = defaultRepoState.images.LND;
     const otherLND = createLndNetworkNode(
       network,
@@ -23,6 +28,14 @@ describe('ChangeTaroBackendModal', () => {
       testNodeDocker,
     );
     network.nodes.lightning.push(otherLND);
+    const oldLnd = createLndNetworkNode(
+      network,
+      '0.7.1-beta',
+      compatibility,
+      testNodeDocker,
+      status,
+    );
+    network.nodes.lightning.push(oldLnd);
     const initialState = {
       network: {
         networks: [network],
@@ -58,10 +71,17 @@ describe('ChangeTaroBackendModal', () => {
     expect(getByText('alice')).toBeInTheDocument();
   });
   it('should render the restart notice', async () => {
-    const { getByText } = await renderComponent(Status.Started);
+    const { getByText, changeSelect } = await renderComponent(Status.Started);
+    changeSelect('Taro Node', 'bob-taro');
     expect(
-      getByText('The alice node will be restarted automatically to apply the change.'),
+      getByText('The bob-taro node will be restarted automatically to apply the change.'),
     ).toBeInTheDocument();
+  });
+  it('should render button', async () => {
+    const { getByText } = await renderComponent();
+    const btn = getByText('Change Backend');
+    expect(btn).toBeInTheDocument();
+    expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
   });
   it('should hide modal when cancel is clicked', async () => {
     const { getByText, queryByText } = await renderComponent();
@@ -71,38 +91,56 @@ describe('ChangeTaroBackendModal', () => {
     fireEvent.click(getByText('Cancel'));
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
+  it('should display the compatibility warning for older bitcoin node', async () => {
+    const { getByText, queryByText, changeSelect, store } = await renderComponent();
+    store.getActions().app.setRepoState(testRepoState);
+    const bitcoindVersion = defaultRepoState.images.bitcoind.latest;
+    const warning =
+      `alice is running Taro v2022.12.28-master which is only compatible with LND v2022.12.28-master and newer.` +
+      ` dave is running LND v0.7.1-beta so it cannot be used.`;
+    expect(queryByText(warning)).not.toBeInTheDocument();
+    expect(getByText('Cancel')).toBeInTheDocument();
+    changeSelect('Lnd Node', 'dave');
+    expect(getByText(warning)).toBeInTheDocument();
+  });
 
   describe('with form submitted', () => {
     it('should update the backend successfully', async () => {
       const { getByText, changeSelect, store } = await renderComponent();
-      changeSelect('Bitcoin Node', 'backend2');
+      changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
-        expect(store.getState().modals.changeBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
       });
-      expect(
-        getByText('The alice node will pull chain data from backend2'),
-      ).toBeInTheDocument();
+      expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
     it('should succeed if a previous link does not exist', async () => {
       const { getByText, changeSelect, store } = await renderComponent();
-      store.getActions().designer.removeLink('alice-backend1');
-      changeSelect('Bitcoin Node', 'backend2');
+      store.getActions().designer.removeLink('alice-taro-alice');
+      changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
-        expect(store.getState().modals.changeBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
       });
-      expect(
-        getByText('The alice node will pull chain data from backend2'),
-      ).toBeInTheDocument();
+      expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
     it('should restart containers when backend is updated', async () => {
       const { getByText, changeSelect } = await renderComponent(Status.Started);
-      changeSelect('Bitcoin Node', 'backend2');
+      changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
         expect(injections.dockerService.stopNode).toBeCalledTimes(1);
         expect(injections.dockerService.startNode).toBeCalledTimes(1);
+      });
+    });
+    it('should error if the backend is not changed', async () => {
+      const { getByText, changeSelect } = await renderComponent();
+      changeSelect('LND Node', 'alice');
+      fireEvent.click(getByText('Change Backend'));
+      await waitFor(() => {
+        expect(
+          getByText("The node 'alice-taro' is already connected to 'alice'"),
+        ).toBeInTheDocument();
       });
     });
   });

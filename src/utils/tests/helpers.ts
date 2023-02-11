@@ -132,6 +132,9 @@ export const testRepoState: DockerRepoState = {
     tarod: {
       latest: '2022.12.28-master',
       versions: ['2022.12.28-master', '0.1.1-alpha'],
+      compatibility: {
+        '2022.12.28-master': '2022.12.28-master',
+      },
     },
   },
 };
