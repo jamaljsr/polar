@@ -91,21 +91,21 @@ describe('SendAssetModal', () => {
         defaultTaroAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
     });
-    it('an alert should display', async () => {
-      const { findByText, getByLabelText, getByText } = await renderComponent();
+    it('should an alert should display', async () => {
+      const { findByText } = await renderComponent();
       expect(
         await findByText('Insufficient balance on lnd node alice'),
       ).toBeInTheDocument();
     });
-    it('auto deposit should be present', async () => {
+    it('should auto deposit should be present', async () => {
       const { findByText, getByText } = await renderComponent();
       expect(
         await findByText('Insufficient balance on lnd node alice'),
       ).toBeInTheDocument();
       expect(getByText('Deposit enough funds to alice')).toBeInTheDocument();
     });
-    it('a clicked auto deposit should disable the alert', async () => {
-      const { queryByText, getByLabelText, getByText } = await renderComponent();
+    it('should disable the alert when auto deposit is enabled', async () => {
+      const { queryByText, getByText } = await renderComponent();
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toBeCalled();
       });
@@ -149,7 +149,7 @@ describe('SendAssetModal', () => {
       );
     });
     it('should not display an alert or auto deposit', async () => {
-      const { queryByText, getByLabelText } = await renderComponent();
+      const { queryByText } = await renderComponent();
       expect(
         queryByText('Insufficient balance on lnd node alice'),
       ).not.toBeInTheDocument();
@@ -210,7 +210,7 @@ describe('SendAssetModal', () => {
       });
     });
 
-    it('and the asset is missing it should warn', async () => {
+    it('should warn when asset is missing', async () => {
       taroServiceMock.decodeAddress.mockResolvedValue(
         defaultTaroAddress({ id: 'badid' }),
       );
@@ -241,7 +241,7 @@ describe('SendAssetModal', () => {
       });
       expect(getByText('ERROR: Invalid Address')).toBeInTheDocument();
     });
-    it('error clears when taro address field is reset', async () => {
+    it('should clear the error when taro address field is reset', async () => {
       const { getByText, getByLabelText, queryByText } = await renderComponent();
       const input = getByLabelText('Taro Address');
       expect(input).toBeInTheDocument();
