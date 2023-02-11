@@ -92,4 +92,5 @@ export const defaultTaroSendAssetReceipt = (
   transferTxBytes: '',
   totalFeeSats: '',
   taroTransfer: null,
+  ...value,
 });
