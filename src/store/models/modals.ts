@@ -88,7 +88,6 @@ export interface ModalsModel {
   assetInfo: AssetInfoModel;
   mintAsset: MintAssetModel;
   newAddress: NewAddressModel;
-  sendAsset: SendAssetModel;
   changeTaroBackend: ChangeTaroBackendModel;
   sendAsset: SendAssetModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
@@ -312,19 +311,6 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  //Send Taro Asset Modal
-  showSendAsset: thunk((actions, { nodeName }) => {
-    actions.setSendAsset({ visible: true, nodeName });
-  }),
-  hideSendAsset: thunk(actions => {
-    actions.setSendAsset({ visible: false });
-  }),
-  setSendAsset: action((state, payload) => {
-    state.sendAsset = {
-      ...state.sendAsset,
-      ...payload,
-    };
-  }),
   showChangeTaroBackend: thunk((actions, { taroName, lndName }) => {
     actions.setChangeTaroBackend({ visible: true, taroName, lndName });
   }),
@@ -347,6 +333,18 @@ const modalsModel: ModalsModel = {
   setSendAsset: action((state, payload) => {
     state.sendAsset = {
       ...state.sendAsset,
+      ...payload,
+    };
+  }),
+  showChangeTaroBackend: thunk((actions, { taroName, lndName }) => {
+    actions.setChangeTaroBackend({ visible: true, taroName, lndName });
+  }),
+  hideChangeTaroBackend: thunk(actions => {
+    actions.setChangeTaroBackend({ visible: false });
+  }),
+  setChangeTaroBackend: action((state, payload) => {
+    state.changeTaroBackend = {
+      ...state.changeTaroBackend,
       ...payload,
     };
   }),
