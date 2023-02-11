@@ -107,6 +107,12 @@ export interface NetworkModel {
     StoreInjections,
     RootModel
   >;
+  updateTaroBakendNode: Thunk<
+    NetworkModel,
+    { id: number; taroName: string; backendName: string },
+    StoreInjections,
+    RootModel
+  >;
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean; error?: Error }

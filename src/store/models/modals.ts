@@ -16,6 +16,13 @@ interface ChangeBackendModel {
   linkId?: string;
 }
 
+interface ChangeTaroBackendModel {
+  visible: boolean;
+  taroName?: string;
+  lndName?: string;
+  linkId?: string;
+}
+
 interface CreateInvoiceModel {
   visible: boolean;
   nodeName?: string;
@@ -81,6 +88,7 @@ export interface ModalsModel {
   assetInfo: AssetInfoModel;
   mintAsset: MintAssetModel;
   newAddress: NewAddressModel;
+  changeTaroBackend: ChangeTaroBackendModel;
   sendAsset: SendAssetModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
@@ -112,6 +120,13 @@ export interface ModalsModel {
   showNewAddress: Thunk<ModalsModel, Partial<NewAddressModel>, StoreInjections>;
   hideNewAddress: Thunk<ModalsModel>;
   setNewAddress: Action<ModalsModel, Partial<NewAddressModel>>;
+  showChangeTaroBackend: Thunk<
+    ModalsModel,
+    Partial<ChangeTaroBackendModel>,
+    StoreInjections
+  >;
+  hideChangeTaroBackend: Thunk<ModalsModel>;
+  setChangeTaroBackend: Action<ModalsModel, Partial<ChangeTaroBackendModel>>;
   setSendAsset: Action<ModalsModel, SendAssetModel>;
   hideSendAsset: Thunk<ModalsModel>;
   showSendAsset: Thunk<ModalsModel, Partial<SendAssetModel>, StoreInjections>;
@@ -129,6 +144,7 @@ const modalsModel: ModalsModel = {
   imageUpdates: { visible: false },
   sendOnChain: { visible: false },
   assetInfo: { visible: false },
+  changeTaroBackend: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -289,6 +305,18 @@ const modalsModel: ModalsModel = {
   setNewAddress: action((state, payload) => {
     state.newAddress = {
       ...state.newAddress,
+      ...payload,
+    };
+  }),
+  showChangeTaroBackend: thunk((actions, { taroName, lndName }) => {
+    actions.setChangeTaroBackend({ visible: true, taroName, lndName });
+  }),
+  hideChangeTaroBackend: thunk(actions => {
+    actions.setChangeTaroBackend({ visible: false });
+  }),
+  setChangeTaroBackend: action((state, payload) => {
+    state.changeTaroBackend = {
+      ...state.changeTaroBackend,
       ...payload,
     };
   }),
