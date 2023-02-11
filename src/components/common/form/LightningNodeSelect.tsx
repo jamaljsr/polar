@@ -25,7 +25,6 @@ const LightningNodeSelect: React.FC<Props> = ({
   name,
   label,
   nodeStatus,
-
   implementation,
   initialValue,
   nodes,
@@ -54,7 +53,6 @@ const LightningNodeSelect: React.FC<Props> = ({
   if (nodeStatus !== undefined) {
     lnNodes = lnNodes.filter(n => n.status === nodeStatus);
   }
-
   if (implementation) {
     lnNodes = lnNodes.filter(n => n.implementation === implementation);
   }

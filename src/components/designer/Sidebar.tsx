@@ -29,7 +29,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       }
     } else if (type === 'link' && id) {
       const link = chart.links[id];
-      return <LinkDetails link={link} network={network} />;
+      if (link) return <LinkDetails link={link} network={network} />;
     }
 
     return <DefaultSidebar />;

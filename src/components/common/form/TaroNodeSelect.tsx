@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Select } from 'antd';
 import { SelectProps, SelectValue } from 'antd/lib/select';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
-import { LightningNodeModel } from 'store/models/lightning';
 import { Network } from 'types';
 
 export interface Props extends SelectProps<SelectValue> {
@@ -12,9 +11,6 @@ export interface Props extends SelectProps<SelectValue> {
   label?: string;
   nodeStatus?: Status;
   initialValue?: string;
-  nodes?: {
-    [key: string]: LightningNodeModel;
-  };
 }
 
 const TaroNodeSelect: React.FC<Props> = ({
@@ -22,16 +18,12 @@ const TaroNodeSelect: React.FC<Props> = ({
   name,
   label,
   nodeStatus,
-  initialValue,
-  nodes,
   onChange,
   ...rest
 }) => {
-  const { l } = usePrefixedTranslation('cmps.common.form.LightningNodeSelect');
-  const [selected, setSelected] = useState(initialValue || '');
+  const { l } = usePrefixedTranslation('cmps.common.form.TaroNodeSelect');
 
   const handleChange = (value: SelectValue, option: any) => {
-    setSelected(`${value}`);
     if (onChange) onChange(value, option);
   };
 
