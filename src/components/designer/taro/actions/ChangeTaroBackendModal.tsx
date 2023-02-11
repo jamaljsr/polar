@@ -38,15 +38,15 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
   const [selectedLNDBackend, setSelectedLNDBackend] = useState(lndName);
   const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeTaroBackend } = useStoreActions(s => s.modals);
-  const { updateBackendNode } = useStoreActions(s => s.network);
+  const { updateTaroBackendNode } = useStoreActions(s => s.network);
   const { notify } = useStoreActions(s => s.app);
 
-  const changeAsync = useAsyncCallback(async (ln: string, backend: string) => {
+  const changeAsync = useAsyncCallback(async (taroName: string, lndName: string) => {
     try {
-      await updateBackendNode({
+      await updateTaroBackendNode({
         id: network.id,
-        lnName: ln,
-        backendName: backend,
+        taroName,
+        lndName,
       });
       notify({
         message: l('successTitle'),
@@ -59,15 +59,15 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
   });
 
   useEffect(() => {
-    const { lightning, bitcoin } = network.nodes;
-    const ln = lightning.find(n => n.name === selectedTaro);
-    const backend = bitcoin.find(n => n.name === selectedLNDBackend);
-    if (ln && backend) {
-      const { compatibility } = dockerRepoState.images[ln.implementation];
+    const { lightning, taro } = network.nodes;
+    const taroNode = taro.find(n => n.name === selectedTaro);
+    const lndBackend = lightning.find(n => n.name === selectedLNDBackend);
+    if (taroNode && lndBackend) {
+      const { compatibility } = dockerRepoState.images[taroNode.implementation];
       if (compatibility) {
-        const requiredVersion = compatibility[ln.version];
-        if (!isVersionCompatible(backend.version, requiredVersion)) {
-          setCompatWarning(l('compatWarning', { ln, backend, requiredVersion }));
+        const requiredVersion = compatibility[lndBackend.version];
+        if (!isVersionCompatible(lndBackend.version, requiredVersion)) {
+          setCompatWarning(l('compatWarning', { taroNode, lndBackend, requiredVersion }));
         }
       }
     }
@@ -75,11 +75,11 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
 
   const handleSubmit = () => {
     const { lightning, taro } = network.nodes;
-    const { lnNode, backendNode } = form.getFieldsValue();
+    const { taroName, LNDName } = form.getFieldsValue();
     const taroNode = taro.find(n => n.name === taroName);
-    const backend = lightning.find(n => n.name === backendNode);
-    if (!taroNode || !backend) return;
-    changeAsync.execute(taroNode.name, backend.name);
+    const LNDBackend = lightning.find(n => n.name === LNDName);
+    if (!taroNode || !LNDBackend) return;
+    changeAsync.execute(taroNode.name, LNDBackend.name);
   };
 
   return (

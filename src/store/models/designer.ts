@@ -42,6 +42,7 @@ export interface DesignerModel {
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   updateBackendLink: Action<DesignerModel, { lnName: string; backendName: string }>;
+  updateTaroBackendLink: Action<DesignerModel, { taroName: string; lndName: string }>;
   removeNode: Action<DesignerModel, string>;
   addNode: Action<DesignerModel, { newNode: AnyNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
@@ -178,6 +179,24 @@ const designerModel: DesignerModel = {
       to: { nodeId: backendName, portId: 'backend' },
       properties: {
         type: 'backend',
+      },
+    };
+  }),
+  updateTaroBackendLink: action((state, { taroName, lndName }) => {
+    const chart = state.allCharts[state.activeId];
+    // remove the old ln -> backend link
+    const prevLink = Object.values(chart.links).find(
+      l => l.from.nodeId === taroName && l.from.portId === 'lndbackend',
+    );
+    if (prevLink) delete chart.links[prevLink.id];
+    // create a new link using the standard naming convention
+    const newId = `${taroName}-${lndName}`;
+    chart.links[newId] = {
+      id: newId,
+      from: { nodeId: taroName, portId: 'lndbackend' },
+      to: { nodeId: lndName, portId: 'lndbackend' },
+      properties: {
+        type: 'lndbackend',
       },
     };
   }),
