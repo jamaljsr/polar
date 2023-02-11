@@ -45,6 +45,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   let items: MenuProps['items'] = [];
   items = items.concat(
     addItemIf(
+      'sendAsset',
+      <SendAssetButton type={'menu'} node={node as TaroNode} />,
+      isStarted && isTaro,
+    ),
+    addItemIf(
       'newAddress',
       <NewAddressButton type={'menu'} node={node as TaroNode} />,
       isStarted && isTaro,
@@ -52,11 +57,6 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     addItemIf(
       'mintAsset',
       <MintAssetButton type={'menu'} node={node as TaroNode} />,
-      isStarted && isTaro,
-    ),
-    addItemIf(
-      'sendAsset',
-      <SendAssetButton type={'menu'} node={node as TaroNode} />,
       isStarted && isTaro,
     ),
     addItemIf(
