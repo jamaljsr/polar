@@ -33,24 +33,28 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
   );
   const [form] = Form.useForm();
   const [compatWarning, setCompatWarning] = useState<string>();
-  const { visible, lndName, taroName } = useStoreState(s => s.modals.changeTaroBackend);
+  const {
+    visible,
+    lndName: LNDName,
+    taroName,
+  } = useStoreState(s => s.modals.changeTaroBackend);
   const [selectedTaro, setSelectedTaro] = useState(taroName);
-  const [selectedLNDBackend, setSelectedLNDBackend] = useState(lndName);
+  const [selectedLNDBackend, setSelectedLNDBackend] = useState(LNDName);
   const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeTaroBackend } = useStoreActions(s => s.modals);
   const { updateTaroBackendNode } = useStoreActions(s => s.network);
   const { notify } = useStoreActions(s => s.app);
 
-  const changeAsync = useAsyncCallback(async (taroName: string, lndName: string) => {
+  const changeAsync = useAsyncCallback(async (taroName: string, LNDName: string) => {
     try {
       await updateTaroBackendNode({
         id: network.id,
         taroName,
-        lndName,
+        lndName: LNDName,
       });
       notify({
         message: l('successTitle'),
-        description: l('successDesc', { taroName, lndName }),
+        description: l('successDesc', { taroName, LNDName }),
       });
       hideChangeTaroBackend();
     } catch (error: any) {
@@ -103,7 +107,7 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
           layout="vertical"
           hideRequiredMark
           colon={false}
-          initialValues={{ taroName: taroName, LNDName: lndName }}
+          initialValues={{ taroName: taroName, LNDName: LNDName }}
           onFinish={handleSubmit}
         >
           <Row gutter={16}>

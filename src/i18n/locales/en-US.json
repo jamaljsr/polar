@@ -186,7 +186,7 @@
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.submitError": "Unable to change the backend node",
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.compatWarning": "{{ln.name}} is running {{ln.implementation}} v{{ln.version}} which is compatible with Bitcoin Core v{{requiredVersion}} and older. {{backend.name}} is running v{{backend.version}} so it cannot be used.",
   "cmps.designer.lightning.actions.ChangeTaroBackendModal.successTitle": "Successfully updated the backend node",
-  "cmps.designer.lightning.actions.ChangeTaroBackendModal.successDesc": "The {{taro}} node will pull chain data from {{LNDbackend}}",
+  "cmps.designer.lightning.actions.ChangeTaroBackendModal.successDesc": "The {{taroName}} node will use {{LNDName}}",
   "cmps.designer.lightning.actions.Deposit.title": "Deposit Funds",
   "cmps.designer.lightning.actions.Deposit.depositBtn": "Deposit",
   "cmps.designer.lightning.actions.Deposit.depositSuccess": "Deposited {{amount}} sats to {{node}}",
