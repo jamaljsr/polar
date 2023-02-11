@@ -4,6 +4,7 @@ import { LndNode, Status, TaroNode } from 'shared/types';
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
+import ChangeTaroBackendButton from './ChangeTaroBackendButton';
 
 interface Props {
   from: TaroNode;
@@ -38,6 +39,7 @@ const TaroBackend: React.FC<Props> = ({ from, to }) => {
       <p>{l('desc')}</p>
       <DetailsList title={l('taroTitle')} details={fromDetails} />
       <DetailsList title={l('lndTitle')} details={toDetails} />
+      <ChangeTaroBackendButton taroName={from.name} lndName={to.name} />
     </SidebarCard>
   );
 };
