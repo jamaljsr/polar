@@ -11,7 +11,7 @@ interface Props {
 }
 
 const TaroBackend: React.FC<Props> = ({ from, to }) => {
-  const { l } = usePrefixedTranslation('cmps.designer.link.tarobackend');
+  const { l } = usePrefixedTranslation('cmps.designer.link.TaroBackend');
 
   const fromDetails: DetailValues = [
     { label: l('name'), value: from.name },
