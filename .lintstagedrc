@@ -1,10 +1,8 @@
 {
   "*.{ts,tsx}": [
-    "eslint --ext .ts,.tsx --fix",
+    "eslint --ext .ts,.tsx --fix --max-warnings 0",
     "prettier --single-quote --write"
   ],
-  "{.{babelrc,eslintrc,prettierrc,stylelintrc}}": [
-    "prettier --parser json --write"
-  ],
+  "{.{babelrc,eslintrc,prettierrc,stylelintrc}}": ["prettier --parser json --write"],
   "*.{yml,md}": ["prettier --single-quote --write"]
 }
