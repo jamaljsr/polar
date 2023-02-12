@@ -138,5 +138,12 @@ describe('ChangeTaroBackendModal', () => {
         ).toBeInTheDocument();
       });
     });
+    it('should do nothing if an invalid node is selected', async () => {
+      const { getByText } = await renderComponent(Status.Stopped, 'invalid');
+      fireEvent.click(getByText('Change Backend'));
+      await waitFor(() => {
+        expect(getByText('Change Backend')).toBeInTheDocument();
+      });
+    });
   });
 });

@@ -157,6 +157,15 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('Lightning Node')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
+  it('should display the ChangeTaroBackend modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showChangeTaroBackend({});
+    });
+    expect(await findByText('Change Taro Node Backend')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
 
   it('should display the Send Onchain modal', async () => {
     const { getByText, findByText, store } = renderComponent();

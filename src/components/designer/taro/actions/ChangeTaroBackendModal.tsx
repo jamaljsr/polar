@@ -81,6 +81,8 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
         } else {
           setCompatWarning(undefined);
         }
+      } else {
+        setCompatWarning(undefined);
       }
     }
   }, [dockerRepoState, l, network.nodes, selectedTaro, selectedLNDBackend]);
