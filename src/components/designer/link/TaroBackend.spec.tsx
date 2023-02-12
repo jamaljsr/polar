@@ -30,7 +30,7 @@ describe('Taro Lnd Link Component', () => {
     const { getAllByText, from } = renderComponent();
     expect(getAllByText(`v${from.version}`)).toHaveLength(2);
   });
-  it('should display the ChangeTaroyarn ciBackend modal', async () => {
+  it('should display the ChangeTaroBackend modal', async () => {
     const { getByText, store } = renderComponent();
     expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
     fireEvent.click(getByText('Change Backend'));
