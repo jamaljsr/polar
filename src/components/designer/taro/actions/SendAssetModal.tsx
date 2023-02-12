@@ -3,7 +3,7 @@ import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Divider, Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TarodNode } from 'shared/types';
-import { TaroAddress } from 'lib/taro/types';
+import { TaroAddress, TaroAsset } from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import {
   DecodeAddressPayload,
@@ -44,11 +44,11 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
 
   //component local variables
   const [form] = Form.useForm();
-  const thisTaroNode = network.nodes.taro.find(
+  const thisTaroNode: TarodNode = network.nodes.taro.find(
     node => node.name === nodeName,
   ) as TarodNode;
-  const tN = taroNodes[thisTaroNode?.name];
-  const assets = tN?.assets || [];
+
+  const assets: TaroAsset[] = taroNodes[thisTaroNode.name].assets || [];
 
   const sendAssetAsync = useAsyncCallback(async (payload: SendAssetPayload) => {
     try {
@@ -68,9 +68,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
   //When polar is first opened, we need to populate the state with the lightning node data
   useEffect(() => {
     const lndNode = network.nodes.lightning.find(n => n.name === thisTaroNode?.lndName);
-    if (lndNode) {
-      getWalletBalance(lndNode);
-    }
+    lndNode && getWalletBalance(lndNode);
   }, []);
 
   useMemo(() => {
@@ -93,12 +91,10 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
   const decodeAddressAsync = useAsyncCallback(async (payload: DecodeAddressPayload) => {
     try {
       const res = await decodeAddress(payload);
-      if (res) {
-        const assetName = assets.find(asset => asset.id === res.id);
-        setAssetName(assetName?.name);
-        setDecodedAddress(res);
-        setError(false);
-      }
+      const assetName = assets.find(asset => asset.id === res.id);
+      setAssetName(assetName?.name);
+      setDecodedAddress(res);
+      setError(false);
     } catch (error: any) {
       setAssetName(undefined);
       setDecodedAddress(undefined);
@@ -166,7 +162,6 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
             status={error ? 'error' : ''}
             placeholder={l('address')}
             onChange={e => handleAddress(e.target.value)}
-            onKeyUp={e => handleAddress(e.currentTarget.value)}
           />
         </Form.Item>
         <div>
