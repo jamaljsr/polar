@@ -1,6 +1,6 @@
 import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
 import * as TARO from 'shared/tarodTypes';
-import { LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
+import { BitcoinNode, LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
@@ -188,9 +188,7 @@ const taroModel: TaroModel = {
       };
       const res = await api.sendAsset(node, sendReq);
       //update network
-      const btcNode =
-        network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
-        network.nodes.bitcoin[0];
+      const btcNode: BitcoinNode = network.nodes.bitcoin[0];
       //missing await is intentional, we dont have to wait for bitcoin to mine
       getStoreActions().bitcoind.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
