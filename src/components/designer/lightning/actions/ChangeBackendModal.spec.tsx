@@ -137,6 +137,8 @@ describe('ChangeBackendModal', () => {
     expect(getByText('Cancel')).toBeInTheDocument();
     changeSelect('Lightning Node', 'erin');
     expect(getByText(warning)).toBeInTheDocument();
+    changeSelect('Lightning Node', 'alice');
+    expect(queryByText(warning)).not.toBeInTheDocument();
   });
 
   it('should not display the compatibility warning', async () => {
