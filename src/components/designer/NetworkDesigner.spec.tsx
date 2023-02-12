@@ -189,6 +189,15 @@ describe('NetworkDesigner Component', () => {
     ).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
+  it('should display the Send Address modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showSendAsset({ nodeName: 'alice-taro' });
+    });
+    expect(await findByText('Send Asset from alice-taro')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
 
   it('should display the AdvancedOptions modal', async () => {
     const { getByText, findByText, store } = renderComponent();
