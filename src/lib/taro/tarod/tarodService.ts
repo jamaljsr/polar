@@ -18,7 +18,7 @@ class TarodService implements TaroService {
       id: res.assetId.toString(),
       type: res.assetType,
       amount: res.amount,
-      family: res.groupKey ? res.groupKey.toString() : undefined,
+      family: res.groupKey.toString(),
       scriptKey: res.scriptKey.toString(),
       internalKey: res.internalKey.toString(),
       taprootOutputKey: res.taprootOutputKey.toString(),
