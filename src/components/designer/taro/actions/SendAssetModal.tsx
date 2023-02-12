@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Divider, Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TarodNode } from 'shared/types';
+import { LightningNode, TarodNode } from 'shared/types';
 import { TaroAddress, TaroAsset } from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import {
@@ -67,8 +67,10 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
   });
   //When polar is first opened, we need to populate the state with the lightning node data
   useEffect(() => {
-    const lndNode = network.nodes.lightning.find(n => n.name === thisTaroNode?.lndName);
-    lndNode && getWalletBalance(lndNode);
+    const lndNode: LightningNode = network.nodes.lightning.find(
+      n => n.name === thisTaroNode?.lndName,
+    ) as LightningNode;
+    getWalletBalance(lndNode);
   }, []);
 
   useMemo(() => {
