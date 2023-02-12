@@ -4,7 +4,13 @@ import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createLndNetworkNode } from 'utils/network';
-import { getNetwork, injections, renderWithProviders, testNodeDocker } from 'utils/tests';
+import {
+  getNetwork,
+  injections,
+  renderWithProviders,
+  testNodeDocker,
+  testRepoState,
+} from 'utils/tests';
 import ChangeTaroBackendModal from './ChangeTaroBackendModal';
 
 describe('ChangeTaroBackendModal', () => {
@@ -87,7 +93,8 @@ describe('ChangeTaroBackendModal', () => {
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
   it('should display the compatibility warning for older bitcoin node', async () => {
-    const { getByText, queryByText, changeSelect } = await renderComponent();
+    const { getByText, queryByText, changeSelect, store } = await renderComponent();
+    store.getActions().app.setRepoState(testRepoState);
     const warning =
       `alice-taro is running tarod v2022.12.28-master which is compatible with LND v2022.12.28-master and newer.` +
       ` dave is running LND v0.7.1-beta so it cannot be used.`;
@@ -97,6 +104,19 @@ describe('ChangeTaroBackendModal', () => {
     expect(getByText(warning)).toBeInTheDocument();
     changeSelect('LND Node', 'alice');
     expect(queryByText(warning)).not.toBeInTheDocument();
+  });
+  it('should not display the compatibility warning', async () => {
+    const { queryByLabelText, changeSelect, store } = await renderComponent(
+      Status.Stopped,
+      'bob',
+    );
+    const warning = queryByLabelText('exclamation-circle');
+    const repoState = testRepoState;
+    delete repoState.images.tarod.compatibility;
+    changeSelect('Taro Node', 'alice-taro');
+    changeSelect('LND Node', 'alice');
+    store.getActions().app.setRepoState(repoState);
+    expect(warning).not.toBeInTheDocument();
   });
 
   describe('with form submitted', () => {
