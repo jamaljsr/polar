@@ -49,7 +49,7 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
       await updateTaroBackendNode({
         id: network.id,
         taroName,
-        lndName: LNDName,
+        LNDName: LNDName,
       });
       notify({
         message: l('successTitle'),

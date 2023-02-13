@@ -110,7 +110,7 @@ export interface NetworkModel {
   >;
   updateTaroBackendNode: Thunk<
     NetworkModel,
-    { id: number; taroName: string; lndName: string },
+    { id: number; taroName: string; LNDName: string },
     StoreInjections,
     RootModel
   >;
@@ -518,18 +518,18 @@ const networkModel: NetworkModel = {
   updateTaroBackendNode: thunk(
     async (
       actions,
-      { id, taroName, lndName },
+      { id, taroName, LNDName },
       { injections, getState, getStoreActions },
     ) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-      const lndNode = network.nodes.lightning.find(n => n.name === lndName);
-      if (!lndNode) throw new Error(l('nodeByNameErr', { name: lndName }));
+      const lndNode = network.nodes.lightning.find(n => n.name === LNDName);
+      if (!lndNode) throw new Error(l('nodeByNameErr', { name: LNDName }));
       const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
       if (!taroNode) throw new Error(l('nodeByNameErr', { name: taroName }));
-      if (taroNode.lndName === lndName)
-        throw new Error(l('connectedErr', { lnName: taroName, backendName: lndName }));
+      if (taroNode.lndName === LNDName)
+        throw new Error(l('connectedErr', { lnName: taroName, backendName: LNDName }));
 
       if (network.status === Status.Started) {
         // stop the Taro node container
@@ -555,7 +555,7 @@ const networkModel: NetworkModel = {
       }
 
       // update the link in the chart
-      getStoreActions().designer.updateTaroBackendLink({ taroName, lndName });
+      getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: LNDName });
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {

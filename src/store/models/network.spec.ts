@@ -514,13 +514,13 @@ describe('Network model', () => {
       const { id, nodes } = firstNetwork();
       const tarodNode = nodes.taro[0] as TarodNode;
       expect(tarodNode.lndName).toBe('alice');
-      await updateTaroBackendNode({ id, lndName: 'bob', taroName: 'alice-taro' });
+      await updateTaroBackendNode({ id, LNDName: 'bob', taroName: 'alice-taro' });
       expect(tarodNode.lndName).toBe('bob');
     });
 
     it('should throw an error if the network id is not valid', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: 999, taroName: 'alice-taro', lndName: 'alice' };
+      const args = { id: 999, taroName: 'alice-taro', LNDName: 'alice' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
@@ -528,7 +528,7 @@ describe('Network model', () => {
 
     it('should throw an error if the taro node name is not valid', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'xxx', lndName: 'alice' };
+      const args = { id: firstNetwork().id, taroName: 'xxx', LNDName: 'alice' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "The node 'xxx' was not found.",
       );
@@ -536,7 +536,7 @@ describe('Network model', () => {
 
     it('should throw an error if the LND node name is not valid', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'alice', lndName: 'xxx' };
+      const args = { id: firstNetwork().id, taroName: 'alice', LNDName: 'xxx' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "The node 'xxx' was not found.",
       );
@@ -544,7 +544,7 @@ describe('Network model', () => {
 
     it('should throw an error if the LND node name is already set on the taro node', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'alice-taro', lndName: 'alice' };
+      const args = { id: firstNetwork().id, taroName: 'alice-taro', LNDName: 'alice' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "The node 'alice-taro' is already connected to 'alice'",
       );
