@@ -163,7 +163,7 @@ describe('NetworkDesigner Component', () => {
     act(() => {
       store.getActions().modals.showChangeTaroBackend({});
     });
-    expect(await findByText('Change Taro Node Backend')).toBeInTheDocument();
+    expect(await findByText('Taro Node')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
