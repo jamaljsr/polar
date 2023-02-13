@@ -147,6 +147,15 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('BOLT 11 Invoice')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
+  it('should display the ChangeTaroBackend modal', async () => {
+    const { findAllByText, findByText, getAllByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showChangeTaroBackend({});
+    });
+    expect(await findAllByText('Change Taro Node Backend')).toHaveLength(2);
+    fireEvent.click(getAllByText('Cancel')[0]);
+  });
 
   it('should display the ChangeBackend modal', async () => {
     const { getByText, findByText, store } = renderComponent();
@@ -155,15 +164,6 @@ describe('NetworkDesigner Component', () => {
       store.getActions().modals.showChangeBackend({});
     });
     expect(await findByText('Lightning Node')).toBeInTheDocument();
-    fireEvent.click(getByText('Cancel'));
-  });
-  it('should display the ChangeTaroBackend modal', async () => {
-    const { getByText, findByText, store } = renderComponent();
-    expect(await findByText('backend1')).toBeInTheDocument();
-    act(() => {
-      store.getActions().modals.showChangeTaroBackend({});
-    });
-    expect(await findByText('Taro Node')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
