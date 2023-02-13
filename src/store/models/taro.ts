@@ -136,11 +136,12 @@ const taroModel: TaroModel = {
 
       //mint taro asset
       const taroapi = injections.taroFactory.getService(node);
+
       const req: TARO.MintAssetRequest = {
         assetType,
         name,
         amount: assetType === PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? 1 : amount,
-        metaData: Buffer.from(metaData, 'hex'),
+        metaData: Buffer.from(metaData).toString('base64'),
         enableEmission,
         skipBatch,
       };
