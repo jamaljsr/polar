@@ -11,7 +11,7 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { AnyNode, Status, TarodNode } from 'shared/types';
+import { AnyNode, LndNode, Status, TarodNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createBitcoinChartNode,
@@ -264,6 +264,24 @@ const designerModel: DesignerModel = {
       } else if (fromNode.type === 'bitcoin' && toNode.type === 'bitcoin') {
         // connecting bitcoin to bitcoin isn't supported
         return showError(l('linkErrBitcoin'));
+      } else if (fromNode.type === 'taro' || toNode.type === 'taro') {
+        if (fromNode.type === 'taro' && toNode.type === 'taro') {
+          //connecting taro to taro isn't supported
+          return showError(l('linkErrTarod'));
+        }
+        const taroName = fromNode.type === 'taro' ? fromNodeId : toNodeId;
+        const lndName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
+        const lnNetworkNode = network.nodes.lightning.find(
+          n => n.name === lndName && n.implementation === 'LND',
+        ) as LndNode;
+        if (!lnNetworkNode) {
+          return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
+        }
+        getStoreActions().modals.showChangeTaroBackend({
+          lndName,
+          taroName,
+          linkId,
+        });
       } else {
         // connecting an LN node to a bitcoin node
         if (fromPortId !== 'backend' || toPortId !== 'backend') {

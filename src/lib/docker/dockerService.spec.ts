@@ -578,7 +578,7 @@ describe('DockerService', () => {
     it('should create volume dirs when the network is started', async () => {
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
-      expect(fsMock.ensureDir).toBeCalledTimes(7);
+      expect(fsMock.ensureDir).toBeCalledTimes(8);
     });
 
     it('should call compose.down when a network is stopped', async () => {

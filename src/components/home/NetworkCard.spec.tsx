@@ -34,7 +34,7 @@ describe('NetworkCard component', () => {
 
   it('should display the number of bitcoin nodes', () => {
     const { getByText } = renderComponent();
-    expect(getByText('1')).toBeInTheDocument();
+    expect(getByText('2')).toBeInTheDocument();
   });
 
   it('should navigate to the network view screen when clicked', () => {
