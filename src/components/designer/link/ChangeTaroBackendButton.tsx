@@ -8,9 +8,15 @@ interface Props {
   taroName: string;
   lndName: string;
   type?: 'button' | 'menu';
+  disabled?: boolean;
 }
 
-const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) => {
+const ChangeTaroBackendButton: React.FC<Props> = ({
+  taroName,
+  lndName,
+  type,
+  disabled,
+}) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.ChangeBackendButton');
 
   const { showChangeTaroBackend } = useStoreActions(s => s.modals);
@@ -21,7 +27,10 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {
     return (
-      <div onClick={handleChangeClick}>
+      <div
+        style={disabled ? { pointerEvents: 'none', opacity: '0.4' } : {}}
+        onClick={handleChangeClick}
+      >
         <ApiOutlined />
         <span>{l('btnText')}</span>
       </div>
@@ -29,7 +38,7 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
   }
 
   return (
-    <Button block onClick={handleChangeClick}>
+    <Button block onClick={handleChangeClick} disabled={disabled}>
       <ApiOutlined />
       {l('btnText')}
     </Button>

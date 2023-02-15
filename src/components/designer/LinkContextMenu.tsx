@@ -16,6 +16,7 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
   const networks = useStoreState(s => s.network.networks);
   const network = networks.find(n => n.id === activeId);
   const { type, channelPoint } = (link.properties as LinkProperties) || {};
+  const { nodes: taroNodes } = useStoreState(s => s.taro);
 
   // don't add a context menu if there is no network found
   if (!network) return <>{children}</>;
@@ -39,11 +40,13 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
       />
     );
   } else if (type === 'lndbackend') {
+    const assets = taroNodes[link.from.nodeId]?.assets || [];
     menuItem = (
       <ChangeTaroBackendButton
         type="menu"
         taroName={link.from.nodeId}
         lndName={link.to.nodeId as string}
+        disabled={assets.length > 0}
       />
     );
   }

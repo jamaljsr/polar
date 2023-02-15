@@ -105,7 +105,6 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {changeTaroBackend.visible && <ChangeTaroBackendModal network={network} />}
       {sendAsset.visible && <SendAssetModal network={network} />}
       {changeTaroBackend.visible && <ChangeTaroBackendModal network={network} />}
-      {sendAsset.visible && <SendAssetModal network={network} />}
     </Styled.Designer>
   );
 };

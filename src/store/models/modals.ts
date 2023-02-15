@@ -130,9 +130,6 @@ export interface ModalsModel {
   >;
   hideChangeTaroBackend: Thunk<ModalsModel>;
   setChangeTaroBackend: Action<ModalsModel, Partial<ChangeTaroBackendModel>>;
-  setSendAsset: Action<ModalsModel, SendAssetModel>;
-  hideSendAsset: Thunk<ModalsModel>;
-  showSendAsset: Thunk<ModalsModel, Partial<SendAssetModel>, StoreInjections>;
 }
 
 const modalsModel: ModalsModel = {
@@ -333,18 +330,6 @@ const modalsModel: ModalsModel = {
   setSendAsset: action((state, payload) => {
     state.sendAsset = {
       ...state.sendAsset,
-      ...payload,
-    };
-  }),
-  showChangeTaroBackend: thunk((actions, { taroName, lndName }) => {
-    actions.setChangeTaroBackend({ visible: true, taroName, lndName });
-  }),
-  hideChangeTaroBackend: thunk(actions => {
-    actions.setChangeTaroBackend({ visible: false });
-  }),
-  setChangeTaroBackend: action((state, payload) => {
-    state.changeTaroBackend = {
-      ...state.changeTaroBackend,
       ...payload,
     };
   }),

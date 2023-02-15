@@ -1,8 +1,14 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { fireEvent } from '@testing-library/dom';
+import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, renderWithProviders } from 'utils/tests';
+import {
+  defaultTaroAsset,
+  getNetwork,
+  renderWithProviders,
+  taroServiceMock,
+} from 'utils/tests';
 import LinkContextMenu from './LinkContextMenu';
 
 describe('LinkContextMenu', () => {
@@ -37,12 +43,20 @@ describe('LinkContextMenu', () => {
     },
   });
   const renderComponent = (link: ILink, activeId?: number) => {
-    const network = getNetwork(1, 'test network');
+    const network = getNetwork(1, 'test network', Status.Started, 2);
     const chart = initChartFromNetwork(network);
     chart.links[link.id] = link;
     const initialState = {
       network: {
         networks: [network],
+      },
+      taro: {
+        nodes: {
+          'alice-taro': {
+            assets: [],
+            balances: [],
+          },
+        },
       },
       designer: {
         activeId: activeId || network.id,
@@ -59,7 +73,7 @@ describe('LinkContextMenu', () => {
     const result = renderWithProviders(cmp, { initialState });
     // always open the context menu for all tests
     fireEvent.contextMenu(result.getByText('test-child'));
-    return result;
+    return { ...result, network };
   };
 
   it('should not render menu with no network', () => {
@@ -78,6 +92,12 @@ describe('LinkContextMenu', () => {
   });
   it('should display the correct options for a backend connection', async () => {
     const { getByText } = renderComponent(createTaroBackendLink());
+    expect(getByText('Change Backend')).toBeInTheDocument();
+  });
+  it('should display a disabled option backend taro connection', async () => {
+    taroServiceMock.listAssets.mockResolvedValue([defaultTaroAsset({})]);
+    const { getByText, store, network } = renderComponent(createTaroBackendLink());
+    store.getActions().taro.getAssets(network.nodes.taro[0]);
     expect(getByText('Change Backend')).toBeInTheDocument();
   });
 

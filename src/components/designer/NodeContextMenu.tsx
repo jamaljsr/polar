@@ -60,11 +60,6 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       isStarted && isTaro,
     ),
     addItemIf(
-      'sendAsset',
-      <SendAssetButton type={'menu'} node={node as TaroNode} />,
-      isStarted && isTaro,
-    ),
-    addItemIf(
       'inv',
       <PaymentButtons menuType="create" node={node as LightningNode} />,
       isStarted && isLN,

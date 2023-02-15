@@ -25,7 +25,6 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
           <SendAssetButton node={node} />
           <MintAssetButton node={node} />
           <NewAddressButton node={node} />
-          <SendAssetButton node={node} />
           <Styled.Spacer />
 
           <OpenTerminalButton node={node} />

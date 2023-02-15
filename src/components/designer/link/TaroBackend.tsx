@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { usePrefixedTranslation } from 'hooks';
 import { LndNode, Status, TaroNode } from 'shared/types';
+import { useStoreActions, useStoreState } from 'store';
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
@@ -13,6 +14,19 @@ interface Props {
 
 const TaroBackend: React.FC<Props> = ({ from, to }) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.TaroBackend');
+  const { nodes: taroNodes } = useStoreState(s => s.taro);
+  const { getAssets } = useStoreActions(s => s.taro);
+  const [hasAssets, setHasAssets] = React.useState<boolean>(false);
+
+  useEffect(() => {
+    //getAssets(from);
+    const assets = taroNodes[from.name]?.assets || [];
+    setHasAssets(assets.length > 0);
+  }, [from, to, taroNodes]);
+
+  useEffect(() => {
+    getAssets(from);
+  }, []);
 
   const fromDetails: DetailValues = [
     { label: l('name'), value: from.name },
@@ -39,7 +53,11 @@ const TaroBackend: React.FC<Props> = ({ from, to }) => {
       <p>{l('desc')}</p>
       <DetailsList title={l('taroTitle')} details={fromDetails} />
       <DetailsList title={l('lndTitle')} details={toDetails} />
-      <ChangeTaroBackendButton taroName={from.name} lndName={to.name} />
+      <ChangeTaroBackendButton
+        disabled={hasAssets}
+        taroName={from.name}
+        lndName={to.name}
+      />
     </SidebarCard>
   );
 };
