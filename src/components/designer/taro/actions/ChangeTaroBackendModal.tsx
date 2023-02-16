@@ -32,13 +32,9 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
   );
   const [form] = Form.useForm();
   const [compatWarning, setCompatWarning] = useState<string>();
-  const {
-    visible,
-    lndName: LNDName,
-    taroName,
-  } = useStoreState(s => s.modals.changeTaroBackend);
+  const { visible, lndName, taroName } = useStoreState(s => s.modals.changeTaroBackend);
   const [selectedTaro, setSelectedTaro] = useState(taroName);
-  const [selectedLNDBackend, setSelectedLNDBackend] = useState(LNDName);
+  const [selectedLNDBackend, setSelectedLNDBackend] = useState(lndName);
   const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeTaroBackend } = useStoreActions(s => s.modals);
   const { updateTaroBackendNode } = useStoreActions(s => s.network);
@@ -117,7 +113,7 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
           layout="vertical"
           hideRequiredMark
           colon={false}
-          initialValues={{ taroName: taroName, LNDName: LNDName }}
+          initialValues={{ taroName: taroName, LNDName: lndName }}
           onFinish={handleSubmit}
         >
           <Row gutter={16}>
