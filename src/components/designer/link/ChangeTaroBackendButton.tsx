@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ApiOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -33,12 +33,14 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
     }
   };
 
-  (async () => {
-    const taroData = getTarodFilePaths(taroName, network);
-    exists(taroData.adminMacaroon).then(result => {
-      setDisabled(result);
-    });
-  })();
+  useEffect(() => {
+    (async () => {
+      const taroData = getTarodFilePaths(taroName, network);
+      exists(taroData.adminMacaroon).then(result => {
+        setDisabled(result);
+      });
+    })();
+  });
 
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {

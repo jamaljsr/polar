@@ -40,6 +40,9 @@ describe('Taro Lnd Link Component', () => {
       network,
     };
   };
+  beforeEach(() => {
+    filesMock.exists.mockResolvedValue(Promise.resolve(false));
+  });
   it('should display Peer Names', () => {
     const { getByText, from, to } = renderComponent();
     expect(getByText(from.name)).toBeInTheDocument();
@@ -56,7 +59,6 @@ describe('Taro Lnd Link Component', () => {
   });
   describe('Change Tarod Backend Button', () => {
     it('should display the ChangeTaroBackend modal', async () => {
-      filesMock.exists.mockResolvedValue(Promise.resolve(false));
       const { getByText, store } = renderComponent();
       expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
       fireEvent.click(getByText('Change Taro Backend'));
