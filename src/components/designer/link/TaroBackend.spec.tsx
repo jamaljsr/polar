@@ -2,13 +2,14 @@ import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { LndNode, Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import {
-  defaultTaroAsset,
-  getNetwork,
-  renderWithProviders,
-  taroServiceMock,
-} from 'utils/tests';
+import * as files from 'utils/files';
+import { getNetwork, renderWithProviders } from 'utils/tests';
 import TaroBackend from './TaroBackend';
+
+jest.mock('utils/files', () => ({
+  exists: jest.fn(),
+}));
+const filesMock = files as jest.Mocked<typeof files>;
 
 describe('Taro Lnd Link Component', () => {
   const renderComponent = () => {
@@ -53,51 +54,29 @@ describe('Taro Lnd Link Component', () => {
     const { getAllByText, from } = renderComponent();
     expect(getAllByText(`v${from.version}`)).toHaveLength(2);
   });
-  it('should not display the ChangeTaroBackend modal', async () => {
-    const { getByText, store } = renderComponent();
-    expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
-    fireEvent.click(getByText('Change Backend'));
-    await waitFor(() => {
+  describe('Change Tarod Backend Button', () => {
+    it('should display the ChangeTaroBackend modal', async () => {
+      filesMock.exists.mockResolvedValue(Promise.resolve(false));
+      const { getByText, store } = renderComponent();
       expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+      fireEvent.click(getByText('Change Taro Backend'));
+      await waitFor(() => {
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+      });
     });
-  });
-  it('should display the ChangeTaroBackend modal', async () => {
-    const { getByText, store, network } = renderComponent();
-    taroServiceMock.listAssets.mockResolvedValue([defaultTaroAsset({})]);
-    store.getActions().taro.getAssets(network.nodes.taro[0]);
-    store.getActions().network.setStatus({ id: network.id, status: Status.Started });
-    network.nodes.taro.forEach(n => (n.status = Status.Started));
-    expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
-    fireEvent.click(getByText('Change Backend'));
-    await waitFor(() => {
-      expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
-    });
-  });
-  it('should not display the ChangeTaroBackend modal', async () => {
-    const { getByText, store, network } = renderComponent();
-    taroServiceMock.listAssets.mockResolvedValue([defaultTaroAsset({})]);
-    await waitFor(() => {
-      store.getActions().taro.getAssets(network.nodes.taro[0]);
-      store.getActions().network.setStatus({ id: network.id, status: Status.Started });
-    });
-
-    expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
-    fireEvent.click(getByText('Change Backend'));
-    await waitFor(() => {
+    it('should display an error', async () => {
+      filesMock.exists.mockResolvedValue(Promise.resolve(true));
+      const { getByText, store, network } = renderComponent();
       expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+      await waitFor(() => {
+        store.getActions().network.setStatus({ id: network.id, status: Status.Started });
+      });
+      fireEvent.click(getByText('Change Taro Backend'));
+      await waitFor(() => {
+        expect(
+          getByText('Can only change Taro Backend before the network is started.'),
+        ).toBeInTheDocument();
+      });
     });
   });
-  // it('should not display the ChangeTaroBackend modal with stopped node', async () => {
-  //   const { getByText, store, network } = renderComponent();
-  //   await waitFor(() => {
-  //     store.getActions().network.setStatus({ id: network.id, status: Status.Started });
-  //   });
-  //   //await dockerService.stopNode(network, network.nodes.taro[0]);
-  //   expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
-  //   network.nodes.taro[0].status = Status.Stopped;
-  //   fireEvent.click(getByText('Change Backend'));
-  //   await waitFor(() => {
-  //     expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
-  //   });
-  // });
 });

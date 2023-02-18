@@ -1,15 +1,17 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { fireEvent } from '@testing-library/dom';
+import { waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import {
-  defaultTaroAsset,
-  getNetwork,
-  renderWithProviders,
-  taroServiceMock,
-} from 'utils/tests';
+import * as files from 'utils/files';
+import { getNetwork, renderWithProviders } from 'utils/tests';
 import LinkContextMenu from './LinkContextMenu';
+
+jest.mock('utils/files', () => ({
+  exists: jest.fn(),
+}));
+const filesMock = files as jest.Mocked<typeof files>;
 
 describe('LinkContextMenu', () => {
   const createChannelLink = (): ILink => ({
@@ -90,16 +92,6 @@ describe('LinkContextMenu', () => {
     const { getByText } = renderComponent(createBackendLink());
     expect(getByText('Change Backend')).toBeInTheDocument();
   });
-  it('should display the correct options for a backend connection', async () => {
-    const { getByText } = renderComponent(createTaroBackendLink());
-    expect(getByText('Change Backend')).toBeInTheDocument();
-  });
-  it('should display a disabled option backend taro connection', async () => {
-    taroServiceMock.listAssets.mockResolvedValue([defaultTaroAsset({})]);
-    const { getByText, store, network } = renderComponent(createTaroBackendLink());
-    store.getActions().taro.getAssets(network.nodes.taro[0]);
-    expect(getByText('Change Backend')).toBeInTheDocument();
-  });
 
   it('should not display a menu for an invalid link', async () => {
     const { queryByText } = renderComponent({} as ILink);
@@ -112,5 +104,29 @@ describe('LinkContextMenu', () => {
     link.from.nodeId = 'invalid';
     const { queryByText } = renderComponent(link);
     expect(queryByText('Close Channel')).not.toBeInTheDocument();
+  });
+  describe('Change Taord Backend Option', () => {
+    it('should display the correct options for a taro backend connection', async () => {
+      filesMock.exists.mockResolvedValue(Promise.resolve(false));
+      const { getByText, store } = renderComponent(createTaroBackendLink());
+      fireEvent.click(getByText('Change Taro Backend'));
+      await waitFor(() => {
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+      });
+    });
+    it('should display an error when option is clicked', async () => {
+      filesMock.exists.mockResolvedValue(Promise.resolve(true));
+      const { getByText, store, network } = renderComponent(createTaroBackendLink());
+      expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+      await waitFor(() => {
+        store.getActions().network.setStatus({ id: network.id, status: Status.Started });
+      });
+      fireEvent.click(getByText('Change Taro Backend'));
+      await waitFor(() => {
+        expect(
+          getByText('Can only change Taro Backend before the network is started.'),
+        ).toBeInTheDocument();
+      });
+    });
   });
 });
