@@ -531,15 +531,6 @@ const networkModel: NetworkModel = {
       if (taroNode.lndName === LNDName)
         throw new Error(l('connectedErr', { lnName: taroName, backendName: LNDName }));
 
-      if (network.status === Status.Started) {
-        // stop the Taro node container
-        actions.setStatus({ id: network.id, status: Status.Stopping, only: taroName });
-        await injections.dockerService.stopNode(network, taroNode);
-        actions.setStatus({ id: network.id, status: Status.Stopped, only: taroName });
-      }
-
-      // update the backend
-
       taroNode.lndName = lndNode.name;
       // update the network in the redux state and save to disk
       actions.setNetworks([...networks]);
@@ -547,15 +538,11 @@ const networkModel: NetworkModel = {
       // save the updated compose file
       await injections.dockerService.saveComposeFile(network);
 
-      if (network.status === Status.Started) {
-        // start the Taro node container
-        actions.setStatus({ id: network.id, status: Status.Starting, only: taroName });
-        await injections.dockerService.startNode(network, taroNode);
-        await actions.monitorStartup([...network.nodes.taro]);
+      if (network.status === Status.Stopped) {
+        getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: LNDName });
+      } else {
+        throw new Error(l('networkNotStoppedErr', { taroName }));
       }
-
-      // update the link in the chart
-      getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: LNDName });
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {

@@ -22,6 +22,8 @@ import {
   updateChartFromNodes,
 } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
+import { exists } from 'utils/files';
+import { getTarodFilePaths } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
@@ -270,17 +272,24 @@ const designerModel: DesignerModel = {
           return showError(l('linkErrTarod'));
         }
         const taroName = fromNode.type === 'taro' ? fromNodeId : toNodeId;
-        const lndName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
+        const lndeName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
         const lnNetworkNode = network.nodes.lightning.find(
-          n => n.name === lndName && n.implementation === 'LND',
+          n => n.name === lndeName && n.implementation === 'LND',
         ) as LndNode;
         if (!lnNetworkNode) {
-          return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
+          return showError(l('linkErrLNDImplementation', { nodeName: lndeName }));
         }
-        getStoreActions().modals.showChangeTaroBackend({
-          lndName,
-          taroName,
-          linkId,
+        const taroData = getTarodFilePaths(taroName, network);
+        exists(taroData.adminMacaroon).then(result => {
+          if (!result) {
+            getStoreActions().modals.showChangeTaroBackend({
+              lndName: lndeName,
+              taroName,
+              linkId,
+            });
+          } else {
+            return showError(l('tarodBackendError'));
+          }
         });
       } else {
         // connecting an LN node to a bitcoin node

@@ -128,7 +128,7 @@ export interface ModalsModel {
     Partial<ChangeTaroBackendModel>,
     StoreInjections
   >;
-  hideChangeTaroBackend: Thunk<ModalsModel>;
+  hideChangeTaroBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setChangeTaroBackend: Action<ModalsModel, Partial<ChangeTaroBackendModel>>;
 }
 
@@ -308,10 +308,15 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  showChangeTaroBackend: thunk((actions, { taroName, lndName }) => {
-    actions.setChangeTaroBackend({ visible: true, taroName, lndName });
+  showChangeTaroBackend: thunk((actions, { taroName, lndName, linkId }) => {
+    actions.setChangeTaroBackend({ visible: true, taroName, lndName, linkId });
   }),
-  hideChangeTaroBackend: thunk(actions => {
+  hideChangeTaroBackend: thunk((actions, payload, { getStoreActions, getState }) => {
+    const { linkId } = getState().changeTaroBackend;
+    if (linkId) {
+      // remove the link on the chart if the backend wasn't changed
+      getStoreActions().designer.removeLink(linkId);
+    }
     actions.setChangeTaroBackend({ visible: false });
   }),
   setChangeTaroBackend: action((state, payload) => {

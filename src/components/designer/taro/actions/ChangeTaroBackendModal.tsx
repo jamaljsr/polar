@@ -4,7 +4,6 @@ import { SwapOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Alert, Col, Form, Modal, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
@@ -140,9 +139,6 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
               />
             </Col>
           </Row>
-          {network.status === Status.Started && (
-            <Styled.Restart>{l('restartNotice', { name: selectedTaro })}</Styled.Restart>
-          )}
           {compatWarning && (
             <Alert type="warning" message={compatWarning} closable={false} showIcon />
           )}
