@@ -18,8 +18,12 @@ import {
   PayInvoiceModal,
 } from './lightning/actions';
 import Sidebar from './Sidebar';
-import { MintAssetModal, NewAddressModal, SendAssetModal } from './taro/actions';
-import ChangeTaroBackendModal from './taro/actions/ChangeTaroBackendModal';
+import {
+  ChangeTaroBackendModal,
+  MintAssetModal,
+  NewAddressModal,
+  SendAssetModal,
+} from './taro/actions';
 
 const Styled = {
   Designer: styled.div`
