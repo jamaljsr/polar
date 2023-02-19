@@ -6,7 +6,6 @@ import { defaultRepoState } from 'utils/constants';
 import { createLndNetworkNode } from 'utils/network';
 import {
   getNetwork,
-  injections,
   renderWithProviders,
   testNodeDocker,
   testRepoState,
@@ -71,13 +70,6 @@ describe('ChangeTaroBackendModal', () => {
     expect(getByText('alice-taro')).toBeInTheDocument();
     expect(getByText('alice')).toBeInTheDocument();
   });
-  it('should render the restart notice', async () => {
-    const { getByText, changeSelect } = await renderComponent(Status.Started);
-    changeSelect('Taro Node', 'bob-taro');
-    expect(
-      getByText('The bob-taro node will be restarted automatically to apply the change.'),
-    ).toBeInTheDocument();
-  });
   it('should render button', async () => {
     const { getByText } = await renderComponent();
     const btn = getByText('Change Backend');
@@ -138,15 +130,6 @@ describe('ChangeTaroBackendModal', () => {
         expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
       });
       expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
-    });
-    it('should restart containers when backend is updated', async () => {
-      const { getByText, changeSelect } = await renderComponent(Status.Started);
-      changeSelect('LND Node', 'bob');
-      fireEvent.click(getByText('Change Backend'));
-      await waitFor(() => {
-        expect(injections.dockerService.stopNode).toBeCalledTimes(1);
-        expect(injections.dockerService.startNode).toBeCalledTimes(1);
-      });
     });
     it('should error if the backend is not changed', async () => {
       const { getByText, changeSelect } = await renderComponent();

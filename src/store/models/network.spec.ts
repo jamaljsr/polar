@@ -866,7 +866,7 @@ describe('Network model', () => {
 
     it('should throw an error if the taro node name is not valid', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'xxx', LNDName: 'alice' };
+      const args = { id: firstNetwork().id, taroName: 'xxx', lndName: 'alice' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "The node 'xxx' was not found.",
       );
@@ -874,7 +874,7 @@ describe('Network model', () => {
 
     it('should throw an error if the LND node name is not valid', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'alice', LNDName: 'xxx' };
+      const args = { id: firstNetwork().id, taroName: 'alice', lndName: 'xxx' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "The node 'xxx' was not found.",
       );
@@ -885,7 +885,7 @@ describe('Network model', () => {
       const args = {
         id: firstNetwork().id,
         taroName: 'alice-taro',
-        LNDName: 'alice',
+        lndName: 'alice',
       };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "The node 'alice-taro' is already connected to 'alice'",
