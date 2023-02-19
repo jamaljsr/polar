@@ -41,9 +41,8 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
   useEffect(() => {
     (async () => {
       const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
-      exists(taroNode.paths.adminMacaroon).then(result => {
-        setHasMacaroon(result);
-      });
+      const result = await exists(taroNode.paths.adminMacaroon);
+      setHasMacaroon(result);
     })();
   });
 
