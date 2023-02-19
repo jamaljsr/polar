@@ -537,11 +537,8 @@ const networkModel: NetworkModel = {
       await actions.save();
       // save the updated compose file
       await injections.dockerService.saveComposeFile(network);
-      if (network.status === Status.Stopped) {
-        getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: lndName });
-      } else {
-        throw new Error(l('networkNotStoppedErr', { taroName }));
-      }
+
+      getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: lndName });
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {

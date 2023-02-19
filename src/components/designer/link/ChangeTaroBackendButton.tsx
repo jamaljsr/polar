@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { ApiOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TarodNode } from 'shared/types';
+import { Status, TarodNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { exists } from 'utils/files';
@@ -27,7 +27,12 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
 
   const handleChangeClick = () => {
     if (hasMacaron) {
-      notify({ message: l('error'), error: new Error(l('errormsg')) });
+      notify({ message: l('error'), error: new Error(l('hasMacaroonErr')) });
+    } else if (network.status !== Status.Stopped) {
+      notify({
+        message: l('error'),
+        error: new Error(l('networkNotStoppedErr', { taroName })),
+      });
     } else {
       showChangeTaroBackend({ taroName, lndName });
     }
