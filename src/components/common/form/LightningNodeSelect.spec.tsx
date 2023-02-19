@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { Form } from 'antd';
 import { LightningNodeModel } from 'store/models/lightning';
-import { defaultStateBalances, getNetwork } from 'utils/tests';
+import { getNetwork } from 'utils/tests';
 import LightningNodeSelect from './LightningNodeSelect';
 
 describe('LightningNodeSelect', () => {
@@ -23,7 +23,7 @@ describe('LightningNodeSelect', () => {
             name="from"
             label="Source"
             initialValue={initialValue}
-            implementation={'LND'}
+            implementation="LND"
             nodes={nodes}
           />
         </Form>

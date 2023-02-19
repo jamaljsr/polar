@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { ApiOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { TarodNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { exists } from 'utils/files';
-import { getTarodFilePaths } from 'utils/network';
 
 interface Props {
   taroName: string;
@@ -23,10 +23,10 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
   const networks = useStoreState(s => s.network.networks);
   const network = networks.find(n => n.id === activeId) as Network;
 
-  const [disabled, setDisabled] = React.useState(false);
+  const [hasMacaron, setHasMacaroon] = React.useState(false);
 
   const handleChangeClick = () => {
-    if (disabled) {
+    if (hasMacaron) {
       notify({ message: l('error'), error: new Error(l('errormsg')) });
     } else {
       showChangeTaroBackend({ taroName, lndName });
@@ -35,9 +35,9 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
 
   useEffect(() => {
     (async () => {
-      const taroData = getTarodFilePaths(taroName, network);
-      exists(taroData.adminMacaroon).then(result => {
-        setDisabled(result);
+      const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
+      exists(taroNode.paths.adminMacaroon).then(result => {
+        setHasMacaroon(result);
       });
     })();
   });

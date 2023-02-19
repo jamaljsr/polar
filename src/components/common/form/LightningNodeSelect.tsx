@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Form, Select } from 'antd';
 import { SelectProps, SelectValue } from 'antd/lib/select';
 import { usePrefixedTranslation } from 'hooks';
-import { Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { LightningNodeBalances } from 'lib/lightning/types';
 import { LightningNodeModel } from 'store/models/lightning';
 import { Network } from 'types';
@@ -13,7 +13,7 @@ export interface Props extends SelectProps<SelectValue> {
   name: string;
   label?: string;
   nodeStatus?: Status;
-  implementation?: string;
+  implementation?: LightningNode['implementation'];
   initialValue?: string;
   nodes?: {
     [key: string]: LightningNodeModel;

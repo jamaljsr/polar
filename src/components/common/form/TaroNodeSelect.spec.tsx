@@ -14,8 +14,8 @@ describe('TaroNodeSelect', () => {
         <Form form={form}>
           <TaroNodeSelect
             network={network}
-            name={'from'}
-            label={'Taro Nodes'}
+            name="from"
+            label="Taro Nodes"
             nodeStatus={Status.Stopped}
           />
         </Form>

@@ -119,7 +119,6 @@
   "cmps.designer.link.Backend.status": "Status",
   "cmps.designer.link.ChangeBackendButton.btnText": "Change Backend",
   "cmps.designer.link.ChangeTaroBackendButton.btnText": "Change Taro Backend",
-  "cmps.designer.link.ChangeTaroBackendButton.error": "Error",
   "cmps.designer.link.ChangeTaroBackendButton.errormsg": "Can only change Taro Backend before the network is started.",
   "cmps.designer.link.Channel.title": "Channel Details",
   "cmps.designer.link.Channel.sourceTitle": "Source Node",

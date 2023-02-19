@@ -44,7 +44,7 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
       await updateTaroBackendNode({
         id: network.id,
         taroName,
-        LNDName: LNDName,
+        lndName: LNDName,
       });
       notify({
         message: l('successTitle'),
@@ -70,7 +70,7 @@ const ChangeTaroBackendModal: React.FC<Props> = ({ network }) => {
             l('compatWarning', {
               taroNode,
               lndBackend,
-              requiredVersion: '2022.12.28-master',
+              requiredVersion: compatibility[taroNode.version],
             }),
           );
         } else {

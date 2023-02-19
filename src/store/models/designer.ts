@@ -23,7 +23,6 @@ import {
 } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { exists } from 'utils/files';
-import { getTarodFilePaths } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
@@ -186,7 +185,7 @@ const designerModel: DesignerModel = {
   }),
   updateTaroBackendLink: action((state, { taroName, lndName }) => {
     const chart = state.allCharts[state.activeId];
-    // remove the old ln -> backend link
+    // remove the old taro -> ln link
     const prevLink = Object.values(chart.links).find(
       l => l.from.nodeId === taroName && l.from.portId === 'lndbackend',
     );
@@ -228,7 +227,7 @@ const designerModel: DesignerModel = {
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
-    (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
+    async (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
       const { activeId, activeChart } = getState();
       const { linkId, fromNodeId, toNodeId, fromPortId, toPortId } = payload;
       if (!activeChart.links[linkId]) return;
@@ -272,25 +271,24 @@ const designerModel: DesignerModel = {
           return showError(l('linkErrTarod'));
         }
         const taroName = fromNode.type === 'taro' ? fromNodeId : toNodeId;
-        const lndeName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
+        const lndName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
         const lnNetworkNode = network.nodes.lightning.find(
-          n => n.name === lndeName && n.implementation === 'LND',
+          n => n.name === lndName && n.implementation === 'LND',
         ) as LndNode;
         if (!lnNetworkNode) {
-          return showError(l('linkErrLNDImplementation', { nodeName: lndeName }));
+          return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
         }
-        const taroData = getTarodFilePaths(taroName, network);
-        exists(taroData.adminMacaroon).then(result => {
-          if (!result) {
-            getStoreActions().modals.showChangeTaroBackend({
-              lndName: lndeName,
-              taroName,
-              linkId,
-            });
-          } else {
-            return showError(l('tarodBackendError'));
-          }
-        });
+        const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
+        const macaroonPresent = await exists(taroNode.paths.adminMacaroon);
+        if (!macaroonPresent) {
+          getStoreActions().modals.showChangeTaroBackend({
+            lndName: lndName,
+            taroName,
+            linkId,
+          });
+        } else {
+          return showError(l('tarodBackendError'));
+        }
       } else {
         // connecting an LN node to a bitcoin node
         if (fromPortId !== 'backend' || toPortId !== 'backend') {

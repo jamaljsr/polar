@@ -110,7 +110,7 @@ export interface NetworkModel {
   >;
   updateTaroBackendNode: Thunk<
     NetworkModel,
-    { id: number; taroName: string; LNDName: string },
+    { id: number; taroName: string; lndName: string },
     StoreInjections,
     RootModel
   >;
@@ -518,18 +518,18 @@ const networkModel: NetworkModel = {
   updateTaroBackendNode: thunk(
     async (
       actions,
-      { id, taroName, LNDName },
+      { id, taroName, lndName },
       { injections, getState, getStoreActions },
     ) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-      const lndNode = network.nodes.lightning.find(n => n.name === LNDName);
-      if (!lndNode) throw new Error(l('nodeByNameErr', { name: LNDName }));
+      const lndNode = network.nodes.lightning.find(n => n.name === lndName);
+      if (!lndNode) throw new Error(l('nodeByNameErr', { name: lndName }));
       const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
       if (!taroNode) throw new Error(l('nodeByNameErr', { name: taroName }));
-      if (taroNode.lndName === LNDName)
-        throw new Error(l('connectedErr', { lnName: taroName, backendName: LNDName }));
+      if (taroNode.lndName === lndName)
+        throw new Error(l('connectedErr', { lnName: taroName, backendName: lndName }));
 
       taroNode.lndName = lndNode.name;
       // update the network in the redux state and save to disk
@@ -537,9 +537,8 @@ const networkModel: NetworkModel = {
       await actions.save();
       // save the updated compose file
       await injections.dockerService.saveComposeFile(network);
-
       if (network.status === Status.Stopped) {
-        getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: LNDName });
+        getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: lndName });
       } else {
         throw new Error(l('networkNotStoppedErr', { taroName }));
       }

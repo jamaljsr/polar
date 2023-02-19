@@ -105,7 +105,7 @@ describe('LinkContextMenu', () => {
     const { queryByText } = renderComponent(link);
     expect(queryByText('Close Channel')).not.toBeInTheDocument();
   });
-  describe('Change Taord Backend Option', () => {
+  describe('Change Taro Backend Option', () => {
     it('should display the correct options for a taro backend connection', async () => {
       filesMock.exists.mockResolvedValue(Promise.resolve(false));
       const { getByText, store } = renderComponent(createTaroBackendLink());

@@ -88,8 +88,8 @@ export interface ModalsModel {
   assetInfo: AssetInfoModel;
   mintAsset: MintAssetModel;
   newAddress: NewAddressModel;
-  changeTaroBackend: ChangeTaroBackendModel;
   sendAsset: SendAssetModel;
+  changeTaroBackend: ChangeTaroBackendModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
