@@ -282,7 +282,7 @@ const designerModel: DesignerModel = {
         const macaroonPresent = await exists(taroNode.paths.adminMacaroon);
         if (!macaroonPresent) {
           getStoreActions().modals.showChangeTaroBackend({
-            lndName: lndName,
+            lndName,
             taroName,
             linkId,
           });

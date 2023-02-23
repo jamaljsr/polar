@@ -106,12 +106,28 @@ describe('LinkContextMenu', () => {
     expect(queryByText('Close Channel')).not.toBeInTheDocument();
   });
   describe('Change Taro Backend Option', () => {
-    it('should display the correct options for a taro backend connection', async () => {
+    it('should display the correct options for a taro backend connection when network is stopped', async () => {
       filesMock.exists.mockResolvedValue(Promise.resolve(false));
-      const { getByText, store } = renderComponent(createTaroBackendLink());
+      const { getByText, store, network } = renderComponent(createTaroBackendLink());
+      store.getActions().network.setStatus({ id: network.id, status: Status.Stopped });
+      await waitFor(() => {
+        expect(store.getState().network.networkById(network.id).status).toBe(
+          Status.Stopped,
+        );
+      });
       fireEvent.click(getByText('Change Taro Backend'));
       await waitFor(() => {
         expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+      });
+    });
+    it('should display the correct options for a taro backend connection', async () => {
+      filesMock.exists.mockResolvedValue(Promise.resolve(false));
+      const { getByText } = renderComponent(createTaroBackendLink());
+      fireEvent.click(getByText('Change Taro Backend'));
+      await waitFor(() => {
+        expect(
+          getByText('The network must be stopped to change alice-taro bankend'),
+        ).toBeInTheDocument();
       });
     });
     it('should display an error when option is clicked', async () => {
@@ -124,7 +140,9 @@ describe('LinkContextMenu', () => {
       fireEvent.click(getByText('Change Taro Backend'));
       await waitFor(() => {
         expect(
-          getByText('Can only change Taro Backend before the network is started.'),
+          getByText(
+            'Can only change Taro Backend before the network is started. admin.macaroon is present',
+          ),
         ).toBeInTheDocument();
       });
     });

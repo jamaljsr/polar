@@ -16,13 +16,6 @@ interface ChangeBackendModel {
   linkId?: string;
 }
 
-interface ChangeTaroBackendModel {
-  visible: boolean;
-  taroName?: string;
-  lndName?: string;
-  linkId?: string;
-}
-
 interface CreateInvoiceModel {
   visible: boolean;
   nodeName?: string;
@@ -75,6 +68,13 @@ interface NewAddressModel {
 interface SendAssetModel {
   visible: boolean;
   nodeName?: string;
+}
+
+interface ChangeTaroBackendModel {
+  visible: boolean;
+  taroName?: string;
+  lndName?: string;
+  linkId?: string;
 }
 
 export interface ModalsModel {
@@ -308,6 +308,20 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
+
+  //Send Taro Asset Modal
+  showSendAsset: thunk((actions, { nodeName }) => {
+    actions.setSendAsset({ visible: true, nodeName });
+  }),
+  hideSendAsset: thunk(actions => {
+    actions.setSendAsset({ visible: false });
+  }),
+  setSendAsset: action((state, payload) => {
+    state.sendAsset = {
+      ...state.sendAsset,
+      ...payload,
+    };
+  }),
   showChangeTaroBackend: thunk((actions, { taroName, lndName, linkId }) => {
     actions.setChangeTaroBackend({ visible: true, taroName, lndName, linkId });
   }),
@@ -322,19 +336,6 @@ const modalsModel: ModalsModel = {
   setChangeTaroBackend: action((state, payload) => {
     state.changeTaroBackend = {
       ...state.changeTaroBackend,
-      ...payload,
-    };
-  }),
-  //Send Taro Asset Modal
-  showSendAsset: thunk((actions, { nodeName }) => {
-    actions.setSendAsset({ visible: true, nodeName });
-  }),
-  hideSendAsset: thunk(actions => {
-    actions.setSendAsset({ visible: false });
-  }),
-  setSendAsset: action((state, payload) => {
-    state.sendAsset = {
-      ...state.sendAsset,
       ...payload,
     };
   }),

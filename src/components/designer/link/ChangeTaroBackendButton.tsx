@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ApiOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -23,9 +23,9 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
   const networks = useStoreState(s => s.network.networks);
   const network = networks.find(n => n.id === activeId) as Network;
 
-  const [hasMacaron, setHasMacaroon] = React.useState(false);
-
-  const handleChangeClick = () => {
+  const handleChangeClick = async () => {
+    const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
+    const hasMacaron = await exists(taroNode.paths.adminMacaroon);
     if (hasMacaron) {
       notify({ message: l('error'), error: new Error(l('hasMacaroonErr')) });
     } else if (network.status !== Status.Stopped) {
@@ -37,14 +37,6 @@ const ChangeTaroBackendButton: React.FC<Props> = ({ taroName, lndName, type }) =
       showChangeTaroBackend({ taroName, lndName });
     }
   };
-
-  useEffect(() => {
-    (async () => {
-      const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
-      const result = await exists(taroNode.paths.adminMacaroon);
-      setHasMacaroon(result);
-    })();
-  });
 
   // render a menu item inside of the NodeContextMenu
   if (type === 'menu') {

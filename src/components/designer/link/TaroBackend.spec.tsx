@@ -76,7 +76,9 @@ describe('Taro Lnd Link Component', () => {
       fireEvent.click(getByText('Change Taro Backend'));
       await waitFor(() => {
         expect(
-          getByText('Can only change Taro Backend before the network is started.'),
+          getByText(
+            'Can only change Taro Backend before the network is started. admin.macaroon is present',
+          ),
         ).toBeInTheDocument();
       });
     });

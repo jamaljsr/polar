@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
@@ -83,6 +83,31 @@ describe('ChangeTaroBackendModal', () => {
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
     fireEvent.click(getByText('Cancel'));
     expect(queryByText('Cancel')).not.toBeInTheDocument();
+  });
+  it('should remove chart link when cancel is clicked', async () => {
+    const { getByText, store } = await renderComponent();
+    const { designer } = store.getActions();
+    const linkId = 'xxxx';
+    const link = { linkId, fromNodeId: 'alice-taro', fromPortId: 'lndbackend' } as any;
+    // create a new link which will open the modal
+    act(() => {
+      designer.onLinkStart(link);
+    });
+    act(() => {
+      designer.onLinkComplete({
+        ...link,
+        toNodeId: 'carol',
+        toPortId: 'lndbackend',
+      } as any);
+    });
+    expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
+    await waitFor(() => {
+      expect(store.getState().modals.changeTaroBackend.linkId).toBe('xxxx');
+    });
+    fireEvent.click(getByText('Cancel'));
+    await waitFor(() => {
+      expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
+    });
   });
   it('should display the compatibility warning for older bitcoin node', async () => {
     const { getByText, queryByText, changeSelect, store } = await renderComponent();

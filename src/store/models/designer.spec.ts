@@ -6,7 +6,8 @@ import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
-import { createCLightningNetworkNode } from 'utils/network';
+import * as files from 'utils/files';
+import { createBitcoindNetworkNode, createCLightningNetworkNode } from 'utils/network';
 import {
   getNetwork,
   injections,
@@ -29,6 +30,11 @@ jest.mock('antd', () => ({
     error: jest.fn(),
   },
 }));
+
+jest.mock('utils/files', () => ({
+  exists: jest.fn(),
+}));
+const filesMock = files as jest.Mocked<typeof files>;
 
 const mockNotification = notification as jest.Mocked<typeof notification>;
 
@@ -78,6 +84,12 @@ describe('Designer model', () => {
         testNodeDocker,
       );
       network.nodes.lightning.push(cligntningNode);
+      const bitcoinNode = createBitcoindNetworkNode(
+        network,
+        testRepoState.images.bitcoind.latest,
+        testNodeDocker,
+      );
+      network.nodes.bitcoin.push(bitcoinNode);
       store.getActions().network.setNetworks([network]);
       const chart = initChartFromNetwork(network);
       store.getActions().designer.setChart({ id: network.id, chart });
@@ -312,7 +324,8 @@ describe('Designer model', () => {
         onLinkComplete(data);
         expect(store.getState().modals.changeBackend.visible).toBe(true);
       });
-      it('should show the ChangeBackend modal when dragging from LND -> taro', () => {
+      it('should show the ChangeBackend modal when dragging from LND -> taro', async () => {
+        filesMock.exists.mockResolvedValue(Promise.resolve(false));
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
@@ -324,9 +337,12 @@ describe('Designer model', () => {
         expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
         onLinkStart(data);
         onLinkComplete(data);
-        expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+        await waitFor(() => {
+          expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+        });
       });
-      it('should show the ChangeBackend modal when dragging from taro -> LND', () => {
+      it('should show the ChangeBackend modal when dragging from taro -> LND', async () => {
+        filesMock.exists.mockResolvedValue(Promise.resolve(false));
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
@@ -338,7 +354,26 @@ describe('Designer model', () => {
         expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
         onLinkStart(data);
         onLinkComplete(data);
-        expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+        await waitFor(() => {
+          expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+        });
+      });
+      it('should not display modal when dragging from taro -> LND', async () => {
+        filesMock.exists.mockResolvedValue(Promise.resolve(true));
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice-taro',
+          fromPortId: 'lndbackend',
+          toNodeId: 'alice',
+          toPortId: 'lndbackend',
+        };
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        onLinkStart(data);
+        onLinkComplete(data);
+        await waitFor(() => {
+          expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        });
       });
       it('should show an error when dragging from taro -> taro', () => {
         const { onLinkStart, onLinkComplete } = store.getActions().designer;

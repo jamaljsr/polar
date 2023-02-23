@@ -48,15 +48,6 @@ describe('Network model', () => {
   // helper to get the first network in the store
   const firstNetwork = () => store.getState().network.networks[0];
 
-  const createTaroNetwork = () => {
-    const network = getNetwork(1, 'test network', Status.Stopped, 2);
-    store.getActions().network.setNetworks([network]);
-    const chart = initChartFromNetwork(network);
-    store.getActions().designer.setChart({ id: network.id, chart });
-    store.getActions().designer.setActiveId(network.id);
-    return network;
-  };
-
   // reusable args for adding a new network
   const addNetworkArgs = {
     name: 'test',
@@ -820,7 +811,14 @@ describe('Network model', () => {
 
   describe('Taro network', () => {
     beforeEach(() => {
-      createTaroNetwork();
+      (() => {
+        const network = getNetwork(1, 'test network', Status.Stopped, 2);
+        store.getActions().network.setNetworks([network]);
+        const chart = initChartFromNetwork(network);
+        store.getActions().designer.setChart({ id: network.id, chart });
+        store.getActions().designer.setActiveId(network.id);
+        return network;
+      })();
     });
 
     it('should remove a taro network', async () => {
@@ -858,7 +856,7 @@ describe('Network model', () => {
 
     it('should throw an error if the network id is not valid', async () => {
       const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: 999, taroName: 'alice-taro', LNDName: 'alice' };
+      const args = { id: 999, taroName: 'alice-taro', lndName: 'alice' };
       await expect(updateTaroBackendNode(args)).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
