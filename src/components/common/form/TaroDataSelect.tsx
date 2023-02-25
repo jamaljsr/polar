@@ -52,8 +52,6 @@ const TaroDataSelect: React.FC<Props> = ({
               ...taroData,
             })),
           };
-        } else {
-          return {};
         }
       }
       return {};

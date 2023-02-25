@@ -24,6 +24,10 @@ describe('TaroDataSelect', () => {
             balances: [defaultTaroBalance({ name: 'bobs-test-balance' })],
             assets: [defaultTaroAsset({ name: 'bobs-test-asset' })],
           },
+          'carol-taro': {
+            balances: [],
+            assets: [defaultTaroAsset({ name: 'carols-test-asset' })],
+          },
         },
       },
       network: {
@@ -55,9 +59,10 @@ describe('TaroDataSelect', () => {
   });
 
   it('should display the balances in groups', () => {
-    const { getByLabelText, getByText } = renderComponent();
+    const { getByLabelText, getByText, queryByText } = renderComponent();
     fireEvent.mouseDown(getByLabelText('Select Taro Asset'));
     expect(getByText('bob-taro')).toBeInTheDocument();
+    expect(queryByText('carol-taro')).not.toBeInTheDocument();
     expect(getByText('bobs-test-balance')).toBeInTheDocument();
   });
 
@@ -69,12 +74,13 @@ describe('TaroDataSelect', () => {
   });
 
   it('should select an asset', () => {
-    const { queryByText, getByLabelText, getByText } = renderComponent();
+    const { queryByText, getByLabelText, getByText, getAllByText } =
+      renderComponent(false);
     expect(queryByText('bobs-test-balance-1')).not.toBeInTheDocument();
     fireEvent.mouseDown(getByLabelText('Select Taro Asset'));
     expect(getByText('bob-taro')).toBeInTheDocument();
-    expect(getByText('bobs-test-balance')).toBeInTheDocument();
-    fireEvent.click(getByText('bobs-test-balance'));
-    expect(getByText('bobs-test-balance-1')).toBeInTheDocument();
+    expect(getByText('bobs-test-asset')).toBeInTheDocument();
+    fireEvent.click(getByText('bobs-test-asset'));
+    expect(getAllByText('bobs-test-asset')[1]).toBeInTheDocument();
   });
 });
