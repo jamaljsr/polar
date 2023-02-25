@@ -9,7 +9,7 @@ describe('Peer component', () => {
     network.nodes.bitcoin.push(
       createBitcoindNetworkNode(network, '0.18.1', testNodeDocker),
     );
-    const [peer1, peer2] = network.nodes.bitcoin;
+    const [peer1, peer2] = network.nodes.bitcoin.slice(-2);
     const result = renderWithProviders(<Peer from={peer1} to={peer2} />);
     return {
       ...result,
@@ -25,8 +25,8 @@ describe('Peer component', () => {
   });
 
   it('should display Peer Implementations', () => {
-    const { getAllByText, peer1 } = renderComponent();
-    expect(getAllByText(peer1.implementation)).toHaveLength(2);
+    const { getAllByText, peer2 } = renderComponent();
+    expect(getAllByText(peer2.implementation)).toHaveLength(2);
   });
 
   it('should display Peer Versions', () => {

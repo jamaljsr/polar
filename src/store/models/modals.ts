@@ -70,6 +70,13 @@ interface SendAssetModel {
   nodeName?: string;
 }
 
+interface ChangeTaroBackendModel {
+  visible: boolean;
+  taroName?: string;
+  lndName?: string;
+  linkId?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -82,6 +89,7 @@ export interface ModalsModel {
   mintAsset: MintAssetModel;
   newAddress: NewAddressModel;
   sendAsset: SendAssetModel;
+  changeTaroBackend: ChangeTaroBackendModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -115,6 +123,13 @@ export interface ModalsModel {
   setSendAsset: Action<ModalsModel, SendAssetModel>;
   hideSendAsset: Thunk<ModalsModel>;
   showSendAsset: Thunk<ModalsModel, Partial<SendAssetModel>, StoreInjections>;
+  showChangeTaroBackend: Thunk<
+    ModalsModel,
+    Partial<ChangeTaroBackendModel>,
+    StoreInjections
+  >;
+  hideChangeTaroBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setChangeTaroBackend: Action<ModalsModel, Partial<ChangeTaroBackendModel>>;
 }
 
 const modalsModel: ModalsModel = {
@@ -129,6 +144,7 @@ const modalsModel: ModalsModel = {
   imageUpdates: { visible: false },
   sendOnChain: { visible: false },
   assetInfo: { visible: false },
+  changeTaroBackend: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -292,6 +308,7 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
+
   //Send Taro Asset Modal
   showSendAsset: thunk((actions, { nodeName }) => {
     actions.setSendAsset({ visible: true, nodeName });
@@ -302,6 +319,23 @@ const modalsModel: ModalsModel = {
   setSendAsset: action((state, payload) => {
     state.sendAsset = {
       ...state.sendAsset,
+      ...payload,
+    };
+  }),
+  showChangeTaroBackend: thunk((actions, { taroName, lndName, linkId }) => {
+    actions.setChangeTaroBackend({ visible: true, taroName, lndName, linkId });
+  }),
+  hideChangeTaroBackend: thunk((actions, payload, { getStoreActions, getState }) => {
+    const { linkId } = getState().changeTaroBackend;
+    if (linkId) {
+      // remove the link on the chart if the backend wasn't changed
+      getStoreActions().designer.removeLink(linkId);
+    }
+    actions.setChangeTaroBackend({ visible: false });
+  }),
+  setChangeTaroBackend: action((state, payload) => {
+    state.changeTaroBackend = {
+      ...state.changeTaroBackend,
       ...payload,
     };
   }),

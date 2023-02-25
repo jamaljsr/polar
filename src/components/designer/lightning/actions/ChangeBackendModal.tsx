@@ -67,6 +67,8 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
         const requiredVersion = compatibility[ln.version];
         if (!isVersionCompatible(backend.version, requiredVersion)) {
           setCompatWarning(l('compatWarning', { ln, backend, requiredVersion }));
+        } else {
+          setCompatWarning(undefined);
         }
       }
     }

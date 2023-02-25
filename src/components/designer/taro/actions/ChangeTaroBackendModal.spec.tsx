@@ -3,34 +3,31 @@ import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
-import { createBitcoindNetworkNode, createLndNetworkNode } from 'utils/network';
+import { createLndNetworkNode } from 'utils/network';
 import {
   getNetwork,
-  injections,
   renderWithProviders,
-  suppressConsoleErrors,
   testNodeDocker,
   testRepoState,
 } from 'utils/tests';
-import ChangeBackendModal from './ChangeBackendModal';
+import ChangeTaroBackendModal from './ChangeTaroBackendModal';
 
-describe('ChangeBackendModal', () => {
+describe('ChangeTaroBackendModal', () => {
   let unmount: () => void;
-
   const renderComponent = async (
     status?: Status,
-    lnName = 'alice',
-    backendName = 'backend1',
+    taroName = 'alice-taro',
+    lndName = 'alice',
   ) => {
-    const network = getNetwork(1, 'test network', status);
-    const oldBitcoind = createBitcoindNetworkNode(
-      network,
-      '0.18.1',
-      testNodeDocker,
-      status,
-    );
-    network.nodes.bitcoin.push(oldBitcoind);
+    const network = getNetwork(1, 'test network', status, 2);
     const { compatibility } = defaultRepoState.images.LND;
+    const otherLND = createLndNetworkNode(
+      network,
+      network.nodes.lightning[0].version,
+      compatibility,
+      testNodeDocker,
+    );
+    network.nodes.lightning.push(otherLND);
     const oldLnd = createLndNetworkNode(
       network,
       '0.7.1-beta',
@@ -50,50 +47,35 @@ describe('ChangeBackendModal', () => {
         },
       },
       modals: {
-        changeBackend: {
+        changeTaroBackend: {
           visible: true,
-          lnName,
-          backendName,
+          taroName,
+          lndName,
         },
       },
     };
-    const cmp = <ChangeBackendModal network={network} />;
+    const cmp = <ChangeTaroBackendModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
     unmount = result.unmount;
-    return {
-      ...result,
-      network,
-    };
+    return { ...result, network };
   };
-
-  afterEach(() => unmount());
-
+  afterEach(() => {
+    unmount();
+  });
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
-    expect(getByText('Lightning Node')).toBeInTheDocument();
-    expect(getByText('Bitcoin Node')).toBeInTheDocument();
+    expect(getByText('Change Taro Node Backend')).toBeInTheDocument();
+    expect(getByText('Taro Node')).toBeInTheDocument();
+    expect(getByText('LND Node')).toBeInTheDocument();
+    expect(getByText('alice-taro')).toBeInTheDocument();
+    expect(getByText('alice')).toBeInTheDocument();
   });
-
-  it('should render form inputs', async () => {
-    const { getByLabelText } = await renderComponent();
-    expect(getByLabelText('Lightning Node')).toBeInTheDocument();
-    expect(getByLabelText('Bitcoin Node')).toBeInTheDocument();
-  });
-
   it('should render button', async () => {
     const { getByText } = await renderComponent();
     const btn = getByText('Change Backend');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
   });
-
-  it('should render the restart notice', async () => {
-    const { getByText } = await renderComponent(Status.Started);
-    expect(
-      getByText('The alice node will be restarted automatically to apply the change.'),
-    ).toBeInTheDocument();
-  });
-
   it('should hide modal when cancel is clicked', async () => {
     const { getByText, queryByText } = await renderComponent();
     const btn = getByText('Cancel');
@@ -102,12 +84,11 @@ describe('ChangeBackendModal', () => {
     fireEvent.click(getByText('Cancel'));
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
-
   it('should remove chart link when cancel is clicked', async () => {
     const { getByText, store } = await renderComponent();
     const { designer } = store.getActions();
     const linkId = 'xxxx';
-    const link = { linkId, fromNodeId: 'alice', fromPortId: 'backend' } as any;
+    const link = { linkId, fromNodeId: 'alice-taro', fromPortId: 'lndbackend' } as any;
     // create a new link which will open the modal
     act(() => {
       designer.onLinkStart(link);
@@ -115,89 +96,81 @@ describe('ChangeBackendModal', () => {
     act(() => {
       designer.onLinkComplete({
         ...link,
-        toNodeId: 'backend2',
-        toPortId: 'backend',
+        toNodeId: 'carol',
+        toPortId: 'lndbackend',
       } as any);
     });
     expect(store.getState().designer.activeChart.links[linkId]).toBeTruthy();
+    await waitFor(() => {
+      expect(store.getState().modals.changeTaroBackend.linkId).toBe('xxxx');
+    });
     fireEvent.click(getByText('Cancel'));
     await waitFor(() => {
       expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
     });
   });
-
   it('should display the compatibility warning for older bitcoin node', async () => {
     const { getByText, queryByText, changeSelect, store } = await renderComponent();
     store.getActions().app.setRepoState(testRepoState);
-    const bitcoindVersion = defaultRepoState.images.bitcoind.latest;
     const warning =
-      'erin is running LND v0.7.1-beta which is compatible with Bitcoin Core v0.18.1 and older.' +
-      ` backend1 is running v${bitcoindVersion} so it cannot be used.`;
+      `alice-taro is running tarod v2022.12.28-master which is compatible with LND v2022.12.28-master and newer.` +
+      ` dave is running LND v0.7.1-beta so it cannot be used.`;
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
-    changeSelect('Lightning Node', 'erin');
+    changeSelect('LND Node', 'dave');
     expect(getByText(warning)).toBeInTheDocument();
-    changeSelect('Lightning Node', 'alice');
+    changeSelect('LND Node', 'alice');
     expect(queryByText(warning)).not.toBeInTheDocument();
   });
-
   it('should not display the compatibility warning', async () => {
-    const { queryByLabelText } = await renderComponent(Status.Stopped, 'bob');
+    const { queryByLabelText, changeSelect, store } = await renderComponent(
+      Status.Stopped,
+      'bob',
+    );
     const warning = queryByLabelText('exclamation-circle');
+    const repoState = testRepoState;
+    delete repoState.images.tarod.compatibility;
+    changeSelect('Taro Node', 'alice-taro');
+    changeSelect('LND Node', 'alice');
+    store.getActions().app.setRepoState(repoState);
     expect(warning).not.toBeInTheDocument();
-  });
-
-  it('should display an error if form is not valid', async () => {
-    await suppressConsoleErrors(async () => {
-      const { getByText, getAllByText } = await renderComponent(Status.Stopped, '', '');
-      fireEvent.click(getByText('Change Backend'));
-      await waitFor(() => {
-        expect(getAllByText('required')).toHaveLength(2);
-      });
-    });
-  });
-
-  it('should do nothing if an invalid node is selected', async () => {
-    const { getByText } = await renderComponent(Status.Stopped, 'invalid');
-    fireEvent.click(getByText('Change Backend'));
-    await waitFor(() => {
-      expect(getByText('Change Backend')).toBeInTheDocument();
-    });
   });
 
   describe('with form submitted', () => {
     it('should update the backend successfully', async () => {
       const { getByText, changeSelect, store } = await renderComponent();
-      changeSelect('Bitcoin Node', 'backend2');
+      changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
-        expect(store.getState().modals.changeBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
       });
-      expect(
-        getByText('The alice node will pull chain data from backend2'),
-      ).toBeInTheDocument();
+      expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
-
     it('should succeed if a previous link does not exist', async () => {
       const { getByText, changeSelect, store } = await renderComponent();
-      store.getActions().designer.removeLink('alice-backend1');
-      changeSelect('Bitcoin Node', 'backend2');
+      store.getActions().designer.removeLink('alice-taro-alice');
+      changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
-        expect(store.getState().modals.changeBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
       });
-      expect(
-        getByText('The alice node will pull chain data from backend2'),
-      ).toBeInTheDocument();
+      expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
-
-    it('should restart containers when backend is updated', async () => {
-      const { getByText, changeSelect } = await renderComponent(Status.Started);
-      changeSelect('Bitcoin Node', 'backend2');
+    it('should error if the backend is not changed', async () => {
+      const { getByText, changeSelect } = await renderComponent();
+      changeSelect('LND Node', 'alice');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
-        expect(injections.dockerService.stopNode).toBeCalledTimes(1);
-        expect(injections.dockerService.startNode).toBeCalledTimes(1);
+        expect(
+          getByText("The node 'alice-taro' is already connected to 'alice'"),
+        ).toBeInTheDocument();
+      });
+    });
+    it('should do nothing if an invalid node is selected', async () => {
+      const { getByText } = await renderComponent(Status.Stopped, 'invalid');
+      fireEvent.click(getByText('Change Backend'));
+      await waitFor(() => {
+        expect(getByText('Change Backend')).toBeInTheDocument();
       });
     });
   });
