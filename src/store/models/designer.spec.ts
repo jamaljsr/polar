@@ -4,8 +4,17 @@ import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
+import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
-import { injections, lightningServiceMock, testRepoState } from 'utils/tests';
+import * as files from 'utils/files';
+import { createBitcoindNetworkNode, createCLightningNetworkNode } from 'utils/network';
+import {
+  getNetwork,
+  injections,
+  lightningServiceMock,
+  testNodeDocker,
+  testRepoState,
+} from 'utils/tests';
 import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
@@ -21,6 +30,11 @@ jest.mock('antd', () => ({
     error: jest.fn(),
   },
 }));
+
+jest.mock('utils/files', () => ({
+  exists: jest.fn(),
+}));
+const filesMock = files as jest.Mocked<typeof files>;
 
 const mockNotification = notification as jest.Mocked<typeof notification>;
 
@@ -62,22 +76,31 @@ describe('Designer model', () => {
     const firstChart = () => store.getState().designer.allCharts[firstNetwork().id];
 
     beforeEach(async () => {
-      const { addNetwork } = store.getActions().network;
-      await addNetwork({
-        name: 'test',
-        lndNodes: 2,
-        clightningNodes: 1,
-        eclairNodes: 0,
-        bitcoindNodes: 2,
-        customNodes: {},
-      });
+      const network = getNetwork(2, 'test network', Status.Stopped, 2);
+      const cligntningNode = createCLightningNetworkNode(
+        network,
+        testRepoState.images['c-lightning'].latest,
+        testRepoState.images['c-lightning'].compatibility,
+        testNodeDocker,
+      );
+      network.nodes.lightning.push(cligntningNode);
+      const bitcoinNode = createBitcoindNetworkNode(
+        network,
+        testRepoState.images.bitcoind.latest,
+        testNodeDocker,
+      );
+      network.nodes.bitcoin.push(bitcoinNode);
+      store.getActions().network.setNetworks([network]);
+      const chart = initChartFromNetwork(network);
+      store.getActions().designer.setChart({ id: network.id, chart });
+      store.getActions().designer.setActiveId(network.id);
     });
 
     it('should have a chart in state', () => {
       const { allCharts } = store.getState().designer;
       const chart = allCharts[firstNetwork().id];
       expect(chart).not.toBeUndefined();
-      expect(Object.keys(chart.nodes)).toHaveLength(5);
+      expect(Object.keys(chart.nodes)).toHaveLength(7);
     });
 
     it('should set the active chart', () => {
@@ -85,7 +108,7 @@ describe('Designer model', () => {
       const { activeId, activeChart } = store.getState().designer;
       expect(activeId).toBe(firstNetwork().id);
       expect(activeChart).toBeDefined();
-      expect(Object.keys(activeChart.nodes)).toHaveLength(5);
+      expect(Object.keys(activeChart.nodes)).toHaveLength(7);
     });
 
     it('should remove the active chart', () => {
@@ -301,6 +324,95 @@ describe('Designer model', () => {
         onLinkComplete(data);
         expect(store.getState().modals.changeBackend.visible).toBe(true);
       });
+      it('should show the ChangeBackend modal when dragging from LND -> taro', async () => {
+        filesMock.exists.mockResolvedValue(Promise.resolve(false));
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice',
+          fromPortId: 'lndbackend',
+          toNodeId: 'alice-taro',
+          toPortId: 'lndbackend',
+        };
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        onLinkStart(data);
+        onLinkComplete(data);
+        await waitFor(() => {
+          expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+        });
+      });
+      it('should show the ChangeBackend modal when dragging from taro -> LND', async () => {
+        filesMock.exists.mockResolvedValue(Promise.resolve(false));
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice-taro',
+          fromPortId: 'lndbackend',
+          toNodeId: 'alice',
+          toPortId: 'lndbackend',
+        };
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        onLinkStart(data);
+        onLinkComplete(data);
+        await waitFor(() => {
+          expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+        });
+      });
+      it('should not display modal when dragging from taro -> LND', async () => {
+        filesMock.exists.mockResolvedValue(Promise.resolve(true));
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice-taro',
+          fromPortId: 'lndbackend',
+          toNodeId: 'alice',
+          toPortId: 'lndbackend',
+        };
+        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        onLinkStart(data);
+        onLinkComplete(data);
+        await waitFor(() => {
+          expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        });
+      });
+      it('should show an error when dragging from taro -> taro', () => {
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice-taro',
+          fromPortId: 'lndbackend',
+          toNodeId: 'bob-taro',
+          toPortId: 'lndbackend',
+        };
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        onLinkStart(data);
+        onLinkComplete(data);
+        expect(spy).toBeCalledWith(
+          expect.objectContaining({
+            message: 'Cannot connect nodes',
+            error: new Error('Taord nodes do not connect'),
+          }),
+        );
+      });
+      it('should show an error when dragging from taro -> non LND node', () => {
+        const { onLinkStart, onLinkComplete } = store.getActions().designer;
+        const data = {
+          ...payload,
+          fromNodeId: 'alice-taro',
+          fromPortId: 'lndbackend',
+          toNodeId: 'carol',
+          toPortId: 'lndbackend',
+        };
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        onLinkStart(data);
+        onLinkComplete(data);
+        expect(spy).toBeCalledWith(
+          expect.objectContaining({
+            message: 'Cannot connect nodes',
+            error: new Error('carol is not an LND implementation'),
+          }),
+        );
+      });
     });
 
     describe('onCanvasDrop', () => {
@@ -330,21 +442,21 @@ describe('Designer model', () => {
 
       it('should add a new LN node to the chart', async () => {
         const { onCanvasDrop } = store.getActions().designer;
-        expect(Object.keys(firstChart().nodes)).toHaveLength(5);
+        expect(Object.keys(firstChart().nodes)).toHaveLength(7);
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(Object.keys(firstChart().nodes)).toHaveLength(6);
-          expect(firstChart().nodes['carol']).toBeDefined();
+          expect(Object.keys(firstChart().nodes)).toHaveLength(8);
+          expect(firstChart().nodes['dave']).toBeDefined();
         });
       });
 
       it('should add a new bitcoin node to the chart', async () => {
         const { onCanvasDrop } = store.getActions().designer;
-        expect(Object.keys(firstChart().nodes)).toHaveLength(5);
+        expect(Object.keys(firstChart().nodes)).toHaveLength(7);
         const bitcoinData = { type: 'bitcoind', version: btcLatest };
         onCanvasDrop({ id, data: bitcoinData, position });
         await waitFor(() => {
-          expect(Object.keys(firstChart().nodes)).toHaveLength(6);
+          expect(Object.keys(firstChart().nodes)).toHaveLength(8);
           expect(firstChart().nodes['backend2']).toBeDefined();
         });
       });
@@ -439,7 +551,7 @@ describe('Designer model', () => {
         await waitFor(() => {
           expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
-          expect(firstNetwork().nodes.lightning[2].name).toBe('carol');
+          expect(firstNetwork().nodes.lightning[3].name).toBe('dave');
         });
       });
 
