@@ -10,7 +10,7 @@ import {
 } from 'utils/tests';
 import TaroDataSelect from './TaroDataSelect';
 
-describe('TaroNodeSelect', () => {
+describe('TaroDataSelect', () => {
   const renderComponent = (selectBalances = true) => {
     const network = getNetwork(1, 'test network', Status.Started, 2);
     const initialState = {

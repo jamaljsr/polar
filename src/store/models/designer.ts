@@ -11,7 +11,7 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { AnyNode, Status, TarodNode } from 'shared/types';
+import { AnyNode, LndNode, Status, TarodNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createBitcoinChartNode,
@@ -22,6 +22,7 @@ import {
   updateChartFromNodes,
 } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
+import { exists } from 'utils/files';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
@@ -42,6 +43,7 @@ export interface DesignerModel {
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   updateBackendLink: Action<DesignerModel, { lnName: string; backendName: string }>;
+  updateTaroBackendLink: Action<DesignerModel, { taroName: string; lndName: string }>;
   removeNode: Action<DesignerModel, string>;
   addNode: Action<DesignerModel, { newNode: AnyNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
@@ -181,6 +183,24 @@ const designerModel: DesignerModel = {
       },
     };
   }),
+  updateTaroBackendLink: action((state, { taroName, lndName }) => {
+    const chart = state.allCharts[state.activeId];
+    // remove the old taro -> ln link
+    const prevLink = Object.values(chart.links).find(
+      l => l.from.nodeId === taroName && l.from.portId === 'lndbackend',
+    );
+    if (prevLink) delete chart.links[prevLink.id];
+    // create a new link using the standard naming convention
+    const newId = `${taroName}-${lndName}`;
+    chart.links[newId] = {
+      id: newId,
+      from: { nodeId: taroName, portId: 'lndbackend' },
+      to: { nodeId: lndName, portId: 'lndbackend' },
+      properties: {
+        type: 'lndbackend',
+      },
+    };
+  }),
   removeNode: action((state, nodeId) => {
     const chart = state.allCharts[state.activeId];
     if (chart.selected && chart.selected.id === nodeId) {
@@ -207,7 +227,7 @@ const designerModel: DesignerModel = {
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
-    (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
+    async (actions, { payload }, { getState, getStoreState, getStoreActions }) => {
       const { activeId, activeChart } = getState();
       const { linkId, fromNodeId, toNodeId, fromPortId, toPortId } = payload;
       if (!activeChart.links[linkId]) return;
@@ -245,6 +265,30 @@ const designerModel: DesignerModel = {
       } else if (fromNode.type === 'bitcoin' && toNode.type === 'bitcoin') {
         // connecting bitcoin to bitcoin isn't supported
         return showError(l('linkErrBitcoin'));
+      } else if (fromNode.type === 'taro' || toNode.type === 'taro') {
+        if (fromNode.type === 'taro' && toNode.type === 'taro') {
+          //connecting taro to taro isn't supported
+          return showError(l('linkErrTarod'));
+        }
+        const taroName = fromNode.type === 'taro' ? fromNodeId : toNodeId;
+        const lndName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
+        const lnNetworkNode = network.nodes.lightning.find(
+          n => n.name === lndName && n.implementation === 'LND',
+        ) as LndNode;
+        if (!lnNetworkNode) {
+          return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
+        }
+        const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
+        const macaroonPresent = await exists(taroNode.paths.adminMacaroon);
+        if (!macaroonPresent) {
+          getStoreActions().modals.showChangeTaroBackend({
+            lndName,
+            taroName,
+            linkId,
+          });
+        } else {
+          return showError(l('tarodBackendError'));
+        }
       } else {
         // connecting an LN node to a bitcoin node
         if (fromPortId !== 'backend' || toPortId !== 'backend') {

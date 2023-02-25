@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Form, Select } from 'antd';
 import { SelectProps, SelectValue } from 'antd/lib/select';
 import { usePrefixedTranslation } from 'hooks';
-import { Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { LightningNodeBalances } from 'lib/lightning/types';
 import { LightningNodeModel } from 'store/models/lightning';
 import { Network } from 'types';
@@ -13,6 +13,7 @@ export interface Props extends SelectProps<SelectValue> {
   name: string;
   label?: string;
   nodeStatus?: Status;
+  implementation?: LightningNode['implementation'];
   initialValue?: string;
   nodes?: {
     [key: string]: LightningNodeModel;
@@ -24,6 +25,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   name,
   label,
   nodeStatus,
+  implementation,
   initialValue,
   nodes,
   onChange,
@@ -51,7 +53,9 @@ const LightningNodeSelect: React.FC<Props> = ({
   if (nodeStatus !== undefined) {
     lnNodes = lnNodes.filter(n => n.status === nodeStatus);
   }
-
+  if (implementation) {
+    lnNodes = lnNodes.filter(n => n.implementation === implementation);
+  }
   return (
     <Form.Item
       name={name}

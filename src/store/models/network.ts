@@ -10,6 +10,7 @@ import {
   LightningNode,
   NodeImplementation,
   Status,
+  TarodNode,
   TaroNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, StoreInjections } from 'types';
@@ -110,6 +111,12 @@ export interface NetworkModel {
   updateBackendNode: Thunk<
     NetworkModel,
     { id: number; lnName: string; backendName: string },
+    StoreInjections,
+    RootModel
+  >;
+  updateTaroBackendNode: Thunk<
+    NetworkModel,
+    { id: number; taroName: string; lndName: string },
     StoreInjections,
     RootModel
   >;
@@ -534,6 +541,32 @@ const networkModel: NetworkModel = {
 
       // update the link in the chart
       getStoreActions().designer.updateBackendLink({ lnName, backendName });
+    },
+  ),
+  updateTaroBackendNode: thunk(
+    async (
+      actions,
+      { id, taroName, lndName },
+      { injections, getState, getStoreActions },
+    ) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      const lndNode = network.nodes.lightning.find(n => n.name === lndName);
+      if (!lndNode) throw new Error(l('nodeByNameErr', { name: lndName }));
+      const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
+      if (!taroNode) throw new Error(l('nodeByNameErr', { name: taroName }));
+      if (taroNode.lndName === lndName)
+        throw new Error(l('connectedErr', { lnName: taroName, backendName: lndName }));
+
+      taroNode.lndName = lndNode.name;
+      // update the network in the redux state and save to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      // save the updated compose file
+      await injections.dockerService.saveComposeFile(network);
+
+      getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: lndName });
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {
