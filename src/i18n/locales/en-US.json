@@ -350,6 +350,7 @@
   "cmps.designer.taro.actions.SendAssetModal.success": "Sent {{amount}} {{assetName}}'s to {{internalKey}}",
   "cmps.designer.taro.actions.SendAssetModal.missingAsset": "{{nodeName}} is missing this asset",
   "cmps.designer.taro.actions.SendAssetModal.decodingError": "ERROR: Invalid Address",
+  "cmps.designer.taro.actions.SendAssetModal.submitError": "Error:",
   "cmps.designer.taro.InfoTab.nodeType": "Node Type",
   "cmps.designer.taro.InfoTab.implementation": "Implementation",
   "cmps.designer.taro.InfoTab.customImage": "Docker Image",
