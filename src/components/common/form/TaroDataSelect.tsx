@@ -43,7 +43,7 @@ const TaroDataSelect: React.FC<Props> = ({
       const node: TaroNodeModel = nodes[taroNetworkNode.name];
       if (node) {
         const data: TaroModelData[] = node[resourceKey] as TaroModelData[];
-        if (data) {
+        if (data && data.length > 0) {
           return {
             label: taroNetworkNode.name,
             options: data.map((taroData: TaroModelData) => ({
