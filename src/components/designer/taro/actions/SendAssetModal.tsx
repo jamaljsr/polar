@@ -77,7 +77,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     const lndNodeModel = lightningNodes[thisTaroNode?.lndName];
     lndNodeModel &&
       setIsLNDBalanceLow(
-        Number(lndNodeModel.walletBalance?.confirmed) < TARO_MIN_LND_BALANCE,
+        Number(lndNodeModel.walletBalance?.confirmed) < TARO_MIN_LND_BALANCE * 2,
       );
   }, [network.nodes.lightning, lightningNodes]);
 
@@ -203,6 +203,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         okText={l('okBtn')}
         onCancel={() => hideSendAsset()}
         okButtonProps={{
+          loading: sendAssetAsync.loading,
           disabled: !decodedAddress || (decodedAddress && !assetName),
         }}
         onOk={form.submit}
