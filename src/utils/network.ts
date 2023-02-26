@@ -312,7 +312,7 @@ export const createTarodNetworkNode = (
   const { taro } = network.nodes;
   const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
   const lndBackends = filterLndBackends(network);
-  const lndBackend = lndBackends[id % lndBackends.length];
+  const lndBackend = lndBackends.sort(n => n.id)[0];
 
   const name = `${lndBackend.name}-taro`;
   const node: TarodNode = {
