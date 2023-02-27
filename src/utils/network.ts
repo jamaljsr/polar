@@ -300,7 +300,7 @@ const filterLndBackends = (network: Network) => {
   if (lndBackends.length === 0) {
     throw new Error(l('lndBackendCompatError'));
   }
-  return lndBackends.sort(n => n.id)[0];
+  return lndBackends[0];
 };
 
 export const createTarodNetworkNode = (

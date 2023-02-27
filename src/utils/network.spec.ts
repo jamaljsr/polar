@@ -2,7 +2,14 @@ import detectPort from 'detect-port';
 import { CLightningNode, LndNode, NodeImplementation, Status } from 'shared/types';
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
-import { getImageCommand, getOpenPortRange, getOpenPorts, OpenPorts } from './network';
+import {
+  createLndNetworkNode,
+  createTarodNetworkNode,
+  getImageCommand,
+  getOpenPortRange,
+  getOpenPorts,
+  OpenPorts,
+} from './network';
 import { getNetwork, testManagedImages } from './tests';
 
 const mockDetectPort = detectPort as jest.Mock;
@@ -230,6 +237,40 @@ describe('Network Utils', () => {
       const lnd2 = network.nodes.lightning[3] as LndNode;
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
+    });
+  });
+  describe('createNetworkNodes', () => {
+    let network: Network;
+
+    beforeEach(() => {
+      network = getNetwork(1, 'taro network', undefined, 3);
+    });
+    it('should add a taro node to the network', async () => {
+      const lnd = createLndNetworkNode(
+        network,
+        defaultRepoState.images.LND.versions[0],
+        undefined,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      const lnd2 = createLndNetworkNode(
+        network,
+        defaultRepoState.images.LND.versions[0],
+        undefined,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.lightning.push(lnd);
+      network.nodes.lightning.push(lnd2);
+      expect(network.nodes.lightning.length).toBe(5);
+      const taro = createTarodNetworkNode(
+        network,
+        defaultRepoState.images.tarod.latest,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.taro.push(taro);
+      expect(network.nodes.taro.length).toBe(4);
     });
   });
 });
