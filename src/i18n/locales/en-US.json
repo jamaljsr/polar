@@ -358,7 +358,7 @@
   "cmps.designer.taro.InfoTab.numAssets": "Number of Assets",
   "cmps.designer.taro.InfoTab.assets": "Assets",
   "cmps.designer.taro.InfoTab.startError": "Unable to connect to {{implementation}} node",
-  "cmps.designer.taro.InfoTab.noassets": "No Assets",
+  "cmps.designer.taro.AssetsList.noAssets": "No assets have been created.",
   "cmps.designer.taro.TaroDetails.info": "Info",
   "cmps.designer.taro.TaroDetails.connect": "Connect",
   "cmps.designer.taro.TaroDetails.actions": "Actions",
