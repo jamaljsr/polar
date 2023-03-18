@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { UnorderedListOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Divider, Space } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
 import { TaroBalance } from 'lib/taro/types';
 import { useStoreActions } from 'store';
 import { format } from 'utils/units';
@@ -10,6 +11,9 @@ import AssetInfoDrawer from './AssetInfoDrawer';
 
 const Styled = {
   Wrapper: styled.div``,
+  Empty: styled.p`
+    text-align: center;
+  `,
 };
 
 interface Props {
@@ -19,6 +23,7 @@ interface Props {
 }
 
 const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
+  const { l } = usePrefixedTranslation('cmps.designer.taro.AssetsList');
   const { showAssetInfo } = useStoreActions(s => s.modals);
 
   const handleClick = useCallback(
@@ -49,7 +54,11 @@ const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
   return (
     <Wrapper>
       <Divider>{title}</Divider>
-      <DetailsList details={assetDetails} />
+      {balances && balances.length > 0 ? (
+        <DetailsList details={assetDetails} />
+      ) : (
+        <Styled.Empty>{l('noAssets')}</Styled.Empty>
+      )}
       <AssetInfoDrawer />
     </Wrapper>
   );

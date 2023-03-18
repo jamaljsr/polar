@@ -304,7 +304,7 @@ const filterLndBackends = (network: Network) => {
   if (lndBackends.length === 0) {
     throw new Error(l('lndBackendCompatError'));
   }
-  return lndBackends;
+  return lndBackends[0];
 };
 
 export const createTarodNetworkNode = (
@@ -315,8 +315,7 @@ export const createTarodNetworkNode = (
 ): TarodNode => {
   const { taro } = network.nodes;
   const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
-  const lndBackends = filterLndBackends(network);
-  const lndBackend = lndBackends[id % lndBackends.length];
+  const lndBackend = filterLndBackends(network);
 
   const name = `${lndBackend.name}-taro`;
   const node: TarodNode = {
