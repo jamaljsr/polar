@@ -11,7 +11,7 @@ import AssetInfoDrawer from './AssetInfoDrawer';
 
 const Styled = {
   Wrapper: styled.div``,
-  P: styled.p`
+  Empty: styled.p`
     text-align: center;
   `,
 };
@@ -57,7 +57,7 @@ const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
       {balances && balances.length > 0 ? (
         <DetailsList details={assetDetails} />
       ) : (
-        <Styled.P>{l('noAssets')}</Styled.P>
+        <Styled.Empty>{l('noAssets')}</Styled.Empty>
       )}
       <AssetInfoDrawer />
     </Wrapper>
