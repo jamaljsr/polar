@@ -11139,10 +11139,10 @@ i18next-browser-languagedetector@7.0.1:
   dependencies:
     "@babel/runtime" "^7.19.4"
 
-i18next-scanner@4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/i18next-scanner/-/i18next-scanner-4.1.1.tgz#a5ed7b6227f58564bb570b074bfb3c4d02633546"
-  integrity sha512-FyaCdEBC8O9zPkAGKfhR8oNQSxQUALnqv++zajBj1aLviDgKyXkhAciHlKS0I8DKqLHMeuNdWODMpRdTuXavqg==
+i18next-scanner@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/i18next-scanner/-/i18next-scanner-4.2.0.tgz#f9abaecacdb55cf9f231930f8d7763293417c36d"
+  integrity sha512-Qmty1KDZN0QpT58tseKJ48mM8pduXiY/WwQ5P+Qd+2oQLmcQJxohDPGEmN+dRfOhHTV6w2evO2beiz9sadP1Pw==
   dependencies:
     acorn "^8.0.4"
     acorn-dynamic-import "^4.0.0"
