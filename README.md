@@ -46,9 +46,14 @@ Supported Network Node Versions:
 Polar requires that you have Docker installed to create the local networks
 
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- On Linux, you need to install [Docker Server](https://docs.docker.com/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/) separately
+- On Linux, you need to install [Docker Server](https://docs.docker.com/engine/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/#scenario-two-install-the-compose-plugin) separately.
 
 You will be prompted to install Docker if Polar cannot detect it automatically
+
+⚠️ **Important Docker Notes**
+
+- On Mac & Windows, you must uncheck "Use Docker Compose V2" in Docker Desktop settings. We're waiting on Compose v2 support in the `docker-compose` NPM package (See [PDMLab/docker-compose#228](https://github.com/PDMLab/docker-compose/pull/228))
+- On Linux, Docker Desktop is currently not supported due to a significant change in how it handles file sharing between host and container (See [#636](https://github.com/jamaljsr/polar/issues/636#issuecomment-1450201391))
 
 ## Download
 
@@ -104,7 +109,3 @@ If you would like to learn how to package Polar from source code or want to fix 
 ## Recognition
 
 Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/joule-extension), [Zap Wallet](https://github.com/LN-Zap/zap-desktop), [LND](https://github.com/lightningnetwork/lnd), [Bitcoin Core](https://github.com/bitcoin/bitcoin), along with many others for the amazing apps & libraries that gave this project inspiration, ideas & sometimes even a little code 😊.
-
-## Contact
-
-The best place to reach me is on Twitter @jamaljsr. I also lurk in the LND Slack server, so you can msg me there as well.
