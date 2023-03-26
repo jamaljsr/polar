@@ -67,7 +67,7 @@ describe('EclairService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should get a list of channels', async () => {
+  it('should get a list of channels for < v0.8.0', async () => {
     const chanResponse: ELN.ChannelResponse = {
       nodeId: 'abcdef',
       channelId: '65sdfd7',
@@ -77,6 +77,37 @@ describe('EclairService', () => {
           channelFlags: 1,
           localParams: {
             isFunder: true,
+            isInitiator: undefined as any,
+          },
+          localCommit: {
+            spec: {
+              toLocal: 100000000,
+              toRemote: 50000000,
+            },
+          },
+          commitInput: {
+            amountSatoshis: 150000,
+          },
+        },
+      },
+    };
+    eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
+    const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
+    const actual = await eclairService.getChannels(node);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should get a list of channels for >= v0.8.0', async () => {
+    const chanResponse: ELN.ChannelResponse = {
+      nodeId: 'abcdef',
+      channelId: '65sdfd7',
+      state: ELN.ChannelState.NORMAL,
+      data: {
+        commitments: {
+          channelFlags: 1,
+          localParams: {
+            isFunder: undefined as any,
+            isInitiator: true,
           },
           localCommit: {
             spec: {
@@ -211,52 +242,78 @@ describe('EclairService', () => {
     );
   });
 
-  it('should pay an invoice', async () => {
-    const sentInfoResponse = (type: string, failMode?: string) => [
-      {
-        id: 'invId',
-        paymentRequest: {
-          nodeId: 'abcdef',
-          amount: 100000,
+  describe('pay invoice', () => {
+    const mockResponses = (v8: boolean) => {
+      const payReq = {
+        nodeId: 'abcdef',
+        amount: 100000,
+      };
+      const sentInfoResponse = (type: string, failMode?: string) => [
+        {
+          id: 'invId',
+          paymentRequest: v8 ? undefined : payReq,
+          invoice: v8 ? payReq : undefined,
+          status: {
+            type,
+            paymentPreimage: 'pre-image',
+            failures:
+              failMode === 'empty'
+                ? []
+                : failMode === 'msg'
+                ? [
+                    {
+                      failureMessage: 'sent-error',
+                    },
+                  ]
+                : undefined,
+          },
         },
-        status: {
-          type,
-          paymentPreimage: 'pre-image',
-          failures:
-            failMode === 'empty'
-              ? []
-              : failMode === 'msg'
-              ? [
-                  {
-                    failureMessage: 'sent-error',
-                  },
-                ]
-              : undefined,
-        },
-      },
-    ];
+      ];
 
-    eclairApiMock.httpPost.mockResolvedValueOnce('invId'); // payinvoice
-    eclairApiMock.httpPost.mockResolvedValueOnce([]); // getsentinfo
-    eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('failed')); // getsentinfo
-    eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('failed', 'empty')); // getsentinfo
-    eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('failed', 'msg')); // getsentinfo
-    eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('sent')); // getsentinfo
-    eclairApiMock.httpPost.mockResolvedValue(sentInfoResponse('sent')); // getsentinfo
-    const promise = eclairService.payInvoice(node, 'lnbc100xyz');
-    const res = await promise;
-    expect(res.preimage).toEqual('pre-image');
-    expect(res.amount).toEqual(100000);
-    expect(res.destination).toEqual('abcdef');
-    // test payments with amount specified
-    eclairService.payInvoice(node, 'lnbc100xyz', 1000);
-    expect(eclairApiMock.httpPost).toBeCalledWith(
-      node,
-      'payinvoice',
-      expect.objectContaining({
-        amountMsat: 1000000,
-      }),
-    );
+      eclairApiMock.httpPost.mockResolvedValueOnce('invId'); // payinvoice
+      eclairApiMock.httpPost.mockResolvedValueOnce([]); // getsentinfo
+      eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('failed')); // getsentinfo
+      eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('failed', 'empty')); // getsentinfo
+      eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('failed', 'msg')); // getsentinfo
+      eclairApiMock.httpPost.mockResolvedValueOnce(sentInfoResponse('sent')); // getsentinfo
+      eclairApiMock.httpPost.mockResolvedValue(sentInfoResponse('sent')); // getsentinfo
+    };
+
+    it('should pay an invoice for < v0.8.0', async () => {
+      mockResponses(false);
+      const promise = eclairService.payInvoice(node, 'lnbc100xyz');
+      const res = await promise;
+      expect(res.preimage).toEqual('pre-image');
+      expect(res.amount).toEqual(100000);
+      expect(res.destination).toEqual('abcdef');
+      // test payments with amount specified
+      eclairService.payInvoice(node, 'lnbc100xyz', 1000);
+      expect(eclairApiMock.httpPost).toBeCalledWith(
+        node,
+        'payinvoice',
+        expect.objectContaining({
+          amountMsat: 1000000,
+        }),
+      );
+    });
+
+    it('should pay an invoice for >= v0.8.0', async () => {
+      mockResponses(true);
+      const promise = eclairService.payInvoice(node, 'lnbc100xyz');
+      const res = await promise;
+      expect(res.preimage).toEqual('pre-image');
+      expect(res.amount).toEqual(100000);
+      expect(res.destination).toEqual('abcdef');
+      // test payments with amount specified
+      eclairService.payInvoice(node, 'lnbc100xyz', 1000);
+      expect(eclairApiMock.httpPost).toBeCalledWith(
+        node,
+        'payinvoice',
+        expect.objectContaining({
+          amountMsat: 1000000,
+        }),
+      );
+    });
   });
 
   describe('waitUntilOnline', () => {
