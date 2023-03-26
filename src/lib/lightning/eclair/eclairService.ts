@@ -69,7 +69,11 @@ class EclairService implements LightningService {
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
     const channels = await httpPost<ELN.ChannelResponse[]>(node, 'channels');
     return channels
-      .filter(c => c.data.commitments.localParams.isFunder)
+      .filter(
+        c =>
+          c.data.commitments.localParams.isFunder ||
+          c.data.commitments.localParams.isInitiator,
+      )
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
         const status = ChannelStateToStatus[c.state];
@@ -173,11 +177,13 @@ class EclairService implements LightningService {
     // poll for a success every second for up to 5 seconds
     await waitFor(() => this.getPaymentStatus(node, id), 1000, 5 * 1000);
 
-    const { status, paymentRequest } = await this.getPaymentStatus(node, id);
+    const res = await this.getPaymentStatus(node, id);
+    const { status, paymentRequest, invoice: resInvoice } = res;
+    const payReq = paymentRequest || resInvoice;
     return {
       preimage: status.paymentPreimage,
-      amount: paymentRequest.amount,
-      destination: paymentRequest.nodeId,
+      amount: payReq.amount,
+      destination: payReq.nodeId,
     };
   }
 
