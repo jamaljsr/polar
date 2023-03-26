@@ -72,6 +72,32 @@ describe('CLightningService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should get list of channels with a funding txid', async () => {
+    const infoResponse: Partial<CLN.GetInfoResponse> = {
+      id: 'abc',
+      binding: [],
+    };
+    const chanResponse: Partial<CLN.GetChannelsResponse>[] = [
+      {
+        id: 'xyz',
+        channelId: '',
+        fundingTxid: 'bec9d46e09f7787f16e4c190b3469dab2faa41899427402d0cb558c66e2757fa',
+        state: CLN.ChannelState.CHANNELD_NORMAL,
+        msatoshiTotal: 0,
+        msatoshiToUs: 0,
+        fundingAllocationMsat: {
+          abc: 100,
+          xyz: 0,
+        },
+      },
+    ];
+    clightningApiMock.httpGet.mockResolvedValue(chanResponse);
+    clightningApiMock.httpGet.mockResolvedValueOnce(infoResponse);
+    const expected = [expect.objectContaining({ pubkey: 'xyz' })];
+    const actual = await clightningService.getChannels(node);
+    expect(actual).toEqual(expected);
+  });
+
   it('should not throw error when connecting to peers', async () => {
     const listPeersResponse: Partial<CLN.Peer>[] = [
       { id: 'asdf', connected: true, netaddr: ['1.1.1.1:9735'] },
