@@ -537,13 +537,15 @@ const networkModel: NetworkModel = {
       }
     },
   ),
-  stop: thunk(async (actions, networkId, { getState, injections }) => {
+  stop: thunk(async (actions, networkId, { getState, injections, getStoreActions }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
       await injections.dockerService.stop(network);
       actions.setStatus({ id: network.id, status: Status.Stopped });
+      // clear cached RPC data
+      getStoreActions().app.clearAppCache();
     } catch (e: any) {
       actions.setStatus({ id: network.id, status: Status.Error });
       info(`unable to stop network '${network.name}'`, e.message);
@@ -560,7 +562,7 @@ const networkModel: NetworkModel = {
     }
     await actions.save();
   }),
-  toggleNode: thunk(async (actions, node, { getState, injections }) => {
+  toggleNode: thunk(async (actions, node, { getState, injections, getStoreActions }) => {
     const { networkId } = node;
     let network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
@@ -579,12 +581,14 @@ const networkModel: NetworkModel = {
         await injections.dockerService.saveComposeFile(network);
       }
       await injections.dockerService.startNode(network, node);
-      await actions.monitorStartup([node]);
+      actions.monitorStartup([node]);
     } else if (node.status === Status.Started) {
       // stop the node container
       actions.setStatus({ id: network.id, status: Status.Stopping, only });
       await injections.dockerService.stopNode(network, node);
       actions.setStatus({ id: network.id, status: Status.Stopped, only });
+      // clear cached RPC data
+      getStoreActions().app.clearAppCache();
     }
     await actions.save();
   }),
