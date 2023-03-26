@@ -14,6 +14,7 @@ import { APP_VERSION, defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { createNetwork } from 'utils/network';
 import { getNetwork, mockProperty, testManagedImages } from 'utils/tests';
+import { getDocker } from './dockerService';
 
 jest.mock('dockerode');
 jest.mock('os');
@@ -616,6 +617,63 @@ describe('DockerService', () => {
         undefined,
       );
       Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
+    });
+  });
+
+  describe('getDocker', () => {
+    it('should detect DOCKER_HOST', async () => {
+      Object.defineProperty(electronMock.remote, 'process', {
+        get: () => ({ env: { DOCKER_HOST: '/var/run/docker.sock' } }),
+      });
+      await getDocker(false);
+      expect(mockDockerode.prototype.constructor).toBeCalledWith();
+      Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
+    });
+
+    it('should check paths on Mac', async () => {
+      mockOS.platform.mockReturnValue('darwin');
+      Object.defineProperty(electronMock.remote, 'process', {
+        get: () => ({ env: { HOME: '/home/user' } }),
+      });
+      filesMock.exists.mockImplementation((path: string) => {
+        return Promise.resolve(path === '/var/run/docker.sock');
+      });
+      await getDocker(false);
+      expect(filesMock.exists).toBeCalledWith('/home/user/.docker/run/docker.sock');
+      expect(filesMock.exists).toBeCalledWith('/var/run/docker.sock');
+      expect(mockDockerode.prototype.constructor).toBeCalledWith({
+        socketPath: '/var/run/docker.sock',
+      });
+      Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
+    });
+
+    it('should check paths on Linux', async () => {
+      mockOS.platform.mockReturnValue('linux');
+      Object.defineProperty(electronMock.remote, 'process', {
+        get: () => ({ env: { HOME: '/home/user' } }),
+      });
+      filesMock.exists.mockImplementation((path: string) => {
+        return Promise.resolve(path === '/var/run/docker.sock');
+      });
+      await getDocker(false);
+      expect(filesMock.exists).toBeCalledWith('/home/user/.docker/run/docker.sock');
+      expect(filesMock.exists).toBeCalledWith('/var/run/docker.sock');
+      expect(mockDockerode.prototype.constructor).toBeCalledWith({
+        socketPath: '/var/run/docker.sock',
+      });
+      Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
+    });
+
+    it('should not check paths on windows', async () => {
+      mockOS.platform.mockReturnValue('win32');
+      await getDocker(false);
+      expect(mockDockerode.prototype.constructor).toBeCalledWith();
+    });
+
+    it('should reuse a cached instance for multiple calls', async () => {
+      const docker1 = await getDocker();
+      const docker2 = await getDocker();
+      expect(docker1).toBe(docker2);
     });
   });
 });

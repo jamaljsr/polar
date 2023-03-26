@@ -2,20 +2,18 @@
 /* istanbul ignore file */
 import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
-import { remote, clipboard } from 'electron';
+import { clipboard, remote } from 'electron';
 import { debug, info } from 'electron-log';
 import styled from '@emotion/styled';
 import 'xterm/css/xterm.css';
-import Docker from 'dockerode';
+import { message } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { ITerminalOptions, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import { getDocker } from 'lib/docker/dockerService';
 import { useStoreActions } from 'store';
 import { eclairCredentials } from 'utils/constants';
 import { nord } from './themes';
-import { message } from 'antd';
-
-const docker = new Docker();
 
 // exec command and options configuration
 const execCommand = {
@@ -84,6 +82,7 @@ const connectStreams = async (term: Terminal, name: string, type: string, l: any
   const config = nodeConfig[type];
   if (!config) throw new Error(l('nodeTypeErr', { type }));
 
+  const docker = await getDocker();
   debug(`getting docker container with name '${name}'`);
   const containers = await docker.listContainers();
   debug(`all containers: ${JSON.stringify(containers)}`);

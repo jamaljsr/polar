@@ -20,8 +20,48 @@ import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
-import { isLinux } from 'utils/system';
+import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
+
+let dockerInst: Dockerode | undefined;
+/**
+ * Creates a new Dockerode instance by detecting the docker socket
+ */
+export const getDocker = async (useCached = true): Promise<Dockerode> => {
+  // re-use the stored instance if available
+  if (useCached && dockerInst) return dockerInst;
+
+  if (remote.process.env.DOCKER_HOST) {
+    debug('DOCKER_HOST detected. Copying DOCKER_* env vars:');
+    // copy all env vars that start with DOCKER_ to the current process env
+    Object.keys(remote.process.env)
+      .filter(key => key.startsWith('DOCKER_'))
+      .forEach(key => {
+        debug(`- ${key} = '${remote.process.env[key]}'`);
+        process.env[key] = remote.process.env[key];
+      });
+    // let Dockerode handle DOCKER_HOST parsing
+    return (dockerInst = new Dockerode());
+  }
+  if (isLinux() || isMac()) {
+    // try to detect the socket path in the default locations on linux/mac
+    const socketPaths = [
+      `${remote.process.env.HOME}/.docker/run/docker.sock`,
+      `${remote.process.env.HOME}/.docker/desktop/docker.sock`,
+      '/var/run/docker.sock',
+    ];
+    for (const socketPath of socketPaths) {
+      if (await exists(socketPath)) {
+        debug('docker socket detected:', socketPath);
+        return (dockerInst = new Dockerode({ socketPath }));
+      }
+    }
+  }
+
+  debug('no DOCKER_HOST or docker socket detected');
+  // fallback to letting Dockerode detect the socket path
+  return (dockerInst = new Dockerode());
+};
 
 class DockerService implements DockerLibrary {
   /**
@@ -33,7 +73,7 @@ class DockerService implements DockerLibrary {
 
     try {
       debug('fetching docker version');
-      const dockerVersion = await new Dockerode().version();
+      const dockerVersion = await (await getDocker()).version();
       debug(`Result: ${JSON.stringify(dockerVersion)}`);
       versions.docker = dockerVersion.Version;
     } catch (error: any) {
@@ -60,7 +100,7 @@ class DockerService implements DockerLibrary {
   async getImages(): Promise<string[]> {
     try {
       debug('fetching docker images');
-      const allImages = await new Dockerode().listImages();
+      const allImages = await (await getDocker()).listImages();
       debug(`All Images: ${JSON.stringify(allImages)}`);
       const imageNames = ([] as string[])
         .concat(...allImages.map(i => i.RepoTags || []))
