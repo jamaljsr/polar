@@ -2,7 +2,20 @@
 
 > The Dockerfiles used to build the images that the Polar app needs to spin up nodes quickly across multiple operating systems.
 
-_Warning: These images are not hardened and shouldn't be used to store real bitcoin. These images are intended solely to be used in simnet/regtest environments_
+_Warning: These images are not hardened and shouldn't be used to store real bitcoin. These images are intended solely to be used in regtest environments_
+
+Creating multi-arch images for Polar makes use of the `docker buildx` command. It is a good idea to create a separate builder using the commands below.
+
+```
+// create the builder
+$ docker buildx create --use --name polar-builder
+
+// use the builder
+$ docker buildx use polar-builder
+
+// bootstrap the builder
+$ docker buildx inspect --bootstrap
+```
 
 ## Bitcoin Core
 
@@ -23,16 +36,10 @@ _Warning: These images are not hardened and shouldn't be used to store real bitc
 
 ```sh
 $ cd bitcoind
-$ docker build --build-arg BITCOIN_VERSION=<version> -t polarlightning/bitcoind:<version> .
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg BITCOIN_VERSION=<version> -t polarlightning/bitcoind:<version> --push .
 ```
 
 Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
-
-**Push to Docker Hub**
-
-```sh
-$ docker push polarlightning/bitcoind:<version>
-```
 
 ## LND
 
@@ -68,16 +75,10 @@ $ docker push polarlightning/bitcoind:<version>
 
 ```sh
 $ cd lnd
-$ docker build --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> .
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> --push  .
 ```
 
 Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
-
-**Push to Docker Hub**
-
-```sh
-$ docker push polarlightning/lnd:<version>
-```
 
 ## Core Lightning
 
@@ -100,18 +101,24 @@ $ docker push polarlightning/lnd:<version>
 
 **Building the image**
 
+Core Lightning requires building the arm64 image using a separate Dockerfile, so docker buildx cannot be used. We must build two images separately them merge them into a single multi-arch image using docker manifest.
+
 ```sh
 $ cd clightning
-$ docker build --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version> .
+# build amd64 image (note: this takes a long time on ARM machines)
+$ docker build --platform linux/amd64 --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version>-amd64 .
+$ docker push polarlightning/clightning:<version>-amd64
+
+# build arm64 image (note: this takes a long time on x86/x64 machines)
+$ docker build --platform linux/arm64 --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version>-arm64 -f Dockerfile.arm64 .
+$ docker push polarlightning/clightning:<version>-arm64
+
+# combine into a single multi-arch image
+$ docker manifest create polarlightning/clightning:<version> --amend polarlightning/clightning:<version>-arm64 --amend polarlightning/clightning:<version>-amd64
+$ docker manifest push polarlightning/clightning:<version>
 ```
 
 Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
-
-**Push to Docker Hub**
-
-```sh
-$ docker push polarlightning/clightning:<version>
-```
 
 ## Eclair
 
@@ -130,16 +137,10 @@ $ docker push polarlightning/clightning:<version>
 
 ```sh
 $ cd eclair
-$ docker build --build-arg ECLAIR_VERSION=<version> -t polarlightning/eclair:<version> .
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg ECLAIR_VERSION=<version> -t polarlightning/eclair:<version> --push .
 ```
 
 Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
-
-**Push to Docker Hub**
-
-```sh
-$ docker push polarlightning/eclair:<version>
-```
 
 # Out-of-Band Image Updates
 
