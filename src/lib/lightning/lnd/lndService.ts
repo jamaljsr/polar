@@ -45,13 +45,27 @@ class LndService implements LightningService {
     } = await proxy.pendingChannels(this.cast(node));
 
     const pluckChan = (c: any) => c.channel as LND.PendingChannel;
+    const isChanInitiatorLocal = (c: LND.PendingChannel) =>
+      c.initiator === LND.Initiator.INITIATOR_LOCAL;
     // merge all of the channel types into one array
     return [
       ...open.filter(c => c.initiator).map(mapOpenChannel),
-      ...opening.map(pluckChan).map(mapPendingChannel('Opening')),
-      ...closing.map(pluckChan).map(mapPendingChannel('Closing')),
-      ...forceClosing.map(pluckChan).map(mapPendingChannel('Force Closing')),
-      ...waitingClose.map(pluckChan).map(mapPendingChannel('Waiting to Close')),
+      ...opening
+        .map(pluckChan)
+        .filter(isChanInitiatorLocal)
+        .map(mapPendingChannel('Opening')),
+      ...closing
+        .map(pluckChan)
+        .filter(isChanInitiatorLocal)
+        .map(mapPendingChannel('Closing')),
+      ...forceClosing
+        .map(pluckChan)
+        .filter(isChanInitiatorLocal)
+        .map(mapPendingChannel('Force Closing')),
+      ...waitingClose
+        .map(pluckChan)
+        .filter(isChanInitiatorLocal)
+        .map(mapPendingChannel('Waiting to Close')),
     ];
   }
 
