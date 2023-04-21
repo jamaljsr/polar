@@ -46,7 +46,10 @@ type ChannelFlags = 0 | 1;
 interface ChannelData {
   commitments: {
     localParams: {
+      // The isFunder field was renamed to isInitiator in v0.8.0. We use both
+      // to maintain compatibility with older versions.
       isFunder: boolean;
+      isInitiator: boolean;
     };
     channelFlags: ChannelFlags;
     localCommit: {
@@ -123,6 +126,16 @@ export interface GetSentInfoRequest {
   id?: string;
 }
 
+interface InvoicePayReq {
+  prefix: string;
+  timestamp: number;
+  nodeId: string;
+  serialized: string;
+  description: string;
+  paymentHash: string;
+  expiry: number;
+  amount: number;
+}
 export interface GetSentInfoResponse {
   id: string;
   parentId: string;
@@ -133,16 +146,10 @@ export interface GetSentInfoResponse {
   recipientAmount: number;
   recipientNodeId: string;
   createdAt: number;
-  paymentRequest: {
-    prefix: string;
-    timestamp: number;
-    nodeId: string;
-    serialized: string;
-    description: string;
-    paymentHash: string;
-    expiry: number;
-    amount: number;
-  };
+  // The paymentRequest field was renamed to invoice in v0.8.0. We use both
+  // to maintain compatibility with older versions.
+  paymentRequest: InvoicePayReq;
+  invoice: InvoicePayReq;
   status: {
     type: string;
     paymentPreimage: string;

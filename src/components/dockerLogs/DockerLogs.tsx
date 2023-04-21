@@ -6,13 +6,12 @@ import { useParams } from 'react-router';
 import { debug, error, info } from 'electron-log';
 import styled from '@emotion/styled';
 import detectPort from 'detect-port';
-import Docker from 'dockerode';
 import { usePrefixedTranslation } from 'hooks';
 import { PassThrough } from 'stream';
 import WebSocket from 'ws';
+import { getDocker } from 'lib/docker/dockerService';
 import { useStoreActions } from 'store';
 
-const docker = new Docker();
 let wsServer: WebSocket.Server;
 
 /**
@@ -27,6 +26,7 @@ const startWebSocketServer = async (name: string): Promise<number> => {
   const port = await detectPort(0);
   wsServer = new WebSocket.Server({ port });
   wsServer.on('connection', async socket => {
+    const docker = await getDocker();
     debug(`getting docker container with name '${name}'`);
     const containers = await docker.listContainers();
     debug(`all containers: ${JSON.stringify(containers)}`);
