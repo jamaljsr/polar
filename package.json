@@ -120,7 +120,7 @@
     "lint-staged": "13.2.1",
     "lndconnect": "0.2.10",
     "nodemon": "2.0.22",
-    "prettier": "2.8.7",
+    "prettier": "2.8.8",
     "react": "17.0.2",
     "react-async-hook": "4.0.0",
     "react-copy-to-clipboard": "5.1.0",
