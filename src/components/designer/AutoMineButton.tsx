@@ -1,8 +1,9 @@
 import { FieldTimeOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Dropdown, Menu, Tooltip, MenuProps } from 'antd';
+import { Button, Dropdown, Tooltip, MenuProps } from 'antd';
+import { ItemType } from 'antd/lib/menu/hooks/useItems';
 import { usePrefixedTranslation } from 'hooks';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStoreActions, useStoreState } from 'store';
 import { AutoMineMode, Network } from 'types';
 
@@ -33,7 +34,7 @@ const getRemainingPercentage = (mode: AutoMineMode, startTime: number) => {
     const elapsedTime = Date.now() - startTime;
     const autoMineInterval = 1000 * mode;
     const remainingTime = autoMineInterval - (elapsedTime % autoMineInterval);
-    const remainingPercentage = Math.round((100 * remainingTime) / autoMineInterval);
+    const remainingPercentage = (100 * remainingTime) / autoMineInterval;
 
     return remainingPercentage;
   }
@@ -44,27 +45,38 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
   const { autoMine } = useStoreActions(s => s.network);
   const autoMiner = useStoreState(s => s.network.autoMiners[network.id]);
   const [remainingPercentage, setRemainingPercentage] = useState(0);
-  const tickTimer = useRef(0);
+  const [tickTimer, setTickTimer] = useState<NodeJS.Timer | undefined>(undefined);
 
   useEffect(() => {
     return () => {
-      tickTimer.current && clearInterval(tickTimer.current);
+      if (tickTimer) {
+        clearInterval(tickTimer);
+        setTickTimer(undefined);
+      }
     };
   }, []);
 
   useEffect(() => {
+    clearInterval(tickTimer);
     if (network.autoMineMode === AutoMineMode.AutoOff) {
-      clearInterval(tickTimer.current);
-      tickTimer.current = 0;
       setRemainingPercentage(0);
+      setTickTimer(undefined);
     } else {
-      tickTimer.current = +setInterval(() => {
-        setRemainingPercentage(
-          getRemainingPercentage(network.autoMineMode, autoMiner.startTime),
-        );
-      }, 1000);
+      setTickTimer(
+        setInterval(() => {
+          setRemainingPercentage(
+            getRemainingPercentage(network.autoMineMode, autoMiner.startTime),
+          );
+        }, 1000),
+      );
     }
-  }, [network.autoMineMode, setRemainingPercentage]);
+    return () => {
+      if (tickTimer) {
+        clearInterval(tickTimer);
+        setTickTimer(undefined);
+      }
+    };
+  }, [network.autoMineMode]);
 
   const autoMineStatusShortMap = useMemo(() => {
     return {
@@ -78,6 +90,9 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
 
   const handleAutoMineModeChanged: MenuProps['onClick'] = useCallback(
     info => {
+      info.key == AutoMineMode.AutoOff
+        ? setRemainingPercentage(0)
+        : setRemainingPercentage(100);
       autoMine({
         mode: +info.key,
         id: network.id,
@@ -86,51 +101,31 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
     [network, autoMine],
   );
 
-  const menuItems: MenuProps['items'] = useMemo(() => {
-    return [
-      {
-        label: l('autoOff'),
-        key: AutoMineMode.AutoOff,
-      },
+  function createMenuItem(key: AutoMineMode): ItemType {
+    return {
+      label: autoMineStatusShortMap[key],
+      key: String(key),
+    };
+  }
+
+  const menu: MenuProps = {
+    selectedKeys: [String(network.autoMineMode || AutoMineMode.AutoOff)],
+    onClick: handleAutoMineModeChanged,
+    items: [
+      createMenuItem(AutoMineMode.AutoOff),
       {
         type: 'divider',
       },
-      {
-        label: l('autoThirtySeconds'),
-        key: AutoMineMode.Auto30s,
-      },
-      {
-        label: l('autoOneMinute'),
-        key: AutoMineMode.Auto1m,
-      },
-      {
-        label: l('autoFiveMinutes'),
-        key: AutoMineMode.Auto5m,
-      },
-      {
-        label: l('autoTenMinutes'),
-        key: AutoMineMode.Auto10m,
-      },
-    ].map(item => ({
-      ...item,
-      key: String(item.key),
-    }));
-  }, [l]);
-
-  const MenuElement = useMemo(
-    () => (
-      <Menu
-        items={menuItems}
-        selectedKeys={[String(network.autoMineMode || AutoMineMode.AutoOff)]}
-        onClick={handleAutoMineModeChanged}
-      />
-    ),
-    [handleAutoMineModeChanged, menuItems, network.autoMineMode],
-  );
+      createMenuItem(AutoMineMode.Auto30s),
+      createMenuItem(AutoMineMode.Auto1m),
+      createMenuItem(AutoMineMode.Auto5m),
+      createMenuItem(AutoMineMode.Auto10m),
+    ],
+  };
 
   return (
     <Tooltip title={l('autoMineBtnTip')}>
-      <Dropdown overlay={MenuElement} trigger={['hover']}>
+      <Dropdown menu={menu} trigger={['hover']} overlayClassName="polar-context-menu">
         <Styled.Button icon={<FieldTimeOutlined />} loading={autoMiner?.mining}>
           {l('autoMine')}: {autoMineStatusShortMap[network.autoMineMode]}
           <Styled.RemainingBar

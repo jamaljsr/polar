@@ -805,12 +805,16 @@ const networkModel: NetworkModel = {
     if (networkLoading || network.autoMineMode !== mode) {
       await actions.save();
 
+      if (autoMiners[id].timer) {
+        clearInterval(autoMiners[id].timer);
+      }
+
       if (mode !== AutoMineMode.AutoOff) {
         autoMiners[id].startTime = Date.now();
         autoMiners[id].timer = setInterval(() => actions.mineBlock({ id }), 1000 * mode);
       } else {
-        clearInterval(autoMiners[id].timer);
         autoMiners[id].timer = undefined;
+        autoMiners[id].startTime = 0;
       }
     }
 
