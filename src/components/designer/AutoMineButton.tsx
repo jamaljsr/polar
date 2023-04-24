@@ -7,14 +7,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStoreActions, useStoreState } from 'store';
 import { AutoMineMode, Network } from 'types';
 
-const barCssTransition = 'width 400ms ease-in-out';
-
 const Styled = {
   Button: styled(Button)`
     margin-left: 8px;
   `,
   RemainingBar: styled.div`
-    transition: ${barCssTransition};
+    transition: width 400ms ease-in-out;
     background: #d46b08;
     position: absolute;
     width: 100%;
