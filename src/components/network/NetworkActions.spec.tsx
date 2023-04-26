@@ -28,7 +28,7 @@ describe('NetworkActions Component', () => {
       },
       bitcoind: {
         nodes: {
-          backend1: {
+          '1-backend1': {
             chainInfo: {
               blocks: 10,
             },

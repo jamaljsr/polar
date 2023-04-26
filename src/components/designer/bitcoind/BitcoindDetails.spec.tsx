@@ -21,7 +21,7 @@ describe('BitcoindDetails', () => {
       },
       bitcoind: {
         nodes: {
-          backend1: {},
+          '1-backend1': {},
         },
       },
     };
