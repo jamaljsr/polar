@@ -58,7 +58,7 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
 
     const setPercentage = () => {
       setRemainingPercentage(
-        getRemainingPercentage(network.autoMineMode, autoMiner.startTime),
+        getRemainingPercentage(network.autoMineMode, autoMiner?.startTime || 0),
       );
     };
 
