@@ -47,32 +47,32 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
 
   useEffect(() => {
     return () => {
-      if (tickTimer) {
-        clearInterval(tickTimer);
-        setTickTimer(undefined);
-      }
+      clearInterval(tickTimer);
+      setTickTimer(undefined);
     };
   }, []);
 
   useEffect(() => {
-    clearInterval(tickTimer);
+    let tt = tickTimer;
+    clearInterval(tt);
+
+    const setPercentage = () => {
+      setRemainingPercentage(
+        getRemainingPercentage(network.autoMineMode, autoMiner.startTime),
+      );
+    };
+
     if (network.autoMineMode === AutoMineMode.AutoOff) {
-      setRemainingPercentage(0);
+      setPercentage();
       setTickTimer(undefined);
     } else {
-      setTickTimer(
-        setInterval(() => {
-          setRemainingPercentage(
-            getRemainingPercentage(network.autoMineMode, autoMiner.startTime),
-          );
-        }, 1000),
-      );
+      tt = setInterval(() => {
+        setPercentage();
+      }, 1000);
+      setTickTimer(tt);
     }
     return () => {
-      if (tickTimer) {
-        clearInterval(tickTimer);
-        setTickTimer(undefined);
-      }
+      clearInterval(tt);
     };
   }, [network.autoMineMode]);
 

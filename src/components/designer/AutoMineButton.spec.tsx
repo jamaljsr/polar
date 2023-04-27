@@ -87,11 +87,17 @@ describe('AutoMineButton', () => {
     let progressBar = getByText('Auto Mine: Off').nextElementSibling as HTMLElement;
     expect(progressBar.style.width).toBe('0%');
 
+    // click to start automine
     fireEvent.mouseOver(getByText('Auto Mine: Off'));
     fireEvent.click(await findByText('30s'));
-
     // the button text doesn't change since the autoMine store action is not really run
     progressBar = getByText('Auto Mine: Off').nextElementSibling as HTMLElement;
     expect(progressBar.style.width).toBe('100%');
+
+    // click again to turn off automine
+    fireEvent.mouseOver(getByText('Auto Mine: Off'));
+    fireEvent.click(await findByText('Off'));
+    progressBar = getByText('Auto Mine: Off').nextElementSibling as HTMLElement;
+    expect(progressBar.style.width).toBe('0%');
   });
 });
