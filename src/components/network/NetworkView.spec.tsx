@@ -41,7 +41,7 @@ describe('NetworkView Component', () => {
     const network = getNetwork(1, 'test network', status);
     const bitcoinData = {
       nodes: {
-        backend1: {
+        '1-backend1': {
           chainInfo: {
             blocks: 123,
             bestblockhash: 'abcdef',

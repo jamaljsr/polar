@@ -17,6 +17,7 @@ export interface Network {
   name: string;
   status: Status;
   path: string;
+  autoMineMode: AutoMineMode;
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];
@@ -169,4 +170,12 @@ export interface NetworksFile {
   version: string;
   networks: Network[];
   charts: Record<number, IChart>;
+}
+
+export enum AutoMineMode {
+  AutoOff = 0,
+  Auto30s = 30,
+  Auto1m = 60,
+  Auto5m = 300,
+  Auto10m = 600,
 }

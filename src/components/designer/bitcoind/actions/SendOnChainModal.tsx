@@ -6,6 +6,7 @@ import { BitcoinNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { format } from 'utils/units';
+import { getNetworkBackendId } from 'utils/network';
 
 interface Props {
   network: Network;
@@ -22,8 +23,9 @@ const SendOnChainModal: React.FC<Props> = ({ network }) => {
   const [selected, setSelected] = useState(backendName || '');
 
   const balance: number = useMemo(() => {
-    if (nodes && nodes[selected] && nodes[selected].walletInfo) {
-      return nodes[selected].walletInfo?.balance || 0;
+    const node = network.nodes.bitcoin.find(n => n.name === selected);
+    if (nodes && node?.name && node?.networkId) {
+      return nodes[getNetworkBackendId(node as BitcoinNode)]?.walletInfo?.balance || 0;
     }
     return 0;
   }, [selected, nodes, l]);

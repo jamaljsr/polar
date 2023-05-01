@@ -17,6 +17,7 @@ import {
 } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import {
+  AutoMineMode,
   CustomImage,
   DockerRepoImage,
   DockerRepoState,
@@ -36,6 +37,9 @@ const { l } = prefixTranslation('utils.network');
 
 export const getContainerName = (node: CommonNode) =>
   `polar-n${node.networkId}-${node.name}`;
+
+export const getNetworkBackendId = (node: BitcoinNode) =>
+  `${node.networkId}-${node.name}`;
 
 const groupNodes = (network: Network) => {
   const { bitcoin, lightning } = network.nodes;
@@ -307,6 +311,7 @@ export const createNetwork = (config: {
       bitcoin: [],
       lightning: [],
     },
+    autoMineMode: AutoMineMode.AutoOff,
   };
 
   const { bitcoin, lightning } = network.nodes;

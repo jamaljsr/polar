@@ -3,7 +3,7 @@ import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
 import { NodeImplementation, Status } from 'shared/types';
-import { CustomImage, Network } from 'types';
+import { AutoMineMode, CustomImage, Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import * as files from 'utils/files';
@@ -892,6 +892,31 @@ describe('Network model', () => {
     it('should fail to export with an invalid id', async () => {
       const { exportNetwork } = store.getActions().network;
       await expect(exportNetwork({ id: 10 })).rejects.toThrow();
+    });
+
+    it('should automine blocks when automine enabled', async () => {
+      jest.useFakeTimers();
+
+      const { addNetwork } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const { networks } = store.getState().network;
+
+      await store
+        .getActions()
+        .network.autoMine({ id: networks[0].id, mode: AutoMineMode.Auto30s });
+
+      jest.advanceTimersByTime(65000);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(2);
+
+      await store
+        .getActions()
+        .network.autoMine({ id: networks[0].id, mode: AutoMineMode.AutoOff });
+
+      jest.advanceTimersByTime(65000);
+      // the call count is not incremented
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(2);
+
+      jest.useRealTimers();
     });
   });
 });

@@ -10,6 +10,7 @@ import SidebarCard from '../SidebarCard';
 import ActionsTab from './ActionsTab';
 import ConnectTab from './ConnectTab';
 import InfoTab from './InfoTab';
+import { getNetworkBackendId } from 'utils/network';
 
 const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.BitcoinDetails');
@@ -26,7 +27,7 @@ const BitcoindDetails: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   );
 
   let extra: ReactNode | undefined;
-  const nodeState = nodes[node.name];
+  const nodeState = nodes[getNetworkBackendId(node)];
   if (node.status === Status.Started && nodeState && nodeState.walletInfo) {
     extra = <strong>{nodeState.walletInfo.balance} BTC</strong>;
   }

@@ -10,6 +10,8 @@ import { Network } from 'types';
 const Styled = {
   Button: styled(Button)`
     margin-left: 8px;
+    font-size: 18px;
+    padding: 2px 0 !important;
   `,
 };
 
