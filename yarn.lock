@@ -3810,10 +3810,10 @@
   dependencies:
     source-map "^0.6.1"
 
-"@types/unzipper@0.10.5":
-  version "0.10.5"
-  resolved "https://registry.yarnpkg.com/@types/unzipper/-/unzipper-0.10.5.tgz#36a963cf025162b4ac31642590cb4192971d633b"
-  integrity sha512-NrLJb29AdnBARpg9S/4ktfPEisbJ0AvaaAr3j7Q1tg8AgcEUsq2HqbNzvgLRoWyRtjzeLEv7vuL39u1mrNIyNA==
+"@types/unzipper@0.10.6":
+  version "0.10.6"
+  resolved "https://registry.yarnpkg.com/@types/unzipper/-/unzipper-0.10.6.tgz#767101c65fa3968a725c02de11884f75952b091e"
+  integrity sha512-zcBj329AHgKLQyz209N/S9R0GZqXSkUQO4tJSYE3x02qg4JuDFpgKMj50r82Erk1natCWQDIvSccDddt7jPzjA==
   dependencies:
     "@types/node" "*"
 
