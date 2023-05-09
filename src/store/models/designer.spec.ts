@@ -390,7 +390,7 @@ describe('Designer model', () => {
         expect(spy).toBeCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
-            error: new Error('Taord nodes do not connect'),
+            error: new Error('tarod nodes cannot connect to each other.'),
           }),
         );
       });
@@ -502,7 +502,7 @@ describe('Designer model', () => {
         setActiveId(newId);
         const getChart = () => store.getState().designer.allCharts[newId];
         expect(Object.keys(getChart().nodes)).toHaveLength(1);
-        const lndData = { type: 'LND', version: lndLatest };
+        const lndData = { type: 'LND', version: '0.7.1-beta' };
         onCanvasDrop({ id, data: lndData, position });
 
         const spy = jest.spyOn(store.getActions().app, 'notify');
@@ -513,7 +513,7 @@ describe('Designer model', () => {
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
-                'This network does not contain an available LND node running the master branch which is required for Taro nodes',
+                'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tarod v0.2.0-alpha',
               ),
             }),
           );

@@ -15,6 +15,7 @@ import {
   NodeImplementation,
   Status,
   TarodNode,
+  TaroNode,
 } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import {
@@ -290,19 +291,31 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
-const filterLndBackends = (network: Network) => {
+const filterLndBackends = (
+  implementation: TaroNode['implementation'],
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
+  network: Network,
+) => {
   const { taro, lightning } = network.nodes;
+  const requiredVersion = (compatibility && compatibility[version]) || '';
   const backendsInUse = taro
     .filter(n => n.implementation === 'tarod')
     .map(n => (n as TarodNode).lndName);
-  const lndBackends = lightning.filter(
-    n =>
-      n.implementation === 'LND' &&
-      n.version.includes('master') &&
-      !backendsInUse.includes(n.name),
-  );
+  const lndBackends = lightning.filter(n => {
+    if (n.implementation !== 'LND') return false;
+    if (backendsInUse.includes(n.name)) return false;
+    if (requiredVersion) {
+      const isLowerVersion =
+        isVersionCompatible(n.version, requiredVersion) && n.version !== requiredVersion;
+      if (isLowerVersion) return false;
+    }
+    return true;
+  });
   if (lndBackends.length === 0) {
-    throw new Error(l('lndBackendCompatError'));
+    throw new Error(
+      l('lndBackendCompatError', { requiredVersion, implementation, version }),
+    );
   }
   return lndBackends[0];
 };
@@ -310,20 +323,22 @@ const filterLndBackends = (network: Network) => {
 export const createTarodNetworkNode = (
   network: Network,
   version: string,
+  compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
 ): TarodNode => {
   const { taro } = network.nodes;
-  const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
-  const lndBackend = filterLndBackends(network);
+  const implementation: TarodNode['implementation'] = 'tarod';
+  const lndBackend = filterLndBackends(implementation, version, compatibility, network);
 
+  const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
   const name = `${lndBackend.name}-taro`;
   const node: TarodNode = {
     id,
     networkId: network.id,
     name: name,
     type: 'taro',
-    implementation: 'tarod',
+    implementation,
     version,
     status,
     lndName: lndBackend.name,

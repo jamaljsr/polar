@@ -1,5 +1,5 @@
 {
-  "version": 47,
+  "version": 48,
   "images": {
     "LND": {
       "latest": "0.16.2-beta",
@@ -37,8 +37,11 @@
       "versions": []
     },
     "tarod": {
-      "latest": "2022.12.28-master",
-      "versions": ["2022.12.28-master"]
+      "latest": "0.2.0-alpha",
+      "versions": ["0.2.0-alpha"],
+      "compatibility": {
+        "0.2.0-alpha": "0.16.0-beta"
+      }
     }
   }
 }

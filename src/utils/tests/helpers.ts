@@ -57,9 +57,11 @@ export const testRepoState: DockerRepoState = {
   version: 45,
   images: {
     LND: {
-      latest: '2022.12.28-master',
+      latest: '0.16.2-beta',
       versions: [
-        '2022.12.28-master',
+        '0.16.2-beta',
+        '0.16.1-beta',
+        '0.16.0-beta',
         '0.15.5-beta',
         '0.15.4-beta',
         '0.15.3-beta',
@@ -86,7 +88,9 @@ export const testRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '2022.12.28-master': '24.0',
+        '0.16.2-beta': '24.0',
+        '0.16.1-beta': '24.0',
+        '0.16.0-beta': '24.0',
         '0.15.5-beta': '24.0',
         '0.15.4-beta': '24.0',
         '0.15.3-beta': '24.0',
@@ -130,10 +134,10 @@ export const testRepoState: DockerRepoState = {
       versions: [],
     },
     tarod: {
-      latest: '2022.12.28-master',
-      versions: ['2022.12.28-master', '0.1.1-alpha'],
+      latest: '0.2.0-alpha',
+      versions: ['0.2.0-alpha'],
       compatibility: {
-        '2022.12.28-master': '2022.12.28-master',
+        '0.2.0-alpha': '0.16.0-beta',
       },
     },
   },
@@ -178,6 +182,7 @@ export const getNetwork = (
       createTarodNetworkNode(
         network,
         testRepoState.images.tarod.latest,
+        testRepoState.images.tarod.compatibility,
         testNodeDocker,
         status,
       ),
