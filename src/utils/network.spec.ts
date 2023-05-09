@@ -266,6 +266,7 @@ describe('Network Utils', () => {
       const taro = createTarodNetworkNode(
         network,
         defaultRepoState.images.tarod.latest,
+        undefined,
         { image: '', command: '' },
         Status.Stopped,
       );

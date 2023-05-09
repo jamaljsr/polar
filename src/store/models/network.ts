@@ -337,7 +337,12 @@ const networkModel: NetworkModel = {
           network.nodes.bitcoin.push(node);
           break;
         case 'tarod':
-          node = createTarodNetworkNode(network, version, docker);
+          node = createTarodNetworkNode(
+            network,
+            version,
+            dockerRepoState.images.tarod.compatibility,
+            docker,
+          );
           network.nodes.taro.push(node);
           break;
         default:
