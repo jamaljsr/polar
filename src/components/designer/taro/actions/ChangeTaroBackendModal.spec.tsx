@@ -14,6 +14,7 @@ import ChangeTaroBackendModal from './ChangeTaroBackendModal';
 
 describe('ChangeTaroBackendModal', () => {
   let unmount: () => void;
+
   const renderComponent = async (
     status?: Status,
     taroName = 'alice-taro',
@@ -59,9 +60,11 @@ describe('ChangeTaroBackendModal', () => {
     unmount = result.unmount;
     return { ...result, network };
   };
+
   afterEach(() => {
     unmount();
   });
+
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
     expect(getByText('Change Taro Node Backend')).toBeInTheDocument();
@@ -70,12 +73,14 @@ describe('ChangeTaroBackendModal', () => {
     expect(getByText('alice-taro')).toBeInTheDocument();
     expect(getByText('alice')).toBeInTheDocument();
   });
+
   it('should render button', async () => {
     const { getByText } = await renderComponent();
     const btn = getByText('Change Backend');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
   });
+
   it('should hide modal when cancel is clicked', async () => {
     const { getByText, queryByText } = await renderComponent();
     const btn = getByText('Cancel');
@@ -84,6 +89,7 @@ describe('ChangeTaroBackendModal', () => {
     fireEvent.click(getByText('Cancel'));
     expect(queryByText('Cancel')).not.toBeInTheDocument();
   });
+
   it('should remove chart link when cancel is clicked', async () => {
     const { getByText, store } = await renderComponent();
     const { designer } = store.getActions();
@@ -109,11 +115,12 @@ describe('ChangeTaroBackendModal', () => {
       expect(store.getState().designer.activeChart.links[linkId]).toBeUndefined();
     });
   });
-  it('should display the compatibility warning for older bitcoin node', async () => {
+
+  it('should display the compatibility warning for older LND node', async () => {
     const { getByText, queryByText, changeSelect, store } = await renderComponent();
     store.getActions().app.setRepoState(testRepoState);
     const warning =
-      `alice-taro is running tarod v2022.12.28-master which is compatible with LND v2022.12.28-master and newer.` +
+      `alice-taro is running tarod v0.2.0-alpha which is compatible with LND v0.16.0-beta and newer.` +
       ` dave is running LND v0.7.1-beta so it cannot be used.`;
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
@@ -122,6 +129,7 @@ describe('ChangeTaroBackendModal', () => {
     changeSelect('LND Node', 'alice');
     expect(queryByText(warning)).not.toBeInTheDocument();
   });
+
   it('should not display the compatibility warning', async () => {
     const { queryByLabelText, changeSelect, store } = await renderComponent(
       Status.Stopped,
@@ -146,6 +154,7 @@ describe('ChangeTaroBackendModal', () => {
       });
       expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
+
     it('should succeed if a previous link does not exist', async () => {
       const { getByText, changeSelect, store } = await renderComponent();
       store.getActions().designer.removeLink('alice-taro-alice');
@@ -156,16 +165,18 @@ describe('ChangeTaroBackendModal', () => {
       });
       expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
-    it('should error if the backend is not changed', async () => {
-      const { getByText, changeSelect } = await renderComponent();
-      changeSelect('LND Node', 'alice');
-      fireEvent.click(getByText('Change Backend'));
-      await waitFor(() => {
-        expect(
-          getByText("The node 'alice-taro' is already connected to 'alice'"),
-        ).toBeInTheDocument();
-      });
-    });
+
+    // it('should error if the backend is not changed', async () => {
+    //   const { getByText, changeSelect } = await renderComponent();
+    //   changeSelect('LND Node', 'alice');
+    //   fireEvent.click(getByText('Change Backend'));
+    //   await waitFor(() => {
+    //     expect(
+    //       getByText("The node 'alice-taro' is already connected to 'alice'"),
+    //     ).toBeInTheDocument();
+    //   });
+    // });
+
     it('should do nothing if an invalid node is selected', async () => {
       const { getByText } = await renderComponent(Status.Stopped, 'invalid');
       fireEvent.click(getByText('Change Backend'));

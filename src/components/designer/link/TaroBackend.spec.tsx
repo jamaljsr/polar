@@ -53,9 +53,9 @@ describe('Taro Lnd Link Component', () => {
     expect(getAllByText(from.implementation)).toHaveLength(1);
   });
   it('should display Peer Versions', () => {
-    //Currently Taro and Lnd are the same version
-    const { getAllByText, from } = renderComponent();
-    expect(getAllByText(`v${from.version}`)).toHaveLength(2);
+    const { getByText, from, to } = renderComponent();
+    expect(getByText(`v${from.version}`)).toBeInTheDocument();
+    expect(getByText(`v${to.version}`)).toBeInTheDocument();
   });
   describe('Change Tarod Backend Button', () => {
     it('should display the ChangeTaroBackend modal', async () => {
