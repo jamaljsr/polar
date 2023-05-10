@@ -169,6 +169,7 @@ export interface TaroService {
     node: TaroNode,
     req: TARO.MintAssetRequestPartial,
   ) => Promise<TARO.MintAssetResponse>;
+  finalizeBatch: (node: TaroNode) => Promise<TARO.FinalizeBatchResponse>;
   newAddress: (
     node: TaroNode,
     req: TARO.NewAddrRequestPartial,

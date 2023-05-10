@@ -86,7 +86,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
     amount: number;
     metaData: string;
     enableEmission: boolean;
-    skipBatch: boolean;
+    finalize: boolean;
     autoFund: boolean;
   }) => {
     const payload: MintAssetPayload = {
@@ -96,7 +96,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
       amount: values.amount,
       metaData: values.metaData,
       enableEmission: values.enableEmission,
-      skipBatch: values.skipBatch,
+      finalize: values.finalize,
       autoFund: values.autoFund,
     };
     mintAssetAsync.execute(payload);
@@ -112,7 +112,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
           enableEmission: false,
           assetType: 0,
           amount: 1000,
-          skipBatch: true,
+          finalize: true,
           autoFund: false,
           metaData: '',
           name: '',
@@ -152,8 +152,8 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         <Form.Item name="enableEmission" valuePropName="checked">
           <Checkbox>{l('enableEmission')}</Checkbox>
         </Form.Item>
-        <Form.Item name="skipBatch" valuePropName="checked">
-          <Checkbox>{l('skipBatch')}</Checkbox>
+        <Form.Item name="finalize" valuePropName="checked">
+          <Checkbox>{l('finalize')}</Checkbox>
         </Form.Item>
         {isLNDBalanceLow && !autoDepositFunds && (
           <Alert

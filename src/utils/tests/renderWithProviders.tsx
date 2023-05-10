@@ -26,6 +26,7 @@ export const taroServiceMock: jest.Mocked<TaroService> = {
   listBalances: jest.fn(),
   waitUntilOnline: jest.fn(),
   mintAsset: jest.fn(),
+  finalizeBatch: jest.fn(),
   newAddress: jest.fn(),
   sendAsset: jest.fn(),
   decodeAddress: jest.fn(),

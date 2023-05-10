@@ -59,6 +59,10 @@ class TarodService implements TaroService {
     return await proxy.mintAsset(this.cast(node), req);
   }
 
+  async finalizeBatch(node: TaroNode): Promise<TARO.FinalizeBatchResponse> {
+    return await proxy.finalizeBatch(this.cast(node));
+  }
+
   async listAssets(node: TaroNode): Promise<PTARO.TaroAsset[]> {
     const { assets } = await proxy.listAssets(this.cast(node));
     return assets.map<PTARO.TaroAsset>(asset => {
