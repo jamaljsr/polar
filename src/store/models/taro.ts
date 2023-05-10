@@ -25,7 +25,7 @@ export interface MintAssetPayload {
   amount: number;
   metaData: string;
   enableEmission: boolean;
-  skipBatch: boolean;
+  finalize: boolean;
   autoFund: boolean;
 }
 export interface NewAddressPayload {
@@ -111,8 +111,16 @@ const taroModel: TaroModel = {
 
   mintAsset: thunk(
     async (actions, payload, { injections, getStoreState, getStoreActions }) => {
-      const { node, assetType, name, amount, metaData, enableEmission, autoFund } =
-        payload;
+      const {
+        node,
+        assetType,
+        name,
+        amount,
+        metaData,
+        enableEmission,
+        finalize,
+        autoFund,
+      } = payload;
 
       const network = getStoreState().network.networkById(node.networkId);
       const lndNode = network.nodes.lightning.find(
@@ -143,6 +151,11 @@ const taroModel: TaroModel = {
         enableEmission,
       };
       const res = await taroapi.mintAsset(node, req);
+
+      //finalize asset
+      if (finalize) {
+        await taroapi.finalizeBatch(node);
+      }
 
       //update network
       const btcNode =

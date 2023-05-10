@@ -56,6 +56,13 @@ const mintAsset = async (args: {
   return await mint.mintAsset(args.req);
 };
 
+const finalizeBatch = async (args: {
+  node: TarodNode;
+}): Promise<TARO.FinalizeBatchResponse> => {
+  const { mint } = await getRpc(args.node);
+  return await mint.finalizeBatch();
+};
+
 const newAddress = async (args: {
   node: TarodNode;
   req: TARO.NewAddrRequestPartial;
@@ -90,6 +97,7 @@ const listeners: {
   [ipcChannels.taro.listAssets]: listAssets,
   [ipcChannels.taro.listBalances]: listBalances,
   [ipcChannels.taro.mintAsset]: mintAsset,
+  [ipcChannels.taro.finalizeBatch]: finalizeBatch,
   [ipcChannels.taro.newAddress]: newAddress,
   [ipcChannels.taro.sendAsset]: sendAsset,
   [ipcChannels.taro.decodeAddress]: decodeAddress,
