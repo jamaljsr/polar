@@ -52,7 +52,7 @@
     "electron-window-state": "5.0.3",
     "fs-extra": "11.1.0",
     "shell-env": "3.0.1",
-    "unzipper": "0.10.11",
+    "unzipper": "0.10.14",
     "xterm": "5.1.0",
     "xterm-addon-fit": "0.7.0"
   },
