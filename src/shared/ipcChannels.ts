@@ -27,5 +27,8 @@ export default {
     newAddress: 'taro-new-address',
     sendAsset: 'taro-send-asset',
     decodeAddress: 'taro-decode-address',
+    assetRoots: 'taro-asset-roots',
+    assetLeaves: 'taro-asset-leaves',
+    syncUniverse: 'taro-sync-universe',
   },
 };

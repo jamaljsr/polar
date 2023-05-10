@@ -82,7 +82,7 @@ describe('TarodService', () => {
       id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
     });
     tarodProxyClient.newAddress = jest.fn().mockResolvedValue(apiResponse);
-    const actual = await tarodService.newAddress(node, {});
+    const actual = await tarodService.newAddress(node, 'test id', '10');
     expect(actual).toEqual(expected);
   });
 
