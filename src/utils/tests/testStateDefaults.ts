@@ -3,12 +3,7 @@ import {
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
-import {
-  TaroAddress,
-  TaroAsset,
-  TaroBalance,
-  TaroSendAssetReceipt,
-} from 'lib/taro/types';
+import { TaroAddress, TaroAsset, TaroBalance } from 'lib/taro/types';
 
 export const defaultStateInfo = (
   value: Partial<LightningNodeInfo>,
@@ -81,16 +76,5 @@ export const defaultTaroAddress = (value: Partial<TaroAddress>): TaroAddress => 
   scriptKey: '',
   internalKey: '',
   taprootOutputKey: '',
-  ...value,
-});
-
-export const defaultTaroSendAssetReceipt = (
-  value: Partial<TaroSendAssetReceipt>,
-): TaroSendAssetReceipt => ({
-  transferTxid: '',
-  anchorOutputIndex: 0,
-  transferTxBytes: '',
-  totalFeeSats: '',
-  taroTransfer: null,
   ...value,
 });

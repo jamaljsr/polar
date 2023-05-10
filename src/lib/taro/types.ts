@@ -41,10 +41,12 @@ export interface TaroAddress {
 
 export interface TaroSendAssetReceipt {
   transferTxid: string;
-  anchorOutputIndex: number;
-  transferTxBytes: string;
-  totalFeeSats: string;
-  taroTransfer: null;
+}
+
+export interface TaroAssetRoot {
+  id: string;
+  name: string;
+  rootSum: number;
 }
 
 export enum TARO_ASSET_TYPE {
