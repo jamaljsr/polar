@@ -16,6 +16,7 @@ export interface TaroNodeMapping {
 export interface TaroNodeModel {
   assets?: PTARO.TaroAsset[];
   balances?: PTARO.TaroBalance[];
+  assetRoots?: PTARO.TaroAssetRoot[];
 }
 
 export interface MintAssetPayload {
@@ -28,9 +29,15 @@ export interface MintAssetPayload {
   finalize: boolean;
   autoFund: boolean;
 }
+
+export interface SyncUniversePayload {
+  node: TarodNode;
+  hostname: string;
+}
+
 export interface NewAddressPayload {
   node: TarodNode;
-  genesisBootstrapInfo: string;
+  assetId: string;
   amount: string;
 }
 
@@ -53,10 +60,19 @@ export interface TaroModel {
   getAssets: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
   setBalances: Action<TaroModel, { node: TaroNode; balances: PTARO.TaroBalance[] }>;
   getBalances: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
+  setAssetRoots: Action<TaroModel, { node: TaroNode; roots: PTARO.TaroAssetRoot[] }>;
+  getAssetRoots: Thunk<TaroModel, TaroNode, StoreInjections, RootModel>;
 
   getAllInfo: Thunk<TaroModel, TaroNode, RootModel>;
   mineListener: ThunkOn<TaroModel, StoreInjections, RootModel>;
   mintAsset: Thunk<TaroModel, MintAssetPayload, StoreInjections, RootModel>;
+  syncUniverse: Thunk<
+    TaroModel,
+    SyncUniversePayload,
+    StoreInjections,
+    RootModel,
+    Promise<number>
+  >;
   getNewAddress: Thunk<
     TaroModel,
     NewAddressPayload,
@@ -104,9 +120,19 @@ const taroModel: TaroModel = {
     const balances = await api.listBalances(node);
     actions.setBalances({ node, balances });
   }),
+  setAssetRoots: action((state, { node, roots }) => {
+    if (!state.nodes[node.name]) state.nodes[node.name] = {};
+    state.nodes[node.name].assetRoots = roots;
+  }),
+  getAssetRoots: thunk(async (actions, node, { injections }) => {
+    const api = injections.taroFactory.getService(node);
+    const roots = await api.assetRoots(node);
+    actions.setAssetRoots({ node, roots });
+  }),
   getAllInfo: thunk(async (actions, node) => {
     await actions.getAssets(node);
     await actions.getBalances(node);
+    await actions.getAssetRoots(node);
   }),
 
   mintAsset: thunk(
@@ -155,27 +181,31 @@ const taroModel: TaroModel = {
       //finalize asset
       if (finalize) {
         await taroapi.finalizeBatch(node);
-      }
 
-      //update network
-      const btcNode =
-        network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
-        network.nodes.bitcoin[0];
-      //missing await is intentional, we dont have to wait for bitcoin to mine
-      getStoreActions().bitcoind.mine({
-        blocks: BLOCKS_TIL_CONFIRMED,
-        node: btcNode,
-      });
+        //update network
+        const btcNode =
+          network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
+          network.nodes.bitcoin[0];
+        //missing await is intentional, we dont have to wait for bitcoin to mine
+        getStoreActions().bitcoind.mine({
+          blocks: BLOCKS_TIL_CONFIRMED,
+          node: btcNode,
+        });
+      }
       return res;
     },
   ),
+  syncUniverse: thunk(async (actions, payload, { injections }) => {
+    const { node, hostname } = payload;
+    const api = injections.taroFactory.getService(node);
+    const res = await api.syncUniverse(node, hostname);
+    await actions.getAssetRoots(node);
+    return res.syncedUniverses.length;
+  }),
   getNewAddress: thunk(async (actions, payload, { injections }) => {
-    const api = injections.taroFactory.getService(payload.node);
-    const address = await api.newAddress(payload.node, {
-      assetId: payload.genesisBootstrapInfo,
-      amt: payload.amount,
-    });
-    return address;
+    const { node, assetId, amount } = payload;
+    const api = injections.taroFactory.getService(node);
+    return await api.newAddress(node, assetId, amount);
   }),
   sendAsset: thunk(
     async (

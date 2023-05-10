@@ -22,24 +22,27 @@ class TarodService implements TaroService {
       taprootOutputKey: res.taprootOutputKey.toString(),
     };
   }
+
   async sendAsset(
     node: TaroNode,
     req: TARO.SendAssetRequestPartial,
   ): Promise<PTARO.TaroSendAssetReceipt> {
-    const res: any = await proxy.sendAsset(this.cast(node), req);
+    const res = await proxy.sendAsset(this.cast(node), req);
+    const transfer = res.transfer as TARO.AssetTransfer;
     return {
-      transferTxid: res.transferTxid.toString(),
-      anchorOutputIndex: res.anchorOutputIndex,
-      transferTxBytes: res.transferTxBytes.toString(),
-      totalFeeSats: res.totalFeeSats,
-      taroTransfer: null,
+      transferTxid: transfer.anchorTxHash.toString('hex'),
     };
   }
+
   async newAddress(
     node: TaroNode,
-    req: TARO.NewAddrRequestPartial,
+    assetId: string,
+    amt: string,
   ): Promise<PTARO.TaroAddress> {
-    const res = await proxy.newAddress(this.cast(node), req);
+    const res = await proxy.newAddress(this.cast(node), {
+      assetId: Buffer.from(assetId, 'hex'),
+      amt,
+    });
     return {
       encoded: res.encoded,
       id: res.assetId.toString(),
@@ -101,6 +104,22 @@ class TarodService implements TaroService {
       });
     });
     return balances;
+  }
+
+  async assetRoots(node: TaroNode): Promise<PTARO.TaroAssetRoot[]> {
+    const { universeRoots } = await proxy.assetRoots(this.cast(node));
+    const assetRoots = Object.entries(universeRoots).map(([id, root]) => {
+      return {
+        id,
+        name: root.assetName,
+        rootSum: root.mssmtRoot?.rootSum || 0,
+      } as PTARO.TaroAssetRoot;
+    });
+    return assetRoots;
+  }
+
+  async syncUniverse(node: TaroNode, universeHost: string): Promise<TARO.SyncResponse> {
+    return await proxy.syncUniverse(this.cast(node), { universeHost });
   }
 
   /**

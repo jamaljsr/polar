@@ -35,17 +35,37 @@ class TarodProxyClient {
   async newAddress(node: TarodNode, req: TARO.NewAddrRequestPartial): Promise<TARO.Addr> {
     return await this.ipc(ipcChannels.taro.newAddress, { node, req });
   }
+
   async sendAsset(
     node: TarodNode,
     req: TARO.SendAssetRequestPartial,
   ): Promise<TARO.SendAssetResponse> {
     return await this.ipc(ipcChannels.taro.sendAsset, { node, req });
   }
+
   async decodeAddress(
     node: TarodNode,
     req: TARO.DecodeAddrRequestPartial,
   ): Promise<TARO.Addr> {
     return await this.ipc(ipcChannels.taro.decodeAddress, { node, req });
+  }
+
+  async assetRoots(node: TarodNode): Promise<TARO.AssetRootResponse> {
+    return await this.ipc(ipcChannels.taro.assetRoots, { node });
+  }
+
+  async assetLeaves(
+    node: TarodNode,
+    req: TARO.IDPartial,
+  ): Promise<TARO.AssetLeafResponse> {
+    return await this.ipc(ipcChannels.taro.assetLeaves, { node, req });
+  }
+
+  async syncUniverse(
+    node: TarodNode,
+    req: TARO.SyncRequestPartial,
+  ): Promise<TARO.SyncResponse> {
+    return await this.ipc(ipcChannels.taro.syncUniverse, { node, req });
   }
 }
 

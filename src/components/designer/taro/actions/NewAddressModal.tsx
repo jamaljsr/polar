@@ -1,11 +1,20 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { DownOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Form, Input, InputNumber, message, Modal, Result } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Form,
+  InputNumber,
+  message,
+  Modal,
+  Result,
+  Select,
+} from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TarodNode } from 'shared/types';
-import * as PTARO from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/taro';
 import { Network } from 'types';
@@ -20,6 +29,9 @@ const Styled = {
   `,
   TaroDataSelect: styled(TaroDataSelect)`
     width: 100%;
+  `,
+  Dropdown: styled(Dropdown)`
+    float: right;
   `,
 };
 
@@ -41,12 +53,12 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { hideNewAddress } = useStoreActions(s => s.modals);
 
   //taro model
-  const { getNewAddress } = useStoreActions(s => s.taro);
+  const { syncUniverse, getNewAddress } = useStoreActions(s => s.taro);
+  const { nodes } = useStoreState(s => s.taro);
 
   //component state
   const [selectedAmount, setSelectedAmount] = useState(10);
-  const [selectedGenesisBootstrapInfo, setSelectedGenesisBootstrapInfo] = useState('');
-  const [selectedBalance, setSelectedBalance] = useState<PTARO.TaroBalance>();
+  const [selectedName, setSelectedName] = useState('');
   const [taroAddress, setTaroAddress] = useState('');
 
   //component local variables
@@ -59,14 +71,17 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   //When polar is first opened, we need to populate the state with the lightning node data
   useEffect(() => syncChart(network), []);
 
-  const handleSelectedBalance = (value: PTARO.TaroBalance) => {
-    setSelectedBalance(value);
-    setSelectedGenesisBootstrapInfo(value.genesisBootstrapInfo);
-    form.setFieldsValue({
-      genesisBootstrapInfo: value.genesisBootstrapInfo,
-      amount: value.type == PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? 1 : 10,
-    });
-  };
+  const handleSync = useAsyncCallback(async e => {
+    const node = otherTaroNodes.find(n => n.name === e.key);
+    if (!node) return;
+
+    try {
+      const numUpdated = await syncUniverse({ node: thisTaroNode, hostname: e.key });
+      message.success(l('syncSuccess', { count: numUpdated, hostname: e.key }));
+    } catch (error: any) {
+      notify({ message: l('syncError', { hostname: e.key }), error });
+    }
+  });
 
   //submit
   const newAddressAsync = useAsyncCallback(async (payload: NewAddressPayload) => {
@@ -78,10 +93,10 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  const handleSubmit = (values: { genesisBootstrapInfo: string; amount: string }) => {
+  const handleSubmit = (values: { assetId: string; amount: string }) => {
     const payload: NewAddressPayload = {
       node: thisTaroNode,
-      genesisBootstrapInfo: values.genesisBootstrapInfo,
+      assetId: values.assetId,
       amount: values.amount,
     };
     newAddressAsync.execute(payload);
@@ -92,6 +107,17 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     hideNewAddress();
   };
 
+  const assetOptions = useMemo(() => {
+    const node = nodes[thisTaroNode.name];
+    if (node && node.assetRoots) {
+      return node.assetRoots.map(asset => ({
+        label: asset.name,
+        value: asset.id,
+      }));
+    }
+    return [];
+  }, [nodes, thisTaroNode.name]);
+
   let cmp: ReactNode;
   if (!taroAddress) {
     cmp = (
@@ -99,36 +125,48 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         <Form
           form={form}
           layout="vertical"
+          requiredMark={false}
           colon={false}
           initialValues={{
+            assetId: '',
             amount: '10',
-            node: '',
-            genesisBootstrapInfo: '',
           }}
           onFinish={handleSubmit}
         >
-          <Form.Item name="genesisBootstrapInfo" label={l('genesisBootstrapInfo')}>
-            <Input.TextArea
-              rows={5}
-              placeholder={l('genesisBootstrapInfo')}
-              onChange={e => setSelectedGenesisBootstrapInfo(e.target.value)}
+          <Form.Item
+            name="assetId"
+            label={l('asset')}
+            rules={[{ required: true, message: l('cmps.forms.required') }]}
+            help={
+              <Styled.Dropdown
+                menu={{
+                  items: otherTaroNodes.map(n => ({
+                    key: n.name,
+                    label: n.name,
+                  })),
+                  onClick: handleSync.execute,
+                }}
+              >
+                <a onClick={e => e.preventDefault()}>
+                  Sync assets from node <DownOutlined />
+                </a>
+              </Styled.Dropdown>
+            }
+          >
+            <Select
+              options={assetOptions}
+              disabled={handleSync.loading}
+              onChange={(_, option: any) => setSelectedName(option.label)}
             />
           </Form.Item>
-          <Styled.Spacer />
-
-          <Styled.TaroDataSelect
-            name="node"
-            label={l('selectBalance')}
-            taroNetworkNodes={otherTaroNodes}
-            selectBalances
-            onChange={v => handleSelectedBalance(v)}
-          />
-          <Styled.Spacer />
-          <Form.Item label={l('amount')} name="amount">
+          <Form.Item
+            label={l('amount')}
+            name="amount"
+            rules={[{ required: true, message: l('cmps.forms.required') }]}
+          >
             <InputNumber<number>
               onChange={v => setSelectedAmount(v as number)}
               min={1}
-              disabled={selectedBalance?.type === PTARO.TARO_ASSET_TYPE.COLLECTIBLE}
               formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
             />
@@ -142,7 +180,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         status="success"
         title={l('successTitle')}
         subTitle={l('successDesc', {
-          assetName: selectedBalance?.name,
+          assetName: selectedName,
           amount: format(`${selectedAmount}`),
         })}
         extra={
@@ -172,7 +210,9 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         okText={l('okBtn')}
         onCancel={() => hideNewAddress()}
         onOk={form.submit}
-        okButtonProps={{ disabled: selectedGenesisBootstrapInfo.length === 0 }}
+        okButtonProps={{
+          loading: newAddressAsync.loading,
+        }}
       >
         {cmp}
       </Modal>

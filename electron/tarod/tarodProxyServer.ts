@@ -87,6 +87,27 @@ const decodeAddress = async (args: {
   return await taro.decodeAddr(args.req);
 };
 
+const assetRoots = async (args: { node: TarodNode }): Promise<TARO.AssetRootResponse> => {
+  const { universe } = await getRpc(args.node);
+  return await universe.assetRoots();
+};
+
+const assetLeaves = async (args: {
+  node: TarodNode;
+  req: TARO.IDPartial;
+}): Promise<TARO.AssetLeafResponse> => {
+  const { universe } = await getRpc(args.node);
+  return await universe.assetLeaves(args.req);
+};
+
+const syncUniverse = async (args: {
+  node: TarodNode;
+  req: TARO.SyncRequestPartial;
+}): Promise<TARO.SyncResponse> => {
+  const { universe } = await getRpc(args.node);
+  return await universe.syncUniverse(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -101,6 +122,9 @@ const listeners: {
   [ipcChannels.taro.newAddress]: newAddress,
   [ipcChannels.taro.sendAsset]: sendAsset,
   [ipcChannels.taro.decodeAddress]: decodeAddress,
+  [ipcChannels.taro.assetRoots]: assetRoots,
+  [ipcChannels.taro.assetLeaves]: assetLeaves,
+  [ipcChannels.taro.syncUniverse]: syncUniverse,
 };
 
 /**

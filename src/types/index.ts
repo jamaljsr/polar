@@ -172,7 +172,8 @@ export interface TaroService {
   finalizeBatch: (node: TaroNode) => Promise<TARO.FinalizeBatchResponse>;
   newAddress: (
     node: TaroNode,
-    req: TARO.NewAddrRequestPartial,
+    assetId: string,
+    amt: string,
   ) => Promise<PTARO.TaroAddress>;
   sendAsset: (
     from: TaroNode,
@@ -182,6 +183,8 @@ export interface TaroService {
     node: TaroNode,
     req: TARO.DecodeAddrRequestPartial,
   ) => Promise<PTARO.TaroAddress>;
+  assetRoots: (node: TaroNode) => Promise<PTARO.TaroAssetRoot[]>;
+  syncUniverse: (node: TaroNode, universeHost: string) => Promise<TARO.SyncResponse>;
 }
 
 export interface TaroFactoryInjection {
