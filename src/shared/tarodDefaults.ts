@@ -1,11 +1,11 @@
-import ipcChannels from './ipcChannels';
 import {
   Addr,
   ListAssetResponse,
   ListBalancesResponse,
   MintAssetResponse,
   SendAssetResponse,
-} from './tarodTypes';
+} from '@hodlone/taro-api';
+import ipcChannels from './ipcChannels';
 
 export const defaultTarodListAssets = (
   value: Partial<ListAssetResponse>,
@@ -35,17 +35,21 @@ export const defaultTarodNewAddress = (value: Partial<Addr>): Addr => ({
   scriptKey: Buffer.from(''),
   internalKey: Buffer.from(''),
   taprootOutputKey: Buffer.from(''),
+  tapscriptSibling: Buffer.from(''),
   ...value,
 });
 
 export const defaultTarodSendAsset = (
   value: Partial<SendAssetResponse>,
 ): SendAssetResponse => ({
-  transferTxid: Buffer.from(''),
-  anchorOutputIndex: 0,
-  transferTxBytes: Buffer.from(''),
-  totalFeeSats: '',
-  taroTransfer: null,
+  transfer: {
+    anchorTxChainFees: '',
+    anchorTxHash: Buffer.from(''),
+    anchorTxHeightHint: 0,
+    transferTimestamp: '',
+    inputs: [],
+    outputs: [],
+  },
   ...value,
 });
 

@@ -1,86 +1,83 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import { readFile } from 'fs-extra';
-import TaroClientOptions, { TaroApi } from '@hodlone/taro-api';
+import * as TARO from '@hodlone/taro-api';
 import {
   convertUInt8ArraysToHex,
   ipcChannels,
   TarodDefaultsKey,
   withTarodDefaults,
 } from '../../src/shared';
-import * as TARO from '../../src/shared/tarodTypes';
 import { TarodNode } from '../../src/shared/types';
 
 /**
- * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
+ * mapping of node name <-> TaroRpcApis to cache these objects. The createLndRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
-let rpcCache: {
-  [key: string]: TaroApi;
-} = {};
+let rpcCache: Record<string, TARO.TaroRpcApis> = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: TarodNode): Promise<TaroApi> => {
+const getRpc = async (node: TarodNode): Promise<TARO.TaroRpcApis> => {
   const { name, ports, paths, networkId } = node;
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
-    const options: TaroClientOptions = {
+    const options: TARO.TaroClientOptions = {
       socket: `127.0.0.1:${ports.grpc}`,
       cert: (await readFile(paths.tlsCert)).toString('hex'),
       macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
     };
-    rpcCache[id] = TaroApi.create(options);
+    rpcCache[id] = TARO.TaroClient.create(options);
   }
   return rpcCache[id];
 };
 
 const listAssets = async (args: { node: TarodNode }): Promise<TARO.ListAssetResponse> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.listAssets();
+  const { taro } = await getRpc(args.node);
+  return await taro.listAssets();
 };
 
 const listBalances = async (args: {
   node: TarodNode;
 }): Promise<TARO.ListBalancesResponse> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.listBalances({
+  const { taro } = await getRpc(args.node);
+  return await taro.listBalances({
     assetId: true,
   });
 };
 
 const mintAsset = async (args: {
   node: TarodNode;
-  req: TARO.MintAssetRequest;
+  req: TARO.MintAssetRequestPartial;
 }): Promise<TARO.MintAssetResponse> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.mintAssets(args.req);
+  const { mint } = await getRpc(args.node);
+  return await mint.mintAsset(args.req);
 };
 
 const newAddress = async (args: {
   node: TarodNode;
-  req: TARO.NewAddressRequest;
+  req: TARO.NewAddrRequestPartial;
 }): Promise<TARO.Addr> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.newAddr(args.req);
+  const { taro } = await getRpc(args.node);
+  return await taro.newAddr(args.req);
 };
 
 const sendAsset = async (args: {
   node: TarodNode;
-  req: TARO.SendAssetRequest;
+  req: TARO.SendAssetRequestPartial;
 }): Promise<TARO.SendAssetResponse> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.sendAsset(args.req);
+  const { taro } = await getRpc(args.node);
+  return await taro.sendAsset(args.req);
 };
 
 const decodeAddress = async (args: {
   node: TarodNode;
-  req: TARO.DecodeAddressRequest;
+  req: TARO.DecodeAddrRequestPartial;
 }): Promise<TARO.Addr> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.decodeAddr(args.req);
+  const { taro } = await getRpc(args.node);
+  return await taro.decodeAddr(args.req);
 };
 
 /**
