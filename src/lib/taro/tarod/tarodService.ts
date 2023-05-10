@@ -1,6 +1,4 @@
-import { AnchorInfo } from '@hodlone/taro-api/dist/types/tarorpc/AnchorInfo';
-import { GenesisInfo } from '@hodlone/taro-api/dist/types/tarorpc/GenesisInfo';
-import * as TARO from 'shared/tarodTypes';
+import * as TARO from '@hodlone/taro-api';
 import { TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { TaroService } from 'types';
@@ -10,7 +8,7 @@ import { tarodProxyClient as proxy } from './';
 class TarodService implements TaroService {
   async decodeAddress(
     node: TaroNode,
-    req: TARO.DecodeAddressRequest,
+    req: TARO.DecodeAddrRequestPartial,
   ): Promise<PTARO.TaroAddress> {
     const res = await proxy.decodeAddress(this.cast(node), req);
     return {
@@ -26,9 +24,9 @@ class TarodService implements TaroService {
   }
   async sendAsset(
     node: TaroNode,
-    req: TARO.SendAssetRequest,
+    req: TARO.SendAssetRequestPartial,
   ): Promise<PTARO.TaroSendAssetReceipt> {
-    const res = await proxy.sendAsset(this.cast(node), req);
+    const res: any = await proxy.sendAsset(this.cast(node), req);
     return {
       transferTxid: res.transferTxid.toString(),
       anchorOutputIndex: res.anchorOutputIndex,
@@ -39,7 +37,7 @@ class TarodService implements TaroService {
   }
   async newAddress(
     node: TaroNode,
-    req: TARO.NewAddressRequest,
+    req: TARO.NewAddrRequestPartial,
   ): Promise<PTARO.TaroAddress> {
     const res = await proxy.newAddress(this.cast(node), req);
     return {
@@ -56,7 +54,7 @@ class TarodService implements TaroService {
 
   async mintAsset(
     node: TaroNode,
-    req: TARO.MintAssetRequest,
+    req: TARO.MintAssetRequestPartial,
   ): Promise<TARO.MintAssetResponse> {
     return await proxy.mintAsset(this.cast(node), req);
   }
@@ -66,16 +64,16 @@ class TarodService implements TaroService {
     return assets.map<PTARO.TaroAsset>(asset => {
       // cast the nested object to be Required to avoid a bunch of
       // conditionals to please Typescript
-      const genesis = asset.assetGenesis as Required<GenesisInfo>;
-      const anchor = asset.chainAnchor as Required<AnchorInfo>;
+      const genesis = asset.assetGenesis as Required<TARO.GenesisInfo>;
+      const anchor = asset.chainAnchor as Required<TARO.AnchorInfo>;
       return {
         id: genesis.assetId.toString(),
         name: genesis.name,
-        meta: Buffer.from(genesis.meta.toString(), 'hex').toString('ascii'),
+        meta: genesis.metaHash.toString('ascii'),
         type: asset.assetType,
         amount: asset.amount,
         genesisPoint: genesis.genesisPoint,
-        genesisBootstrapInfo: genesis.genesisBootstrapInfo.toString(),
+        genesisBootstrapInfo: 'REMOVE-ME', //genesis.genesisBootstrapInfo.toString(),
         anchorOutpoint: anchor.anchorOutpoint,
       };
     });
@@ -87,15 +85,15 @@ class TarodService implements TaroService {
     Object.entries(res.assetBalances).forEach(([id, asset]) => {
       // cast the nested object to be Required to avoid a bunch of
       // conditionals to please Typescript
-      const genesis = asset.assetGenesis as Required<GenesisInfo>;
+      const genesis = asset.assetGenesis as Required<TARO.GenesisInfo>;
       balances.push({
         id,
         name: genesis.name,
-        meta: Buffer.from(genesis.meta.toString(), 'hex').toString('ascii'),
+        meta: genesis.metaHash.toString('ascii'),
         type: asset.assetType,
         balance: asset.balance,
         genesisPoint: genesis.genesisPoint,
-        genesisBootstrapInfo: genesis.genesisBootstrapInfo.toString(),
+        genesisBootstrapInfo: 'REMOVE-ME', //genesis.genesisBootstrapInfo.toString(),
       });
     });
     return balances;

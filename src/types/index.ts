@@ -1,6 +1,6 @@
+import * as TARO from '@hodlone/taro-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
-import * as TARO from 'shared/tarodTypes';
 import {
   BitcoinNode,
   CommonNode,
@@ -167,16 +167,19 @@ export interface TaroService {
   listBalances: (node: TaroNode) => Promise<PTARO.TaroBalance[]>;
   mintAsset: (
     node: TaroNode,
-    req: TARO.MintAssetRequest,
+    req: TARO.MintAssetRequestPartial,
   ) => Promise<TARO.MintAssetResponse>;
-  newAddress: (node: TaroNode, req: TARO.NewAddressRequest) => Promise<PTARO.TaroAddress>;
+  newAddress: (
+    node: TaroNode,
+    req: TARO.NewAddrRequestPartial,
+  ) => Promise<PTARO.TaroAddress>;
   sendAsset: (
     from: TaroNode,
-    req: TARO.SendAssetRequest,
+    req: TARO.SendAssetRequestPartial,
   ) => Promise<PTARO.TaroSendAssetReceipt>;
   decodeAddress: (
     node: TaroNode,
-    req: TARO.DecodeAddressRequest,
+    req: TARO.DecodeAddrRequestPartial,
   ) => Promise<PTARO.TaroAddress>;
 }
 

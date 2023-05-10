@@ -1,3 +1,4 @@
+import * as TARO from '@hodlone/taro-api';
 import { ipcChannels } from 'shared';
 import { TarodNode } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
@@ -20,10 +21,15 @@ describe('TarodProxyClient', () => {
   });
 
   it('should call the mintAsset ipc', () => {
-    const req = {
-      name: 'test',
-      amount: '1000',
-      metaData: 'test data',
+    const req: TARO.MintAssetRequestPartial = {
+      asset: {
+        assetMeta: {
+          type: TARO.AssetMetaType.MTEA_TYPE_OPAQUE,
+          data: Buffer.from('test data').toString('base64'),
+        },
+        name: 'test',
+        amount: '1000',
+      },
     };
     tarodProxyClient.mintAsset(node, req);
     expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.mintAsset, {
@@ -47,8 +53,8 @@ describe('TarodProxyClient', () => {
   });
 
   it('should call the newAddress ipc', () => {
-    const req = {
-      genesisBootstrapInfo: 'test genesis',
+    const req: TARO.NewAddrRequestPartial = {
+      assetId: 'test asset id',
       amt: '1000',
     };
     tarodProxyClient.newAddress(node, req);
@@ -58,8 +64,8 @@ describe('TarodProxyClient', () => {
     });
   });
   it('should call the send ipc', () => {
-    const req = {
-      taroAddr: 'taro1test',
+    const req: TARO.SendAssetRequestPartial = {
+      taroAddrs: ['taro1test'],
     };
     tarodProxyClient.sendAsset(node, req);
     expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.sendAsset, {
