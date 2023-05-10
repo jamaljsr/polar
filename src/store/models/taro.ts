@@ -1,5 +1,5 @@
+import * as TARO from '@hodlone/taro-api';
 import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
-import * as TARO from 'shared/tarodTypes';
 import { BitcoinNode, LightningNode, Status, TarodNode, TaroNode } from 'shared/types';
 import * as PTARO from 'lib/taro/types';
 import { StoreInjections } from 'types';
@@ -111,16 +111,8 @@ const taroModel: TaroModel = {
 
   mintAsset: thunk(
     async (actions, payload, { injections, getStoreState, getStoreActions }) => {
-      const {
-        node,
-        assetType,
-        name,
-        amount,
-        metaData,
-        enableEmission,
-        skipBatch,
-        autoFund,
-      } = payload;
+      const { node, assetType, name, amount, metaData, enableEmission, autoFund } =
+        payload;
 
       const network = getStoreState().network.networkById(node.networkId);
       const lndNode = network.nodes.lightning.find(
@@ -137,15 +129,21 @@ const taroModel: TaroModel = {
       //mint taro asset
       const taroapi = injections.taroFactory.getService(node);
 
-      const req: TARO.MintAssetRequest = {
-        assetType,
-        name,
-        amount: assetType === PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? 1 : amount,
-        metaData: Buffer.from(metaData).toString('base64'),
+      const req: TARO.MintAssetRequestPartial = {
+        asset: {
+          assetType,
+          name,
+          amount:
+            assetType === PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? '1' : amount.toString(),
+          assetMeta: {
+            type: TARO.AssetMetaType.MTEA_TYPE_OPAQUE,
+            data: Buffer.from(metaData).toString('base64'),
+          },
+        },
         enableEmission,
-        skipBatch,
       };
       const res = await taroapi.mintAsset(node, req);
+
       //update network
       const btcNode =
         network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
@@ -161,7 +159,7 @@ const taroModel: TaroModel = {
   getNewAddress: thunk(async (actions, payload, { injections }) => {
     const api = injections.taroFactory.getService(payload.node);
     const address = await api.newAddress(payload.node, {
-      genesisBootstrapInfo: Buffer.from(payload.genesisBootstrapInfo as string, 'hex'),
+      assetId: payload.genesisBootstrapInfo,
       amt: payload.amount,
     });
     return address;
@@ -184,8 +182,8 @@ const taroModel: TaroModel = {
         });
       }
       const api = injections.taroFactory.getService(node);
-      const sendReq: TARO.SendAssetRequest = {
-        taroAddr: address,
+      const sendReq: TARO.SendAssetRequestPartial = {
+        taroAddrs: [address],
       };
       const res = await api.sendAsset(node, sendReq);
       //update network
@@ -200,7 +198,7 @@ const taroModel: TaroModel = {
   ),
   decodeAddress: thunk(async (actions, { node, address }, { injections }) => {
     const api = injections.taroFactory.getService(node);
-    const sendReq: TARO.DecodeAddressRequest = {
+    const sendReq: TARO.DecodeAddrRequestPartial = {
       addr: address,
     };
     const res = await api.decodeAddress(node, sendReq);

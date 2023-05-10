@@ -1,5 +1,4 @@
-import { Asset__Output } from '@hodlone/taro-api/dist/types/tarorpc/Asset';
-import { AssetBalance__Output } from '@hodlone/taro-api/dist/types/tarorpc/AssetBalance';
+import { Asset, AssetBalance } from '@hodlone/taro-api';
 import {
   defaultTarodListAssets,
   defaultTarodListBalances,
@@ -14,19 +13,16 @@ import tarodService from './tarodService';
 
 jest.mock('./tarodProxyClient');
 
-const sampleAsset: Asset__Output = {
+const sampleAsset: Asset = {
   version: 0,
   assetGenesis: {
     genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
     name: 'LUSD',
-    meta: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
+    metaHash: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
     assetId: Buffer.from(
       'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
     ),
     outputIndex: 0,
-    genesisBootstrapInfo: Buffer.from(
-      '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad0000000000',
-    ),
     version: 0,
   },
   assetType: 'NORMAL',
@@ -37,14 +33,13 @@ const sampleAsset: Asset__Output = {
   scriptKey: Buffer.from(
     '02f758c6f4b2d0df3bd7b6ba3e9ef3c34d51c0f6df682396a88b826326b2e98f3f',
   ),
+  scriptKeyIsLocal: true,
   assetGroup: null,
   chainAnchor: {
     anchorTx: Buffer.from(
       '02000000000102217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d256410110100000000ffffffff217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d2564101100000000000000000003e803000000000000225120540b38f3ef8dcf37d5c85b89d5ba15274cdc13f4d7cf300cfcdeedc3b1335d6de8030000000000002251205f158a5743cd9747732cb03b0a605cb08719ff5cf58234b7ec5276c851494e6e81e80e0000000000225120c2b958e9c347a30781e358940d20adef09079ae604faa509a34d789d5697e4c40140786d837c15c27efdf459b071a8b68691080c0e6c4d152b15cd359254e1408f76f2e8ca8680b0035202bb9e5407101aca5fa45a3c556f7e28cf275f19a584dd4001407883d96a241cd6354efacea726b0abbb8ec63f8b417d1cc5bb903078761dd0da58573a11972204a056bcc5f2c489682e5122521c128d7015a8bca7b1b690691100000000',
     ),
-    anchorTxid: Buffer.from(
-      '3e946b82861faedf8176cf790aeeb9fe3e70247b80ed0f510c62c4055ebea8f7',
-    ),
+    anchorTxid: '3e946b82861faedf8176cf790aeeb9fe3e70247b80ed0f510c62c4055ebea8f7',
     anchorBlockHash: Buffer.from(
       '6a748adfd6a1399d08978c117767b29fe83ede8fe4cb0186eba41e942dd04542',
     ),
@@ -52,21 +47,24 @@ const sampleAsset: Asset__Output = {
     internalKey: Buffer.from(
       '03eb44c581b4955fd4c8200ac2fe815b4e0bdeb4e13f7d027340aab8f4964ecc77',
     ),
+    merkleRoot: Buffer.from(
+      'dc886ced95397e55f52cc348196c5176adf888cb6f6a74bcd9305a48d95bfb9b',
+    ),
+    tapscriptSibling: Buffer.from(''),
   },
+  prevWitnesses: [],
+  isSpent: false,
 };
 
-const sampleBalance: AssetBalance__Output = {
+const sampleBalance: AssetBalance = {
   assetGenesis: {
     genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
     name: 'LUSD',
-    meta: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
+    metaHash: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
     assetId: Buffer.from(
       'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
     ),
     outputIndex: 0,
-    genesisBootstrapInfo: Buffer.from(
-      '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad0000000000',
-    ),
     version: 0,
   },
   assetType: 'NORMAL',
@@ -107,7 +105,7 @@ describe('TarodService', () => {
 
     tarodProxyClient.sendAsset = jest.fn().mockResolvedValue(apiResponse);
     const actual = await tarodService.sendAsset(node, {
-      taroAddr: 'addr',
+      taroAddrs: ['addr'],
     });
     expect(actual).toEqual(expected);
   });

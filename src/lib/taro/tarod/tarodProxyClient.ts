@@ -1,5 +1,5 @@
+import * as TARO from '@hodlone/taro-api';
 import { ipcChannels } from 'shared';
-import * as TARO from 'shared/tarodTypes';
 import { TarodNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 
@@ -12,7 +12,7 @@ class TarodProxyClient {
 
   async mintAsset(
     node: TarodNode,
-    req: TARO.MintAssetRequest,
+    req: TARO.MintAssetRequestPartial,
   ): Promise<TARO.MintAssetResponse> {
     return await this.ipc(ipcChannels.taro.mintAsset, { node, req });
   }
@@ -23,23 +23,23 @@ class TarodProxyClient {
 
   async listBalances(
     node: TarodNode,
-    req: TARO.ListBalancesRequest,
+    req: TARO.ListBalancesRequestPartial,
   ): Promise<TARO.ListBalancesResponse> {
     return await this.ipc(ipcChannels.taro.listBalances, { node, req });
   }
 
-  async newAddress(node: TarodNode, req: TARO.NewAddressRequest): Promise<TARO.Addr> {
+  async newAddress(node: TarodNode, req: TARO.NewAddrRequestPartial): Promise<TARO.Addr> {
     return await this.ipc(ipcChannels.taro.newAddress, { node, req });
   }
   async sendAsset(
     node: TarodNode,
-    req: TARO.SendAssetRequest,
+    req: TARO.SendAssetRequestPartial,
   ): Promise<TARO.SendAssetResponse> {
     return await this.ipc(ipcChannels.taro.sendAsset, { node, req });
   }
   async decodeAddress(
     node: TarodNode,
-    req: TARO.DecodeAddressRequest,
+    req: TARO.DecodeAddrRequestPartial,
   ): Promise<TARO.Addr> {
     return await this.ipc(ipcChannels.taro.decodeAddress, { node, req });
   }
