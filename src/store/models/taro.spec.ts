@@ -108,7 +108,7 @@ describe('Taro Model', () => {
       amount: 100,
       metaData: 'my-meta',
       enableEmission: false,
-      skipBatch: true,
+      finalize: true,
       autoFund: false,
     };
     await store.getActions().taro.mintAsset(payload);

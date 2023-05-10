@@ -17,6 +17,10 @@ class TarodProxyClient {
     return await this.ipc(ipcChannels.taro.mintAsset, { node, req });
   }
 
+  async finalizeBatch(node: TarodNode): Promise<TARO.FinalizeBatchResponse> {
+    return await this.ipc(ipcChannels.taro.finalizeBatch, { node });
+  }
+
   async listAssets(node: TarodNode): Promise<TARO.ListAssetResponse> {
     return await this.ipc(ipcChannels.taro.listAssets, { node });
   }

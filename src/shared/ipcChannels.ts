@@ -23,6 +23,7 @@ export default {
     listAssets: 'taro-list-assets',
     listBalances: 'taro-list-balances',
     mintAsset: 'taro-mint-asset',
+    finalizeBatch: 'taro-finalize-batch',
     newAddress: 'taro-new-address',
     sendAsset: 'taro-send-asset',
     decodeAddress: 'taro-decode-address',
