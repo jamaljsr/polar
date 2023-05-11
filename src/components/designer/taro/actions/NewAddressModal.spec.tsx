@@ -41,13 +41,12 @@ describe('NewAddressModal', () => {
   afterEach(() => unmount());
 
   it('should render form inputs', async () => {
-    const { getByLabelText, getByText } = await renderComponent();
+    const { getByLabelText } = await renderComponent();
     expect(
       getByLabelText('Generate new Taro address for alice-taro'),
     ).toBeInTheDocument();
+    expect(getByLabelText('Asset')).toBeInTheDocument();
     expect(getByLabelText('Amount')).toBeInTheDocument();
-    expect(getByLabelText('Genesis Bootstrap Info')).toBeInTheDocument();
-    expect(getByText('Choose a balance from Taro node')).toBeInTheDocument();
   });
 
   it('should render button', async () => {
@@ -71,7 +70,13 @@ describe('NewAddressModal', () => {
 
   describe('with form submitted', () => {
     beforeEach(() => {
-      // make each node's balance different
+      taroServiceMock.assetRoots.mockResolvedValue([
+        {
+          id: 'test-id',
+          name: 'LUSD',
+          rootSum: 1000,
+        },
+      ]);
       taroServiceMock.newAddress.mockResolvedValue({
         encoded: 'taro1address',
         id: 'id',
@@ -82,33 +87,39 @@ describe('NewAddressModal', () => {
         internalKey: 'internalKey',
         taprootOutputKey: 'taprootOutputKey',
       });
+      taroServiceMock.syncUniverse.mockResolvedValue({
+        syncedUniverses: ['dummy-data' as any],
+      });
     });
 
     it('should generate address', async () => {
-      const { getByText, getByLabelText, getByDisplayValue, findByText, network } =
-        await renderComponent();
+      const {
+        getByText,
+        getByLabelText,
+        getByDisplayValue,
+        findByText,
+        changeSelect,
+        store,
+        network,
+      } = await renderComponent();
       const btn = getByText('Generate');
       expect(btn).toBeInTheDocument();
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
-      fireEvent.change(getByLabelText('Genesis Bootstrap Info'), {
-        target: { value: 'taro1' },
-      });
+      await store.getActions().taro.getAssetRoots(network.nodes.taro[0]);
+      changeSelect('Asset', 'LUSD');
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
       fireEvent.click(getByText('Generate'));
       expect(await findByText('Successfully created address')).toBeInTheDocument();
       expect(getByDisplayValue('taro1address')).toBeInTheDocument();
       const node = network.nodes.taro[0];
-      expect(taroServiceMock.newAddress).toBeCalledWith(node, {
-        genesisBootstrapInfo: Buffer.from('taro1', 'hex'),
-        amt: 100,
-      });
+      expect(taroServiceMock.newAddress).toBeCalledWith(node, 'test-id', 100);
     });
 
     it('should close the modal', async () => {
-      const { getByText, findByText, getByLabelText, store } = await renderComponent();
-      fireEvent.change(getByLabelText('Genesis Bootstrap Info'), {
-        target: { value: 'taro1' },
-      });
+      const { getByText, findByText, getByLabelText, changeSelect, store, network } =
+        await renderComponent();
+      await store.getActions().taro.getAssetRoots(network.nodes.taro[0]);
+      changeSelect('Asset', 'LUSD');
       fireEvent.change(getByLabelText('Amount'), {
         target: { value: '1000' },
       });
@@ -118,16 +129,33 @@ describe('NewAddressModal', () => {
       expect(getByText('Copied taro1address to the clipboard')).toBeInTheDocument();
     });
 
+    it('should sync from another node', async () => {
+      const { getByText, findByText, getByLabelText } = await renderComponent();
+      fireEvent.mouseOver(getByText('Sync assets from node'));
+      fireEvent.click(await findByText('bob-taro'));
+      fireEvent.mouseDown(getByLabelText('Asset'));
+      expect(await findByText('Synced 1 assets from bob-taro')).toBeInTheDocument();
+    });
+
+    it('should handle errors when syncing from another node', async () => {
+      taroServiceMock.syncUniverse.mockRejectedValue(new Error('error-msg'));
+      const { getByText, findByText, getByLabelText } = await renderComponent();
+      fireEvent.mouseOver(getByText('Sync assets from node'));
+      fireEvent.click(await findByText('bob-taro'));
+      fireEvent.mouseDown(getByLabelText('Asset'));
+      expect(await findByText('Failed to sync assets from bob-taro')).toBeInTheDocument();
+      expect(await findByText('error-msg')).toBeInTheDocument();
+    });
+
     it('should display an error when creating the taro address fails', async () => {
       taroServiceMock.newAddress.mockRejectedValue(new Error('error-msg'));
-      const { getByText, findByText, getByLabelText } = await renderComponent();
-      fireEvent.change(getByLabelText('Genesis Bootstrap Info'), {
-        target: { value: 'taro1' },
-      });
+      const { getByText, findByText, getByLabelText, changeSelect, store, network } =
+        await renderComponent();
+      await store.getActions().taro.getAssetRoots(network.nodes.taro[0]);
+      changeSelect('Asset', 'LUSD');
       fireEvent.change(getByLabelText('Amount'), {
         target: { value: '1000' },
       });
-      // await waitFor(() => );
       fireEvent.click(getByText('Generate'));
       expect(await findByText('error-msg')).toBeInTheDocument();
     });

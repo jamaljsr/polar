@@ -166,16 +166,16 @@ describe('ChangeTaroBackendModal', () => {
       expect(getByText('The alice-taro node will use bob')).toBeInTheDocument();
     });
 
-    // it('should error if the backend is not changed', async () => {
-    //   const { getByText, changeSelect } = await renderComponent();
-    //   changeSelect('LND Node', 'alice');
-    //   fireEvent.click(getByText('Change Backend'));
-    //   await waitFor(() => {
-    //     expect(
-    //       getByText("The node 'alice-taro' is already connected to 'alice'"),
-    //     ).toBeInTheDocument();
-    //   });
-    // });
+    it('should error if the backend is not changed', async () => {
+      const { getByText, changeSelect } = await renderComponent();
+      changeSelect('LND Node', 'alice');
+      fireEvent.click(getByText('Change Backend'));
+      await waitFor(() => {
+        expect(
+          getByText("The node 'alice-taro' is already connected to 'alice'"),
+        ).toBeInTheDocument();
+      });
+    });
 
     it('should do nothing if an invalid node is selected', async () => {
       const { getByText } = await renderComponent(Status.Stopped, 'invalid');

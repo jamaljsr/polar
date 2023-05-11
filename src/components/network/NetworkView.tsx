@@ -9,7 +9,7 @@ import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
-import { getMissingImages } from 'utils/network';
+import { getMissingImages, getNetworkBackendId } from 'utils/network';
 import { StatusTag } from 'components/common';
 import NetworkDesigner from 'components/designer/NetworkDesigner';
 import { HOME } from 'components/routing';
@@ -120,7 +120,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     const fetchInfo = async () => {
       // fetch bitcoin data if not present to show the block height
       if (network && network.status === Status.Started && network.nodes.bitcoin[0]) {
-        const { name } = network.nodes.bitcoin[0];
+        const name = getNetworkBackendId(network.nodes.bitcoin[0]);
         if (!(bitcoinData && bitcoinData[name] && bitcoinData[name].chainInfo)) {
           try {
             await getInfo(network.nodes.bitcoin[0]);

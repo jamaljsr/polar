@@ -46,7 +46,6 @@ export const defaultStateChannel = (
 export const defaultTaroAsset = (value: Partial<TaroAsset>): TaroAsset => ({
   id: '',
   name: '',
-  meta: '',
   type: '',
   amount: '',
   genesisPoint: '',
@@ -58,7 +57,6 @@ export const defaultTaroAsset = (value: Partial<TaroAsset>): TaroAsset => ({
 export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => ({
   id: '',
   name: '',
-  meta: '',
   type: '',
   balance: '',
   genesisPoint: '',

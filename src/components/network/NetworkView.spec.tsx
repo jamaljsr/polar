@@ -220,6 +220,11 @@ describe('NetworkView Component', () => {
       ).toBeInTheDocument();
       expect(await findByText('test-err')).toBeInTheDocument();
     });
+
+    it('should not fetch bitcoin data if it is already in the store', async () => {
+      renderComponent('1', Status.Started, [], true);
+      expect(bitcoindServiceMock.getBlockchainInfo).not.toHaveBeenCalled();
+    });
   });
 
   describe('rename network', () => {

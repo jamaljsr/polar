@@ -979,7 +979,7 @@ describe('Network model', () => {
       await expect(exportNetwork({ id: 10 })).rejects.toThrow();
     });
 
-    it('should automine blocks when automine enabled', async () => {
+    it('should autoMine blocks when autoMine enabled', async () => {
       jest.useFakeTimers();
 
       const { addNetwork } = store.getActions().network;
@@ -1002,6 +1002,21 @@ describe('Network model', () => {
       expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(2);
 
       jest.useRealTimers();
+    });
+
+    it('should fail to setAutoMineMode with an invalid id', async () => {
+      const { setAutoMineMode } = store.getActions().network;
+      expect(() => setAutoMineMode({ id: 10, mode: AutoMineMode.Auto30s })).toThrow();
+    });
+
+    it('should fail to autoMine blocks with an invalid id', async () => {
+      const { autoMine } = store.getActions().network;
+      await expect(autoMine({ id: 10, mode: AutoMineMode.Auto30s })).rejects.toThrow();
+    });
+
+    it('should fail to mineBlock blocks with an invalid id', async () => {
+      const { mineBlock } = store.getActions().network;
+      await expect(mineBlock({ id: 10 })).rejects.toThrow();
     });
   });
 });

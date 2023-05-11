@@ -113,11 +113,33 @@ describe('Taro Model', () => {
     await store.getActions().taro.mintAsset(payload);
     expect(taroServiceMock.mintAsset).toHaveBeenCalledWith(
       taro[1],
-      expect.objectContaining({ name: 'my-asset' }),
+      expect.objectContaining({ asset: expect.objectContaining({ name: 'my-asset' }) }),
     );
     expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(
       6,
       expect.objectContaining({ name: 'backend1' }),
     );
+  });
+
+  it('should mint an asset without finalizing', async () => {
+    taroServiceMock.mintAsset.mockResolvedValue(defaultTarodMintAsset());
+    const { lightning, taro } = store.getState().network.networks[0].nodes;
+    lightning[1].backendName = 'invalid';
+    const payload: MintAssetPayload = {
+      node: taro[1] as TarodNode,
+      assetType: PTARO.TARO_ASSET_TYPE.NORMAL,
+      name: 'my-asset',
+      amount: 100,
+      enableEmission: false,
+      finalize: false,
+      autoFund: false,
+    };
+    await store.getActions().taro.mintAsset(payload);
+    expect(taroServiceMock.mintAsset).toHaveBeenCalledWith(
+      taro[1],
+      expect.objectContaining({ asset: expect.objectContaining({ name: 'my-asset' }) }),
+    );
+    expect(taroServiceMock.finalizeBatch).not.toHaveBeenCalled();
+    expect(bitcoindServiceMock.mine).not.toHaveBeenCalled();
   });
 });

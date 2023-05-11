@@ -56,18 +56,15 @@ describe('MintAssetModal', () => {
     const { getByText } = await renderComponent();
     expect(getByText('Mint an asset for alice-taro')).toBeInTheDocument();
     expect(getByText('Asset Type')).toBeInTheDocument();
-    expect(getByText('Amount')).toBeInTheDocument();
     expect(getByText('Asset Name')).toBeInTheDocument();
-    expect(getByText('Meta Data')).toBeInTheDocument();
-    expect(getByText('Support ongoing emission of this asset')).toBeInTheDocument();
-    expect(getByText('Skip batch to mint asset immediately')).toBeInTheDocument();
+    expect(getByText('Amount')).toBeInTheDocument();
+    expect(getByText('Finalize batch to mint asset immediately')).toBeInTheDocument();
   });
 
   it('should render form inputs', async () => {
     const { getByLabelText } = await renderComponent();
-    expect(getByLabelText('Amount')).toBeInTheDocument();
     expect(getByLabelText('Asset Name')).toBeInTheDocument();
-    expect(getByLabelText('Meta Data')).toBeInTheDocument();
+    expect(getByLabelText('Amount')).toBeInTheDocument();
   });
 
   it('should render button', async () => {
@@ -117,15 +114,19 @@ describe('MintAssetModal', () => {
           amount: '100',
         }),
       ]);
+      taroServiceMock.assetRoots.mockResolvedValue([
+        {
+          id: 'test-asset-id',
+          name: 'LUSD',
+          rootSum: 1000,
+        },
+      ]);
     });
 
     it('should mint normal asset', async () => {
       const { getByText, getByLabelText } = await renderComponent();
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
-      fireEvent.change(getByLabelText('Meta Data'), {
-        target: { value: 'test' },
-      });
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
         expect(taroServiceMock.mintAsset).toHaveBeenCalled();
@@ -138,14 +139,13 @@ describe('MintAssetModal', () => {
       changeSelect('Asset Type', 'Collectible');
       expect(getByLabelText('Amount')).toHaveAttribute('disabled');
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
-      fireEvent.change(getByLabelText('Meta Data'), {
-        target: { value: 'test' },
-      });
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
         expect(taroServiceMock.mintAsset).toHaveBeenCalledWith(
           node,
-          expect.objectContaining({ assetType: 'COLLECTIBLE' }),
+          expect.objectContaining({
+            asset: expect.objectContaining({ assetType: 'COLLECTIBLE' }),
+          }),
         );
         expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
       });
@@ -172,9 +172,6 @@ describe('MintAssetModal', () => {
       const { getByText, getByLabelText } = await renderComponent();
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
-      fireEvent.change(getByLabelText('Meta Data'), {
-        target: { value: 'test' },
-      });
 
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toBeCalled();
@@ -186,13 +183,6 @@ describe('MintAssetModal', () => {
       });
     });
 
-    it('should show an error for duplicate names', async () => {
-      const { findByText, getByLabelText, store } = await renderComponent();
-      await store.getActions().taro.getAssets(node);
-      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'LUSD' } });
-      expect(await findByText('Asset with this name already exists')).toBeInTheDocument();
-    });
-
     it('should display an error when minting fails', async () => {
       taroServiceMock.mintAsset.mockRejectedValue(new Error('error-msg'));
       const { getByText, getByLabelText, findByText } = await renderComponent();
@@ -201,9 +191,6 @@ describe('MintAssetModal', () => {
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
-      fireEvent.change(getByLabelText('Meta Data'), {
-        target: { value: 'test' },
-      });
       fireEvent.click(getByText('Mint'));
       expect(await findByText('Failed to mint 100 test')).toBeInTheDocument();
       expect(await findByText('error-msg')).toBeInTheDocument();

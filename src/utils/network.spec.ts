@@ -3,6 +3,7 @@ import { CLightningNode, LndNode, NodeImplementation, Status } from 'shared/type
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
+  createCLightningNetworkNode,
   createLndNetworkNode,
   createTarodNetworkNode,
   getImageCommand,
@@ -239,39 +240,105 @@ describe('Network Utils', () => {
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
     });
   });
+
   describe('createNetworkNodes', () => {
     let network: Network;
 
     beforeEach(() => {
       network = getNetwork(1, 'taro network', undefined, 3);
     });
+
     it('should add a taro node to the network', async () => {
       const lnd = createLndNetworkNode(
         network,
-        defaultRepoState.images.LND.versions[0],
-        undefined,
-        { image: '', command: '' },
-        Status.Stopped,
-      );
-      const lnd2 = createLndNetworkNode(
-        network,
-        defaultRepoState.images.LND.versions[0],
-        undefined,
+        defaultRepoState.images.LND.latest,
+        defaultRepoState.images.LND.compatibility,
         { image: '', command: '' },
         Status.Stopped,
       );
       network.nodes.lightning.push(lnd);
-      network.nodes.lightning.push(lnd2);
-      expect(network.nodes.lightning.length).toBe(5);
+      expect(network.nodes.lightning.length).toBe(4);
       const taro = createTarodNetworkNode(
         network,
         defaultRepoState.images.tarod.latest,
-        undefined,
+        defaultRepoState.images.tarod.compatibility,
         { image: '', command: '' },
         Status.Stopped,
       );
       network.nodes.taro.push(taro);
       expect(network.nodes.taro.length).toBe(4);
+    });
+
+    it('should add a taro node linked to the exact minimum LND version', async () => {
+      const lnd = createLndNetworkNode(
+        network,
+        '0.16.0-beta',
+        defaultRepoState.images.LND.compatibility,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.lightning.push(lnd);
+      expect(network.nodes.lightning.length).toBe(4);
+      const taro = createTarodNetworkNode(
+        network,
+        defaultRepoState.images.tarod.latest,
+        defaultRepoState.images.tarod.compatibility,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.taro.push(taro);
+      expect(network.nodes.taro.length).toBe(4);
+    });
+
+    it('should fail to create a taro node without a compatible LND version', async () => {
+      const lnd = createLndNetworkNode(
+        network,
+        '0.15.5-beta',
+        defaultRepoState.images.LND.compatibility,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.lightning.push(lnd);
+      expect(network.nodes.lightning.length).toBe(4);
+
+      const createNode = () =>
+        createTarodNetworkNode(
+          network,
+          '0.2.0-alpha',
+          defaultRepoState.images.tarod.compatibility,
+          { image: '', command: '' },
+          Status.Stopped,
+        );
+      expect(() => createNode()).toThrowError(
+        new Error(
+          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tarod v0.2.0-alpha',
+        ),
+      );
+    });
+
+    it('should fail to create a taro node with no LND nodes left', async () => {
+      const cln = createCLightningNetworkNode(
+        network,
+        defaultRepoState.images['c-lightning'].latest,
+        defaultRepoState.images['c-lightning'].compatibility,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.lightning.push(cln);
+
+      const createNode = () =>
+        createTarodNetworkNode(
+          network,
+          '0.2.0-alpha',
+          defaultRepoState.images.tarod.compatibility,
+          { image: '', command: '' },
+          Status.Stopped,
+        );
+      expect(() => createNode()).toThrowError(
+        new Error(
+          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tarod v0.2.0-alpha',
+        ),
+      );
     });
   });
 });
