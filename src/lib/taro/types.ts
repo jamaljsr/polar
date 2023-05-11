@@ -9,8 +9,8 @@ export interface TaroAsset {
   type: string;
   amount: string;
   genesisPoint: string;
-  genesisBootstrapInfo: string;
   anchorOutpoint: string;
+  groupKey: string;
 }
 
 export interface TaroBalance {
@@ -20,7 +20,6 @@ export interface TaroBalance {
   type: string;
   balance: string;
   genesisPoint: string;
-  genesisBootstrapInfo: string;
   groupKey?: string;
 }
 

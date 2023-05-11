@@ -3,12 +3,7 @@ import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import {
-  defaultTaroBalance,
-  getNetwork,
-  renderWithProviders,
-  taroServiceMock,
-} from 'utils/tests';
+import { getNetwork, renderWithProviders, taroServiceMock } from 'utils/tests';
 import NewAddressModal from './NewAddressModal';
 
 describe('NewAddressModal', () => {
@@ -60,50 +55,6 @@ describe('NewAddressModal', () => {
     const btn = getByText('Generate');
     expect(btn).toBeInTheDocument();
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
-  });
-
-  it('should fill genesis bootstrap info from another node', async () => {
-    taroServiceMock.listBalances.mockImplementation(async node => {
-      return node.name === 'bob-taro'
-        ? [
-            defaultTaroBalance({
-              name: 'LUSD',
-              type: 'NORMAL',
-              balance: '100',
-              genesisBootstrapInfo: 'test-bootstrap-info',
-            }),
-          ]
-        : [];
-    });
-    const { getByLabelText, changeSelect, store } = await renderComponent();
-    await waitFor(() => {
-      expect(store.getState().taro.nodes['bob-taro']?.balances).toBeDefined();
-    });
-    changeSelect('Choose a balance from Taro node', 'LUSD');
-    expect(getByLabelText('Genesis Bootstrap Info')).toHaveValue('test-bootstrap-info');
-    expect(getByLabelText('Amount')).toHaveValue('10');
-  });
-
-  it('should set the amount to 1 when a collectible is chosen', async () => {
-    taroServiceMock.listBalances.mockImplementation(async node => {
-      return node.name === 'bob-taro'
-        ? [
-            defaultTaroBalance({
-              name: 'LUSD',
-              type: 'COLLECTIBLE',
-              balance: '100',
-              genesisBootstrapInfo: 'test-bootstrap-info',
-            }),
-          ]
-        : [];
-    });
-    const { getByLabelText, changeSelect, store } = await renderComponent();
-    await waitFor(() => {
-      expect(store.getState().taro.nodes['bob-taro']?.balances).toBeDefined();
-    });
-    changeSelect('Choose a balance from Taro node', 'LUSD');
-    expect(getByLabelText('Genesis Bootstrap Info')).toHaveValue('test-bootstrap-info');
-    expect(getByLabelText('Amount')).toHaveValue('1');
   });
 
   it('should hide modal when cancel is clicked', async () => {

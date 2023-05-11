@@ -60,9 +60,6 @@ interface MintAssetModel {
 interface NewAddressModel {
   visible: boolean;
   nodeName?: string;
-  amount?: string;
-  genesisBootstrapInfo?: string;
-  address?: string;
 }
 
 interface SendAssetModel {
