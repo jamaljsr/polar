@@ -134,8 +134,6 @@ describe('TaroDetails', () => {
           amount: '100',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:1',
-          genesisBootstrapInfo:
-            '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad00000000001',
         }),
         defaultTaroAsset({
           id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001',
@@ -144,8 +142,6 @@ describe('TaroDetails', () => {
           amount: '50',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:1',
-          genesisBootstrapInfo:
-            '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad00000000001',
         }),
         defaultTaroAsset({
           id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2002',
@@ -154,8 +150,6 @@ describe('TaroDetails', () => {
           amount: '500',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:2',
-          genesisBootstrapInfo:
-            '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad00000000002',
         }),
       ]);
       taroServiceMock.listBalances.mockResolvedValue([
@@ -166,8 +160,6 @@ describe('TaroDetails', () => {
           balance: '150',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58',
-          genesisBootstrapInfo:
-            '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad00000000001',
         }),
         defaultTaroBalance({
           id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2002',
@@ -176,8 +168,6 @@ describe('TaroDetails', () => {
           balance: '500',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:2',
-          genesisBootstrapInfo:
-            '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad00000000002',
         }),
       ]);
     });

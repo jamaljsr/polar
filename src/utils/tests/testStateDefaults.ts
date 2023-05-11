@@ -50,8 +50,8 @@ export const defaultTaroAsset = (value: Partial<TaroAsset>): TaroAsset => ({
   type: '',
   amount: '',
   genesisPoint: '',
-  genesisBootstrapInfo: '',
   anchorOutpoint: '',
+  groupKey: '',
   ...value,
 });
 
@@ -62,7 +62,6 @@ export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => 
   type: '',
   balance: '',
   genesisPoint: '',
-  genesisBootstrapInfo: '',
   groupKey: '',
   ...value,
 });

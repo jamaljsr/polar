@@ -24,7 +24,6 @@ export interface MintAssetPayload {
   assetType: PTARO.TARO_ASSET_TYPE.NORMAL | PTARO.TARO_ASSET_TYPE.COLLECTIBLE;
   name: string;
   amount: number;
-  metaData: string;
   enableEmission: boolean;
   finalize: boolean;
   autoFund: boolean;
@@ -137,22 +136,14 @@ const taroModel: TaroModel = {
 
   mintAsset: thunk(
     async (actions, payload, { injections, getStoreState, getStoreActions }) => {
-      const {
-        node,
-        assetType,
-        name,
-        amount,
-        metaData,
-        enableEmission,
-        finalize,
-        autoFund,
-      } = payload;
+      const { node, assetType, name, amount, enableEmission, finalize, autoFund } =
+        payload;
 
       const network = getStoreState().network.networkById(node.networkId);
       const lndNode = network.nodes.lightning.find(
         n => n.name === node.lndName,
       ) as LightningNode;
-      //fund lnd node
+      // fund lnd node
       if (autoFund) {
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
@@ -160,8 +151,8 @@ const taroModel: TaroModel = {
         });
       }
 
-      //mint taro asset
-      const taroapi = injections.taroFactory.getService(node);
+      // mint taro asset
+      const api = injections.taroFactory.getService(node);
 
       const req: TARO.MintAssetRequestPartial = {
         asset: {
@@ -169,29 +160,26 @@ const taroModel: TaroModel = {
           name,
           amount:
             assetType === PTARO.TARO_ASSET_TYPE.COLLECTIBLE ? '1' : amount.toString(),
-          assetMeta: {
-            type: TARO.AssetMetaType.MTEA_TYPE_OPAQUE,
-            data: Buffer.from(metaData).toString('base64'),
-          },
         },
         enableEmission,
       };
-      const res = await taroapi.mintAsset(node, req);
+      const res = await api.mintAsset(node, req);
 
-      //finalize asset
+      // finalize asset
       if (finalize) {
-        await taroapi.finalizeBatch(node);
+        await api.finalizeBatch(node);
 
-        //update network
+        // update network
         const btcNode =
           network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
           network.nodes.bitcoin[0];
-        //missing await is intentional, we dont have to wait for bitcoin to mine
+        // missing await is intentional, we don't have to wait for bitcoin to mine
         getStoreActions().bitcoind.mine({
           blocks: BLOCKS_TIL_CONFIRMED,
           node: btcNode,
         });
       }
+
       return res;
     },
   ),
@@ -217,7 +205,7 @@ const taroModel: TaroModel = {
       const lndNode = network.nodes.lightning.find(
         n => n.name === node.lndName,
       ) as LightningNode;
-      //fund lnd node
+      // fund lnd node
       if (autoFund) {
         await getStoreActions().lightning.depositFunds({
           node: lndNode,

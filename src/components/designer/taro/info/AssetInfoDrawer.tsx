@@ -1,7 +1,6 @@
 import React, { ReactNode, useMemo } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
-import { Button, Divider, Drawer, Form, Input, message, Tooltip } from 'antd';
+import { Divider, Drawer, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TaroAsset, TaroBalance } from 'lib/taro/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -57,6 +56,12 @@ const AssetInfoModal: React.FC = () => {
       { label: l('assetId'), value: <DetailValue value={balance.id} /> },
       { label: l('genesisPoint'), value: <DetailValue value={balance.genesisPoint} /> },
     ];
+    if (assets.length > 0 && assets[0].groupKey) {
+      assetDetails.push({
+        label: l('groupKey'),
+        value: <DetailValue value={assets[0].groupKey} />,
+      });
+    }
     const utxoDetails: DetailValues = assets.map(a => ({
       label: `${a.amount} ${a.name}`,
       value: <DetailValue value={a.anchorOutpoint} />,
@@ -64,22 +69,8 @@ const AssetInfoModal: React.FC = () => {
     cmp = (
       <>
         <h2>{balance.name}</h2>
-        <p>{balance.meta}</p>
         <Styled.DetailsList details={assetDetails} />
-        <Form.Item label={l('genesisBootstrapInfo')}>
-          <Input.TextArea value={balance.genesisBootstrapInfo} readOnly autoSize />
-        </Form.Item>
-        <Form.Item>
-          <CopyToClipboard
-            text={balance.genesisBootstrapInfo}
-            onCopy={() => message.success(l('copyInfoMsg'), 2)}
-          >
-            <Button type="primary" block>
-              {l('copyBootstrapInfo')}
-            </Button>
-          </CopyToClipboard>
-        </Form.Item>
-        <Divider>{l('otxos')}</Divider>
+        <Divider>{l('utxos')}</Divider>
         <DetailsList details={utxoDetails} />
       </>
     );

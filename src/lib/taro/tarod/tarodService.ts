@@ -80,8 +80,8 @@ class TarodService implements TaroService {
         type: asset.assetType,
         amount: asset.amount,
         genesisPoint: genesis.genesisPoint,
-        genesisBootstrapInfo: 'REMOVE-ME', //genesis.genesisBootstrapInfo.toString(),
         anchorOutpoint: anchor.anchorOutpoint,
+        groupKey: asset.assetGroup?.tweakedGroupKey.toString('hex') || '',
       };
     });
   }
@@ -100,7 +100,6 @@ class TarodService implements TaroService {
         type: asset.assetType,
         balance: asset.balance,
         genesisPoint: genesis.genesisPoint,
-        genesisBootstrapInfo: 'REMOVE-ME', //genesis.genesisBootstrapInfo.toString(),
       });
     });
     return balances;
