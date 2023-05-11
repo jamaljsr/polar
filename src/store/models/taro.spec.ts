@@ -106,7 +106,6 @@ describe('Taro Model', () => {
       assetType: PTARO.TARO_ASSET_TYPE.NORMAL,
       name: 'my-asset',
       amount: 100,
-      metaData: 'my-meta',
       enableEmission: false,
       finalize: true,
       autoFund: false,
