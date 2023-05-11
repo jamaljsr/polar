@@ -42,44 +42,35 @@ interface Props {
 const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.taro.actions.NewAddressModal');
 
-  //app
   const { notify } = useStoreActions(s => s.app);
-
-  //designer actions
   const { syncChart } = useStoreActions(s => s.designer);
-
-  //modal state
   const { visible, nodeName } = useStoreState(s => s.modals.newAddress);
   const { hideNewAddress } = useStoreActions(s => s.modals);
-
-  //taro model
   const { syncUniverse, getNewAddress } = useStoreActions(s => s.taro);
   const { nodes } = useStoreState(s => s.taro);
 
-  //component state
   const [selectedAmount, setSelectedAmount] = useState(10);
   const [selectedName, setSelectedName] = useState('');
   const [taroAddress, setTaroAddress] = useState('');
 
-  //component local variables
   const [form] = Form.useForm();
   const thisTaroNode = network.nodes.taro.find(
     node => node.name === nodeName,
   ) as TarodNode;
   const otherTaroNodes = network.nodes.taro.filter(node => node.name !== nodeName);
 
-  //When polar is first opened, we need to populate the state with the lightning node data
+  // When polar is first opened, we need to populate the state with the lightning node data
   useEffect(() => syncChart(network), []);
 
   const handleSync = useAsyncCallback(async e => {
-    const node = otherTaroNodes.find(n => n.name === e.key);
-    if (!node) return;
+    const node = otherTaroNodes[e.key];
+    const hostname = node.name;
 
     try {
-      const numUpdated = await syncUniverse({ node: thisTaroNode, hostname: e.key });
-      message.success(l('syncSuccess', { count: numUpdated, hostname: e.key }));
+      const numUpdated = await syncUniverse({ node: thisTaroNode, hostname });
+      message.success(l('syncSuccess', { count: numUpdated, hostname }));
     } catch (error: any) {
-      notify({ message: l('syncError', { hostname: e.key }), error });
+      notify({ message: l('syncError', { hostname }), error });
     }
   });
 
@@ -140,14 +131,14 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             help={
               <Styled.Dropdown
                 menu={{
-                  items: otherTaroNodes.map(n => ({
-                    key: n.name,
+                  items: otherTaroNodes.map((n, i) => ({
+                    key: i,
                     label: n.name,
                   })),
                   onClick: handleSync.execute,
                 }}
               >
-                <a onClick={e => e.preventDefault()}>
+                <a>
                   Sync assets from node <DownOutlined />
                 </a>
               </Styled.Dropdown>

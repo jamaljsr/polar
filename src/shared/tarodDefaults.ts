@@ -1,9 +1,12 @@
 import {
   Addr,
+  AssetRootResponse,
+  FinalizeBatchResponse,
   ListAssetResponse,
   ListBalancesResponse,
   MintAssetResponse,
   SendAssetResponse,
+  SyncResponse,
 } from '@hodlone/taro-api';
 import ipcChannels from './ipcChannels';
 
@@ -24,6 +27,13 @@ export const defaultTarodListBalances = (
 
 export const defaultTarodMintAsset = (): MintAssetResponse => ({
   batchKey: Buffer.from(''),
+});
+
+export const defaultTarodFinalizeBatch = (
+  value: Partial<FinalizeBatchResponse>,
+): FinalizeBatchResponse => ({
+  batchKey: Buffer.from(''),
+  ...value,
 });
 
 export const defaultTarodNewAddress = (value: Partial<Addr>): Addr => ({
@@ -50,6 +60,18 @@ export const defaultTarodSendAsset = (
     inputs: [],
     outputs: [],
   },
+  ...value,
+});
+
+export const defaultAssetRoots = (
+  value: Partial<AssetRootResponse>,
+): AssetRootResponse => ({
+  universeRoots: {},
+  ...value,
+});
+
+export const defaultSyncUniverse = (value: Partial<SyncResponse>): SyncResponse => ({
+  syncedUniverses: [],
   ...value,
 });
 

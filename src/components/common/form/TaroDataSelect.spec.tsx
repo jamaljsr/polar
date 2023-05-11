@@ -11,8 +11,10 @@ import {
 import TaroDataSelect from './TaroDataSelect';
 
 describe('TaroDataSelect', () => {
-  const renderComponent = (selectBalances = true) => {
-    const network = getNetwork(1, 'test network', Status.Started, 2);
+  const handleChange: jest.Mock | undefined = jest.fn();
+
+  const renderComponent = (selectBalances = true, changeEvent = true) => {
+    const network = getNetwork(1, 'test network', Status.Started, 3);
     const initialState = {
       taro: {
         nodes: {
@@ -24,9 +26,9 @@ describe('TaroDataSelect', () => {
             balances: [defaultTaroBalance({ name: 'bobs-test-balance' })],
             assets: [defaultTaroAsset({ name: 'bobs-test-asset' })],
           },
-          'carol-taro': {
+          'dave-taro': {
             balances: [],
-            assets: [defaultTaroAsset({ name: 'carols-test-asset' })],
+            assets: [defaultTaroAsset({ name: 'dave-test-asset' })],
           },
         },
       },
@@ -47,6 +49,7 @@ describe('TaroDataSelect', () => {
         label="Select Taro Asset"
         taroNetworkNodes={network.nodes.taro}
         selectBalances={selectBalances}
+        onChange={changeEvent ? handleChange : undefined}
       />
     );
     return renderWithProviders(cmp, { initialState, wrapForm: true });
@@ -62,7 +65,7 @@ describe('TaroDataSelect', () => {
     const { getByLabelText, getByText, queryByText } = renderComponent();
     fireEvent.mouseDown(getByLabelText('Select Taro Asset'));
     expect(getByText('bob-taro')).toBeInTheDocument();
-    expect(queryByText('carol-taro')).not.toBeInTheDocument();
+    expect(queryByText('dave-taro')).not.toBeInTheDocument();
     expect(getByText('bobs-test-balance')).toBeInTheDocument();
   });
 
@@ -82,5 +85,15 @@ describe('TaroDataSelect', () => {
     expect(getByText('bobs-test-asset')).toBeInTheDocument();
     fireEvent.click(getByText('bobs-test-asset'));
     expect(getAllByText('bobs-test-asset')[1]).toBeInTheDocument();
+  });
+
+  it('should not call onChange', () => {
+    const { queryByText, getByLabelText, getByText } = renderComponent(false, false);
+    expect(queryByText('bobs-test-balance-1')).not.toBeInTheDocument();
+    fireEvent.mouseDown(getByLabelText('Select Taro Asset'));
+    expect(getByText('bob-taro')).toBeInTheDocument();
+    expect(getByText('bobs-test-asset')).toBeInTheDocument();
+    fireEvent.click(getByText('bobs-test-asset'));
+    expect(handleChange).not.toHaveBeenCalled();
   });
 });
