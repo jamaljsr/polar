@@ -76,7 +76,6 @@ class TarodService implements TaroService {
       return {
         id: genesis.assetId.toString(),
         name: genesis.name,
-        meta: genesis.metaHash.toString('ascii'),
         type: asset.assetType,
         amount: asset.amount,
         genesisPoint: genesis.genesisPoint,
@@ -96,7 +95,6 @@ class TarodService implements TaroService {
       balances.push({
         id,
         name: genesis.name,
-        meta: genesis.metaHash.toString('ascii'),
         type: asset.assetType,
         balance: asset.balance,
         genesisPoint: genesis.genesisPoint,
@@ -111,7 +109,7 @@ class TarodService implements TaroService {
       return {
         id,
         name: root.assetName,
-        rootSum: root.mssmtRoot?.rootSum || 0,
+        rootSum: parseInt(root.mssmtRoot?.rootSum || '0'),
       } as PTARO.TaroAssetRoot;
     });
     return assetRoots;

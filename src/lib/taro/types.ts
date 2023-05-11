@@ -5,7 +5,6 @@
 export interface TaroAsset {
   id: string;
   name: string;
-  meta: string;
   type: string;
   amount: string;
   genesisPoint: string;
@@ -16,7 +15,6 @@ export interface TaroAsset {
 export interface TaroBalance {
   id: string;
   name: string;
-  meta: string;
   type: string;
   balance: string;
   genesisPoint: string;

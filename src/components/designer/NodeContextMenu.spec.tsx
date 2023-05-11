@@ -91,7 +91,7 @@ describe('NodeContextMenu', () => {
   it('should display the correct options for a started taro node', async () => {
     const { getByText } = renderComponent('alice-taro', Status.Started);
     expect(getByText('New Address')).toBeInTheDocument();
-    expect(getByText('Mint')).toBeInTheDocument();
+    expect(getByText('Mint Asset')).toBeInTheDocument();
     expect(getByText('Launch Terminal')).toBeInTheDocument();
     expect(getByText('Stop')).toBeInTheDocument();
     expect(getByText('View Logs')).toBeInTheDocument();
@@ -166,7 +166,7 @@ describe('NodeContextMenu', () => {
   it('should show the mint asset modal', async () => {
     const { getByText, store } = renderComponent('alice-taro', Status.Started);
     expect(store.getState().modals.mintAsset.visible).toBe(false);
-    fireEvent.click(getByText('Mint'));
+    fireEvent.click(getByText('Mint Asset'));
     expect(store.getState().modals.mintAsset.visible).toBe(true);
     expect(store.getState().modals.mintAsset.nodeName).toBe('alice-taro');
   });

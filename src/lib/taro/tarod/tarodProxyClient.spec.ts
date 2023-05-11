@@ -38,6 +38,11 @@ describe('TarodProxyClient', () => {
     });
   });
 
+  it('should call the finalizeBatch ipc', () => {
+    tarodProxyClient.finalizeBatch(node);
+    expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.finalizeBatch, { node });
+  });
+
   it('should call the listAssets ipc', () => {
     tarodProxyClient.listAssets(node);
     expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.listAssets, { node });
@@ -63,7 +68,8 @@ describe('TarodProxyClient', () => {
       req,
     });
   });
-  it('should call the send ipc', () => {
+
+  it('should call the sendAsset ipc', () => {
     const req: TARO.SendAssetRequestPartial = {
       taroAddrs: ['taro1test'],
     };
@@ -73,12 +79,42 @@ describe('TarodProxyClient', () => {
       req,
     });
   });
+
   it('should call the decodeAddress ipc', () => {
-    const req = {
+    const req: TARO.DecodeAddrRequestPartial = {
       addr: 'taro1test',
     };
     tarodProxyClient.decodeAddress(node, req);
     expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.decodeAddress, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the assetRoots ipc', () => {
+    tarodProxyClient.assetRoots(node);
+    expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.assetRoots, {
+      node,
+    });
+  });
+
+  it('should call the assetLeaves ipc', () => {
+    const req: TARO.IDPartial = {
+      assetId: 'test asset id',
+    };
+    tarodProxyClient.assetLeaves(node, req);
+    expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.assetLeaves, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the syncUniverse ipc', () => {
+    const req: TARO.SyncRequestPartial = {
+      universeHost: '1.2.3.4:10029',
+    };
+    tarodProxyClient.syncUniverse(node, req);
+    expect(tarodProxyClient.ipc).toBeCalledWith(ipcChannels.taro.syncUniverse, {
       node,
       req,
     });

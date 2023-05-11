@@ -1,5 +1,8 @@
 import { Asset, AssetBalance } from '@hodlone/taro-api';
 import {
+  defaultAssetRoots,
+  defaultSyncUniverse,
+  defaultTarodFinalizeBatch,
   defaultTarodListAssets,
   defaultTarodListBalances,
   defaultTarodMintAsset,
@@ -94,14 +97,27 @@ describe('TarodService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should finalize a batch', async () => {
+    const apiResponse = defaultTarodFinalizeBatch({});
+    const expected = expect.objectContaining({ batchKey: expect.anything() });
+    tarodProxyClient.finalizeBatch = jest.fn().mockResolvedValue(apiResponse);
+    const actual = await tarodService.finalizeBatch(node);
+    expect(actual).toEqual(expected);
+  });
+
   it('should send an asset', async () => {
-    const apiResponse = defaultTarodSendAsset({});
-    const expected = expect.objectContaining({
-      transferTxid: expect.anything(),
-      anchorOutputIndex: expect.anything(),
-      transferTxBytes: expect.anything(),
-      totalFeeSats: expect.anything(),
+    const txid = 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b';
+    const apiResponse = defaultTarodSendAsset({
+      transfer: {
+        anchorTxChainFees: '',
+        anchorTxHash: Buffer.from(txid, 'hex'),
+        anchorTxHeightHint: 0,
+        transferTimestamp: '',
+        inputs: [],
+        outputs: [],
+      },
     });
+    const expected = { transferTxid: txid };
 
     tarodProxyClient.sendAsset = jest.fn().mockResolvedValue(apiResponse);
     const actual = await tarodService.sendAsset(node, {
@@ -135,11 +151,13 @@ describe('TarodService', () => {
       expect.objectContaining({
         id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
         name: 'LUSD',
-        meta: 'fantastic money',
         type: 'NORMAL',
         amount: '900',
-        genesisBootstrapInfo:
-          '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad0000000000',
+        anchorOutpoint:
+          'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e:0',
+        genesisPoint:
+          '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
+        groupKey: '',
       }),
     ];
     tarodProxyClient.listAssets = jest.fn().mockResolvedValue(apiResponse);
@@ -158,15 +176,70 @@ describe('TarodService', () => {
       expect.objectContaining({
         id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
         name: 'LUSD',
-        meta: 'fantastic money',
         type: 'NORMAL',
         balance: '100',
-        genesisBootstrapInfo:
-          '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad0000000000',
+        genesisPoint:
+          '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
       }),
     ];
     tarodProxyClient.listBalances = jest.fn().mockResolvedValue(apiResponse);
     const actual = await tarodService.listBalances(node);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should list asset roots', async () => {
+    const apiResponse = defaultAssetRoots({
+      universeRoots: {
+        b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b: {
+          id: {
+            id: 'assetId',
+            assetId: Buffer.from('assetId'),
+          },
+          assetName: 'LUSD',
+          mssmtRoot: {
+            rootSum: '1000',
+            rootHash: Buffer.from('rootHash'),
+          },
+        },
+        a0357038c14f35f4a7617ecd59447b1c039139c56d7008097b2fa289979bb651d5: {
+          id: {
+            id: 'assetId',
+            assetId: Buffer.from('assetId'),
+          },
+          assetName: 'ASDF',
+          mssmtRoot: {
+            rootSum: '',
+            rootHash: Buffer.from('rootHash'),
+          },
+        },
+      },
+    });
+    const expected = [
+      {
+        id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
+        name: 'LUSD',
+        rootSum: 1000,
+      },
+      {
+        id: 'a0357038c14f35f4a7617ecd59447b1c039139c56d7008097b2fa289979bb651d5',
+        name: 'ASDF',
+        rootSum: 0,
+      },
+    ];
+    tarodProxyClient.assetRoots = jest.fn().mockResolvedValue(apiResponse);
+    const actual = await tarodService.assetRoots(node);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should sync the universe', async () => {
+    const apiResponse = defaultSyncUniverse({
+      syncedUniverses: ['dummy-data' as any],
+    });
+    const expected = {
+      syncedUniverses: ['dummy-data'],
+    };
+    tarodProxyClient.syncUniverse = jest.fn().mockResolvedValue(apiResponse);
+    const actual = await tarodService.syncUniverse(node, 'host');
     expect(actual).toEqual(expected);
   });
 

@@ -134,6 +134,7 @@ describe('TaroDetails', () => {
           amount: '100',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:1',
+          groupKey: '03dd30e6695fdf314a02a3b733e8cc5a0101dd26112af0516da6b6b4f2f6462882',
         }),
         defaultTaroAsset({
           id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001',
@@ -142,6 +143,7 @@ describe('TaroDetails', () => {
           amount: '50',
           genesisPoint:
             '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:1',
+          groupKey: '03dd30e6695fdf314a02a3b733e8cc5a0101dd26112af0516da6b6b4f2f6462882',
         }),
         defaultTaroAsset({
           id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2002',
@@ -224,7 +226,7 @@ describe('TaroDetails', () => {
     it('should handle mint asset button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
-      fireEvent.click(await findByText('Mint'));
+      fireEvent.click(await findByText('Mint Asset'));
       const { visible, nodeName } = store.getState().modals.mintAsset;
       expect(visible).toEqual(true);
       expect(nodeName).toEqual(node.name);
@@ -271,12 +273,8 @@ describe('TaroDetails', () => {
         expect(await findByText('b4b905...7b2001')).toBeInTheDocument();
         expect(await findByText('Genesis Point')).toBeInTheDocument();
         expect(await findByText('64e4cf...619c58')).toBeInTheDocument();
-        expect(await findByText('Genesis Bootstrap Info')).toBeInTheDocument();
-        expect(
-          await findByText(
-            '589c6137292c4f669776812702f664146d6d83a82f7170574a36885573cfe4640000000003414c4301ad00000000001',
-          ),
-        ).toBeInTheDocument();
+        expect(await findByText('Group Key')).toBeInTheDocument();
+        expect(await findByText('03dd30...462882')).toBeInTheDocument();
         expect(await findByText('100 LUSD')).toBeInTheDocument();
         expect(await findByText('50 LUSD')).toBeInTheDocument();
       });
@@ -287,26 +285,12 @@ describe('TaroDetails', () => {
         const buttons = await findAllByLabelText('unordered-list');
         expect(buttons.length).toEqual(2);
         fireEvent.click(buttons[0]);
-        expect(await findByText('Copy Bootstrap Info')).toBeInTheDocument();
         store.getActions().taro.setAssets({ node, assets: [] });
         store.getActions().taro.setBalances({ node, balances: [] });
         expect(
           await findByText(
             'Asset b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001 not found',
           ),
-        ).toBeInTheDocument();
-      });
-
-      it('should copy the genesis bootstrap info', async () => {
-        const { findByText, findAllByLabelText } = renderComponent(Status.Started);
-        fireEvent.click(await findByText('Info'));
-        const buttons = await findAllByLabelText('unordered-list');
-        expect(buttons.length).toEqual(2);
-        fireEvent.click(buttons[0]);
-        expect(await findByText('Copy Bootstrap Info')).toBeInTheDocument();
-        fireEvent.click(await findByText('Copy Bootstrap Info'));
-        expect(
-          await findByText('Copied Genesis Bootstrap Info to clipboard'),
         ).toBeInTheDocument();
       });
 
