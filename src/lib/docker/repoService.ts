@@ -61,7 +61,7 @@ class RepoService implements RepoServiceInjection {
       eclair: [],
       bitcoind: [],
       btcd: [],
-      tarod: [],
+      tapd: [],
     };
     // find the different versions between the two states
     let newVersionCount = 0;

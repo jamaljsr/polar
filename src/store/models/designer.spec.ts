@@ -21,7 +21,7 @@ import designerModel from './designer';
 import lightningModel from './lightning';
 import modalsModel from './modals';
 import networkModel from './network';
-import taroModel from './taro';
+import tapModel from './tap';
 
 jest.mock('antd', () => ({
   ...(jest.requireActual('antd') as any),
@@ -46,7 +46,7 @@ describe('Designer model', () => {
     bitcoind: bitcoindModel,
     designer: designerModel,
     modals: modalsModel,
-    taro: taroModel,
+    tap: tapModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -324,64 +324,64 @@ describe('Designer model', () => {
         onLinkComplete(data);
         expect(store.getState().modals.changeBackend.visible).toBe(true);
       });
-      it('should show the ChangeBackend modal when dragging from LND -> taro', async () => {
+      it('should show the ChangeBackend modal when dragging from LND -> tap', async () => {
         filesMock.exists.mockResolvedValue(Promise.resolve(false));
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
           fromNodeId: 'alice',
           fromPortId: 'lndbackend',
-          toNodeId: 'alice-taro',
+          toNodeId: 'alice-tap',
           toPortId: 'lndbackend',
         };
-        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTapBackend.visible).toBe(false);
         onLinkStart(data);
         onLinkComplete(data);
         await waitFor(() => {
-          expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+          expect(store.getState().modals.changeTapBackend.visible).toBe(true);
         });
       });
-      it('should show the ChangeBackend modal when dragging from taro -> LND', async () => {
+      it('should show the ChangeBackend modal when dragging from tap -> LND', async () => {
         filesMock.exists.mockResolvedValue(Promise.resolve(false));
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
-          fromNodeId: 'alice-taro',
+          fromNodeId: 'alice-tap',
           fromPortId: 'lndbackend',
           toNodeId: 'alice',
           toPortId: 'lndbackend',
         };
-        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTapBackend.visible).toBe(false);
         onLinkStart(data);
         onLinkComplete(data);
         await waitFor(() => {
-          expect(store.getState().modals.changeTaroBackend.visible).toBe(true);
+          expect(store.getState().modals.changeTapBackend.visible).toBe(true);
         });
       });
-      it('should not display modal when dragging from taro -> LND', async () => {
+      it('should not display modal when dragging from tap -> LND', async () => {
         filesMock.exists.mockResolvedValue(Promise.resolve(true));
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
-          fromNodeId: 'alice-taro',
+          fromNodeId: 'alice-tap',
           fromPortId: 'lndbackend',
           toNodeId: 'alice',
           toPortId: 'lndbackend',
         };
-        expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+        expect(store.getState().modals.changeTapBackend.visible).toBe(false);
         onLinkStart(data);
         onLinkComplete(data);
         await waitFor(() => {
-          expect(store.getState().modals.changeTaroBackend.visible).toBe(false);
+          expect(store.getState().modals.changeTapBackend.visible).toBe(false);
         });
       });
-      it('should show an error when dragging from taro -> taro', () => {
+      it('should show an error when dragging from tap -> tap', () => {
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
-          fromNodeId: 'alice-taro',
+          fromNodeId: 'alice-tap',
           fromPortId: 'lndbackend',
-          toNodeId: 'bob-taro',
+          toNodeId: 'bob-tap',
           toPortId: 'lndbackend',
         };
         const spy = jest.spyOn(store.getActions().app, 'notify');
@@ -390,15 +390,15 @@ describe('Designer model', () => {
         expect(spy).toBeCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
-            error: new Error('tarod nodes cannot connect to each other.'),
+            error: new Error('tapd nodes cannot connect to each other.'),
           }),
         );
       });
-      it('should show an error when dragging from taro -> non LND node', () => {
+      it('should show an error when dragging from tap -> non LND node', () => {
         const { onLinkStart, onLinkComplete } = store.getActions().designer;
         const data = {
           ...payload,
-          fromNodeId: 'alice-taro',
+          fromNodeId: 'alice-tap',
           fromPortId: 'lndbackend',
           toNodeId: 'carol',
           toPortId: 'lndbackend',
@@ -421,7 +421,7 @@ describe('Designer model', () => {
         injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
       const lndLatest = defaultRepoState.images.LND.latest;
       const btcLatest = defaultRepoState.images.bitcoind.latest;
-      const tarodLatest = defaultRepoState.images.tarod.latest;
+      const tapdLatest = defaultRepoState.images.tapd.latest;
       const id = 'nodeId';
       const data = { type: 'LND', version: lndLatest };
       const position = { x: 10, y: 10 };
@@ -461,7 +461,7 @@ describe('Designer model', () => {
         });
       });
 
-      it('should add a new tarod node to the chart', async () => {
+      it('should add a new tapd node to the chart', async () => {
         const { addNetwork } = store.getActions().network;
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
@@ -478,15 +478,15 @@ describe('Designer model', () => {
         expect(Object.keys(getChart().nodes)).toHaveLength(1);
         const lndData = { type: 'LND', version: testRepoState.images.LND.versions[0] };
         onCanvasDrop({ id, data: lndData, position });
-        const tarodData = { type: 'tarod', version: tarodLatest };
-        onCanvasDrop({ id, data: tarodData, position });
+        const tapdData = { type: 'tapd', version: tapdLatest };
+        onCanvasDrop({ id, data: tapdData, position });
         await waitFor(() => {
           expect(Object.keys(getChart().nodes)).toHaveLength(3);
-          expect(getChart().nodes['alice-taro']).toBeDefined();
+          expect(getChart().nodes['alice-tap']).toBeDefined();
         });
       });
 
-      it('should throw an error when adding an incompatible Taro node', async () => {
+      it('should throw an error when adding an incompatible Tap node', async () => {
         store.getActions().app.setRepoState(testRepoState);
         const { addNetwork } = store.getActions().network;
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
@@ -506,14 +506,14 @@ describe('Designer model', () => {
         onCanvasDrop({ id, data: lndData, position });
 
         const spy = jest.spyOn(store.getActions().app, 'notify');
-        const tarodData = { type: 'tarod', version: tarodLatest };
-        onCanvasDrop({ id, data: tarodData, position });
+        const tapdData = { type: 'tapd', version: tapdLatest };
+        onCanvasDrop({ id, data: tapdData, position });
         await waitFor(() => {
           expect(spy).toBeCalledWith(
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
-                'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tarod v0.2.0-alpha',
+                'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tapd v0.2.0-alpha',
               ),
             }),
           );

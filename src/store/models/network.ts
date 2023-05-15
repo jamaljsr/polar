@@ -10,8 +10,8 @@ import {
   LightningNode,
   NodeImplementation,
   Status,
-  TarodNode,
-  TaroNode,
+  TapdNode,
+  TapNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
@@ -24,7 +24,7 @@ import {
   createEclairNetworkNode,
   createLndNetworkNode,
   createNetwork,
-  createTarodNetworkNode,
+  createTapdNetworkNode,
   filterCompatibleBackends,
   getMissingImages,
   getOpenPorts,
@@ -101,7 +101,7 @@ export interface NetworkModel {
     StoreInjections,
     RootModel
   >;
-  removeTaroNode: Thunk<NetworkModel, { node: TaroNode }, StoreInjections, RootModel>;
+  removeTapNode: Thunk<NetworkModel, { node: TapNode }, StoreInjections, RootModel>;
   removeBitcoinNode: Thunk<
     NetworkModel,
     { node: BitcoinNode },
@@ -114,9 +114,9 @@ export interface NetworkModel {
     StoreInjections,
     RootModel
   >;
-  updateTaroBackendNode: Thunk<
+  updateTapBackendNode: Thunk<
     NetworkModel,
-    { id: number; taroName: string; lndName: string },
+    { id: number; tapName: string; lndName: string },
     StoreInjections,
     RootModel
   >;
@@ -210,7 +210,7 @@ const networkModel: NetworkModel = {
     network.nodes.lightning
       .filter(n => !!ports[n.name])
       .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
-    network.nodes.taro
+    network.nodes.tap
       .filter(n => !!ports[n.name])
       .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
   }),
@@ -336,14 +336,14 @@ const networkModel: NetworkModel = {
           node = createBitcoindNetworkNode(network, version, docker);
           network.nodes.bitcoin.push(node);
           break;
-        case 'tarod':
-          node = createTarodNetworkNode(
+        case 'tapd':
+          node = createTapdNetworkNode(
             network,
             version,
-            dockerRepoState.images.tarod.compatibility,
+            dockerRepoState.images.tapd.compatibility,
             docker,
           );
-          network.nodes.taro.push(node);
+          network.nodes.tap.push(node);
           break;
         default:
           throw new Error(`Cannot add unknown node type '${type}' to the network`);
@@ -399,15 +399,15 @@ const networkModel: NetworkModel = {
       await getStoreActions().designer.syncChart(network);
     },
   ),
-  removeTaroNode: thunk(
+  removeTapNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
       // remove the node from the network
-      network.nodes.taro = network.nodes.taro.filter(n => n !== node);
+      network.nodes.tap = network.nodes.tap.filter(n => n !== node);
       // remove the node's data from the lightning redux state
-      getStoreActions().taro.removeNode(node.name);
+      getStoreActions().tap.removeNode(node.name);
       // remove the node rom the running docker network
       if (network.status === Status.Started) {
         await injections.dockerService.removeNode(network, node);
@@ -548,10 +548,10 @@ const networkModel: NetworkModel = {
       getStoreActions().designer.updateBackendLink({ lnName, backendName });
     },
   ),
-  updateTaroBackendNode: thunk(
+  updateTapBackendNode: thunk(
     async (
       actions,
-      { id, taroName, lndName },
+      { id, tapName, lndName },
       { injections, getState, getStoreActions },
     ) => {
       const networks = getState().networks;
@@ -559,19 +559,19 @@ const networkModel: NetworkModel = {
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
       const lndNode = network.nodes.lightning.find(n => n.name === lndName);
       if (!lndNode) throw new Error(l('nodeByNameErr', { name: lndName }));
-      const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
-      if (!taroNode) throw new Error(l('nodeByNameErr', { name: taroName }));
-      if (taroNode.lndName === lndName)
-        throw new Error(l('connectedErr', { lnName: taroName, backendName: lndName }));
+      const tapNode = network.nodes.tap.find(n => n.name === tapName) as TapdNode;
+      if (!tapNode) throw new Error(l('nodeByNameErr', { name: tapName }));
+      if (tapNode.lndName === lndName)
+        throw new Error(l('connectedErr', { lnName: tapName, backendName: lndName }));
 
-      taroNode.lndName = lndNode.name;
+      tapNode.lndName = lndNode.name;
       // update the network in the redux state and save to disk
       actions.setNetworks([...networks]);
       await actions.save();
       // save the updated compose file
       await injections.dockerService.saveComposeFile(network);
 
-      getStoreActions().designer.updateTaroBackendLink({ taroName, lndName: lndName });
+      getStoreActions().designer.updateTapBackendLink({ tapName, lndName: lndName });
     },
   ),
   setStatus: action((state, { id, status, only, all = true, error }) => {
@@ -585,13 +585,13 @@ const networkModel: NetworkModel = {
       // only update a specific node's status
       network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
       network.nodes.bitcoin.filter(n => n.name === only).forEach(setNodeStatus);
-      network.nodes.taro.filter(n => n.name === only).forEach(setNodeStatus);
+      network.nodes.tap.filter(n => n.name === only).forEach(setNodeStatus);
     } else if (all) {
       // update all node statuses
       network.status = status;
       network.nodes.bitcoin.forEach(setNodeStatus);
       network.nodes.lightning.forEach(setNodeStatus);
-      network.nodes.taro.forEach(setNodeStatus);
+      network.nodes.tap.forEach(setNodeStatus);
     } else {
       // if no specific node name provided, just update the network status
       network.status = status;
@@ -636,7 +636,7 @@ const networkModel: NetworkModel = {
         await actions.monitorStartup([
           ...network.nodes.lightning,
           ...network.nodes.bitcoin,
-          ...network.nodes.taro,
+          ...network.nodes.tap,
         ]);
       } catch (e: any) {
         actions.setStatus({ id, status: Status.Error });
@@ -743,16 +743,16 @@ const networkModel: NetworkModel = {
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
             );
           btcNodesOnline.push(promise);
-        } else if (node.type === 'taro') {
-          const taro = node as TaroNode;
-          injections.taroFactory
-            .getService(taro)
-            .waitUntilOnline(taro)
+        } else if (node.type === 'tap') {
+          const tap = node as TapNode;
+          injections.tapFactory
+            .getService(tap)
+            .waitUntilOnline(tap)
             .then(async () => {
-              actions.setStatus({ id, status: Status.Started, only: taro.name });
+              actions.setStatus({ id, status: Status.Started, only: tap.name });
             })
             .catch(error =>
-              actions.setStatus({ id, status: Status.Error, only: taro.name, error }),
+              actions.setStatus({ id, status: Status.Error, only: tap.name, error }),
             );
         }
       }
@@ -802,7 +802,7 @@ const networkModel: NetworkModel = {
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n));
-    network.nodes.taro.forEach(n => getStoreActions().taro.removeNode(n.name));
+    network.nodes.tap.forEach(n => getStoreActions().tap.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),

@@ -1,7 +1,7 @@
 import { CommonNode, Status } from 'shared/types';
 import { CustomImage, DockerRepoState, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
-import { createLndNetworkNode, createNetwork, createTarodNetworkNode } from '../network';
+import { createLndNetworkNode, createNetwork, createTapdNetworkNode } from '../network';
 
 export const testNodeDocker: CommonNode['docker'] = { image: '', command: '' };
 
@@ -23,8 +23,8 @@ export const testManagedImages: ManagedImage[] = [
     command: '',
   },
   {
-    implementation: 'tarod',
-    version: defaultRepoState.images.tarod.latest,
+    implementation: 'tapd',
+    version: defaultRepoState.images.tapd.latest,
     command: '',
   },
 ];
@@ -133,7 +133,7 @@ export const testRepoState: DockerRepoState = {
       latest: '',
       versions: [],
     },
-    tarod: {
+    tapd: {
       latest: '0.2.0-alpha',
       versions: ['0.2.0-alpha'],
       compatibility: {
@@ -147,7 +147,7 @@ export const getNetwork = (
   networkId = 1,
   name?: string,
   status?: Status,
-  taroNodeCount = 0,
+  tapNodeCount = 0,
 ): Network => {
   const config = {
     id: networkId,
@@ -161,14 +161,14 @@ export const getNetwork = (
     managedImages: testManagedImages,
     customImages: [],
   };
-  if (taroNodeCount > 0) {
+  if (tapNodeCount > 0) {
     config.lndNodes = 0;
     config.clightningNodes = 0;
     config.eclairNodes = 0;
   }
   const network = createNetwork(config);
 
-  for (let i = 0; i < taroNodeCount; i++) {
+  for (let i = 0; i < tapNodeCount; i++) {
     network.nodes.lightning.push(
       createLndNetworkNode(
         network,
@@ -178,11 +178,11 @@ export const getNetwork = (
         status,
       ),
     );
-    network.nodes.taro.push(
-      createTarodNetworkNode(
+    network.nodes.tap.push(
+      createTapdNetworkNode(
         network,
-        testRepoState.images.tarod.latest,
-        testRepoState.images.tarod.compatibility,
+        testRepoState.images.tapd.latest,
+        testRepoState.images.tapd.compatibility,
         testNodeDocker,
         status,
       ),

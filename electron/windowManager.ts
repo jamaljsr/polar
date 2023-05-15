@@ -6,7 +6,7 @@ import { initAppIpcListener } from './appIpcListener';
 import { appMenuTemplate } from './appMenu';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
 import { clearLndProxyCache, initLndProxy } from './lnd/lndProxyServer';
-import { initTarodProxy } from './tarod/tarodProxyServer';
+import { initTapdProxy } from './tapd/tapdProxyServer';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
@@ -15,7 +15,7 @@ class WindowManager {
     app.on('ready', async () => {
       await this.createMainWindow();
       initLndProxy(ipcMain);
-      initTarodProxy(ipcMain);
+      initTapdProxy(ipcMain);
       initAppIpcListener(ipcMain);
     });
     app.on('window-all-closed', this.onAllClosed);

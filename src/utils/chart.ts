@@ -1,5 +1,5 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
-import { BitcoinNode, LightningNode, TarodNode } from 'shared/types';
+import { BitcoinNode, LightningNode, TapdNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
@@ -73,25 +73,25 @@ export const createLightningChartNode = (ln: LightningNode) => {
   return { node, link };
 };
 
-export const createTarodChartNode = (taro: TarodNode) => {
+export const createTapdChartNode = (tap: TapdNode) => {
   const node: INode = {
-    id: taro.name,
-    type: 'taro',
-    position: { x: taro.id * 250 + 50, y: taro.id % 2 === 0 ? 100 : 200 },
+    id: tap.name,
+    type: 'tap',
+    position: { x: tap.id * 250 + 50, y: tap.id % 2 === 0 ? 100 : 200 },
     ports: {
       lndbackend: { id: 'lndbackend', type: 'bottom' },
     },
     size: { width: 200, height: 36 },
     properties: {
-      status: taro.status,
-      icon: dockerConfigs[taro.implementation].logo,
+      status: tap.status,
+      icon: dockerConfigs[tap.implementation].logo,
     },
   };
 
   const link: ILink = {
-    id: `${taro.name}-${taro.lndName}`,
-    from: { nodeId: taro.name, portId: 'lndbackend' },
-    to: { nodeId: taro.lndName, portId: 'lndbackend' },
+    id: `${tap.name}-${tap.lndName}`,
+    from: { nodeId: tap.name, portId: 'lndbackend' },
+    to: { nodeId: tap.lndName, portId: 'lndbackend' },
     properties: {
       type: 'lndbackend',
     },
@@ -158,8 +158,8 @@ export const initChartFromNetwork = (network: Network): IChart => {
     chart.links[link.id] = link;
   });
 
-  network.nodes.taro.forEach(n => {
-    const { node, link } = createTarodChartNode(n as TarodNode);
+  network.nodes.tap.forEach(n => {
+    const { node, link } = createTapdChartNode(n as TapdNode);
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;
   });
@@ -304,15 +304,15 @@ export const updateChartFromNodes = (
     linksToKeep.push(id);
   });
 
-  // ensure all tarod -> lnd backend links exists
-  network.nodes.taro.forEach(taro => {
-    const tarod = taro as TarodNode;
-    const id = `${tarod.name}-${tarod.lndName}`;
+  // ensure all tapd -> lnd backend links exists
+  network.nodes.tap.forEach(tap => {
+    const tapd = tap as TapdNode;
+    const id = `${tapd.name}-${tapd.lndName}`;
     if (!links[id]) {
       links[id] = {
         id,
-        from: { nodeId: tarod.name, portId: 'lndbackend' },
-        to: { nodeId: tarod.lndName, portId: 'lndbackend' },
+        from: { nodeId: tapd.name, portId: 'lndbackend' },
+        to: { nodeId: tapd.lndName, portId: 'lndbackend' },
         properties: {
           type: 'lndbackend',
         },

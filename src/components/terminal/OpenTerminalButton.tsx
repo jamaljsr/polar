@@ -42,8 +42,8 @@ const OpenTerminalButton: React.FC<Props> = ({ node, type }) => {
     case 'bitcoind':
       cmd = 'bitcoin-cli';
       break;
-    case 'tarod':
-      cmd = 'tarocli';
+    case 'tapd':
+      cmd = 'tapcli';
       break;
   }
   return (
