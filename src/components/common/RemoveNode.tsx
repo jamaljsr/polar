@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoinNode, CommonNode, LightningNode, Status, TaroNode } from 'shared/types';
+import { BitcoinNode, CommonNode, LightningNode, Status, TapNode } from 'shared/types';
 import { useStoreActions } from 'store';
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 const RemoveNode: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.common.RemoveNode');
   const { notify } = useStoreActions(s => s.app);
-  const { removeLightningNode, removeBitcoinNode, removeTaroNode } = useStoreActions(
+  const { removeLightningNode, removeBitcoinNode, removeTapNode } = useStoreActions(
     s => s.network,
   );
 
@@ -42,8 +42,8 @@ const RemoveNode: React.FC<Props> = ({ node, type }) => {
             case 'bitcoin':
               await removeBitcoinNode({ node: node as BitcoinNode });
               break;
-            case 'taro':
-              await removeTaroNode({ node: node as TaroNode });
+            case 'tap':
+              await removeTapNode({ node: node as TapNode });
               break;
             default:
               throw new Error(l('invalidType', { type: node.type }));

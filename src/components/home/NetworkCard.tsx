@@ -45,8 +45,8 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
         </Col>
         <Col span={8}>
           <Statistic
-            title={l('taroNodes')}
-            value={network.nodes.taro.length}
+            title={l('tapNodes')}
+            value={network.nodes.tap.length}
             suffix={<DollarOutlined />}
           />
         </Col>

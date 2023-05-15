@@ -135,7 +135,7 @@ export const eclair = (
   ],
 });
 
-export const tarod = (
+export const tapd = (
   name: string,
   container: string,
   image: string,
@@ -154,8 +154,8 @@ export const tarod = (
   command: trimInside(command),
   restart: 'always',
   volumes: [
-    `./volumes/${dockerConfigs.LND.volumeDirName}/${lndName}:/home/taro/.lnd`,
-    `./volumes/${dockerConfigs.tarod.volumeDirName}/${name}:/home/taro/.taro`,
+    `./volumes/${dockerConfigs.LND.volumeDirName}/${lndName}:/home/tap/.lnd`,
+    `./volumes/${dockerConfigs.tapd.volumeDirName}/${name}:/home/tap/.tapd`,
   ],
   expose: [
     '8089', // REST

@@ -36,7 +36,7 @@
       "latest": "",
       "versions": []
     },
-    "tarod": {
+    "tapd": {
       "latest": "0.2.0-alpha",
       "versions": ["0.2.0-alpha"],
       "compatibility": {

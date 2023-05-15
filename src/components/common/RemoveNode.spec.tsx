@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { fireEvent, waitFor } from '@testing-library/react';
 import { CommonNode, Status } from 'shared/types';
 import { BitcoindLibrary, DockerLibrary } from 'types';
@@ -12,7 +11,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
-  taroServiceMock,
+  tapServiceMock,
   testNodeDocker,
 } from 'utils/tests';
 import RemoveNode from './RemoveNode';
@@ -45,8 +44,8 @@ describe('RemoveNode', () => {
         activeId: 1,
       },
     };
-    const { lightning, bitcoin, taro } = network.nodes;
-    const node = [...lightning, ...bitcoin, ...taro].find(
+    const { lightning, bitcoin, tap } = network.nodes;
+    const node = [...lightning, ...bitcoin, ...tap].find(
       n => n.name === nodeName,
     ) as CommonNode;
     if (nodeType) node.type = nodeType;
@@ -121,7 +120,7 @@ describe('RemoveNode', () => {
       lightningServiceMock.getChannels.mockResolvedValue([]);
       lightningServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
       bitcoindServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
-      taroServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
+      tapServiceMock.waitUntilOnline.mockResolvedValue(Promise.resolve());
     });
 
     it('should show the remove node modal', async () => {
@@ -187,13 +186,13 @@ describe('RemoveNode', () => {
     });
   });
 
-  describe('taro node', () => {
+  describe('tap node', () => {
     it('should show the remove node modal', async () => {
-      const { getByText, findByText } = renderComponent(Status.Started, 'alice-taro');
+      const { getByText, findByText } = renderComponent(Status.Started, 'alice-tap');
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
       expect(
-        await findByText('Are you sure you want to remove alice-taro from the network?'),
+        await findByText('Are you sure you want to remove alice-tap from the network?'),
       ).toBeInTheDocument();
       expect(getByText('Yes')).toBeInTheDocument();
       expect(getByText('Cancel')).toBeInTheDocument();
@@ -202,7 +201,7 @@ describe('RemoveNode', () => {
     it('should remove the node with the network stopped', async () => {
       const { getByText, findByText, getByLabelText } = renderComponent(
         Status.Stopped,
-        'bob-taro',
+        'bob-tap',
       );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
@@ -210,7 +209,7 @@ describe('RemoveNode', () => {
       // wait for the error notification to be displayed
       await waitFor(() => getByLabelText('check-circle'));
       expect(
-        getByText('The node bob-taro has been removed from the network'),
+        getByText('The node bob-tap has been removed from the network'),
       ).toBeInTheDocument();
       expect(dockerServiceMock.removeNode).toBeCalledTimes(0);
     });
@@ -218,7 +217,7 @@ describe('RemoveNode', () => {
     it('should remove the node with the network started', async () => {
       const { getByText, findByText, getByLabelText } = renderComponent(
         Status.Started,
-        'alice-taro',
+        'alice-tap',
       );
       expect(getByText('Remove')).toBeInTheDocument();
       fireEvent.click(getByText('Remove'));
@@ -226,7 +225,7 @@ describe('RemoveNode', () => {
       // wait for the error notification to be displayed
       await waitFor(() => getByLabelText('check-circle'));
       expect(
-        getByText('The node alice-taro has been removed from the network'),
+        getByText('The node alice-tap has been removed from the network'),
       ).toBeInTheDocument();
       expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
     });
@@ -238,7 +237,7 @@ describe('RemoveNode', () => {
         dockerServiceMock.removeNode.mockRejectedValue(new Error('test error'));
         const { getByText, findByText, getByLabelText } = renderComponent(
           Status.Started,
-          'alice-taro',
+          'alice-tap',
         );
         expect(getByText('Remove')).toBeInTheDocument();
         fireEvent.click(getByText('Remove'));

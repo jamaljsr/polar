@@ -5,7 +5,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import * as compose from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
-import { CLightningNode, LndNode, TarodNode } from 'shared/types';
+import { CLightningNode, LndNode, TapdNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -258,7 +258,7 @@ describe('DockerService', () => {
       );
     });
 
-    it('should save the tarod node with the named LND node as backend', () => {
+    it('should save the tapd node with the named LND node as backend', () => {
       const net = getNetwork(1, 'my network', undefined, 2);
       dockerService.saveComposeFile(net);
       expect(filesMock.write).toBeCalledWith(
@@ -267,10 +267,10 @@ describe('DockerService', () => {
       );
     });
 
-    it('should save the tarod node with the first LND node as backend', () => {
+    it('should save the tapd node with the first LND node as backend', () => {
       const net = getNetwork(1, 'my network', undefined, 2);
-      const taroNode = net.nodes.taro[0] as TarodNode;
-      taroNode.lndName = 'invalid';
+      const tapNode = net.nodes.tap[0] as TapdNode;
+      tapNode.lndName = 'invalid';
       dockerService.saveComposeFile(net);
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
@@ -278,13 +278,13 @@ describe('DockerService', () => {
       );
     });
 
-    it('should not save unknown taro implementation', () => {
+    it('should not save unknown tap implementation', () => {
       const net = getNetwork(1, 'my network', undefined, 2);
-      net.nodes.taro[0].implementation = 'unknown' as any;
+      net.nodes.tap[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(net);
       expect(filesMock.write).toBeCalledWith(
         expect.stringContaining('docker-compose.yml'),
-        expect.not.stringContaining(`container_name: polar-n1-${net.nodes.taro[0].name}`),
+        expect.not.stringContaining(`container_name: polar-n1-${net.nodes.tap[0].name}`),
       );
     });
 

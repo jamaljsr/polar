@@ -6,7 +6,7 @@ import { ipcChannels } from '../src/shared';
 import { APP_ROOT, BASE_URL } from './constants';
 import { httpProxy } from './httpProxy';
 import { clearLndProxyCache } from './lnd/lndProxyServer';
-import { clearTarodProxyCache } from './tarod/tarodProxyServer';
+import { clearTapdProxyCache } from './tapd/tapdProxyServer';
 import { unzip, zip } from './utils/zip';
 
 const openWindow = async (args: { url: string }): Promise<boolean> => {
@@ -51,7 +51,7 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
  */
 const clearCache = (): Promise<{ success: boolean }> => {
   clearLndProxyCache();
-  clearTarodProxyCache();
+  clearTapdProxyCache();
   return Promise.resolve({ success: true });
 };
 

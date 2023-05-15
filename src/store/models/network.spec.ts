@@ -2,7 +2,7 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TarodNode } from 'shared/types';
+import { NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
@@ -11,7 +11,7 @@ import {
   getNetwork,
   injections,
   lightningServiceMock,
-  taroServiceMock,
+  tapServiceMock,
   testCustomImages,
   testRepoState,
 } from 'utils/tests';
@@ -20,7 +20,7 @@ import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import lightningModel from './lightning';
 import networkModel from './network';
-import taroModel from './taro';
+import tapModel from './tap';
 
 jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
@@ -41,7 +41,7 @@ describe('Network model', () => {
     lightning: lightningModel,
     bitcoind: bitcoindModel,
     designer: designerModel,
-    taro: taroModel,
+    tap: tapModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -809,7 +809,7 @@ describe('Network model', () => {
     });
   });
 
-  describe('Taro network', () => {
+  describe('Tap network', () => {
     beforeEach(() => {
       (() => {
         const network = getNetwork(1, 'test network', Status.Stopped, 2);
@@ -821,72 +821,72 @@ describe('Network model', () => {
       })();
     });
 
-    it('should remove a taro network', async () => {
+    it('should remove a tap network', async () => {
       await store.getActions().network.remove(firstNetwork().id);
       expect(firstNetwork()).toBeUndefined();
     });
 
     it('should throw when removing a node with an invalid network id', async () => {
       const node = {
-        ...firstNetwork().nodes.taro[0],
+        ...firstNetwork().nodes.tap[0],
         networkId: 999,
       };
-      const { removeTaroNode } = store.getActions().network;
-      await expect(removeTaroNode({ node })).rejects.toThrow(
+      const { removeTapNode } = store.getActions().network;
+      await expect(removeTapNode({ node })).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
     });
 
-    it('should set taro node status to error if the node startup fails', async () => {
-      taroServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
+    it('should set tap node status to error if the node startup fails', async () => {
+      tapServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
       const { start } = store.getActions().network;
       await start(firstNetwork().id);
-      const { taro } = firstNetwork().nodes;
-      taro.forEach(node => expect(node.status).toBe(Status.Error));
-      taro.forEach(node => expect(node.errorMsg).toBe('test-error'));
+      const { tap } = firstNetwork().nodes;
+      tap.forEach(node => expect(node.status).toBe(Status.Error));
+      tap.forEach(node => expect(node.errorMsg).toBe('test-error'));
     });
     it('should update the backend LND node', async () => {
-      const { updateTaroBackendNode } = store.getActions().network;
+      const { updateTapBackendNode } = store.getActions().network;
       const { id, nodes } = firstNetwork();
-      const tarodNode = nodes.taro[0] as TarodNode;
-      expect(tarodNode.lndName).toBe('alice');
-      await updateTaroBackendNode({ id, lndName: 'bob', taroName: 'alice-taro' });
-      expect(tarodNode.lndName).toBe('bob');
+      const tapdNode = nodes.tap[0] as TapdNode;
+      expect(tapdNode.lndName).toBe('alice');
+      await updateTapBackendNode({ id, lndName: 'bob', tapName: 'alice-tap' });
+      expect(tapdNode.lndName).toBe('bob');
     });
 
     it('should throw an error if the network id is not valid', async () => {
-      const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: 999, taroName: 'alice-taro', lndName: 'alice' };
-      await expect(updateTaroBackendNode(args)).rejects.toThrow(
+      const { updateTapBackendNode } = store.getActions().network;
+      const args = { id: 999, tapName: 'alice-tap', lndName: 'alice' };
+      await expect(updateTapBackendNode(args)).rejects.toThrow(
         "Network with the id '999' was not found.",
       );
     });
 
-    it('should throw an error if the taro node name is not valid', async () => {
-      const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'xxx', lndName: 'alice' };
-      await expect(updateTaroBackendNode(args)).rejects.toThrow(
+    it('should throw an error if the tap node name is not valid', async () => {
+      const { updateTapBackendNode } = store.getActions().network;
+      const args = { id: firstNetwork().id, tapName: 'xxx', lndName: 'alice' };
+      await expect(updateTapBackendNode(args)).rejects.toThrow(
         "The node 'xxx' was not found.",
       );
     });
 
     it('should throw an error if the LND node name is not valid', async () => {
-      const { updateTaroBackendNode } = store.getActions().network;
-      const args = { id: firstNetwork().id, taroName: 'alice', lndName: 'xxx' };
-      await expect(updateTaroBackendNode(args)).rejects.toThrow(
+      const { updateTapBackendNode } = store.getActions().network;
+      const args = { id: firstNetwork().id, tapName: 'alice', lndName: 'xxx' };
+      await expect(updateTapBackendNode(args)).rejects.toThrow(
         "The node 'xxx' was not found.",
       );
     });
 
-    it('should throw an error if the LND node name is already set on the taro node', async () => {
-      const { updateTaroBackendNode } = store.getActions().network;
+    it('should throw an error if the LND node name is already set on the tap node', async () => {
+      const { updateTapBackendNode } = store.getActions().network;
       const args = {
         id: firstNetwork().id,
-        taroName: 'alice-taro',
+        tapName: 'alice-tap',
         lndName: 'alice',
       };
-      await expect(updateTaroBackendNode(args)).rejects.toThrow(
-        "The node 'alice-taro' is already connected to 'alice'",
+      await expect(updateTapBackendNode(args)).rejects.toThrow(
+        "The node 'alice-tap' is already connected to 'alice'",
       );
     });
   });

@@ -72,14 +72,14 @@ describe('LinkDetails component', () => {
     const { getByText } = renderComponent('backend1', 'fake', properties);
     expect(getByText(/select an invalid link/)).toBeInTheDocument();
   });
-  it('should display message for invalid Taro to lnd connection', () => {
+  it('should display message for invalid Tap to lnd connection', () => {
     const properties = { type: 'lndbackend' };
-    const { getByText } = renderComponent('alice-taro', 'fake', properties);
+    const { getByText } = renderComponent('alice-tap', 'fake', properties);
     expect(getByText(/select an invalid link/)).toBeInTheDocument();
   });
-  it('should display message for Taro to Lnd connection', () => {
+  it('should display message for Tap to Lnd connection', () => {
     const properties = { type: 'lndbackend' };
-    const { getByText } = renderComponent('alice-taro', 'alice', properties);
-    expect(getByText('Taro Backend Connection')).toBeInTheDocument();
+    const { getByText } = renderComponent('alice-tap', 'alice', properties);
+    expect(getByText('Tap Backend Connection')).toBeInTheDocument();
   });
 });

@@ -14,8 +14,8 @@ import {
   LndNode,
   NodeImplementation,
   Status,
-  TarodNode,
-  TaroNode,
+  TapdNode,
+  TapNode,
 } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import {
@@ -44,7 +44,7 @@ export const getNetworkBackendId = (node: BitcoinNode) =>
   `${node.networkId}-${node.name}`;
 
 const groupNodes = (network: Network) => {
-  const { bitcoin, lightning, taro } = network.nodes;
+  const { bitcoin, lightning, tap } = network.nodes;
   return {
     bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
     lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
@@ -52,7 +52,7 @@ const groupNodes = (network: Network) => {
       n => n.implementation === 'c-lightning',
     ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair') as EclairNode[],
-    tarod: taro.filter(n => n.implementation === 'tarod') as TarodNode[],
+    tapd: tap.filter(n => n.implementation === 'tapd') as TapdNode[],
   };
 };
 
@@ -110,15 +110,15 @@ export const getCLightningFilePaths = (
   };
 };
 
-export const getTarodFilePaths = (name: string, network: Network) => {
-  // returns /volumes/tarod/tarod-1
-  const tarodDataPath = nodePath(network, 'tarod', name);
+export const getTapdFilePaths = (name: string, network: Network) => {
+  // returns /volumes/tapd/tapd-1
+  const tapdDataPath = nodePath(network, 'tapd', name);
 
   return {
-    // returns /volumes/tarod/tarod-1/tls.cert
-    tlsCert: join(tarodDataPath, 'tls.cert'),
-    // returns /volumes/tarod/tarod-1/data/regtest/admin.macaroon
-    adminMacaroon: join(tarodDataPath, 'data', 'regtest', 'admin.macaroon'),
+    // returns /volumes/tapd/tapd-1/tls.cert
+    tlsCert: join(tapdDataPath, 'tls.cert'),
+    // returns /volumes/tapd/tapd-1/data/regtest/admin.macaroon
+    adminMacaroon: join(tapdDataPath, 'data', 'regtest', 'admin.macaroon'),
   };
 };
 
@@ -292,16 +292,16 @@ export const createBitcoindNetworkNode = (
 };
 
 const filterLndBackends = (
-  implementation: TaroNode['implementation'],
+  implementation: TapNode['implementation'],
   version: string,
   compatibility: DockerRepoImage['compatibility'],
   network: Network,
 ) => {
-  const { taro, lightning } = network.nodes;
+  const { tap, lightning } = network.nodes;
   const requiredVersion = (compatibility && compatibility[version]) || '';
-  const backendsInUse = taro
-    .filter(n => n.implementation === 'tarod')
-    .map(n => (n as TarodNode).lndName);
+  const backendsInUse = tap
+    .filter(n => n.implementation === 'tapd')
+    .map(n => (n as TapdNode).lndName);
   const lndBackends = lightning.filter(n => {
     if (n.implementation !== 'LND') return false;
     if (backendsInUse.includes(n.name)) return false;
@@ -320,32 +320,32 @@ const filterLndBackends = (
   return lndBackends[0];
 };
 
-export const createTarodNetworkNode = (
+export const createTapdNetworkNode = (
   network: Network,
   version: string,
   compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
-): TarodNode => {
-  const { taro } = network.nodes;
-  const implementation: TarodNode['implementation'] = 'tarod';
+): TapdNode => {
+  const { tap } = network.nodes;
+  const implementation: TapdNode['implementation'] = 'tapd';
   const lndBackend = filterLndBackends(implementation, version, compatibility, network);
 
-  const id = taro.length ? Math.max(...taro.map(n => n.id)) + 1 : 0;
-  const name = `${lndBackend.name}-taro`;
-  const node: TarodNode = {
+  const id = tap.length ? Math.max(...tap.map(n => n.id)) + 1 : 0;
+  const name = `${lndBackend.name}-tap`;
+  const node: TapdNode = {
     id,
     networkId: network.id,
     name: name,
-    type: 'taro',
+    type: 'tap',
     implementation,
     version,
     status,
     lndName: lndBackend.name,
-    paths: getTarodFilePaths(name, network),
+    paths: getTapdFilePaths(name, network),
     ports: {
-      rest: BasePorts.tarod.rest + id,
-      grpc: BasePorts.tarod.grpc + id,
+      rest: BasePorts.tapd.rest + id,
+      grpc: BasePorts.tapd.grpc + id,
     },
     docker,
   };
@@ -387,7 +387,7 @@ export const createNetwork = (config: {
     nodes: {
       bitcoin: [],
       lightning: [],
-      taro: [],
+      tap: [],
     },
     autoMineMode: AutoMineMode.AutoOff,
   };
@@ -586,7 +586,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  let { lnd, clightning, eclair, tarod } = groupNodes(network);
+  let { lnd, clightning, eclair, tapd } = groupNodes(network);
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);
@@ -674,22 +674,22 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  tarod = tarod.filter(n => n.status !== Status.Started);
-  if (tarod.length) {
-    let existingPorts = tarod.map(n => n.ports.grpc);
+  tapd = tapd.filter(n => n.status !== Status.Started);
+  if (tapd.length) {
+    let existingPorts = tapd.map(n => n.ports.grpc);
     let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[tarod[index].name] = { grpc: port };
+        ports[tapd[index].name] = { grpc: port };
       });
     }
 
-    existingPorts = tarod.map(n => n.ports.rest);
+    existingPorts = tapd.map(n => n.ports.rest);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[tarod[index].name] = {
-          ...(ports[tarod[index].name] || {}),
+        ports[tapd[index].name] = {
+          ...(ports[tapd[index].name] || {}),
           rest: port,
         };
       });
@@ -775,15 +775,13 @@ export const importNetworkFromZip = async (
       throw new Error(l('unknownImplementation', { implementation: ln.implementation }));
     }
   });
-  network.nodes.taro.forEach(taro => {
-    taro.networkId = id;
-    if (taro.implementation === 'tarod') {
-      const tarod = taro as TarodNode;
-      tarod.paths = getTarodFilePaths(tarod.name, network);
+  network.nodes.tap.forEach(tap => {
+    tap.networkId = id;
+    if (tap.implementation === 'tapd') {
+      const tapd = tap as TapdNode;
+      tapd.paths = getTapdFilePaths(tapd.name, network);
     } else {
-      throw new Error(
-        l('unknownImplementation', { implementation: taro.implementation }),
-      );
+      throw new Error(l('unknownImplementation', { implementation: tap.implementation }));
     }
   });
 

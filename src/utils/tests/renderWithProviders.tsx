@@ -6,7 +6,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
-import { LightningService, StoreInjections, TaroService } from 'types';
+import { LightningService, StoreInjections, TapService } from 'types';
 
 export const lightningServiceMock: jest.Mocked<LightningService> = {
   getInfo: jest.fn(),
@@ -21,7 +21,7 @@ export const lightningServiceMock: jest.Mocked<LightningService> = {
   payInvoice: jest.fn(),
   waitUntilOnline: jest.fn(),
 };
-export const taroServiceMock: jest.Mocked<TaroService> = {
+export const tapServiceMock: jest.Mocked<TapService> = {
   listAssets: jest.fn(),
   listBalances: jest.fn(),
   waitUntilOnline: jest.fn(),
@@ -70,8 +70,8 @@ export const injections: StoreInjections = {
   lightningFactory: {
     getService: () => lightningServiceMock,
   },
-  taroFactory: {
-    getService: () => taroServiceMock,
+  tapFactory: {
+    getService: () => tapServiceMock,
   },
 };
 

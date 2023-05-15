@@ -4,7 +4,7 @@ import { Dropdown, MenuProps } from 'antd';
 import { useStoreState } from 'store';
 import { LinkProperties } from 'utils/chart';
 import ChangeBackendButton from './link/ChangeBackendButton';
-import ChangeTaroBackendButton from './link/ChangeTaroBackendButton';
+import ChangeTapBackendButton from './link/ChangeTapBackendButton';
 import CloseChannelButton from './link/CloseChannelButton';
 
 interface Props {
@@ -40,9 +40,9 @@ const LinkContextMenu: React.FC<Props> = ({ link, children }) => {
     );
   } else if (type === 'lndbackend') {
     menuItem = (
-      <ChangeTaroBackendButton
+      <ChangeTapBackendButton
         type="menu"
-        taroName={link.from.nodeId}
+        tapName={link.from.nodeId}
         lndName={link.to.nodeId as string}
       />
     );

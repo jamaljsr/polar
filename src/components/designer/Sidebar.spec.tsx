@@ -54,10 +54,10 @@ describe('Sidebar Component', () => {
     expect(await findByText('LND')).toBeInTheDocument();
   });
 
-  it('should display tarod details', async () => {
-    const { findByText } = renderComponent('node', 'alice-taro');
-    expect(await findByText('taro')).toBeInTheDocument();
-    expect(await findByText('Taro')).toBeInTheDocument();
+  it('should display tapd details', async () => {
+    const { findByText } = renderComponent('node', 'alice-tap');
+    expect(await findByText('tap')).toBeInTheDocument();
+    expect(await findByText('Taproot Assets')).toBeInTheDocument();
   });
 
   it('should not display details of a selected invalid node', () => {

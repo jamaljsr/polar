@@ -27,7 +27,7 @@ describe('NetworkCard component', () => {
     expect(getByText('my network 1')).toBeInTheDocument();
   });
 
-  it('should display the number of lightning and taro nodes', () => {
+  it('should display the number of lightning and tap nodes', () => {
     const { getAllByText } = renderComponent();
     expect(getAllByText('4')).toHaveLength(2);
   });

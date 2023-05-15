@@ -4,11 +4,11 @@ import {
   CommonNode,
   EclairNode,
   LndNode,
-  TarodNode,
+  TapdNode,
 } from 'shared/types';
 import { bitcoinCredentials, dockerConfigs, eclairCredentials } from 'utils/constants';
 import { getContainerName } from 'utils/network';
-import { bitcoind, clightning, eclair, lnd, tarod } from './nodeTemplates';
+import { bitcoind, clightning, eclair, lnd, tapd } from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -143,7 +143,7 @@ class ComposeFile {
     this.content.services[name] = eclair(name, container, image, rest, p2p, command);
   }
 
-  addTarod(node: TarodNode, lndBackend: LndNode) {
+  addTapd(node: TapdNode, lndBackend: LndNode) {
     const { name, version, ports } = node;
     const { rest, grpc } = ports;
     const container = getContainerName(node);
@@ -154,13 +154,13 @@ class ComposeFile {
       lndName: getContainerName(lndBackend),
     };
     // use the node's custom image or the default for the implementation
-    const image = node.docker.image || `${dockerConfigs.tarod.imageName}:${version}`;
+    const image = node.docker.image || `${dockerConfigs.tapd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs.tarod.command;
+    const nodeCommand = node.docker.command || dockerConfigs.tapd.command;
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = tarod(
+    this.content.services[name] = tapd(
       name,
       container,
       image,

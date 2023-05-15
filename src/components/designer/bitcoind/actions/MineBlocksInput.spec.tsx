@@ -6,7 +6,7 @@ import {
   injections,
   lightningServiceMock,
   renderWithProviders,
-  taroServiceMock,
+  tapServiceMock,
 } from 'utils/tests';
 import MineBlocksInput from './MineBlocksInput';
 
@@ -103,10 +103,10 @@ describe('MineBlocksInput', () => {
     expect(await findByText('info-error')).toBeInTheDocument();
   });
 
-  it('should display an error if taro nodes cannot update after mining', async () => {
+  it('should display an error if tap nodes cannot update after mining', async () => {
     const mineMock = injections.bitcoindService.mine as jest.Mock;
     mineMock.mockResolvedValue(true);
-    taroServiceMock.listAssets.mockRejectedValueOnce(new Error('info-error'));
+    tapServiceMock.listAssets.mockRejectedValueOnce(new Error('info-error'));
     const { input, btn, findByText } = renderComponent(Status.Started);
     const numBlocks = 5;
     fireEvent.change(input, { target: { value: numBlocks } });

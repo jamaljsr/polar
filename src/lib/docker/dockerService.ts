@@ -13,7 +13,7 @@ import {
   EclairNode,
   LightningNode,
   LndNode,
-  TarodNode,
+  TapdNode,
 } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
@@ -123,7 +123,7 @@ class DockerService implements DockerLibrary {
    */
   async saveComposeFile(network: Network) {
     const file = new ComposeFile();
-    const { bitcoin, lightning, taro } = network.nodes;
+    const { bitcoin, lightning, tap } = network.nodes;
 
     bitcoin.forEach(node => file.addBitcoind(node));
     lightning.forEach(node => {
@@ -143,13 +143,13 @@ class DockerService implements DockerLibrary {
         file.addEclair(eclair, backend);
       }
     });
-    taro.forEach(node => {
-      if (node.implementation === 'tarod') {
-        const tarod = node as TarodNode;
+    tap.forEach(node => {
+      if (node.implementation === 'tapd') {
+        const tapd = node as TapdNode;
         const lndBackend =
-          lightning.find(n => n.name === tarod.lndName) ||
+          lightning.find(n => n.name === tapd.lndName) ||
           lightning.filter(n => n.implementation === 'LND')[0];
-        file.addTarod(tarod, lndBackend as LndNode);
+        file.addTapd(tapd, lndBackend as LndNode);
       }
     });
 

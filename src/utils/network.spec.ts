@@ -5,7 +5,7 @@ import { defaultRepoState } from './constants';
 import {
   createCLightningNetworkNode,
   createLndNetworkNode,
-  createTarodNetworkNode,
+  createTapdNetworkNode,
   getImageCommand,
   getOpenPortRange,
   getOpenPorts,
@@ -185,8 +185,8 @@ describe('Network Utils', () => {
       expect(ports).toBeUndefined();
     });
 
-    it('should update the grpc ports for Taro nodes', async () => {
-      network = getNetwork(1, 'taro network', undefined, 3);
+    it('should update the grpc ports for Tap nodes', async () => {
+      network = getNetwork(1, 'tap network', undefined, 3);
       const portsInUse = [12030];
       mockDetectPort.mockImplementation(port =>
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
@@ -195,13 +195,13 @@ describe('Network Utils', () => {
       network.nodes.lightning = [];
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
-      expect(ports[network.nodes.taro[0].name].grpc).toBe(12029);
-      expect(ports[network.nodes.taro[1].name].grpc).toBe(12031);
-      expect(ports[network.nodes.taro[2].name].grpc).toBe(12032);
+      expect(ports[network.nodes.tap[0].name].grpc).toBe(12029);
+      expect(ports[network.nodes.tap[1].name].grpc).toBe(12031);
+      expect(ports[network.nodes.tap[2].name].grpc).toBe(12032);
     });
 
-    it('should update the rest ports for Taro nodes', async () => {
-      network = getNetwork(1, 'taro network', undefined, 3);
+    it('should update the rest ports for Tap nodes', async () => {
+      network = getNetwork(1, 'tap network', undefined, 3);
       const portsInUse = [8290];
       mockDetectPort.mockImplementation(port =>
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
@@ -210,13 +210,13 @@ describe('Network Utils', () => {
       network.nodes.lightning = [];
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
-      expect(ports[network.nodes.taro[0].name].rest).toBe(8289);
-      expect(ports[network.nodes.taro[1].name].rest).toBe(8291);
-      expect(ports[network.nodes.taro[2].name].rest).toBe(8292);
+      expect(ports[network.nodes.tap[0].name].rest).toBe(8289);
+      expect(ports[network.nodes.tap[1].name].rest).toBe(8291);
+      expect(ports[network.nodes.tap[2].name].rest).toBe(8292);
     });
 
-    it('should not update Taro ports if none are in use', async () => {
-      network = getNetwork(1, 'taro network', undefined, 3);
+    it('should not update Tap ports if none are in use', async () => {
+      network = getNetwork(1, 'tap network', undefined, 3);
       const portsInUse: number[] = [];
       mockDetectPort.mockImplementation(port =>
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
@@ -245,10 +245,10 @@ describe('Network Utils', () => {
     let network: Network;
 
     beforeEach(() => {
-      network = getNetwork(1, 'taro network', undefined, 3);
+      network = getNetwork(1, 'tap network', undefined, 3);
     });
 
-    it('should add a taro node to the network', async () => {
+    it('should add a tap node to the network', async () => {
       const lnd = createLndNetworkNode(
         network,
         defaultRepoState.images.LND.latest,
@@ -258,18 +258,18 @@ describe('Network Utils', () => {
       );
       network.nodes.lightning.push(lnd);
       expect(network.nodes.lightning.length).toBe(4);
-      const taro = createTarodNetworkNode(
+      const tap = createTapdNetworkNode(
         network,
-        defaultRepoState.images.tarod.latest,
-        defaultRepoState.images.tarod.compatibility,
+        defaultRepoState.images.tapd.latest,
+        defaultRepoState.images.tapd.compatibility,
         { image: '', command: '' },
         Status.Stopped,
       );
-      network.nodes.taro.push(taro);
-      expect(network.nodes.taro.length).toBe(4);
+      network.nodes.tap.push(tap);
+      expect(network.nodes.tap.length).toBe(4);
     });
 
-    it('should add a taro node linked to the exact minimum LND version', async () => {
+    it('should add a tap node linked to the exact minimum LND version', async () => {
       const lnd = createLndNetworkNode(
         network,
         '0.16.0-beta',
@@ -279,18 +279,18 @@ describe('Network Utils', () => {
       );
       network.nodes.lightning.push(lnd);
       expect(network.nodes.lightning.length).toBe(4);
-      const taro = createTarodNetworkNode(
+      const tap = createTapdNetworkNode(
         network,
-        defaultRepoState.images.tarod.latest,
-        defaultRepoState.images.tarod.compatibility,
+        defaultRepoState.images.tapd.latest,
+        defaultRepoState.images.tapd.compatibility,
         { image: '', command: '' },
         Status.Stopped,
       );
-      network.nodes.taro.push(taro);
-      expect(network.nodes.taro.length).toBe(4);
+      network.nodes.tap.push(tap);
+      expect(network.nodes.tap.length).toBe(4);
     });
 
-    it('should fail to create a taro node without a compatible LND version', async () => {
+    it('should fail to create a tap node without a compatible LND version', async () => {
       const lnd = createLndNetworkNode(
         network,
         '0.15.5-beta',
@@ -302,21 +302,21 @@ describe('Network Utils', () => {
       expect(network.nodes.lightning.length).toBe(4);
 
       const createNode = () =>
-        createTarodNetworkNode(
+        createTapdNetworkNode(
           network,
           '0.2.0-alpha',
-          defaultRepoState.images.tarod.compatibility,
+          defaultRepoState.images.tapd.compatibility,
           { image: '', command: '' },
           Status.Stopped,
         );
       expect(() => createNode()).toThrowError(
         new Error(
-          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tarod v0.2.0-alpha',
+          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tapd v0.2.0-alpha',
         ),
       );
     });
 
-    it('should fail to create a taro node with no LND nodes left', async () => {
+    it('should fail to create a tap node with no LND nodes left', async () => {
       const cln = createCLightningNetworkNode(
         network,
         defaultRepoState.images['c-lightning'].latest,
@@ -327,16 +327,16 @@ describe('Network Utils', () => {
       network.nodes.lightning.push(cln);
 
       const createNode = () =>
-        createTarodNetworkNode(
+        createTapdNetworkNode(
           network,
           '0.2.0-alpha',
-          defaultRepoState.images.tarod.compatibility,
+          defaultRepoState.images.tapd.compatibility,
           { image: '', command: '' },
           Status.Stopped,
         );
       expect(() => createNode()).toThrowError(
         new Error(
-          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tarod v0.2.0-alpha',
+          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tapd v0.2.0-alpha',
         ),
       );
     });

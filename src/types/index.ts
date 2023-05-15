@@ -1,4 +1,4 @@
-import * as TARO from '@hodlone/taro-api';
+import * as TAP from '@hodlone/taro-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import {
@@ -8,11 +8,11 @@ import {
   NodeImplementation,
   OpenChannelOptions,
   Status,
-  TaroNode,
+  TapNode,
 } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
-import * as PTARO from 'lib/taro/types';
+import * as PTAP from 'lib/tap/types';
 import { PolarPlatform } from 'utils/system';
 
 export interface Network {
@@ -24,7 +24,7 @@ export interface Network {
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];
-    taro: TaroNode[];
+    tap: TapNode[];
   };
 }
 
@@ -161,34 +161,30 @@ export interface LightningFactoryInjection {
   getService: (node: LightningNode) => LightningService;
 }
 
-export interface TaroService {
-  waitUntilOnline: (node: TaroNode) => Promise<void>;
-  listAssets: (node: TaroNode) => Promise<PTARO.TaroAsset[]>;
-  listBalances: (node: TaroNode) => Promise<PTARO.TaroBalance[]>;
+export interface TapService {
+  waitUntilOnline: (node: TapNode) => Promise<void>;
+  listAssets: (node: TapNode) => Promise<PTAP.TapAsset[]>;
+  listBalances: (node: TapNode) => Promise<PTAP.TapBalance[]>;
   mintAsset: (
-    node: TaroNode,
-    req: TARO.MintAssetRequestPartial,
-  ) => Promise<TARO.MintAssetResponse>;
-  finalizeBatch: (node: TaroNode) => Promise<TARO.FinalizeBatchResponse>;
-  newAddress: (
-    node: TaroNode,
-    assetId: string,
-    amt: string,
-  ) => Promise<PTARO.TaroAddress>;
+    node: TapNode,
+    req: TAP.MintAssetRequestPartial,
+  ) => Promise<TAP.MintAssetResponse>;
+  finalizeBatch: (node: TapNode) => Promise<TAP.FinalizeBatchResponse>;
+  newAddress: (node: TapNode, assetId: string, amt: string) => Promise<PTAP.TapAddress>;
   sendAsset: (
-    from: TaroNode,
-    req: TARO.SendAssetRequestPartial,
-  ) => Promise<PTARO.TaroSendAssetReceipt>;
+    from: TapNode,
+    req: TAP.SendAssetRequestPartial,
+  ) => Promise<PTAP.TapSendAssetReceipt>;
   decodeAddress: (
-    node: TaroNode,
-    req: TARO.DecodeAddrRequestPartial,
-  ) => Promise<PTARO.TaroAddress>;
-  assetRoots: (node: TaroNode) => Promise<PTARO.TaroAssetRoot[]>;
-  syncUniverse: (node: TaroNode, universeHost: string) => Promise<TARO.SyncResponse>;
+    node: TapNode,
+    req: TAP.DecodeAddrRequestPartial,
+  ) => Promise<PTAP.TapAddress>;
+  assetRoots: (node: TapNode) => Promise<PTAP.TapAssetRoot[]>;
+  syncUniverse: (node: TapNode, universeHost: string) => Promise<TAP.SyncResponse>;
 }
 
-export interface TaroFactoryInjection {
-  getService: (node: TaroNode) => TaroService;
+export interface TapFactoryInjection {
+  getService: (node: TapNode) => TapService;
 }
 
 export interface StoreInjections {
@@ -198,7 +194,7 @@ export interface StoreInjections {
   repoService: RepoServiceInjection;
   bitcoindService: BitcoindLibrary;
   lightningFactory: LightningFactoryInjection;
-  taroFactory: TaroFactoryInjection;
+  tapFactory: TapFactoryInjection;
 }
 
 export interface NetworksFile {
