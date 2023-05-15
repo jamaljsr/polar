@@ -150,25 +150,25 @@ Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
 $ docker push polarlightning/eclair:<version>
 ```
 
-## Taro
+## Taproot Assets Protocol
 
 ### Tags
 
-- `0.1.1-alpha` ([taro/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/taro/Dockerfile))
+- `0.2.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tap/Dockerfile))
 
 **Building the image**
 
 ```sh
-$ cd tarod
-$ docker build --build-arg TAROD_VERSION=<version> -t polarlightning/tarod:<version> .
+$ cd tapd
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg TAPD_VERSION=<version> -t polarlightning/tapd:<version> --push  .
 ```
 
-Replace `<version>` with the desired Taro version (ex: `0.1.1-alpha`).
+Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
 
 **Push to Docker Hub**
 
 ```sh
-$ docker push polarlightning/tarod:<version>
+$ docker push polarlightning/tapd:<version>
 ```
 
 # Out-of-Band Image Updates

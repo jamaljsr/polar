@@ -105,7 +105,7 @@ describe('App model', () => {
           eclair: [],
           bitcoind: [],
           btcd: [],
-          tarod: [],
+          tapd: [],
         },
       });
 

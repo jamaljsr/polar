@@ -3,7 +3,7 @@ import {
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
-import { TaroAddress, TaroAsset, TaroBalance } from 'lib/taro/types';
+import { TapAddress, TapAsset, TapBalance } from 'lib/tap/types';
 
 export const defaultStateInfo = (
   value: Partial<LightningNodeInfo>,
@@ -43,7 +43,7 @@ export const defaultStateChannel = (
   ...value,
 });
 
-export const defaultTaroAsset = (value: Partial<TaroAsset>): TaroAsset => ({
+export const defaultTapAsset = (value: Partial<TapAsset>): TapAsset => ({
   id: '',
   name: '',
   type: '',
@@ -54,7 +54,7 @@ export const defaultTaroAsset = (value: Partial<TaroAsset>): TaroAsset => ({
   ...value,
 });
 
-export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => ({
+export const defaultTapBalance = (value: Partial<TapBalance>): TapBalance => ({
   id: '',
   name: '',
   type: '',
@@ -64,7 +64,7 @@ export const defaultTaroBalance = (value: Partial<TaroBalance>): TaroBalance => 
   ...value,
 });
 
-export const defaultTaroAddress = (value: Partial<TaroAddress>): TaroAddress => ({
+export const defaultTapAddress = (value: Partial<TapAddress>): TapAddress => ({
   encoded: '',
   id: '',
   type: '',

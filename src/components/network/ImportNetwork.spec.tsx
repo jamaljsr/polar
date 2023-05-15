@@ -157,8 +157,8 @@ describe('ImportNetwork component', () => {
     expect(await findByText(msg)).toBeInTheDocument();
   });
 
-  it('should import a Taro network successfully', async () => {
-    network = getNetwork(1, 'taro network', Status.Stopped, 2);
+  it('should import a Tap network successfully', async () => {
+    network = getNetwork(1, 'tap network', Status.Stopped, 2);
     chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
     const { queryByLabelText, findByText, fileInput } = renderComponent();
@@ -166,14 +166,14 @@ describe('ImportNetwork component', () => {
     fireEvent.change(fileInput);
     expect(queryByLabelText('loading')).toBeInTheDocument();
     expect(
-      await findByText("Imported network 'taro network' successfully"),
+      await findByText("Imported network 'tap network' successfully"),
     ).toBeInTheDocument();
   });
 
-  it('should throw for an unknown Taro implementation', async () => {
-    network = getNetwork(1, 'taro network', Status.Stopped, 2);
+  it('should throw for an unknown Tap implementation', async () => {
+    network = getNetwork(1, 'tap network', Status.Stopped, 2);
     chart = initChartFromNetwork(network);
-    network.nodes.taro[0].implementation = 'asdf' as any;
+    network.nodes.tap[0].implementation = 'asdf' as any;
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
     const { findByText, fileInput } = renderComponent();
     fireEvent.change(fileInput);

@@ -4,7 +4,7 @@ import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import lndLogo from 'resources/lnd.png';
-import taroLogo from 'resources/taro.svg';
+import tapLogo from 'resources/tap.svg';
 import packageJson from '../../package.json';
 
 // App
@@ -66,7 +66,7 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     p2p: 9935,
   },
   btcd: {},
-  tarod: {
+  tapd: {
     grpc: 12029,
     rest: 8289,
   },
@@ -212,14 +212,14 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     command: '',
     variables: [],
   },
-  tarod: {
-    name: 'Taro',
-    imageName: 'polarlightning/tarod',
-    logo: taroLogo,
+  tapd: {
+    name: 'Taproot Assets',
+    imageName: 'polarlightning/tapd',
+    logo: tapLogo,
     platforms: ['mac', 'linux', 'windows'],
-    volumeDirName: 'tarod',
+    volumeDirName: 'tapd',
     command: [
-      'tarod',
+      'tapd',
       '--network=regtest',
       '--debuglevel=debug',
       '--tlsextradomain={{name}}',
@@ -227,8 +227,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--rpclisten=0.0.0.0:10029',
       '--restlisten=0.0.0.0:8089',
       '--lnd.host={{lndName}}:10009',
-      '--lnd.macaroonpath=/home/taro/.lnd/data/chain/bitcoin/regtest/admin.macaroon',
-      '--lnd.tlspath=/home/taro/.lnd/tls.cert',
+      '--lnd.macaroonpath=/home/tap/.lnd/data/chain/bitcoin/regtest/admin.macaroon',
+      '--lnd.tlspath=/home/tap/.lnd/tls.cert',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'lndName'],
@@ -287,7 +287,7 @@ export const defaultRepoState: DockerRepoState = {
       latest: '',
       versions: [],
     },
-    tarod: {
+    tapd: {
       latest: '0.2.0-alpha',
       versions: ['0.2.0-alpha'],
       compatibility: {

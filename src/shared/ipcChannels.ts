@@ -1,5 +1,5 @@
 export default {
-  // general app chnnels
+  // general app channels
   openWindow: 'open-window',
   clearCache: 'clear-cache',
   http: 'http',
@@ -18,17 +18,17 @@ export default {
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',
-  // tarod proxy channels
-  taro: {
-    listAssets: 'taro-list-assets',
-    listBalances: 'taro-list-balances',
-    mintAsset: 'taro-mint-asset',
-    finalizeBatch: 'taro-finalize-batch',
-    newAddress: 'taro-new-address',
-    sendAsset: 'taro-send-asset',
-    decodeAddress: 'taro-decode-address',
-    assetRoots: 'taro-asset-roots',
-    assetLeaves: 'taro-asset-leaves',
-    syncUniverse: 'taro-sync-universe',
+  // tapd proxy channels
+  tapd: {
+    listAssets: 'tapd-list-assets',
+    listBalances: 'tapd-list-balances',
+    mintAsset: 'tapd-mint-asset',
+    finalizeBatch: 'tapd-finalize-batch',
+    newAddress: 'tapd-new-address',
+    sendAsset: 'tapd-send-asset',
+    decodeAddress: 'tapd-decode-address',
+    assetRoots: 'tapd-asset-roots',
+    assetLeaves: 'tapd-asset-leaves',
+    syncUniverse: 'tapd-sync-universe',
   },
 };

@@ -7,7 +7,7 @@ import { dockerService, repoService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { LightningFactory } from 'lib/lightning';
 import { settingsService } from 'lib/settings';
-import { TaroFactory } from 'lib/taro';
+import { TapFactory } from 'lib/tap';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
 
@@ -62,7 +62,7 @@ const injections: StoreInjections = {
   repoService,
   bitcoindService,
   lightningFactory: new LightningFactory(),
-  taroFactory: new TaroFactory(),
+  tapFactory: new TapFactory(),
 };
 
 const store = createReduxStore({ injections });

@@ -11,12 +11,12 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { AnyNode, LndNode, Status, TarodNode } from 'shared/types';
+import { AnyNode, LndNode, Status, TapdNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createBitcoinChartNode,
   createLightningChartNode,
-  createTarodChartNode,
+  createTapdChartNode,
   rotate,
   snap,
   updateChartFromNodes,
@@ -43,7 +43,7 @@ export interface DesignerModel {
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
   updateBackendLink: Action<DesignerModel, { lnName: string; backendName: string }>;
-  updateTaroBackendLink: Action<DesignerModel, { taroName: string; lndName: string }>;
+  updateTapBackendLink: Action<DesignerModel, { tapName: string; lndName: string }>;
   removeNode: Action<DesignerModel, string>;
   addNode: Action<DesignerModel, { newNode: AnyNode; position: IPosition }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
@@ -127,9 +127,9 @@ const designerModel: DesignerModel = {
           .map(getStoreActions().lightning.getAllInfo),
       );
       await Promise.all(
-        network.nodes.taro
+        network.nodes.tap
           .filter(n => n.status === Status.Started)
-          .map(getStoreActions().taro.getAllInfo),
+          .map(getStoreActions().tap.getAllInfo),
       );
 
       const nodesData = getStoreState().lightning.nodes;
@@ -183,18 +183,18 @@ const designerModel: DesignerModel = {
       },
     };
   }),
-  updateTaroBackendLink: action((state, { taroName, lndName }) => {
+  updateTapBackendLink: action((state, { tapName, lndName }) => {
     const chart = state.allCharts[state.activeId];
-    // remove the old taro -> ln link
+    // remove the old tap -> ln link
     const prevLink = Object.values(chart.links).find(
-      l => l.from.nodeId === taroName && l.from.portId === 'lndbackend',
+      l => l.from.nodeId === tapName && l.from.portId === 'lndbackend',
     );
     if (prevLink) delete chart.links[prevLink.id];
     // create a new link using the standard naming convention
-    const newId = `${taroName}-${lndName}`;
+    const newId = `${tapName}-${lndName}`;
     chart.links[newId] = {
       id: newId,
-      from: { nodeId: taroName, portId: 'lndbackend' },
+      from: { nodeId: tapName, portId: 'lndbackend' },
       to: { nodeId: lndName, portId: 'lndbackend' },
       properties: {
         type: 'lndbackend',
@@ -220,7 +220,7 @@ const designerModel: DesignerModel = {
         ? createLightningChartNode(newNode)
         : newNode.type === 'bitcoin'
         ? createBitcoinChartNode(newNode)
-        : createTarodChartNode(newNode as TarodNode);
+        : createTapdChartNode(newNode as TapdNode);
     node.position = position;
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
@@ -265,29 +265,29 @@ const designerModel: DesignerModel = {
       } else if (fromNode.type === 'bitcoin' && toNode.type === 'bitcoin') {
         // connecting bitcoin to bitcoin isn't supported
         return showError(l('linkErrBitcoin'));
-      } else if (fromNode.type === 'taro' || toNode.type === 'taro') {
-        if (fromNode.type === 'taro' && toNode.type === 'taro') {
-          //connecting taro to taro isn't supported
-          return showError(l('linkErrTarod'));
+      } else if (fromNode.type === 'tap' || toNode.type === 'tap') {
+        if (fromNode.type === 'tap' && toNode.type === 'tap') {
+          //connecting tap to tap isn't supported
+          return showError(l('linkErrTapd'));
         }
-        const taroName = fromNode.type === 'taro' ? fromNodeId : toNodeId;
-        const lndName = fromNode.type === 'taro' ? toNodeId : fromNodeId;
+        const tapName = fromNode.type === 'tap' ? fromNodeId : toNodeId;
+        const lndName = fromNode.type === 'tap' ? toNodeId : fromNodeId;
         const lnNetworkNode = network.nodes.lightning.find(
           n => n.name === lndName && n.implementation === 'LND',
         ) as LndNode;
         if (!lnNetworkNode) {
           return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
         }
-        const taroNode = network.nodes.taro.find(n => n.name === taroName) as TarodNode;
-        const macaroonPresent = await exists(taroNode.paths.adminMacaroon);
+        const tapNode = network.nodes.tap.find(n => n.name === tapName) as TapdNode;
+        const macaroonPresent = await exists(tapNode.paths.adminMacaroon);
         if (!macaroonPresent) {
-          getStoreActions().modals.showChangeTaroBackend({
+          getStoreActions().modals.showChangeTapBackend({
             lndName,
-            taroName,
+            tapName,
             linkId,
           });
         } else {
-          return showError(l('tarodBackendError'));
+          return showError(l('tapdBackendError'));
         }
       } else {
         // connecting an LN node to a bitcoin node
@@ -315,7 +315,7 @@ const designerModel: DesignerModel = {
         // remove the loading node added in onCanvasDrop
         actions.removeNode(LOADING_NODE_ID);
       } else if (
-        ['LND', 'c-lightning', 'eclair', 'bitcoind', 'tarod'].includes(data.type)
+        ['LND', 'c-lightning', 'eclair', 'bitcoind', 'tapd'].includes(data.type)
       ) {
         const { addNode, toggleNode } = getStoreActions().network;
         try {

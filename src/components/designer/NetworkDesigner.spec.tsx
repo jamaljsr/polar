@@ -42,9 +42,9 @@ describe('NetworkDesigner Component', () => {
           alice: {},
         },
       },
-      taro: {
+      tap: {
         nodes: {
-          'alice-taro': {},
+          'alice-tap': {},
         },
       },
     };
@@ -147,13 +147,13 @@ describe('NetworkDesigner Component', () => {
     expect(await findByText('BOLT 11 Invoice')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
-  it('should display the ChangeTaroBackend modal', async () => {
+  it('should display the ChangeTapBackend modal', async () => {
     const { findAllByText, findByText, getAllByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
-      store.getActions().modals.showChangeTaroBackend({});
+      store.getActions().modals.showChangeTapBackend({});
     });
-    expect(await findAllByText('Change Taro Node Backend')).toHaveLength(1);
+    expect(await findAllByText('Change Tap Node Backend')).toHaveLength(1);
     fireEvent.click(getAllByText('Cancel')[0]);
   });
 
@@ -181,9 +181,9 @@ describe('NetworkDesigner Component', () => {
     const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
-      store.getActions().modals.showMintAsset({ nodeName: 'alice-taro' });
+      store.getActions().modals.showMintAsset({ nodeName: 'alice-tap' });
     });
-    expect(await findByText('Mint an asset for alice-taro')).toBeInTheDocument();
+    expect(await findByText('Mint an asset for alice-tap')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
@@ -191,10 +191,10 @@ describe('NetworkDesigner Component', () => {
     const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
-      store.getActions().modals.showNewAddress({ nodeName: 'alice-taro' });
+      store.getActions().modals.showNewAddress({ nodeName: 'alice-tap' });
     });
     expect(
-      await findByText('Generate new Taro address for alice-taro'),
+      await findByText('Generate new Tap address for alice-tap'),
     ).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
@@ -202,9 +202,9 @@ describe('NetworkDesigner Component', () => {
     const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
     act(() => {
-      store.getActions().modals.showSendAsset({ nodeName: 'alice-taro' });
+      store.getActions().modals.showSendAsset({ nodeName: 'alice-tap' });
     });
-    expect(await findByText('Send Asset from alice-taro')).toBeInTheDocument();
+    expect(await findByText('Send Asset from alice-tap')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
@@ -231,17 +231,17 @@ describe('NetworkDesigner Component', () => {
     expect(queryByText('alice')).toBeNull();
   });
 
-  it('should remove a Taro node from the network', async () => {
+  it('should remove a Tap node from the network', async () => {
     const { getByText, findByText, queryByText } = renderComponent();
-    expect(await findByText('alice-taro')).toBeInTheDocument();
+    expect(await findByText('alice-tap')).toBeInTheDocument();
     act(() => {
-      fireEvent.click(getByText('alice-taro'));
+      fireEvent.click(getByText('alice-tap'));
     });
     fireEvent.click(await findByText('Actions'));
     fireEvent.click(await findByText('Remove'));
     fireEvent.click(await findByText('Yes'));
     await waitForElementToBeRemoved(() => queryByText('Yes'));
-    expect(queryByText('alice-taro')).toBeNull();
+    expect(queryByText('alice-tap')).toBeNull();
   });
 
   it('should render the dark links', async () => {

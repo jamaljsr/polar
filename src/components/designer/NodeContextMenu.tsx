@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, MenuProps } from 'antd';
-import { BitcoinNode, LightningNode, Status, TaroNode } from 'shared/types';
+import { BitcoinNode, LightningNode, Status, TapNode } from 'shared/types';
 import { useStoreState } from 'store';
 import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
-import { MintAssetButton, NewAddressButton, SendAssetButton } from './taro/actions';
+import { MintAssetButton, NewAddressButton, SendAssetButton } from './tap/actions';
 
 const addItemIf = (
   key: string,
@@ -32,12 +32,12 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   if (!network) return <>{children}</>;
 
   // find the network node by name
-  const { bitcoin, lightning, taro } = network.nodes;
-  const node = [...bitcoin, ...lightning, ...taro].find(n => n.name === id);
+  const { bitcoin, lightning, tap } = network.nodes;
+  const node = [...bitcoin, ...lightning, ...tap].find(n => n.name === id);
   // don't add a context menu if the node is not valid
   if (!node) return <>{children}</>;
 
-  const isTaro = node.type === 'taro';
+  const isTap = node.type === 'tap';
   const isLN = node.type === 'lightning';
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
@@ -46,18 +46,18 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   items = items.concat(
     addItemIf(
       'sendAsset',
-      <SendAssetButton type={'menu'} node={node as TaroNode} />,
-      isStarted && isTaro,
+      <SendAssetButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
     ),
     addItemIf(
       'newAddress',
-      <NewAddressButton type={'menu'} node={node as TaroNode} />,
-      isStarted && isTaro,
+      <NewAddressButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
     ),
     addItemIf(
       'mintAsset',
-      <MintAssetButton type={'menu'} node={node as TaroNode} />,
-      isStarted && isTaro,
+      <MintAssetButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
     ),
     addItemIf(
       'inv',

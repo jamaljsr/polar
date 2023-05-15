@@ -9,7 +9,7 @@ import SyncButton from '../SyncButton';
 import Backend from './Backend';
 import Channel from './Channel';
 import Peer from './Peer';
-import TaroBackend from './TaroBackend';
+import TapBackend from './TapBackend';
 
 interface Props {
   link: ILink;
@@ -25,7 +25,7 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
     </SidebarCard>
   );
 
-  const { bitcoin, lightning, taro } = network.nodes;
+  const { bitcoin, lightning, tap } = network.nodes;
   const { type } = (link.properties as LinkProperties) || {};
   switch (type) {
     case 'backend':
@@ -51,10 +51,10 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
       }
       break;
     case 'lndbackend':
-      const taroNode = taro.find(n => n.name === link.from.nodeId);
+      const tapNode = tap.find(n => n.name === link.from.nodeId);
       const lndNode = lightning.find(n => n.name === link.to.nodeId);
-      if (taroNode && lndNode) {
-        cmp = <TaroBackend from={taroNode} to={lndNode as LndNode} />;
+      if (tapNode && lndNode) {
+        cmp = <TapBackend from={tapNode} to={lndNode as LndNode} />;
       }
   }
 

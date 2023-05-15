@@ -10,7 +10,7 @@ export interface CommonNode {
   id: number;
   networkId: number;
   name: string;
-  type: 'bitcoin' | 'lightning' | 'taro';
+  type: 'bitcoin' | 'lightning' | 'tap';
   version: string;
   status: Status;
   errorMsg?: string;
@@ -74,13 +74,13 @@ export interface BitcoinNode extends CommonNode {
   };
 }
 
-export interface TaroNode extends CommonNode {
-  type: 'taro';
-  implementation: 'tarod';
+export interface TapNode extends CommonNode {
+  type: 'tap';
+  implementation: 'tapd';
   ports: Record<string, number | undefined>;
 }
 
-export interface TarodNode extends TaroNode {
+export interface TapdNode extends TapNode {
   lndName: string;
   paths: {
     tlsCert: string;
@@ -95,9 +95,9 @@ export interface TarodNode extends TaroNode {
 export type NodeImplementation =
   | BitcoinNode['implementation']
   | LightningNode['implementation']
-  | TaroNode['implementation'];
+  | TapNode['implementation'];
 
-export type AnyNode = BitcoinNode | LightningNode | TaroNode;
+export type AnyNode = BitcoinNode | LightningNode | TapNode;
 
 export interface OpenChannelOptions {
   from: LightningNode;

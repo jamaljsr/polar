@@ -19,11 +19,11 @@ import {
 } from './lightning/actions';
 import Sidebar from './Sidebar';
 import {
-  ChangeTaroBackendModal,
+  ChangeTapBackendModal,
   MintAssetModal,
   NewAddressModal,
   SendAssetModal,
-} from './taro/actions';
+} from './tap/actions';
 
 const Styled = {
   Designer: styled.div`
@@ -60,7 +60,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     changeBackend,
     sendOnChain,
     advancedOptions,
-    changeTaroBackend,
+    changeTapBackend,
   } = useStoreState(s => s.modals);
 
   const { save } = useStoreActions(s => s.network);
@@ -106,7 +106,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {advancedOptions.visible && <AdvancedOptionsModal network={network} />}
       {mintAsset.visible && <MintAssetModal network={network} />}
       {newAddress.visible && <NewAddressModal network={network} />}
-      {changeTaroBackend.visible && <ChangeTaroBackendModal network={network} />}
+      {changeTapBackend.visible && <ChangeTapBackendModal network={network} />}
       {sendAsset.visible && <SendAssetModal network={network} />}
     </Styled.Designer>
   );
