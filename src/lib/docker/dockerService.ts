@@ -164,8 +164,8 @@ class DockerService implements DockerLibrary {
    * @param network the network to start
    */
   async start(network: Network) {
-    const { bitcoin, lightning } = network.nodes;
-    await this.ensureDirs(network, [...bitcoin, ...lightning]);
+    const { bitcoin, lightning, tap } = network.nodes;
+    await this.ensureDirs(network, [...bitcoin, ...lightning, ...tap]);
 
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
