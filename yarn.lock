@@ -8036,12 +8036,12 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docker-compose@0.24.1:
-  version "0.24.1"
-  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.24.1.tgz#09f9a2408395b8adf80feaacf65f6e2a4b119866"
-  integrity sha512-CVphzCi0Hmw/0CHlAzgiwhLsJjFRqnvpBYMYbf63bz6MON69ElgrfrgQTmgPtEjbifjgaptu3+Gea62vI+9jiA==
+docker-compose@0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.24.0.tgz#474cd38b05b3887a56ffb2c39f16a7ae4d7d5077"
+  integrity sha512-RN/oSPLPa6ZG5e4dHg8tD8EMpd1WJqomNMBQT+d2M5MwcmfrPW/xHTent4TVqX0zZvHemv7qhhNlzXjxCnFaQw==
   dependencies:
-    yaml "^2.2.2"
+    yaml "^1.10.2"
 
 docker-modem@^3.0.0:
   version "3.0.0"
@@ -21845,6 +21845,11 @@ yaml@^1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.0.tgz#3b593add944876077d4d683fee01081bd9fff31e"
   integrity sha512-yr2icI4glYaNG+KWONODapy2/jDdMSDnrONSjblABjD9B4Z5LgiircSt8m8sRZFNi08kG9Sm0uSHtEmP3zaEGg==
+
+yaml@^1.10.2:
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
+  integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
 
 yaml@^1.7.2:
   version "1.7.2"
