@@ -2597,10 +2597,10 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@hodlone/taro-api@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@hodlone/taro-api/-/taro-api-0.1.1.tgz#7b3a508c18ed92341d52185d6f4bdba5f0276584"
-  integrity sha512-F9Y4qto8Olmn+qF2+SYbUtB/7Zaw1LhDRdpD/Ul7mwmPESgc2hBC3fxHjD9isWci3A9QrFbwMILl2PisHshtGw==
+"@hodlone/taro-api@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@hodlone/taro-api/-/taro-api-0.1.2.tgz#546b84b52b47091c1d6645173fbb69e5174307f0"
+  integrity sha512-dsecvICiBu7awwNMT50XdY3zDIA+foS+a52acF5XpqvffY3rN+n8SC4yn36lD/ytrFKlMxjWh4BCXiTD4jvMBQ==
   dependencies:
     "@grpc/grpc-js" "1.7.2"
     "@grpc/proto-loader" "0.7.3"
