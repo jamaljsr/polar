@@ -1,5 +1,5 @@
 # IMAGE FOR BUILDING
-FROM golang:1.19.2 as builder 
+FROM golang:1.20.4 as builder 
 
 ARG TAPD_VERSION
 
