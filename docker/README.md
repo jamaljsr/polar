@@ -144,12 +144,6 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg ECLAIR_VERS
 
 Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
 
-**Push to Docker Hub**
-
-```sh
-$ docker push polarlightning/eclair:<version>
-```
-
 ## Taproot Assets Protocol
 
 ### Tags
@@ -164,12 +158,6 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg TAPD_VERSIO
 ```
 
 Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
-
-**Push to Docker Hub**
-
-```sh
-$ docker push polarlightning/tapd:<version>
-```
 
 # Out-of-Band Image Updates
 
