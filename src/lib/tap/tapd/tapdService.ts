@@ -1,4 +1,4 @@
-import * as TAP from '@hodlone/taro-api';
+import * as TAP from '@lightningpolar/tapd-api';
 import { TapdNode, TapNode } from 'shared/types';
 import * as PTAP from 'lib/tap/types';
 import { TapService } from 'types';
