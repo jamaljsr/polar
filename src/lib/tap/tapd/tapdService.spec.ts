@@ -1,4 +1,4 @@
-import { Asset, AssetBalance } from '@hodlone/taro-api';
+import { Asset, AssetBalance } from '@lightningpolar/tapd-api';
 import {
   defaultAssetRoots,
   defaultSyncUniverse,

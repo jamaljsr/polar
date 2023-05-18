@@ -7,7 +7,7 @@ import {
   MintAssetResponse,
   SendAssetResponse,
   SyncResponse,
-} from '@hodlone/taro-api';
+} from '@lightningpolar/tapd-api';
 import ipcChannels from './ipcChannels';
 
 export const defaultTapdListAssets = (

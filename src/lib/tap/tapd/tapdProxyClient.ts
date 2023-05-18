@@ -1,4 +1,4 @@
-import * as TAP from '@hodlone/taro-api';
+import * as TAP from '@lightningpolar/tapd-api';
 import { ipcChannels } from 'shared';
 import { TapdNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';

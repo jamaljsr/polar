@@ -1,7 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import { readFile } from 'fs-extra';
-import * as TARO from '@hodlone/taro-api';
+import * as TARO from '@lightningpolar/tapd-api';
 import {
   convertUInt8ArraysToHex,
   ipcChannels,

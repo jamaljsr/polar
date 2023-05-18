@@ -1,4 +1,4 @@
-import * as TAP from '@hodlone/taro-api';
+import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import {
