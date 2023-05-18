@@ -13,6 +13,7 @@
     "webpack",
     "webpack-dev-server",
     "@radar/lnrpc",
-    "electron"
+    "electron",
+    "docker-compose"
   ]
 }
