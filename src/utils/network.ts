@@ -475,8 +475,8 @@ export const createNetwork = (config: {
  * @param pulled the list of images already pulled
  */
 export const getMissingImages = (network: Network, pulled: string[]): string[] => {
-  const { bitcoin, lightning } = network.nodes;
-  const neededImages = [...bitcoin, ...lightning].map(n => {
+  const { bitcoin, lightning, tap } = network.nodes;
+  const neededImages = [...bitcoin, ...lightning, ...tap].map(n => {
     // use the custom image name if specified
     if (n.docker.image) return n.docker.image;
     // convert implementation to image name: LND -> lnd, c-lightning -> clightning
