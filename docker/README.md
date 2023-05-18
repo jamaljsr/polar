@@ -154,13 +154,13 @@ $ docker push polarlightning/eclair:<version>
 
 ### Tags
 
-- `0.2.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tap/Dockerfile))
+- `0.2.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 
 **Building the image**
 
 ```sh
 $ cd tapd
-$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg TAPD_VERSION=<version> -t polarlightning/tapd:<version> --push  .
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg TAPD_VERSION=<version> -t polarlightning/tapd:<version> --push .
 ```
 
 Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).

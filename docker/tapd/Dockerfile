@@ -1,34 +1,27 @@
-# IMAGE FOR BUILDING
-FROM golang:1.20.4 as builder 
+FROM debian:stable-slim
 
 ARG TAPD_VERSION
-
-WORKDIR /app
-
-RUN git clone https://github.com/lightninglabs/taproot-assets.git .
-
-ENV CGO_ENABLED=0
-
-RUN make install
-
-# FINAL IMAGE
-FROM debian:buster-slim as final
+ENV PATH=/opt/taproot-assets:$PATH
 
 RUN apt-get update -y \
   && apt-get install -y curl gosu wait-for-it \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY --from=builder /go/bin/tapd /bin/
-COPY --from=builder /go/bin/tapcli /bin/
+RUN SYS_ARCH="$(dpkg --print-architecture)" \
+  && curl -SLO https://github.com/lightninglabs/taproot-assets/releases/download/v${TAPD_VERSION}/taproot-assets-linux-${SYS_ARCH}-v${TAPD_VERSION}.tar.gz \
+  && tar -xzf *.tar.gz \
+  && mkdir /opt/taproot-assets \
+  && mv ./taproot-assets-linux-${SYS_ARCH}-v${TAPD_VERSION}/* /opt/taproot-assets \
+  && rm *.tar.gz
 
 COPY docker-entrypoint.sh /entrypoint.sh
+
 RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/tap/.tapd"]
 
-EXPOSE 10029
-EXPOSE 8089
+EXPOSE 8089 10029
 
 ENTRYPOINT ["/entrypoint.sh"]
 
