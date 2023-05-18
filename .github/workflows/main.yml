@@ -38,14 +38,6 @@ jobs:
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
       - uses: actions/checkout@v1
-        with:
-          repository: jamaljsr/taro-api
-          ref: v2-updates
-          path: taro-api     
-
-      - uses: actions/checkout@v1
-        with:
-          path: polar    
 
       - name: setup nodejs
         uses: actions/setup-node@v1
@@ -54,13 +46,6 @@ jobs:
 
       - name: install yarn
         run: npm install -g yarn
-
-      - name: setup taro-api
-        working-directory: ../taro-api
-        run: |
-          npm install
-          npm run build
-          yarn link
 
       - name: get yarn cache dir
         id: yarn-cache-dir
@@ -76,9 +61,6 @@ jobs:
 
       - name: install dependencies
         run: yarn
-
-      - name: link taro-api
-        run: yarn link @hodlone/taro-api
 
       - name: lint code
         run: yarn lint
