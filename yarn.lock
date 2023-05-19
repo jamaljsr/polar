@@ -12304,10 +12304,10 @@ jake@^10.8.5:
     filelist "^1.0.1"
     minimatch "^3.0.4"
 
-jest-canvas-mock@2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/jest-canvas-mock/-/jest-canvas-mock-2.5.0.tgz#3e60f87f77ddfa273cf8e7e4ea5f86fa827c7117"
-  integrity sha512-s2bmY2f22WPMzhB2YA93kiyf7CAfWAnV/sFfY9s48IVOrGmwui1eSFluDPesq1M+7tSC1hJAit6mzO0ZNXvVBA==
+jest-canvas-mock@2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/jest-canvas-mock/-/jest-canvas-mock-2.5.1.tgz#81509af658ef485e9a1bf39c64e06761517bdbcb"
+  integrity sha512-IVnRiz+v4EYn3ydM/pBo8GW/J+nU/Hg5gHBQQOUQhdRyNfvHnabB8ReqARLO0p+kvQghqr4V0tA92CF3JcUSRg==
   dependencies:
     cssfontparser "^1.2.1"
     moo-color "^1.0.2"
