@@ -17,11 +17,8 @@ export const bitcoind = (
 ): ComposeService => ({
   image,
   container_name: container,
-  environment: {
-    USERID: '${USERID:-1000}',
-    GROUPID: '${GROUPID:-1000}',
-  },
   hostname: name,
+  stop_grace_period: '5m',
   command: trimInside(command),
   volumes: [
     `./volumes/${dockerConfigs.bitcoind.volumeDirName}/${name}:/home/bitcoin/.bitcoin`,
@@ -51,10 +48,6 @@ export const lnd = (
 ): ComposeService => ({
   image,
   container_name: container,
-  environment: {
-    USERID: '${USERID:-1000}',
-    GROUPID: '${GROUPID:-1000}',
-  },
   hostname: name,
   command: trimInside(command),
   restart: 'always',
@@ -82,10 +75,6 @@ export const clightning = (
 ): ComposeService => ({
   image,
   container_name: container,
-  environment: {
-    USERID: '${USERID:-1000}',
-    GROUPID: '${GROUPID:-1000}',
-  },
   hostname: name,
   command: trimInside(command),
   restart: 'always',
@@ -115,10 +104,6 @@ export const eclair = (
 ): ComposeService => ({
   image,
   container_name: container,
-  environment: {
-    USERID: '${USERID:-1000}',
-    GROUPID: '${GROUPID:-1000}',
-  },
   hostname: name,
   command: trimInside(command),
   restart: 'always',
@@ -146,10 +131,6 @@ export const tapd = (
 ): ComposeService => ({
   image,
   container_name: container,
-  environment: {
-    USERID: '${USERID:-1000}',
-    GROUPID: '${GROUPID:-1000}',
-  },
   hostname: name,
   command: trimInside(command),
   restart: 'always',

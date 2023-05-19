@@ -13,13 +13,14 @@ import { bitcoind, clightning, eclair, lnd, tapd } from './nodeTemplates';
 export interface ComposeService {
   image: string;
   container_name: string;
-  environment: Record<string, string>;
+  environment?: Record<string, string>;
   hostname: string;
   command: string;
   volumes: string[];
   expose: string[];
   ports: string[];
   restart?: 'always';
+  stop_grace_period?: string;
 }
 
 export interface ComposeContent {
@@ -39,6 +40,17 @@ class ComposeFile {
     };
   }
 
+  addService(service: ComposeService) {
+    this.content.services[service.hostname] = {
+      environment: {
+        USERID: '${USERID:-1000}',
+        GROUPID: '${GROUPID:-1000}',
+      },
+      stop_grace_period: '2m',
+      ...service,
+    };
+  }
+
   addBitcoind(node: BitcoinNode) {
     const { name, version, ports } = node;
     const { rpc, p2p, zmqBlock, zmqTx } = ports;
@@ -55,16 +67,8 @@ class ComposeFile {
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = bitcoind(
-      name,
-      container,
-      image,
-      rpc,
-      p2p,
-      zmqBlock,
-      zmqTx,
-      command,
-    );
+    const svc = bitcoind(name, container, image, rpc, p2p, zmqBlock, zmqTx, command);
+    this.addService(svc);
   }
 
   addLnd(node: LndNode, backend: CommonNode) {
@@ -86,7 +90,8 @@ class ComposeFile {
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = lnd(name, container, image, rest, grpc, p2p, command);
+    const svc = lnd(name, container, image, rest, grpc, p2p, command);
+    this.addService(svc);
   }
 
   addClightning(node: CLightningNode, backend: CommonNode) {
@@ -110,15 +115,8 @@ class ComposeFile {
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = clightning(
-      name,
-      container,
-      image,
-      rest,
-      grpc,
-      p2p,
-      command,
-    );
+    const svc = clightning(name, container, image, rest, grpc, p2p, command);
+    this.addService(svc);
   }
 
   addEclair(node: EclairNode, backend: CommonNode) {
@@ -140,7 +138,8 @@ class ComposeFile {
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = eclair(name, container, image, rest, p2p, command);
+    const svc = eclair(name, container, image, rest, p2p, command);
+    this.addService(svc);
   }
 
   addTapd(node: TapdNode, lndBackend: LndNode) {
@@ -160,15 +159,8 @@ class ComposeFile {
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    this.content.services[name] = tapd(
-      name,
-      container,
-      image,
-      rest,
-      grpc,
-      lndBackend.name,
-      command,
-    );
+    const svc = tapd(name, container, image, rest, grpc, lndBackend.name, command);
+    this.addService(svc);
   }
 
   private mergeCommand(command: string, variables: Record<string, string>) {
