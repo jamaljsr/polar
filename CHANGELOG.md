@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/jamaljsr/polar/compare/v1.4.1...v2.0.0)
+
+This is a major release which adds supports for [Taproot Assets Protocol Daemon](https://github.com/lightninglabs/taproot-assets) (`tapd`) nodes. You can add `tapd` nodes to your network to begin easily minting and sending assets between nodes. You also have access to the terminal to run all `tapcli` commands.
+
+There are also a few smaller improvements such and Auto Mining and Docker Compose v2 support. The full list of changes are below.
+
+### Features
+
+- tapd: add support for Taproot Assets Protocol nodes by @amovfx & @jamaljsr
+  - in #641, #656. #661, #667, #668, #669, #672, #683, #684, #685, #703
+- network: automatically mine new blocks by @Jhoyola in https://github.com/jamaljsr/polar/pull/707
+- images: add support for LND v0.16.1-beta and v0.16.2-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/709
+- docker: support docker-compose v2 + minor improvements by @jamaljsr in https://github.com/jamaljsr/polar/pull/721
+
+## [1.4.1](https://github.com/jamaljsr/polar/compare/v1.4.0...v1.4.1)
+
+### Features
+
+- **terminal:** change font size using shortcuts by @zackypick in https://github.com/jamaljsr/polar/pull/612
+- **bitcoind:** add Compact Filters support by @hsjoberg in https://github.com/jamaljsr/polar/pull/630
+- **images:** add support for Bitcoin Core v24.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/632
+- **images:** add support for Eclair v0.8.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/632
+- **images:** add support for Core Lightning v23.02.2 by @jamaljsr in https://github.com/jamaljsr/polar/pull/696
+- **images:** add support for LND v0.16.0-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/702
+- **docker** add multi-arch docker images by @NonsoAmadi10 in https://github.com/jamaljsr/polar/pull/701
+
+### Bug Fixes
+
+- **cln:** Missing address flag for announcing externally by @niteshbalusu11 in https://github.com/jamaljsr/polar/issues/608
+- **docker:** properly detect docker socket path by @jamaljsr in https://github.com/jamaljsr/polar/pull/695
+- **lnd:** fix wrong source label for pending channels by @amovfx in https://github.com/jamaljsr/polar/pull/703
+- **network:** clear RPC cache when nodes are stopped by @jamaljsr in https://github.com/jamaljsr/polar/pull/698
+
+### Docs
+
+- **custom-nodes:** update golang version of custom docker image by @hieblmi in https://github.com/jamaljsr/polar/issues/691
+- **custom-nodes:** add no-cache flag for docker build @hieblmi in https://github.com/jamaljsr/polar/issues/607
+
 ## [1.4.0](https://github.com/jamaljsr/polar/compare/v1.3.0...v1.4.0)
 
 While Polar has kept up with the new node implementation releases via the out-of-band updates, it hasn't had any new features added in a long while. This release packages up all those node updates so that you don't need to manually update after the initial install. We now also have automatic updates. You can opt-in to checking for new node versions on startup, instead of having to do it manually. Links to check for updates have also been added to the start screen and footer to make it easier to get to.

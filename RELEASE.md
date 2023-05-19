@@ -15,6 +15,7 @@ This document describes the steps to follow to create a new release of Polar and
    yarn release
    ```
 1. Manually modify with `CHANGELOG.md` file to make it more presentable. Add a brief summary at the top and remove any unnecessary commits.
+   Search for [merged PRs](https://github.com/jamaljsr/polar/pulls?q=is%3Apr+merged%3A%3E2023-04-19+-author%3Aapp%2Frenovate+) since the last release date to find the recent changes.
 1. Modify the `README.md` file
    - add any updates to features and/or newly supported node versions
    - update the download links to point to the new urls
