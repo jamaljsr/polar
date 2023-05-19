@@ -2,7 +2,7 @@ import { remote } from 'electron';
 import { debug, info } from 'electron-log';
 import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
-import * as compose from 'docker-compose';
+import { v2 as compose } from 'docker-compose';
 import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
@@ -66,7 +66,7 @@ export const getDocker = async (useCached = true): Promise<Dockerode> => {
 
 class DockerService implements DockerLibrary {
   /**
-   * Gets the versions of docker and docker-compose installed
+   * Gets the versions of docker and docker compose installed
    * @param throwOnError set to true to throw an Error if detection fails
    */
   async getVersions(throwOnError?: boolean): Promise<DockerVersions> {
@@ -83,7 +83,7 @@ class DockerService implements DockerLibrary {
     }
 
     try {
-      debug('getting docker-compose version');
+      debug('getting docker compose version');
       const composeVersion = await this.execute(compose.version, this.getArgs());
       debug(`Result: ${JSON.stringify(composeVersion)}`);
       versions.compose = composeVersion.out.trim();
@@ -160,7 +160,7 @@ class DockerService implements DockerLibrary {
   }
 
   /**
-   * Start a network using docker-compose
+   * Start a network using docker compose
    * @param network the network to start
    */
   async start(network: Network) {
@@ -174,7 +174,7 @@ class DockerService implements DockerLibrary {
   }
 
   /**
-   * Stop a network using docker-compose
+   * Stop a network using docker compose
    * @param network the network to stop
    */
   async stop(network: Network) {
@@ -185,7 +185,7 @@ class DockerService implements DockerLibrary {
   }
 
   /**
-   * Starts a single service using docker-compose
+   * Starts a single service using docker compose
    * @param network the network containing the node
    * @param node the node to start
    */
@@ -202,7 +202,7 @@ class DockerService implements DockerLibrary {
   }
 
   /**
-   * Stops a single service using docker-compose
+   * Stops a single service using docker compose
    * @param network the network containing the node
    * @param node the node to stop
    */
@@ -214,7 +214,7 @@ class DockerService implements DockerLibrary {
   }
 
   /**
-   * Removes a single service from the network using docker-compose
+   * Removes a single service from the network using docker compose
    * @param network the network containing the node
    * @param node the node to remove
    */
