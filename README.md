@@ -31,6 +31,7 @@ With Polar you can:
 - View streaming logs from each node
 - Manually mine new blocks
 - Deposit regtest coins into each Lightning node
+- Mint, Send & Receive Taproot Assets
 - Export and import networks, for sharing with other Lightning developers
 - Create you own docker images to use as [custom nodes](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md) (ex: master branch, local fork)
 
@@ -40,6 +41,7 @@ Supported Network Node Versions:
 - [Core Lightning](https://github.com/ElementsProject/lightning) - v23.02.2, v22.11, v0.12.0, v0.11.2, v0.10.2
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.8.0, v0.7.0, v0.6.2, v0.5.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v24.0, v23.0, v22.0, v0.21.1
+- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.2.0
 
 ## Dependencies
 
@@ -52,16 +54,15 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ⚠️ **Important Docker Notes**
 
-- On Mac & Windows, you must uncheck "Use Docker Compose V2" in Docker Desktop settings. We're waiting on Compose v2 support in the `docker-compose` NPM package (See [PDMLab/docker-compose#228](https://github.com/PDMLab/docker-compose/pull/228))
 - On Linux, Docker Desktop is currently not supported due to a significant change in how it handles file sharing between host and container (See [#636](https://github.com/jamaljsr/polar/issues/636#issuecomment-1450201391))
 
 ## Download
 
-Download Polar v1.4.0 for your OS
+Download Polar v2.0.0 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v1.4.0/polar-mac-v1.4.0.dmg))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v1.4.0/polar-linux-amd64-v1.4.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v1.4.0/polar-linux-x86_64-v1.4.0.AppImage))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v1.4.0/polar-win-v1.4.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v2.0.0/polar-mac-v2.0.0.dmg))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v2.0.0/polar-linux-amd64-v2.0.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v2.0.0/polar-linux-x86_64-v2.0.0.AppImage))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v2.0.0/polar-win-v2.0.0.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
@@ -105,7 +106,3 @@ If you would like to learn how to package Polar from source code or want to fix 
 - [Testcafe](https://github.com/DevExpress/testcafe): End-to-end is important
 - [commitlint](https://github.com/conventional-changelog/commitlint): standardize git commit messages
 - [standard-version](https://github.com/conventional-changelog/commitlint): automate release versioning and changelog generation
-
-## Recognition
-
-Huge thanks to maintainers of [Lightning Joule](https://github.com/joule-labs/joule-extension), [Zap Wallet](https://github.com/LN-Zap/zap-desktop), [LND](https://github.com/lightningnetwork/lnd), [Bitcoin Core](https://github.com/bitcoin/bitcoin), along with many others for the amazing apps & libraries that gave this project inspiration, ideas & sometimes even a little code 😊.
