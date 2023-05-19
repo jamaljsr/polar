@@ -4,7 +4,7 @@ import { getNetwork } from 'utils/tests';
 import ComposeFile from './composeFile';
 
 describe('ComposeFile', () => {
-  let composeFile = new ComposeFile();
+  let composeFile = new ComposeFile(1);
   const network = getNetwork();
   const btcNode = network.nodes.bitcoin[0];
   const lndNode = network.nodes.lightning[0] as LndNode;
@@ -16,7 +16,7 @@ describe('ComposeFile', () => {
   const tapLndNode = network.nodes.lightning[0] as LndNode;
 
   beforeEach(() => {
-    composeFile = new ComposeFile();
+    composeFile = new ComposeFile(1);
   });
 
   it('should have no services initially', () => {
@@ -25,6 +25,10 @@ describe('ComposeFile', () => {
 
   it('should have a valid docker version', () => {
     expect(composeFile.content.version).toEqual('3.3');
+  });
+
+  it('should have a a name', () => {
+    expect(composeFile.content.name).toEqual('polar-network-1');
   });
 
   it('should add multiple services', () => {

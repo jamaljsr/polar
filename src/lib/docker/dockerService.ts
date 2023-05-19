@@ -122,7 +122,7 @@ class DockerService implements DockerLibrary {
    * @param network the network to save a compose file for
    */
   async saveComposeFile(network: Network) {
-    const file = new ComposeFile();
+    const file = new ComposeFile(network.id);
     const { bitcoin, lightning, tap } = network.nodes;
 
     bitcoin.forEach(node => file.addBitcoind(node));

@@ -25,6 +25,7 @@ export interface ComposeService {
 
 export interface ComposeContent {
   version: string;
+  name: string;
   services: {
     [key: string]: ComposeService;
   };
@@ -33,9 +34,10 @@ export interface ComposeContent {
 class ComposeFile {
   content: ComposeContent;
 
-  constructor() {
+  constructor(id: number) {
     this.content = {
       version: '3.3',
+      name: `polar-network-${id}`,
       services: {},
     };
   }
