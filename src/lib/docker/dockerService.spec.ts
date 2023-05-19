@@ -2,7 +2,7 @@ import * as electron from 'electron';
 import * as fs from 'fs-extra';
 import { join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
-import * as compose from 'docker-compose';
+import { v2 as compose } from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
 import { CLightningNode, LndNode, TapdNode } from 'shared/types';
