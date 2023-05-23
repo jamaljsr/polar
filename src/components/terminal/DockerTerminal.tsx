@@ -72,7 +72,7 @@ const nodeConfig: Record<string, { user: string; alias: string }> = {
   },
   tapd: {
     user: 'tap',
-    alias: 'alias tapcli="tapcli --network regtest"',
+    alias: 'alias tapcli="tapcli --network regtest --tapddir=~/.tapd"',
   },
 };
 
