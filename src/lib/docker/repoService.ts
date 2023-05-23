@@ -67,6 +67,8 @@ class RepoService implements RepoServiceInjection {
     let newVersionCount = 0;
     Object.entries(remoteState.images).forEach(([name, remoteImage]) => {
       const impl = name as NodeImplementation;
+      // skip if the local state doesn't have this implementation
+      if (!localState.images[impl]) return;
       const localVersions = localState.images[impl].versions;
       const newVersions = remoteImage.versions.filter(v => !localVersions.includes(v));
       if (newVersions.length) {
