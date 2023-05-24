@@ -185,7 +185,7 @@ describe('Network Utils', () => {
       expect(ports).toBeUndefined();
     });
 
-    it('should update the grpc ports for Tap nodes', async () => {
+    it('should update the grpc ports for TAP nodes', async () => {
       network = getNetwork(1, 'tap network', undefined, 3);
       const portsInUse = [12030];
       mockDetectPort.mockImplementation(port =>
@@ -200,7 +200,7 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.tap[2].name].grpc).toBe(12032);
     });
 
-    it('should update the rest ports for Tap nodes', async () => {
+    it('should update the rest ports for TAP nodes', async () => {
       network = getNetwork(1, 'tap network', undefined, 3);
       const portsInUse = [8290];
       mockDetectPort.mockImplementation(port =>
@@ -215,7 +215,7 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.tap[2].name].rest).toBe(8292);
     });
 
-    it('should not update Tap ports if none are in use', async () => {
+    it('should not update TAP ports if none are in use', async () => {
       network = getNetwork(1, 'tap network', undefined, 3);
       const portsInUse: number[] = [];
       mockDetectPort.mockImplementation(port =>

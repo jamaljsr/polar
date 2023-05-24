@@ -266,7 +266,7 @@ describe('TapDetails', () => {
         const buttons = await findAllByLabelText('unordered-list');
         expect(buttons.length).toEqual(2);
         fireEvent.click(buttons[0]);
-        expect(await findByText('Tap Asset Info')).toBeInTheDocument();
+        expect(await findByText('TAP Asset Info')).toBeInTheDocument();
         expect(await findByText('Type')).toBeInTheDocument();
         expect(await findByText('NORMAL')).toBeInTheDocument();
         expect(await findByText('Asset ID')).toBeInTheDocument();
@@ -302,9 +302,9 @@ describe('TapDetails', () => {
         const buttons = await findAllByLabelText('unordered-list');
         expect(buttons.length).toEqual(2);
         fireEvent.click(buttons[0]);
-        expect(await findByText('Tap Asset Info')).toBeInTheDocument();
+        expect(await findByText('TAP Asset Info')).toBeInTheDocument();
         fireEvent.click(await findByLabelText('Close'));
-        expect(findByText('Tap Asset Info')).rejects.toThrow();
+        expect(findByText('TAP Asset Info')).rejects.toThrow();
       });
     });
 

@@ -11,7 +11,7 @@ jest.mock('utils/files', () => ({
 }));
 const filesMock = files as jest.Mocked<typeof files>;
 
-describe('Tap Lnd Link Component', () => {
+describe('TAP Lnd Link Component', () => {
   const renderComponent = () => {
     const network = getNetwork(1, 'test network', Status.Stopped, 1);
     const allCharts = {
@@ -61,7 +61,7 @@ describe('Tap Lnd Link Component', () => {
     it('should display the ChangeTapBackend modal', async () => {
       const { getByText, store } = renderComponent();
       expect(store.getState().modals.changeTapBackend.visible).toBe(false);
-      fireEvent.click(getByText('Change Tap Backend'));
+      fireEvent.click(getByText('Change TAP Backend'));
       await waitFor(() => {
         expect(store.getState().modals.changeTapBackend.visible).toBe(true);
       });
@@ -73,11 +73,11 @@ describe('Tap Lnd Link Component', () => {
       await waitFor(() => {
         store.getActions().network.setStatus({ id: network.id, status: Status.Started });
       });
-      fireEvent.click(getByText('Change Tap Backend'));
+      fireEvent.click(getByText('Change TAP Backend'));
       await waitFor(() => {
         expect(
           getByText(
-            'Can only change Tap Backend before the network is started. admin.macaroon is present',
+            'Can only change TAP Backend before the network is started. admin.macaroon is present',
           ),
         ).toBeInTheDocument();
       });

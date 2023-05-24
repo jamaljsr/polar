@@ -105,7 +105,7 @@ describe('LinkContextMenu', () => {
     const { queryByText } = renderComponent(link);
     expect(queryByText('Close Channel')).not.toBeInTheDocument();
   });
-  describe('Change Tap Backend Option', () => {
+  describe('Change TAP Backend Option', () => {
     it('should display the correct options for a tap backend connection when network is stopped', async () => {
       filesMock.exists.mockResolvedValue(Promise.resolve(false));
       const { getByText, store, network } = renderComponent(createTapBackendLink());
@@ -115,7 +115,7 @@ describe('LinkContextMenu', () => {
           Status.Stopped,
         );
       });
-      fireEvent.click(getByText('Change Tap Backend'));
+      fireEvent.click(getByText('Change TAP Backend'));
       await waitFor(() => {
         expect(store.getState().modals.changeTapBackend.visible).toBe(true);
       });
@@ -123,10 +123,10 @@ describe('LinkContextMenu', () => {
     it('should display the correct options for a tap backend connection', async () => {
       filesMock.exists.mockResolvedValue(Promise.resolve(false));
       const { getByText } = renderComponent(createTapBackendLink());
-      fireEvent.click(getByText('Change Tap Backend'));
+      fireEvent.click(getByText('Change TAP Backend'));
       await waitFor(() => {
         expect(
-          getByText('The network must be stopped to change alice-tap bankend'),
+          getByText('The network must be stopped to change alice-tap backend'),
         ).toBeInTheDocument();
       });
     });
@@ -137,11 +137,11 @@ describe('LinkContextMenu', () => {
       await waitFor(() => {
         store.getActions().network.setStatus({ id: network.id, status: Status.Started });
       });
-      fireEvent.click(getByText('Change Tap Backend'));
+      fireEvent.click(getByText('Change TAP Backend'));
       await waitFor(() => {
         expect(
           getByText(
-            'Can only change Tap Backend before the network is started. admin.macaroon is present',
+            'Can only change TAP Backend before the network is started. admin.macaroon is present',
           ),
         ).toBeInTheDocument();
       });

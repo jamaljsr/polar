@@ -3,7 +3,7 @@ import { TapService } from 'types';
 import { tapdService } from './tapd';
 
 /**
- * A factory class used to obtain a Tap service based on
+ * A factory class used to obtain a TAP service based on
  * the node's implementation
  */
 class TapFactory {
@@ -19,8 +19,8 @@ class TapFactory {
   }
 
   /**
-   * Returns a Tap service for the given node
-   * @param node the Tap node object
+   * Returns a TAP service for the given node
+   * @param node the TAP node object
    */
   getService(node: TapNode): TapService {
     return this._services[node.implementation];

@@ -157,7 +157,7 @@ describe('ImportNetwork component', () => {
     expect(await findByText(msg)).toBeInTheDocument();
   });
 
-  it('should import a Tap network successfully', async () => {
+  it('should import a TAP network successfully', async () => {
     network = getNetwork(1, 'tap network', Status.Stopped, 2);
     chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
@@ -170,7 +170,7 @@ describe('ImportNetwork component', () => {
     ).toBeInTheDocument();
   });
 
-  it('should throw for an unknown Tap implementation', async () => {
+  it('should throw for an unknown TAP implementation', async () => {
     network = getNetwork(1, 'tap network', Status.Stopped, 2);
     chart = initChartFromNetwork(network);
     network.nodes.tap[0].implementation = 'asdf' as any;

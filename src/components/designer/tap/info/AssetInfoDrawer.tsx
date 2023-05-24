@@ -14,7 +14,7 @@ const Styled = {
   `,
 };
 
-/** A helper hook to query the info of a specific Tap asset from the store */
+/** A helper hook to query the info of a specific TAP asset from the store */
 const useAssetState = (nodeName?: string, assetId?: string) => {
   const { nodes } = useStoreState(s => s.tap);
   return useMemo(() => {

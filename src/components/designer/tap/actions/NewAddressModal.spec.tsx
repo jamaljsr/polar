@@ -42,7 +42,7 @@ describe('NewAddressModal', () => {
 
   it('should render form inputs', async () => {
     const { getByLabelText } = await renderComponent();
-    expect(getByLabelText('Generate new Tap address for alice-tap')).toBeInTheDocument();
+    expect(getByLabelText('Generate new TAP address for alice-tap')).toBeInTheDocument();
     expect(getByLabelText('Asset')).toBeInTheDocument();
     expect(getByLabelText('Amount')).toBeInTheDocument();
   });

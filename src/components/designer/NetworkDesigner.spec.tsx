@@ -153,7 +153,7 @@ describe('NetworkDesigner Component', () => {
     act(() => {
       store.getActions().modals.showChangeTapBackend({});
     });
-    expect(await findAllByText('Change Tap Node Backend')).toHaveLength(1);
+    expect(await findAllByText('Change TAP Node Backend')).toHaveLength(1);
     fireEvent.click(getAllByText('Cancel')[0]);
   });
 
@@ -194,7 +194,7 @@ describe('NetworkDesigner Component', () => {
       store.getActions().modals.showNewAddress({ nodeName: 'alice-tap' });
     });
     expect(
-      await findByText('Generate new Tap address for alice-tap'),
+      await findByText('Generate new TAP address for alice-tap'),
     ).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
@@ -231,7 +231,7 @@ describe('NetworkDesigner Component', () => {
     expect(queryByText('alice')).toBeNull();
   });
 
-  it('should remove a Tap node from the network', async () => {
+  it('should remove a TAP node from the network', async () => {
     const { getByText, findByText, queryByText } = renderComponent();
     expect(await findByText('alice-tap')).toBeInTheDocument();
     act(() => {

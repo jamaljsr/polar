@@ -292,7 +292,7 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  //New Tap Address Modal
+  //New TAP Address Modal
   showNewAddress: thunk((actions, { nodeName }) => {
     actions.setNewAddress({ visible: true, nodeName });
   }),
@@ -306,7 +306,7 @@ const modalsModel: ModalsModel = {
     };
   }),
 
-  //Send Tap Asset Modal
+  //Send TAP Asset Modal
   showSendAsset: thunk((actions, { nodeName }) => {
     actions.setSendAsset({ visible: true, nodeName });
   }),

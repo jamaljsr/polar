@@ -20,7 +20,7 @@ import tapModel, { MintAssetPayload } from './tap';
 
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
-describe('Tap Model', () => {
+describe('TAP Model', () => {
   const rootModel = {
     app: appModel,
     network: networkModel,

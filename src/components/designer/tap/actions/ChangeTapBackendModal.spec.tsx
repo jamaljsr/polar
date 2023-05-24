@@ -67,8 +67,8 @@ describe('ChangeTapBackendModal', () => {
 
   it('should render labels', async () => {
     const { getByText } = await renderComponent();
-    expect(getByText('Change Tap Node Backend')).toBeInTheDocument();
-    expect(getByText('Tap Node')).toBeInTheDocument();
+    expect(getByText('Change TAP Node Backend')).toBeInTheDocument();
+    expect(getByText('TAP Node')).toBeInTheDocument();
     expect(getByText('LND Node')).toBeInTheDocument();
     expect(getByText('alice-tap')).toBeInTheDocument();
     expect(getByText('alice')).toBeInTheDocument();
@@ -138,7 +138,7 @@ describe('ChangeTapBackendModal', () => {
     const warning = queryByLabelText('exclamation-circle');
     const repoState = testRepoState;
     delete repoState.images.tapd.compatibility;
-    changeSelect('Tap Node', 'alice-tap');
+    changeSelect('TAP Node', 'alice-tap');
     changeSelect('LND Node', 'alice');
     store.getActions().app.setRepoState(repoState);
     expect(warning).not.toBeInTheDocument();

@@ -122,7 +122,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toBeCalled();
       });
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
       await waitFor(() => {
@@ -160,7 +160,7 @@ describe('SendAssetModal', () => {
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
       const { getByLabelText, getByText } = await renderComponent();
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
       fireEvent.click(getByText('Send'));
@@ -189,7 +189,7 @@ describe('SendAssetModal', () => {
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
       const { getByText, getByLabelText } = await renderComponent();
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'asdfghdfsddasdf' } });
       await waitFor(() => {
@@ -213,7 +213,7 @@ describe('SendAssetModal', () => {
     it('should warn when asset is missing', async () => {
       tapServiceMock.decodeAddress.mockResolvedValue(defaultTapAddress({ id: 'badid' }));
       const { getByText, getByLabelText } = await renderComponent();
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
       await waitFor(() => {
@@ -231,7 +231,7 @@ describe('SendAssetModal', () => {
     });
     it('should display error', async () => {
       const { getByText, getByLabelText } = await renderComponent();
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1...' } });
       await waitFor(() => {
@@ -241,7 +241,7 @@ describe('SendAssetModal', () => {
     });
     it('should clear the error when tap address field is reset', async () => {
       const { getByText, getByLabelText, queryByText } = await renderComponent();
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1...' } });
 
@@ -261,7 +261,7 @@ describe('SendAssetModal', () => {
       );
       tapServiceMock.sendAsset.mockRejectedValue(new Error('Error message'));
       const { getByText, getByLabelText } = await renderComponent();
-      const input = getByLabelText('Tap Address');
+      const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1aaa...' } });
       await waitFor(() => {

@@ -15,7 +15,7 @@ describe('TapNodeSelect', () => {
           <TapNodeSelect
             network={network}
             name="from"
-            label="Tap Nodes"
+            label="TAP Nodes"
             nodeStatus={Status.Stopped}
           />
         </Form>
@@ -30,13 +30,13 @@ describe('TapNodeSelect', () => {
 
   it('should display the label and input', () => {
     const { getByText, getByLabelText } = renderComponent();
-    expect(getByText('Tap Nodes')).toBeInTheDocument();
-    expect(getByLabelText('Tap Nodes')).toBeInTheDocument();
+    expect(getByText('TAP Nodes')).toBeInTheDocument();
+    expect(getByLabelText('TAP Nodes')).toBeInTheDocument();
   });
 
   it('should display the nodes', async () => {
     const { getAllByText, getByLabelText } = renderComponent();
-    fireEvent.mouseDown(getByLabelText('Tap Nodes'));
+    fireEvent.mouseDown(getByLabelText('TAP Nodes'));
     expect(getAllByText('alice-tap')[0]).toBeInTheDocument();
     expect(getAllByText('bob-tap')[0]).toBeInTheDocument();
     expect(getAllByText('carol-tap')[0]).toBeInTheDocument();

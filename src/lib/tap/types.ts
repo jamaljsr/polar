@@ -1,6 +1,6 @@
 /*
  * Shared types to normalize interfaces between the different
- * Tap implementations
+ * TAP implementations
  */
 export interface TapAsset {
   id: string;

@@ -809,7 +809,7 @@ describe('Network model', () => {
     });
   });
 
-  describe('Tap network', () => {
+  describe('TAP network', () => {
     beforeEach(() => {
       (() => {
         const network = getNetwork(1, 'test network', Status.Stopped, 2);

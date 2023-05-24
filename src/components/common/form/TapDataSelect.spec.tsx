@@ -46,7 +46,7 @@ describe('TapDataSelect', () => {
     const cmp = (
       <TapDataSelect
         name="tapNode"
-        label="Select Tap Asset"
+        label="Select TAP Asset"
         tapNetworkNodes={network.nodes.tap}
         selectBalances={selectBalances}
         onChange={changeEvent ? handleChange : undefined}
@@ -57,13 +57,13 @@ describe('TapDataSelect', () => {
 
   it('should display the label and input', () => {
     const { getByText, getByLabelText } = renderComponent();
-    expect(getByText('Select Tap Asset')).toBeInTheDocument();
-    expect(getByLabelText('Select Tap Asset')).toBeInTheDocument();
+    expect(getByText('Select TAP Asset')).toBeInTheDocument();
+    expect(getByLabelText('Select TAP Asset')).toBeInTheDocument();
   });
 
   it('should display the balances in groups', () => {
     const { getByLabelText, getByText, queryByText } = renderComponent();
-    fireEvent.mouseDown(getByLabelText('Select Tap Asset'));
+    fireEvent.mouseDown(getByLabelText('Select TAP Asset'));
     expect(getByText('bob-tap')).toBeInTheDocument();
     expect(queryByText('dave-tap')).not.toBeInTheDocument();
     expect(getByText('bobs-test-balance')).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('TapDataSelect', () => {
 
   it('should display the assets in groups', () => {
     const { getByLabelText, getByText } = renderComponent(false);
-    fireEvent.mouseDown(getByLabelText('Select Tap Asset'));
+    fireEvent.mouseDown(getByLabelText('Select TAP Asset'));
     expect(getByText('bob-tap')).toBeInTheDocument();
     expect(getByText('bobs-test-asset')).toBeInTheDocument();
   });
@@ -80,7 +80,7 @@ describe('TapDataSelect', () => {
     const { queryByText, getByLabelText, getByText, getAllByText } =
       renderComponent(false);
     expect(queryByText('bobs-test-balance-1')).not.toBeInTheDocument();
-    fireEvent.mouseDown(getByLabelText('Select Tap Asset'));
+    fireEvent.mouseDown(getByLabelText('Select TAP Asset'));
     expect(getByText('bob-tap')).toBeInTheDocument();
     expect(getByText('bobs-test-asset')).toBeInTheDocument();
     fireEvent.click(getByText('bobs-test-asset'));
@@ -90,7 +90,7 @@ describe('TapDataSelect', () => {
   it('should not call onChange', () => {
     const { queryByText, getByLabelText, getByText } = renderComponent(false, false);
     expect(queryByText('bobs-test-balance-1')).not.toBeInTheDocument();
-    fireEvent.mouseDown(getByLabelText('Select Tap Asset'));
+    fireEvent.mouseDown(getByLabelText('Select TAP Asset'));
     expect(getByText('bob-tap')).toBeInTheDocument();
     expect(getByText('bobs-test-asset')).toBeInTheDocument();
     fireEvent.click(getByText('bobs-test-asset'));

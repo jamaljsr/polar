@@ -486,7 +486,7 @@ describe('Designer model', () => {
         });
       });
 
-      it('should throw an error when adding an incompatible Tap node', async () => {
+      it('should throw an error when adding an incompatible TAP node', async () => {
         store.getActions().app.setRepoState(testRepoState);
         const { addNetwork } = store.getActions().network;
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
