@@ -849,7 +849,7 @@ const networkModel: NetworkModel = {
       await save();
       await injections.dockerService.saveComposeFile(network);
 
-      info('imported', network);
+      info('imported', JSON.stringify({ network, chart }));
       return network;
     },
   ),

@@ -25,10 +25,12 @@ import {
   DockerRepoState,
   ManagedImage,
   Network,
+  NetworksFile,
 } from 'types';
 import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO, dockerConfigs } from './constants';
 import { read, rm } from './files';
+import { migrateNetworksFile } from './migrations';
 import { getName } from './names';
 import { range } from './numbers';
 import { isVersionCompatible } from './strings';
@@ -751,10 +753,21 @@ export const importNetworkFromZip = async (
   if (!(parsed.chart && isChart(parsed.chart))) {
     throw new Error(`${exportFilePath} did not contain a valid chart`);
   }
-  const network = parsed.network as Network;
-  const chart = parsed.chart as IChart;
-  const netPath = join(dataPath, 'networks', `${id}`);
 
+  debug('Migrating the imported network:\n' + JSON.stringify(parsed));
+  const networksFile: NetworksFile = {
+    // the version is not available in the export.json file and is not needed
+    version: '',
+    networks: [parsed.network],
+    charts: {
+      [parsed.network.id]: parsed.chart,
+    },
+  };
+  const { networks, charts } = migrateNetworksFile(networksFile);
+
+  const network = networks[0];
+  const chart = charts[network.id];
+  const netPath = join(dataPath, 'networks', `${id}`);
   debug(`Updating the network path from '${network.path}' to '${netPath}'`);
   network.path = netPath;
   debug(`Updating network id to '${id}'`);
