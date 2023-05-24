@@ -172,6 +172,16 @@ const v200 = (file: NetworksFile): NetworksFile => {
       debug(`${pre} add tap node list to network`);
       network.nodes.tap = [];
     }
+
+    network.nodes.lightning
+      .filter(n => n.implementation === 'LND')
+      .forEach(node => {
+        const chartNode = file.charts[network.id].nodes[node.name];
+        if (!chartNode.ports['lndbackend']) {
+          debug(`${pre} add lndbackend port to LND chart node ${node.name}`);
+          chartNode.ports['lndbackend'] = { id: 'lndbackend', type: 'top' };
+        }
+      });
   });
 
   return file;

@@ -383,6 +383,11 @@ describe('DockerService', () => {
       // added in v2.0.0
       delete net.autoMineMode;
       delete net.nodes.tap;
+      net.nodes.lightning.forEach((n: any) => {
+        if (n.implementation === 'LND') {
+          delete chart.nodes[n.name].ports['lndbackend'];
+        }
+      });
       return { net, chart };
     };
 
