@@ -1,7 +1,7 @@
 import { debug, error } from 'electron-log';
 import { join } from 'path';
 import { CLightningNode, LndNode } from 'shared/types';
-import { NetworksFile } from 'types';
+import { AutoMineMode, NetworksFile } from 'types';
 import { networksPath } from './config';
 import { APP_VERSION, BasePorts, dockerConfigs } from './constants';
 import { getCLightningFilePaths, getLndFilePaths } from './network';
@@ -157,10 +157,30 @@ const v140 = (file: NetworksFile): NetworksFile => {
   return file;
 };
 
+const v200 = (file: NetworksFile): NetworksFile => {
+  debug('Applying v2.0.0 migrations');
+
+  file.networks.forEach(network => {
+    const pre = `[${network.id}] ${network.name}:`;
+    // the autoMineMode property was added in PR #707
+    if (network.autoMineMode === undefined) {
+      debug(`${pre} set autoMineMode to 'AutoOff'`);
+      network.autoMineMode = AutoMineMode.AutoOff;
+    }
+    // tapd nodes was added to networks in PR #641
+    if (network.nodes.tap === undefined) {
+      debug(`${pre} add tap node list to network`);
+      network.nodes.tap = [];
+    }
+  });
+
+  return file;
+};
+
 /**
  * The list of migration functions to execute
  */
-const migrations = [v020, v030, v110, v140];
+const migrations = [v020, v030, v110, v140, v200];
 
 /**
  * Migrates network and chart data from a previous app version

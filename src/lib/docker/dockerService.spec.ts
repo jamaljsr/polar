@@ -378,6 +378,14 @@ describe('DockerService', () => {
       return { net, chart };
     };
 
+    const create141Network = () => {
+      const { net, chart } = createTestNetwork();
+      // added in v2.0.0
+      delete net.autoMineMode;
+      delete net.nodes.tap;
+      return { net, chart };
+    };
+
     const createLegacyNetworksFile = (version = '0.1.0') => {
       let res: { net: Network; chart: IChart };
 
@@ -393,6 +401,9 @@ describe('DockerService', () => {
           break;
         case '1.3.0':
           res = create130Network();
+          break;
+        case '1.4.1':
+          res = create141Network();
           break;
         default:
           res = createTestNetwork();
@@ -532,6 +543,16 @@ describe('DockerService', () => {
           expect((n as CLightningNode).paths.tlsClientKey).toBeDefined();
         }
       });
+    });
+
+    it('should migrate network data from v2.0.0', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile('1.4.1'));
+      const { networks, version } = await dockerService.loadNetworks();
+      expect(version).toEqual(APP_VERSION);
+      // added in v2.0.0
+      expect(networks[0].autoMineMode).toBeDefined();
+      expect(networks[0].nodes.tap).toBeDefined();
     });
 
     it('should not run migrations in production with up to date version', async () => {
