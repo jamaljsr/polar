@@ -66,7 +66,8 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const { navigateTo, notify } = useStoreActions(s => s.app);
   const { clearActiveId } = useStoreActions(s => s.designer);
   const { getInfo } = useStoreActions(s => s.bitcoind);
-  const { toggle, rename, remove, exportNetwork } = useStoreActions(s => s.network);
+  const { toggle, rename, remove, exportNetwork, externalizeDockerNetwork } =
+    useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
   const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
     try {
@@ -110,6 +111,10 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       },
     });
   };
+
+  const externalizeClick = useAsyncCallback(async (id: number) => {
+    externalizeDockerNetwork({ id });
+  });
 
   const handleBackClick = useCallback(() => {
     navigateTo(HOME);
@@ -184,6 +189,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
             }}
             onDeleteClick={() => showRemoveModal(network.id, network.name)}
             onExportClick={() => exportAsync.execute(network.id, network.name)}
+            onExternalizeClick={() => externalizeClick.execute(network.id)}
           />
         }
       />

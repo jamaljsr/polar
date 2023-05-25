@@ -45,6 +45,7 @@ interface AddNetworkArgs {
   eclairNodes: number;
   bitcoindNodes: number;
   customNodes: Record<string, number>;
+  externalizeNetwork: boolean;
 }
 
 export interface AutoMinerModel {
@@ -178,6 +179,12 @@ export interface NetworkModel {
   setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
   setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
   mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
+  externalizeDockerNetwork: Thunk<
+    NetworkModel,
+    { id: number },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -243,7 +250,15 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      { name, lndNodes, clightningNodes, eclairNodes, bitcoindNodes, customNodes },
+      {
+        name,
+        lndNodes,
+        clightningNodes,
+        eclairNodes,
+        bitcoindNodes,
+        customNodes,
+        externalizeNetwork,
+      },
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
@@ -267,6 +282,7 @@ const networkModel: NetworkModel = {
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
+        externalizeNetwork,
       });
       actions.add(network);
       const { networks } = getState();
@@ -911,6 +927,14 @@ const networkModel: NetworkModel = {
     }
 
     actions.setAutoMineMode({ id, mode });
+  }),
+  externalizeDockerNetwork: thunk(async (actions, { id }, { getState }) => {
+    const { networks } = getState();
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+    network.externalizeNetwork = !network.externalizeNetwork;
+    actions.setNetworks(networks);
+    await actions.save();
   }),
 };
 

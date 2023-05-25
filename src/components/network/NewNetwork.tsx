@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Divider,
   Form,
@@ -78,16 +79,22 @@ const NewNetwork: React.SFC = () => {
             eclairNodes: 1,
             bitcoindNodes: 1,
             customNodes: initialCustomValues,
+            externalizeNetwork: false,
           }}
           onFinish={createAsync.execute}
         >
-          <Form.Item
-            name="name"
-            label={l('nameLabel')}
-            rules={[{ required: true, message: l('cmps.forms.required') }]}
-          >
-            <Input placeholder={l('namePhldr')} />
-          </Form.Item>
+          <Col>
+            <Form.Item
+              name="name"
+              label={l('nameLabel')}
+              rules={[{ required: true, message: l('cmps.forms.required') }]}
+            >
+              <Input placeholder={l('namePhldr')} />
+            </Form.Item>
+            <Form.Item name="externalize" label="Create External Network">
+              <Checkbox />
+            </Form.Item>
+          </Col>
           {customNodes.length > 0 && (
             <>
               <Styled.Divider orientation="left">{l('customLabel')}</Styled.Divider>

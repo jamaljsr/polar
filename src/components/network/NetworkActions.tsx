@@ -1,3 +1,4 @@
+import React, { ReactNode, useCallback } from 'react';
 import {
   CloseOutlined,
   ExportOutlined,
@@ -9,17 +10,16 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
+import { Button, Checkbox, Divider, Dropdown, MenuProps, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
-import AutoMineButton from 'components/designer/AutoMineButton';
-import { useMiningAsync } from 'hooks/useMiningAsync';
-import SyncButton from 'components/designer/SyncButton';
 import { usePrefixedTranslation } from 'hooks';
-import React, { ReactNode, useCallback } from 'react';
+import { useMiningAsync } from 'hooks/useMiningAsync';
 import { Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { Network } from 'types';
 import { getNetworkBackendId } from 'utils/network';
+import AutoMineButton from 'components/designer/AutoMineButton';
+import SyncButton from 'components/designer/SyncButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -36,6 +36,7 @@ interface Props {
   onRenameClick: () => void;
   onDeleteClick: () => void;
   onExportClick: () => void;
+  onExternalizeClick: () => void;
 }
 
 const config: {
@@ -81,6 +82,7 @@ const NetworkActions: React.FC<Props> = ({
   onRenameClick,
   onDeleteClick,
   onExportClick,
+  onExternalizeClick,
 }) => {
   const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
 
@@ -88,6 +90,7 @@ const NetworkActions: React.FC<Props> = ({
   const bitcoinNode = nodes.bitcoin[0];
   const loading = status === Status.Starting || status === Status.Stopping;
   const started = status === Status.Started;
+  const stopped = status === Status.Stopped;
   const { label, type, danger, icon } = config[status];
 
   const nodeState = useStoreState(
@@ -132,6 +135,11 @@ const NetworkActions: React.FC<Props> = ({
           <SyncButton network={network} />
           <Divider type="vertical" />
         </>
+      )}
+      {stopped && (
+        <Checkbox checked={network.externalizeNetwork} onChange={onExternalizeClick}>
+          {l('externalizeNetwork')}
+        </Checkbox>
       )}
       <Styled.Button
         key="start"
