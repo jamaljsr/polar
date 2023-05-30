@@ -20151,10 +20151,10 @@ testcafe-legacy-api@5.1.6:
     strip-bom "^2.0.0"
     testcafe-hammerhead ">=19.4.0"
 
-testcafe-react-selectors@5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/testcafe-react-selectors/-/testcafe-react-selectors-5.0.2.tgz#766848ae0d2cb66db5e4b30a59bf3c938f37fa62"
-  integrity sha512-QzfGL/tNATXCJpu5qnRayqLWJfrL9iqD0LSAkiSvttxnqMEB64wWEoMPa1oSnWCh1jCZldHgdAvWUMw7KR5yrw==
+testcafe-react-selectors@5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/testcafe-react-selectors/-/testcafe-react-selectors-5.0.3.tgz#549e0507725a570c76a154ea5222be4f61eb3b2e"
+  integrity sha512-UBqkuQwrPmoxc//KUEtDiAkcns99EhgDNwVa3Q662yY8cQL01hbInXKqY1smOZRHEQwjnFjA2cEL7BHrQzR/pg==
 
 testcafe-reporter-json@^2.1.0:
   version "2.2.0"
