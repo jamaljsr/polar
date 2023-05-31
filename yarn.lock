@@ -17406,10 +17406,10 @@ react-motion@^0.5.2:
     prop-types "^15.5.8"
     raf "^3.1.0"
 
-react-redux@8.0.6:
-  version "8.0.6"
-  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-8.0.6.tgz#284b30e1ecd82486efa09609cfba1e8c2212af0e"
-  integrity sha512-8ESKGePH4tGVSFhhcFAnLkYZN/hdt7H7QGukR9VOu72v3E6jv5n175Hj2CSF0WSQ9xxGc9G1EmB/cdxLivg4DQ==
+react-redux@8.0.7:
+  version "8.0.7"
+  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-8.0.7.tgz#b74ef2f7ce2076e354540aa3511d3670c2b62571"
+  integrity sha512-1vRQuCQI5Y2uNmrMXg81RXKiBHY3jBzvCvNmZF437O/Z9/pZ+ba2uYHbemYXb3g8rjsacBGo+/wmfrQKzMhJsg==
   dependencies:
     "@babel/runtime" "^7.12.1"
     "@types/hoist-non-react-statics" "^3.3.1"
