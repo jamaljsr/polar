@@ -21,7 +21,6 @@ import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs } from 'utils/constants';
 import { exists, read, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
-import { formatExternalDockerNetworkName } from 'utils/network';
 import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
 
@@ -124,8 +123,9 @@ class DockerService implements DockerLibrary {
    */
   async saveComposeFile(network: Network) {
     const file = new ComposeFile(network.id);
-    if (network.externalizeNetwork) {
-      file.externalizeNetwork(network.name);
+    if (network.externalNetworkName !== '' || 'default' || undefined) {
+      file.setExternalNetworkName(network.externalNetworkName);
+      await this.createDockerExternalNetwork(network.externalNetworkName as string);
     }
 
     const { bitcoin, lightning, tap } = network.nodes;
@@ -171,31 +171,32 @@ class DockerService implements DockerLibrary {
   async start(network: Network) {
     const { bitcoin, lightning, tap } = network.nodes;
     await this.ensureDirs(network, [...bitcoin, ...lightning, ...tap]);
-    //create external network
-    if (network.externalizeNetwork) {
-      await this.createExternalNetwork(network);
-    }
-
     info(`Starting docker containers for ${network.name}`);
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.upAll, this.getArgs(network));
     info(`Network started:\n ${result.out || result.err}`);
   }
-  async createExternalNetwork(network: Network) {
+  async createDockerExternalNetwork(name: string) {
     const dockerInst = await getDocker();
-    const externalNetworkName = formatExternalDockerNetworkName(network.name);
-    info(`Starting docker network ${externalNetworkName} for ${network.name}`);
     const dockerNetworks = await dockerInst.listNetworks();
-    const networkExists = dockerNetworks.some(n => n.Name === externalNetworkName);
-    if (networkExists) {
-      info(`Network ${externalNetworkName} already exists`);
-      return;
+    const networkExists = dockerNetworks.find(n => n.Name === name);
+    if (!networkExists) {
+      const result = await dockerInst.createNetwork({
+        Name: name,
+        Driver: 'bridge',
+      });
+      info(`Network ${name} created:\n ${JSON.stringify(result)}`);
+    } else {
+      info(`Network ${name} already exists attaching to it`);
     }
-    const result = await dockerInst.createNetwork({
-      Name: externalNetworkName,
-      Driver: 'bridge',
-    });
-    info(`Network ${externalNetworkName} created:\n ${JSON.stringify(result)}`);
+  }
+  /**
+   * Return a list of external docker networks
+   */
+  async getDockerExternalNetworks(): Promise<string[]> {
+    const dockerInst = await getDocker();
+    const dockerNetworks = await dockerInst.listNetworks();
+    return dockerNetworks.map(n => n.Name);
   }
 
   /**

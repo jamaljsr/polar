@@ -9,6 +9,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { Loader } from 'components/common';
 import AdvancedOptionsModal from 'components/common/AdvancedOptionsModal';
+import DockerNetworkModal from 'components/network/DockerNetworkModal';
 import SendOnChainModal from './bitcoind/actions/SendOnChainModal';
 import { CanvasOuterDark, Link, NodeInner, Port, Ports } from './custom';
 import {
@@ -61,6 +62,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     sendOnChain,
     advancedOptions,
     changeTapBackend,
+    dockerNetwork,
   } = useStoreState(s => s.modals);
 
   const { save } = useStoreActions(s => s.network);
@@ -108,6 +110,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {newAddress.visible && <NewAddressModal network={network} />}
       {changeTapBackend.visible && <ChangeTapBackendModal network={network} />}
       {sendAsset.visible && <SendAssetModal network={network} />}
+      {dockerNetwork.visible && <DockerNetworkModal network={network} />}
     </Styled.Designer>
   );
 };

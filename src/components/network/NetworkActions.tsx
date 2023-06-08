@@ -3,6 +3,7 @@ import {
   CloseOutlined,
   ExportOutlined,
   FormOutlined,
+  LinkOutlined,
   MoreOutlined,
   PlayCircleOutlined,
   StopOutlined,
@@ -10,7 +11,7 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Checkbox, Divider, Dropdown, MenuProps, Tag } from 'antd';
+import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
 import { useMiningAsync } from 'hooks/useMiningAsync';
@@ -36,7 +37,7 @@ interface Props {
   onRenameClick: () => void;
   onDeleteClick: () => void;
   onExportClick: () => void;
-  onExternalizeClick: () => void;
+  onDockerNetworkClick: () => void;
 }
 
 const config: {
@@ -82,7 +83,7 @@ const NetworkActions: React.FC<Props> = ({
   onRenameClick,
   onDeleteClick,
   onExportClick,
-  onExternalizeClick,
+  onDockerNetworkClick,
 }) => {
   const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
 
@@ -90,7 +91,6 @@ const NetworkActions: React.FC<Props> = ({
   const bitcoinNode = nodes.bitcoin[0];
   const loading = status === Status.Starting || status === Status.Stopping;
   const started = status === Status.Started;
-  const stopped = status === Status.Stopped;
   const { label, type, danger, icon } = config[status];
 
   const nodeState = useStoreState(
@@ -110,6 +110,9 @@ const NetworkActions: React.FC<Props> = ({
       case 'delete':
         onDeleteClick();
         break;
+      case 'docker':
+        onDockerNetworkClick();
+        break;
     }
   }, []);
 
@@ -117,6 +120,7 @@ const NetworkActions: React.FC<Props> = ({
     { key: 'rename', label: l('menuRename'), icon: <FormOutlined /> },
     { key: 'export', label: l('menuExport'), icon: <ExportOutlined /> },
     { key: 'delete', label: l('menuDelete'), icon: <CloseOutlined /> },
+    { key: 'docker', label: l('dockerOptions'), icon: <LinkOutlined /> },
   ];
 
   return (
@@ -135,11 +139,6 @@ const NetworkActions: React.FC<Props> = ({
           <SyncButton network={network} />
           <Divider type="vertical" />
         </>
-      )}
-      {stopped && (
-        <Checkbox checked={network.externalizeNetwork} onChange={onExternalizeClick}>
-          {l('externalizeNetwork')}
-        </Checkbox>
       )}
       <Styled.Button
         key="start"

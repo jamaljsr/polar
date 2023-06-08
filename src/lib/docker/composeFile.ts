@@ -7,7 +7,7 @@ import {
   TapdNode,
 } from 'shared/types';
 import { bitcoinCredentials, dockerConfigs, eclairCredentials } from 'utils/constants';
-import { formatExternalDockerNetworkName, getContainerName } from 'utils/network';
+import { getContainerName, polarNetworkName } from 'utils/network';
 import { bitcoind, clightning, eclair, lnd, tapd } from './nodeTemplates';
 
 export interface ComposeService {
@@ -46,15 +46,16 @@ class ComposeFile {
   constructor(id: number) {
     this.content = {
       version: '3.3',
-      name: `polar-network-${id}`,
+      name: polarNetworkName(id),
       services: {},
     };
   }
-  externalizeNetwork(name: string) {
+  setExternalNetworkName(name: string | undefined) {
+    if (!name) return;
     this.content.networks = {
       default: {
         external: true,
-        name: formatExternalDockerNetworkName(name),
+        name: name,
       },
     };
   }

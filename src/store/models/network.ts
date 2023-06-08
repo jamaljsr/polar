@@ -45,7 +45,7 @@ interface AddNetworkArgs {
   eclairNodes: number;
   bitcoindNodes: number;
   customNodes: Record<string, number>;
-  externalizeNetwork: boolean;
+  externalNetworkName: string | undefined;
 }
 
 export interface AutoMinerModel {
@@ -179,12 +179,14 @@ export interface NetworkModel {
   setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
   setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
   mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
-  externalizeDockerNetwork: Thunk<
+  setDockerExternalNetworkName: Thunk<
     NetworkModel,
-    { id: number },
+    { id: number; externalNetworkName: string | undefined },
     StoreInjections,
     RootModel
   >;
+  getExternalDockerNetworks: Thunk<NetworkModel, void, StoreInjections, RootModel>;
+  setExternalNetworkName: Action<NetworkModel, { id: number; name: string | undefined }>;
 }
 
 const networkModel: NetworkModel = {
@@ -257,7 +259,7 @@ const networkModel: NetworkModel = {
         eclairNodes,
         bitcoindNodes,
         customNodes,
-        externalizeNetwork,
+        externalNetworkName,
       },
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
@@ -282,7 +284,7 @@ const networkModel: NetworkModel = {
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
-        externalizeNetwork,
+        externalNetworkName,
       });
       actions.add(network);
       const { networks } = getState();
@@ -928,13 +930,29 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
-  externalizeDockerNetwork: thunk(async (actions, { id }, { getState }) => {
-    const { networks } = getState();
-    const network = networks.find(n => n.id === id);
+  setDockerExternalNetworkName: thunk(
+    async (actions, { id, externalNetworkName }, { getState, injections }) => {
+      const { networks } = getState();
+      let network = networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      actions.setExternalNetworkName({ id, name: externalNetworkName });
+      network = getState().networks.find(n => n.id === id) as Network;
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
+      if (network.status === Status.Started) {
+        await injections.dockerService.stop(network);
+        await injections.dockerService.start(network);
+      }
+    },
+  ),
+  getExternalDockerNetworks: thunk(async (actions, _, { injections }) => {
+    const networks = await injections.dockerService.getDockerExternalNetworks();
+    return networks;
+  }),
+  setExternalNetworkName: action((state, { id, name }) => {
+    const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-    network.externalizeNetwork = !network.externalizeNetwork;
-    actions.setNetworks(networks);
-    await actions.save();
+    network.externalNetworkName = name;
   }),
 };
 

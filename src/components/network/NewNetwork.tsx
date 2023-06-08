@@ -5,7 +5,6 @@ import styled from '@emotion/styled';
 import {
   Button,
   Card,
-  Checkbox,
   Col,
   Divider,
   Form,
@@ -20,6 +19,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
 import { dockerConfigs } from 'utils/constants';
 import { isWindows } from 'utils/system';
+import DockerNetworkName from 'components/common/DockerNetworkName';
 import { HOME } from 'components/routing';
 
 const Styled = {
@@ -79,7 +79,7 @@ const NewNetwork: React.SFC = () => {
             eclairNodes: 1,
             bitcoindNodes: 1,
             customNodes: initialCustomValues,
-            externalizeNetwork: false,
+            externalNetworkName: '',
           }}
           onFinish={createAsync.execute}
         >
@@ -91,9 +91,7 @@ const NewNetwork: React.SFC = () => {
             >
               <Input placeholder={l('namePhldr')} />
             </Form.Item>
-            <Form.Item name="externalize" label="Create External Network">
-              <Checkbox />
-            </Form.Item>
+            <DockerNetworkName formName="externalNetworkName" onChange={console.log} />
           </Col>
           {customNodes.length > 0 && (
             <>
