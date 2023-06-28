@@ -113,7 +113,7 @@
     "i18next": "22.5.1",
     "i18next-browser-languagedetector": "7.1.0",
     "i18next-scanner": "4.2.0",
-    "jest-canvas-mock": "2.5.1",
+    "jest-canvas-mock": "2.5.2",
     "jest-environment-jsdom-sixteen": "1.0.3",
     "js-yaml": "4.1.0",
     "less": "4.1.3",
