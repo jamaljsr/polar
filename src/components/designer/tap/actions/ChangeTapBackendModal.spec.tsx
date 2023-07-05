@@ -120,7 +120,7 @@ describe('ChangeTapBackendModal', () => {
     const { getByText, queryByText, changeSelect, store } = await renderComponent();
     store.getActions().app.setRepoState(testRepoState);
     const warning =
-      `alice-tap is running tapd v0.2.0-alpha which is compatible with LND v0.16.0-beta and newer.` +
+      `alice-tap is running tapd v0.2.2-alpha which is compatible with LND v0.16.0-beta and newer.` +
       ` dave is running LND v0.7.1-beta so it cannot be used.`;
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();

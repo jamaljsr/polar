@@ -149,6 +149,7 @@ Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
 
 ### Tags
 
+- `0.2.2-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.2.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 
 **Building the image**
