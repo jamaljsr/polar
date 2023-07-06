@@ -16,7 +16,7 @@
 # * final: Copy the binaries required at runtime
 # The resulting image uploaded to dockerhub will only contain what is needed for runtime.
 # From the root of the repository, run "docker build -t yourimage:yourtag ."
-FROM debian:12-slim as downloader
+FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
   && apt-get update \
@@ -54,7 +54,7 @@ RUN mkdir /opt/litecoin && cd /opt/litecoin \
   && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
   && rm litecoin.tar.gz
 
-FROM debian:12-slim as builder
+FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=master
 RUN apt-get update -qq && \
@@ -136,7 +136,7 @@ RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
     make DEVELOPER=${DEVELOPER} && \
     /root/.local/bin/poetry run make install
 
-FROM debian:12-slim as final
+FROM debian:bullseye-slim as final
 
 COPY --from=downloader /opt/tini /usr/bin/tini
 RUN apt-get update && apt-get install -y --no-install-recommends socat inotify-tools python3 python3-pip libpq5\
@@ -176,10 +176,11 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # install c-lightning-REST API plugin
-RUN git clone --branch list-channels-opener https://github.com/jamaljsr/c-lightning-REST.git /opt/c-lightning-rest/ \
+RUN git clone https://github.com/Ride-The-Lightning/c-lightning-REST.git /opt/c-lightning-rest/ \
   && cd /opt/c-lightning-rest \
   && npm install \
-  && chmod -R a+rw /opt/c-lightning-rest
+  && chmod -R a+rw /opt/c-lightning-rest \
+  && mv /opt/c-lightning-rest/clrest.js /opt/c-lightning-rest/plugin.js
 
 # install lightning-cli bash completion
 RUN curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
