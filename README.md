@@ -38,7 +38,7 @@ With Polar you can:
 Supported Network Node Versions:
 
 - [LND](https://github.com/lightningnetwork/lnd) - v0.16.2, v0.16.1, v0.16.0, v0.15.5, v0.14.3, v0.13.1
-- [Core Lightning](https://github.com/ElementsProject/lightning) - v23.02.2, v22.11, v0.12.0, v0.11.2, v0.10.2
+- [Core Lightning](https://github.com/ElementsProject/lightning) - v23.05.2, v23.02.2, v22.11, v0.12.0, v0.11.2, v0.10.2
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.8.0, v0.7.0, v0.6.2, v0.5.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v25.0, v24.0, v23.0, v22.0, v0.21.1
 - [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.2.2, v0.2.0
@@ -48,7 +48,7 @@ Supported Network Node Versions:
 Polar requires that you have Docker installed to create the local networks
 
 - On Mac & Windows, you can just install [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- On Linux, you need to install [Docker Server](https://docs.docker.com/engine/install/#server) and [Docker Compose](https://docs.docker.com/compose/install/#scenario-two-install-the-compose-plugin) separately.
+- On Linux, you need to install [Docker Server](https://docs.docker.com/engine/install/#server).
 
 You will be prompted to install Docker if Polar cannot detect it automatically
 

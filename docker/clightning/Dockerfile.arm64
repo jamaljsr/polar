@@ -200,10 +200,11 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
-RUN git clone --branch list-channels-opener https://github.com/jamaljsr/c-lightning-REST.git /opt/c-lightning-rest/ \
+RUN git clone https://github.com/Ride-The-Lightning/c-lightning-REST.git /opt/c-lightning-rest/ \
   && cd /opt/c-lightning-rest \
   && npm install \
-  && chmod -R a+rw /opt/c-lightning-rest
+  && chmod -R a+rw /opt/c-lightning-rest \
+  && mv /opt/c-lightning-rest/clrest.js /opt/c-lightning-rest/plugin.js
 
 # install lightning-cli bash completion
 RUN curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
