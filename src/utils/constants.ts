@@ -248,7 +248,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 50,
+  version: 51,
   images: {
     LND: {
       latest: '0.16.4-beta',
@@ -290,9 +290,10 @@ export const defaultRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.2.2-alpha',
-      versions: ['0.2.2-alpha', '0.2.0-alpha'],
+      latest: '0.2.3-alpha',
+      versions: ['0.2.3-alpha', '0.2.2-alpha', '0.2.0-alpha'],
       compatibility: {
+        '0.2.3-alpha': '0.16.0-beta',
         '0.2.2-alpha': '0.16.0-beta',
         '0.2.0-alpha': '0.16.0-beta',
       },
