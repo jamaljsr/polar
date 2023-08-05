@@ -116,7 +116,7 @@
     "jest-canvas-mock": "2.5.2",
     "jest-environment-jsdom-sixteen": "1.0.3",
     "js-yaml": "4.1.0",
-    "less": "4.1.3",
+    "less": "4.2.0",
     "less-loader": "11.1.3",
     "lint-staged": "13.2.3",
     "lndconnect": "0.2.10",
