@@ -98,6 +98,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--externalip={{name}}',
       '--tlsextradomain={{name}}',
       '--tlsextradomain={{containerName}}',
+      '--tlsextradomain=host.docker.internal',
       '--listen=0.0.0.0:9735',
       '--rpclisten=0.0.0.0:10009',
       '--restlisten=0.0.0.0:8080',
