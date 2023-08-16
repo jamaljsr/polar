@@ -14,7 +14,7 @@ describe('CLightningService', () => {
     const infoResponse: Partial<CLN.GetInfoResponse> = {
       id: 'asdf',
       alias: '',
-      binding: [{ type: 'ipv4', address: '1.1.1.1', port: 9735 }],
+      binding: [{ type: 'ipv4', address: '0.0.0.0', port: 9735 }],
       blockheight: 0,
       numActiveChannels: 0,
       numPendingChannels: 0,
@@ -22,7 +22,7 @@ describe('CLightningService', () => {
       warningLightningdSync: 'blah',
     };
     clightningApiMock.httpGet.mockResolvedValue(infoResponse);
-    const expected = defaultStateInfo({ pubkey: 'asdf', rpcUrl: 'asdf@1.1.1.1:9735' });
+    const expected = defaultStateInfo({ pubkey: 'asdf', rpcUrl: 'asdf@bob:9735' });
     const actual = await clightningService.getInfo(node);
     expect(actual).toEqual(expected);
   });
