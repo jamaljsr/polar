@@ -27,7 +27,7 @@ class CLightningService implements LightningService {
       alias: info.alias,
       rpcUrl: info.binding
         .filter(b => b.type === 'ipv4')
-        .reduce((v, b) => `${info.id}@${b.address}:${b.port}`, ''),
+        .reduce((v, b) => `${info.id}@${node.name}:${b.port}`, ''),
       syncedToChain: !info.warningBitcoindSync && !info.warningLightningdSync,
       blockHeight: info.blockheight,
       numActiveChannels: info.numActiveChannels,
