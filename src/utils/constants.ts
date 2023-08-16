@@ -133,6 +133,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--dev-bitcoind-poll=2',
       '--dev-fast-gossip',
       '--grpc-port=11001',
+      '--log-file=-', // log to stdout
+      '--log-file=/home/clightning/.lightning/debug.log',
       '--plugin=/opt/c-lightning-rest/plugin.js',
       '--rest-port=8080',
       '--rest-protocol=http',
