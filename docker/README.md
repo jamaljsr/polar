@@ -79,7 +79,7 @@ Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
 ```sh
 $ cd lnd
-$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> --push  .
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> --push .
 ```
 
 Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
