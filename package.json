@@ -94,7 +94,7 @@
     "bitcoin-core": "4.1.0",
     "bufferutil": "4.0.7",
     "commitizen": "4.3.0",
-    "concurrently": "8.2.0",
+    "concurrently": "8.2.1",
     "connected-react-router": "6.9.3",
     "cross-env": "7.0.3",
     "detect-port": "1.5.1",
