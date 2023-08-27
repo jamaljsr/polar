@@ -146,7 +146,7 @@
     "testcafe-browser-provider-electron": "0.0.19",
     "testcafe-react-selectors": "5.0.3",
     "ts-node": "10.9.1",
-    "typescript": "5.1.6",
+    "typescript": "5.2.2",
     "utf-8-validate": "6.0.3",
     "wait-on": "7.0.1",
     "webpack": "4.44.2",
