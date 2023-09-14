@@ -192,6 +192,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        externalizeNetwork: false,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -214,6 +215,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        externalizeNetwork: false,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -236,6 +238,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        externalizeNetwork: false,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -309,6 +312,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        externalizeNetwork: false,
       });
       const chart = initChartFromNetwork(net);
       // return 'any' to suppress "The operand of a 'delete' operator must be optional.ts(2790)" error
@@ -436,6 +440,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        externalizeNetwork: false,
       });
       const chart = initChartFromNetwork(net);
       const fileData: NetworksFile = {

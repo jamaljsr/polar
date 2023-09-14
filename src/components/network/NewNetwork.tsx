@@ -19,6 +19,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
 import { dockerConfigs } from 'utils/constants';
 import { isWindows } from 'utils/system';
+import DockerNetworkName from 'components/common/DockerNetworkName';
 import { HOME } from 'components/routing';
 
 const Styled = {
@@ -78,16 +79,20 @@ const NewNetwork: React.SFC = () => {
             eclairNodes: 1,
             bitcoindNodes: 1,
             customNodes: initialCustomValues,
+            externalNetworkName: '',
           }}
           onFinish={createAsync.execute}
         >
-          <Form.Item
-            name="name"
-            label={l('nameLabel')}
-            rules={[{ required: true, message: l('cmps.forms.required') }]}
-          >
-            <Input placeholder={l('namePhldr')} />
-          </Form.Item>
+          <Col>
+            <Form.Item
+              name="name"
+              label={l('nameLabel')}
+              rules={[{ required: true, message: l('cmps.forms.required') }]}
+            >
+              <Input placeholder={l('namePhldr')} />
+            </Form.Item>
+            <DockerNetworkName formName="externalNetworkName" onChange={console.log} />
+          </Col>
           {customNodes.length > 0 && (
             <>
               <Styled.Divider orientation="left">{l('customLabel')}</Styled.Divider>

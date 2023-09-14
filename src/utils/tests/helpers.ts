@@ -171,6 +171,7 @@ export const getNetwork = (
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
+    externalNetworkName: undefined,
   };
   if (tapNodeCount > 0) {
     config.lndNodes = 0;

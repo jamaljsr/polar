@@ -1,7 +1,9 @@
+import React, { ReactNode, useCallback } from 'react';
 import {
   CloseOutlined,
   ExportOutlined,
   FormOutlined,
+  LinkOutlined,
   MoreOutlined,
   PlayCircleOutlined,
   StopOutlined,
@@ -11,15 +13,14 @@ import {
 import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
 import { ButtonType } from 'antd/lib/button';
-import AutoMineButton from 'components/designer/AutoMineButton';
-import { useMiningAsync } from 'hooks/useMiningAsync';
-import SyncButton from 'components/designer/SyncButton';
 import { usePrefixedTranslation } from 'hooks';
-import React, { ReactNode, useCallback } from 'react';
+import { useMiningAsync } from 'hooks/useMiningAsync';
 import { Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { Network } from 'types';
 import { getNetworkBackendId } from 'utils/network';
+import AutoMineButton from 'components/designer/AutoMineButton';
+import SyncButton from 'components/designer/SyncButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -36,6 +37,7 @@ interface Props {
   onRenameClick: () => void;
   onDeleteClick: () => void;
   onExportClick: () => void;
+  onDockerNetworkClick: () => void;
 }
 
 const config: {
@@ -81,6 +83,7 @@ const NetworkActions: React.FC<Props> = ({
   onRenameClick,
   onDeleteClick,
   onExportClick,
+  onDockerNetworkClick,
 }) => {
   const { l } = usePrefixedTranslation('cmps.network.NetworkActions');
 
@@ -107,6 +110,9 @@ const NetworkActions: React.FC<Props> = ({
       case 'delete':
         onDeleteClick();
         break;
+      case 'docker':
+        onDockerNetworkClick();
+        break;
     }
   }, []);
 
@@ -114,6 +120,7 @@ const NetworkActions: React.FC<Props> = ({
     { key: 'rename', label: l('menuRename'), icon: <FormOutlined /> },
     { key: 'export', label: l('menuExport'), icon: <ExportOutlined /> },
     { key: 'delete', label: l('menuDelete'), icon: <CloseOutlined /> },
+    { key: 'docker', label: l('dockerOptions'), icon: <LinkOutlined /> },
   ];
 
   return (

@@ -74,6 +74,11 @@ interface ChangeTapBackendModel {
   linkId?: string;
 }
 
+interface DockerNetworkModel {
+  visible: boolean;
+  networkName?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -87,6 +92,7 @@ export interface ModalsModel {
   newAddress: NewAddressModel;
   sendAsset: SendAssetModel;
   changeTapBackend: ChangeTapBackendModel;
+  dockerNetwork: DockerNetworkModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -127,6 +133,9 @@ export interface ModalsModel {
   >;
   hideChangeTapBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setChangeTapBackend: Action<ModalsModel, Partial<ChangeTapBackendModel>>;
+  setDockerNetwork: Action<ModalsModel, DockerNetworkModel>;
+  showDockerNetwork: Thunk<ModalsModel, Partial<DockerNetworkModel>, StoreInjections>;
+  hideDockerNetwork: Thunk<ModalsModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -142,6 +151,7 @@ const modalsModel: ModalsModel = {
   sendOnChain: { visible: false },
   assetInfo: { visible: false },
   changeTapBackend: { visible: false },
+  dockerNetwork: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -335,6 +345,18 @@ const modalsModel: ModalsModel = {
       ...state.changeTapBackend,
       ...payload,
     };
+  }),
+  setDockerNetwork: action((state, payload) => {
+    state.dockerNetwork = {
+      ...state.dockerNetwork,
+      ...payload,
+    };
+  }),
+  showDockerNetwork: thunk((actions, { networkName }) => {
+    actions.setDockerNetwork({ visible: true, networkName });
+  }),
+  hideDockerNetwork: thunk(actions => {
+    actions.setDockerNetwork({ visible: false });
   }),
 };
 

@@ -1,15 +1,19 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tag } from 'antd';
+import { Row, Tag } from 'antd';
 import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
+import { useStoreState } from 'store';
 
 export interface StatusTagProps {
-  status: Status;
+  networkId: number;
 }
 
-const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
+const StatusTag: React.FC<StatusTagProps> = ({ networkId }) => {
   const { t } = useTranslation();
+
+  const { networks } = useStoreState(s => s.network);
+  const network = networks.find(n => n.id === networkId);
 
   const { statusTag } = useTheme();
 
@@ -21,7 +25,18 @@ const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
     [Status.Error]: 'red',
   };
 
-  return <Tag color={statusColors[status]}>{t(`enums.status.${Status[status]}`)}</Tag>;
+  return (
+    <Row>
+      {network && (
+        <Tag color={statusColors[network.status]}>
+          {t(`enums.status.${Status[network.status]}`)}
+        </Tag>
+      )}
+      {network?.externalNetworkName && (
+        <Tag color="blue">{`External: ${network.externalNetworkName}`}</Tag>
+      )}
+    </Row>
+  );
 };
 
 export default StatusTag;
