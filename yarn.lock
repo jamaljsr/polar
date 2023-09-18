@@ -9426,10 +9426,10 @@ eastasianwidth@^0.2.0:
   resolved "https://registry.yarnpkg.com/eastasianwidth/-/eastasianwidth-0.2.0.tgz#696ce2ec0aa0e6ea93a397ffcf24aa7840c827cb"
   integrity sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==
 
-easy-peasy@6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-6.0.2.tgz#8a0b819c5366a21253c6953ab85f0fdb898d752a"
-  integrity sha512-57acl/gE6EA2muB3O7G3JE7YMp8+sOyV7c/MnWiBdaEg9ZWiRUpd1AO8sYpXGuaUbN0MkfiDN3lP1XFHGlVUUw==
+easy-peasy@6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/easy-peasy/-/easy-peasy-6.0.3.tgz#f2f0ebcd14bc269d7ad6fe95432ef9d55bde0b02"
+  integrity sha512-HReT90GcFjv4ff5SaUiEFgJU1uTrVh7HM/7bB/9YjNACQ6EsEFNq8n1KBkcGWWPo9g6OYgE8uGX7A/tcBcj06A==
   dependencies:
     "@babel/runtime" "^7.22.6"
     fast-deep-equal "^3.1.3"
