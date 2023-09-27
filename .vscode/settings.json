@@ -18,7 +18,7 @@
     { "language": "typescriptreact", "autoFix": true }
   ],
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
-  "importSorter.sortConfiguration.removeUnusedImports": true,
+  "importSorter.sortConfiguration.removeUnusedImports": false,
   "importSorter.importStringConfiguration.tabSize": 2,
   "importSorter.importStringConfiguration.trailingComma": "multiLine",
   "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 90,
@@ -65,8 +65,5 @@
       "orderLevel": 80
     }
   ],
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
   "typescript.tsdk": "node_modules/typescript/lib"
 }

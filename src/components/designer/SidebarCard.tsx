@@ -1,3 +1,5 @@
+// @jest-ignore
+
 import styled from '@emotion/styled';
 import { Card } from 'antd';
 

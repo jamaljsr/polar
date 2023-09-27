@@ -33,6 +33,9 @@ const detectPortMock = detectPort as jest.Mock;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
+const dockerServiceMock = injections.dockerService as jest.Mocked<
+  typeof injections.dockerService
+>;
 
 describe('Network model', () => {
   const rootModel = {
@@ -56,6 +59,7 @@ describe('Network model', () => {
     eclairNodes: 1,
     bitcoindNodes: 1,
     customNodes: {},
+    externalNetworkName: '',
   };
 
   beforeEach(() => {
@@ -1017,6 +1021,53 @@ describe('Network model', () => {
     it('should fail to mineBlock blocks with an invalid id', async () => {
       const { mineBlock } = store.getActions().network;
       await expect(mineBlock({ id: 10 })).rejects.toThrow();
+    });
+    it('should set the external Network Name for docker', async () => {
+      const { addNetwork, setDockerExternalNetworkName, start } =
+        store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+      await start(network.id);
+      await setDockerExternalNetworkName({
+        id: network.id,
+        externalNetworkName: 'test',
+      });
+      expect(firstNetwork().externalNetworkName).toBe('test');
+      expect(dockerServiceMock.saveComposeFile).toBeCalledTimes(3);
+      expect(firstNetwork().status).toBe(Status.Started);
+      expect(dockerServiceMock.stop).toBeCalledWith(
+        expect.objectContaining({ id: network.id }),
+      );
+      expect(dockerServiceMock.start).toBeCalledWith(
+        expect.objectContaining({ id: network.id }),
+      );
+    });
+    it('should throw an error with invalid id', async () => {
+      expect.assertions(1);
+      const { addNetwork, setDockerExternalNetworkName, start } =
+        store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+      await start(network.id);
+
+      expect(
+        setDockerExternalNetworkName({
+          id: 3,
+          externalNetworkName: 'test',
+        }),
+      ).rejects.toThrow();
+    });
+    it('should throw an error with invalid id', () => {
+      expect.assertions(1);
+      const { addNetwork, setExternalNetworkName } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+
+      expect(() => {
+        setExternalNetworkName({
+          id: 3,
+          name: 'test',
+        });
+      }).toThrow();
     });
   });
 });

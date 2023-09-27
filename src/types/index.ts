@@ -26,6 +26,7 @@ export interface Network {
     lightning: LightningNode[];
     tap: TapNode[];
   };
+  externalNetworkName: string | undefined;
 }
 
 /**
@@ -117,6 +118,8 @@ export interface DockerLibrary {
   removeNode: (network: Network, node: CommonNode) => Promise<void>;
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
+  createDockerExternalNetwork: (name: string) => Promise<void>;
+  getDockerExternalNetworks: () => Promise<string[]>;
 }
 
 export interface RepoServiceInjection {

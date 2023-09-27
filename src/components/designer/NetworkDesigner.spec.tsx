@@ -218,6 +218,16 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the Docker Network modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showDockerNetwork({});
+    });
+    expect(await findByText('Docker Network Options')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText } = renderComponent();
     expect(await findByText('alice')).toBeInTheDocument();

@@ -365,6 +365,7 @@ export const createNetwork = (config: {
   repoState: DockerRepoState;
   managedImages: ManagedImage[];
   customImages: { image: CustomImage; count: number }[];
+  externalNetworkName: string | undefined;
   status?: Status;
 }): Network => {
   const {
@@ -377,6 +378,7 @@ export const createNetwork = (config: {
     repoState,
     managedImages,
     customImages,
+    externalNetworkName,
   } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
@@ -392,6 +394,7 @@ export const createNetwork = (config: {
       tap: [],
     },
     autoMineMode: AutoMineMode.AutoOff,
+    externalNetworkName,
   };
 
   const { bitcoin, lightning } = network.nodes;
@@ -842,4 +845,8 @@ export const zipNetwork = async (
   const ipc = createIpcSender('NetworkUtil', 'app');
   await ipc(ipcChannels.zip, { source: network.path, destination: zipPath });
   // await zip(network.path, zipPath);
+};
+
+export const polarNetworkName = (id: number) => {
+  return `polar-network-${id}`;
 };

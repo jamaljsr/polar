@@ -17,6 +17,7 @@ describe('NetworkActions Component', () => {
   const handleRenameClick = jest.fn();
   const handleDeleteClick = jest.fn();
   const handleExportClick = jest.fn();
+  const handleDockerClick = jest.fn();
 
   const renderComponent = (status: Status) => {
     const network = getNetwork(1, 'test network', status);
@@ -49,6 +50,7 @@ describe('NetworkActions Component', () => {
         onRenameClick={handleRenameClick}
         onDeleteClick={handleDeleteClick}
         onExportClick={handleExportClick}
+        onDockerNetworkClick={handleDockerClick}
       />,
       { initialState },
     );
@@ -115,6 +117,12 @@ describe('NetworkActions Component', () => {
     fireEvent.mouseOver(getByLabelText('more'));
     fireEvent.click(await findByText('Export'));
     expect(handleExportClick).toBeCalled();
+  });
+  it('should call onExportClick when export menu item clicked', async () => {
+    const { findByText, getByLabelText } = renderComponent(Status.Stopped);
+    fireEvent.mouseOver(getByLabelText('more'));
+    fireEvent.click(await findByText('Docker Options'));
+    expect(handleDockerClick).toBeCalled();
   });
 
   it('should display the current block height', () => {

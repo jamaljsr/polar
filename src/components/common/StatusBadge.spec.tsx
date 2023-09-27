@@ -3,33 +3,37 @@ import { Status } from 'shared/types';
 import { renderWithProviders } from 'utils/tests';
 import StatusTag from './StatusTag';
 
-describe('StatusBadge Component', () => {
+describe('StatusTag Component', () => {
   const renderComponent = (status: Status) => {
-    return renderWithProviders(<StatusTag status={status} />);
+    const result = renderWithProviders(<StatusTag status={status} />);
+    return {
+      ...result,
+      dot: result.container.querySelector('.ant-tag'),
+    };
   };
 
   it('should render the Starting status', () => {
-    const { getByText } = renderComponent(Status.Starting);
-    expect(getByText('Starting')).toBeInTheDocument();
+    const { dot } = renderComponent(Status.Starting);
+    expect(dot).toHaveClass('ant-tag-blue');
   });
 
   it('should render the Started status', () => {
-    const { getByText } = renderComponent(Status.Started);
-    expect(getByText('Started')).toBeInTheDocument();
+    const { dot } = renderComponent(Status.Started);
+    expect(dot).toHaveClass('ant-tag-green');
   });
 
   it('should render the Stopping status', () => {
-    const { getByText } = renderComponent(Status.Stopping);
-    expect(getByText('Stopping')).toBeInTheDocument();
+    const { dot } = renderComponent(Status.Stopping);
+    expect(dot).toHaveClass('ant-tag-blue');
   });
 
   it('should render the Stopped status', () => {
-    const { getByText } = renderComponent(Status.Stopped);
-    expect(getByText('Stopped')).toBeInTheDocument();
+    const { dot } = renderComponent(Status.Stopped);
+    expect(dot).toHaveClass('ant-tag-red');
   });
 
   it('should render the Error status', () => {
-    const { getByText } = renderComponent(Status.Error);
-    expect(getByText('Error')).toBeInTheDocument();
+    const { dot } = renderComponent(Status.Error);
+    expect(dot).toHaveClass('ant-tag-red');
   });
 });

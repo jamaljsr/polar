@@ -27,7 +27,7 @@
     "prebuild": "tsc -p electron/tsconfig.json && yarn theme",
     "prepare": "husky install",
     "release": "standard-version --no-verify --skip.commit --skip.tag",
-    "start": "rescripts start",
+    "start": "rescripts --openssl-legacy-provider start",
     "test": "cross-env DEBUG_PRINT_LIMIT=15000 rescripts test --env=jest-environment-jsdom-sixteen",
     "test:ci": "cross-env CI=true yarn test --coverage",
     "test:all": "yarn test:ci && yarn test:e2e",

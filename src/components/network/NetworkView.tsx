@@ -67,6 +67,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const { clearActiveId } = useStoreActions(s => s.designer);
   const { getInfo } = useStoreActions(s => s.bitcoind);
   const { toggle, rename, remove, exportNetwork } = useStoreActions(s => s.network);
+  const { showDockerNetwork } = useStoreActions(s => s.modals);
   const toggleAsync = useAsyncCallback(toggle);
   const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
     try {
@@ -184,6 +185,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
             }}
             onDeleteClick={() => showRemoveModal(network.id, network.name)}
             onExportClick={() => exportAsync.execute(network.id, network.name)}
+            onDockerNetworkClick={() => showDockerNetwork({ networkName: network.name })}
           />
         }
       />
@@ -193,6 +195,10 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
   const showNotice =
     [Status.Stopped, Status.Starting].includes(network.status) &&
     missingImages.length > 0;
+  const externalNetworkNotice =
+    [Status.Stopped, Status.Starting].includes(network.status) &&
+    network.externalNetworkName &&
+    network.externalNetworkName !== 'default';
 
   return (
     <Styled.NetworkView>
@@ -202,6 +208,14 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
           type="info"
           message={l('missingImages')}
           description={missingImages.join(', ')}
+          showIcon
+        />
+      )}
+      {externalNetworkNotice && (
+        <Alert
+          type="info"
+          message={l('externalNetwork')}
+          description={network.externalNetworkName}
           showIcon
         />
       )}

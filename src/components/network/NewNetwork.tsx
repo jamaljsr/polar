@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
@@ -20,6 +20,7 @@ import { ThemeColors } from 'theme/colors';
 import { dockerConfigs } from 'utils/constants';
 import { isWindows } from 'utils/system';
 import { HOME } from 'components/routing';
+import NewNetworkOptions from './NewNetworkOptions';
 
 const Styled = {
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
@@ -46,6 +47,8 @@ const NewNetwork: React.SFC = () => {
   const { addNetwork } = useStoreActions(s => s.network);
   const { settings } = useStoreState(s => s.app);
   const { custom: customNodes } = settings.nodeImages;
+
+  const [isDockerNetworkNameValid, setIsDockerNetworkNameValid] = useState<boolean>(true);
 
   const createAsync = useAsyncCallback(async (values: any) => {
     try {
@@ -78,16 +81,22 @@ const NewNetwork: React.SFC = () => {
             eclairNodes: 1,
             bitcoindNodes: 1,
             customNodes: initialCustomValues,
+            externalNetworkName: '',
           }}
           onFinish={createAsync.execute}
         >
-          <Form.Item
-            name="name"
-            label={l('nameLabel')}
-            rules={[{ required: true, message: l('cmps.forms.required') }]}
-          >
-            <Input placeholder={l('namePhldr')} />
-          </Form.Item>
+          <Col>
+            <Form.Item
+              name="name"
+              label={l('nameLabel')}
+              rules={[{ required: true, message: l('cmps.forms.required') }]}
+            >
+              <Input placeholder={l('namePhldr')} />
+            </Form.Item>
+            <NewNetworkOptions
+              setIsDockerNetworkNameValid={setIsDockerNetworkNameValid}
+            />
+          </Col>
           {customNodes.length > 0 && (
             <>
               <Styled.Divider orientation="left">{l('customLabel')}</Styled.Divider>
@@ -147,7 +156,12 @@ const NewNetwork: React.SFC = () => {
             </Col>
           </Row>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={createAsync.loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={createAsync.loading}
+              disabled={!isDockerNetworkNameValid}
+            >
               {l('btnCreate')}
             </Button>
           </Form.Item>
