@@ -19,14 +19,14 @@
 FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
-  && apt-get update \
-  && apt-get install -qq --no-install-recommends ca-certificates dirmngr wget
+    && apt-get update \
+    && apt-get install -qq --no-install-recommends ca-certificates dirmngr wget
 
 WORKDIR /opt
 
-RUN wget -qO /opt/tini "https://github.com/krallin/tini/releases/download/v0.18.0/tini" \
-  && echo "12d20136605531b09a2c2dac02ccee85e1b874eb322ef6baf7561cd93f93c855 /opt/tini" | sha256sum -c - \
-  && chmod +x /opt/tini
+RUN wget -qO /tini "https://github.com/krallin/tini/releases/download/v0.18.0/tini" \
+    && echo "12d20136605531b09a2c2dac02ccee85e1b874eb322ef6baf7561cd93f93c855 /tini" | sha256sum -c - \
+    && chmod +x /tini
 
 ARG BITCOIN_VERSION=22.0
 ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz
@@ -34,13 +34,13 @@ ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCO
 ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
 
 RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
-  && wget -qO $BITCOIN_TARBALL "$BITCOIN_URL" \
-  && wget -qO bitcoin "$BITCOIN_ASC_URL" \
-  && grep $BITCOIN_TARBALL bitcoin | tee SHA256SUMS \
-  && sha256sum -c SHA256SUMS \
-  && BD=bitcoin-$BITCOIN_VERSION/bin \
-  && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
-  && rm $BITCOIN_TARBALL
+    && wget -qO $BITCOIN_TARBALL "$BITCOIN_URL" \
+    && wget -qO bitcoin "$BITCOIN_ASC_URL" \
+    && grep $BITCOIN_TARBALL bitcoin | tee SHA256SUMS \
+    && sha256sum -c SHA256SUMS \
+    && BD=bitcoin-$BITCOIN_VERSION/bin \
+    && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
+    && rm $BITCOIN_TARBALL
 
 ENV LITECOIN_VERSION 0.16.3
 ENV LITECOIN_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-x86_64-linux-gnu.tar.gz
@@ -48,61 +48,67 @@ ENV LITECOIN_SHA256 686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc9304380
 
 # install litecoin binaries
 RUN mkdir /opt/litecoin && cd /opt/litecoin \
-  && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
-  && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
-  && BD=litecoin-$LITECOIN_VERSION/bin \
-  && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
-  && rm litecoin.tar.gz
+    && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
+    && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
+    && BD=litecoin-$LITECOIN_VERSION/bin \
+    && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
+    && rm litecoin.tar.gz
 
 FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=master
 RUN apt-get update -qq && \
-  apt-get install -qq -y --no-install-recommends \
-  autoconf \
-  automake \
-  build-essential \
-  ca-certificates \
-  curl \
-  dirmngr \
-  gettext \
-  git \
-  gnupg \
-  libpq-dev \
-  libtool \
-  libffi-dev \
-  protobuf-compiler \
-  python3 \
-  python3-dev \
-  python3-mako \
-  python3-pip \
-  python3-venv \
-  python3-setuptools \
-  wget
+    apt-get install -qq -y --no-install-recommends \
+        autoconf \
+        automake \
+        build-essential \
+        ca-certificates \
+        curl \
+        dirmngr \
+        gettext \
+        git \
+        gnupg \
+        libpq-dev \
+        libtool \
+        libffi-dev \
+        pkg-config \
+        libssl-dev \
+        protobuf-compiler \
+        python3.9 \
+        python3-dev \
+        python3-mako \
+        python3-pip \
+        python3-venv \
+        python3-setuptools \
+        libev-dev \
+        libevent-dev \
+        qemu-user-static \
+        wget
 
 RUN wget -q https://zlib.net/fossils/zlib-1.2.13.tar.gz \
-  && tar xvf zlib-1.2.13.tar.gz \
-  && cd zlib-1.2.13 \
-  && ./configure \
-  && make \
-  && make install && cd .. && \
-  rm zlib-1.2.13.tar.gz && \
-  rm -rf zlib-1.2.13
+    && tar xvf zlib-1.2.13.tar.gz \
+    && cd zlib-1.2.13 \
+    && ./configure \
+    && make \
+    && make install && cd .. && \
+    rm zlib-1.2.13.tar.gz && \
+    rm -rf zlib-1.2.13
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
-  && wget -q https://www.sqlite.org/2019/sqlite-src-3290000.zip \
-  && unzip sqlite-src-3290000.zip \
-  && cd sqlite-src-3290000 \
-  && ./configure --enable-static --disable-readline --disable-threadsafe --disable-load-extension \
-  && make \
-  && make install && cd .. && rm sqlite-src-3290000.zip && rm -rf sqlite-src-3290000
+    && wget -q https://www.sqlite.org/2019/sqlite-src-3290000.zip \
+    && unzip sqlite-src-3290000.zip \
+    && cd sqlite-src-3290000 \
+    && ./configure --enable-static --disable-readline --disable-threadsafe --disable-load-extension \
+    && make \
+    && make install && cd .. && rm sqlite-src-3290000.zip && rm -rf sqlite-src-3290000
 
+USER root
 RUN wget -q https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz \
-  && tar xvf gmp-6.1.2.tar.xz \
-  && cd gmp-6.1.2 \
-  && ./configure --disable-assembly \
-  && make \
-  && make install && cd .. && rm gmp-6.1.2.tar.xz && rm -rf gmp-6.1.2
+    && tar xvf gmp-6.1.2.tar.xz \
+    && cd gmp-6.1.2 \
+    && ./configure --disable-assembly \
+    && make \
+    && make install && cd .. && rm gmp-6.1.2.tar.xz && rm -rf gmp-6.1.2
 
 ENV RUST_PROFILE=release
 ENV PATH=$PATH:/root/.cargo/bin/
@@ -120,27 +126,36 @@ ARG CLN_VERSION
 RUN git clone --recursive --branch=v${CLN_VERSION} https://github.com/ElementsProject/lightning .
 ####################
 
-#################### Polar Modification
-# This line is modified to enable developer command line flags
-# Original line: ARG DEVELOPER=0
 ARG DEVELOPER=1
-####################
-
 ENV PYTHON_VERSION=3
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && pip3 install -U pip \
-    && pip3 install -U wheel \
-    && /root/.local/bin/poetry install
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
+
+RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 wheel cryptography
+RUN pip3 install grpcio-tools
+
+RUN /root/.local/bin/poetry install
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
     make DEVELOPER=${DEVELOPER} && \
     /root/.local/bin/poetry run make install
 
+RUN pip3 install -r plugins/clnrest/requirements.txt
+RUN pip3 install ./contrib/pyln-client
+
 FROM debian:bullseye-slim as final
 
-COPY --from=downloader /opt/tini /usr/bin/tini
-RUN apt-get update && apt-get install -y --no-install-recommends socat inotify-tools python3 python3-pip libpq5\
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      socat \
+      inotify-tools \
+      python3.9 \
+      python3-pip \
+      qemu-user-static \
+      libpq5 && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
@@ -148,24 +163,25 @@ ENV LIGHTNINGD_PORT=9735
 ENV LIGHTNINGD_NETWORK=bitcoin
 
 RUN mkdir $LIGHTNINGD_DATA && \
-  touch $LIGHTNINGD_DATA/config
+    touch $LIGHTNINGD_DATA/config
 VOLUME [ "/root/.lightning" ]
+
 COPY --from=builder /tmp/lightning_install/ /usr/local/
+COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 COPY --from=downloader /opt/litecoin/bin /usr/bin
-
-#################### Polar Modification
-COPY --from=builder /opt/lightningd/contrib/lightning-cli.bash-completion /etc/bash_completion.d/
-####################
-
+COPY --from=downloader "/tini" /usr/bin/tini
 #################### Polar Modification
 # This line is removed as we have our own entrypoint file
-# Original line: COPY tools/docker-entrypoint.sh entrypoint.sh
+# Original line: 
+# COPY tools/docker-entrypoint.sh entrypoint.sh
 ####################
 
 #########################
 # END ElementsProject/lightning/Dockerfile
 #########################
+
+COPY --from=builder /opt/lightningd/contrib/lightning-cli.bash-completion /etc/bash_completion.d/
 
 # install nodejs
 RUN apt-get update -y \
