@@ -199,7 +199,8 @@ const networkModel: NetworkModel = {
   }),
   updateNodeCommand: action((state, { id, name, command }) => {
     const network = state.networks.find(n => n.id === id) as Network;
-    const nodes: CommonNode[] = [...network.nodes.lightning, ...network.nodes.bitcoin];
+    const { lightning, bitcoin, tap } = network.nodes;
+    const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap];
     nodes.filter(n => n.name === name).forEach(n => (n.docker.command = command));
   }),
   updateNodePorts: action((state, { id, ports }) => {

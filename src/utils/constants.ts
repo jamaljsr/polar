@@ -232,6 +232,9 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--lnd.host={{lndName}}:10009',
       '--lnd.macaroonpath=/home/tap/.lnd/data/chain/bitcoin/regtest/admin.macaroon',
       '--lnd.tlspath=/home/tap/.lnd/tls.cert',
+      '--allow-public-uni-proof-courier',
+      '--allow-public-stats',
+      '--universe.public-access',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'lndName'],

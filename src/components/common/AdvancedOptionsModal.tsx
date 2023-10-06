@@ -33,8 +33,8 @@ const AdvancedOptionsModal: React.FC<Props> = ({ network }) => {
   });
 
   const handleSubmit = (values: any) => {
-    const { lightning, bitcoin } = network.nodes;
-    const nodes: CommonNode[] = [...lightning, ...bitcoin];
+    const { lightning, bitcoin, tap } = network.nodes;
+    const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap];
     const node = nodes.find(n => n.name === nodeName);
     if (!node) return;
     updateAsync.execute(node, values.command);

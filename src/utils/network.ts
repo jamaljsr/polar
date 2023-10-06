@@ -4,6 +4,7 @@ import { basename, join } from 'path';
 import { IChart } from '@mrblenny/react-flow-chart';
 import detectPort from 'detect-port';
 import { tmpdir } from 'os';
+import semver from 'semver';
 import { ipcChannels } from 'shared';
 import {
   BitcoinNode,
@@ -843,3 +844,37 @@ export const zipNetwork = async (
   await ipc(ipcChannels.zip, { source: network.path, destination: zipPath });
   // await zip(network.path, zipPath);
 };
+
+/**
+ * Gets the docker command for a given node implementation and version. When newer
+ * versions of a node implementation are released, the command flags may need to be
+ * updated to support the latest features.
+ */
+export const getDockerCommand = (
+  impl: NodeImplementation,
+  version: string,
+  customCommand?: string,
+): string => {
+  // if a custom command is specified, use that instead of the default command
+  if (customCommand) return customCommand;
+
+  let command = dockerConfigs[impl].command;
+  const sv = semver.parse(version);
+  // if the version is invalid, return the default command
+  if (!sv) return command;
+
+  // the raw version string without any prerelease tags
+  const rawVersion = `${sv.major}.${sv.minor}.${sv.patch}`;
+
+  // these flags were added in 0.3.0-alpha and are not available in older versions
+  if (impl === 'tapd' && semver.satisfies(rawVersion, '<0.3.0')) {
+    command = command
+      .replace('--allow-public-stats\n  ', '')
+      .replace('--allow-public-uni-proof-courier\n  ', '')
+      .replace('--universe.public-access\n  ', '');
+  }
+
+  return command;
+};
+
+(globalThis as any).semver = semver;
