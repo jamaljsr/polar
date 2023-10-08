@@ -3,6 +3,7 @@ import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
 import { BitcoinNode, LightningNode, Status, TapdNode, TapNode } from 'shared/types';
 import * as PTAP from 'lib/tap/types';
 import { StoreInjections } from 'types';
+import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { RootModel } from './';
 
@@ -198,7 +199,7 @@ const tapModel: TapModel = {
     async (
       actions,
       { node, address, autoFund },
-      { injections, getStoreState, getStoreActions },
+      { injections, getState, getStoreState, getStoreActions },
     ) => {
       const network = getStoreState().network.networkById(node.networkId);
       const lndNode = network.nodes.lightning.find(
@@ -216,13 +217,28 @@ const tapModel: TapModel = {
         tapAddrs: [address],
       };
       const res = await api.sendAsset(node, sendReq);
-      //update network
+      // update network
       const btcNode: BitcoinNode = network.nodes.bitcoin[0];
-      //missing await is intentional, we dont have to wait for bitcoin to mine
-      getStoreActions().bitcoind.mine({
+      await getStoreActions().bitcoind.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
+
+      // sending assets takes a few seconds before it's reflected in the
+      // balance, so fetch balances until the balance changes for up to
+      // 10 seconds
+      const { id } = await actions.decodeAddress({ node, address });
+      const currentBalance = getState().nodes[node.name]?.balances?.find(
+        b => b.id === id,
+      )?.balance;
+      for (let i = 0; i < 10; i++) {
+        await actions.getAllInfo(node);
+        const newBalance = getState().nodes[node.name]?.balances?.find(
+          b => b.id === id,
+        )?.balance;
+        if (newBalance !== currentBalance) break;
+        await delay(1000);
+      }
       return res;
     },
   ),
@@ -234,12 +250,11 @@ const tapModel: TapModel = {
     const res = await api.decodeAddress(node, sendReq);
     return res;
   }),
-
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,
     async (actions, { payload }, { getStoreState, getStoreActions }) => {
       const { notify } = getStoreActions().app;
-      // update all lightning nodes info when a block in mined
+      // update all tap nodes info when a block in mined
       const network = getStoreState().network.networkById(payload.node.networkId);
       await getStoreActions().lightning.waitForNodes(network.nodes.lightning);
       await Promise.all(

@@ -164,6 +164,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
             status={error ? 'error' : ''}
             placeholder={l('address')}
             onChange={e => handleAddress(e.target.value)}
+            disabled={sendAssetAsync.loading}
           />
         </Form.Item>
         <div>

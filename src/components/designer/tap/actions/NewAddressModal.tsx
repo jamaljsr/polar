@@ -49,7 +49,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { syncUniverse, getNewAddress } = useStoreActions(s => s.tap);
   const { nodes } = useStoreState(s => s.tap);
 
-  const [selectedAmount, setSelectedAmount] = useState(10);
+  const [selectedAmount, setSelectedAmount] = useState(100);
   const [selectedName, setSelectedName] = useState('');
   const [tapAddress, setTapAddress] = useState('');
 
@@ -118,7 +118,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
           colon={false}
           initialValues={{
             assetId: '',
-            amount: '10',
+            amount: '100',
           }}
           onFinish={handleSubmit}
         >
