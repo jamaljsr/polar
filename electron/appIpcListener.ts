@@ -1,4 +1,4 @@
-import { BrowserWindow, IpcMain } from 'electron';
+import { app, BrowserWindow, IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
@@ -14,7 +14,8 @@ const openWindow = async (args: { url: string }): Promise<boolean> => {
   const winState = windowState({
     defaultWidth: 800,
     defaultHeight: 600,
-    file: `window-state-terminal.json`,
+    file: `${args.url.replace(/\//g, '_')}.json`,
+    path: join(app.getPath('userData'), 'window-state'),
   });
   let window: BrowserWindow | null = new BrowserWindow({
     x: winState.x,
