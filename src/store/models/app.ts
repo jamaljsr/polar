@@ -232,11 +232,13 @@ const appModel: AppModel = {
         description,
       });
     } else {
+      let desc = description || error.message;
+      if (desc.length > 255) desc = desc.slice(0, 255) + '...';
       notification.error({
         ...options,
         duration: 10,
         message: message,
-        description: description || error.message,
+        description: desc,
       });
       warn(message, error);
     }
