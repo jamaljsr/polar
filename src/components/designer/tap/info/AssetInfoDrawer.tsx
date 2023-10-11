@@ -57,10 +57,13 @@ const AssetInfoModal: React.FC = () => {
       { label: l('genesisPoint'), value: <DetailValue value={balance.genesisPoint} /> },
     ];
     if (assets.length > 0 && assets[0].groupKey) {
+      assetDetails.push({ label: l('emission'), value: 'True' });
       assetDetails.push({
         label: l('groupKey'),
         value: <DetailValue value={assets[0].groupKey} />,
       });
+    } else {
+      assetDetails.push({ label: l('emission'), value: 'False' });
     }
     const utxoDetails: DetailValues = assets.map(a => ({
       label: `${a.amount} ${a.name}`,
