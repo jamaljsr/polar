@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Form, Input, InputNumber, Modal, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -53,6 +53,10 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
     getWalletBalance(lndNode);
   }, []);
 
+  const handleTypeChange = useCallback((value: number) => {
+    form.setFieldsValue({ amount: value === 1 ? 1 : 1000 });
+  }, []);
+
   const lowBalance = useMemo(() => {
     const lndNodeModel = lightningNodes[thisTapNode?.lndName];
     return Number(lndNodeModel?.walletBalance?.confirmed) < TAP_MIN_LND_BALANCE;
@@ -96,7 +100,10 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         onFinish={handleSubmit}
       >
         <Form.Item name="assetType" label={l('assetType')}>
-          <Select placeholder={l('assetTypePlaceholder')}>
+          <Select<number>
+            placeholder={l('assetTypePlaceholder')}
+            onChange={handleTypeChange}
+          >
             <Select.Option value={0}>{l('assetTypeNormal')}</Select.Option>
             <Select.Option value={1}>{l('assetTypeCollectible')}</Select.Option>
           </Select>
@@ -118,12 +125,14 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
             min={1}
           />
         </Form.Item>
+
         {/*
         Hidden until asset groups is fully supported
         <Form.Item name="enableEmission" valuePropName="checked">
           <Checkbox>{l('enableEmission')}</Checkbox>
         </Form.Item> 
         */}
+
         <Form.Item name="finalize" valuePropName="checked">
           <Checkbox>{l('finalize')}</Checkbox>
         </Form.Item>
