@@ -105,12 +105,15 @@ class TapdService implements TapService {
 
   async assetRoots(node: TapNode): Promise<PTAP.TapAssetRoot[]> {
     const { universeRoots } = await proxy.assetRoots(this.cast(node));
-    const assetRoots = Object.entries(universeRoots).map(([id, root]) => {
-      return {
-        id,
-        name: root.assetName,
-        rootSum: parseInt(root.mssmtRoot?.rootSum || '0'),
-      } as PTAP.TapAssetRoot;
+    const assetRoots: PTAP.TapAssetRoot[] = [];
+    Object.values(universeRoots).forEach(root => {
+      Object.entries(root.amountsByAssetId).forEach(([assetId, amount]) => {
+        assetRoots.push({
+          id: assetId,
+          name: root.assetName,
+          rootSum: parseInt(amount),
+        });
+      });
     });
     return assetRoots;
   }

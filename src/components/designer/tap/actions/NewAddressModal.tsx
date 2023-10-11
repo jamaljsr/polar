@@ -33,6 +33,15 @@ const Styled = {
   Dropdown: styled(Dropdown)`
     float: right;
   `,
+  AssetOption: styled.div`
+    display: flex;
+    justify-content: space-between;
+
+    code {
+      color: #888;
+      font-size: 0.8em;
+    }
+  `,
 };
 
 interface Props {
@@ -99,10 +108,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const assetOptions = useMemo(() => {
     const node = nodes[thisTapNode.name];
     if (node && node.assetRoots) {
-      return node.assetRoots.map(asset => ({
-        label: asset.name,
-        value: asset.id,
-      }));
+      return node.assetRoots;
     }
     return [];
   }, [nodes, thisTapNode.name]);
@@ -143,10 +149,18 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             }
           >
             <Select
-              options={assetOptions}
               disabled={handleSync.loading}
               onChange={(_, option: any) => setSelectedName(option.label)}
-            />
+            >
+              {assetOptions.map(a => (
+                <Select.Option key={a.id} value={a.id}>
+                  <Styled.AssetOption>
+                    <span>{a.name}</span>
+                    <code>{ellipseInner(a.id, 4)}</code>
+                  </Styled.AssetOption>
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label={l('amount')}

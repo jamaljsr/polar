@@ -26,13 +26,21 @@ export const defaultTapdListBalances = (
 });
 
 export const defaultTapdMintAsset = (): MintAssetResponse => ({
-  batchKey: Buffer.from(''),
+  pendingBatch: {
+    batchKey: Buffer.from(''),
+    assets: [],
+    state: 'BATCH_STATE_PEDNING',
+  },
 });
 
 export const defaultTapdFinalizeBatch = (
   value: Partial<FinalizeBatchResponse>,
 ): FinalizeBatchResponse => ({
-  batchKey: Buffer.from(''),
+  batch: {
+    batchKey: Buffer.from(''),
+    assets: [],
+    state: 'BATCH_STATE_FINALIZED',
+  },
   ...value,
 });
 
@@ -46,6 +54,8 @@ export const defaultTapdNewAddress = (value: Partial<Addr>): Addr => ({
   internalKey: Buffer.from(''),
   taprootOutputKey: Buffer.from(''),
   tapscriptSibling: Buffer.from(''),
+  proofCourierAddr: '',
+  assetVersion: 'ASSET_VERSION_V0',
   ...value,
 });
 
