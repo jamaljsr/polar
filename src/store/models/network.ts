@@ -377,6 +377,15 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      // don't allow removing an LND node if it has a tapd node connected to it
+      if (node.implementation === 'LND') {
+        const tapdNodes = network.nodes.tap.filter(
+          n => n.implementation === 'tapd' && (n as TapdNode).lndName === node.name,
+        );
+        if (tapdNodes.length) {
+          throw new Error(l('removeTapdErr', { lnName: node.name }));
+        }
+      }
       // remove the node from the network
       network.nodes.lightning = network.nodes.lightning.filter(n => n !== node);
       // remove the node's data from the lightning redux state
