@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/jamaljsr/polar/compare/v2.0.0...v2.1.0)
+
+This release adds support for Taproot Assets [v0.3.0-alpha](https://github.com/lightninglabs/taproot-assets/releases/tag/v0.3.0-alpha).
+Support for `tapd` versions prior to v0.3.0-alpha has been removed due to breaking changes in the APIs.
+
+There are also some fixes and enhancements included in this release which are listed below.
+
+### Features
+
+- **docker:** Add --tlsextradomain=host.docker.internal to lnd default args by @SeverinAlexB in https://github.com/jamaljsr/polar/pull/761
+- **cln:** save Core Lightning logs to disk by @jamaljsr in https://github.com/jamaljsr/polar/pull/763
+- **images:** add support for Bitcoin Core v25.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/728
+- **images:** add support for LND v0.17.0-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/786
+- **images:** add support for tapd v0.3.0-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/787
+- **images:** add tapd to custom images implementations by @jamaljsr in https://github.com/jamaljsr/polar/pull/787
+- **app:** remember terminal/logs window location per node by @jamaljsr https://github.com/jamaljsr/polar/pull/787
+
+### Bug Fixes
+
+- **cln:** use node hostname for P2P Internal url by @jamaljsr in https://github.com/jamaljsr/polar/pull/762
+
 ## [2.0.0](https://github.com/jamaljsr/polar/compare/v1.4.1...v2.0.0)
 
 This is a major release which adds supports for [Taproot Assets Protocol Daemon](https://github.com/lightninglabs/taproot-assets) (`tapd`) nodes. You can add `tapd` nodes to your network to begin easily minting and sending assets between nodes. You also have access to the terminal to run all `tapcli` commands.
