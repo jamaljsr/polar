@@ -143,9 +143,10 @@ export const testRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.2.3-alpha',
-      versions: ['0.2.3-alpha', '0.2.2-alpha', '0.2.0-alpha'],
+      latest: '0.3.0-alpha',
+      versions: ['0.3.0-alpha', '0.2.3-alpha', '0.2.2-alpha', '0.2.0-alpha'],
       compatibility: {
+        '0.3.0-alpha': '0.16.0-beta',
         '0.2.3-alpha': '0.16.0-beta',
         '0.2.2-alpha': '0.16.0-beta',
         '0.2.0-alpha': '0.16.0-beta',

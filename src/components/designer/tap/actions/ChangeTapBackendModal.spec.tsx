@@ -119,9 +119,12 @@ describe('ChangeTapBackendModal', () => {
   it('should display the compatibility warning for older LND node', async () => {
     const { getByText, queryByText, changeSelect, store } = await renderComponent();
     store.getActions().app.setRepoState(testRepoState);
+    const tapdLatest = testRepoState.images.tapd.latest;
+    const compatibleLnd = testRepoState.images.tapd.compatibility![tapdLatest];
     const warning =
-      `alice-tap is running tapd v0.2.3-alpha which is compatible with LND v0.16.0-beta and newer.` +
-      ` dave is running LND v0.7.1-beta so it cannot be used.`;
+      `alice-tap is running tapd v${tapdLatest} which is ` +
+      `compatible with LND v${compatibleLnd} and newer. ` +
+      `dave is running LND v0.7.1-beta so it cannot be used.`;
     expect(queryByText(warning)).not.toBeInTheDocument();
     expect(getByText('Cancel')).toBeInTheDocument();
     changeSelect('LND Node', 'dave');

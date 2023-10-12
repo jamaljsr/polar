@@ -24,7 +24,7 @@ describe('TapdProxyClient', () => {
     const req: TAP.MintAssetRequestPartial = {
       asset: {
         assetMeta: {
-          type: TAP.AssetMetaType.MTEA_TYPE_OPAQUE,
+          type: TAP.AssetMetaType.META_TYPE_OPAQUE,
           data: Buffer.from('test data').toString('base64'),
         },
         name: 'test',

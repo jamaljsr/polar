@@ -7,6 +7,7 @@ import { initChartFromNetwork } from 'utils/chart';
 import {
   defaultTapAddress,
   defaultTapAsset,
+  defaultTapBalance,
   getNetwork,
   injections,
   lightningServiceMock,
@@ -30,7 +31,9 @@ describe('SendAssetModal', () => {
             assets: [
               defaultTapAsset({ id: 'test1234', name: 'testAsset', amount: '1000' }),
             ],
-            balances: [],
+            balances: [
+              defaultTapBalance({ id: 'test1234', name: 'testAsset', balance: '1000' }),
+            ],
           },
         },
       },
@@ -145,9 +148,15 @@ describe('SendAssetModal', () => {
         total: '300000',
       });
       tapServiceMock.decodeAddress.mockResolvedValue(
-        defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
+        defaultTapAddress({
+          id: 'test1234',
+          type: 'NORMAL',
+          amount: '100',
+          internalKey: 'key1234',
+        }),
       );
     });
+
     it('should not display an alert or auto deposit', async () => {
       const { queryByText } = await renderComponent();
       expect(
@@ -155,11 +164,15 @@ describe('SendAssetModal', () => {
       ).not.toBeInTheDocument();
       expect(queryByText('Deposit enough funds to alice')).not.toBeInTheDocument();
     });
+
     it('should send the asset when send is clicked', async () => {
       tapServiceMock.decodeAddress.mockResolvedValue(
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
-      const { getByLabelText, getByText } = await renderComponent();
+      tapServiceMock.listBalances.mockResolvedValue([
+        defaultTapBalance({ id: 'test1234', name: 'testAsset', balance: '1000' }),
+      ]);
+      const { getByLabelText, getByText, queryByText } = await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
@@ -179,6 +192,18 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.sendAsset).toHaveBeenCalled();
         expect(bitcoindServiceMock.mine).toHaveBeenCalled();
+        expect(tapServiceMock.listBalances).toHaveBeenCalled();
+      });
+
+      // return an updated balance after the sendAsset request
+      tapServiceMock.listBalances.mockResolvedValue([
+        defaultTapBalance({ id: 'test1234', name: 'testAsset', balance: '1100' }),
+      ]);
+
+      // the modal should close after the senders balance changes
+      await waitFor(() => {
+        expect(queryByText('Send')).not.toBeInTheDocument();
+        expect(getByText("Sent 100 testAsset's to tap1address")).toBeInTheDocument();
       });
     });
   });

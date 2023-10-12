@@ -301,17 +301,19 @@ describe('Network Utils', () => {
       network.nodes.lightning.push(lnd);
       expect(network.nodes.lightning.length).toBe(4);
 
+      const { latest, compatibility } = defaultRepoState.images.tapd;
       const createNode = () =>
         createTapdNetworkNode(
           network,
-          '0.2.0-alpha',
-          defaultRepoState.images.tapd.compatibility,
+          latest,
+          compatibility,
           { image: '', command: '' },
           Status.Stopped,
         );
+      const compatibleLnd = compatibility![latest];
       expect(() => createNode()).toThrowError(
         new Error(
-          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tapd v0.2.0-alpha',
+          `This network does not contain a LND v${compatibleLnd} (or higher) node which is required for tapd v${latest}`,
         ),
       );
     });
@@ -326,17 +328,19 @@ describe('Network Utils', () => {
       );
       network.nodes.lightning.push(cln);
 
+      const { latest, compatibility } = defaultRepoState.images.tapd;
       const createNode = () =>
         createTapdNetworkNode(
           network,
-          '0.2.0-alpha',
-          defaultRepoState.images.tapd.compatibility,
+          latest,
+          compatibility,
           { image: '', command: '' },
           Status.Stopped,
         );
+      const compatibleLnd = compatibility![latest];
       expect(() => createNode()).toThrowError(
         new Error(
-          'This network does not contain a LND v0.16.0-beta (or higher) node which is required for tapd v0.2.0-alpha',
+          `This network does not contain a LND v${compatibleLnd} (or higher) node which is required for tapd v${latest}`,
         ),
       );
     });

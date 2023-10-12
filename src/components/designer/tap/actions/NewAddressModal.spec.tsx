@@ -110,7 +110,7 @@ describe('NewAddressModal', () => {
       expect(await findByText('Successfully created address')).toBeInTheDocument();
       expect(getByDisplayValue('tap1address')).toBeInTheDocument();
       const node = network.nodes.tap[0];
-      expect(tapServiceMock.newAddress).toBeCalledWith(node, 'test-id', 100);
+      expect(tapServiceMock.newAddress).toBeCalledWith(node, 'test-id', '100');
     });
 
     it('should close the modal', async () => {
