@@ -1,3 +1,4 @@
+import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
 import { defaultRepoState } from 'utils/constants';
 import { injections } from 'utils/tests';
@@ -73,6 +74,19 @@ describe('App model', () => {
   it('should update settings', async () => {
     store.getActions().app.updateSettings({ showAllNodeVersions: true });
     expect(store.getState().app.settings.showAllNodeVersions).toBe(true);
+  });
+
+  it('should truncate long error notifications', async () => {
+    const spy = jest.spyOn(notification, 'error');
+    const error = new Error(new Array(100).join('this is a very long error message. '));
+    store.getActions().app.notify({ message: 'test', error });
+    expect(spy).toBeCalledWith({
+      message: 'test',
+      placement: 'bottomRight',
+      bottom: 50,
+      duration: 10,
+      description: error.message.substring(0, 255) + '...',
+    });
   });
 
   describe('check for updates', () => {

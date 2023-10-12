@@ -359,7 +359,7 @@
   "cmps.designer.tap.actions.SendAssetModal.type": "Type",
   "cmps.designer.tap.actions.SendAssetModal.amount": "Amount",
   "cmps.designer.tap.actions.SendAssetModal.id": "Asset Id: ",
-  "cmps.designer.tap.actions.SendAssetModal.success": "Sent {{amount}} {{assetName}}'s to {{internalKey}}",
+  "cmps.designer.tap.actions.SendAssetModal.success": "Sent {{amount}} {{assetName}}'s to {{addr}}",
   "cmps.designer.tap.actions.SendAssetModal.missingAsset": "{{nodeName}} is missing this asset",
   "cmps.designer.tap.actions.SendAssetModal.decodingError": "ERROR: Invalid Address",
   "cmps.designer.tap.actions.SendAssetModal.submitError": "Error:",

@@ -5,7 +5,12 @@ import { act } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { themeColors } from 'theme/colors';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, renderWithProviders } from 'utils/tests';
+import {
+  getNetwork,
+  renderWithProviders,
+  suppressConsoleErrors,
+  testRepoState,
+} from 'utils/tests';
 import NetworkDesigner from './NetworkDesigner';
 
 describe('NetworkDesigner Component', () => {
@@ -198,6 +203,7 @@ describe('NetworkDesigner Component', () => {
     ).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
+
   it('should display the Send Address modal', async () => {
     const { getByText, findByText, store } = renderComponent();
     expect(await findByText('backend1')).toBeInTheDocument();
@@ -219,7 +225,28 @@ describe('NetworkDesigner Component', () => {
   });
 
   it('should remove a node from the network', async () => {
-    const { getByText, findByText, queryByText } = renderComponent();
+    const { getByText, findByText, queryByText, store } = renderComponent();
+    // add a new LN node that doesn't have a tap node connected
+    store.getActions().designer.onCanvasDrop({
+      config: { snapToGrid: true },
+      data: { type: 'LND', version: testRepoState.images.LND.latest },
+      position: { x: 584, y: 343 },
+      id: 'c815fd9d-bbeb-4263-ad96-00bc488d8d60',
+    });
+
+    expect(await findByText('carol')).toBeInTheDocument();
+    act(() => {
+      fireEvent.click(getByText('carol'));
+    });
+    fireEvent.click(await findByText('Actions'));
+    fireEvent.click(await findByText('Remove'));
+    fireEvent.click(await findByText('Yes'));
+    await waitForElementToBeRemoved(() => queryByText('Yes'));
+    expect(queryByText('carol')).toBeNull();
+  });
+
+  it('should not remove an LND node with a connected tapd node', async () => {
+    const { getByText, findByText } = renderComponent();
     expect(await findByText('alice')).toBeInTheDocument();
     act(() => {
       fireEvent.click(getByText('alice'));
@@ -227,8 +254,14 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(await findByText('Actions'));
     fireEvent.click(await findByText('Remove'));
     fireEvent.click(await findByText('Yes'));
-    await waitForElementToBeRemoved(() => queryByText('Yes'));
-    expect(queryByText('alice')).toBeNull();
+
+    await suppressConsoleErrors(async () => {
+      expect(
+        await findByText(
+          'Cannot remove a Lightning node that has a Taproot Assets node connected to it.',
+        ),
+      ).toBeInTheDocument();
+    });
   });
 
   it('should remove a TAP node from the network', async () => {

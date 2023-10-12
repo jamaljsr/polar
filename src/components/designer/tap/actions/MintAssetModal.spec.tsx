@@ -74,6 +74,15 @@ describe('MintAssetModal', () => {
     expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
   });
 
+  it('should update amount when type changes', async () => {
+    const { getByLabelText, changeSelect } = await renderComponent();
+    expect(getByLabelText('Amount')).toHaveValue('1,000');
+    changeSelect('Asset Type', 'Collectible');
+    expect(getByLabelText('Amount')).toHaveValue('1');
+    changeSelect('Asset Type', 'Normal');
+    expect(getByLabelText('Amount')).toHaveValue('1,000');
+  });
+
   it('should hide modal when cancel is clicked', async () => {
     const { getByText, queryByText, store } = await renderComponent();
     const btn = getByText('Cancel');
@@ -99,7 +108,11 @@ describe('MintAssetModal', () => {
         Promise.resolve(balances((node.id + 100).toString())),
       );
       tapServiceMock.mintAsset.mockResolvedValue({
-        batchKey: Buffer.from('mocked success!'),
+        pendingBatch: {
+          batchKey: Buffer.from('mocked success!'),
+          assets: [],
+          state: 'BATCH_STATE_FINALIZED',
+        },
       });
 
       lightningServiceMock.getBalances.mockResolvedValue({

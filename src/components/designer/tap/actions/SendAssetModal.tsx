@@ -57,7 +57,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         message: l('success', {
           amount: decodedAddress?.amount,
           assetName,
-          internalKey: decodedAddress?.internalKey,
+          addr: ellipseInner(payload.address, 6),
         }),
       });
       hideSendAsset();

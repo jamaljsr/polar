@@ -7,7 +7,7 @@ import {
   TapdNode,
 } from 'shared/types';
 import { bitcoinCredentials, dockerConfigs, eclairCredentials } from 'utils/constants';
-import { getContainerName, getDockerCommand } from 'utils/network';
+import { getContainerName } from 'utils/network';
 import { bitcoind, clightning, eclair, lnd, tapd } from './nodeTemplates';
 
 export interface ComposeService {
@@ -145,7 +145,7 @@ class ComposeFile {
   }
 
   addTapd(node: TapdNode, lndBackend: LndNode) {
-    const { name, version, ports, implementation } = node;
+    const { name, version, ports } = node;
     const { rest, grpc } = ports;
     const container = getContainerName(node);
     // define the variable substitutions
@@ -157,7 +157,7 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.tapd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = getDockerCommand(implementation, version, node.docker.command);
+    const nodeCommand = node.docker.command || dockerConfigs.tapd.command;
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
