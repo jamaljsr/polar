@@ -212,7 +212,7 @@
   "cmps.designer.lightning.actions.OpenChannelModal.submitError": "Não foi possível abrir o canal",
   "cmps.designer.lightning.actions.PayInvoiceModal.title": "Pagar fatura relâmpago",
   "cmps.designer.lightning.actions.PayInvoiceModal.nodeLabel": "Do nó",
-  "cmps.designer.lightning.actions.PayInvoiceModal.invoiceLabel": "PARAFUSO 11 PARAFUSO",
+  "cmps.designer.lightning.actions.PayInvoiceModal.invoiceLabel": "Fatura BOLT 11",
   "cmps.designer.lightning.actions.PayInvoiceModal.cancelBtn": "Cancelar",
   "cmps.designer.lightning.actions.PayInvoiceModal.okBtn": "Fatura de pagamento",
   "cmps.designer.lightning.actions.PayInvoiceModal.submitError": "Não foi possível pagar a fatura",
