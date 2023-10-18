@@ -3816,10 +3816,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/redux-logger@3.0.10":
-  version "3.0.10"
-  resolved "https://registry.yarnpkg.com/@types/redux-logger/-/redux-logger-3.0.10.tgz#0edb5bb531633b4b967998efa0b76027d88ac00f"
-  integrity sha512-wjcuptRVZQoWjbwKdLrEnit9A7TvW0HD6ZYNQGWRRCUBBux2RT8JxqwYemaS2fTQT3ebOvsszt2L/Hrylxh5PA==
+"@types/redux-logger@3.0.11":
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/@types/redux-logger/-/redux-logger-3.0.11.tgz#87ef64864806e4ab40cf870d727d8ddef1e29509"
+  integrity sha512-lRys/mnrut+BynEsYX0KAWy/WJ4/xAKrEQCdtOGbGJE0iu4yHaUBqCsv7+AZVsIRr7AtsIzgLnpBH2zrw7WNFA==
   dependencies:
     redux "^4.0.0"
 
