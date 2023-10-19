@@ -3894,10 +3894,10 @@
   dependencies:
     source-map "^0.6.1"
 
-"@types/unzipper@0.10.7":
-  version "0.10.7"
-  resolved "https://registry.yarnpkg.com/@types/unzipper/-/unzipper-0.10.7.tgz#32efdf299a6f8d76f35c35fe10a91aea4ea57515"
-  integrity sha512-1yZanW3LWgY4wA6x0MyIkyI5rGILLHjXWAvvuz+xF2JzqBLG26ySL+VrSgjz9EWIYLv+icqv5RPW6FN4BJmsHw==
+"@types/unzipper@0.10.8":
+  version "0.10.8"
+  resolved "https://registry.yarnpkg.com/@types/unzipper/-/unzipper-0.10.8.tgz#09c869016e01eb4de919fd95ce7f3b093cd708d0"
+  integrity sha512-Cior/4Y78R1ZVF6tnWEHWIkAMDqKxU5pPCbaC62826oEfchPGg90fKdi3sLZ2D7oB7GrFu3+PW2elEMBOtd27w==
   dependencies:
     "@types/node" "*"
 
