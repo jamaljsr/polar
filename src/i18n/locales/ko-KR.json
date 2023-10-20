@@ -356,7 +356,7 @@
   "cmps.designer.tap.actions.SendAssetModal.cancelBtn": "취소",
   "cmps.designer.tap.actions.SendAssetModal.addressInfo": "Address Info",
   "cmps.designer.tap.actions.SendAssetModal.assetName": "이름",
-  "cmps.designer.tap.actions.SendAssetModal.type": "Type",
+  "cmps.designer.tap.actions.SendAssetModal.type": "유형",
   "cmps.designer.tap.actions.SendAssetModal.amount": "양",
   "cmps.designer.tap.actions.SendAssetModal.id": "Asset Id: ",
   "cmps.designer.tap.actions.SendAssetModal.success": "Sent {{amount}} {{assetName}}'s to {{addr}}",
