@@ -513,7 +513,7 @@
   "store.models.network.nodeByNameErr": "Die Node '{{name}}' wurde nicht gefunden.",
   "store.models.network.connectedErr": "Die Node '{{lnName}}' ist bereits mit '{{backendName}}' verbunden",
   "store.models.network.renameErr": "Der Netzwerkname '{{name}}' ist ungültig",
-  "store.models.network.removeTapdErr": "Kann keinen Blitzknoten entfernen, der einen Knoten mit Taproot Assets verbunden hat.",
+  "store.models.network.removeTapdErr": "Entfernung einer Lightning-Node, die mit einer Taproot-Assets-Node verbunden ist, ist nicht möglich.",
   "store.models.network.removeLastErr": "Die letzte Bitcoin-Node kann nicht entfernt werden",
   "store.models.network.removeCompatErr": "Es gibt keine anderen kompatiblen Backends für {{lnName}}, mit denen eine Verbindung hergestellt werden kann. Sie müssen zuerst die {{lnName}}-Node entfernen",
   "store.models.network.exportTitle": "'{{name}}' exportieren",
