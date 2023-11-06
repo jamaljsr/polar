@@ -3748,10 +3748,10 @@
   dependencies:
     "@types/react" "^17"
 
-"@types/react-redux@7.1.28":
-  version "7.1.28"
-  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.28.tgz#30a44303c7daceb6ede9cfb4aaf72e64f1dde4de"
-  integrity sha512-EQr7cChVzVUuqbA+J8ArWK1H0hLAHKOs21SIMrskKZ3nHNeE+LFYA+IsoZGhVOT8Ktjn3M20v4rnZKN3fLbypw==
+"@types/react-redux@7.1.29":
+  version "7.1.29"
+  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.29.tgz#7c3d6f18fa9ec26246b16d2d169342702da60f9b"
+  integrity sha512-orHCOWqBBQ1LP1uD6JVdXL+ZRTEWhGGne+VOPcXef03rC+QYdzktLhxR3ozymPDyZK0CNCUuQs9tyQhfg1ku+w==
   dependencies:
     "@types/hoist-non-react-statics" "^3.3.0"
     "@types/react" "*"
