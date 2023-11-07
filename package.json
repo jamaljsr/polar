@@ -149,7 +149,7 @@
     "ts-node": "10.9.1",
     "typescript": "5.2.2",
     "utf-8-validate": "6.0.3",
-    "wait-on": "7.0.1",
+    "wait-on": "7.1.0",
     "webpack": "4.44.2",
     "ws": "8.14.2"
   },
