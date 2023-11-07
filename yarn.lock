@@ -3382,10 +3382,10 @@
   resolved "https://registry.yarnpkg.com/@types/anymatch/-/anymatch-1.3.1.tgz#336badc1beecb9dacc38bea2cf32adf627a8421a"
   integrity sha512-/+CRPXpBDpo2RK9C68N3b2cOvO0Cf5B9aPijHsoDQTHivnGSObdOF2BRQOYjojWTDy6nQvMjmqRXIxH55VjxxA==
 
-"@types/archiver@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@types/archiver/-/archiver-6.0.0.tgz#9b1de8b975a083785e7be84fa4d6c7f9ddffdd59"
-  integrity sha512-I1bHy/iSj8/u552lUjnOMG7rUhVkcbGIoNOj7CB/EMah1In+oQAwVZjw2mTI6qx04e5lF2V0JH/1w78jm/Dejw==
+"@types/archiver@6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@types/archiver/-/archiver-6.0.1.tgz#a95b3572d1e8c5bf0372ccd4ec5c82d639a31f91"
+  integrity sha512-F2+JkmDYvtQrtb2YldwL0apRB1/WB6ub+1zVF/bKp3TOygUMFqfOLuw5Fj62Q+DPwJUFz1eocMxJMu7yVpplZA==
   dependencies:
     "@types/readdir-glob" "*"
 
