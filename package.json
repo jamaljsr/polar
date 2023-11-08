@@ -77,7 +77,7 @@
     "@types/dockerode": "3.3.23",
     "@types/fs-extra": "9.0.13",
     "@types/jest": "29.5.8",
-    "@types/js-yaml": "4.0.8",
+    "@types/js-yaml": "4.0.9",
     "@types/node": "18.17.19",
     "@types/react": "17.0.66",
     "@types/react-copy-to-clipboard": "5.0.7",
