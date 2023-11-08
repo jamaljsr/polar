@@ -86,7 +86,7 @@
     "@types/react-router": "5.1.20",
     "@types/react-router-dom": "5.3.3",
     "@types/redux-logger": "3.0.12",
-    "@types/unzipper": "0.10.8",
+    "@types/unzipper": "0.10.9",
     "@types/ws": "8.5.8",
     "@typescript-eslint/eslint-plugin": "6.10.0",
     "@typescript-eslint/parser": "6.10.0",
