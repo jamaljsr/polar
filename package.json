@@ -112,7 +112,7 @@
     "history": "4.10.1",
     "husky": "8.0.3",
     "i18next": "22.5.1",
-    "i18next-browser-languagedetector": "7.1.0",
+    "i18next-browser-languagedetector": "7.2.0",
     "i18next-scanner": "4.4.0",
     "jest-canvas-mock": "2.5.2",
     "jest-environment-jsdom-sixteen": "1.0.3",
