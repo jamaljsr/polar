@@ -76,7 +76,7 @@ class TapdService implements TapService {
       return {
         id: genesis.assetId.toString(),
         name: genesis.name,
-        type: asset.assetType,
+        type: genesis.assetType,
         amount: asset.amount,
         genesisPoint: genesis.genesisPoint,
         anchorOutpoint: anchor.anchorOutpoint,
@@ -95,7 +95,7 @@ class TapdService implements TapService {
       balances.push({
         id,
         name: genesis.name,
-        type: asset.assetType,
+        type: genesis.assetType,
         balance: asset.balance,
         genesisPoint: genesis.genesisPoint,
       });
