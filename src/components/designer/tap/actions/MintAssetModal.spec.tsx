@@ -109,6 +109,7 @@ describe('MintAssetModal', () => {
       );
       tapServiceMock.mintAsset.mockResolvedValue({
         pendingBatch: {
+          batchTxid: 'mocked-txid',
           batchKey: Buffer.from('mocked success!'),
           assets: [],
           state: 'BATCH_STATE_FINALIZED',
