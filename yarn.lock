@@ -4519,10 +4519,10 @@
   dependencies:
     "@types/react" "^17"
 
-"@types/react-redux@7.1.30":
-  version "7.1.30"
-  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.30.tgz#4f9731cc987eb6285fe2b472231fb42120efc22c"
-  integrity sha512-i2kqM6YaUwFKduamV6QM/uHbb0eCP8f8ZQ/0yWf+BsAVVsZPRYJ9eeGWZ3uxLfWwwA0SrPRMTPTqsPFkY3HZdA==
+"@types/react-redux@7.1.31":
+  version "7.1.31"
+  resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.31.tgz#ff914f80401488bb31d064b1d84ae525dad41b23"
+  integrity sha512-merF9AH72krBUekQY6uObXnMsEo1xTeZy9NONNRnqSwvwVe3HtLeRvNIPaKmPDIOWPsSFE51rc2WGpPMqmuCWg==
   dependencies:
     "@types/hoist-non-react-statics" "^3.3.0"
     "@types/react" "*"
