@@ -41,7 +41,7 @@ Supported Network Node Versions:
 - [Core Lightning](https://github.com/ElementsProject/lightning) - v23.05.2, v23.02.2, v22.11, v0.12.0, v0.11.2, v0.10.2
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.10.0, v0.9.0, v0.8.0, v0.7.0, v0.6.2, v0.5.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v26.0, v25.0, v24.0, v23.0, v22.0, v0.21.1
-- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.3.1
+- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.3.2
 
 ## Dependencies
 

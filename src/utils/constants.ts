@@ -306,11 +306,10 @@ export const defaultRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.3.1-alpha',
-      versions: ['0.3.1-alpha', '0.3.0-alpha'],
+      latest: '0.3.2-alpha',
+      versions: ['0.3.2-alpha'],
       compatibility: {
-        '0.3.1-alpha': '0.16.0-beta',
-        '0.3.0-alpha': '0.16.0-beta',
+        '0.3.2-alpha': '0.16.0-beta',
       },
     },
   },

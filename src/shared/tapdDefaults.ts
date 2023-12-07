@@ -30,7 +30,7 @@ export const defaultTapdMintAsset = (): MintAssetResponse => ({
     batchTxid: '',
     batchKey: Buffer.from(''),
     assets: [],
-    state: 'BATCH_STATE_PEDNING',
+    state: 'BATCH_STATE_PENDING',
   },
 });
 
