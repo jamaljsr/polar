@@ -2216,10 +2216,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@lightningpolar/tapd-api@0.3.1-alpha":
-  version "0.3.1-alpha"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.1-alpha.tgz#c27f56fba00aa178566415738bc26c5cad2ff48f"
-  integrity sha512-EM6qeUYppZL1VgaHhFbCC2Dx9PMLg/SreItqXd+CyJMjUgJU5hS5F5rwWDkZf9q8ZeH2yF7+3hN/EiUAeB2HHg==
+"@lightningpolar/tapd-api@0.3.2-alpha":
+  version "0.3.2-alpha"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.2-alpha.tgz#263b699d8ce38276c645304a60dd1143a4aedc59"
+  integrity sha512-XOjR6VEDEb/d9UkcS/LeiqNwI1iRNtU/BrCZdBUghjhb9bO7En5tTMvypmduRbFAdvkC/NxAbOTatTVKTPO4Zg==
   dependencies:
     "@grpc/grpc-js" "1.7.2"
     "@grpc/proto-loader" "0.7.3"
