@@ -57,8 +57,13 @@ export const testRepoState: DockerRepoState = {
   version: 49,
   images: {
     LND: {
-      latest: '0.16.2-beta',
+      latest: '0.17.3-beta',
       versions: [
+        '0.17.3-beta',
+        '0.17.2-beta',
+        '0.17.1-beta',
+        '0.17.0-beta',
+        '0.16.4-beta',
         '0.16.2-beta',
         '0.16.1-beta',
         '0.16.0-beta',
@@ -88,6 +93,11 @@ export const testRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.17.3-beta': '26.0',
+        '0.17.2-beta': '26.0',
+        '0.17.1-beta': '26.0',
+        '0.17.0-beta': '26.0',
+        '0.16.4-beta': '26.0',
         '0.16.2-beta': '25.0',
         '0.16.1-beta': '25.0',
         '0.16.0-beta': '25.0',
@@ -118,16 +128,17 @@ export const testRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '22.11',
-      versions: ['22.11', '0.12.0', '0.11.2', '0.10.2'],
+      latest: '23.05.2',
+      versions: ['23.05.2', '23.02.2', '22.11', '0.12.0', '0.11.2', '0.10.2'],
     },
     eclair: {
-      latest: '0.8.0',
-      versions: ['0.8.0', '0.7.0', '0.6.2', '0.5.0', '0.4.2'],
+      latest: '0.9.0',
+      versions: ['0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
     },
     bitcoind: {
-      latest: '25.0',
+      latest: '26.0',
       versions: [
+        '26.0',
         '25.0',
         '24.0',
         '23.0',

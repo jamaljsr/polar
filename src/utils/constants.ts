@@ -274,17 +274,17 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.17.3-beta': '25.0',
-        '0.17.2-beta': '25.0',
-        '0.17.1-beta': '25.0',
-        '0.17.0-beta': '25.0',
-        '0.16.4-beta': '25.0',
-        '0.16.2-beta': '25.0',
-        '0.16.1-beta': '25.0',
-        '0.16.0-beta': '25.0',
-        '0.15.5-beta': '25.0',
-        '0.14.3-beta': '25.0',
-        '0.13.1-beta': '25.0',
+        '0.17.3-beta': '26.0',
+        '0.17.2-beta': '26.0',
+        '0.17.1-beta': '26.0',
+        '0.17.0-beta': '26.0',
+        '0.16.4-beta': '26.0',
+        '0.16.2-beta': '26.0',
+        '0.16.1-beta': '26.0',
+        '0.16.0-beta': '26.0',
+        '0.15.5-beta': '26.0',
+        '0.14.3-beta': '26.0',
+        '0.13.1-beta': '26.0',
       },
     },
     'c-lightning': {
@@ -296,8 +296,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
     },
     bitcoind: {
-      latest: '25.0',
-      versions: ['25.0', '24.0', '23.0', '22.0', '0.21.1'],
+      latest: '26.0',
+      versions: ['26.0', '25.0', '24.0', '23.0', '22.0', '0.21.1'],
     },
     btcd: {
       latest: '',
