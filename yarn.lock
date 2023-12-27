@@ -21029,10 +21029,10 @@ style-search@^0.1.0:
   resolved "https://registry.yarnpkg.com/style-search/-/style-search-0.1.0.tgz#7958c793e47e32e07d2b5cafe5c0bf8e12e77902"
   integrity sha1-eVjHk+R+MuB9K1yv5cC/jhLneQI=
 
-styled-components@6.1.4:
-  version "6.1.4"
-  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-6.1.4.tgz#e517324e1e5401d110772f82407994aabb336074"
-  integrity sha512-VFlzze2LFUgLbjrYVZIhQaIJLyIdkq+7Tm7IW+chiIhEe4LRwMk8JJw/IG+Gxeaubv29BVwxt+zgXnewyi5gOg==
+styled-components@6.1.5:
+  version "6.1.5"
+  resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-6.1.5.tgz#5e7de7594b05dad9be185be213f854dac6356916"
+  integrity sha512-7QYR5/vOhYV0/FP3EM0VUKvmAxU77s/wqiZu/LSK6ztn94VRSKEZqQ+Y1EraXznbVzYD6JEHe4zvEIx/FXbofA==
   dependencies:
     "@emotion/is-prop-valid" "1.2.1"
     "@emotion/unitless" "0.8.0"
