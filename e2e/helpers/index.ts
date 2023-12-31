@@ -1,7 +1,6 @@
 import { remove } from 'fs-extra';
-import { join } from 'path';
-import { homedir } from 'os';
 import { ClientFunction } from 'testcafe';
+import { networksPath } from '../../src/utils/config';
 
 export const pageUrl = '../build/index.html';
 
@@ -14,5 +13,5 @@ export const assertNoConsoleErrors = async (t: TestController) => {
 };
 
 export const cleanup = async () => {
-  await remove(join(homedir(), '.polar', 'networks'));
+  await remove(networksPath);
 };
