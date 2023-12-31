@@ -3,6 +3,7 @@ import log from 'electron-log';
 import { join } from 'path';
 import http from 'http';
 import https from 'https';
+import { existsSync } from 'fs';
 
 /**
  * setup logging to store log files in ~/.polar/logs/ dir
@@ -10,7 +11,10 @@ import https from 'https';
 export const initLogger = () => {
   log.transports.file.resolvePath = (variables: log.PathVariables) => {
     const ap = app || remote.app;
-    return join(ap.getPath('home'), '.polar', 'logs', variables.fileName as string);
+    const home = ap.getPath('home');
+    const xdgPath = join(home, '.local', 'share', 'polar');
+    const dataPath = existsSync(xdgPath) ? xdgPath : join(home, '.polar');
+    return join(dataPath, 'logs', variables.fileName as string);
   };
 };
 
