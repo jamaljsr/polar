@@ -96,7 +96,7 @@ const NetworkActions: React.FC<Props> = ({
 
   const mineAsync = useMiningAsync(network);
 
-  const handleClick: MenuProps['onClick'] = useCallback(info => {
+  const handleClick: MenuProps['onClick'] = useCallback((info: { key: any }) => {
     switch (info.key) {
       case 'rename':
         onRenameClick();

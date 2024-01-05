@@ -28,7 +28,7 @@ const Styled = {
   `,
 };
 
-const StatusBadge: React.SFC<StatusBadgeProps> = ({ status, text }) => {
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status, text }) => {
   const { t } = useTranslation();
   return (
     <>

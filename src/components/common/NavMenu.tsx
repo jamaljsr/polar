@@ -19,7 +19,10 @@ const Styled = {
 const NavMenu: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.common.NavMenu');
   const { navigateTo } = useStoreActions(s => s.app);
-  const handleClick: MenuProps['onClick'] = useCallback(info => navigateTo(info.key), []);
+  const handleClick: MenuProps['onClick'] = useCallback(
+    (info: { key: string }) => navigateTo(info.key),
+    [],
+  );
 
   const items: MenuProps['items'] = [
     { label: l('createNetwork'), key: NETWORK_NEW, icon: <PlusOutlined /> },
