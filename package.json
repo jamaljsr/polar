@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "@ant-design/icons": "5.2.6",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@commitlint/cli": "17.8.1",
     "@commitlint/config-conventional": "17.8.1",
     "@emotion/babel-plugin": "11.11.0",
