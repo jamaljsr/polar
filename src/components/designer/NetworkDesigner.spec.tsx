@@ -279,8 +279,8 @@ describe('NetworkDesigner Component', () => {
 
   it('should render the dark links', async () => {
     const { container } = renderComponent(undefined, 'dark');
-    // look for the first lineargradient tag
-    const query = 'lineargradient#lg-alice-backend1';
+    // look for the first linearGradient tag
+    const query = 'linearGradient#lg-alice-backend1';
     const gradientEl = container.querySelector(query) as Element;
     // get the color of the first stop in the gradient
     const color = (gradientEl.firstElementChild as Element).getAttribute('stop-color');
@@ -290,8 +290,8 @@ describe('NetworkDesigner Component', () => {
 
   it('should render the light links', async () => {
     const { container } = renderComponent(undefined, 'light');
-    // look for the first lineargradient tag
-    const query = 'lineargradient#lg-alice-backend1';
+    // look for the first linearGradient tag
+    const query = 'linearGradient#lg-alice-backend1';
     const gradientEl = container.querySelector(query) as Element;
     // get the color of the first stop in the gradient
     const color = (gradientEl.firstElementChild as Element).getAttribute('stop-color');
