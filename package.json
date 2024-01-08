@@ -9,6 +9,9 @@
     "url": "https://lightningpolar.com"
   },
   "main": "public/main/electron/index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "cross-env CI=false PUBLIC_URL=./ rescripts --openssl-legacy-provider build",
     "ci": "yarn lint:all && yarn test:ci",
