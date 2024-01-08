@@ -1,6 +1,6 @@
 {
   "name": "polar",
-  "version": "3.0.0",
+  "version": "2.0.0",
   "homepage": "https://lightningpolar.com",
   "description": "One-click Bitcoin Lightning networks for local app development & testing",
   "author": {
@@ -9,9 +9,6 @@
     "url": "https://lightningpolar.com"
   },
   "main": "public/main/electron/index.js",
-  "engines": {
-    "node": ">=20.10.0"
-  },
   "scripts": {
     "build": "cross-env CI=false PUBLIC_URL=./ rescripts --openssl-legacy-provider build",
     "ci": "yarn lint:all && yarn test:ci",
