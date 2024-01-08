@@ -87,7 +87,7 @@ If you would like to learn how to package Polar from source code or want to fix 
 
 ### Tech Stack
 
-- [Node.js](https://nodejs.org/download/release/v20.10.0/): nodejs version 20
+- [Node.js](https://nodejs.org/en): nodejs version >= 20
 - [Electron](https://github.com/electron/electron/): cross platform desktop app framework
 - [Typescript](https://github.com/microsoft/TypeScript): increased productivity with a typed language
 - [ReactJS](https://github.com/facebook/react/): declarative UI library for JavaScript
