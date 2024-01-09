@@ -144,7 +144,7 @@
     "standard-version": "9.5.0",
     "strip-ansi": "6.0.1",
     "styled-components": "6.1.8",
-    "stylelint": "15.11.0",
+    "stylelint": "16.1.0",
     "stylelint-config-prettier": "9.0.5",
     "stylelint-config-standard": "34.0.0",
     "testcafe": "3.5.0",
