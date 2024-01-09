@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { AnimatedSwitch, spring } from 'react-router-transition';
 import styled from '@emotion/styled';
 import { useTheme } from 'hooks/useTheme';
@@ -52,7 +52,7 @@ const pageTransitions = {
   },
 };
 
-const Switch: React.FC = ({ children }) => {
+const Switch: React.FC<{ children: ReactElement[] }> = ({ children }) => {
   const theme = useTheme();
   return (
     <Styled.AnimatedSwitch

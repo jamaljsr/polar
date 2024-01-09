@@ -87,7 +87,7 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
   }, [l]);
 
   const handleAutoMineModeChanged: MenuProps['onClick'] = useCallback(
-    info => {
+    (info: { key: string | number }) => {
       info.key == AutoMineMode.AutoOff
         ? setRemainingPercentage(0)
         : setRemainingPercentage(100);

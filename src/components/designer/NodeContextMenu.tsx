@@ -21,6 +21,7 @@ const addItemIf = (
 
 interface Props {
   node: INode;
+  children: ReactElement;
 }
 
 const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {

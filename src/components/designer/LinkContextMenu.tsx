@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { Dropdown, MenuProps } from 'antd';
 import { useStoreState } from 'store';
@@ -9,6 +9,7 @@ import CloseChannelButton from './link/CloseChannelButton';
 
 interface Props {
   link: ILink;
+  children: ReactElement;
 }
 
 const LinkContextMenu: React.FC<Props> = ({ link, children }) => {

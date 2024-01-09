@@ -37,7 +37,7 @@ const Styled = {
   `,
 };
 
-const NewNetwork: React.SFC = () => {
+const NewNetwork: React.FC = () => {
   useEffect(() => info('Rendering NewNetwork component'), []);
 
   const { l } = usePrefixedTranslation('cmps.network.NewNetwork');

@@ -65,7 +65,7 @@ interface Props {
   className?: string;
 }
 
-const DetailsList: React.SFC<Props> = ({ details, title, oneCol, className }) => {
+const DetailsList: React.FC<Props> = ({ details, title, oneCol, className }) => {
   return (
     <>
       {title && <h3>{title}</h3>}
