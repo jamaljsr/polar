@@ -1,0 +1,32 @@
+FROM debian
+
+ARG NODE_VERSION=20.1
+ENV DEBIAN_FRONTEND=noninteractive
+ENV USER_NAME=dev
+
+# install some development packages
+RUN apt-get update -y && \
+  apt-get install -y apt-utils binutils curl git gnupg less python3 rpm
+
+# install yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+  apt update -y && \
+  apt install -y --no-install-recommends yarn
+
+# workdir
+RUN mkdir /app && chown 1000:1000 /app
+WORKDIR /app
+
+# create non-root user and switch to it from here on
+RUN useradd -m -u 1000 -U -s /bin/bash ${USER_NAME}
+USER ${USER_NAME}
+
+# install nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# install node 16.20.2
+RUN bash -c '. ~/.nvm/nvm.sh && nvm install ${NODE_VERSION}'
+
+# add node to PATH
+ENV PATH=/home/${USER_NAME}/.nvm/versions/node/${NODE_VERSION}/bin:$PATH
