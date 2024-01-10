@@ -1,0 +1,37 @@
+# replace the base image with the image matching the file Dockerfile-headless
+FROM polardev:headless
+
+# GRAPHICAL UI
+#
+# From here on, we set up the container to be able to forward graphical UI
+# to the host machine using X11. These steps are not necessary if the developer
+# just want to install, test and compile Polar (headless mode).
+
+# switch to root user to install dependencies
+USER root
+
+# Install dependencies to forward graphical UI on host to the container.
+# chromium needs to be installed because Electron depends on it.
+RUN apt-get install \
+  -y --no-install-suggests --no-install-recommends \
+  chromium x11-xserver-utils
+
+# Install docker in order connect to docker daemon on host via unix socket.
+RUN apt install -y apt-transport-https ca-certificates software-properties-common && \
+  curl -fsSL https://download.docker.com/linux/debian/gpg | \
+  gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bullseye stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+  apt-get update -y && \
+  apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose
+
+# Docker GID depends on OS: 996 on ArchLinux, 969 on debian, 999 on ubuntu.
+# One can run `grep docker /etc/group` to figure out the Docker's GID.
+# Developer may need to change it here...
+ARG DOCKER_GID=969
+
+# change docker gid in the container and add non-root user to this group
+RUN groupmod --gid ${DOCKER_GID} docker && usermod -aG ${DOCKER_GID} ${USER_NAME}
+
+# switch to the non-root user
+USER ${USER_NAME}
