@@ -45,22 +45,30 @@ type ChannelFlags = 0 | 1;
  */
 interface ChannelData {
   commitments: {
-    localParams: {
-      // The isFunder field was renamed to isInitiator in v0.8.0. We use both
-      // to maintain compatibility with older versions.
-      isFunder: boolean;
-      isInitiator: boolean;
-    };
-    channelFlags: ChannelFlags;
-    localCommit: {
-      spec: {
-        toLocal: number;
-        toRemote: number;
+    params: {
+      localParams: {
+        // The isFunder field was renamed to isInitiator in v0.8.0. We use both
+        // to maintain compatibility with older versions.
+        isFunder: boolean;
+        isInitiator: boolean;
+      };
+      channelFlags: {
+        announceChannel: boolean;
       };
     };
-    commitInput: {
-      amountSatoshis: number;
-    };
+    active: [
+      {
+        fundingTx: {
+          amountSatoshis: number;
+        };
+        localCommit: {
+          spec: {
+            toLocal: number;
+            toRemote: number;
+          };
+        };
+      },
+    ];
   };
 }
 
