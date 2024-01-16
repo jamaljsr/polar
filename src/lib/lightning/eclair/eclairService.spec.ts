@@ -74,20 +74,28 @@ describe('EclairService', () => {
       state: ELN.ChannelState.NORMAL,
       data: {
         commitments: {
-          channelFlags: 1,
-          localParams: {
-            isFunder: true,
-            isInitiator: undefined as any,
-          },
-          localCommit: {
-            spec: {
-              toLocal: 100000000,
-              toRemote: 50000000,
+          params: {
+            localParams: {
+              isFunder: true,
+              isInitiator: undefined as any,
+            },
+            channelFlags: {
+              announceChannel: true,
             },
           },
-          commitInput: {
-            amountSatoshis: 150000,
-          },
+          active: [
+            {
+              fundingTx: {
+                amountSatoshis: 150000,
+              },
+              localCommit: {
+                spec: {
+                  toLocal: 100000000,
+                  toRemote: 50000000,
+                },
+              },
+            },
+          ],
         },
       },
     };
@@ -104,20 +112,28 @@ describe('EclairService', () => {
       state: ELN.ChannelState.NORMAL,
       data: {
         commitments: {
-          channelFlags: 1,
-          localParams: {
-            isFunder: undefined as any,
-            isInitiator: true,
-          },
-          localCommit: {
-            spec: {
-              toLocal: 100000000,
-              toRemote: 50000000,
+          params: {
+            localParams: {
+              isFunder: undefined as any,
+              isInitiator: true,
+            },
+            channelFlags: {
+              announceChannel: true,
             },
           },
-          commitInput: {
-            amountSatoshis: 150000,
-          },
+          active: [
+            {
+              fundingTx: {
+                amountSatoshis: 150000,
+              },
+              localCommit: {
+                spec: {
+                  toLocal: 100000000,
+                  toRemote: 50000000,
+                },
+              },
+            },
+          ],
         },
       },
     };
