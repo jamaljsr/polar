@@ -44,12 +44,10 @@ type ChannelFlags = 0 | 1;
  * https://acinq.github.io/eclair/#channel
  */
 interface ChannelData {
+  // ChannelData interface has some repeated fields to be compatible with v0.9.0, 0.8.0 and 0.7.0 versions
   commitments: {
     params: {
       localParams: {
-        // The isFunder field was renamed to isInitiator in v0.8.0. We use both
-        // to maintain compatibility with older versions.
-        isFunder: boolean;
         isInitiator: boolean;
       };
       channelFlags: {
@@ -69,6 +67,23 @@ interface ChannelData {
         };
       },
     ];
+    localParams: {
+      // The isFunder field was renamed to isInitiator in v0.8.0+
+      isFunder: boolean;
+      isInitiator: boolean;
+    };
+    channelFlags: {
+      announceChannel: boolean;
+    };
+    localCommit: {
+      spec: {
+        toLocal: number;
+        toRemote: number;
+      };
+    };
+    commitInput: {
+      amountSatoshis: number;
+    };
   };
 }
 
