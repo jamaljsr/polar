@@ -67,7 +67,8 @@ describe('EclairService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should get a list of channels for < v0.8.0', async () => {
+  it('should get a list of channels for v0.7.0', async () => {
+    node.version = '0.7.0';
     const chanResponse: ELN.ChannelResponse = {
       nodeId: 'abcdef',
       channelId: '65sdfd7',
@@ -76,26 +77,41 @@ describe('EclairService', () => {
         commitments: {
           params: {
             localParams: {
-              isFunder: true,
-              isInitiator: undefined as any,
+              isInitiator: false,
             },
             channelFlags: {
-              announceChannel: true,
+              announceChannel: false,
             },
           },
           active: [
             {
               fundingTx: {
-                amountSatoshis: 150000,
+                amountSatoshis: 0,
               },
               localCommit: {
                 spec: {
-                  toLocal: 100000000,
-                  toRemote: 50000000,
+                  toLocal: 0,
+                  toRemote: 0,
                 },
               },
             },
           ],
+          localParams: {
+            isFunder: true,
+            isInitiator: false,
+          },
+          channelFlags: {
+            announceChannel: true,
+          },
+          localCommit: {
+            spec: {
+              toLocal: 250000000,
+              toRemote: 0,
+            },
+          },
+          commitInput: {
+            amountSatoshis: 250000,
+          },
         },
       },
     };
@@ -105,7 +121,8 @@ describe('EclairService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should get a list of channels for >= v0.8.0', async () => {
+  it('should get a list of channels for v0.8.0', async () => {
+    node.version = '0.8.0';
     const chanResponse: ELN.ChannelResponse = {
       nodeId: 'abcdef',
       channelId: '65sdfd7',
@@ -114,7 +131,60 @@ describe('EclairService', () => {
         commitments: {
           params: {
             localParams: {
-              isFunder: undefined as any,
+              isInitiator: false,
+            },
+            channelFlags: {
+              announceChannel: false,
+            },
+          },
+          active: [
+            {
+              fundingTx: {
+                amountSatoshis: 0,
+              },
+              localCommit: {
+                spec: {
+                  toLocal: 0,
+                  toRemote: 0,
+                },
+              },
+            },
+          ],
+          localParams: {
+            isFunder: false,
+            isInitiator: true,
+          },
+          channelFlags: {
+            announceChannel: true,
+          },
+          localCommit: {
+            spec: {
+              toLocal: 250000000,
+              toRemote: 0,
+            },
+          },
+          commitInput: {
+            amountSatoshis: 250000,
+          },
+        },
+      },
+    };
+    eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
+    const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
+    const actual = await eclairService.getChannels(node);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should get a list of channels for >= v0.9.0', async () => {
+    node.version = '0.9.0';
+    const chanResponse: ELN.ChannelResponse = {
+      nodeId: 'abcdef',
+      channelId: '65sdfd7',
+      state: ELN.ChannelState.NORMAL,
+      data: {
+        commitments: {
+          params: {
+            localParams: {
               isInitiator: true,
             },
             channelFlags: {
@@ -124,16 +194,32 @@ describe('EclairService', () => {
           active: [
             {
               fundingTx: {
-                amountSatoshis: 150000,
+                amountSatoshis: 250000,
               },
               localCommit: {
                 spec: {
-                  toLocal: 100000000,
-                  toRemote: 50000000,
+                  toLocal: 250000000,
+                  toRemote: 0,
                 },
               },
             },
           ],
+          localParams: {
+            isFunder: false,
+            isInitiator: false,
+          },
+          channelFlags: {
+            announceChannel: false,
+          },
+          localCommit: {
+            spec: {
+              toLocal: 0,
+              toRemote: 0,
+            },
+          },
+          commitInput: {
+            amountSatoshis: 0,
+          },
         },
       },
     };

@@ -69,25 +69,44 @@ class EclairService implements LightningService {
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
     const channels = await httpPost<ELN.ChannelResponse[]>(node, 'channels');
     return channels
-      .filter(c =>
-        c.data.commitments.params.localParams.isFunder !== undefined
-          ? c.data.commitments.params.localParams.isFunder
-          : c.data.commitments.params.localParams.isInitiator,
+      .filter(
+        c =>
+          c.data.commitments?.localParams?.isFunder ||
+          c.data.commitments?.localParams?.isInitiator ||
+          c.data.commitments?.params?.localParams?.isInitiator,
       )
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
+        let capacity: string;
+        let localBalance: number;
+        let remoteBalance: number;
+        let isPrivate: boolean;
+
+        if ('0.8.0' === node.version || '0.7.0' === node.version) {
+          const { localCommit, commitInput } = c.data.commitments;
+          capacity = commitInput.amountSatoshis.toString(10);
+          localBalance = localCommit.spec.toLocal;
+          remoteBalance = localCommit.spec.toRemote;
+          isPrivate = c.data.commitments.channelFlags.announceChannel === false;
+        } else {
+          // v0.9.0+
+          const { fundingTx, localCommit } = c.data.commitments.active[0];
+          capacity = fundingTx.amountSatoshis.toString(10);
+          localBalance = localCommit.spec.toLocal;
+          remoteBalance = localCommit.spec.toRemote;
+          isPrivate = c.data.commitments.params.channelFlags.announceChannel === false;
+        }
         const status = ChannelStateToStatus[c.state];
-        const { fundingTx, localCommit } = c.data.commitments.active[0];
         return {
           pending: status !== 'Open',
           uniqueId: c.channelId.slice(-12),
           channelPoint: c.channelId,
           pubkey: c.nodeId,
-          capacity: fundingTx.amountSatoshis.toString(10),
-          localBalance: this.toSats(localCommit.spec.toLocal),
-          remoteBalance: this.toSats(localCommit.spec.toRemote),
+          capacity,
+          localBalance: this.toSats(localBalance),
+          remoteBalance: this.toSats(remoteBalance),
           status,
-          isPrivate: c.data.commitments.params.channelFlags.announceChannel === false,
+          isPrivate,
         };
       });
   }
