@@ -11710,10 +11710,10 @@ lead@^4.0.0:
   resolved "https://registry.yarnpkg.com/lead/-/lead-4.0.0.tgz#5317a49effb0e7ec3a0c8fb9c1b24fb716aab939"
   integrity sha512-DpMa59o5uGUWWjruMp71e6knmwKU3jRBBn1kjuLWN9EeIOxNeSAwvHf03WIl8g/ZMR2oSQC9ej3yeLBwdDc/pg==
 
-less-loader@12.0.0:
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/less-loader/-/less-loader-12.0.0.tgz#d45b322c01b3e6c3784298d7e4257ce25f714516"
-  integrity sha512-fcRoWK28+eD+1PxuwNG+44V2v32IBdzsYAi0keUncHVblbpxMPWwrGlnw0wZKCdOg7O0HNwfhWNw/DrRZ45xCA==
+less-loader@12.1.0:
+  version "12.1.0"
+  resolved "https://registry.yarnpkg.com/less-loader/-/less-loader-12.1.0.tgz#d13878ed094c0fef87f12bb616c760eb5b366fca"
+  integrity sha512-N/MRZA9iILOW+TQ9xoDptsSPbtBJDWshOj3LNqL+UJAYDhtoraLECiBa93DeLJUfR4m/VE6bWuxaVs40+wBXYw==
 
 less@4.2.0:
   version "4.2.0"
