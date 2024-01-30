@@ -63,10 +63,10 @@ interface Node {
 }
 
 interface Props {
-  networkNodes: Network['nodes'];
+  network: Network;
 }
 
-const DefaultSidebar: React.FC<Props> = ({ networkNodes }) => {
+const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const [designerType, setDesignerType] = React.useState<'network' | 'activity'>(
     'network',
   );
@@ -138,10 +138,7 @@ const DefaultSidebar: React.FC<Props> = ({ networkNodes }) => {
         toggleModal={toggleModal}
         visible={designerType === 'network'}
       />
-      <ActivityDesignerCard
-        visible={designerType === 'activity'}
-        networkNodes={networkNodes}
-      />
+      <ActivityDesignerCard visible={designerType === 'activity'} network={network} />
     </SidebarCard>
   );
 };

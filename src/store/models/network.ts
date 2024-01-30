@@ -13,7 +13,13 @@ import {
   TapdNode,
   TapNode,
 } from 'shared/types';
-import { AutoMineMode, CustomImage, Network, StoreInjections } from 'types';
+import {
+  AutoMineMode,
+  CustomImage,
+  Network,
+  SimulationActivity,
+  StoreInjections,
+} from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -179,12 +185,16 @@ export interface NetworkModel {
   setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
   setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
   mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
+  simulationActivities: SimulationActivity[];
+  addSimulationActivity: Thunk<NetworkModel, SimulationActivity>;
+  // removeSimulationActivity: Thunk<NetworkModel, SimulationActivity>;
 }
 
 const networkModel: NetworkModel = {
   // state properties
   networks: [],
   autoMiners: {},
+  simulationActivities: [],
   // computed properties/functions
   networkById: computed(state => (id?: string | number) => {
     const networkId = typeof id === 'number' ? id : parseInt(id || '');
@@ -917,6 +927,14 @@ const networkModel: NetworkModel = {
       return network;
     },
   ),
+  addSimulationActivity: thunk((actions, { networkId, ...rest }, { getState }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    const activity = { ...rest, networkId };
+    actions.addSimulationActivity(activity);
+    // network.simulationActivities.push(activity);
+  }),
   setAutoMineMode: action((state, { id, mode }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { id }));

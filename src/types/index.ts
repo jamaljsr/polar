@@ -21,6 +21,7 @@ export interface Network {
   status: Status;
   path: string;
   autoMineMode: AutoMineMode;
+  simulationActivities: SimulationActivity[];
   nodes: {
     bitcoin: BitcoinNode[];
     lightning: LightningNode[];
@@ -221,6 +222,32 @@ export interface NetworksFile {
   version: string;
   networks: Network[];
   charts: Record<number, IChart>;
+}
+
+/**
+ * A running lightning node that is used in the simulation activity
+ */
+export interface SimulationActivityNode {
+  id: string;
+  label: string;
+  type: LightningNode['implementation'];
+  address: string;
+  macaroon: string;
+  tlsCert: string;
+  clientCert?: string;
+  clientKey?: string;
+}
+
+/**
+ * A simulation activity is a payment from one node to another
+ * at a given interval and amount
+ */
+export interface SimulationActivity {
+  source: SimulationActivityNode;
+  destination: SimulationActivityNode;
+  intervalSecs: number;
+  amountMsat: number;
+  networkId: number;
 }
 
 export enum AutoMineMode {

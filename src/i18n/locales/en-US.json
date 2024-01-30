@@ -304,6 +304,8 @@
   "cmps.designer.ActivityGenerator.frequency": "Frequency (seconds)",
   "cmps.designer.ActivityGenerator.amount": "Amount (mSats)",
   "cmps.designer.ActivityGenerator.amountPlaceholder": "Amount in milli sats",
+  "cmps.designer.ActivityGenerator.save": "Save",
+  "cmps.designer.ActivityGenerator.cancel": "Cancel",
   "cmps.designer.tap.info.AssetInfoModal.title": "TAP Asset Info",
   "cmps.designer.tap.info.AssetInfoModal.balance": "Balance",
   "cmps.designer.tap.info.AssetInfoModal.type": "Type",

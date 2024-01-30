@@ -10,7 +10,7 @@ import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { ThemeColors } from 'theme/colors';
-import { Network } from 'types';
+import { Network, SimulationActivity } from 'types';
 import ActivityGenerator from '../../ActivityGenerator';
 
 const Styled = {
@@ -120,70 +120,56 @@ const Styled = {
 };
 
 interface Props {
-  networkNodes: Network['nodes'];
+  network: Network;
   visible: boolean;
 }
 
-interface ActivityNode {
-  label: string;
-  type: string;
-  id: string;
-  address: string;
-  macaroon: string;
-  cert: string;
-}
-
-interface Activity {
-  source_node: ActivityNode;
-  target_node: ActivityNode;
-  frequency: number;
-  amountInMsat: number;
-}
-
-const mockActivities: Activity[] = [
+const mockActivities: SimulationActivity[] = [
   {
-    source_node: {
+    source: {
       label: 'alice',
-      type: 'lnd',
+      type: 'LND',
       id: 'node-1',
       address: `https://ip:port or domain:port`,
       macaroon: `path_to_selected_macaroon`,
-      cert: `path_to_tls_cert`,
+      tlsCert: `path_to_tls_cert`,
     },
-    target_node: {
+    destination: {
       label: 'bob',
-      type: 'lnd',
+      type: 'LND',
       id: 'node-2',
       address: `https://ip:port or domain:port`,
       macaroon: `path_to_selected_macaroon`,
-      cert: `path_to_tls_cert`,
+      tlsCert: `path_to_tls_cert`,
     },
-    frequency: 10,
-    amountInMsat: 100000,
+    intervalSecs: 10,
+    amountMsat: 100000,
+    networkId: 1,
   },
   {
-    source_node: {
+    source: {
       label: 'bob',
-      type: 'lnd',
+      type: 'LND',
       id: 'node-3',
       address: `https://ip:port or domain:port`,
       macaroon: `path_to_selected_macaroon`,
-      cert: `path_to_tls_cert`,
+      tlsCert: `path_to_tls_cert`,
     },
-    target_node: {
+    destination: {
       label: 'alice',
-      type: 'lnd',
+      type: 'LND',
       id: 'node-4',
       address: `https://ip:port or domain:port`,
       macaroon: `path_to_selected_macaroon`,
-      cert: `path_to_tls_cert`,
+      tlsCert: `path_to_tls_cert`,
     },
-    frequency: 10,
-    amountInMsat: 100000,
+    intervalSecs: 10,
+    amountMsat: 100000,
+    networkId: 1,
   },
 ];
 
-const ActivityDesignerCard: React.FC<Props> = ({ visible, networkNodes }) => {
+const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const [isSimulationActive, setIsStartSimulationActive] = React.useState(false);
   const [isAddActivityActive, setIsAddActivityActive] = React.useState(false);
   const theme = useTheme();
@@ -212,7 +198,7 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, networkNodes }) => {
       <ActivityGenerator
         visible={isAddActivityActive}
         activities={mockActivities}
-        networkNodes={networkNodes}
+        network={network}
       />
       <Styled.Divider />
       <p>
@@ -222,14 +208,14 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, networkNodes }) => {
       <Styled.ActivityButtons>
         {mockActivities.map(activity => (
           <Styled.Activity
-            key={activity.source_node.id}
+            key={`${activity.source.address}-${activity.destination.address}`}
             colors={theme.dragNode}
             onClick={() => console.log('clicked')}
           >
             <Styled.NodeWrapper>
-              <span>{activity.source_node.label}</span>
+              <span>{activity.source.label}</span>
               <ArrowRightOutlined />
-              <span>{activity.target_node.label}</span>
+              <span>{activity.destination.label}</span>
             </Styled.NodeWrapper>
             <Styled.DeleteButton icon={<DeleteOutlined />} />
           </Styled.Activity>
