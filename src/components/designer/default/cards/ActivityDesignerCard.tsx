@@ -12,6 +12,7 @@ import { useTheme } from 'hooks/useTheme';
 import { ThemeColors } from 'theme/colors';
 import { Network, SimulationActivity } from 'types';
 import ActivityGenerator from '../../ActivityGenerator';
+import { useStoreActions } from 'store';
 
 const Styled = {
   AddNodes: styled.div`
@@ -124,51 +125,6 @@ interface Props {
   visible: boolean;
 }
 
-const mockActivities: SimulationActivity[] = [
-  {
-    source: {
-      label: 'alice',
-      type: 'LND',
-      id: 'node-1',
-      address: `https://ip:port or domain:port`,
-      macaroon: `path_to_selected_macaroon`,
-      tlsCert: `path_to_tls_cert`,
-    },
-    destination: {
-      label: 'bob',
-      type: 'LND',
-      id: 'node-2',
-      address: `https://ip:port or domain:port`,
-      macaroon: `path_to_selected_macaroon`,
-      tlsCert: `path_to_tls_cert`,
-    },
-    intervalSecs: 10,
-    amountMsat: 100000,
-    networkId: 1,
-  },
-  {
-    source: {
-      label: 'bob',
-      type: 'LND',
-      id: 'node-3',
-      address: `https://ip:port or domain:port`,
-      macaroon: `path_to_selected_macaroon`,
-      tlsCert: `path_to_tls_cert`,
-    },
-    destination: {
-      label: 'alice',
-      type: 'LND',
-      id: 'node-4',
-      address: `https://ip:port or domain:port`,
-      macaroon: `path_to_selected_macaroon`,
-      tlsCert: `path_to_tls_cert`,
-    },
-    intervalSecs: 10,
-    amountMsat: 100000,
-    networkId: 1,
-  },
-];
-
 const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const [isSimulationActive, setIsStartSimulationActive] = React.useState(false);
   const [isAddActivityActive, setIsAddActivityActive] = React.useState(false);
@@ -176,7 +132,12 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const { l } = usePrefixedTranslation(
     'cmps.designer.default.cards.ActivityDesignerCard',
   );
-  const numberOfActivities = mockActivities.length;
+  const numberOfActivities = network.simulationActivities.length;
+  const { removeSimulationActivity } = useStoreActions(s => s.network);
+
+  const handleRemoveActivity = async (activity: SimulationActivity) => {
+    await removeSimulationActivity(activity);
+  };
 
   if (!visible) return null;
   return (
@@ -197,7 +158,7 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
       <Styled.AddDesc>{l('addActivitiesDesc')}</Styled.AddDesc>
       <ActivityGenerator
         visible={isAddActivityActive}
-        activities={mockActivities}
+        activities={network.simulationActivities}
         network={network}
       />
       <Styled.Divider />
@@ -206,9 +167,9 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
         {` (${numberOfActivities})`}
       </p>
       <Styled.ActivityButtons>
-        {mockActivities.map(activity => (
+        {network.simulationActivities.map(activity => (
           <Styled.Activity
-            key={`${activity.source.address}-${activity.destination.address}`}
+            key={`id-${activity.id}-${activity.source.address}-${activity.destination.address}`}
             colors={theme.dragNode}
             onClick={() => console.log('clicked')}
           >
@@ -217,7 +178,10 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
               <ArrowRightOutlined />
               <span>{activity.destination.label}</span>
             </Styled.NodeWrapper>
-            <Styled.DeleteButton icon={<DeleteOutlined />} />
+            <Styled.DeleteButton
+              onClick={() => handleRemoveActivity(activity)}
+              icon={<DeleteOutlined />}
+            />
           </Styled.Activity>
         ))}
       </Styled.ActivityButtons>

@@ -131,7 +131,7 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
   const [frequency, setFrequency] = useState<number>(1);
 
   // get store actions for adding activities
-  const store = useStoreActions(s => s.network);
+  const { addSimulationActivity } = useStoreActions(s => s.network);
 
   const getAuthDetails = (node: LightningNode) => {
     const id = nodeState && nodeState.nodes[node.name].info?.pubkey;
@@ -169,7 +169,7 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
     }
   };
 
-  const handleAddActivity = () => {
+  const handleAddActivity = async () => {
     if (!sourceNode || !targetNode) return;
     const sourceSimulationNode: SimulationActivityNode = {
       id: getAuthDetails(sourceNode).id || '',
@@ -198,9 +198,7 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
       intervalSecs: frequency,
       networkId: network.id,
     };
-    // const newActivities = [...network.simulationActivities, activity];
-    // network.simulationActivities.push(activity);
-    store.addSimulationActivity(activity);
+    await addSimulationActivity(activity);
     console.log('activity', activity);
     console.log('network', network.simulationActivities);
   };

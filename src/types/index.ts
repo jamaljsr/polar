@@ -243,6 +243,7 @@ export interface SimulationActivityNode {
  * at a given interval and amount
  */
 export interface SimulationActivity {
+  id: number;
   source: SimulationActivityNode;
   destination: SimulationActivityNode;
   intervalSecs: number;
