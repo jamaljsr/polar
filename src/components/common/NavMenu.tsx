@@ -8,11 +8,7 @@ import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
 
 const Styled = {
   Menu: styled.div`
-    float: right;
-
-    .ant-menu-overflow-item-rest {
-      display: none;
-    }
+    width: 496px;
   `,
 };
 

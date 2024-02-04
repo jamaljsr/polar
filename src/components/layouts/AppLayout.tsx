@@ -22,11 +22,12 @@ const Styled = {
   `,
   Header: styled(Header)`
     padding: 0 16px;
+    display: flex;
+    justify-content: space-between;
   `,
   Logo: styled.div`
     height: 64px;
     width: 120px;
-    float: left;
   `,
   Image: styled.img`
     height: 16px;
