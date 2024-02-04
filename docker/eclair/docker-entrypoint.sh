@@ -24,7 +24,12 @@ if [ "$1" = "polar-eclair" ]; then
   JAVA_OPTS=""
   for arg in "$@"
   do
-    if [ "${arg:0:2}" = "--" ]; then
+    if [ "${arg:0:21}" = "--server.public-ips.0" ]; then
+      # replace the hostname provided in this arg with the IP address of the containing 
+      # because Eclair v8+ began including the DNS hostname in the NodeAnnouncements and
+      # LND throws an error when parsing these messages
+      JAVA_OPTS="$JAVA_OPTS -Declair.server.public-ips.0=$(hostname -i)"
+    elif [ "${arg:0:2}" = "--" ]; then
       JAVA_OPTS="$JAVA_OPTS -Declair.${arg:2}"
     fi
   done
