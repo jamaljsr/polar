@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ArrowDownOutlined,
   ArrowRightOutlined,
   ArrowUpOutlined,
   DeleteOutlined,
+  CopyOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button } from 'antd';
+import { Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { ThemeColors } from 'theme/colors';
-import { Network, SimulationActivity } from 'types';
+import { ActivityInfo, Network, SimulationActivity } from 'types';
 import ActivityGenerator from '../../ActivityGenerator';
 import { useStoreActions } from 'store';
 
@@ -56,6 +57,15 @@ const Styled = {
     &:hover {
       border: 1px solid #d46b08;
       color: #f7f2f2f2;
+    }
+  `,
+  CopyButton: styled(Button)`
+    border: none;
+    height: 100%;
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 1;
     }
   `,
   Divider: styled.div`
@@ -125,9 +135,21 @@ interface Props {
   visible: boolean;
 }
 
+const defaultActivityInfo: ActivityInfo = {
+  sourceNode: undefined,
+  targetNode: undefined,
+  amount: 1,
+  frequency: 1,
+};
+
 const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const [isSimulationActive, setIsStartSimulationActive] = React.useState(false);
   const [isAddActivityActive, setIsAddActivityActive] = React.useState(false);
+
+  const { addSimulationActivity } = useStoreActions(s => s.network);
+
+  const [activityInfo, setActivityInfo] = useState<ActivityInfo>(defaultActivityInfo);
+
   const theme = useTheme();
   const { l } = usePrefixedTranslation(
     'cmps.designer.default.cards.ActivityDesignerCard',
@@ -135,8 +157,30 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const numberOfActivities = network.simulationActivities.length;
   const { removeSimulationActivity } = useStoreActions(s => s.network);
 
+  const toggleAddActivity = () => {
+    setIsAddActivityActive(prev => !prev);
+  };
+
   const handleRemoveActivity = async (activity: SimulationActivity) => {
     await removeSimulationActivity(activity);
+  };
+
+  const handleDuplicateActivity = async (activity: SimulationActivity) => {
+    await addSimulationActivity(activity);
+  };
+
+  const resolveUpdater = <T extends keyof ActivityInfo>({
+    name,
+    value,
+  }: {
+    name: T;
+    value: ActivityInfo[T];
+  }) => {
+    setActivityInfo(prev => ({ ...prev, [name]: value }));
+  };
+
+  const reset = () => {
+    setActivityInfo(defaultActivityInfo);
   };
 
   if (!visible) return null;
@@ -152,14 +196,18 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
           size="small"
           shape="circle"
           icon={isAddActivityActive ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-          onClick={() => setIsAddActivityActive(!isAddActivityActive)}
+          onClick={toggleAddActivity}
         />
       </Styled.AddNodes>
       <Styled.AddDesc>{l('addActivitiesDesc')}</Styled.AddDesc>
       <ActivityGenerator
         visible={isAddActivityActive}
         activities={network.simulationActivities}
+        activityInfo={activityInfo}
         network={network}
+        toggle={toggleAddActivity}
+        updater={resolveUpdater}
+        reset={reset}
       />
       <Styled.Divider />
       <p>
@@ -178,6 +226,12 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
               <ArrowRightOutlined />
               <span>{activity.destination.label}</span>
             </Styled.NodeWrapper>
+            <Tooltip title={l('duplicateBtnTip')}>
+              <Styled.CopyButton
+                onClick={() => handleDuplicateActivity(activity)}
+                icon={<CopyOutlined />}
+              />
+            </Tooltip>
             <Styled.DeleteButton
               onClick={() => handleRemoveActivity(activity)}
               icon={<DeleteOutlined />}

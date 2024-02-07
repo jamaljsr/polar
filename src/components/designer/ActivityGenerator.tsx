@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { PlusSquareOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Col, Form, InputNumber, Row, Select, Slider } from 'antd';
+import { Alert, Button, Col, Form, InputNumber, Row, Select, Slider } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CLightningNode, LightningNode, LndNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { Network, SimulationActivityNode } from 'types';
+import { ActivityInfo, Network, SimulationActivityNode } from 'types';
 
 const Styled = {
   ActivityGen: styled.div`
@@ -84,57 +84,63 @@ const Styled = {
     margin: 0 0 10px 0;
   `,
   Save: styled(Button)<{ canSave: boolean }>`
-    border: 1px solid #545353e6;
     width: 100%;
-    height: 100%;
-    color: #fff;
     opacity: ${props => (props.canSave ? '1' : '0.6')};
     cursor: ${props => (props.canSave ? 'pointer' : 'not-allowed')};
 
     &:hover {
       background: ${props => (props.canSave ? '#d46b08' : '')};
-      color: #fff;
-      border: 1px solid #fff;
     }
   `,
   Cancel: styled(Button)`
-    height: 100%;
     width: 100%;
-    color: #fff;
-    opacity: 0.6;
-    background: #000;
-    border: 1px solid red;
-
-    &:hover {
-      background: red;
-      color: #fff;
-      border: 1px solid #fff;
-    }
   `,
 };
+
+interface AvtivityUpdater {
+  <K extends keyof ActivityInfo>(params: { name: K; value: ActivityInfo[K] }): void;
+}
 
 interface Props {
   visible: boolean;
   activities: any;
+  activityInfo: ActivityInfo;
   network: Network;
+  toggle: () => void;
+  updater: AvtivityUpdater;
+  reset: () => void;
+}
+interface AddActivityInvalidState {
+  state: 'warning' | 'error';
+  message: string;
 }
 
-const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
+const ActivityGenerator: React.FC<Props> = ({
+  visible,
+  network,
+  activityInfo,
+  toggle,
+  reset,
+  updater,
+}) => {
   if (!visible) return null;
+
+  const [addActivityInvalidState, setAddActivityInvalidState] =
+    useState<AddActivityInvalidState | null>(null);
+  const { sourceNode, targetNode, frequency, amount } = activityInfo;
+
   const { l } = usePrefixedTranslation('cmps.designer.ActivityGenerator');
   const nodeState = useStoreState(s => s.lightning);
   const { lightning } = network.nodes;
-
-  const [sourceNode, setSourceNode] = useState<LightningNode | undefined>(undefined);
-  const [targetNode, setTargetNode] = useState<LightningNode | undefined>(undefined);
-  const [amount, setAmount] = useState<number>(1);
-  const [frequency, setFrequency] = useState<number>(1);
 
   // get store actions for adding activities
   const { addSimulationActivity } = useStoreActions(s => s.network);
 
   const getAuthDetails = (node: LightningNode) => {
-    const id = nodeState && nodeState.nodes[node.name].info?.pubkey;
+    console.log(nodeState);
+    const id = nodeState && nodeState.nodes[node.name]?.info?.pubkey;
+
+    if (!id) return;
 
     switch (node.implementation) {
       case 'LND':
@@ -170,26 +176,39 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
   };
 
   const handleAddActivity = async () => {
+    setAddActivityInvalidState(null);
     if (!sourceNode || !targetNode) return;
+    const sourceNodeDetails = getAuthDetails(sourceNode);
+    const targetNodeDetails = getAuthDetails(targetNode);
+
+    if (!sourceNodeDetails || !targetNodeDetails) {
+      setAddActivityInvalidState({
+        state: 'error',
+        message: '',
+      });
+      return;
+    }
+
     const sourceSimulationNode: SimulationActivityNode = {
-      id: getAuthDetails(sourceNode).id || '',
+      id: sourceNodeDetails.id || '',
       label: sourceNode.name,
       type: sourceNode.implementation,
-      address: getAuthDetails(sourceNode).address,
-      macaroon: getAuthDetails(sourceNode).macaroon,
-      tlsCert: getAuthDetails(sourceNode).tlsCert || '',
-      clientCert: getAuthDetails(sourceNode).clientCert,
-      clientKey: getAuthDetails(sourceNode).clientKey,
+      address: sourceNodeDetails.address,
+      macaroon: sourceNodeDetails.macaroon,
+      tlsCert: sourceNodeDetails.tlsCert || '',
+      clientCert: sourceNodeDetails.clientCert,
+      clientKey: sourceNodeDetails.clientKey,
     };
+
     const targetSimulationNode: SimulationActivityNode = {
-      id: getAuthDetails(targetNode).id || '',
+      id: targetNodeDetails.id || '',
       label: targetNode.name,
       type: targetNode.implementation,
-      address: getAuthDetails(targetNode).address,
-      macaroon: getAuthDetails(targetNode).macaroon,
-      tlsCert: getAuthDetails(targetNode).tlsCert || '',
-      clientCert: getAuthDetails(targetNode).clientCert,
-      clientKey: getAuthDetails(targetNode).clientKey,
+      address: targetNodeDetails.address,
+      macaroon: targetNodeDetails.macaroon,
+      tlsCert: targetNodeDetails.tlsCert || '',
+      clientCert: targetNodeDetails.clientCert,
+      clientKey: targetNodeDetails.clientKey,
     };
     const activity = {
       source: sourceSimulationNode,
@@ -199,24 +218,32 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
       networkId: network.id,
     };
     await addSimulationActivity(activity);
-    console.log('activity', activity);
-    console.log('network', network.simulationActivities);
+    reset();
+    toggle();
   };
 
   const handleSourceNodeChange = (selectedNodeName: string) => {
     const selectedNode = lightning.find(n => n.name === selectedNodeName);
     if (selectedNode?.name !== targetNode?.name) {
-      return setSourceNode(selectedNode);
+      updater({ name: 'sourceNode', value: selectedNode });
     }
   };
   const handleTargetNodeChange = (selectedNodeName: string) => {
     const selectedNode = lightning.find(n => n.name === selectedNodeName);
     if (selectedNode?.name !== sourceNode?.name) {
-      return setTargetNode(selectedNode);
+      updater({ name: 'targetNode', value: selectedNode });
     }
   };
   const handleFrequencyChange = (newValue: number) => {
-    setFrequency(newValue);
+    updater({ name: 'frequency', value: newValue < 1 ? 1 : newValue });
+  };
+  const handleAmountChange = (newValue: number) => {
+    updater({ name: 'amount', value: newValue < 1 ? 1 : newValue });
+  };
+
+  const handleCancel = () => {
+    toggle();
+    reset();
   };
 
   const sourceNodes = React.useMemo(() => {
@@ -226,15 +253,6 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
   const targetNodes = React.useMemo(() => {
     return lightning.filter(n => !sourceNode || n.id !== sourceNode.id);
   }, [lightning, sourceNode]);
-
-  React.useEffect(() => {
-    if (amount !== undefined && amount <= 0) {
-      setAmount(1);
-    }
-    if (frequency !== undefined && frequency <= 0) {
-      setFrequency(1);
-    }
-  }, [amount, frequency]);
 
   return (
     <Styled.ActivityGen>
@@ -270,7 +288,7 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
         <Styled.AmountInput
           placeholder={l('amountPlaceholder')}
           value={amount}
-          onChange={e => setAmount(e as number)}
+          onChange={e => handleAmountChange(e as number)}
         />
 
         <Styled.NodeWrapper>
@@ -279,6 +297,7 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
             canAdd={!!sourceNode && !!targetNode}
             icon={<PlusSquareOutlined />}
           />
+          <Styled.Cancel onClick={handleCancel}>{l('cancel')}</Styled.Cancel>
           <Styled.Save
             type="primary"
             canSave={!!sourceNode && !!targetNode}
@@ -286,9 +305,18 @@ const ActivityGenerator: React.FC<Props> = ({ visible, network }) => {
           >
             {l('save')}
           </Styled.Save>
-          <Styled.Cancel type="primary">{l('cancel')}</Styled.Cancel>
         </Styled.NodeWrapper>
       </Styled.ActivityForm>
+      {addActivityInvalidState?.state && (
+        <Alert
+          key={addActivityInvalidState.state}
+          onClose={() => setAddActivityInvalidState(null)}
+          type="warning"
+          message={addActivityInvalidState?.message || l('startWarning')}
+          closable={true}
+          showIcon
+        />
+      )}
     </Styled.ActivityGen>
   );
 };

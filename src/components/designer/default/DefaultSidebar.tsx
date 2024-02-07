@@ -1,5 +1,4 @@
-import React from 'react';
-import { DeploymentUnitOutlined, SisternodeOutlined } from '@ant-design/icons';
+import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -67,9 +66,7 @@ interface Props {
 }
 
 const DefaultSidebar: React.FC<Props> = ({ network }) => {
-  const [designerType, setDesignerType] = React.useState<'network' | 'activity'>(
-    'network',
-  );
+  const [designerType, setDesignerType] = React.useState('network');
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
   const { updateSettings } = useStoreActions(s => s.app);
@@ -82,6 +79,25 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const toggleModal = () => showImageUpdates();
 
   const nodes: Node[] = [];
+
+  const tabHeaders = [
+    { key: 'network', tab: l('networkTitle') },
+    { key: 'activity', tab: l('activityTitle') },
+  ];
+  const tabContents: Record<string, ReactNode> = {
+    network: (
+      <NetworkDesignerCard
+        nodes={nodes}
+        showAll={showAll}
+        toggleVersions={toggleVersions}
+        toggleModal={toggleModal}
+        visible={designerType === 'network'}
+      />
+    ),
+    activity: (
+      <ActivityDesignerCard visible={designerType === 'activity'} network={network} />
+    ),
+  };
 
   // add custom nodes
   settings.nodeImages.custom.forEach(image => {
@@ -110,35 +126,19 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   });
 
   return (
-    <SidebarCard>
+    <SidebarCard
+      tabList={tabHeaders}
+      activeTabKey={designerType}
+      onTabChange={setDesignerType}
+    >
       <Styled.Title>
         {designerType === 'network' ? (
           <p>{l('networkTitle')}</p>
         ) : (
           <p>{l('activityTitle')}</p>
         )}
-        <Styled.DesignerButtons>
-          <Styled.Button
-            active={designerType === 'network'}
-            icon={<DeploymentUnitOutlined />}
-            onClick={() => setDesignerType('network')}
-          />
-          <Styled.Button
-            active={designerType === 'activity'}
-            icon={<SisternodeOutlined />}
-            onClick={() => setDesignerType('activity')}
-            color="red"
-          />
-        </Styled.DesignerButtons>
       </Styled.Title>
-      <NetworkDesignerCard
-        nodes={nodes}
-        showAll={showAll}
-        toggleVersions={toggleVersions}
-        toggleModal={toggleModal}
-        visible={designerType === 'network'}
-      />
-      <ActivityDesignerCard visible={designerType === 'activity'} network={network} />
+      {tabContents[designerType]}
     </SidebarCard>
   );
 };

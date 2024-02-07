@@ -250,6 +250,12 @@ export interface SimulationActivity {
   amountMsat: number;
   networkId: number;
 }
+export interface ActivityInfo {
+  sourceNode: LightningNode | undefined;
+  targetNode: LightningNode | undefined;
+  amount: number;
+  frequency: number;
+}
 
 export enum AutoMineMode {
   AutoOff = 0,
