@@ -61,6 +61,10 @@ interface AddSimulationActivityArgs {
   networkId: SimulationActivity['networkId'];
 }
 
+interface UpdateSimulationActivityArgs extends AddSimulationActivityArgs {
+  id: number;
+}
+
 export interface AutoMinerModel {
   startTime: number;
   timer?: NodeJS.Timer;
@@ -196,6 +200,13 @@ export interface NetworkModel {
   addSimulationActivity: Thunk<
     NetworkModel,
     AddSimulationActivityArgs,
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  updateSimulationActivity: Thunk<
+    NetworkModel,
+    UpdateSimulationActivityArgs,
     StoreInjections,
     RootModel,
     Promise<void>
@@ -967,6 +978,31 @@ const networkModel: NetworkModel = {
     actions.setNetworks(updatedNetworks);
     await actions.save();
   }),
+  updateSimulationActivity: thunk(
+    async (actions, { networkId, id, ...rest }, { getState }) => {
+      const networks = getState().networks;
+      const networkIndex = networks.findIndex(n => n.id === networkId);
+
+      if (networkIndex === -1) throw new Error(l('networkByIdErr', { networkId }));
+
+      // Create a shallow copy of the network to update the object reference to cause a rerender on setNetworks
+      const updatedNetworks = [...networks];
+      const network = { ...networks[networkIndex] };
+
+      const activity = { ...rest, networkId, id };
+
+      const activityIndex = network.simulationActivities.findIndex(n => n.id === id);
+      if (activityIndex === -1) throw new Error(l('networkByIdErr', { id }));
+
+      network.simulationActivities[activityIndex] = activity;
+      updatedNetworks[networkIndex] = {
+        ...network,
+      };
+
+      actions.setNetworks(updatedNetworks);
+      await actions.save();
+    },
+  ),
   removeSimulationActivity: thunk(async (actions, { networkId, id }, { getState }) => {
     const networks = getState().networks;
     const networkIndex = networks.findIndex(n => n.id === networkId);

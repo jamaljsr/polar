@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { PlusSquareOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Alert, Button, Col, Form, InputNumber, Row, Select, Slider } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -15,22 +14,6 @@ const Styled = {
     align-items: start;
     width: 100%;
     border-radius: 4px;
-  `,
-  AddActivity: styled(Button)<{ canAdd: boolean }>`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    border: none;
-    font-size: 100px;
-    color: #fff;
-    cursor: ${props => (props.canAdd ? 'pointer' : 'not-allowed')};
-    opacity: ${props => (props.canAdd ? '1' : '0.6')};
-
-    svg {
-      font-size: 33px;
-      color: ${props => (props.canAdd ? '#d46b08' : '#545353e6')};
-    }
   `,
   Divider: styled.div`
     height: 1px;
@@ -125,6 +108,7 @@ const ActivityGenerator: React.FC<Props> = ({
 }) => {
   if (!visible) return null;
 
+  const editActivityId = activityInfo.id;
   const [addActivityInvalidState, setAddActivityInvalidState] =
     useState<AddActivityInvalidState | null>(null);
   const { sourceNode, targetNode, frequency, amount } = activityInfo;
@@ -134,10 +118,11 @@ const ActivityGenerator: React.FC<Props> = ({
   const { lightning } = network.nodes;
 
   // get store actions for adding activities
-  const { addSimulationActivity } = useStoreActions(s => s.network);
+  const { addSimulationActivity, updateSimulationActivity } = useStoreActions(
+    s => s.network,
+  );
 
   const getAuthDetails = (node: LightningNode) => {
-    console.log(nodeState);
     const id = nodeState && nodeState.nodes[node.name]?.info?.pubkey;
 
     if (!id) return;
@@ -217,7 +202,10 @@ const ActivityGenerator: React.FC<Props> = ({
       intervalSecs: frequency,
       networkId: network.id,
     };
-    await addSimulationActivity(activity);
+
+    editActivityId
+      ? await updateSimulationActivity({ ...activity, id: editActivityId })
+      : await addSimulationActivity(activity);
     reset();
     toggle();
   };
@@ -292,11 +280,6 @@ const ActivityGenerator: React.FC<Props> = ({
         />
 
         <Styled.NodeWrapper>
-          <Styled.AddActivity
-            size="large"
-            canAdd={!!sourceNode && !!targetNode}
-            icon={<PlusSquareOutlined />}
-          />
           <Styled.Cancel onClick={handleCancel}>{l('cancel')}</Styled.Cancel>
           <Styled.Save
             type="primary"

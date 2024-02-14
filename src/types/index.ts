@@ -251,6 +251,7 @@ export interface SimulationActivity {
   networkId: number;
 }
 export interface ActivityInfo {
+  id: number | undefined;
   sourceNode: LightningNode | undefined;
   targetNode: LightningNode | undefined;
   amount: number;

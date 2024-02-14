@@ -136,6 +136,7 @@ interface Props {
 }
 
 const defaultActivityInfo: ActivityInfo = {
+  id: undefined,
   sourceNode: undefined,
   targetNode: undefined,
   amount: 1,
@@ -147,6 +148,7 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const [isAddActivityActive, setIsAddActivityActive] = React.useState(false);
 
   const { addSimulationActivity } = useStoreActions(s => s.network);
+  const { lightning } = network.nodes;
 
   const [activityInfo, setActivityInfo] = useState<ActivityInfo>(defaultActivityInfo);
 
@@ -161,12 +163,37 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
     setIsAddActivityActive(prev => !prev);
   };
 
-  const handleRemoveActivity = async (activity: SimulationActivity) => {
+  const handleRemoveActivity = async (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    activity: SimulationActivity,
+  ) => {
+    e.stopPropagation();
     await removeSimulationActivity(activity);
   };
 
-  const handleDuplicateActivity = async (activity: SimulationActivity) => {
+  const handleDuplicateActivity = async (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    activity: SimulationActivity,
+  ) => {
+    e.stopPropagation();
     await addSimulationActivity(activity);
+  };
+
+  const resolveLabelToNode = (name: string) => {
+    const selectedNode = lightning.find(n => n.name === name);
+    return selectedNode;
+  };
+  const handleSelectActivity = (activity: SimulationActivity) => {
+    const sourceNode = resolveLabelToNode(activity.source.label);
+    const targetNode = resolveLabelToNode(activity.destination.label);
+    setActivityInfo({
+      id: activity.id,
+      sourceNode,
+      targetNode,
+      amount: activity.amountMsat,
+      frequency: activity.intervalSecs,
+    });
+    setIsAddActivityActive(true);
   };
 
   const resolveUpdater = <T extends keyof ActivityInfo>({
@@ -219,7 +246,7 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
           <Styled.Activity
             key={`id-${activity.id}-${activity.source.address}-${activity.destination.address}`}
             colors={theme.dragNode}
-            onClick={() => console.log('clicked')}
+            onClick={() => handleSelectActivity(activity)}
           >
             <Styled.NodeWrapper>
               <span>{activity.source.label}</span>
@@ -228,12 +255,12 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
             </Styled.NodeWrapper>
             <Tooltip title={l('duplicateBtnTip')}>
               <Styled.CopyButton
-                onClick={() => handleDuplicateActivity(activity)}
+                onClick={e => handleDuplicateActivity(e, activity)}
                 icon={<CopyOutlined />}
               />
             </Tooltip>
             <Styled.DeleteButton
-              onClick={() => handleRemoveActivity(activity)}
+              onClick={e => handleRemoveActivity(e, activity)}
               icon={<DeleteOutlined />}
             />
           </Styled.Activity>
