@@ -164,7 +164,9 @@ const lightningModel: LightningModel = {
       const api = injections.lightningFactory.getService(node);
       const { address } = await api.getNewAddress(node);
       const coins = fromSatsNumeric(sats);
-      await injections.bitcoindService.sendFunds(btcNode, address, coins);
+      await injections.bitcoinFactory
+        .getService(btcNode)
+        .sendFunds(btcNode, address, coins);
       await getStoreActions().bitcoind.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,

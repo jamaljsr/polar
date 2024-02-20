@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { BitcoinNode, LightningNode, OpenChannelOptions } from 'shared/types';
+import { BitcoinNode, BtcdNode, LightningNode, OpenChannelOptions } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -253,7 +253,7 @@ class EclairService implements LightningService {
 
   private validateBackend(action: string, backend?: BitcoinNode) {
     if (!backend) throw new Error(`EclairService ${action}: backend was not specified`);
-
+    if (backend.implementation == 'btcd') return backend as BtcdNode;
     return backend as BitcoinNode;
   }
 }

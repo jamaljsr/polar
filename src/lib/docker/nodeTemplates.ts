@@ -11,8 +11,8 @@ export const bitcoind = (
   image: string,
   rpcPort: number,
   p2pPort: number,
-  zmqBlockPort: number,
-  zmqTxPort: number,
+  zmqBlockPort: number | undefined,
+  zmqTxPort: number | undefined,
   command: string,
 ): ComposeService => ({
   image,

@@ -59,14 +59,18 @@ const bitcoindModel: BitcoindModel = {
     state.nodes[id].walletInfo = walletInfo;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
-    const chainInfo = await injections.bitcoindService.getBlockchainInfo(node);
-    const walletInfo = await injections.bitcoindService.getWalletInfo(node);
+    const chainInfo = await injections.bitcoinFactory
+      .getService(node)
+      .getBlockchainInfo(node);
+    const walletInfo = await injections.bitcoinFactory
+      .getService(node)
+      .getWalletInfo(node);
     actions.setInfo({ node, chainInfo, walletInfo });
   }),
   mine: thunk(async (actions, { blocks, node }, { injections, getStoreState }) => {
     if (blocks < 0) throw new Error(l('mineError'));
 
-    await injections.bitcoindService.mine(blocks, node);
+    await injections.bitcoinFactory.getService(node).mine(blocks, node);
     // add a small delay to allow the block to propagate to all nodes
     await delay(500);
     // update info for all bitcoin nodes
@@ -77,7 +81,9 @@ const bitcoindModel: BitcoindModel = {
   }),
   sendFunds: thunk(
     async (actions, { node, toAddress, amount, autoMine }, { injections }) => {
-      const txid = await injections.bitcoindService.sendFunds(node, toAddress, amount);
+      const txid = injections.bitcoinFactory
+        .getService(node)
+        .sendFunds(node, toAddress, amount);
       if (autoMine) await actions.mine({ blocks: 6, node });
       return txid;
     },

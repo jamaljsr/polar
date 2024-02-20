@@ -3,6 +3,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import {
   BitcoinNode,
+  BitcoindNode,
   CommonNode,
   LightningNode,
   NodeImplementation,
@@ -125,7 +126,18 @@ export interface RepoServiceInjection {
   checkForUpdates: (currState: DockerRepoState) => Promise<DockerRepoUpdates>;
 }
 
-export interface BitcoindLibrary {
+export interface BitcoinLibrary {
+  waitUntilOnline: (node: BitcoindNode) => Promise<void>;
+  createDefaultWallet: (node: BitcoindNode) => Promise<void>;
+  getBlockchainInfo: (node: BitcoindNode) => Promise<ChainInfo>;
+  getWalletInfo: (node: BitcoindNode) => Promise<WalletInfo>;
+  getNewAddress: (node: BitcoindNode) => Promise<string>;
+  connectPeers: (node: BitcoindNode) => Promise<void>;
+  mine: (numBlocks: number, node: BitcoindNode) => Promise<string[]>;
+  sendFunds: (node: BitcoindNode, addr: string, amount: number) => Promise<string>;
+}
+
+export interface BitcoinService {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
   createDefaultWallet: (node: BitcoinNode) => Promise<void>;
   getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
@@ -161,6 +173,10 @@ export interface LightningFactoryInjection {
   getService: (node: LightningNode) => LightningService;
 }
 
+export interface BitcoinFactoryInjection {
+  getService: (node: BitcoinNode) => BitcoinService;
+}
+
 export interface TapService {
   waitUntilOnline: (node: TapNode) => Promise<void>;
   listAssets: (node: TapNode) => Promise<PTAP.TapAsset[]>;
@@ -192,7 +208,7 @@ export interface StoreInjections {
   settingsService: SettingsInjection;
   dockerService: DockerLibrary;
   repoService: RepoServiceInjection;
-  bitcoindService: BitcoindLibrary;
+  bitcoinFactory: BitcoinFactoryInjection;
   lightningFactory: LightningFactoryInjection;
   tapFactory: TapFactoryInjection;
 }

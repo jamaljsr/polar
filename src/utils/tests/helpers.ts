@@ -150,8 +150,8 @@ export const testRepoState: DockerRepoState = {
       ],
     },
     btcd: {
-      latest: '',
-      versions: [],
+      latest: '0.24.0',
+      versions: ['0.24.0', '0.23.0'],
     },
     tapd: {
       latest: '0.3.0-alpha',
@@ -179,6 +179,7 @@ export const getNetwork = (
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 1,
     status,
     repoState: defaultRepoState,
     managedImages: testManagedImages,

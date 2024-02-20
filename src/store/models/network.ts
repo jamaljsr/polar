@@ -45,6 +45,7 @@ interface AddNetworkArgs {
   eclairNodes: number;
   bitcoindNodes: number;
   customNodes: Record<string, number>;
+  btcdNodes: number;
 }
 
 export interface AutoMinerModel {
@@ -244,7 +245,15 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      { name, lndNodes, clightningNodes, eclairNodes, bitcoindNodes, customNodes },
+      {
+        name,
+        lndNodes,
+        clightningNodes,
+        eclairNodes,
+        bitcoindNodes,
+        customNodes,
+        btcdNodes,
+      },
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
@@ -268,6 +277,7 @@ const networkModel: NetworkModel = {
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
+        btcdNodes,
       });
       actions.add(network);
       const { networks } = getState();
@@ -334,7 +344,11 @@ const networkModel: NetworkModel = {
           network.nodes.lightning.push(node);
           break;
         case 'bitcoind':
-          node = createBitcoindNetworkNode(network, version, docker);
+          node = createBitcoindNetworkNode(network, version, docker, 'bitcoind');
+          network.nodes.bitcoin.push(node);
+          break;
+        case 'btcd':
+          node = createBitcoindNetworkNode(network, version, docker, 'btcd');
           network.nodes.bitcoin.push(node);
           break;
         case 'tapd':
@@ -739,17 +753,18 @@ const networkModel: NetworkModel = {
           const btc = node as BitcoinNode;
           // wait for bitcoind nodes to come online before updating their status
           // use .then() to continue execution while the promises are waiting to complete
-          const promise = injections.bitcoindService
+          const promise = injections.bitcoinFactory
+            .getService(btc)
             .waitUntilOnline(btc)
             .then(async () => {
               actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
-              await injections.bitcoindService.connectPeers(btc);
+              await injections.bitcoinFactory.getService(btc).connectPeers(btc);
               // create a default wallet since it's not automatic on v0.21.0 and up
-              await injections.bitcoindService.createDefaultWallet(btc);
+              await injections.bitcoinFactory.getService(btc).createDefaultWallet(btc);
               await getStoreActions().bitcoind.getInfo(btc);
             })
-            .catch(error =>
+            .catch((error: any) =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
             );
           btcNodesOnline.push(promise);

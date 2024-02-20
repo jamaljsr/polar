@@ -6,7 +6,9 @@ import detectPort from 'detect-port';
 import { tmpdir } from 'os';
 import { ipcChannels } from 'shared';
 import {
+  BitcoindNode,
   BitcoinNode,
+  BtcdNode,
   CLightningNode,
   CommonNode,
   EclairNode,
@@ -48,7 +50,8 @@ export const getNetworkBackendId = (node: BitcoinNode) =>
 const groupNodes = (network: Network) => {
   const { bitcoin, lightning, tap } = network.nodes;
   return {
-    bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
+    bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoindNode[],
+    btcd: bitcoin.filter(n => n.implementation === 'btcd') as BtcdNode[],
     lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
     clightning: lightning.filter(
       n => n.implementation === 'c-lightning',
@@ -259,31 +262,36 @@ export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
   docker: CommonNode['docker'],
+  implementation: BitcoinNode['implementation'],
   status = Status.Stopped,
-): BitcoinNode => {
+) => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
-
   const name = `backend${id + 1}`;
+
+  // Common properties for both implementations
   const node: BitcoinNode = {
     id,
     networkId: network.id,
-    name: name,
+    name,
     type: 'bitcoin',
-    implementation: 'bitcoind',
+    implementation,
     version,
     peers: [],
     status,
     ports: {
       rpc: BasePorts.bitcoind.rest + id,
       p2p: BasePorts.bitcoind.p2p + id,
-      zmqBlock: BasePorts.bitcoind.zmqBlock + id,
-      zmqTx: BasePorts.bitcoind.zmqTx + id,
+      // Set zmq ports only for Bitcoind
+      ...(implementation === 'bitcoind' && {
+        zmqBlock: BasePorts.bitcoind.zmqBlock + id,
+        zmqTx: BasePorts.bitcoind.zmqTx + id,
+      }),
     },
     docker,
   };
 
-  // peer up with the previous node on both sides
+  // Peer up with the previous node on both sides
   if (bitcoin.length > 0) {
     const prev = bitcoin[bitcoin.length - 1];
     node.peers.push(prev.name);
@@ -362,6 +370,7 @@ export const createNetwork = (config: {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  btcdNodes: number;
   repoState: DockerRepoState;
   managedImages: ManagedImage[];
   customImages: { image: CustomImage; count: number }[];
@@ -374,6 +383,7 @@ export const createNetwork = (config: {
     clightningNodes,
     eclairNodes,
     bitcoindNodes,
+    btcdNodes,
     repoState,
     managedImages,
     customImages,
@@ -399,24 +409,47 @@ export const createNetwork = (config: {
 
   // add custom bitcoin nodes
   customImages
-    .filter(i => i.image.implementation === 'bitcoind')
+    .filter(i => ['btcd', 'bitcoind'].includes(i.image.implementation))
     .forEach(i => {
-      const version = repoState.images.bitcoind.latest;
+      const version =
+        i.image.implementation == 'btcd'
+          ? repoState.images.btcd.latest
+          : repoState.images.bitcoind.latest;
       const docker = { image: i.image.dockerImage, command: i.image.command };
       range(i.count).forEach(() => {
-        bitcoin.push(createBitcoindNetworkNode(network, version, docker, status));
+        i.image.implementation == 'btcd'
+          ? bitcoin.push(
+              createBitcoindNetworkNode(network, version, docker, 'btcd', status),
+            )
+          : bitcoin.push(
+              createBitcoindNetworkNode(network, version, docker, 'bitcoind', status),
+            );
       });
     });
 
   // add managed bitcoin nodes
-  range(bitcoindNodes).forEach(() => {
-    let version = repoState.images.bitcoind.latest;
-    if (lndNodes > 0) {
-      const compat = repoState.images.LND.compatibility as Record<string, string>;
-      version = compat[repoState.images.LND.latest];
+  range(Math.max(bitcoindNodes, btcdNodes)).forEach(i => {
+    // Adds bitcoin backend in alternating patterns
+    if (i < bitcoindNodes) {
+      const version = repoState.images.bitcoind.latest;
+      const cmd = getImageCommand(managedImages, 'bitcoind', version);
+      bitcoin.push(
+        createBitcoindNetworkNode(network, version, dockerWrap(cmd), 'bitcoind', status),
+      );
     }
-    const cmd = getImageCommand(managedImages, 'bitcoind', version);
-    bitcoin.push(createBitcoindNetworkNode(network, version, dockerWrap(cmd), status));
+
+    if (i < btcdNodes) {
+      const version = repoState.images.btcd.latest;
+      const cmd = getImageCommand(managedImages, 'bitcoind', version);
+      bitcoin.push(
+        createBitcoindNetworkNode(network, version, dockerWrap(cmd), 'bitcoind', status),
+      );
+    }
+
+    // if (lndNodes > 0) {
+    //   const compat = repoState.images.LND.compatibility as Record<string, string>;
+    //   version = compat[repoState.images.LND.latest];
+    // }
   });
 
   // add custom lightning nodes
@@ -565,7 +598,9 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.zmqBlock);
+    existingPorts = bitcoin
+      .map(n => n.ports.zmqBlock)
+      .filter((port): port is number => port !== undefined);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
@@ -576,7 +611,9 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.zmqTx);
+    existingPorts = bitcoin
+      .map(n => n.ports.zmqTx)
+      .filter((port): port is number => port !== undefined);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {

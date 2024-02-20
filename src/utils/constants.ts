@@ -5,6 +5,7 @@ import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
+import btcdLogo from 'resources/btcd.png';
 import packageJson from '../../package.json';
 
 // App
@@ -65,7 +66,10 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     rest: 8281,
     p2p: 9935,
   },
-  btcd: {},
+  btcd: {
+    rest: 18334,
+    p2p: 18444,
+  },
   tapd: {
     grpc: 12029,
     rest: 8289,
@@ -208,12 +212,20 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
   },
   btcd: {
     name: 'btcd',
-    imageName: '',
-    logo: '',
+    imageName: 'polarlightning/btcd',
+    logo: btcdLogo,
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'btcd',
-    command: '',
-    variables: [],
+    command: [
+      'btcd',
+      '--regtest',
+      '--rpcuser={{rpcUser}}',
+      '--rpcpass={{rpcPass}}',
+      '--rpclisten=0.0.0.0:18334',
+      '--listen=0.0.0.0:18444',
+      '--txindex',
+    ].join('\n  '),
+    variables: ['rpcUser', 'rpcPass'],
   },
   tapd: {
     name: 'Taproot Assets',

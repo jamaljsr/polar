@@ -1,6 +1,6 @@
 import logger from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
-import { BitcoinNode, BitcoindNode } from 'shared/types';
+import { BitcoinNode, BtcdNode } from 'shared/types';
 import { BitcoinService } from 'types';
 import { delay, waitFor } from 'utils/async';
 import {
@@ -10,7 +10,7 @@ import {
   INITIAL_BLOCK_REWARD,
 } from 'utils/constants';
 
-class BitcoindService implements BitcoinService {
+class BtcdService implements BitcoinService {
   createClient(node: BitcoinNode) {
     const castNode = this.cast(node);
     return new BitcoinCore({
@@ -118,6 +118,16 @@ class BitcoindService implements BitcoinService {
     }
   }
 
+  private cast(node: BitcoinNode): BtcdNode {
+    if (node.implementation !== 'btcd') {
+      throw new Error(
+        `BitcoindService cannot be used for '${node.implementation}' nodes`,
+      );
+    }
+
+    return node as BtcdNode;
+  }
+
   /**
    * Returns the number of blocks to mine in order to generate the desired
    * number of coins
@@ -135,16 +145,6 @@ class BitcoindService implements BitcoinService {
     return Math.floor(numBlocks);
   }
 
-  private cast(node: BitcoinNode): BitcoindNode {
-    if (node.implementation !== 'bitcoind') {
-      throw new Error(
-        `BitcoindService cannot be used for '${node.implementation}' nodes`,
-      );
-    }
-
-    return node as BitcoindNode;
-  }
-
   /**
    * a custom logging function which reformats the RPC requests & responses
    */
@@ -157,15 +157,15 @@ class BitcoindService implements BitcoinService {
           const body = JSON.parse(rawBody);
           const output =
             type === 'request' ? JSON.stringify(body) : JSON.stringify(body, null, 2);
-          logger.debug(`BitcoindService: [${type}]`, output);
+          logger.debug(`BtcdService: [${type}]`, output);
         } else if (data.request.error) {
-          logger.debug(`BitcoindService: [${type}]`, data.request.error);
+          logger.debug(`BtcdService: [${type}]`, data.request.error);
         } else {
-          logger.debug(`BitcoindService: [${type}]`, data);
+          logger.debug(`BtcdService: [${type}]`, data);
         }
       },
     };
   }
 }
 
-export default new BitcoindService();
+export default new BtcdService();

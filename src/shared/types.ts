@@ -69,9 +69,24 @@ export interface BitcoinNode extends CommonNode {
   ports: {
     rpc: number;
     p2p: number;
-    zmqBlock: number;
-    zmqTx: number;
+    zmqBlock?: number;
+    zmqTx?: number;
   };
+}
+
+export interface BtcdNode extends Omit<BitcoinNode, 'ports'> {
+  type: 'bitcoin';
+  implementation: 'btcd';
+  ports: {
+    rpc: number;
+    p2p: number;
+    // zmqBlock and zmqTx are not included here
+  };
+}
+// BitcoindNode remains the same
+export interface BitcoindNode extends BitcoinNode {
+  type: 'bitcoin';
+  implementation: 'bitcoind';
 }
 
 export interface TapNode extends CommonNode {

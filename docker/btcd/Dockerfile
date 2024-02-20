@@ -35,7 +35,7 @@ RUN chmod +x /entrypoint.sh
 VOLUME ["/home/btcd/.btcd"]
 
 # Expose p2p and rpc ports
-EXPOSE 18444 18443
+EXPOSE 18334 18444
 
 # Switch to btcd user
 USER btcd
@@ -44,4 +44,4 @@ USER btcd
 ENTRYPOINT ["/entrypoint.sh"]
 
 # Start btcd in regtest mode
-CMD ["btcd", "--regtest", "--rpcuser=user", "--rpcpass=pass", "--rpclisten=0.0.0.0:18443"]
+CMD ["btcd"]

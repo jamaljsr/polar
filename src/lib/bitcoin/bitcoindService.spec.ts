@@ -10,7 +10,7 @@ const mockBitcoin = BitcoinCore as unknown as jest.Mock<BitcoinCore>;
 describe('BitcoindService', () => {
   const network = getNetwork();
   network.nodes.bitcoin.push(
-    createBitcoindNetworkNode(network, '0.18.1', testNodeDocker),
+    createBitcoindNetworkNode(network, '0.18.1', testNodeDocker, 'bitcoind'),
   );
   const node = network.nodes.bitcoin[0];
   const mockProto = BitcoinCore.prototype;
