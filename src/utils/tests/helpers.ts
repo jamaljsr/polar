@@ -23,6 +23,11 @@ export const testManagedImages: ManagedImage[] = [
     command: '',
   },
   {
+    implementation: 'btcd',
+    version: defaultRepoState.images.btcd.latest,
+    command: '',
+  },
+  {
     implementation: 'tapd',
     version: defaultRepoState.images.tapd.latest,
     command: '',
