@@ -67,7 +67,7 @@
     "@commitlint/cli": "19.0.0",
     "@commitlint/config-conventional": "19.0.0",
     "@emotion/babel-plugin": "11.11.0",
-    "@emotion/react": "11.11.3",
+    "@emotion/react": "11.11.4",
     "@emotion/styled": "11.11.0",
     "@hot-loader/react-dom": "17.0.2",
     "@mrblenny/react-flow-chart": "0.0.14",
