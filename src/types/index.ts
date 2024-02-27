@@ -155,6 +155,7 @@ export interface LightningService {
     invoice: string,
     amount?: number,
   ) => Promise<PLN.LightningNodePayReceipt>;
+  getChannelListener: (node: LightningNode) => Promise<any>;
 }
 
 export interface LightningFactoryInjection {

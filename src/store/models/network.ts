@@ -801,7 +801,11 @@ const networkModel: NetworkModel = {
       // ensure that each node is aware of the entire graph and can route payments properly
       if (lnNodesOnline.length) {
         await Promise.all(lnNodesOnline)
-          .then(async () => await getStoreActions().lightning.connectAllPeers(network))
+          .then(async () => {
+            await getStoreActions().lightning.connectAllPeers(network);
+            // Add listeners to lightning nodes
+            await getStoreActions().lightning.addListeners(network);
+          })
           .catch(e => info('Failed to connect all LN peers', e));
       }
     },

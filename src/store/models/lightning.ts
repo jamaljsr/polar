@@ -84,6 +84,7 @@ export interface LightningModel {
   >;
   waitForNodes: Thunk<LightningModel, LightningNode[], StoreInjections, RootModel>;
   mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
+  addListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
 }
 
 const lightningModel: LightningModel = {
@@ -290,6 +291,45 @@ const lightningModel: LightningModel = {
       );
     },
   ),
+  addListeners: thunk(async (actions, network, { injections, getStoreState }) => {
+    const { nodes } = getStoreState().network.networkById(network.id);
+    for (const node of nodes.lightning) {
+      try {
+        await actions.getAllInfo(node);
+      } catch {}
+    }
+
+    for (const node of nodes.lightning) {
+      // LND Node throws error below
+      // TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received null
+      let listener;
+      try {
+        listener = await injections.lightningFactory
+          .getService(node)
+          .getChannelListener(node);
+      } catch (error) {
+        console.log(error);
+      }
+
+      // Handle incoming messages from listener, update model and sync charts
+      switch (node.implementation) {
+        case 'LND':
+          listener.on('data', (data: any) => {
+            console.log('Alice LND data received');
+            console.log(data);
+          });
+          break;
+        case 'c-lightning':
+          break;
+        case 'eclair':
+          listener.on('message', (data: any) => {
+            console.log(`Carol eclair data received`);
+            console.log(data);
+          });
+          break;
+      }
+    }
+  }),
 };
 
 export default lightningModel;
