@@ -1307,19 +1307,17 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@commitlint/cli@19.0.0":
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-19.0.0.tgz#03a5c8cef2cbffd514d0ff1a517a633c46fd4456"
-  integrity sha512-SVBQG6k+eOOmlejYTtxnqJGmhrzy/m0qH3bVeoHY3gtlJBK3Kb32RjJioteBYk8Vuo58x5ehAjXwsQFX58X+xw==
+"@commitlint/cli@19.0.1":
+  version "19.0.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-19.0.1.tgz#6177f3e45922a6d8ee1da874c7650f7b59045451"
+  integrity sha512-6D+KT/RasFPF92M549I3lABSBWXAdmKvBfxtYWlWO5JdYFSK+B6jY6XyE/hN/DNSYvwwcuNk+CzbqQcy+EbrCw==
   dependencies:
     "@commitlint/format" "^19.0.0"
     "@commitlint/lint" "^19.0.0"
-    "@commitlint/load" "^19.0.0"
+    "@commitlint/load" "^19.0.1"
     "@commitlint/read" "^19.0.0"
     "@commitlint/types" "^19.0.0"
     execa "^8.0.1"
-    resolve-from "^5.0.0"
-    resolve-global "^2.0.0"
     yargs "^17.0.0"
 
 "@commitlint/config-conventional@19.0.0":
@@ -1411,14 +1409,14 @@
     lodash.uniq "^4.5.0"
     resolve-from "^5.0.0"
 
-"@commitlint/load@^19.0.0":
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-19.0.0.tgz#fc716f5054c0d6f7d72293eaaa4a184c5000f933"
-  integrity sha512-pC/6xDjkWPWgqfILY0KMMpxz0dTZqC7fUpxyWMLRrlbZCC9S54/gsg/8UltFrUH+C+F1zz4Ip8CQgzKonpH6rg==
+"@commitlint/load@^19.0.1":
+  version "19.0.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-19.0.1.tgz#754bf73dea771b02b88211b66027d6ace41f2524"
+  integrity sha512-5w5RHhtidRPMRm8ktph+NKypt1Wu5Z2jbU1Lc+1IS9Azy83JWRBQ9xKBbW9gF66R/TwHF0v6Jy8KOqRS8I/GgA==
   dependencies:
     "@commitlint/config-validator" "^19.0.0"
     "@commitlint/execute-rule" "^19.0.0"
-    "@commitlint/resolve-extends" "^19.0.0"
+    "@commitlint/resolve-extends" "^19.0.1"
     "@commitlint/types" "^19.0.0"
     chalk "^5.3.0"
     cosmiconfig "^8.3.6"
@@ -1463,17 +1461,16 @@
     resolve-from "^5.0.0"
     resolve-global "^1.0.0"
 
-"@commitlint/resolve-extends@^19.0.0":
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-19.0.0.tgz#5ab8f72020f8a758be406b44f71babcb02c51104"
-  integrity sha512-ej0fALn5yZQOYKH8wPZnzw5LGvD0n5gJBPvV6DnMiSYudqgwYwhdNJ//MukZCXNpLIM1yMA8KUyrCP6D4WnUbg==
+"@commitlint/resolve-extends@^19.0.1":
+  version "19.0.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-19.0.1.tgz#14fdd2be5ec3e01e7cd1d1b3336e39b930239144"
+  integrity sha512-U5BRCNEiib0I06e6utNzBXZRu/t/bzlqVljS5kaNwggPN1VS+Kvuks8fY97j85B8sifHXU5dhUICPRKP8Oj31A==
   dependencies:
     "@commitlint/config-validator" "^19.0.0"
     "@commitlint/types" "^19.0.0"
-    import-fresh "^3.0.0"
+    global-directory "^4.0.1"
     import-meta-resolve "^4.0.0"
     lodash.mergewith "^4.6.2"
-    resolve-global "^2.0.0"
 
 "@commitlint/rules@^19.0.0":
   version "19.0.0"
@@ -15915,13 +15912,6 @@ resolve-global@^1.0.0:
   integrity sha512-zFa12V4OLtT5XUX/Q4VLvTfBf+Ok0SPc1FNGM/z9ctUdiU618qwKpWnd0CHs3+RqROfyEg/DhuHbMWYqcgljEw==
   dependencies:
     global-dirs "^0.1.1"
-
-resolve-global@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/resolve-global/-/resolve-global-2.0.0.tgz#2ff55640800bf3692f089b6008357f75e1a27e54"
-  integrity sha512-gnAQ0Q/KkupGkuiMyX4L0GaBV8iFwlmoXsMtOz+DFTaKmHhOO/dSlP1RMKhpvHv/dh6K/IQkowGJBqUG0NfBUw==
-  dependencies:
-    global-directory "^4.0.1"
 
 resolve-options@^2.0.0:
   version "2.0.0"
