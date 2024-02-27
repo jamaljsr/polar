@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { LightningNode, OpenChannelOptions } from 'shared/types';
+import { LightningNode, OpenChannelOptions, CLightningNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -197,8 +197,26 @@ class CLightningService implements LightningService {
     );
   }
 
+  async getChannelListener(node: LightningNode): Promise<any> {
+    const lndNode: CLightningNode = this.cast(node);
+    const config = {
+      url: `127.0.0.1:${lndNode.ports.rest}`,
+      macaroonPath: String(lndNode.paths.macaroon),
+      tls: String(lndNode.paths.tlsCert),
+    };
+    // No websocket, uses rest api
+    return config; // return listener
+  }
+
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
+  }
+
+  private cast(node: LightningNode): CLightningNode {
+    if (node.implementation !== 'c-lightning')
+      throw new Error(`CLightningNode cannot be used for '${node.implementation}' nodes`);
+
+    return node as CLightningNode;
   }
 }
 

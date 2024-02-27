@@ -186,6 +186,18 @@ class LndService implements LightningService {
     );
   }
 
+  async getChannelListener(node: LightningNode): Promise<any> {
+    const lndNode: LndNode = this.cast(node);
+    const config: LND.LnRpcClientConfig = {
+      server: `127.0.0.1:${lndNode.ports.grpc}`,
+      tls: String(lndNode.paths.tlsCert),
+      macaroonPath: String(lndNode.paths.adminMacaroon),
+    };
+    const lnrpc = await LND.createLnRpc(config);
+    const listener = lnrpc.subscribeChannelEvents();
+    return listener;
+  }
+
   private cast(node: LightningNode): LndNode {
     if (node.implementation !== 'LND')
       throw new Error(`LndService cannot be used for '${node.implementation}' nodes`);
