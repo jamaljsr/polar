@@ -64,8 +64,8 @@
   "devDependencies": {
     "@ant-design/icons": "5.3.0",
     "@babel/plugin-proposal-private-property-in-object": "7.21.11",
-    "@commitlint/cli": "17.8.1",
-    "@commitlint/config-conventional": "17.8.1",
+    "@commitlint/cli": "19.0.0",
+    "@commitlint/config-conventional": "19.0.0",
     "@emotion/babel-plugin": "11.11.0",
     "@emotion/react": "11.11.3",
     "@emotion/styled": "11.11.0",
