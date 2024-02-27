@@ -1,5 +1,6 @@
 import { debug } from 'electron-log';
-import { BitcoinNode, LightningNode, OpenChannelOptions } from 'shared/types';
+import EclairTs from 'eclair-ts';
+import { BitcoinNode, LightningNode, OpenChannelOptions, EclairNode } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -7,6 +8,7 @@ import { toSats } from 'utils/units';
 import * as PLN from '../types';
 import { httpPost } from './eclairApi';
 import * as ELN from './types';
+import { eclairCredentials } from 'utils/constants';
 
 const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['status']> =
   {
@@ -250,6 +252,20 @@ class EclairService implements LightningService {
     );
   }
 
+  async getChannelListener(node: LightningNode): Promise<any> {
+    const lndNode: EclairNode = this.cast(node);
+    const base64auth = Buffer.from(`:${eclairCredentials.pass}`).toString('base64');
+    const config = {
+      url: `127.0.0.1:${lndNode.ports.rest}`,
+      headers: {
+        Authorization: `Basic ${base64auth}`,
+      },
+    };
+    const eclairTs = new EclairTs(config);
+    const listener = eclairTs.listen();
+    return listener;
+  }
+
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
   }
@@ -258,6 +274,13 @@ class EclairService implements LightningService {
     if (!backend) throw new Error(`EclairService ${action}: backend was not specified`);
 
     return backend as BitcoinNode;
+  }
+
+  private cast(node: LightningNode): EclairNode {
+    if (node.implementation !== 'eclair')
+      throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
+
+    return node as EclairNode;
   }
 }
 
