@@ -63,6 +63,10 @@ class LndProxyClient {
   async decodeInvoice(node: LndNode, req: LND.PayReqString): Promise<LND.PayReq> {
     return await this.ipc(ipcChannels.decodeInvoice, { node, req });
   }
+
+  async getChannelListener(node: LndNode): Promise<LND.Readable> {
+    return await this.ipc(ipcChannels.getChannelListener, { node });
+  }
 }
 
 export default new LndProxyClient();
