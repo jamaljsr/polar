@@ -187,14 +187,8 @@ class LndService implements LightningService {
   }
 
   async getChannelListener(node: LightningNode): Promise<any> {
-    const lndNode: LndNode = this.cast(node);
-    const config: LND.LnRpcClientConfig = {
-      server: `127.0.0.1:${lndNode.ports.grpc}`,
-      tls: String(lndNode.paths.tlsCert),
-      macaroonPath: String(lndNode.paths.adminMacaroon),
-    };
-    const lnrpc = await LND.createLnRpc(config);
-    const listener = lnrpc.subscribeChannelEvents();
+    const listener = await proxy.getChannelListener(this.cast(node));
+    console.log('listener for >> ', node.implementation);
     return listener;
   }
 

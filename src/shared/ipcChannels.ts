@@ -18,6 +18,7 @@ export default {
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',
+  getChannelListener: 'get-channel-listener',
   // tapd proxy channels
   tapd: {
     listAssets: 'tapd-list-assets',
