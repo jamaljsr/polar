@@ -4650,10 +4650,10 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bitcoin-core@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/bitcoin-core/-/bitcoin-core-4.1.0.tgz#900c1121a9ef28f12e6bdcf37229911ec2513b71"
-  integrity sha512-hFmxLismSJz2VKoi9zXx9SHtR4in8krLhKhbP7qtG3y+QiNVtmr5VpiHXivXEkKFPIMydPh8H8wW9aqDOGSaDw==
+bitcoin-core@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/bitcoin-core/-/bitcoin-core-4.2.0.tgz#61e5e18e8c206cdca31729e7df9cfe8ba0274b12"
+  integrity sha512-QFmer//rZhyuYm0mBOVAmMhIG/EFmXDahC3a1LvNTwM8/KszxUGEAjvAT4tzm1FaDj4c7pQWMG/vOWtoKjeR3Q==
   dependencies:
     "@uphold/request-logger" "^2.0.0"
     debugnyan "^1.0.0"
