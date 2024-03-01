@@ -277,6 +277,7 @@
   "cmps.designer.lightning.LightningDetails.actions": "动作",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "等待 {{implementation}} 上线",
   "cmps.designer.lightning.LightningDetails.connectError": "无法连接到 {{implementation}} 节点",
+  "cmps.designer.lightning.LightningDetails.menuRename": "改名",
   "cmps.designer.SyncButton.syncSuccess": "设计器已与Lightning节点同步",
   "cmps.designer.SyncButton.syncError": "同步网络失败",
   "cmps.designer.SyncButton.syncBtnTip": "从节点更新图表",

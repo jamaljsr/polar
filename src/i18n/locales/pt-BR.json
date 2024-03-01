@@ -277,6 +277,7 @@
   "cmps.designer.lightning.LightningDetails.actions": "Ações",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "Aguardando {{implementation}} para ficar online",
   "cmps.designer.lightning.LightningDetails.connectError": "Não foi possível conectar ao nó {{implementation}}",
+  "cmps.designer.lightning.LightningDetails.menuRename": "Renomear",
   "cmps.designer.SyncButton.syncSuccess": "O designer foi sincronizado com os nós do Lightning",
   "cmps.designer.SyncButton.syncError": "Falha ao sincronizar a rede",
   "cmps.designer.SyncButton.syncBtnTip": "Atualizar gráfico dos nós",

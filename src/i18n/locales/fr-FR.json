@@ -277,6 +277,7 @@
   "cmps.designer.lightning.LightningDetails.actions": "Actions",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "En attente de {{implementation}} pour se connecter",
   "cmps.designer.lightning.LightningDetails.connectError": "Impossible de se connecter à {{implementation}} nœud",
+  "cmps.designer.lightning.LightningDetails.menuRename": "Renommer",
   "cmps.designer.SyncButton.syncSuccess": "Le concepteur a été synchronisé avec les nœuds Lightning",
   "cmps.designer.SyncButton.syncError": "Impossible de synchroniser le réseau",
   "cmps.designer.SyncButton.syncBtnTip": "Mettre à jour le graphe depuis les nœuds",

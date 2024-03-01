@@ -277,6 +277,7 @@
   "cmps.designer.lightning.LightningDetails.actions": "действия",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "Ожидание {{implementation}} чтобы прийти онлайн",
   "cmps.designer.lightning.LightningDetails.connectError": "Невозможно подключиться к {{implementation}} узлу",
+  "cmps.designer.lightning.LightningDetails.menuRename": "Переименование",
   "cmps.designer.SyncButton.syncSuccess": "Конструктор был синхронизирован с узлами Lightning",
   "cmps.designer.SyncButton.syncError": "Не удалось синхронизировать сеть",
   "cmps.designer.SyncButton.syncBtnTip": "Обновить график из узлов",

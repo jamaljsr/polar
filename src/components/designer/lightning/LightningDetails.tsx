@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import { useAsync } from 'react-async-hook';
-import { LoadingOutlined } from '@ant-design/icons';
-import { Alert } from 'antd';
+import { LoadingOutlined, MoreOutlined, FormOutlined } from '@ant-design/icons';
+import { Alert, Dropdown, Button, MenuProps } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -11,6 +11,16 @@ import SidebarCard from '../SidebarCard';
 import ActionsTab from './ActionsTab';
 import ConnectTab from './ConnectTab';
 import InfoTab from './InfoTab';
+import styled from '@emotion/styled';
+
+const Styled = {
+  Button: styled(Button)`
+    margin-left: 0;
+  `,
+  Dropdown: styled(Dropdown)`
+    margin-left: 12px;
+  `,
+};
 
 interface Props {
   node: LightningNode;
@@ -30,14 +40,43 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
     [node],
   );
 
+  //   const onRenameClick = () => {
+  //     console.log('rename');
+  //   };
+
+  //   const handleClick: MenuProps['onClick'] = useCallback((info: { key: string }) => {
+  //     switch (info.key) {
+  //       case 'rename':
+  //         onRenameClick();
+  //         break;
+  //     }
+  //   }, []);
+
+  const items: MenuProps['items'] = [
+    { key: 'rename', label: l('menuRename'), icon: <FormOutlined /> },
+  ];
+
   let extra: ReactNode | undefined;
   const { nodes } = useStoreState(s => s.lightning);
   const nodeState = nodes[node.name];
   if (node.status === Status.Started && nodeState) {
     if (nodeState.walletBalance) {
       const { confirmed } = nodeState.walletBalance;
-      extra = <strong>{abbreviate(confirmed)} sats</strong>;
+      extra = (
+        <>
+          <strong>{abbreviate(confirmed)} sats</strong>
+          <Styled.Dropdown key="options" menu={{ theme: 'dark', items }}>
+            <Button icon={<MoreOutlined />} />
+          </Styled.Dropdown>
+        </>
+      );
     }
+  } else {
+    extra = (
+      <Styled.Dropdown key="options" menu={{ theme: 'dark', items }}>
+        <Button icon={<MoreOutlined />} />
+      </Styled.Dropdown>
+    );
   }
 
   const tabHeaders = [
@@ -50,6 +89,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
     connect: <ConnectTab node={node} />,
     actions: <ActionsTab node={node} />,
   };
+
   return (
     <SidebarCard
       title={node.name}
