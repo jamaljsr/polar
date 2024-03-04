@@ -23,7 +23,7 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       if (node && node.implementation === 'bitcoind') {
         return <BitcoindDetails node={node} />;
       } else if (node && node.type === 'lightning') {
-        return <LightningDetails node={node as LightningNode} />;
+        return <LightningDetails node={node as LightningNode} network={network} />;
       } else if (node && node.type === 'tap') {
         return <TapDetails node={node as TapNode} />;
       }
