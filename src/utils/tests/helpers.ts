@@ -169,12 +169,14 @@ export const testRepoState: DockerRepoState = {
 export const getNetwork = (
   networkId = 1,
   name?: string,
+  description?: string,
   status?: Status,
   tapNodeCount = 0,
 ): Network => {
   const config = {
     id: networkId,
     name: name || 'my-test',
+    description: description || 'new network',
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,
