@@ -11,6 +11,17 @@ const Styled = {
   Card: styled(Card)`
     margin-top: 16px;
   `,
+  description: styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+  `,
+  title: styled.div`
+    margin-bottom: 2px;
+    color: #ffffff73;
+  `,
 };
 
 const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
@@ -28,6 +39,10 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
       extra={<StatusBadge status={network.status} />}
       onClick={handleClick}
     >
+      <Row>
+        <Styled.title>{`Description`}</Styled.title>
+        <Styled.description>{network.description}</Styled.description>
+      </Row>
       <Row>
         <Col span={8}>
           <Statistic
