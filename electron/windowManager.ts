@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, nativeImage, Tray } from 'electron';
 import { warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
@@ -10,6 +10,7 @@ import { initTapdProxy } from './tapd/tapdProxyServer';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
+  tray: Tray | null = null;
 
   start() {
     app.on('ready', async () => {
@@ -45,6 +46,12 @@ class WindowManager {
         enableRemoteModule: true,
       },
     });
+
+    // create App system tray icon with context menus
+    if (!this.tray) {
+      this.createAppTray();
+    }
+
     this.mainWindow.setMenuBarVisibility(false);
 
     if (IS_DEV) {
@@ -91,6 +98,64 @@ class WindowManager {
     if (this.mainWindow === null) {
       this.createMainWindow();
     }
+  }
+
+  /**
+   * Creates App tray icon with a menu of options
+   * to `Hide/Show` the app window
+   * and also `quite` the running app instance
+   * @returns void
+   */
+  createAppTray() {
+    const trayIcon = join(APP_ROOT, 'assets', 'icon.png');
+    this.tray = new Tray(nativeImage.createFromPath(trayIcon));
+    this.tray.setIgnoreDoubleClickEvents(true);
+
+    /**
+     * `hides` polar windows
+     */
+    const handleOnHideClick = () => {
+      if (process.platform !== 'darwin') {
+        app.dock?.hide();
+      }
+      this.mainWindow?.setSkipTaskbar(true);
+      this.mainWindow?.hide();
+    };
+
+    /**
+     * `shows` polar window
+     */
+    const handleOnShowClick = () => {
+      if (process.platform !== 'darwin') {
+        app.dock?.show();
+      }
+      this.mainWindow?.setSkipTaskbar(false);
+      this.mainWindow?.show();
+    };
+
+    /**
+     * closes all windows and quits the app
+     */
+    const handleQuitClick = () => {
+      app.quit();
+    };
+
+    const contextMenu: Menu = Menu.buildFromTemplate([
+      {
+        label: 'Minimize to tray',
+        click: handleOnHideClick,
+      },
+      {
+        label: 'Show window',
+        click: handleOnShowClick,
+      },
+      {
+        label: 'Quit Polar',
+        click: handleQuitClick,
+      },
+    ]);
+    this.tray.setToolTip('Polar');
+    this.tray.setContextMenu(contextMenu);
   }
 }
 
