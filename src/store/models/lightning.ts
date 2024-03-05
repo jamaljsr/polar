@@ -5,12 +5,9 @@ import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
-// import { APP_VERSION } from 'utils/constants';
-import { prefixTranslation } from 'utils/translate';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
 
-const { l } = prefixTranslation('store.models.node');
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
 }
@@ -91,44 +88,12 @@ export interface LightningModel {
   addListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   removeListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   addChannelListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
-  renameNode: Thunk<
-    LightningModel,
-    { id: number; name: string; networkId: number },
-    StoreInjections,
-    RootModel,
-    Promise<void>
-  >;
-  setNodes: Action<LightningModel, LightningNodeMapping>;
-  //   save: Thunk<LightningModel, void, StoreInjections, RootModel, Promise<void>>;
 }
 
 const lightningModel: LightningModel = {
   // state properties
   nodes: {},
 
-  setNodes: action((state, nodes) => {
-    state.nodes = nodes;
-  }),
-  // reducer actions (mutations allowed thx to immer)
-
-  //   save: thunk(async (actions, payload, { getState, injections, getStoreState }) => {
-
-  //   }),
-
-  renameNode: thunk(
-    async (actions, { id, name, networkId }, { getStoreState, getState }) => {
-      if (!name) throw new Error(l('renameErr', { name }));
-      const { nodes } = getState();
-      const network = getStoreState().network.networkById(networkId);
-      const node = network.nodes.lightning.find(n => n.id === id);
-      if (node) {
-        node.name = name;
-      }
-
-      actions.setNodes(nodes);
-      //   await actions.save();
-    },
-  ),
   removeNode: action((state, name) => {
     if (state.nodes[name]) {
       delete state.nodes[name];

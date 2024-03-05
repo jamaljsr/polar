@@ -144,6 +144,13 @@ export interface NetworkModel {
     Promise<void>
   >;
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  renameNode: Thunk<
+    NetworkModel,
+    { id: number; name: string; networkId: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 
   /**
    * If user didn't cancel the process, returns the destination of the generated Zip
@@ -976,6 +983,22 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
+  renameNode: thunk(
+    async (actions, { id, name, networkId }, { getState, getStoreActions }) => {
+      if (!name) throw new Error(l('renameErr', { name }));
+      const { networks } = getState();
+      const network = networks.find(n => n.id === networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      const node = network?.nodes.lightning.find(n => n.id === id);
+      if (node) {
+        node.name = name;
+      }
+      console.log('newNet', networks);
+      actions.setNetworks(networks);
+      await actions.save();
+      getStoreActions().designer.redrawChart();
+    },
+  ),
 };
 
 export default networkModel;

@@ -36,9 +36,8 @@ const LightningDetails: React.FC<Props> = ({ node, network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.LightningDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { notify } = useStoreActions(s => s.app);
-  const { getInfo, getWalletBalance, getChannels, renameNode } = useStoreActions(
-    s => s.lightning,
-  );
+  const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lightning);
+  const { stop, renameNode } = useStoreActions(s => s.network);
   const getInfoAsync = useAsync(
     async (node: LightningNode) => {
       if (node.status !== Status.Started) return;
@@ -54,7 +53,9 @@ const LightningDetails: React.FC<Props> = ({ node, network }) => {
   const renameAsync = useAsyncCallback(
     async (payload: { id: number; name: string; networkId: number }) => {
       try {
+        if (node.status === Status.Started) return await stop(network.id);
         await renameNode(payload);
+        //   await save();
         setEditing(false);
       } catch (error: any) {
         notify({ message: l('renameError'), error });
