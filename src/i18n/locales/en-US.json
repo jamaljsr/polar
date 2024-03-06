@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "Unknown node type '{{type}}'",
   "cmps.common.RemoveNode.success": "The node {{name}} has been removed from the network",
   "cmps.common.RemoveNode.error": "Unable to remove the node",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "Info",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "Connect",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "Actions",
