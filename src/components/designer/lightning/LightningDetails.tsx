@@ -12,7 +12,6 @@ import ActionsTab from './ActionsTab';
 import ConnectTab from './ConnectTab';
 import InfoTab from './InfoTab';
 import styled from '@emotion/styled';
-import { Network } from 'types';
 
 const Styled = {
   Button: styled(Button)`
@@ -29,15 +28,14 @@ const Styled = {
 
 interface Props {
   node: LightningNode;
-  network: Network;
 }
 
-const LightningDetails: React.FC<Props> = ({ node, network }) => {
+const LightningDetails: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.LightningDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { notify } = useStoreActions(s => s.app);
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lightning);
-  const { stop, renameNode } = useStoreActions(s => s.network);
+  const { stop, renameLightningNode } = useStoreActions(s => s.network);
   const getInfoAsync = useAsync(
     async (node: LightningNode) => {
       if (node.status !== Status.Started) return;
@@ -51,10 +49,16 @@ const LightningDetails: React.FC<Props> = ({ node, network }) => {
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState('');
   const renameAsync = useAsyncCallback(
-    async (payload: { id: number; name: string; networkId: number }) => {
+    async (payload: {
+      id: number;
+      name: string;
+      networkId: number;
+      oldName: string;
+      backendName: string;
+    }) => {
       try {
-        if (node.status === Status.Started) return await stop(network.id);
-        await renameNode(payload);
+        if (node.status === Status.Started) return await stop(node.networkId);
+        await renameLightningNode(payload);
         //   await save();
         setEditing(false);
       } catch (error: any) {
@@ -87,7 +91,13 @@ const LightningDetails: React.FC<Props> = ({ node, network }) => {
           type="primary"
           loading={renameAsync.loading}
           onClick={() =>
-            renameAsync.execute({ id: node.id, name: editingName, networkId: network.id })
+            renameAsync.execute({
+              id: node.id,
+              name: editingName,
+              networkId: node.networkId,
+              oldName: node.name,
+              backendName: node.backendName,
+            })
           }
         >
           Save

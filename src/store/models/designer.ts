@@ -73,6 +73,7 @@ export interface DesignerModel {
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
+  renameLightningNode: Action<DesignerModel, { nodeId: string; name: string }>;
 }
 
 const designerModel: DesignerModel = {
@@ -212,6 +213,20 @@ const designerModel: DesignerModel = {
         delete chart.links[link.id];
       }
     });
+  }),
+  renameLightningNode: action((state, { nodeId, name }) => {
+    const chart = state.allCharts[state.activeId];
+
+    // Ensure the node exists
+    const node = chart.nodes[nodeId];
+    if (!node) {
+      throw new Error(`Lightning node with id ${nodeId} not found.`);
+    }
+    // Rename the node
+    node.id = name;
+
+    // Update the state
+    state.allCharts[state.activeId] = { ...chart };
   }),
   addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];
