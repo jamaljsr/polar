@@ -1,4 +1,4 @@
-import { remote, SaveDialogOptions } from 'electron';
+import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
@@ -126,6 +126,7 @@ export interface NetworkModel {
   >;
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  stopAll: Thunk<NetworkModel, void, StoreInjections, RootModel, Promise<void>>;
   toggle: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   toggleNode: Thunk<NetworkModel, CommonNode, StoreInjections, RootModel, Promise<void>>;
   monitorStartup: Thunk<
@@ -670,6 +671,26 @@ const networkModel: NetworkModel = {
       info(`unable to stop network '${network.name}'`, e.message);
       throw e;
     }
+  }),
+  stopAll: thunk(async (actions, _, { getState }) => {
+    let networks = getState().networks.filter(
+      n => n.status === Status.Started || n.status === Status.Stopping,
+    );
+    if (networks.length === 0) {
+      ipcRenderer.send('docker-shut-down');
+    }
+    networks.forEach(async network => {
+      await actions.stop(network.id);
+    });
+    setInterval(async () => {
+      networks = getState().networks.filter(
+        n => n.status === Status.Started || n.status === Status.Stopping,
+      );
+      if (networks.length === 0) {
+        await actions.save();
+        ipcRenderer.send('docker-shut-down');
+      }
+    }, 2000);
   }),
   toggle: thunk(async (actions, networkId, { getState }) => {
     const network = getState().networks.find(n => n.id === networkId);

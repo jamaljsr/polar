@@ -1,9 +1,11 @@
+import * as electron from 'electron';
 import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
 import { NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
+import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import * as files from 'utils/files';
@@ -26,13 +28,16 @@ jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
   rm: jest.fn(),
 }));
+jest.mock('utils/async');
 
+const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
 const filesMock = files as jest.Mocked<typeof files>;
 const logMock = log as jest.Mocked<typeof log>;
 const detectPortMock = detectPort as jest.Mock;
 const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
   typeof injections.bitcoindService
 >;
+const electronMock = electron as jest.Mocked<typeof electron>;
 
 describe('Network model', () => {
   const rootModel = {
@@ -692,6 +697,53 @@ describe('Network model', () => {
       const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
       expect(injections.dockerService.stop).toBeCalledWith(firstNetwork());
+    });
+  });
+
+  describe('Stop all', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
+    it('should shutdown immediately for stopped networks', async () => {
+      const { stopAll } = store.getActions().network;
+      await stopAll();
+      expect(electronMock.ipcRenderer.send).toHaveBeenCalledWith('docker-shut-down');
+    });
+
+    it('should stop the started networks', async () => {
+      const { stopAll, setStatus } = store.getActions().network;
+      setStatus({ id: firstNetwork().id, status: Status.Started });
+      await stopAll();
+      const { networks } = store.getState().network;
+      expect(networks.filter(n => n.status !== Status.Stopped)).toHaveLength(0);
+      expect(firstNetwork().status).toBe(Status.Stopped);
+    });
+
+    it('should handle a delay when stopping the networks', async () => {
+      jest.useFakeTimers();
+      asyncUtilMock.delay.mockResolvedValue(0);
+      const { stopAll, setStatus } = store.getActions().network;
+
+      setStatus({ id: firstNetwork().id, status: Status.Started });
+      await stopAll();
+      expect(setInterval).toHaveBeenCalledTimes(1);
+
+      // simulate the interval being called with Stopping nodes
+      setStatus({ id: firstNetwork().id, status: Status.Stopping });
+      jest.advanceTimersByTime(2000);
+      expect(electronMock.ipcRenderer.send).not.toHaveBeenCalled();
+
+      // simulate the interval being called with Stopped nodes
+      setStatus({ id: firstNetwork().id, status: Status.Stopped });
+      jest.advanceTimersByTime(2000);
+
+      // confirm the IPC message is sent
+      await waitFor(() => {
+        expect(electronMock.ipcRenderer.send).toHaveBeenCalledWith('docker-shut-down');
+      });
+      jest.useRealTimers();
     });
   });
 

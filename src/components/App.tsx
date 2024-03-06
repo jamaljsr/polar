@@ -6,6 +6,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import store, { hashHistory } from 'store';
 import { Routes } from 'components/routing';
+import DockerContainerShutdown from './common/DockerContainerShutdown';
 
 const App: React.FC = () => {
   useEffect(() => info('Rendering App component'), []);
@@ -18,6 +19,7 @@ const App: React.FC = () => {
         <ConnectedRouter history={hashHistory}>
           <Routes />
         </ConnectedRouter>
+        <DockerContainerShutdown />
       </Provider>
     </StoreProvider>
   );

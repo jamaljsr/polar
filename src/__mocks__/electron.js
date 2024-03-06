@@ -17,6 +17,8 @@ module.exports = {
   ipcRenderer: {
     once: jest.fn(),
     send: jest.fn(),
+    on: jest.fn(),
+    removeAllListeners: jest.fn(),
   },
   shell: {
     openExternal: jest.fn(),

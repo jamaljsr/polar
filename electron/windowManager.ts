@@ -50,8 +50,13 @@ class WindowManager {
     if (IS_DEV) {
       await this.setupDevEnv();
     }
-
+    this.mainWindow.on('close', e => {
+      e.preventDefault();
+      this.onMainWindowClose();
+    });
     this.mainWindow.on('closed', this.onMainClosed);
+
+    ipcMain.on('docker-shut-down', this.onDockerContainerShutdown);
 
     // use dev server for hot reload or file in production
     this.mainWindow.loadURL(BASE_URL);
@@ -85,6 +90,16 @@ class WindowManager {
     if (process.platform !== 'darwin') {
       app.quit();
     }
+  }
+
+  onMainWindowClose() {
+    if (this.mainWindow) {
+      this.mainWindow.webContents.send('app-closing');
+    }
+  }
+  onDockerContainerShutdown() {
+    this.mainWindow = null;
+    app.exit(0);
   }
 
   onActivate() {
