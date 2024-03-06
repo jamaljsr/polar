@@ -68,7 +68,7 @@ describe('EclairService', () => {
   });
 
   it('should get a list of channels for v0.7.0', async () => {
-    node.version = '0.7.0';
+    const node7 = { ...node, version: '0.7.0' };
     const chanResponse: ELN.ChannelResponse = {
       nodeId: 'abcdef',
       channelId: '65sdfd7',
@@ -117,12 +117,12 @@ describe('EclairService', () => {
     };
     eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
     const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
-    const actual = await eclairService.getChannels(node);
+    const actual = await eclairService.getChannels(node7);
     expect(actual).toEqual(expected);
   });
 
   it('should get a list of channels for v0.8.0', async () => {
-    node.version = '0.8.0';
+    const node8 = { ...node, version: '0.8.0' };
     const chanResponse: ELN.ChannelResponse = {
       nodeId: 'abcdef',
       channelId: '65sdfd7',
@@ -171,12 +171,12 @@ describe('EclairService', () => {
     };
     eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
     const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
-    const actual = await eclairService.getChannels(node);
+    const actual = await eclairService.getChannels(node8);
     expect(actual).toEqual(expected);
   });
 
   it('should get a list of channels for >= v0.9.0', async () => {
-    node.version = '0.9.0';
+    const node9 = { ...node, version: '0.9.0' };
     const chanResponse: ELN.ChannelResponse = {
       nodeId: 'abcdef',
       channelId: '65sdfd7',
@@ -225,7 +225,7 @@ describe('EclairService', () => {
     };
     eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
     const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
-    const actual = await eclairService.getChannels(node);
+    const actual = await eclairService.getChannels(node9);
     expect(actual).toEqual(expected);
   });
 
@@ -313,7 +313,12 @@ describe('EclairService', () => {
         version: defaultRepoState.images.eclair.latest,
       },
       'open',
-      { channelFlags: 0, fundingSatoshis: 100000, nodeId: 'abc' },
+      {
+        channelFlags: 0,
+        fundingSatoshis: 100000,
+        fundingFeeBudgetSatoshis: 50000,
+        nodeId: 'abc',
+      },
     );
   });
 

@@ -148,9 +148,12 @@ class EclairService implements LightningService {
     const [toPubKey] = toRpcUrl.split('@');
 
     // open the channel
+    const capacity = parseInt(amount);
     const body: ELN.OpenChannelRequest = {
       nodeId: toPubKey,
-      fundingSatoshis: parseInt(amount),
+      fundingSatoshis: capacity,
+      // regtest fee estimation is unusually high so increase the budget to 50% of capacity
+      fundingFeeBudgetSatoshis: Math.round(capacity * 0.5),
       channelFlags: isPrivate ? 0 : 1, // 0 is private, 1 is public: https://acinq.github.io/eclair/#open-2
     };
     const res = await httpPost<string>(from, 'open', body);
