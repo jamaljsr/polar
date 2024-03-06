@@ -3057,12 +3057,12 @@
   dependencies:
     "@types/node" "*"
 
-"@types/redux-logger@3.0.12":
-  version "3.0.12"
-  resolved "https://registry.yarnpkg.com/@types/redux-logger/-/redux-logger-3.0.12.tgz#d60a2c6904ae3c8b36f6c5d5012fb74e15cb15b4"
-  integrity sha512-5vAlwokZi/Unb1eGoZfVVzIBTPNDflwXiDzPLT1SynP6hdJfsOEf+w6ZOySOyboLWciCRYeE5DGYUnwVCq+Uyg==
+"@types/redux-logger@3.0.13":
+  version "3.0.13"
+  resolved "https://registry.yarnpkg.com/@types/redux-logger/-/redux-logger-3.0.13.tgz#473e98428cdcc6dc93c908de66732bf932e36bc8"
+  integrity sha512-jylqZXQfMxahkuPcO8J12AKSSCQngdEWQrw7UiLUJzMBcv1r4Qg77P6mjGLjM27e5gFQDPD8vwUMJ9AyVxFSsg==
   dependencies:
-    redux "^4.0.0"
+    redux "^5.0.0"
 
 "@types/resolve@0.0.8":
   version "0.0.8"
@@ -15978,6 +15978,11 @@ redux@4.2.1, redux@^4.0.0, redux@^4.1.2:
   integrity sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==
   dependencies:
     "@babel/runtime" "^7.9.2"
+
+redux@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/redux/-/redux-5.0.1.tgz#97fa26881ce5746500125585d5642c77b6e9447b"
+  integrity sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==
 
 reflect.getprototypeof@^1.0.4:
   version "1.0.4"
