@@ -144,9 +144,9 @@ export interface NetworkModel {
     Promise<void>
   >;
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
-  renameNode: Thunk<
+  renameLightningNode: Thunk<
     NetworkModel,
-    { id: number; name: string; networkId: number },
+    { id: number; name: string; networkId: number; oldName: string; backendName: string },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -983,20 +983,36 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
-  renameNode: thunk(
-    async (actions, { id, name, networkId }, { getState, getStoreActions }) => {
+  renameLightningNode: thunk(
+    async (actions, { id, name, networkId, oldName }, { getState, getStoreActions }) => {
       if (!name) throw new Error(l('renameErr', { name }));
-      const { networks } = getState();
+      const networks = getState().networks;
       const network = networks.find(n => n.id === networkId);
-      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      if (!network) throw new Error(l('networkByIdErr', { networkId: networkId }));
       const node = network?.nodes.lightning.find(n => n.id === id);
+
+      // rename the node
       if (node) {
         node.name = name;
       }
-      console.log('newNet', networks);
-      actions.setNetworks(networks);
+      // rename the node in the lightning redux state
+      //    getStoreActions().lightning.removeNode(node.name);
+
+      // rename the node in the chart's redux state
+      getStoreActions().designer.renameLightningNode({
+        name,
+        nodeId: oldName,
+      });
+
+      //   getStoreActions().designer.onLinkClick({ linkId: name });
+
+      // update the link in the chart
+      //   getStoreActions().designer.updateBackendLink({ lnName: name, backendName });
+
+      actions.setNetworks([...networks]);
       await actions.save();
-      getStoreActions().designer.redrawChart();
+
+      getStoreActions().designer.syncChart(network);
     },
   ),
 };
