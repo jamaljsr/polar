@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/jamaljsr/polar/compare/v2.1.0...v2.2.0)
+
+This minor release adds support for the latest LND, Eclair, and tapd nodes. It includes
+some small fixes that are necessary to support these versions, due to RPC/API changes.
+
+There are also some additional fixed listed below.
+
+### Features
+
+- **images:** Add support for LND v0.17.4-beta and Eclair v0.10.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/846
+- **app:** add xdg support by @uwla in https://github.com/jamaljsr/polar/pull/826
+- **dev:** add devcontainers support by @uwla in https://github.com/jamaljsr/polar/pull/824
+- **images:** add support for LND & Bitcoin Core latest releases by @jamaljsr in https://github.com/jamaljsr/polar/pull/813
+- **images:** add support for tapd v0.3.3-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/806
+
+### Bug Fixes
+
+- **eclair:** Error in GUI when open channel by @kelvinator07 in https://github.com/jamaljsr/polar/pull/828
+- **app:** Added support for Node.js version 20 by @kelvinator07 in https://github.com/jamaljsr/polar/pull/827
+
+### Docs
+
+- **readme:** fix download broken links + update download links to v2.1.0 by @ramigs in https://github.com/jamaljsr/polar/pull/795
+
 ## [2.1.0](https://github.com/jamaljsr/polar/compare/v2.0.0...v2.1.0)
 
 This release adds support for Taproot Assets [v0.3.0-alpha](https://github.com/lightninglabs/taproot-assets/releases/tag/v0.3.0-alpha).
