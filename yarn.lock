@@ -2216,7 +2216,7 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@lightningpolar/tapd-api@^0.3.3-alpha":
+"@lightningpolar/tapd-api@0.3.3-alpha":
   version "0.3.3-alpha"
   resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.3-alpha.tgz#9f9664f1e6c47cd09592b25d85d05be1a8d97d24"
   integrity sha512-hsHCYljia7QQmi0rIAtJToTW0YxWKDdorpiDCgPOduhihfbZ9veknNY7+dQbI7DWRSQKJJrcp0IbXzGD4ghQpw==
