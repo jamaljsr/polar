@@ -38,7 +38,7 @@ describe('NetworkView Component', () => {
     images?: string[],
     withBitcoinData = true,
   ) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     const bitcoinData = {
       nodes: {
         '1-backend1': {

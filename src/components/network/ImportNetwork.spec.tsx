@@ -158,7 +158,7 @@ describe('ImportNetwork component', () => {
   });
 
   it('should import a TAP network successfully', async () => {
-    network = getNetwork(1, 'tap network', Status.Stopped, 2);
+    network = getNetwork(1, 'tap network', Status.Stopped?.toString(), 2);
     chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
     const { queryByLabelText, findByText, fileInput } = renderComponent();
@@ -171,7 +171,7 @@ describe('ImportNetwork component', () => {
   });
 
   it('should throw for an unknown TAP implementation', async () => {
-    network = getNetwork(1, 'tap network', Status.Stopped, 2);
+    network = getNetwork(1, 'tap network', Status.Stopped?.toString(), 2);
     chart = initChartFromNetwork(network);
     network.nodes.tap[0].implementation = 'asdf' as any;
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));

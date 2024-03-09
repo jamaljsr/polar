@@ -9,7 +9,7 @@ import NodeContextMenu from './NodeContextMenu';
 
 describe('NodeContextMenu', () => {
   const renderComponent = (nodeName: string, status?: Status, activeId?: number) => {
-    const network = getNetwork(1, 'test network', status, 2);
+    const network = getNetwork(1, 'test network', status?.toString(), 2);
     const chart = initChartFromNetwork(network);
     if (nodeName === 'invalid') {
       chart.nodes.alice.id = 'invalid';

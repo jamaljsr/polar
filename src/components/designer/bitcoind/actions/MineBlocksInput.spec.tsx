@@ -12,7 +12,7 @@ import MineBlocksInput from './MineBlocksInput';
 
 describe('MineBlocksInput', () => {
   const renderComponent = (status?: Status) => {
-    const network = getNetwork(1, 'test network', status, 2);
+    const network = getNetwork(1, 'test network', status?.toString(), 2);
     const initialState = {
       network: {
         networks: [network],

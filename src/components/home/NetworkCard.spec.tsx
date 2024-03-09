@@ -7,7 +7,7 @@ import { NETWORK_VIEW } from 'components/routing';
 import NetworkCard from './NetworkCard';
 
 describe('NetworkCard component', () => {
-  const network = getNetwork(1, 'my network 1', Status.Stopped, 4);
+  const network = getNetwork(1, 'my network 1', Status.Stopped?.toString(), 4);
   const renderComponent = () => {
     const initialState = {
       network: {

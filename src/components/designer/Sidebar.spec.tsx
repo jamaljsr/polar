@@ -11,7 +11,7 @@ describe('Sidebar Component', () => {
     selectedId?: string,
     status?: Status,
   ) => {
-    const network = getNetwork(1, 'test network', status, 2);
+    const network = getNetwork(1, 'test network', status?.toString(), 2);
     const chart = initChartFromNetwork(network);
     if (selectedType && selectedId) {
       chart.selected = { type: selectedType, id: selectedId };

@@ -51,6 +51,7 @@ describe('Network model', () => {
   // reusable args for adding a new network
   const addNetworkArgs = {
     name: 'test',
+    description: 'test network description',
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,
@@ -812,7 +813,7 @@ describe('Network model', () => {
   describe('TAP network', () => {
     beforeEach(() => {
       (() => {
-        const network = getNetwork(1, 'test network', Status.Stopped, 2);
+        const network = getNetwork(1, 'test network', Status.Stopped?.toString(), 2);
         store.getActions().network.setNetworks([network]);
         const chart = initChartFromNetwork(network);
         store.getActions().designer.setChart({ id: network.id, chart });

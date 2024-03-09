@@ -13,7 +13,7 @@ const filesMock = files as jest.Mocked<typeof files>;
 
 describe('TAP Lnd Link Component', () => {
   const renderComponent = () => {
-    const network = getNetwork(1, 'test network', Status.Stopped, 1);
+    const network = getNetwork(1, 'test network', Status.Stopped?.toString(), 1);
     const allCharts = {
       1: initChartFromNetwork(network),
     };

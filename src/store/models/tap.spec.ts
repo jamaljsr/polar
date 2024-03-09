@@ -29,7 +29,7 @@ describe('TAP Model', () => {
     designer: designerModel,
     tap: tapModel,
   };
-  const network = getNetwork(1, 'tap network', Status.Stopped, 2);
+  const network = getNetwork(1, 'tap network', Status.Stopped?.toString(), 2);
   const initialState = {
     network: {
       networks: [network],

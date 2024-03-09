@@ -8,7 +8,7 @@ import LinkDetails from './LinkDetails';
 
 describe('LinkDetails component', () => {
   const renderComponent = (from: string, to: string, properties: any) => {
-    const network = getNetwork(1, 'test network', Status.Stopped, 2);
+    const network = getNetwork(1, 'test network', Status.Stopped?.toString(), 2);
     network.nodes.bitcoin.push(
       createBitcoindNetworkNode(network, '0.18.1', testNodeDocker),
     );
