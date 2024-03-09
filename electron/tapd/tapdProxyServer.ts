@@ -89,7 +89,7 @@ const decodeAddress = async (args: {
 
 const assetRoots = async (args: { node: TapdNode }): Promise<TARO.AssetRootResponse> => {
   const { universe } = await getRpc(args.node);
-  return await universe.assetRoots();
+  return await universe.assetRoots({ withAmountsById: true });
 };
 
 const assetLeaves = async (args: {

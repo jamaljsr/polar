@@ -27,9 +27,10 @@ export const defaultTapdListBalances = (
 
 export const defaultTapdMintAsset = (): MintAssetResponse => ({
   pendingBatch: {
+    batchTxid: '',
     batchKey: Buffer.from(''),
     assets: [],
-    state: 'BATCH_STATE_PEDNING',
+    state: 'BATCH_STATE_PENDING',
   },
 });
 
@@ -37,6 +38,7 @@ export const defaultTapdFinalizeBatch = (
   value: Partial<FinalizeBatchResponse>,
 ): FinalizeBatchResponse => ({
   batch: {
+    batchTxid: '',
     batchKey: Buffer.from(''),
     assets: [],
     state: 'BATCH_STATE_FINALIZED',
