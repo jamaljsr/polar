@@ -47,7 +47,7 @@ describe('TapDetails', () => {
   };
 
   beforeEach(() => {
-    network = getNetwork(1, 'test network', Status.Stopped, 2);
+    network = getNetwork(1, 'test network', Status.Stopped?.toString(), 2);
     node = network.nodes.tap[0];
   });
 

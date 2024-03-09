@@ -10,7 +10,7 @@ describe('AutoMineButton', () => {
   let unmount: () => void;
 
   const renderComponent = (autoMineMode: AutoMineMode = AutoMineMode.AutoOff) => {
-    const network = getNetwork(1, 'test network', Status.Started);
+    const network = getNetwork(1, 'test network', Status.Started.toString());
     network.autoMineMode = autoMineMode;
 
     const autoMiner = {

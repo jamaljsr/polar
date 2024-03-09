@@ -76,7 +76,7 @@ describe('Designer model', () => {
     const firstChart = () => store.getState().designer.allCharts[firstNetwork().id];
 
     beforeEach(async () => {
-      const network = getNetwork(2, 'test network', Status.Stopped, 2);
+      const network = getNetwork(2, 'test network', Status.Stopped?.toString(), 2);
       const cligntningNode = createCLightningNetworkNode(
         network,
         testRepoState.images['c-lightning'].latest,
@@ -124,6 +124,7 @@ describe('Designer model', () => {
       const { addNetwork } = store.getActions().network;
       await addNetwork({
         name: 'test 2',
+        description: 'test 2 description',
         lndNodes: 2,
         clightningNodes: 0,
         eclairNodes: 0,
@@ -466,6 +467,7 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'test 3 description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
@@ -492,6 +494,7 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'test 3 description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
@@ -526,6 +529,7 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'test 3 description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,

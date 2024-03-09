@@ -19,7 +19,7 @@ describe('NetworkActions Component', () => {
   const handleExportClick = jest.fn();
 
   const renderComponent = (status: Status) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     network.nodes.bitcoin.forEach(n => (n.status = status));
     const chart = initChartFromNetwork(network);
     const initialState = {

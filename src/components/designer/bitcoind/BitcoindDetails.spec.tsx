@@ -8,7 +8,7 @@ import BitcoindDetails from './BitcoindDetails';
 
 describe('BitcoindDetails', () => {
   const renderComponent = (status?: Status, custom = false) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     if (status === Status.Error) {
       network.nodes.bitcoin.forEach(n => (n.errorMsg = 'test-error'));
     }

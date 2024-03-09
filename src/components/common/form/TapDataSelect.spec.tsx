@@ -14,7 +14,7 @@ describe('TapDataSelect', () => {
   const handleChange: jest.Mock | undefined = jest.fn();
 
   const renderComponent = (selectBalances = true, changeEvent = true) => {
-    const network = getNetwork(1, 'test network', Status.Started, 3);
+    const network = getNetwork(1, 'test network', Status.Started.toString(), 3);
     const initialState = {
       tap: {
         nodes: {
