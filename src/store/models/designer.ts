@@ -73,7 +73,12 @@ export interface DesignerModel {
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
-  renameLightningNode: Action<DesignerModel, { nodeId: string; name: string }>;
+  renameLightningNode: Thunk<
+    DesignerModel,
+    { nodeId: string; name: string },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const designerModel: DesignerModel = {
@@ -214,20 +219,35 @@ const designerModel: DesignerModel = {
       }
     });
   }),
-  renameLightningNode: action((state, { nodeId, name }) => {
-    const chart = state.allCharts[state.activeId];
+  renameLightningNode: thunk(
+    async (actions, { nodeId, name }, { getState, getStoreActions }) => {
+      const { allCharts, activeId } = getState();
+      const chart = allCharts[activeId];
 
-    // Ensure the node exists
-    const node = chart.nodes[nodeId];
-    if (!node) {
-      throw new Error(`Lightning node with id ${nodeId} not found.`);
-    }
-    // Rename the node
-    node.id = name;
+      // Ensure the node exists
+      const node = chart.nodes[nodeId];
+      if (!node) {
+        throw new Error(`Lightning node with id ${nodeId} not found.`);
+      }
 
-    // Update the state
-    state.allCharts[state.activeId] = { ...chart };
-  }),
+      // Update the node chart
+      const updatedChart = {
+        ...chart,
+        nodes: {
+          ...chart.nodes,
+          [name]: {
+            ...chart.nodes[nodeId],
+            id: name,
+          },
+        },
+      };
+
+      // Update the state with the modified chart
+      allCharts[activeId] = updatedChart;
+      // remove the old node with previous key
+      getStoreActions().designer.removeNode(nodeId);
+    },
+  ),
   addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];
     const { node, link } =
@@ -517,6 +537,7 @@ const designerModel: DesignerModel = {
   }),
   onPortPositionChange: action((state, { node: nodeToUpdate, port, el, nodesEl }) => {
     const chart = state.allCharts[state.activeId];
+    console.log('nodeToUpdate', nodeToUpdate);
     if (nodeToUpdate.size) {
       // rotate the port's position based on the node's orientation prop (angle)
       const center = {
