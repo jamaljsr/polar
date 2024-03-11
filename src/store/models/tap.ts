@@ -160,8 +160,8 @@ const tapModel: TapModel = {
           assetType,
           name,
           amount: assetType === PTAP.TAP_ASSET_TYPE.COLLECTIBLE ? '1' : amount.toString(),
+          newGroupedAsset: enableEmission,
         },
-        enableEmission,
       };
       const res = await api.mintAsset(node, req);
 

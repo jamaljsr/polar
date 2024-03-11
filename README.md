@@ -37,11 +37,11 @@ With Polar you can:
 
 Supported Network Node Versions:
 
-- [LND](https://github.com/lightningnetwork/lnd) - v0.17.3, v0.17.2, v0.17.1, v0.17.0, v0.16.4, v0.16.2, v0.16.1, v0.16.0, v0.15.5, v0.14.3, v0.13.1
+- [LND](https://github.com/lightningnetwork/lnd) - v0.17.4, v0.17.3, v0.17.2, v0.17.1, v0.17.0, v0.16.4, v0.16.2, v0.16.1, v0.16.0, v0.15.5, v0.14.3, v0.13.1
 - [Core Lightning](https://github.com/ElementsProject/lightning) - v23.05.2, v23.02.2, v22.11, v0.12.0, v0.11.2, v0.10.2
-- [Eclair](https://github.com/ACINQ/eclair/) - v0.9.0, v0.8.0, v0.7.0, v0.6.2, v0.5.0
+- [Eclair](https://github.com/ACINQ/eclair/) - v0.10.0, v0.9.0, v0.8.0, v0.7.0, v0.6.2, v0.5.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v26.0, v25.0, v24.0, v23.0, v22.0, v0.21.1
-- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.3.0
+- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.3.3, v0.3.2
 
 ## Dependencies
 
@@ -58,11 +58,11 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v2.1.0 for your OS
+Download Polar v2.2.0 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v2.1.0/polar-mac-x64-v2.1.0.dmg))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v2.1.0/polar-linux-amd64-v2.1.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v2.1.0/polar-linux-x86_64-v2.1.0.AppImage))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v2.1.0/polar-win-x64-v2.1.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-mac-x64-v2.2.0.dmg))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-linux-amd64-v2.2.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-linux-x86_64-v2.2.0.AppImage)), [RPM](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-linux-x86_64-v2.1.0.rpm))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-win-x64-v2.2.0.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 

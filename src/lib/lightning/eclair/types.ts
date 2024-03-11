@@ -106,6 +106,7 @@ export interface OpenChannelRequest {
   fundingSatoshis: number;
   pushMsat?: number;
   fundingFeerateSatByte?: number;
+  fundingFeeBudgetSatoshis: number;
   channelFlags?: ChannelFlags;
   openTimeoutSeconds?: number;
 }

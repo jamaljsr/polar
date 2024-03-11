@@ -1,6 +1,6 @@
 {
   "name": "polar",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "homepage": "https://lightningpolar.com",
   "description": "One-click Bitcoin Lightning networks for local app development & testing",
   "author": {
@@ -43,10 +43,10 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@lightningpolar/tapd-api": "0.3.0-alpha.rc1",
+    "@lightningpolar/tapd-api": "0.3.3-alpha",
     "@radar/lnrpc": "0.11.1-beta.1",
     "@types/detect-port": "1.3.5",
-    "archiver": "7.0.0",
+    "archiver": "7.0.1",
     "detect-port": "1.5.1",
     "docker-compose": "0.24.0",
     "dockerode": "4.0.2",
@@ -78,14 +78,14 @@
     "@testing-library/user-event": "14.5.2",
     "@types/archiver": "6.0.2",
     "@types/detect-port": "1.3.5",
-    "@types/dockerode": "3.3.24",
+    "@types/dockerode": "3.3.26",
     "@types/fs-extra": "9.0.13",
     "@types/jest": "29.5.12",
     "@types/js-yaml": "4.0.9",
     "@types/node": "18.17.19",
-    "@types/react": "18.2.63",
+    "@types/react": "18.2.64",
     "@types/react-copy-to-clipboard": "5.0.7",
-    "@types/react-dom": "18.2.20",
+    "@types/react-dom": "18.2.21",
     "@types/react-redux": "7.1.33",
     "@types/react-router": "5.1.20",
     "@types/react-router-dom": "5.3.3",
