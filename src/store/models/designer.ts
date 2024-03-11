@@ -75,7 +75,7 @@ export interface DesignerModel {
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
   renameLightningNode: Thunk<
     DesignerModel,
-    { nodeId: string; name: string },
+    { nodeId: string; name: string; backendName: string },
     StoreInjections,
     RootModel
   >;
@@ -220,7 +220,7 @@ const designerModel: DesignerModel = {
     });
   }),
   renameLightningNode: thunk(
-    async (actions, { nodeId, name }, { getState, getStoreActions }) => {
+    async (actions, { nodeId, name, backendName }, { getState, getStoreActions }) => {
       const { allCharts, activeId } = getState();
       const chart = allCharts[activeId];
 
@@ -246,6 +246,10 @@ const designerModel: DesignerModel = {
       allCharts[activeId] = updatedChart;
       // remove the old node with previous key
       getStoreActions().designer.removeNode(nodeId);
+      getStoreActions().designer.updateBackendLink({
+        lnName: name,
+        backendName: backendName,
+      });
     },
   ),
   addNode: action((state, { newNode, position }) => {
@@ -537,7 +541,6 @@ const designerModel: DesignerModel = {
   }),
   onPortPositionChange: action((state, { node: nodeToUpdate, port, el, nodesEl }) => {
     const chart = state.allCharts[state.activeId];
-    console.log('nodeToUpdate', nodeToUpdate);
     if (nodeToUpdate.size) {
       // rotate the port's position based on the node's orientation prop (angle)
       const center = {
