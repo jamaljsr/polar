@@ -984,24 +984,37 @@ const networkModel: NetworkModel = {
     actions.setAutoMineMode({ id, mode });
   }),
   renameLightningNode: thunk(
-    async (actions, { id, name, networkId, oldName }, { getState, getStoreActions }) => {
+    async (
+      actions,
+      { id, name, networkId, oldName, backendName },
+      { getState, getStoreActions, injections },
+    ) => {
       if (!name) throw new Error(l('renameErr', { name }));
       const networks = getState().networks;
       const network = networks.find(n => n.id === networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: networkId }));
       const node = network?.nodes.lightning.find(n => n.id === id);
 
+      // check if node is running
+      if (node && node.status === Status.Started) {
+        // stop the node container
+        actions.setStatus({ id: network.id, status: Status.Stopping, only: node.name });
+        await injections.dockerService.stopNode(network, node);
+        actions.setStatus({ id: network.id, status: Status.Stopped, only: node.name });
+        // clear cached RPC data
+        getStoreActions().app.clearAppCache();
+      }
+
       // rename the node
       if (node) {
         node.name = name;
       }
-      // rename the node in the lightning redux state
-      getStoreActions().lightning.renameNode({ name, oldName });
 
       // rename the node in the chart's redux state
       getStoreActions().designer.renameLightningNode({
         name,
         nodeId: oldName,
+        backendName: backendName,
       });
 
       actions.setNetworks([...networks]);
