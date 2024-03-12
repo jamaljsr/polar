@@ -1,7 +1,11 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { debug } from 'electron-log';
 
-export type IpcSender = <T>(channel: string, payload?: any) => Promise<T>;
+export type IpcSender = <T>(
+  channel: string,
+  payload?: any,
+  callback?: (data: string) => void,
+) => Promise<T>;
 
 /**
  * simple utility func to trim a lot of redundant node information being logged.
@@ -25,7 +29,7 @@ const stripNode = (payload: any) => {
  * @param prefix the prefix to use in the ipc messages
  */
 export const createIpcSender = (serviceName: string, prefix: string) => {
-  const send: IpcSender = (channel, payload) => {
+  const send: IpcSender = (channel, payload, callback) => {
     const reqChan = `${prefix}-${channel}-request`;
     const resChan = `${prefix}-${channel}-response`;
     // set the response channel dynamically to avoid race conditions
@@ -53,6 +57,11 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
         JSON.stringify(stripNode(uniqPayload), null, 2),
       );
       ipcRenderer.send(reqChan, uniqPayload);
+      if (callback) {
+        ipcRenderer.on(resChan, (event, data) => {
+          callback(data);
+        });
+      }
     });
   };
 

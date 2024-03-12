@@ -4,6 +4,13 @@ import createLndRpc, * as LND from '@radar/lnrpc';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
+let _webContents: Electron.WebContents;
+
+export const setupWebContents = (webContents: Electron.WebContents) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _webContents = webContents;
+};
+
 /**
  * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
  * reads from disk, so this gives us a small bit of performance improvement
@@ -117,9 +124,23 @@ const decodeInvoice = async (args: {
   return await rpc.decodePayReq(args.req);
 };
 
-const getChannelListener = async (args: { node: LndNode }): Promise<LND.Readable> => {
-  const rpc = await getRpc(args.node);
-  return await Promise.resolve(rpc.subscribeChannelEvents());
+const getChannelListener = async (args: { node: LndNode }): Promise<any> => {
+  try {
+    const responseChan = `lnd-${ipcChannels.getChannelListener}-response`;
+    const rpc = await getRpc(args.node);
+    const stream = rpc.subscribeChannelEvents();
+    stream.on('data', (data: LND.ChannelEventUpdate) => {
+      const dataAsString = JSON.stringify(data);
+      handleEvent(responseChan, dataAsString);
+    });
+    return {};
+  } catch (err) {
+    return { err };
+  }
+};
+
+const handleEvent = (responseChan: string, data: string) => {
+  _webContents.send(responseChan, data);
 };
 
 /**
@@ -144,20 +165,6 @@ const listeners: {
   [ipcChannels.getChannelListener]: getChannelListener,
 };
 
-// FIX for => Converting circular structure to JSON
-const replacerFunc = () => {
-  const visited = new WeakSet();
-  return (_key: any, value: object) => {
-    if (typeof value === 'object' && value !== null) {
-      if (visited.has(value)) {
-        return;
-      }
-      visited.add(value);
-    }
-    return value;
-  };
-};
-
 /**
  * Sets up the IPC listeners for the main process and maps them to async
  * functions.
@@ -174,7 +181,7 @@ export const initLndProxy = (ipc: IpcMain) => {
       // the a message is received by the main process...
       debug(
         `LndProxyServer: received request "${requestChan}"`,
-        JSON.stringify(args, replacerFunc(), 2),
+        JSON.stringify(args, null, 2),
       );
       // inspect the first arg to see if it has a specific channel to reply to
       let uniqueChan = responseChan;
@@ -187,11 +194,10 @@ export const initLndProxy = (ipc: IpcMain) => {
         // merge the result with default values since LND omits falsy values
         debug(
           `LndProxyServer: send response "${uniqueChan}"`,
-          JSON.stringify(result, replacerFunc(), 2),
+          JSON.stringify(result, null, 2),
         );
         result = withLndDefaults(result, channel as LndDefaultsKey);
         // response to the calling process with a reply
-        // TODO "err": "Failed to serialize arguments"
         event.reply(uniqueChan, result);
       } catch (err: any) {
         // reply with an error message if the execution fails

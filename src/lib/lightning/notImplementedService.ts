@@ -51,7 +51,10 @@ class NotImplementedService implements LightningService {
     throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
   }
 
-  getChannelListener(node: LightningNode): Promise<any> {
+  getChannelListener(
+    node: LightningNode,
+    callback?: (data: string) => void,
+  ): Promise<any> {
     throw new Error(
       `getChannelListener is not implemented for ${node.implementation} nodes`,
     );
