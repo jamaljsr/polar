@@ -198,6 +198,7 @@ describe('OpenChannelModal', () => {
         from: node2,
         toRpcUrl: 'asdf@host',
         amount: 1000,
+        isPrivate: false,
       });
       expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
     });
@@ -217,6 +218,7 @@ describe('OpenChannelModal', () => {
         from: node2,
         toRpcUrl: 'asdf@host',
         amount: 1000,
+        isPrivate: false,
       });
       expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
       expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
