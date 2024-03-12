@@ -6,6 +6,7 @@ import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
+import * as ELN from 'eclair-ts/src/types/core';
 
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
@@ -291,45 +292,57 @@ const lightningModel: LightningModel = {
       );
     },
   ),
-  addListeners: thunk(async (actions, network, { injections, getStoreState }) => {
-    const { nodes } = getStoreState().network.networkById(network.id);
-    for (const node of nodes.lightning) {
-      try {
-        await actions.getAllInfo(node);
-      } catch {}
-    }
-
-    for (const node of nodes.lightning) {
-      // LND Node throws error below
-      // TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received null
-      let listener;
-      try {
-        listener = await injections.lightningFactory
-          .getService(node)
-          .getChannelListener(node);
-      } catch (error) {
-        console.log(error);
+  addListeners: thunk(
+    async (actions, network, { injections, getStoreState, getStoreActions }) => {
+      const { nodes } = getStoreState().network.networkById(network.id);
+      for (const node of nodes.lightning) {
+        try {
+          await actions.getAllInfo(node);
+        } catch {}
       }
 
-      // Handle incoming messages from listener, update model and sync charts
-      switch (node.implementation) {
-        case 'LND':
-          listener.on('data', (data: any) => {
-            console.log('Alice LND data received');
-            console.log(data);
-          });
-          break;
-        case 'c-lightning':
-          break;
-        case 'eclair':
-          listener.on('message', (data: any) => {
-            console.log(`Carol eclair data received`);
-            console.log(data);
-          });
-          break;
+      for (const node of nodes.lightning) {
+        switch (node.implementation) {
+          case 'LND':
+            await injections.lightningFactory
+              .getService(node)
+              .getChannelListener(node, async (message: string) => {
+                const response = JSON.parse(message);
+                if (response?.activeChannel?.fundingTxidBytes) {
+                  await delay(500);
+                  // mine some blocks to confirm the txn
+                  const network = getStoreState().network.networkById(node.networkId);
+                  const btcNode =
+                    network.nodes.bitcoin.find(n => n.name === node.backendName) ||
+                    network.nodes.bitcoin[0];
+                  await getStoreActions().bitcoind.mine({
+                    blocks: BLOCKS_TIL_CONFIRMED,
+                    node: btcNode,
+                  });
+                  // add a small delay to allow nodes to process the mined blocks
+                  await actions.waitForNodes([node]);
+                  // synchronize the chart
+                  await getStoreActions().designer.syncChart(network);
+                }
+              });
+            break;
+          case 'eclair':
+            const eclairListener = await injections.lightningFactory
+              .getService(node)
+              .getChannelListener(node);
+            // listen for incoming messages
+            eclairListener.on('message', async (data: ELN.WebSocketEventData) => {
+              const response = JSON.parse(data.toString());
+              if (response.type === 'channel-opened') {
+                // synchronize the chart
+                await getStoreActions().designer.syncChart(network);
+              }
+            });
+            break;
+        }
       }
-    }
-  }),
+    },
+  ),
 };
 
 export default lightningModel;
