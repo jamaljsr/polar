@@ -5,7 +5,7 @@ import { join } from 'path';
 import { initAppIpcListener } from './appIpcListener';
 import { appMenuTemplate } from './appMenu';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
-import { clearLndProxyCache, initLndProxy } from './lnd/lndProxyServer';
+import { clearLndProxyCache, initLndProxy, setupWebContents } from './lnd/lndProxyServer';
 import { initTapdProxy } from './tapd/tapdProxyServer';
 
 class WindowManager {
@@ -17,6 +17,7 @@ class WindowManager {
       initLndProxy(ipcMain);
       initTapdProxy(ipcMain);
       initAppIpcListener(ipcMain);
+      setupWebContents(this.mainWindow!.webContents);
     });
     app.on('window-all-closed', this.onAllClosed);
     app.on('activate', this.onActivate);
