@@ -64,8 +64,11 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.decodeInvoice, { node, req });
   }
 
-  async getChannelListener(node: LndNode): Promise<LND.Readable> {
-    return await this.ipc(ipcChannels.getChannelListener, { node });
+  async getChannelListener(
+    node: LndNode,
+    callback: (data: string) => void,
+  ): Promise<any> {
+    return await this.ipc(ipcChannels.getChannelListener, { node }, callback);
   }
 }
 
