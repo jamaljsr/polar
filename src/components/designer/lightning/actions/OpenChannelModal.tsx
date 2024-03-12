@@ -87,7 +87,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       layout="vertical"
       hideRequiredMark
       colon={false}
-      initialValues={{ from, to, sats: 250000, autoFund: true }}
+      initialValues={{ from, to, sats: 250000, autoFund: true, isPrivate: false }}
       onFinish={handleSubmit}
     >
       {sameNode && <Alert type="error" message={l('sameNodesWarnMsg')} />}
