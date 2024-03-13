@@ -987,23 +987,13 @@ const networkModel: NetworkModel = {
     async (
       actions,
       { id, name, networkId, oldName, backendName },
-      { getState, getStoreActions, injections },
+      { getState, getStoreActions },
     ) => {
       if (!name) throw new Error(l('renameErr', { name }));
       const networks = getState().networks;
       const network = networks.find(n => n.id === networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: networkId }));
       const node = network?.nodes.lightning.find(n => n.id === id);
-
-      // check if node is running
-      if (node && node.status === Status.Started) {
-        // stop the node container
-        actions.setStatus({ id: network.id, status: Status.Stopping, only: node.name });
-        await injections.dockerService.stopNode(network, node);
-        actions.setStatus({ id: network.id, status: Status.Stopped, only: node.name });
-        // clear cached RPC data
-        getStoreActions().app.clearAppCache();
-      }
 
       // rename the node
       if (node) {

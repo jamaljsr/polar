@@ -57,7 +57,9 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
       backendName: string;
     }) => {
       try {
-        if (node.status === Status.Started) return stop(node.networkId);
+        if (node.status === Status.Started) {
+          stop(node.networkId);
+        }
         await renameLightningNode(payload);
         setEditing(false);
       } catch (error: any) {
