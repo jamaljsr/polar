@@ -27,7 +27,7 @@ describe('ComposeFile', () => {
     expect(composeFile.content.version).toEqual('3.3');
   });
 
-  it('should have a a name', () => {
+  it('should have a name', () => {
     expect(composeFile.content.name).toEqual('polar-network-1');
   });
 
