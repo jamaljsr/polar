@@ -19,7 +19,7 @@ test('should add a new network', async t => {
     .eql('test network');
 });
 
-test('should should view new network after adding', async t => {
+test('should view new network after adding', async t => {
   await t
     .typeText(NewNetwork.nameInput, 'test network')
     .click(NewNetwork.submitBtn)

@@ -246,7 +246,7 @@ If you would like to fix a bug or implement a new feature, here are the recommen
    ```sh
    $ git clone <your-repo-url>
    ```
-1. Create a branch for your changes. It it better to work out of a branch other than master if you are going to have multiple PR's open at the same time
+1. Create a branch for your changes. It is better to work out of a branch other than master if you are going to have multiple PR's open at the same time
    ```sh
    $ git checkout -b fix-typo
    ```
