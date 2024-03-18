@@ -43,6 +43,8 @@
   "cmps.common.RenameNode.confirmTitle": "Enter New Name",
   "cmps.common.RenameNode.confirmBtn": "Save",
   "cmps.common.RenameNode.cancelBtn": "Cancel",
+  "cmps.common.RenameNode.success": "The node has been renamed",
+  "cmps.common.RenameNode.error": "Unable to rename the node",
   "cmps.common.RemoveNode.title": "Remove Node From Network",
   "cmps.common.RemoveNode.btnText": "Remove",
   "cmps.common.RemoveNode.confirmTitle": "Are you sure you want to remove {{name}} from the network?",

@@ -997,15 +997,14 @@ const networkModel: NetworkModel = {
 
       // rename the node
       if (updatedNode) {
+        // rename the node in the chart's redux state
+        getStoreActions().designer.renameLightningNode({
+          name: newName,
+          nodeId: updatedNode.name,
+          backendName: updatedNode.backendName,
+        });
         updatedNode.name = newName;
       }
-
-      // rename the node in the chart's redux state
-      getStoreActions().designer.renameLightningNode({
-        name: newName,
-        nodeId: node.name,
-        backendName: node.backendName,
-      });
 
       actions.setNetworks([...networks]);
       await actions.save();
