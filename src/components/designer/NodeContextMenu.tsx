@@ -3,7 +3,12 @@ import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, MenuProps } from 'antd';
 import { BitcoinNode, LightningNode, Status, TapNode } from 'shared/types';
 import { useStoreState } from 'store';
-import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import {
+  AdvancedOptionsButton,
+  RemoveNode,
+  RestartNode,
+  RenameNode,
+} from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
@@ -102,6 +107,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       <ViewLogsButton type="menu" node={node} />,
       [Status.Starting, Status.Started, Status.Error].includes(node.status),
     ),
+    addItemIf('rename', <RenameNode type="menu" node={node} />),
     addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
     addItemIf('remove', <RemoveNode type="menu" node={node} />),
   );

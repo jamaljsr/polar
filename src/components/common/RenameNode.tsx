@@ -1,22 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { CloseOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { FormOutlined } from '@ant-design/icons';
 import { Button, Form, Modal, Input } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, CommonNode, LightningNode, TapNode } from 'shared/types';
 import { useStoreActions } from 'store';
-// import styled from '@emotion/styled';
 
 interface Props {
   node: CommonNode;
   type?: 'button' | 'menu';
 }
-
-// const Styled = {
-//   RenameInput: styled(Input)`
-//     width: 100%;
-//     margin-top: 12px;
-//   `,
-// };
 
 const RenameNode: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.common.RenameNode');
@@ -25,75 +17,101 @@ const RenameNode: React.FC<Props> = ({ node, type }) => {
     s => s.network,
   );
 
-  const [editingName, setEditingName] = useState('');
+  const [editingName, setEditingName] = useState(node.name);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  let modal: any;
-  const showRenameModal = () => {
-    modal = Modal.confirm({
-      title: l('confirmTitle'),
-      content: (
-        <Input
-          name="newNodeName"
-          value={editingName}
-          onChange={e => setEditingName(e.target.value)}
-        />
-      ),
-      okText: l('confirmBtn'),
-      okType: 'primary',
-      cancelText: l('cancelBtn'),
-      onOk: async () => {
-        try {
-          switch (node.type) {
-            case 'lightning':
-              await renameLightningNode({
-                node: node as LightningNode,
-                newName: editingName,
-              });
-              break;
-            case 'bitcoin':
-              await removeBitcoinNode({ node: node as BitcoinNode });
-              break;
-            case 'tap':
-              await removeTapNode({ node: node as TapNode });
-              break;
-            default:
-              throw new Error(l('invalidType', { type: node.type }));
-          }
-          notify({ message: l('success', { name }) });
-        } catch (error: any) {
-          notify({ message: l('error'), error });
-          throw error;
-        }
-      },
-    });
+  const handleInputChange = (e: { target: { value: React.SetStateAction<string> } }) => {
+    setEditingName(e.target.value);
   };
 
-  // cleanup the modal when the component unmounts
-  useEffect(() => () => modal && modal.destroy(), [modal]);
+  const onClose = () => {
+    setModalVisible(false);
+  };
 
-  // render a menu item inside of the NodeContextMenu
+  const handleOk = async () => {
+    console.log('New node name:', editingName);
+    try {
+      switch (node.type) {
+        case 'lightning':
+          await renameLightningNode({
+            node: node as LightningNode,
+            newName: editingName,
+          });
+          break;
+        case 'bitcoin':
+          await removeBitcoinNode({ node: node as BitcoinNode });
+          break;
+        case 'tap':
+          await removeTapNode({ node: node as TapNode });
+          break;
+        default:
+          throw new Error(l('invalidType', { type: node.type }));
+      }
+      notify({ message: l('success', { name }) });
+    } catch (error: any) {
+      notify({ message: l('error'), error });
+      throw error;
+    }
+    onClose();
+  };
+
+  const handleEditNode = () => {
+    setModalVisible(true);
+  };
+
   if (type === 'menu') {
     return (
-      <div onClick={showRenameModal}>
-        <CloseOutlined />
-        <span>{l('btnText')}</span>
-      </div>
+      <>
+        <div onClick={handleEditNode}>
+          <FormOutlined />
+          <span>{l('btnText')}</span>
+        </div>
+        {modalVisible && (
+          <Modal
+            title={l('confirmTitle')}
+            open={modalVisible}
+            onOk={handleOk}
+            onCancel={onClose}
+          >
+            <Input
+              value={editingName}
+              onChange={handleInputChange}
+              placeholder="Enter node name"
+            />
+          </Modal>
+        )}
+      </>
     );
   }
 
   return (
-    <Form.Item label={l('title')} colon={false}>
-      <Button
-        block
-        ghost
-        onClick={() => {
-          setEditingName(node.name);
-          showRenameModal();
-        }}
-      >
-        {l('btnText')}
-      </Button>
-    </Form.Item>
+    <>
+      <Form.Item label={l('title')} colon={false}>
+        <Button
+          block
+          ghost
+          onClick={() => {
+            handleEditNode();
+          }}
+        >
+          {l('btnText')}
+        </Button>
+      </Form.Item>
+      {modalVisible && (
+        <Modal
+          title={l('confirmTitle')}
+          open={modalVisible}
+          onOk={handleOk}
+          onCancel={onClose}
+        >
+          <Input
+            value={editingName}
+            onChange={handleInputChange}
+            placeholder="Enter node name"
+          />
+        </Modal>
+      )}
+    </>
   );
 };
 
