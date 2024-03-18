@@ -13,7 +13,7 @@ interface Props {
 const RenameNode: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.common.RenameNode');
   const { notify } = useStoreActions(s => s.app);
-  const { removeBitcoinNode, removeTapNode, renameLightningNode } = useStoreActions(
+  const { renameBitcoinNode, removeTapNode, renameLightningNode } = useStoreActions(
     s => s.network,
   );
 
@@ -29,7 +29,6 @@ const RenameNode: React.FC<Props> = ({ node, type }) => {
   };
 
   const handleOk = async () => {
-    console.log('New node name:', editingName);
     try {
       switch (node.type) {
         case 'lightning':
@@ -39,7 +38,7 @@ const RenameNode: React.FC<Props> = ({ node, type }) => {
           });
           break;
         case 'bitcoin':
-          await removeBitcoinNode({ node: node as BitcoinNode });
+          await renameBitcoinNode({ node: node as BitcoinNode, newName: editingName });
           break;
         case 'tap':
           await removeTapNode({ node: node as TapNode });

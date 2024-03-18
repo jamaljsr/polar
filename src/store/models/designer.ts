@@ -79,6 +79,12 @@ export interface DesignerModel {
     StoreInjections,
     RootModel
   >;
+  renameBitcoinNode: Thunk<
+    DesignerModel,
+    { nodeId: string; name: string },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const designerModel: DesignerModel = {
@@ -250,6 +256,35 @@ const designerModel: DesignerModel = {
         lnName: name,
         backendName: backendName,
       });
+    },
+  ),
+  renameBitcoinNode: thunk(
+    async (actions, { nodeId, name }, { getState, getStoreActions }) => {
+      const { allCharts, activeId } = getState();
+      const chart = allCharts[activeId];
+
+      // Ensure the node exists
+      const node = chart.nodes[nodeId];
+      if (!node) {
+        throw new Error(`Bitcoi node with id ${nodeId} not found.`);
+      }
+
+      // Update the node chart
+      const updatedChart = {
+        ...chart,
+        nodes: {
+          ...chart.nodes,
+          [name]: {
+            ...chart.nodes[nodeId],
+            id: name,
+          },
+        },
+      };
+
+      // Update the state with the modified chart
+      allCharts[activeId] = updatedChart;
+      // remove the old node with previous key
+      getStoreActions().designer.removeNode(nodeId);
     },
   ),
   addNode: action((state, { newNode, position }) => {
