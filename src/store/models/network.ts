@@ -151,6 +151,13 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  renameBitcoinNode: Thunk<
+    NetworkModel,
+    { node: BitcoinNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 
   /**
    * If user didn't cancel the process, returns the destination of the generated Zip
@@ -1002,6 +1009,34 @@ const networkModel: NetworkModel = {
           name: newName,
           nodeId: updatedNode.name,
           backendName: updatedNode.backendName,
+        });
+        updatedNode.name = newName;
+      }
+
+      actions.setNetworks([...networks]);
+      await actions.save();
+
+      getStoreActions().designer.syncChart(network);
+    },
+  ),
+  renameBitcoinNode: thunk(
+    async (actions, { node, newName }, { getState, getStoreActions }) => {
+      if (!newName) throw new Error(l('renameErr', { newName }));
+
+      if (node.status === Status.Started) {
+        actions.stop(node.networkId);
+      }
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id);
+
+      // rename the node
+      if (updatedNode) {
+        // rename the node in the chart's redux state
+        getStoreActions().designer.renameBitcoinNode({
+          name: newName,
+          nodeId: updatedNode.name,
         });
         updatedNode.name = newName;
       }
