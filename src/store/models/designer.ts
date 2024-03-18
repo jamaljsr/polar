@@ -85,6 +85,12 @@ export interface DesignerModel {
     StoreInjections,
     RootModel
   >;
+  renameTapNode: Thunk<
+    DesignerModel,
+    { nodeId: string; name: string; lndName: string },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const designerModel: DesignerModel = {
@@ -285,6 +291,40 @@ const designerModel: DesignerModel = {
       allCharts[activeId] = updatedChart;
       // remove the old node with previous key
       getStoreActions().designer.removeNode(nodeId);
+      // loop through lightning nodes to update backend links
+    },
+  ),
+  renameTapNode: thunk(
+    async (actions, { nodeId, name, lndName }, { getState, getStoreActions }) => {
+      const { allCharts, activeId } = getState();
+      const chart = allCharts[activeId];
+
+      // Ensure the node exists
+      const node = chart.nodes[nodeId];
+      if (!node) {
+        throw new Error(`Tap node with id ${nodeId} not found.`);
+      }
+
+      // Update the node chart
+      const updatedChart = {
+        ...chart,
+        nodes: {
+          ...chart.nodes,
+          [name]: {
+            ...chart.nodes[nodeId],
+            id: name,
+          },
+        },
+      };
+
+      // Update the state with the modified chart
+      allCharts[activeId] = updatedChart;
+      // remove the old node with previous key
+      getStoreActions().designer.removeNode(nodeId);
+      getStoreActions().designer.updateTapBackendLink({
+        tapName: name,
+        lndName,
+      });
     },
   ),
   addNode: action((state, { newNode, position }) => {

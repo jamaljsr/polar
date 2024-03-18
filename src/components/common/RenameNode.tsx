@@ -13,7 +13,7 @@ interface Props {
 const RenameNode: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.common.RenameNode');
   const { notify } = useStoreActions(s => s.app);
-  const { renameBitcoinNode, removeTapNode, renameLightningNode } = useStoreActions(
+  const { renameBitcoinNode, renameTapNode, renameLightningNode } = useStoreActions(
     s => s.network,
   );
 
@@ -41,7 +41,10 @@ const RenameNode: React.FC<Props> = ({ node, type }) => {
           await renameBitcoinNode({ node: node as BitcoinNode, newName: editingName });
           break;
         case 'tap':
-          await removeTapNode({ node: node as TapNode });
+          await renameTapNode({
+            node: node as TapNode,
+            newName: editingName,
+          });
           break;
         default:
           throw new Error(l('invalidType', { type: node.type }));
