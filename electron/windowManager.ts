@@ -18,7 +18,6 @@ import { initTapdProxy } from './tapd/tapdProxyServer';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
-  isDarkMode = nativeTheme.shouldUseDarkColors;
   tray: Tray | null = null;
 
   start() {
@@ -57,7 +56,9 @@ class WindowManager {
     });
 
     // create App system tray icon with context menus
-    this.createAppTray();
+    if (!this.tray) {
+      this.createAppTray();
+    }
 
     this.mainWindow.setMenuBarVisibility(false);
 
@@ -93,12 +94,13 @@ class WindowManager {
 
   onMainClosed() {
     this.mainWindow = null;
+    this.tray?.destroy();
+    app.quit();
   }
 
   onAllClosed() {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
+    this.tray?.destroy();
+    app.quit();
   }
 
   onActivate() {
@@ -139,9 +141,7 @@ class WindowManager {
    * `hides` polar windows
    */
   handleOnHideClick = () => {
-    if (process.platform !== 'darwin') {
-      app.dock?.hide();
-    }
+    app.dock?.hide();
     this.mainWindow?.setSkipTaskbar(true);
     this.mainWindow?.hide();
   };
@@ -150,9 +150,7 @@ class WindowManager {
    * `shows` polar window
    */
   handleOnShowClick = () => {
-    if (process.platform !== 'darwin') {
-      app.dock?.show();
-    }
+    app.dock?.show();
     this.mainWindow?.setSkipTaskbar(false);
     this.mainWindow?.show();
   };
