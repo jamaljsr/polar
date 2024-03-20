@@ -49,3 +49,26 @@ export const waitFor = async (
     }, interval);
   });
 };
+
+let timer: NodeJS.Timeout | null = null;
+let resetCall = true;
+
+export const debounceFunction = async (func: () => Promise<void>) => {
+  // If it's the first call, execute the function immediately
+  if (resetCall) {
+    resetCall = false;
+    await func();
+  } else {
+    // Clear the previous timer
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+
+    // Set a timer for 30 seconds
+    timer = setTimeout(async () => {
+      resetCall = true;
+      await func();
+    }, 30000);
+  }
+};
