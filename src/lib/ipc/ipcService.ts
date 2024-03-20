@@ -1,10 +1,11 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { debug } from 'electron-log';
+import * as PLN from 'lib/lightning/types';
 
 export type IpcSender = <T>(
   channel: string,
   payload?: any,
-  callback?: (data: string) => void,
+  callback?: (event: PLN.LightningNodeChannelEvent) => void,
 ) => Promise<T>;
 
 /**
@@ -20,6 +21,20 @@ const stripNode = (payload: any) => {
     };
   }
   return payload;
+};
+
+const formatResponse = (data: any): PLN.LightningNodeChannelEvent => {
+  const response = JSON.parse(data);
+  if (response?.pendingOpenChannel) {
+    return { type: 'Pending' };
+  }
+  if (response?.activeChannel?.fundingTxidBytes) {
+    return { type: 'Open' };
+  }
+  if (response?.inactiveChannel?.fundingTxidBytes) {
+    return { type: 'Closed' };
+  }
+  return { type: 'Unknown' };
 };
 
 /**
@@ -58,8 +73,9 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
       );
       ipcRenderer.send(reqChan, uniqPayload);
       if (callback) {
-        ipcRenderer.on(resChan, (event, data) => {
-          callback(data);
+        // using resChan + node port for uniqueness
+        ipcRenderer.on(`${resChan}-${uniqPayload.node.ports.rest}`, (event, data) => {
+          callback(formatResponse(data));
         });
       }
     });

@@ -2,6 +2,7 @@ import * as LND from '@radar/lnrpc';
 import { ipcChannels } from 'shared';
 import { LndNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
+import * as PLN from 'lib/lightning/types';
 
 class LndProxyClient {
   ipc: IpcSender;
@@ -64,11 +65,19 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.decodeInvoice, { node, req });
   }
 
-  async getChannelListener(
+  async setupListener(node: LndNode): Promise<void> {
+    await this.ipc(ipcChannels.setupListener, { node });
+  }
+
+  async subscribeChannelEvents(
     node: LndNode,
-    callback: (data: string) => void,
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<any> {
-    return await this.ipc(ipcChannels.getChannelListener, { node }, callback);
+    return await this.ipc(ipcChannels.subscribeChannelEvents, { node }, callback);
+  }
+
+  async removeListener(node: LndNode): Promise<void> {
+    await this.ipc(ipcChannels.removeListener, { node });
   }
 }
 

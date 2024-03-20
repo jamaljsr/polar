@@ -186,12 +186,19 @@ class LndService implements LightningService {
     );
   }
 
-  async getChannelListener(
+  async addListenerToNode(node: LightningNode): Promise<void> {
+    await proxy.setupListener(this.cast(node));
+  }
+
+  async subscribeChannelEvents(
     node: LightningNode,
-    callback?: (data: string) => void,
-  ): Promise<any> {
-    await proxy.getChannelListener(this.cast(node), callback!);
-    return `${node.implementation} subscribed`;
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
+  ): Promise<void> {
+    await proxy.subscribeChannelEvents(this.cast(node), callback);
+  }
+
+  async removeListener(node: LightningNode): Promise<void> {
+    await proxy.removeListener(this.cast(node));
   }
 
   private cast(node: LightningNode): LndNode {
