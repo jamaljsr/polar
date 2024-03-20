@@ -2,11 +2,10 @@ import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { LightningNode, Status } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
-import { delay } from 'utils/async';
+import { delay, debounceFunction } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
-import * as ELN from 'eclair-ts/src/types/core';
 
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
@@ -86,6 +85,8 @@ export interface LightningModel {
   waitForNodes: Thunk<LightningModel, LightningNode[], StoreInjections, RootModel>;
   mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
   addListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
+  removeListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
+  addChannelListeners: Thunk<LightningModel, Network, StoreInjections, RootModel>;
 }
 
 const lightningModel: LightningModel = {
@@ -292,52 +293,103 @@ const lightningModel: LightningModel = {
       );
     },
   ),
-  addListeners: thunk(
+  addListeners: thunk(async (actions, network, { injections, getStoreState }) => {
+    const { nodes } = getStoreState().network.networkById(network.id);
+    nodes.lightning.forEach(
+      async node =>
+        await injections.lightningFactory.getService(node).addListenerToNode(node),
+    );
+    // subscribe to channel events
+    actions.addChannelListeners(network);
+    // TODO: subscribe to channel payment/balances
+  }),
+  removeListeners: thunk(async (actions, network, { injections, getStoreState }) => {
+    const { nodes } = getStoreState().network.networkById(network.id);
+    nodes.lightning.forEach(
+      async node =>
+        await injections.lightningFactory.getService(node).removeListener(node),
+    );
+  }),
+  addChannelListeners: thunk(
     async (actions, network, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(network.id);
-      for (const node of nodes.lightning) {
-        try {
-          await actions.getAllInfo(node);
-        } catch {}
-      }
-
       for (const node of nodes.lightning) {
         switch (node.implementation) {
           case 'LND':
             await injections.lightningFactory
               .getService(node)
-              .getChannelListener(node, async (message: string) => {
-                const response = JSON.parse(message);
-                if (response?.activeChannel?.fundingTxidBytes) {
-                  await delay(500);
-                  // mine some blocks to confirm the txn
-                  const network = getStoreState().network.networkById(node.networkId);
-                  const btcNode =
-                    network.nodes.bitcoin.find(n => n.name === node.backendName) ||
-                    network.nodes.bitcoin[0];
-                  await getStoreActions().bitcoind.mine({
-                    blocks: BLOCKS_TIL_CONFIRMED,
-                    node: btcNode,
-                  });
-                  // add a small delay to allow nodes to process the mined blocks
-                  await actions.waitForNodes([node]);
-                  // synchronize the chart
-                  await getStoreActions().designer.syncChart(network);
-                }
-              });
+              .subscribeChannelEvents(
+                node,
+                async (event: PLN.LightningNodeChannelEvent) => {
+                  if (event.type === 'Pending') {
+                    await actions.getAllInfo(node);
+                    // debounceFunction makes sure multiple syncChart calls is done with a 30 seconds interval
+                    await debounceFunction(() =>
+                      getStoreActions().designer.syncChart(network),
+                    );
+                  }
+                  if (event.type === 'Open' || event.type === 'Closed') {
+                    const network = getStoreState().network.networkById(node.networkId);
+                    const btcNode =
+                      network.nodes.bitcoin.find(n => n.name === node.backendName) ||
+                      network.nodes.bitcoin[0];
+                    await getStoreActions().bitcoind.mine({
+                      blocks: BLOCKS_TIL_CONFIRMED,
+                      node: btcNode,
+                    });
+                    await actions.waitForNodes([node]);
+                    await debounceFunction(() =>
+                      getStoreActions().designer.syncChart(network),
+                    );
+                  }
+                },
+              );
             break;
           case 'eclair':
-            const eclairListener = await injections.lightningFactory
+            await injections.lightningFactory
               .getService(node)
-              .getChannelListener(node);
-            // listen for incoming messages
-            eclairListener.on('message', async (data: ELN.WebSocketEventData) => {
-              const response = JSON.parse(data.toString());
-              if (response.type === 'channel-opened') {
-                // synchronize the chart
-                await getStoreActions().designer.syncChart(network);
-              }
-            });
+              .subscribeChannelEvents(
+                node,
+                async (event: PLN.LightningNodeChannelEvent) => {
+                  if (event.type === 'Pending') {
+                    const network = getStoreState().network.networkById(node.networkId);
+                    const btcNode =
+                      network.nodes.bitcoin.find(n => n.name === node.backendName) ||
+                      network.nodes.bitcoin[0];
+                    await getStoreActions().bitcoind.mine({
+                      blocks: BLOCKS_TIL_CONFIRMED,
+                      node: btcNode,
+                    });
+                    await actions.waitForNodes([node]);
+                    await debounceFunction(() =>
+                      getStoreActions().designer.syncChart(network),
+                    );
+                  }
+                  if (event.type === 'Open' || event.type === 'Closed') {
+                    await debounceFunction(() =>
+                      getStoreActions().designer.syncChart(network),
+                    );
+                  }
+                },
+              );
+            break;
+          case 'c-lightning':
+            await injections.lightningFactory
+              .getService(node)
+              .subscribeChannelEvents(
+                node,
+                async (event: PLN.LightningNodeChannelEvent) => {
+                  if (
+                    event.type === 'Open' ||
+                    event.type === 'Pending' ||
+                    event.type === 'Closed'
+                  ) {
+                    await debounceFunction(() =>
+                      getStoreActions().designer.syncChart(network),
+                    );
+                  }
+                },
+              );
             break;
         }
       }
