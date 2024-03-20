@@ -4,11 +4,12 @@ import createLndRpc, * as LND from '@radar/lnrpc';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
-let _webContents: Electron.WebContents;
+let handleEventCallback: (responseChan: string, message: string) => void;
 
-export const setupWebContents = (webContents: Electron.WebContents) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _webContents = webContents;
+export const initLndSubscriptions = (
+  callback: (responseChan: string, message: string) => void,
+) => {
+  handleEventCallback = callback;
 };
 
 /**
@@ -124,23 +125,44 @@ const decodeInvoice = async (args: {
   return await rpc.decodePayReq(args.req);
 };
 
-const getChannelListener = async (args: { node: LndNode }): Promise<any> => {
+let lndRpc: LND.LnRpc | null = null;
+
+const setupLndRpcForListener = async (args: { node: LndNode }): Promise<any> => {
   try {
-    const responseChan = `lnd-${ipcChannels.getChannelListener}-response`;
-    const rpc = await getRpc(args.node);
-    const stream = rpc.subscribeChannelEvents();
-    stream.on('data', (data: LND.ChannelEventUpdate) => {
-      const dataAsString = JSON.stringify(data);
-      handleEvent(responseChan, dataAsString);
-    });
+    lndRpc = await getRpc(args.node);
     return {};
   } catch (err) {
     return { err };
   }
 };
 
-const handleEvent = (responseChan: string, data: string) => {
-  _webContents.send(responseChan, data);
+const removeListener = async (): Promise<any> => {
+  try {
+    lndRpc = null;
+    return {};
+  } catch (err) {
+    return { err };
+  }
+};
+
+const subscribeChannelEvents = async (args: { node: LndNode }): Promise<any> => {
+  try {
+    if (lndRpc == null) {
+      await setupLndRpcForListener({ node: args.node });
+    }
+
+    const responseChan = `lnd-${ipcChannels.subscribeChannelEvents}-response-${args.node.ports.rest}`;
+    const stream = lndRpc?.subscribeChannelEvents();
+    if (stream) {
+      stream.on('data', (data: LND.ChannelEventUpdate) => {
+        const dataAsString = JSON.stringify(data);
+        handleEventCallback(responseChan, dataAsString);
+      });
+    }
+    return {};
+  } catch (err) {
+    return { err };
+  }
 };
 
 /**
@@ -162,7 +184,9 @@ const listeners: {
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,
-  [ipcChannels.getChannelListener]: getChannelListener,
+  [ipcChannels.setupListener]: setupLndRpcForListener,
+  [ipcChannels.removeListener]: removeListener,
+  [ipcChannels.subscribeChannelEvents]: subscribeChannelEvents,
 };
 
 /**
