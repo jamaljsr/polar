@@ -58,3 +58,7 @@ export interface LightningNodePayReceipt {
   amount: number;
   destination: string;
 }
+
+export interface LightningNodeChannelEvent {
+  type: 'Open' | 'Pending' | 'Closed' | 'Unknown';
+}
