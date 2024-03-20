@@ -1,14 +1,14 @@
 import { debug } from 'electron-log';
-import EclairTs from 'eclair-ts';
 import { BitcoinNode, LightningNode, OpenChannelOptions, EclairNode } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { toSats } from 'utils/units';
 import * as PLN from '../types';
-import { httpPost } from './eclairApi';
+import { httpPost, setupListener } from './eclairApi';
 import * as ELN from './types';
-import { eclairCredentials } from 'utils/constants';
+import * as ELNT from 'eclair-ts/src/types/core';
+import { EclairWebSocket } from 'eclair-ts/dist/types/network';
 
 const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['status']> =
   {
@@ -33,6 +33,8 @@ const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['s
   };
 
 class EclairService implements LightningService {
+  listener: EclairWebSocket | null = null;
+
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpPost<ELN.GetInfoResponse>(node, 'getinfo');
     return {
@@ -252,18 +254,41 @@ class EclairService implements LightningService {
     );
   }
 
-  async getChannelListener(node: LightningNode): Promise<any> {
-    const lndNode: EclairNode = this.cast(node);
-    const base64auth = Buffer.from(`:${eclairCredentials.pass}`).toString('base64');
-    const config = {
-      url: `127.0.0.1:${lndNode.ports.rest}`,
-      headers: {
-        Authorization: `Basic ${base64auth}`,
-      },
-    };
-    const eclairTs = new EclairTs(config);
-    const listener = eclairTs.listen();
-    return listener;
+  async addListenerToNode(node: LightningNode): Promise<void> {
+    this.listener = setupListener(this.cast(node));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async removeListener(node: LightningNode): Promise<void> {
+    this.listener?.close();
+    this.listener = null;
+  }
+
+  async subscribeChannelEvents(
+    node: LightningNode,
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
+  ): Promise<void> {
+    if (this.listener == null) {
+      this.listener = setupListener(this.cast(node));
+    }
+    // listen for incoming channel messages
+    this.listener.on('message', async (data: ELNT.WebSocketEventData) => {
+      const response = JSON.parse(data.toString());
+      switch (response.type) {
+        case 'channel-created':
+          callback({ type: 'Pending' });
+          break;
+        case 'channel-opened':
+          callback({ type: 'Open' });
+          break;
+        case 'channel-closed':
+          callback({ type: 'Closed' });
+          break;
+        default:
+          callback({ type: 'Unknown' });
+          break;
+      }
+    });
   }
 
   private toSats(msats: number): string {
