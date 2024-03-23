@@ -125,6 +125,7 @@ const lightningModel: LightningModel = {
     const api = injections.lightningFactory.getService(node);
     const channels = await api.getChannels(node);
     actions.setChannels({ node, channels });
+    return channels;
   }),
   getAllInfo: thunk(async (actions, node) => {
     await actions.getInfo(node);

@@ -20,6 +20,7 @@ import { Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { Network } from 'types';
 import { getNetworkBackendId } from 'utils/network';
+import AutoBalanceButton from 'components/designer/AutoBalanceButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -130,6 +131,7 @@ const NetworkActions: React.FC<Props> = ({
           </Button>
           <AutoMineButton network={network} />
           <SyncButton network={network} />
+          <AutoBalanceButton network={network} />
           <Divider type="vertical" />
         </>
       )}
