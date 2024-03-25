@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "Type de noeud inconnu '{{type}}'",
   "cmps.common.RemoveNode.success": "Le nœud {{name}} a été supprimé du réseau",
   "cmps.common.RemoveNode.error": "Impossible de supprimer le nœud",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "Info",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "Relier",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "Actions",
