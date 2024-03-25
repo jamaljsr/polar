@@ -51,24 +51,22 @@ export const waitFor = async (
 };
 
 let timer: NodeJS.Timeout | null = null;
-let resetCall = true;
+let immediateCall = true;
+let lastCallTime = 0;
 
 export const debounceFunction = async (func: () => Promise<void>) => {
-  // If it's the first call, execute the function immediately
-  if (resetCall) {
-    resetCall = false;
-    await func();
-  } else {
-    // Clear the previous timer
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+  const currentTime = Date.now();
 
-    // Set a timer for 30 seconds
+  if (immediateCall || currentTime - lastCallTime >= 30000) {
+    lastCallTime = currentTime;
+    await func();
+    immediateCall = false;
+  } else {
+    const delay = 30000 - (currentTime - lastCallTime);
+    timer && clearTimeout(timer);
     timer = setTimeout(async () => {
-      resetCall = true;
       await func();
-    }, 30000);
+      immediateCall = true;
+    }, delay);
   }
 };
