@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "알 수 없는 노드 유형 '{{type}}'",
   "cmps.common.RemoveNode.success": "노드 {{name}} 이 네트워크에서 제거되었습니다.",
   "cmps.common.RemoveNode.error": "노드를 제거 할 수 없습니다",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "정보",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "잇다",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "행위",

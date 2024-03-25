@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "Неизвестный тип узла '{{type}} ' '",
   "cmps.common.RemoveNode.success": "Узел {{name}} был удален из сети",
   "cmps.common.RemoveNode.error": "Невозможно удалить узел",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "Информация",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "Подключение",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "действия",
