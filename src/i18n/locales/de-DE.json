@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "Unbekannter Knotentyp '{{type}}'",
   "cmps.common.RemoveNode.success": "Der Knoten {{name}} wurde aus dem Netzwerk entfernt",
   "cmps.common.RemoveNode.error": "Der Knoten kann nicht entfernt werden",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "Info",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "Verbinden",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "Aktionen",
