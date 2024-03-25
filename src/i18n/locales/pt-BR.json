@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "Tipo de nó desconhecido '{{type}}'",
   "cmps.common.RemoveNode.success": "O nó {{name}} foi removido da rede",
   "cmps.common.RemoveNode.error": "Não foi possível remover o nó",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "Informações",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "Conectar",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "Ações",
