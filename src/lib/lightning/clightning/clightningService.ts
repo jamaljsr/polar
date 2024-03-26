@@ -20,6 +20,8 @@ const ChannelStateToStatus: Record<CLN.ChannelState, PLN.LightningNodeChannel['s
   };
 
 class CLightningService implements LightningService {
+  channelsInterval: NodeJS.Timeout | null = null;
+
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpGet<CLN.GetInfoResponse>(node, 'getinfo');
     return {
@@ -196,6 +198,43 @@ class CLightningService implements LightningService {
       timeout,
     );
   }
+
+  async addListenerToNode(node: LightningNode): Promise<void> {
+    console.log(`addListenerToNode ${node.implementation}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async removeListener(node: LightningNode): Promise<void> {
+    if (this.channelsInterval !== null) {
+      clearInterval(this.channelsInterval);
+    }
+  }
+
+  async subscribeChannelEvents(
+    node: LightningNode,
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
+  ): Promise<void> {
+    // check c-lightning channels every 30 seconds
+    this.channelsInterval = setInterval(() => {
+      this.checkChannels(node, callback);
+    }, 3 * 10000);
+  }
+
+  checkChannels = async (
+    node: LightningNode,
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
+  ) => {
+    const channels = await this.getChannels(node);
+    channels.forEach(channel => {
+      if (channel.pending) {
+        callback({ type: 'Pending' });
+      } else if (channel.status === 'Open') {
+        callback({ type: 'Open' });
+      } else if (channel.status === 'Closed') {
+        callback({ type: 'Closed' });
+      }
+    });
+  };
 
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();

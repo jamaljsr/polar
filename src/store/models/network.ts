@@ -662,6 +662,8 @@ const networkModel: NetworkModel = {
     actions.autoMine({ id: network.id, mode: AutoMineMode.AutoOff });
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
+      // Remove listeners from lightning nodes
+      await getStoreActions().lightning.removeListeners(network);
       await injections.dockerService.stop(network);
       actions.setStatus({ id: network.id, status: Status.Stopped });
       // clear cached RPC data
@@ -801,7 +803,11 @@ const networkModel: NetworkModel = {
       // ensure that each node is aware of the entire graph and can route payments properly
       if (lnNodesOnline.length) {
         await Promise.all(lnNodesOnline)
-          .then(async () => await getStoreActions().lightning.connectAllPeers(network))
+          .then(async () => {
+            await getStoreActions().lightning.connectAllPeers(network);
+            // Add listeners to lightning nodes
+            await getStoreActions().lightning.addListeners(network);
+          })
           .catch(e => info('Failed to connect all LN peers', e));
       }
     },

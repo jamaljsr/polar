@@ -20,6 +20,9 @@ export const lightningServiceMock: jest.Mocked<LightningService> = {
   createInvoice: jest.fn(),
   payInvoice: jest.fn(),
   waitUntilOnline: jest.fn(),
+  addListenerToNode: jest.fn(),
+  removeListener: jest.fn(),
+  subscribeChannelEvents: jest.fn(),
 };
 export const tapServiceMock: jest.Mocked<TapService> = {
   listAssets: jest.fn(),

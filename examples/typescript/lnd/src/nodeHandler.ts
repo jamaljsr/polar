@@ -40,7 +40,7 @@ export default class NodeHandler {
         return this.specifyChannelOpeningParameters;
       }
       case 'List peers': {
-        const { peersWithAliases } = await this.getPeers();
+        const { peersWithAliases } = await this.getPeersWithAliases();
         return `Your peers:\n\n`.concat(
           peersWithAliases.map(p => p.alias || cropStringMiddle(p.pubKey, 4)).join('\n'),
         );
@@ -59,12 +59,12 @@ export default class NodeHandler {
   };
 
   specifyChannelOpeningParameters = async () => {
-    const { peersWithAliases } = await this.getPeers();
+    const { peersWithPubKeys } = await this.getPeersWithPubKeys();
     const { pubKey } = await inquirer.prompt<{ pubKey: string }>({
       type: 'list',
       name: 'pubKey',
       message: 'Which peer would you like to open a channel with?',
-      choices: peersWithAliases.map(p => p.alias || cropStringMiddle(p.pubKey, 4)),
+      choices: peersWithPubKeys,
     });
     const { amount } = await inquirer.prompt<{ amount: number }>({
       type: 'number',
@@ -84,12 +84,19 @@ export default class NodeHandler {
     return 'Success!';
   };
 
-  getPeers = async () => {
+  getPeersWithPubKeys = async () => {
     const { peers } = await this.lnrpc.listPeers();
+    const peersWithPubKeys = peers.map(peer => peer.pubKey);
+    return { peersWithPubKeys };
+  };
+
+  getPeersWithAliases = async () => {
+    const { peers } = await this.lnrpc.listPeers();
+
     const { nodes } = await this.lnrpc.describeGraph();
-    const peersWithAliases = peers.map((peer, i) => {
+    const peersWithAliases = peers.map(peer => {
       const peerWithAlias: Peer & { alias?: string } = { ...peer };
-      const maybeNode = nodes.filter(e => e.pubKey === peerWithAlias.pubKey)[0];
+      const maybeNode = nodes.find(e => e.pubKey === peerWithAlias.pubKey);
       if (maybeNode?.alias) {
         peerWithAlias.alias = maybeNode.alias;
       }

@@ -50,6 +50,25 @@ class NotImplementedService implements LightningService {
   ): Promise<PLN.LightningNodePayReceipt> {
     throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
   }
+
+  addListenerToNode(node: LightningNode): Promise<void> {
+    throw new Error(
+      `addListenerToNode is not implemented for ${node.implementation} nodes`,
+    );
+  }
+
+  removeListener(node: LightningNode): Promise<void> {
+    throw new Error(`removeListener is not implemented for ${node.implementation} nodes`);
+  }
+
+  subscribeChannelEvents(
+    node: LightningNode,
+    callback: (data: PLN.LightningNodeChannelEvent) => void,
+  ): Promise<void> {
+    throw new Error(
+      `subscribeChannelEvents is not implemented for ${node.implementation} nodes`,
+    );
+  }
 }
 
 export default new NotImplementedService();

@@ -186,6 +186,21 @@ class LndService implements LightningService {
     );
   }
 
+  async addListenerToNode(node: LightningNode): Promise<void> {
+    await proxy.setupListener(this.cast(node));
+  }
+
+  async subscribeChannelEvents(
+    node: LightningNode,
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
+  ): Promise<void> {
+    await proxy.subscribeChannelEvents(this.cast(node), callback);
+  }
+
+  async removeListener(node: LightningNode): Promise<void> {
+    await proxy.removeListener(this.cast(node));
+  }
+
   private cast(node: LightningNode): LndNode {
     if (node.implementation !== 'LND')
       throw new Error(`LndService cannot be used for '${node.implementation}' nodes`);

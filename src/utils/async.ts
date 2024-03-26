@@ -49,3 +49,24 @@ export const waitFor = async (
     }, interval);
   });
 };
+
+let timer: NodeJS.Timeout | null = null;
+let immediateCall = true;
+let lastCallTime = 0;
+
+export const debounceFunction = async (func: () => Promise<void>) => {
+  const currentTime = Date.now();
+
+  if (immediateCall || currentTime - lastCallTime >= 30000) {
+    lastCallTime = currentTime;
+    await func();
+    immediateCall = false;
+  } else {
+    const delay = 30000 - (currentTime - lastCallTime);
+    timer && clearTimeout(timer);
+    timer = setTimeout(async () => {
+      await func();
+      immediateCall = true;
+    }, delay);
+  }
+};

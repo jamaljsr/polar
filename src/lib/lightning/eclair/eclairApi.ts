@@ -1,5 +1,8 @@
+import EclairTs from 'eclair-ts';
+import { Options } from 'eclair-ts/src/types/config';
+import { EclairWebSocket } from 'eclair-ts/dist/types/network';
 import { ipcChannels } from 'shared';
-import { LightningNode } from 'shared/types';
+import { EclairNode, LightningNode } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { eclairCredentials } from 'utils/constants';
 
@@ -39,4 +42,22 @@ export const httpPost = async <T>(
   body?: any,
 ): Promise<T> => {
   return request<T>(node, 'POST', path, body);
+};
+
+const setupConfig = (eclairNode: EclairNode): Options => {
+  const base64auth = Buffer.from(`:${eclairCredentials.pass}`).toString('base64');
+  const config = {
+    url: `127.0.0.1:${eclairNode.ports.rest}`,
+    headers: {
+      Authorization: `Basic ${base64auth}`,
+    },
+  };
+  return config;
+};
+
+export const setupListener = (eclairNode: EclairNode): EclairWebSocket => {
+  const eclairConfig = setupConfig(eclairNode);
+  const eclairTs = new EclairTs(eclairConfig);
+  const listener = eclairTs.listen();
+  return listener;
 };

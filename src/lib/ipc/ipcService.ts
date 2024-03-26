@@ -1,7 +1,12 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { debug } from 'electron-log';
+import * as PLN from 'lib/lightning/types';
 
-export type IpcSender = <T>(channel: string, payload?: any) => Promise<T>;
+export type IpcSender = <T>(
+  channel: string,
+  payload?: any,
+  callback?: (event: PLN.LightningNodeChannelEvent) => void,
+) => Promise<T>;
 
 /**
  * simple utility func to trim a lot of redundant node information being logged.
@@ -18,6 +23,20 @@ const stripNode = (payload: any) => {
   return payload;
 };
 
+const formatResponse = (data: any): PLN.LightningNodeChannelEvent => {
+  const response = JSON.parse(data);
+  if (response?.pendingOpenChannel) {
+    return { type: 'Pending' };
+  }
+  if (response?.activeChannel?.fundingTxidBytes) {
+    return { type: 'Open' };
+  }
+  if (response?.inactiveChannel?.fundingTxidBytes) {
+    return { type: 'Closed' };
+  }
+  return { type: 'Unknown' };
+};
+
 /**
  * A wrapper function to create an async function which sends messages over IPC and
  * returns the response via a promise
@@ -25,7 +44,7 @@ const stripNode = (payload: any) => {
  * @param prefix the prefix to use in the ipc messages
  */
 export const createIpcSender = (serviceName: string, prefix: string) => {
-  const send: IpcSender = (channel, payload) => {
+  const send: IpcSender = (channel, payload, callback) => {
     const reqChan = `${prefix}-${channel}-request`;
     const resChan = `${prefix}-${channel}-response`;
     // set the response channel dynamically to avoid race conditions
@@ -53,6 +72,12 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
         JSON.stringify(stripNode(uniqPayload), null, 2),
       );
       ipcRenderer.send(reqChan, uniqPayload);
+      if (callback) {
+        // using resChan + node port for uniqueness
+        ipcRenderer.on(`${resChan}-${uniqPayload.node.ports.rest}`, (event, data) => {
+          callback(formatResponse(data));
+        });
+      }
     });
   };
 

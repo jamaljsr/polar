@@ -4,6 +4,14 @@ import createLndRpc, * as LND from '@radar/lnrpc';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
+let handleEventCallback: (responseChan: string, message: string) => void;
+
+export const initLndSubscriptions = (
+  callback: (responseChan: string, message: string) => void,
+) => {
+  handleEventCallback = callback;
+};
+
 /**
  * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
  * reads from disk, so this gives us a small bit of performance improvement
@@ -117,6 +125,46 @@ const decodeInvoice = async (args: {
   return await rpc.decodePayReq(args.req);
 };
 
+let lndRpc: LND.LnRpc | null = null;
+
+const setupLndRpcForListener = async (args: { node: LndNode }): Promise<any> => {
+  try {
+    lndRpc = await getRpc(args.node);
+    return {};
+  } catch (err) {
+    return { err };
+  }
+};
+
+const removeListener = async (): Promise<any> => {
+  try {
+    lndRpc = null;
+    return {};
+  } catch (err) {
+    return { err };
+  }
+};
+
+const subscribeChannelEvents = async (args: { node: LndNode }): Promise<any> => {
+  try {
+    if (lndRpc == null) {
+      await setupLndRpcForListener({ node: args.node });
+    }
+
+    const responseChan = `lnd-${ipcChannels.subscribeChannelEvents}-response-${args.node.ports.rest}`;
+    const stream = lndRpc?.subscribeChannelEvents();
+    if (stream) {
+      stream.on('data', (data: LND.ChannelEventUpdate) => {
+        const dataAsString = JSON.stringify(data);
+        handleEventCallback(responseChan, dataAsString);
+      });
+    }
+    return {};
+  } catch (err) {
+    return { err };
+  }
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -136,6 +184,9 @@ const listeners: {
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,
+  [ipcChannels.setupListener]: setupLndRpcForListener,
+  [ipcChannels.removeListener]: removeListener,
+  [ipcChannels.subscribeChannelEvents]: subscribeChannelEvents,
 };
 
 /**
