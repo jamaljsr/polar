@@ -13,12 +13,14 @@ import {
   TapdNode,
   TapNode,
 } from 'shared/types';
+import { LightningNodeChannel } from 'lib/lightning/types';
 import { AutoMineMode, CustomImage, Network, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
+  balanceChannel,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
@@ -179,6 +181,9 @@ export interface NetworkModel {
   setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
   setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
   mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
+
+  /* */
+  autoBalanceChannels: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
 }
 
 const networkModel: NetworkModel = {
@@ -943,6 +948,51 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
+  autoBalanceChannels: thunk(
+    async (actions, { id }, { getState, getStoreState, getStoreActions }) => {
+      const { networks } = getState();
+      const network = networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { id }));
+
+      const { createInvoice, payInvoice, getChannels } = getStoreActions().lightning;
+
+      // Store all channels in an array and build a map nodeName->node.
+      const lnNodes = network.nodes.lightning;
+      const channels = [] as LightningNodeChannel[];
+      const id2Node = {} as Record<string, LightningNode>;
+      for (const node of lnNodes) {
+        const nodeChannels = await getChannels(node);
+        channels.push(...nodeChannels);
+        id2Node[node.name] = node;
+      }
+
+      const minimumSatsDifference = 150; // TODO: put it somewhere else.
+      const links = getStoreState().designer.activeChart.links;
+      const promisesToAwait = [] as Promise<unknown>[];
+      for (const channel of channels) {
+        const id = channel.uniqueId;
+        const { to, from } = links[id];
+        const fromNode = id2Node[from.nodeId as string];
+        const toNode = id2Node[to.nodeId as string];
+        const info = balanceChannel(channel, fromNode, toNode);
+        const { source, target, amount } = info;
+
+        console.log(`[AUTO BALANCE] ${source.name} -> ${amount} -> ${target.name}`);
+
+        // Skip balancing if amount is too small.
+        if (amount < minimumSatsDifference) continue;
+
+        // Let's avoid problems with promises inside loops.
+        promisesToAwait.push(
+          createInvoice({ node: source, amount }).then(invoice =>
+            payInvoice({ node: target, amount, invoice }),
+          ),
+        );
+      }
+
+      await Promise.all(promisesToAwait);
+    },
+  ),
 };
 
 export default networkModel;
