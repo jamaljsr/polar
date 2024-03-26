@@ -144,6 +144,27 @@ export interface NetworkModel {
     Promise<void>
   >;
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  renameLightningNode: Thunk<
+    NetworkModel,
+    { node: LightningNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  renameBitcoinNode: Thunk<
+    NetworkModel,
+    { node: BitcoinNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  renameTapNode: Thunk<
+    NetworkModel,
+    { node: TapNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 
   /**
    * If user didn't cancel the process, returns the destination of the generated Zip
@@ -943,6 +964,92 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
+  renameLightningNode: thunk(
+    async (actions, { node, newName }, { getState, getStoreActions }) => {
+      if (!newName) throw new Error(l('renameErr', { newName }));
+
+      if (node.status === Status.Started) {
+        actions.stop(node.networkId);
+      }
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const updatedNode = network?.nodes.lightning.find(n => n.id === node.id);
+
+      // rename the node
+      if (updatedNode) {
+        // rename the node in the chart's redux state
+        getStoreActions().designer.renameLightningNode({
+          name: newName,
+          nodeId: updatedNode.name,
+          backendName: updatedNode.backendName,
+        });
+        updatedNode.name = newName;
+      }
+
+      actions.setNetworks([...networks]);
+      await actions.save();
+
+      getStoreActions().designer.syncChart(network);
+    },
+  ),
+  renameBitcoinNode: thunk(
+    async (actions, { node, newName }, { getState, getStoreActions }) => {
+      if (!newName) throw new Error(l('renameErr', { newName }));
+
+      if (node.status === Status.Started) {
+        actions.stop(node.networkId);
+      }
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id);
+
+      // rename the node
+      if (updatedNode) {
+        // rename the node in the chart's redux state
+        getStoreActions().designer.renameBitcoinNode({
+          name: newName,
+          nodeId: updatedNode.name,
+        });
+        updatedNode.name = newName;
+      }
+
+      actions.setNetworks([...networks]);
+      await actions.save();
+
+      getStoreActions().designer.syncChart(network);
+    },
+  ),
+  renameTapNode: thunk(
+    async (actions, { node, newName }, { getState, getStoreActions }) => {
+      if (!newName) throw new Error(l('renameErr', { newName }));
+
+      if (node.status === Status.Started) {
+        actions.stop(node.networkId);
+      }
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      const updatedNode = network?.nodes.tap.find(n => n.id === node.id);
+
+      // rename the node
+      if (updatedNode) {
+        // rename the node in the chart's redux state
+        getStoreActions().designer.renameTapNode({
+          name: newName,
+          nodeId: updatedNode.name,
+          lndName: updatedNode.lndName,
+        });
+        updatedNode.name = newName;
+      }
+
+      actions.setNetworks([...networks]);
+      await actions.save();
+
+      getStoreActions().designer.syncChart(network);
+    },
+  ),
 };
 
 export default networkModel;

@@ -50,6 +50,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
     connect: <ConnectTab node={node} />,
     actions: <ActionsTab node={node} />,
   };
+
   return (
     <SidebarCard
       title={node.name}

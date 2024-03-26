@@ -73,6 +73,24 @@ export interface DesignerModel {
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
+  renameLightningNode: Thunk<
+    DesignerModel,
+    { nodeId: string; name: string; backendName: string },
+    StoreInjections,
+    RootModel
+  >;
+  renameBitcoinNode: Thunk<
+    DesignerModel,
+    { nodeId: string; name: string },
+    StoreInjections,
+    RootModel
+  >;
+  renameTapNode: Thunk<
+    DesignerModel,
+    { nodeId: string; name: string; lndName: string },
+    StoreInjections,
+    RootModel
+  >;
 }
 
 const designerModel: DesignerModel = {
@@ -213,6 +231,102 @@ const designerModel: DesignerModel = {
       }
     });
   }),
+  renameLightningNode: thunk(
+    async (actions, { nodeId, name, backendName }, { getState, getStoreActions }) => {
+      const { allCharts, activeId } = getState();
+      const chart = allCharts[activeId];
+
+      // Ensure the node exists
+      const node = chart.nodes[nodeId];
+      if (!node) {
+        throw new Error(`Lightning node with id ${nodeId} not found.`);
+      }
+
+      // Update the node chart
+      const updatedChart = {
+        ...chart,
+        nodes: {
+          ...chart.nodes,
+          [name]: {
+            ...chart.nodes[nodeId],
+            id: name,
+          },
+        },
+      };
+
+      // Update the state with the modified chart
+      allCharts[activeId] = updatedChart;
+      // remove the old node with previous key
+      getStoreActions().designer.removeNode(nodeId);
+      getStoreActions().designer.updateBackendLink({
+        lnName: name,
+        backendName: backendName,
+      });
+    },
+  ),
+  renameBitcoinNode: thunk(
+    async (actions, { nodeId, name }, { getState, getStoreActions }) => {
+      const { allCharts, activeId } = getState();
+      const chart = allCharts[activeId];
+
+      // Ensure the node exists
+      const node = chart.nodes[nodeId];
+      if (!node) {
+        throw new Error(`Bitcoi node with id ${nodeId} not found.`);
+      }
+
+      // Update the node chart
+      const updatedChart = {
+        ...chart,
+        nodes: {
+          ...chart.nodes,
+          [name]: {
+            ...chart.nodes[nodeId],
+            id: name,
+          },
+        },
+      };
+
+      // Update the state with the modified chart
+      allCharts[activeId] = updatedChart;
+      // remove the old node with previous key
+      getStoreActions().designer.removeNode(nodeId);
+      // loop through lightning nodes to update backend links
+    },
+  ),
+  renameTapNode: thunk(
+    async (actions, { nodeId, name, lndName }, { getState, getStoreActions }) => {
+      const { allCharts, activeId } = getState();
+      const chart = allCharts[activeId];
+
+      // Ensure the node exists
+      const node = chart.nodes[nodeId];
+      if (!node) {
+        throw new Error(`Tap node with id ${nodeId} not found.`);
+      }
+
+      // Update the node chart
+      const updatedChart = {
+        ...chart,
+        nodes: {
+          ...chart.nodes,
+          [name]: {
+            ...chart.nodes[nodeId],
+            id: name,
+          },
+        },
+      };
+
+      // Update the state with the modified chart
+      allCharts[activeId] = updatedChart;
+      // remove the old node with previous key
+      getStoreActions().designer.removeNode(nodeId);
+      getStoreActions().designer.updateTapBackendLink({
+        tapName: name,
+        lndName,
+      });
+    },
+  ),
   addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];
     const { node, link } =
