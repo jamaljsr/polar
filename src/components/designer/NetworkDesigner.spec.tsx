@@ -25,7 +25,7 @@ describe('NetworkDesigner Component', () => {
   });
 
   const renderComponent = (charts?: Record<number, IChart>, theme = 'dark') => {
-    const network = getNetwork(1, 'test network', Status.Stopped, 2);
+    const network = getNetwork(1, 'test network', Status.Stopped?.toString(), 2);
     const allCharts = charts || {
       1: initChartFromNetwork(network),
     };

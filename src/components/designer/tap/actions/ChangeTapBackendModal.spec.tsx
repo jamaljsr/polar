@@ -20,7 +20,7 @@ describe('ChangeTapBackendModal', () => {
     tapName = 'alice-tap',
     lndName = 'alice',
   ) => {
-    const network = getNetwork(1, 'test network', status, 2);
+    const network = getNetwork(1, 'test network', status?.toString(), 2);
     const { compatibility } = defaultRepoState.images.LND;
     const otherLND = createLndNetworkNode(
       network,

@@ -21,7 +21,7 @@ describe('OpenChannelModal', () => {
   let unmount: () => void;
 
   const renderComponent = async (from = 'alice', to?: string) => {
-    const network = getNetwork(1, 'test network', Status.Started);
+    const network = getNetwork(1, 'test network', Status.Started?.toString());
     const initialState = {
       network: {
         networks: [network],

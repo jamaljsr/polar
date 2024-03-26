@@ -36,7 +36,7 @@ describe('DefaultSidebar Component', () => {
   ];
 
   const renderComponent = (status?: Status, images?: CustomImage[]) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     const chart = initChartFromNetwork(network);
     const initialState = {
       app: {
