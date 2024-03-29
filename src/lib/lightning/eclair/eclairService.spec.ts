@@ -5,6 +5,7 @@ import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests'
 import { eclairService } from './';
 import * as eclairApi from './eclairApi';
 import * as ELN from './types';
+import { EclairWebSocket } from 'eclair-ts/dist/types/network';
 
 jest.mock('./eclairApi');
 jest.mock('lib/bitcoin/bitcoindService');
@@ -257,9 +258,13 @@ describe('EclairService', () => {
     eclairApiMock.httpPost.mockResolvedValue(peerResponse); // connect
     const rpcUrls = ['b@2.2.2.2:9735', 'c@3.3.3.3:9735'];
     await eclairService.connectPeers(node, rpcUrls);
-    expect(eclairApiMock.httpPost).toBeCalledTimes(3);
-    expect(eclairApiMock.httpPost).toBeCalledWith(node, 'connect', { uri: rpcUrls[0] });
-    expect(eclairApiMock.httpPost).toBeCalledWith(node, 'connect', { uri: rpcUrls[1] });
+    expect(eclairApiMock.httpPost).toHaveBeenCalledTimes(3);
+    expect(eclairApiMock.httpPost).toHaveBeenCalledWith(node, 'connect', {
+      uri: rpcUrls[0],
+    });
+    expect(eclairApiMock.httpPost).toHaveBeenCalledWith(node, 'connect', {
+      uri: rpcUrls[1],
+    });
   });
 
   it('should not throw an error when connecting peers', async () => {
@@ -335,14 +340,14 @@ describe('EclairService', () => {
     eclairApiMock.httpPost.mockResolvedValue(createInvResponse); // createinvoice
     const res = await eclairService.createInvoice(node, 100000);
     expect(res).toEqual('lnbc100xyz');
-    expect(eclairApiMock.httpPost).toBeCalledWith(
+    expect(eclairApiMock.httpPost).toHaveBeenCalledWith(
       node,
       'createinvoice',
       expect.objectContaining({ description: `Payment to ${node.name}` }),
     );
     const res2 = await eclairService.createInvoice(node, 100000, 'test-memo');
     expect(res2).toEqual('lnbc100xyz');
-    expect(eclairApiMock.httpPost).toBeCalledWith(
+    expect(eclairApiMock.httpPost).toHaveBeenCalledWith(
       node,
       'createinvoice',
       expect.objectContaining({ description: 'test-memo' }),
@@ -395,7 +400,7 @@ describe('EclairService', () => {
       expect(res.destination).toEqual('abcdef');
       // test payments with amount specified
       eclairService.payInvoice(node, 'lnbc100xyz', 1000);
-      expect(eclairApiMock.httpPost).toBeCalledWith(
+      expect(eclairApiMock.httpPost).toHaveBeenCalledWith(
         node,
         'payinvoice',
         expect.objectContaining({
@@ -413,7 +418,7 @@ describe('EclairService', () => {
       expect(res.destination).toEqual('abcdef');
       // test payments with amount specified
       eclairService.payInvoice(node, 'lnbc100xyz', 1000);
-      expect(eclairApiMock.httpPost).toBeCalledWith(
+      expect(eclairApiMock.httpPost).toHaveBeenCalledWith(
         node,
         'payinvoice',
         expect.objectContaining({
@@ -427,7 +432,7 @@ describe('EclairService', () => {
     it('should wait successfully', async () => {
       eclairApiMock.httpPost.mockResolvedValue({ publicAddresses: [] });
       await expect(eclairService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(eclairApiMock.httpPost).toBeCalledTimes(1);
+      expect(eclairApiMock.httpPost).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
@@ -435,7 +440,76 @@ describe('EclairService', () => {
       await expect(eclairService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(eclairApiMock.httpPost).toBeCalledTimes(7);
+      expect(eclairApiMock.httpPost).toHaveBeenCalledTimes(7);
     });
+  });
+
+  it('should add listener to node', async () => {
+    const mockListener = jest.fn() as unknown as EclairWebSocket;
+    (eclairApi.setupListener as jest.Mock).mockReturnValue(mockListener);
+
+    // Expect this.listener to be null before call
+    expect(eclairService.listener).toBeNull();
+
+    await eclairService.addListenerToNode(node);
+
+    // Expect this.listener not to be null after
+    expect(eclairService.listener).not.toBeNull();
+    expect(eclairApiMock.setupListener).toHaveBeenCalledWith(node);
+    expect(eclairApiMock.setupListener).toHaveBeenCalledTimes(1);
+  });
+
+  it('should remove Listener', async () => {
+    const mockListener = {
+      close: jest.fn(),
+    } as unknown as EclairWebSocket;
+
+    eclairService.listener = mockListener;
+
+    await eclairService.removeListener(node); // remove listener
+    expect(eclairService.listener).toBeNull(); // expect to be null
+  });
+
+  it('should subscribe to channel events', async () => {
+    const mockListener = {
+      on: jest.fn(),
+    } as unknown as EclairWebSocket;
+
+    const callback = jest.fn();
+
+    (eclairApi.setupListener as jest.Mock).mockReturnValue(mockListener);
+
+    await eclairService.subscribeChannelEvents(node, callback);
+
+    // Simulate receiving messages of different types
+    const messageHandlers = (mockListener.on as jest.Mock).mock.calls;
+    for (const [eventName, handler] of messageHandlers) {
+      if (eventName === 'message') {
+        // Simulate message of type 'channel-created'
+        handler(JSON.stringify({ type: 'channel-created' }));
+
+        // Expect callback to be called with { type: 'Pending' }
+        expect(callback).toHaveBeenCalledWith({ type: 'Pending' });
+
+        // Simulate message of type 'channel-opened'
+        handler(JSON.stringify({ type: 'channel-opened' }));
+
+        // Expect callback to be called with { type: 'Open' }
+        expect(callback).toHaveBeenCalledWith({ type: 'Open' });
+
+        // Simulate message of type 'channel-closed'
+        handler(JSON.stringify({ type: 'channel-closed' }));
+
+        // Expect callback to be called with { type: 'Closed' }
+        expect(callback).toHaveBeenCalledWith({ type: 'Closed' });
+
+        // Simulate message of unknown type
+        handler(JSON.stringify({ type: 'unknown-type' }));
+
+        // Expect callback to be called with { type: 'Unknown' }
+        expect(callback).toHaveBeenCalledWith({ type: 'Unknown' });
+      }
+    }
+    expect(eclairApi.setupListener).toHaveBeenCalledWith(node);
   });
 });

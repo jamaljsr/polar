@@ -152,9 +152,9 @@ describe('Lightning Model', () => {
     const { openChannel, getInfo } = store.getActions().lightning;
     await getInfo(to);
     await openChannel({ from, to, sats, autoFund: false, isPrivate: false });
-    expect(lightningServiceMock.getInfo).toBeCalledTimes(1);
-    expect(lightningServiceMock.openChannel).toBeCalledTimes(1);
-    expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+    expect(lightningServiceMock.getInfo).toHaveBeenCalledTimes(1);
+    expect(lightningServiceMock.openChannel).toHaveBeenCalledTimes(1);
+    expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
   });
 
   it('should open a channel and mine on the first bitcoin node', async () => {
@@ -173,7 +173,7 @@ describe('Lightning Model', () => {
     await getInfo(to);
     await openChannel({ from, to, sats, autoFund: false, isPrivate: false });
     const btcNode = store.getState().network.networks[0].nodes.bitcoin[0];
-    expect(bitcoindServiceMock.mine).toBeCalledWith(6, btcNode);
+    expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(6, btcNode);
   });
 
   it('should cause some delay waiting for nodes', async () => {
@@ -181,8 +181,44 @@ describe('Lightning Model', () => {
 
     const { waitForNodes } = store.getActions().lightning;
     await waitForNodes(network.nodes.lightning);
-    expect(asyncUtilMock.delay).toBeCalledWith(2000);
+    expect(asyncUtilMock.delay).toHaveBeenCalledWith(2000);
 
     mockProperty(process, 'env', { NODE_ENV: 'test' } as any);
+  });
+
+  it('should add listeners to the lightning nodes in the network', async () => {
+    const { addListeners } = store.getActions().lightning;
+    await addListeners(network);
+    expect(lightningServiceMock.addListenerToNode).toHaveBeenCalledTimes(
+      network.nodes.lightning.length,
+    );
+    network.nodes.lightning.forEach(node =>
+      expect(lightningServiceMock.addListenerToNode).toHaveBeenCalledWith(node),
+    );
+  });
+
+  it('should remove listeners from the lightning nodes in the network', async () => {
+    const { removeListeners } = store.getActions().lightning;
+    await removeListeners(network);
+    expect(lightningServiceMock.removeListener).toHaveBeenCalledTimes(
+      network.nodes.lightning.length,
+    );
+    network.nodes.lightning.forEach(node =>
+      expect(lightningServiceMock.removeListener).toHaveBeenCalledWith(node),
+    );
+  });
+
+  it('should add Channel Listeners to each lightning node in the network', async () => {
+    const { addChannelListeners } = store.getActions().lightning;
+    await addChannelListeners(network);
+    expect(lightningServiceMock.subscribeChannelEvents).toHaveBeenCalledTimes(
+      network.nodes.lightning.length,
+    );
+    network.nodes.lightning.forEach(node =>
+      expect(lightningServiceMock.subscribeChannelEvents).toHaveBeenCalledWith(
+        node,
+        expect.any(Function),
+      ),
+    );
   });
 });

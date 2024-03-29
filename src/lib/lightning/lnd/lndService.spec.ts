@@ -151,8 +151,8 @@ describe('LndService', () => {
         isPrivate: false,
       });
       expect(actual).toEqual(expected);
-      expect(lndProxyClient.listPeers).toBeCalledTimes(1);
-      expect(lndProxyClient.connectPeer).toBeCalledTimes(0);
+      expect(lndProxyClient.listPeers).toHaveBeenCalledTimes(1);
+      expect(lndProxyClient.connectPeer).toHaveBeenCalledTimes(0);
     });
 
     it('should connect peer then open the channel', async () => {
@@ -170,8 +170,8 @@ describe('LndService', () => {
         isPrivate: false,
       });
       expect(actual).toEqual(expected);
-      expect(lndProxyClient.listPeers).toBeCalledTimes(1);
-      expect(lndProxyClient.connectPeer).toBeCalledTimes(1);
+      expect(lndProxyClient.listPeers).toHaveBeenCalledTimes(1);
+      expect(lndProxyClient.connectPeer).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -179,7 +179,7 @@ describe('LndService', () => {
     it('should wait successfully', async () => {
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
       await expect(lndService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(lndProxyClient.getInfo).toBeCalledTimes(1);
+      expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
@@ -187,7 +187,29 @@ describe('LndService', () => {
       await expect(lndService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(lndProxyClient.getInfo).toBeCalledTimes(4);
+      expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(4);
     });
+  });
+
+  it('should add listener to node', async () => {
+    lndProxyClient.setupListener = jest.fn();
+    await lndService.addListenerToNode(node);
+    expect(lndProxyClient.setupListener).toHaveBeenCalledWith(node);
+    expect(lndProxyClient.setupListener).toHaveBeenCalledTimes(1);
+  });
+
+  it('should remove Listener from node', async () => {
+    lndProxyClient.removeListener = jest.fn();
+    await lndService.removeListener(node);
+    expect(lndProxyClient.removeListener).toHaveBeenCalledWith(node);
+    expect(lndProxyClient.removeListener).toHaveBeenCalledTimes(1);
+  });
+
+  it('should subscribe Channel Events', async () => {
+    const callback = jest.fn();
+    lndProxyClient.subscribeChannelEvents = jest.fn();
+    await lndService.subscribeChannelEvents(node, callback);
+    expect(lndProxyClient.subscribeChannelEvents).toHaveBeenCalledWith(node, callback);
+    expect(lndProxyClient.subscribeChannelEvents).toHaveBeenCalledTimes(1);
   });
 });

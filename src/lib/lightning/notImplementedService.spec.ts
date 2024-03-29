@@ -19,5 +19,10 @@ describe('NotImplementedService', () => {
     expect(() => service.closeChannel(node, '')).toThrow(msg('closeChannel'));
     expect(() => service.createInvoice(node, 0, '')).toThrow(msg('createInvoice'));
     expect(() => service.payInvoice(node, '')).toThrow(msg('payInvoice'));
+    expect(() => service.addListenerToNode(node)).toThrow(msg('addListenerToNode'));
+    expect(() => service.removeListener(node)).toThrow(msg('removeListener'));
+    expect(() => service.subscribeChannelEvents(node, () => Promise<void>)).toThrow(
+      msg('subscribeChannelEvents'),
+    );
   });
 });

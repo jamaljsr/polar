@@ -154,8 +154,8 @@ describe('CLightningService', () => {
         isPrivate: false,
       });
       expect(actual).toEqual(expected);
-      expect(clightningApiMock.httpPost).toBeCalledTimes(1);
-      expect(clightningApiMock.httpGet).toBeCalledTimes(1);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
+      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
     });
 
     it('should open a private channel successfully', async () => {
@@ -174,13 +174,13 @@ describe('CLightningService', () => {
         isPrivate: true,
       });
       expect(actual).toEqual(expected);
-      expect(clightningApiMock.httpPost).toBeCalledTimes(1);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
       expect(clightningApiMock.httpPost).toHaveBeenLastCalledWith(
         expect.objectContaining({ implementation: 'c-lightning' }),
         'channel/openChannel',
         { announce: 'false', feeRate: '253perkw', id: 'asdf', satoshis: '1000' },
       );
-      expect(clightningApiMock.httpGet).toBeCalledTimes(1);
+      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
     });
 
     it('should connect peer then open the channel', async () => {
@@ -200,8 +200,8 @@ describe('CLightningService', () => {
         isPrivate: false,
       });
       expect(actual).toEqual(expected);
-      expect(clightningApiMock.httpPost).toBeCalledTimes(2);
-      expect(clightningApiMock.httpGet).toBeCalledTimes(1);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(2);
+      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -209,7 +209,7 @@ describe('CLightningService', () => {
     it('should wait successfully', async () => {
       clightningApiMock.httpGet.mockResolvedValue({ binding: [] });
       await expect(clightningService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(clightningApiMock.httpGet).toBeCalledTimes(1);
+      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
@@ -217,7 +217,57 @@ describe('CLightningService', () => {
       await expect(clightningService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(clightningApiMock.httpGet).toBeCalledTimes(4);
+      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(4);
+    });
+  });
+
+  it('should add Listener To Node', async () => {
+    await clightningService.addListenerToNode(node);
+  });
+
+  describe('removeListener', () => {
+    jest.spyOn(window, 'clearInterval');
+
+    it('should clear the interval if channelsInterval is not null', async () => {
+      clightningService.channelsInterval = setInterval(() => {}, 1000);
+      await clightningService.removeListener(node);
+      expect(clearInterval).toHaveBeenCalledTimes(1);
+      expect(clearInterval).toHaveBeenCalledWith(clightningService.channelsInterval);
+    });
+
+    it('should not clear the interval if channelsInterval is null', async () => {
+      clightningService.channelsInterval = null;
+      await clightningService.removeListener(node);
+      expect(clearInterval).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('subscribeChannelEvents', () => {
+    it('should set up interval to check channels every 30 seconds', async () => {
+      jest.spyOn(window, 'setInterval');
+
+      const callback = jest.fn();
+      await clightningService.subscribeChannelEvents(node, callback);
+
+      expect(setInterval).toHaveBeenCalledTimes(1);
+      expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 30000);
+    });
+
+    it('checkChannels calls callback with channel events', async () => {
+      const callback = jest.fn();
+      const mockChannels = [
+        { pending: true, status: 'Pending' },
+        { pending: false, status: 'Open' },
+        { pending: false, status: 'Closed' },
+      ];
+      clightningService.getChannels = jest.fn().mockResolvedValue(mockChannels);
+
+      await clightningService.checkChannels(node, callback);
+
+      expect(callback).toHaveBeenCalledTimes(3);
+      expect(callback).toHaveBeenCalledWith({ type: 'Pending' });
+      expect(callback).toHaveBeenCalledWith({ type: 'Open' });
+      expect(callback).toHaveBeenCalledWith({ type: 'Closed' });
     });
   });
 });
