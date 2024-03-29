@@ -115,7 +115,7 @@ describe('Network model', () => {
     it('should call the docker service when adding a new network', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
       expect(store.getState().network.networks.length).toBe(1);
-      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(1);
     });
 
     it('should add a network with the correct lightning nodes', async () => {
@@ -162,8 +162,8 @@ describe('Network model', () => {
 
     it('should save the networks to disk', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
-      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
-      expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(1);
+      expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(1);
     });
 
     it('should add a network with custom nodes', async () => {
@@ -543,7 +543,7 @@ describe('Network model', () => {
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
-      expect(injections.dockerService.start).toBeCalledWith(
+      expect(injections.dockerService.start).toHaveBeenCalledWith(
         expect.objectContaining({ id: network.id }),
       );
     });
@@ -575,7 +575,7 @@ describe('Network model', () => {
         ...firstNetwork().nodes.bitcoin[0],
         status: Status.Starting,
       };
-      expect(bitcoindServiceMock.mine).toBeCalledWith(1, btcNode);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(1, btcNode);
     });
 
     it('should not throw when mining a block on startup fails', async () => {
@@ -587,7 +587,7 @@ describe('Network model', () => {
         ...firstNetwork().nodes.bitcoin[0],
         status: Status.Starting,
       };
-      expect(bitcoindServiceMock.mine).toBeCalledWith(1, btcNode);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(1, btcNode);
     });
 
     it('should not save compose file and networks if all ports are available', async () => {
@@ -600,8 +600,8 @@ describe('Network model', () => {
       const { lightning } = firstNetwork().nodes;
       expect(lightning[0].ports.grpc).toBe(10001);
       expect(lightning[3].ports.grpc).toBe(10004);
-      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(0);
-      expect(injections.dockerService.saveNetworks).toBeCalledTimes(0);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(0);
+      expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(0);
     });
 
     it('should save compose file and networks when a port is in use', async () => {
@@ -623,8 +623,8 @@ describe('Network model', () => {
       const { lightning } = firstNetwork().nodes;
       expect(lightning[0].ports.grpc).toBe(10002);
       expect(lightning[3].ports.grpc).toBe(10004);
-      expect(injections.dockerService.saveComposeFile).toBeCalledTimes(1);
-      expect(injections.dockerService.saveNetworks).toBeCalledTimes(1);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(1);
+      expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(1);
     });
 
     it('should catch exception if it cannot connect all peers', async () => {
@@ -637,9 +637,9 @@ describe('Network model', () => {
       const network = firstNetwork();
       await start(network.id);
       await waitFor(() => {
-        expect(lightningServiceMock.connectPeers).toBeCalledTimes(3);
+        expect(lightningServiceMock.connectPeers).toHaveBeenCalledTimes(3);
       });
-      expect(logMock.info).toBeCalledWith('Failed to connect all LN peers', err);
+      expect(logMock.info).toHaveBeenCalledWith('Failed to connect all LN peers', err);
     });
 
     it('should throw an error if a custom node image is missing', async () => {
@@ -650,6 +650,15 @@ describe('Network model', () => {
       const errMsg =
         'Cannot start the network because it contains custom node images that are not available on this machine: custom-image:latest';
       await expect(start(firstNetwork().id)).rejects.toThrow(errMsg);
+    });
+
+    it('should wait for lightning nodes to be online then add listeners', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await waitFor(() => {
+        expect(lightningServiceMock.waitUntilOnline).toHaveBeenCalled();
+        expect(lightningServiceMock.addListenerToNode).toHaveBeenCalled();
+      });
     });
   });
 
@@ -696,7 +705,14 @@ describe('Network model', () => {
     it('should call the dockerService when stopping a network', async () => {
       const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
-      expect(injections.dockerService.stop).toBeCalledWith(firstNetwork());
+      expect(injections.dockerService.stop).toHaveBeenCalledWith(firstNetwork());
+    });
+
+    it('should call removeListener for lightning nodes when stopping a network', async () => {
+      const { stop } = store.getActions().network;
+      await stop(firstNetwork().id);
+      expect(injections.dockerService.stop).toHaveBeenCalledWith(firstNetwork());
+      expect(lightningServiceMock.removeListener).toHaveBeenCalled();
     });
   });
 
@@ -952,8 +968,8 @@ describe('Network model', () => {
     it('should do nothing if no nodes are provided', async () => {
       const { monitorStartup } = store.getActions().network;
       await monitorStartup([]);
-      expect(lightningServiceMock.waitUntilOnline).not.toBeCalled();
-      expect(bitcoindServiceMock.waitUntilOnline).not.toBeCalled();
+      expect(lightningServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+      expect(bitcoindServiceMock.waitUntilOnline).not.toHaveBeenCalled();
     });
 
     it('should fail with an invalid network id', async () => {
@@ -967,8 +983,8 @@ describe('Network model', () => {
       const { monitorStartup } = store.getActions().network;
       await monitorStartup(firstNetwork().nodes.lightning);
       await waitFor(() => {
-        expect(lightningServiceMock.waitUntilOnline).toBeCalled();
-        expect(lightningServiceMock.connectPeers).toBeCalled();
+        expect(lightningServiceMock.waitUntilOnline).toHaveBeenCalled();
+        expect(lightningServiceMock.connectPeers).toHaveBeenCalled();
       });
     });
 
@@ -976,8 +992,8 @@ describe('Network model', () => {
       const { monitorStartup } = store.getActions().network;
       await monitorStartup(firstNetwork().nodes.bitcoin);
       await waitFor(() => {
-        expect(bitcoindServiceMock.waitUntilOnline).toBeCalled();
-        expect(bitcoindServiceMock.connectPeers).toBeCalled();
+        expect(bitcoindServiceMock.waitUntilOnline).toHaveBeenCalled();
+        expect(bitcoindServiceMock.connectPeers).toHaveBeenCalled();
       });
     });
 
@@ -986,7 +1002,7 @@ describe('Network model', () => {
       const { bitcoin } = firstNetwork().nodes;
       bitcoin[0].type = 'asdf' as any;
       await monitorStartup(bitcoin);
-      expect(bitcoindServiceMock.waitUntilOnline).not.toBeCalled();
+      expect(bitcoindServiceMock.waitUntilOnline).not.toHaveBeenCalled();
     });
   });
 

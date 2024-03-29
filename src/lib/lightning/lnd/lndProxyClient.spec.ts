@@ -21,28 +21,31 @@ describe('LndService', () => {
 
   it('should call the getInfo ipc', () => {
     lndProxyClient.getInfo(node);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.getInfo, { node });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.getInfo, { node });
   });
 
   it('should call the getWalletBalance ipc', () => {
     lndProxyClient.getWalletBalance(node);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.walletBalance, { node });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.walletBalance, { node });
   });
 
   it('should call the getNewAddress ipc', () => {
     lndProxyClient.getNewAddress(node);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.newAddress, { node });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.newAddress, { node });
   });
 
   it('should call the listPeers ipc', () => {
     lndProxyClient.listPeers(node);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.listPeers, { node });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.listPeers, { node });
   });
 
   it('should call the connectPeer ipc', () => {
     const req = { addr: { pubkey: 'abcdef', host: 'alice' } };
     lndProxyClient.connectPeer(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.connectPeer, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.connectPeer, {
+      node,
+      req,
+    });
   });
 
   it('should call the openChannel ipc', () => {
@@ -51,7 +54,10 @@ describe('LndService', () => {
       localFundingAmount: '1000',
     };
     lndProxyClient.openChannel(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.openChannel, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.openChannel, {
+      node,
+      req,
+    });
   });
 
   it('should call the closeChannel ipc', () => {
@@ -63,35 +69,72 @@ describe('LndService', () => {
       },
     };
     lndProxyClient.closeChannel(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.closeChannel, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.closeChannel, {
+      node,
+      req,
+    });
   });
 
   it('should call the listChannels ipc', () => {
     const req = {};
     lndProxyClient.listChannels(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.listChannels, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.listChannels, {
+      node,
+      req,
+    });
   });
 
   it('should call the pendingChannels ipc', () => {
     lndProxyClient.pendingChannels(node);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.pendingChannels, { node });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.pendingChannels, {
+      node,
+    });
   });
 
   it('should call the createInvoice ipc', () => {
     const req = {};
     lndProxyClient.createInvoice(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.createInvoice, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.createInvoice, {
+      node,
+      req,
+    });
   });
 
   it('should call the payInvoice ipc', () => {
     const req = {};
     lndProxyClient.payInvoice(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.payInvoice, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.payInvoice, {
+      node,
+      req,
+    });
   });
 
   it('should call the decodeInvoice ipc', () => {
     const req = { payReq: 'lnbc1invoice' };
     lndProxyClient.decodeInvoice(node, req);
-    expect(lndProxyClient.ipc).toBeCalledWith(ipcChannels.decodeInvoice, { node, req });
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.decodeInvoice, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the setupListener ipc', () => {
+    lndProxyClient.setupListener(node);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.setupListener, { node });
+  });
+
+  it('should call the removeListener ipc', () => {
+    lndProxyClient.removeListener(node);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.removeListener, { node });
+  });
+
+  it('should call the subscribeChannelEvents ipc', () => {
+    const callback = jest.fn();
+    lndProxyClient.subscribeChannelEvents(node, callback);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(
+      ipcChannels.subscribeChannelEvents,
+      { node },
+      callback,
+    );
   });
 });
