@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
 import { Alert, Button, Col, Form, InputNumber, Row, Select, Slider } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CLightningNode, LightningNode, LndNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ActivityInfo, Network, SimulationActivityNode } from 'types';
+import { AddActivityInvalidState } from './default/cards/ActivityDesignerCard';
 
 const Styled = {
   ActivityGen: styled.div`
@@ -89,19 +90,19 @@ interface Props {
   activities: any;
   activityInfo: ActivityInfo;
   network: Network;
+  addActivityInvalidState: AddActivityInvalidState | null;
+  setAddActivityInvalidState: (state: AddActivityInvalidState | null) => void;
   toggle: () => void;
   updater: AvtivityUpdater;
   reset: () => void;
-}
-interface AddActivityInvalidState {
-  state: 'warning' | 'error';
-  message: string;
 }
 
 const ActivityGenerator: React.FC<Props> = ({
   visible,
   network,
   activityInfo,
+  addActivityInvalidState,
+  setAddActivityInvalidState,
   toggle,
   reset,
   updater,
@@ -109,8 +110,6 @@ const ActivityGenerator: React.FC<Props> = ({
   if (!visible) return null;
 
   const editActivityId = activityInfo.id;
-  const [addActivityInvalidState, setAddActivityInvalidState] =
-    useState<AddActivityInvalidState | null>(null);
   const { sourceNode, targetNode, frequency, amount } = activityInfo;
 
   const { l } = usePrefixedTranslation('cmps.designer.ActivityGenerator');
@@ -170,6 +169,7 @@ const ActivityGenerator: React.FC<Props> = ({
       setAddActivityInvalidState({
         state: 'error',
         message: '',
+        action: 'save',
       });
       return;
     }
@@ -290,7 +290,7 @@ const ActivityGenerator: React.FC<Props> = ({
           </Styled.Save>
         </Styled.NodeWrapper>
       </Styled.ActivityForm>
-      {addActivityInvalidState?.state && (
+      {addActivityInvalidState?.state && addActivityInvalidState.action === 'save' && (
         <Alert
           key={addActivityInvalidState.state}
           onClose={() => setAddActivityInvalidState(null)}

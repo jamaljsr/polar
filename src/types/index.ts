@@ -97,6 +97,7 @@ export interface DockerConfig {
   variables: string[];
   dataDir?: string;
   apiDir?: string;
+  env?: Record<string, string>;
 }
 
 export interface DockerRepoImage {
@@ -127,6 +128,8 @@ export interface DockerLibrary {
   saveComposeFile: (network: Network) => Promise<void>;
   start: (network: Network) => Promise<void>;
   stop: (network: Network) => Promise<void>;
+  startSimulationActivity: (network: Network) => Promise<void>;
+  stopSimulationActivity: (network: Network) => Promise<void>;
   startNode: (network: Network, node: CommonNode) => Promise<void>;
   stopNode: (network: Network, node: CommonNode) => Promise<void>;
   removeNode: (network: Network, node: CommonNode) => Promise<void>;

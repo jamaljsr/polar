@@ -1,4 +1,4 @@
-import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
+import { remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
 import { join } from 'path';
 import { push } from 'connected-react-router';
@@ -141,6 +141,20 @@ export interface NetworkModel {
   setStatus: Action<
     NetworkModel,
     { id: number; status: Status; only?: string; all?: boolean; error?: Error }
+  >;
+  startSimulation: Thunk<
+    NetworkModel,
+    { id: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  stopSimulation: Thunk<
+    NetworkModel,
+    { id: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
   >;
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
@@ -741,26 +755,46 @@ const networkModel: NetworkModel = {
       throw e;
     }
   }),
-  stopAll: thunk(async (actions, _, { getState }) => {
-    let networks = getState().networks.filter(
-      n => n.status === Status.Started || n.status === Status.Stopping,
-    );
-    if (networks.length === 0) {
-      ipcRenderer.send('docker-shut-down');
-    }
-    networks.forEach(async network => {
-      await actions.stop(network.id);
-    });
-    setInterval(async () => {
-      networks = getState().networks.filter(
-        n => n.status === Status.Started || n.status === Status.Stopping,
-      );
-      if (networks.length === 0) {
-        await actions.save();
-        ipcRenderer.send('docker-shut-down');
+  startSimulation: thunk(
+    async (actions, { id }, { getState, injections, getStoreActions }) => {
+      const network = getState().networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      try {
+        const nodes = [
+          ...network.nodes.lightning,
+          ...network.nodes.bitcoin,
+          ...network.nodes.tap,
+        ];
+        nodes.forEach(n => {
+          if (n.status !== Status.Started) {
+            throw new Error(l('nodeNotStarted', { name: n.name }));
+          }
+        });
+        await injections.dockerService.saveComposeFile(network);
+        await injections.dockerService.startSimulationActivity(network);
+        info(`Simulation started for network '${network.name}'`);
+        await getStoreActions().app.getDockerImages();
+      } catch (e: any) {
+        info(`unable to start simulation for network '${network.name}'`, e.message);
+        throw e;
       }
-    }, 2000);
-  }),
+    },
+  ),
+  stopSimulation: thunk(
+    async (actions, { id }, { getState, injections, getStoreActions }) => {
+      const network = getState().networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      try {
+        await injections.dockerService.stopSimulationActivity(network);
+        console.log('Simulation stopped');
+        info(`Simulation stopped for network '${network.name}'`);
+        await getStoreActions().app.getDockerImages();
+      } catch (e: any) {
+        info(`unable to stop simulation for network '${network.name}'`, e.message);
+        throw e;
+      }
+    },
+  ),
   toggle: thunk(async (actions, networkId, { getState }) => {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
@@ -966,13 +1000,14 @@ const networkModel: NetworkModel = {
     // Create a shallow copy of the network to update the object reference to cause a rerender on setNetworks
     const network = { ...networks[networkIndex] };
 
-    const nextId = Math.max(0, ...network.simulationActivities.map(n => n.id)) + 1;
+    const activities = network.simulationActivities ?? [];
+    const nextId = Math.max(0, ...activities.map(n => n.id)) + 1;
     const activity = { ...rest, networkId, id: nextId };
 
     const updatedNetworks = [...networks];
     updatedNetworks[networkIndex] = {
       ...network,
-      simulationActivities: [...network.simulationActivities, activity],
+      simulationActivities: [...activities, activity],
     };
 
     actions.setNetworks(updatedNetworks);

@@ -104,6 +104,8 @@
   "cmps.designer.default.cards.ActivityDesignerCard.duplicateBtnTip": "Duplicate",
   "cmps.designer.default.cards.ActivityDesignerCard.start": "Start",
   "cmps.designer.default.cards.ActivityDesignerCard.stop": "Stop",
+  "cmps.designer.default.cards.ActivityDesignerCard.startWarning": "The network and activity nodes must be started to run simulations",
+  "cmps.designer.default.cards.ActivityDesignerCard.NoActivityAddedWarning": "Please add at least one activity to run simulations",
   "cmps.designer.default.cards.NetworkDesignerCard.showVersions": "Show All Versions",
   "cmps.designer.default.cards.NetworkDesignerCard.checkUpdates": "Check for new Node Versions",
   "cmps.designer.default.ImageUpdatesModal.title": "Check for new Node Versions",
