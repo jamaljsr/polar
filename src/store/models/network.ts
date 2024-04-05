@@ -26,6 +26,7 @@ import {
   createNetwork,
   createTapdNetworkNode,
   filterCompatibleBackends,
+  getLndFilePaths,
   getMissingImages,
   getOpenPorts,
   importNetworkFromZip,
@@ -51,6 +52,29 @@ export interface AutoMinerModel {
   startTime: number;
   timer?: NodeJS.Timer;
   mining: boolean;
+}
+
+interface Node {
+  id: number;
+  networkId: number;
+  name: string;
+  type: 'bitcoin' | 'lightning' | 'tap';
+  version: string;
+  status: Status;
+  errorMsg?: string;
+  docker: {
+    image: string;
+    command: string;
+  };
+  implementation: 'LND' | 'c-lightning' | 'eclair';
+  backendName: string;
+  ports: Record<string, number | undefined>;
+  paths: {
+    tlsCert: string;
+    adminMacaroon: string;
+    invoiceMacaroon: string;
+    readonlyMacaroon: string;
+  };
 }
 
 export interface NetworkModel {
@@ -1008,7 +1032,8 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
-      const updatedNode = network?.nodes.lightning.find(n => n.id === node.id);
+
+      const updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as Node;
 
       // rename the node
       if (updatedNode) {
@@ -1019,6 +1044,7 @@ const networkModel: NetworkModel = {
           backendName: updatedNode.backendName,
         });
         updatedNode.name = newName;
+        updatedNode.paths = getLndFilePaths(newName, network);
       }
 
       // rename the docker volume data from disk
@@ -1034,7 +1060,8 @@ const networkModel: NetworkModel = {
       await actions.save();
 
       await injections.dockerService.saveComposeFile(network);
-      getStoreActions().designer.syncChart(network);
+
+      await getStoreActions().designer.syncChart(network);
     },
   ),
   renameBitcoinNode: thunk(
