@@ -1,3 +1,5 @@
+import { throttle } from 'lodash';
+
 /**
  * Returns a promise that will be resolved after the specified timeout
  * @param timeout the amount of ms to wait
@@ -50,23 +52,16 @@ export const waitFor = async (
   });
 };
 
-let timer: NodeJS.Timeout | null = null;
-let immediateCall = true;
-let lastCallTime = 0;
-
-export const debounceFunction = async (func: () => Promise<void>) => {
-  const currentTime = Date.now();
-
-  if (immediateCall || currentTime - lastCallTime >= 30000) {
-    lastCallTime = currentTime;
-    await func();
-    immediateCall = false;
-  } else {
-    const delay = 30000 - (currentTime - lastCallTime);
-    timer && clearTimeout(timer);
-    timer = setTimeout(async () => {
-      await func();
-      immediateCall = true;
-    }, delay);
-  }
+/**
+ * Creates a throttled function that only invokes `func` at most once per every `interval` milliseconds.
+ * @param func The asynchronous function to be throttled.
+ * @param interval The time window (in milliseconds) within which the function can only be called once. Default is 10 seconds.
+ * @returns Throttled version of the provided function.
+ */
+export const throttleFunction = async (
+  func: () => Promise<void>,
+  interval: number = 10 * 1000, // 10 seconds default
+) => {
+  const throttleFunction = throttle(() => func, interval);
+  return throttleFunction;
 };
