@@ -4,10 +4,15 @@ import createLndRpc, * as LND from '@radar/lnrpc';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
-let handleEventCallback: (responseChan: string, message: string) => void;
+/**
+ * callback function responsible for sending messages from ipcMain to ipcRenderer.
+ * @param responseChan The response channel identifier / IPC channel name.
+ * @param message The message to be sent.
+ */
+let handleEventCallback: (responseChan: string, message: any) => void;
 
 export const initLndSubscriptions = (
-  callback: (responseChan: string, message: string) => void,
+  callback: (responseChan: string, message: any) => void,
 ) => {
   handleEventCallback = callback;
 };
@@ -125,38 +130,14 @@ const decodeInvoice = async (args: {
   return await rpc.decodePayReq(args.req);
 };
 
-let lndRpc: LND.LnRpc | null = null;
-
-const setupLndRpcForListener = async (args: { node: LndNode }): Promise<any> => {
-  try {
-    lndRpc = await getRpc(args.node);
-    return {};
-  } catch (err) {
-    return { err };
-  }
-};
-
-const removeListener = async (): Promise<any> => {
-  try {
-    lndRpc = null;
-    return {};
-  } catch (err) {
-    return { err };
-  }
-};
-
 const subscribeChannelEvents = async (args: { node: LndNode }): Promise<any> => {
   try {
-    if (lndRpc == null) {
-      await setupLndRpcForListener({ node: args.node });
-    }
-
+    const rpc = await getRpc(args.node);
     const responseChan = `lnd-${ipcChannels.subscribeChannelEvents}-response-${args.node.ports.rest}`;
-    const stream = lndRpc?.subscribeChannelEvents();
+    const stream = rpc.subscribeChannelEvents();
     if (stream) {
       stream.on('data', (data: LND.ChannelEventUpdate) => {
-        const dataAsString = JSON.stringify(data);
-        handleEventCallback(responseChan, dataAsString);
+        handleEventCallback(responseChan, data);
       });
     }
     return {};
@@ -184,8 +165,6 @@ const listeners: {
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,
-  [ipcChannels.setupListener]: setupLndRpcForListener,
-  [ipcChannels.removeListener]: removeListener,
   [ipcChannels.subscribeChannelEvents]: subscribeChannelEvents,
 };
 

@@ -113,7 +113,7 @@ class WindowManager {
     }
   }
 
-  sendMessageToRenderer = (responseChan: string, message: string) => {
+  sendMessageToRenderer = (responseChan: string, message: any) => {
     if (this.mainWindow && this.mainWindow.webContents) {
       this.mainWindow.webContents.send(responseChan, message);
     } else {
