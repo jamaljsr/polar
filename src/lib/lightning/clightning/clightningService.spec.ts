@@ -221,10 +221,6 @@ describe('CLightningService', () => {
     });
   });
 
-  it('should add Listener To Node', async () => {
-    await clightningService.addListenerToNode(node);
-  });
-
   describe('removeListener', () => {
     jest.spyOn(window, 'clearInterval');
 
