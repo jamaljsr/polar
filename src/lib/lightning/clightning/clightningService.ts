@@ -1,5 +1,5 @@
 import { debug } from 'electron-log';
-import { LightningNode, OpenChannelOptions } from 'shared/types';
+import { CLightningNode, LightningNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
@@ -200,13 +200,22 @@ class CLightningService implements LightningService {
   }
 
   async addListenerToNode(node: LightningNode): Promise<void> {
-    console.log(`addListenerToNode ${node.implementation}`);
+    console.log('addListenerToNode CLN on port: ', node.ports.rest);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private channelCaches: {
+    [nodePort: number]: {
+      intervalId: NodeJS.Timeout;
+      channels: { pending: boolean; status: string }[];
+    };
+  } = {};
+
   async removeListener(node: LightningNode): Promise<void> {
-    if (this.channelsInterval !== null) {
-      clearInterval(this.channelsInterval);
+    const nodePort = this.getNodePort(node);
+    const cache = this.channelCaches[nodePort];
+    if (cache) {
+      clearInterval(cache.intervalId);
+      delete this.channelCaches[nodePort];
     }
   }
 
@@ -214,17 +223,44 @@ class CLightningService implements LightningService {
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
-    // check c-lightning channels every 30 seconds
-    this.channelsInterval = setInterval(() => {
-      this.checkChannels(node, callback);
-    }, 3 * 10000);
+    const nodePort = this.getNodePort(node);
+    if (!this.channelCaches[nodePort]) {
+      // check c-lightning channels every 30 seconds
+      this.channelCaches[nodePort] = {
+        intervalId: setInterval(() => {
+          this.checkChannels(node, callback);
+        }, 30 * 1000),
+        channels: [],
+      };
+    }
   }
 
   checkChannels = async (
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ) => {
-    const channels = await this.getChannels(node);
+    const result = await httpGet<CLN.GetChannelsResponse[]>(node, 'channel/listChannels');
+    const channels = result.map(c => {
+      const status = ChannelStateToStatus[c.state];
+      return { pending: status !== 'Open', status };
+    });
+
+    const cache = this.channelCaches[this.getNodePort(node)];
+
+    if (!this.areChannelsEqual(cache.channels, channels)) {
+      this.handleUpdatedChannels(channels, callback);
+      cache.channels = channels;
+      // edge case for empty channels but cache channels is not empty
+      if (!channels.length) {
+        callback({ type: 'Closed' });
+      }
+    }
+  };
+
+  private handleUpdatedChannels = (
+    channels: { pending: boolean; status: string }[],
+    callback: (event: PLN.LightningNodeChannelEvent) => void,
+  ) => {
     channels.forEach(channel => {
       if (channel.pending) {
         callback({ type: 'Pending' });
@@ -238,6 +274,24 @@ class CLightningService implements LightningService {
 
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
+  }
+
+  private areChannelsEqual(
+    channels1: { pending: boolean; status: string }[],
+    channels2: { pending: boolean; status: string }[],
+  ): boolean {
+    return (
+      channels1.length === channels2.length &&
+      JSON.stringify(channels1) === JSON.stringify(channels2)
+    );
+  }
+
+  private getNodePort(node: LightningNode): number {
+    if (node.implementation !== 'c-lightning')
+      throw new Error(
+        `ClightningService cannot be used for '${node.implementation}' nodes`,
+      );
+    return (node as CLightningNode).ports.rest;
   }
 }
 
