@@ -1,10 +1,9 @@
-import EclairTs from 'eclair-ts';
-import { Options } from 'eclair-ts/src/types/config';
-import { EclairWebSocket } from 'eclair-ts/dist/types/network';
+import WebSocket from 'ws';
 import { ipcChannels } from 'shared';
 import { EclairNode, LightningNode } from 'shared/types';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { eclairCredentials } from 'utils/constants';
+import * as ELN from './types';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -44,7 +43,7 @@ export const httpPost = async <T>(
   return request<T>(node, 'POST', path, body);
 };
 
-const setupConfig = (eclairNode: EclairNode): Options => {
+const setupConfig = (eclairNode: EclairNode): ELN.ConfigOptions => {
   const base64auth = Buffer.from(`:${eclairCredentials.pass}`).toString('base64');
   const config = {
     url: `127.0.0.1:${eclairNode.ports.rest}`,
@@ -55,9 +54,41 @@ const setupConfig = (eclairNode: EclairNode): Options => {
   return config;
 };
 
-export const setupListener = (eclairNode: EclairNode): EclairWebSocket => {
+const listenerCache: {
+  [key: number]: ELN.EclairWebSocket;
+} = {};
+
+export const getListener = (node: LightningNode): ELN.EclairWebSocket => {
+  const nodePort = getNodePort(node);
+  return listenerCache[nodePort];
+};
+
+export const setupListener = (eclairNode: EclairNode): ELN.EclairWebSocket => {
+  const nodePort = getNodePort(eclairNode);
   const eclairConfig = setupConfig(eclairNode);
-  const eclairTs = new EclairTs(eclairConfig);
-  const listener = eclairTs.listen();
-  return listener;
+  listenerCache[nodePort] = listen(eclairConfig);
+  return listenerCache[nodePort];
+};
+
+const listen = (options: ELN.ConfigOptions): ELN.EclairWebSocket => {
+  const { url, headers } = options;
+  const urlWithoutProtocol = stripProtocol(url);
+  const socket = new WebSocket(`ws://${urlWithoutProtocol}/ws`, {
+    headers,
+  });
+  // ping every 50s to keep it alive
+  setInterval(() => {
+    if (socket) {
+      socket.ping();
+    }
+  }, 50e3);
+  return socket;
+};
+
+const stripProtocol = (url: string): string => {
+  return url.replace('https://', '').replace('http://', '');
+};
+
+const getNodePort = (node: LightningNode): number => {
+  return (node as EclairNode).ports.rest;
 };

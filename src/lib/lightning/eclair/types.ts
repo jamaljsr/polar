@@ -1,3 +1,5 @@
+import WebSocket from 'ws';
+
 export interface GetInfoResponse {
   version: string;
   nodeId: string;
@@ -202,4 +204,20 @@ export interface GetSentInfoResponse {
     ];
     completedAt: number;
   };
+}
+
+export interface ConfigOptions {
+  // e.g. '127.0.0.1:8080'
+  url: string;
+  headers: {
+    // E.g. 'Basic OmVjbGFpcnB3'
+    Authorization: string;
+  };
+}
+
+export interface EclairWebSocket extends WebSocket {
+  on(
+    event: string | symbol,
+    listener: (this: EclairWebSocket, ...args: any[]) => void,
+  ): this;
 }
