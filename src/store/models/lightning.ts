@@ -2,7 +2,7 @@ import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { LightningNode, Status } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
-import { delay, debounceFunction } from 'utils/async';
+import { delay, throttleFunction } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
@@ -295,10 +295,9 @@ const lightningModel: LightningModel = {
   ),
   addListeners: thunk(async (actions, network, { injections, getStoreState }) => {
     const { nodes } = getStoreState().network.networkById(network.id);
-    nodes.lightning.forEach(
-      async node =>
-        await injections.lightningFactory.getService(node).addListenerToNode(node),
-    );
+    for (const node of nodes.lightning) {
+      await injections.lightningFactory.getService(node).addListenerToNode(node);
+    }
     // subscribe to channel events
     actions.addChannelListeners(network);
     // TODO: subscribe to channel payment/balances
@@ -321,26 +320,14 @@ const lightningModel: LightningModel = {
               .subscribeChannelEvents(
                 node,
                 async (event: PLN.LightningNodeChannelEvent) => {
-                  if (event.type === 'Pending') {
-                    await actions.getAllInfo(node);
-                    // debounceFunction makes sure multiple syncChart calls is done with a 30 seconds interval
-                    await debounceFunction(() =>
-                      getStoreActions().designer.syncChart(network),
-                    );
-                  }
-                  if (event.type === 'Open' || event.type === 'Closed') {
+                  if (
+                    event.type === 'Pending' ||
+                    event.type === 'Open' ||
+                    event.type === 'Closed'
+                  ) {
                     const network = getStoreState().network.networkById(node.networkId);
-                    const btcNode =
-                      network.nodes.bitcoin.find(n => n.name === node.backendName) ||
-                      network.nodes.bitcoin[0];
-                    await getStoreActions().bitcoind.mine({
-                      blocks: BLOCKS_TIL_CONFIRMED,
-                      node: btcNode,
-                    });
-                    await actions.waitForNodes([node]);
-                    await debounceFunction(() =>
-                      getStoreActions().designer.syncChart(network),
-                    );
+                    // throttleFunction makes sure multiple syncChart calls is done with a 10 seconds interval
+                    throttleFunction(getStoreActions().designer.syncChart(network));
                   }
                 },
               );
@@ -351,24 +338,14 @@ const lightningModel: LightningModel = {
               .subscribeChannelEvents(
                 node,
                 async (event: PLN.LightningNodeChannelEvent) => {
-                  if (event.type === 'Pending') {
+                  if (
+                    event.type === 'Pending' ||
+                    event.type === 'Open' ||
+                    event.type === 'Closed'
+                  ) {
+                    await actions.getAllInfo(node);
                     const network = getStoreState().network.networkById(node.networkId);
-                    const btcNode =
-                      network.nodes.bitcoin.find(n => n.name === node.backendName) ||
-                      network.nodes.bitcoin[0];
-                    await getStoreActions().bitcoind.mine({
-                      blocks: BLOCKS_TIL_CONFIRMED,
-                      node: btcNode,
-                    });
-                    await actions.waitForNodes([node]);
-                    await debounceFunction(() =>
-                      getStoreActions().designer.syncChart(network),
-                    );
-                  }
-                  if (event.type === 'Open' || event.type === 'Closed') {
-                    await debounceFunction(() =>
-                      getStoreActions().designer.syncChart(network),
-                    );
+                    throttleFunction(getStoreActions().designer.syncChart(network));
                   }
                 },
               );
@@ -380,13 +357,12 @@ const lightningModel: LightningModel = {
                 node,
                 async (event: PLN.LightningNodeChannelEvent) => {
                   if (
-                    event.type === 'Open' ||
                     event.type === 'Pending' ||
+                    event.type === 'Open' ||
                     event.type === 'Closed'
                   ) {
-                    await debounceFunction(() =>
-                      getStoreActions().designer.syncChart(network),
-                    );
+                    const network = getStoreState().network.networkById(node.networkId);
+                    throttleFunction(getStoreActions().designer.syncChart(network));
                   }
                 },
               );
