@@ -5,10 +5,8 @@ import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { toSats } from 'utils/units';
 import * as PLN from '../types';
-import { httpPost, setupListener } from './eclairApi';
+import { httpPost, setupListener, getListener } from './eclairApi';
 import * as ELN from './types';
-import * as ELNT from 'eclair-ts/src/types/core';
-import { EclairWebSocket } from 'eclair-ts/dist/types/network';
 
 const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['status']> =
   {
@@ -33,8 +31,6 @@ const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['s
   };
 
 class EclairService implements LightningService {
-  listener: EclairWebSocket | null = null;
-
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpPost<ELN.GetInfoResponse>(node, 'getinfo');
     return {
@@ -255,24 +251,21 @@ class EclairService implements LightningService {
   }
 
   async addListenerToNode(node: LightningNode): Promise<void> {
-    this.listener = setupListener(this.cast(node));
+    setupListener(this.cast(node));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async removeListener(node: LightningNode): Promise<void> {
-    this.listener?.close();
-    this.listener = null;
+    const listener = getListener(node);
+    listener?.close();
   }
 
   async subscribeChannelEvents(
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
-    if (this.listener == null) {
-      this.listener = setupListener(this.cast(node));
-    }
+    const listener = getListener(node);
     // listen for incoming channel messages
-    this.listener.on('message', async (data: ELNT.WebSocketEventData) => {
+    listener?.on('message', async (data: any) => {
       const response = JSON.parse(data.toString());
       switch (response.type) {
         case 'channel-created':
