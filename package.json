@@ -57,7 +57,7 @@
     "fs-extra": "11.1.0",
     "semver": "7.6.0",
     "shell-env": "3.0.1",
-    "unzipper": "0.10.14",
+    "unzipper": "0.11.3",
     "xterm": "5.3.0",
     "xterm-addon-fit": "0.8.0"
   },
@@ -151,7 +151,7 @@
     "testcafe-browser-provider-electron": "0.0.21",
     "testcafe-react-selectors": "5.0.3",
     "ts-node": "10.9.2",
-    "typescript": "5.4.5",
+    "typescript": "5.4.4",
     "utf-8-validate": "6.0.3",
     "wait-on": "7.2.0",
     "webpack": "4.44.2",
