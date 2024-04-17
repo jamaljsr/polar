@@ -187,21 +187,27 @@ class LndService implements LightningService {
   }
 
   async addListenerToNode(node: LightningNode): Promise<void> {
-    console.log('addListenerToNode LndNode on port: ', node.ports.rest);
+    debug('addListenerToNode LndNode on port: ', node.ports.rest);
   }
 
   async subscribeChannelEvents(
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
-    const cb = (data: any) => {
-      callback(this.parseData(data));
+    const cb = (data: LND.ChannelEventUpdate) => {
+      if (data.pendingOpenChannel) {
+        callback({ type: 'Pending' });
+      } else if (data.activeChannel?.fundingTxidBytes) {
+        callback({ type: 'Open' });
+      } else if (data.inactiveChannel?.fundingTxidBytes || data.closedChannel) {
+        callback({ type: 'Closed' });
+      }
     };
     await proxy.subscribeChannelEvents(this.cast(node), cb);
   }
 
   async removeListener(node: LightningNode): Promise<void> {
-    console.log('removeListener LndNode on port: ', node.ports);
+    debug('removeListener LndNode on port: ', node.ports);
   }
 
   private cast(node: LightningNode): LndNode {
@@ -210,19 +216,6 @@ class LndService implements LightningService {
 
     return node as LndNode;
   }
-
-  private parseData = (data: LND.ChannelEventUpdate): PLN.LightningNodeChannelEvent => {
-    if (data?.pendingOpenChannel) {
-      return { type: 'Pending' };
-    }
-    if (data?.activeChannel?.fundingTxidBytes) {
-      return { type: 'Open' };
-    }
-    if (data?.inactiveChannel?.fundingTxidBytes || data?.closedChannel) {
-      return { type: 'Closed' };
-    }
-    return { type: 'Unknown' };
-  };
 }
 
 export default new LndService();

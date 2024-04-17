@@ -66,7 +66,7 @@ class LndProxyClient {
 
   async subscribeChannelEvents(
     node: LndNode,
-    callback: (event: any) => void,
+    callback: (event: LND.ChannelEventUpdate) => void,
   ): Promise<any> {
     return await this.ipc(ipcChannels.subscribeChannelEvents, { node }, callback);
   }
