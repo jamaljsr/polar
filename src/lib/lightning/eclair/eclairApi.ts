@@ -58,9 +58,19 @@ const listenerCache: {
   [key: number]: ELN.EclairWebSocket;
 } = {};
 
-export const getListener = (node: LightningNode): ELN.EclairWebSocket => {
-  const nodePort = getNodePort(node);
+export const getListener = (eclairNode: EclairNode): ELN.EclairWebSocket => {
+  const nodePort = getNodePort(eclairNode);
+  if (!listenerCache[nodePort]) {
+    listenerCache[nodePort] = setupListener(eclairNode);
+  }
   return listenerCache[nodePort];
+};
+
+export const removeListener = (node: LightningNode): void => {
+  const nodePort = getNodePort(node);
+  if (listenerCache[nodePort]) {
+    delete listenerCache[nodePort];
+  }
 };
 
 export const setupListener = (eclairNode: EclairNode): ELN.EclairWebSocket => {

@@ -5,7 +5,7 @@ import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { toSats } from 'utils/units';
 import * as PLN from '../types';
-import { httpPost, setupListener, getListener } from './eclairApi';
+import { httpPost, setupListener, getListener, removeListener } from './eclairApi';
 import * as ELN from './types';
 
 const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['status']> =
@@ -255,15 +255,14 @@ class EclairService implements LightningService {
   }
 
   async removeListener(node: LightningNode): Promise<void> {
-    const listener = getListener(node);
-    listener?.close();
+    removeListener(node);
   }
 
   async subscribeChannelEvents(
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
-    const listener = getListener(node);
+    const listener = getListener(this.cast(node));
     // listen for incoming channel messages
     listener?.on('message', async (data: any) => {
       const response = JSON.parse(data.toString());
