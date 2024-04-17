@@ -313,61 +313,20 @@ const lightningModel: LightningModel = {
     async (actions, network, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(network.id);
       for (const node of nodes.lightning) {
-        switch (node.implementation) {
-          case 'LND':
-            await injections.lightningFactory
-              .getService(node)
-              .subscribeChannelEvents(
-                node,
-                async (event: PLN.LightningNodeChannelEvent) => {
-                  if (
-                    event.type === 'Pending' ||
-                    event.type === 'Open' ||
-                    event.type === 'Closed'
-                  ) {
-                    const network = getStoreState().network.networkById(node.networkId);
-                    // throttleFunction makes sure multiple syncChart calls is done with a 10 seconds interval
-                    throttleFunction(getStoreActions().designer.syncChart(network));
-                  }
-                },
-              );
-            break;
-          case 'eclair':
-            await injections.lightningFactory
-              .getService(node)
-              .subscribeChannelEvents(
-                node,
-                async (event: PLN.LightningNodeChannelEvent) => {
-                  if (
-                    event.type === 'Pending' ||
-                    event.type === 'Open' ||
-                    event.type === 'Closed'
-                  ) {
-                    await actions.getAllInfo(node);
-                    const network = getStoreState().network.networkById(node.networkId);
-                    throttleFunction(getStoreActions().designer.syncChart(network));
-                  }
-                },
-              );
-            break;
-          case 'c-lightning':
-            await injections.lightningFactory
-              .getService(node)
-              .subscribeChannelEvents(
-                node,
-                async (event: PLN.LightningNodeChannelEvent) => {
-                  if (
-                    event.type === 'Pending' ||
-                    event.type === 'Open' ||
-                    event.type === 'Closed'
-                  ) {
-                    const network = getStoreState().network.networkById(node.networkId);
-                    throttleFunction(getStoreActions().designer.syncChart(network));
-                  }
-                },
-              );
-            break;
-        }
+        await injections.lightningFactory
+          .getService(node)
+          .subscribeChannelEvents(node, async (event: PLN.LightningNodeChannelEvent) => {
+            if (
+              event.type === 'Pending' ||
+              event.type === 'Open' ||
+              event.type === 'Closed'
+            ) {
+              await actions.getAllInfo(node);
+              const network = getStoreState().network.networkById(node.networkId);
+              // throttleFunction makes sure multiple syncChart calls is done with a 10 seconds interval
+              throttleFunction(getStoreActions().designer.syncChart(network));
+            }
+          });
       }
     },
   ),
