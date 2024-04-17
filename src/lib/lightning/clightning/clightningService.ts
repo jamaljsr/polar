@@ -20,8 +20,6 @@ const ChannelStateToStatus: Record<CLN.ChannelState, PLN.LightningNodeChannel['s
   };
 
 class CLightningService implements LightningService {
-  channelsInterval: NodeJS.Timeout | null = null;
-
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpGet<CLN.GetInfoResponse>(node, 'getinfo');
     return {
@@ -198,15 +196,15 @@ class CLightningService implements LightningService {
       timeout,
     );
   }
-
+  // this method doesn't have any implementation because Polling is used for CLN nodes
   async addListenerToNode(node: LightningNode): Promise<void> {
-    console.log('addListenerToNode CLN on port: ', node.ports.rest);
+    debug('addListenerToNode CLN on port: ', node.ports.rest);
   }
 
-  private channelCaches: {
+  channelCaches: {
     [nodePort: number]: {
       intervalId: NodeJS.Timeout;
-      channels: { pending: boolean; status: string }[];
+      channels: CLN.ChannelPoll[];
     };
   } = {};
 
@@ -239,29 +237,22 @@ class CLightningService implements LightningService {
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ) => {
-    const result = await httpGet<CLN.GetChannelsResponse[]>(node, 'channel/listChannels');
-    const channels = result.map(c => {
-      const status = ChannelStateToStatus[c.state];
-      return { pending: status !== 'Open', status };
+    const response = await httpGet<CLN.GetChannelsResponse[]>(
+      node,
+      'channel/listChannels',
+    );
+    const apiChannels = response.map(channel => {
+      const status = ChannelStateToStatus[channel.state];
+      return {
+        channelID: channel.channelId,
+        pending: status !== 'Open' && status !== 'Closed',
+        status,
+      };
     });
 
     const cache = this.channelCaches[this.getNodePort(node)];
-
-    if (!this.areChannelsEqual(cache.channels, channels)) {
-      this.handleUpdatedChannels(channels, callback);
-      cache.channels = channels;
-      // edge case for empty channels but cache channels is not empty
-      if (!channels.length) {
-        callback({ type: 'Closed' });
-      }
-    }
-  };
-
-  private handleUpdatedChannels = (
-    channels: { pending: boolean; status: string }[],
-    callback: (event: PLN.LightningNodeChannelEvent) => void,
-  ) => {
-    channels.forEach(channel => {
+    const uniqueChannels = this.getUniqueChannels(cache.channels, apiChannels);
+    uniqueChannels.forEach(channel => {
       if (channel.pending) {
         callback({ type: 'Pending' });
       } else if (channel.status === 'Open') {
@@ -270,20 +261,38 @@ class CLightningService implements LightningService {
         callback({ type: 'Closed' });
       }
     });
+    // edge case for empty apiChannels but cache channels is not empty
+    if (cache.channels.length && !apiChannels.length) {
+      callback({ type: 'Closed' });
+    }
+
+    cache.channels = apiChannels;
+  };
+
+  getUniqueChannels = (
+    cacheChannels: CLN.ChannelPoll[],
+    apiChannels: CLN.ChannelPoll[],
+  ): CLN.ChannelPoll[] => {
+    const uniqueChannels: CLN.ChannelPoll[] = [];
+    // Check channels in apiChannels that are not in cacheChannels
+    for (const channel of apiChannels) {
+      if (
+        !cacheChannels.some(
+          cacheCh =>
+            cacheCh.channelID === channel.channelID &&
+            cacheCh.pending === channel.pending &&
+            cacheCh.status === channel.status,
+        )
+      ) {
+        uniqueChannels.push(channel);
+      }
+    }
+
+    return uniqueChannels;
   };
 
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
-  }
-
-  private areChannelsEqual(
-    channels1: { pending: boolean; status: string }[],
-    channels2: { pending: boolean; status: string }[],
-  ): boolean {
-    return (
-      channels1.length === channels2.length &&
-      JSON.stringify(channels1) === JSON.stringify(channels2)
-    );
   }
 
   private getNodePort(node: LightningNode): number {

@@ -132,3 +132,9 @@ export interface PayResponse {
   paymentPreimage: string;
   bolt11: string;
 }
+
+export interface ChannelPoll {
+  channelID: string;
+  pending: boolean;
+  status: string;
+}
