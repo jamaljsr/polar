@@ -1,8 +1,9 @@
 import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
+import { throttle } from 'lodash';
 import { LightningNode, Status } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { Network, StoreInjections } from 'types';
-import { delay, throttleFunction } from 'utils/async';
+import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
@@ -324,7 +325,10 @@ const lightningModel: LightningModel = {
               await actions.getAllInfo(node);
               const network = getStoreState().network.networkById(node.networkId);
               // throttleFunction makes sure multiple syncChart calls is done with a 10 seconds interval
-              throttleFunction(getStoreActions().designer.syncChart(network));
+              const throttleFunction = throttle(() => {
+                getStoreActions().designer.syncChart(network);
+              }, 10 * 1000);
+              throttleFunction();
             }
           });
       }

@@ -1,5 +1,3 @@
-import { throttle } from 'lodash';
-
 /**
  * Returns a promise that will be resolved after the specified timeout
  * @param timeout the amount of ms to wait
@@ -50,18 +48,4 @@ export const waitFor = async (
       timesToCheck -= 1;
     }, interval);
   });
-};
-
-/**
- * Creates a throttled function that only invokes `func` at most once per every `interval` milliseconds.
- * @param func The asynchronous function to be throttled.
- * @param interval The time window (in milliseconds) within which the function can only be called once. Default is 10 seconds.
- * @returns Throttled version of the provided function.
- */
-export const throttleFunction = async (
-  func: () => Promise<void>,
-  interval: number = 10 * 1000, // 10 seconds default
-) => {
-  const throttleFunction = throttle(() => func, interval);
-  return throttleFunction;
 };
