@@ -5,7 +5,6 @@ import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests'
 import { eclairService } from './';
 import * as eclairApi from './eclairApi';
 import * as ELN from './types';
-import { EclairWebSocket } from 'eclair-ts/dist/types/network';
 
 jest.mock('./eclairApi');
 jest.mock('lib/bitcoin/bitcoindService');
@@ -444,40 +443,14 @@ describe('EclairService', () => {
     });
   });
 
-  it('should add listener to node', async () => {
-    const mockListener = jest.fn() as unknown as EclairWebSocket;
-    (eclairApi.setupListener as jest.Mock).mockReturnValue(mockListener);
-
-    // Expect this.listener to be null before call
-    expect(eclairService.listener).toBeNull();
-
-    await eclairService.addListenerToNode(node);
-
-    // Expect this.listener not to be null after
-    expect(eclairService.listener).not.toBeNull();
-    expect(eclairApiMock.setupListener).toHaveBeenCalledWith(node);
-    expect(eclairApiMock.setupListener).toHaveBeenCalledTimes(1);
-  });
-
-  it('should remove Listener', async () => {
-    const mockListener = {
-      close: jest.fn(),
-    } as unknown as EclairWebSocket;
-
-    eclairService.listener = mockListener;
-
-    await eclairService.removeListener(node); // remove listener
-    expect(eclairService.listener).toBeNull(); // expect to be null
-  });
-
   it('should subscribe to channel events', async () => {
     const mockListener = {
       on: jest.fn(),
-    } as unknown as EclairWebSocket;
+    } as unknown as ELN.EclairWebSocket;
 
     const callback = jest.fn();
 
-    (eclairApi.setupListener as jest.Mock).mockReturnValue(mockListener);
+    (eclairApi.getListener as jest.Mock).mockReturnValue(mockListener);
 
     await eclairService.subscribeChannelEvents(node, callback);
 
@@ -510,6 +483,6 @@ describe('EclairService', () => {
         expect(callback).toHaveBeenCalledWith({ type: 'Unknown' });
       }
     }
-    expect(eclairApi.setupListener).toHaveBeenCalledWith(node);
+    expect(eclairApi.getListener).toHaveBeenCalledWith(node);
   });
 });
