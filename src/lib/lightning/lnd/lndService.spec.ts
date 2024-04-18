@@ -191,25 +191,29 @@ describe('LndService', () => {
     });
   });
 
-  it('should add listener to node', async () => {
-    lndProxyClient.setupListener = jest.fn();
-    await lndService.addListenerToNode(node);
-    expect(lndProxyClient.setupListener).toHaveBeenCalledWith(node);
-    expect(lndProxyClient.setupListener).toHaveBeenCalledTimes(1);
-  });
-
-  it('should remove Listener from node', async () => {
-    lndProxyClient.removeListener = jest.fn();
-    await lndService.removeListener(node);
-    expect(lndProxyClient.removeListener).toHaveBeenCalledWith(node);
-    expect(lndProxyClient.removeListener).toHaveBeenCalledTimes(1);
-  });
-
   it('should subscribe Channel Events', async () => {
-    const callback = jest.fn();
-    lndProxyClient.subscribeChannelEvents = jest.fn();
-    await lndService.subscribeChannelEvents(node, callback);
-    expect(lndProxyClient.subscribeChannelEvents).toHaveBeenCalledWith(node, callback);
-    expect(lndProxyClient.subscribeChannelEvents).toHaveBeenCalledTimes(1);
+    const mockCallback = jest.fn();
+    const pendingChannelEvent = { pendingOpenChannel: { txid: 'txid' } };
+    const openChannelEvent = { activeChannel: { fundingTxidBytes: 'txid' } };
+    const inActiveChannelEvent = { inactiveChannel: { fundingTxidBytes: 'txid' } };
+    const closedChannelEvent = { closedChannel: { closingTxHash: 'txhash' } };
+
+    lndProxyClient.subscribeChannelEvents = jest.fn().mockImplementation((_, cb) => {
+      cb(pendingChannelEvent);
+      cb(openChannelEvent);
+      cb(inActiveChannelEvent);
+      cb(closedChannelEvent);
+    });
+
+    await lndService.subscribeChannelEvents(node, mockCallback);
+
+    expect(lndProxyClient.subscribeChannelEvents).toHaveBeenCalledWith(
+      node,
+      expect.any(Function),
+    );
+
+    expect(mockCallback).toHaveBeenCalledWith({ type: 'Pending' });
+    expect(mockCallback).toHaveBeenCalledWith({ type: 'Open' });
+    expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
   });
 });

@@ -2,11 +2,8 @@ import { EclairNode } from 'shared/types';
 import * as ipc from 'lib/ipc/ipcService';
 import { getNetwork } from 'utils/tests';
 import { httpPost, setupListener } from './eclairApi';
-import { EclairWebSocket } from 'eclair-ts/dist/types/network';
-import EclairTs from 'eclair-ts';
 
 jest.mock('lib/ipc/ipcService');
-jest.mock('eclair-ts');
 
 const ipcMock = ipc as jest.Mocked<typeof ipc>;
 
@@ -50,13 +47,8 @@ describe('EclairApi', () => {
   });
 
   it('should setup a listener for the provided EclairNode', () => {
-    const mockListener = jest.fn() as unknown as EclairWebSocket;
-    // Mock the EclairTs constructor to return a mock instance
-    const EclairTsMock = jest.fn().mockImplementation(() => ({
-      listen: jest.fn().mockReturnValue(mockListener),
-    }));
-    (EclairTs as unknown as jest.Mock).mockImplementation(EclairTsMock);
     const listener = setupListener(node);
-    expect(listener).toBe(mockListener);
+    expect(listener).not.toBe(null);
+    expect(listener.on).not.toBe(null);
   });
 });

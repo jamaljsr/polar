@@ -118,23 +118,13 @@ describe('LndService', () => {
     });
   });
 
-  it('should call the setupListener ipc', () => {
-    lndProxyClient.setupListener(node);
-    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.setupListener, { node });
-  });
-
-  it('should call the removeListener ipc', () => {
-    lndProxyClient.removeListener(node);
-    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.removeListener, { node });
-  });
-
   it('should call the subscribeChannelEvents ipc', () => {
-    const callback = jest.fn();
-    lndProxyClient.subscribeChannelEvents(node, callback);
+    const mockCallback = jest.fn();
+    lndProxyClient.subscribeChannelEvents(node, mockCallback);
     expect(lndProxyClient.ipc).toHaveBeenCalledWith(
       ipcChannels.subscribeChannelEvents,
       { node },
-      callback,
+      mockCallback,
     );
   });
 });

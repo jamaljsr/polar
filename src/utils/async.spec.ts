@@ -1,4 +1,4 @@
-import { delay, waitFor, debounceFunction } from './async';
+import { delay, waitFor } from './async';
 import { mockProperty } from './tests';
 
 describe('Async Util', () => {
@@ -49,49 +49,6 @@ describe('Async Util', () => {
       await expect(promise).resolves.toBe(true);
       // confirm the spy was called
       expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  describe('debounceFunction', () => {
-    let mockFunc: jest.Mock;
-
-    beforeEach(() => {
-      mockFunc = jest.fn();
-    });
-
-    it('should execute function immediately on first call', async () => {
-      jest.useFakeTimers();
-      jest.spyOn(window, 'setTimeout');
-      jest.spyOn(window, 'clearTimeout');
-
-      await debounceFunction(mockFunc);
-      // Ensure function is only called once immediately
-      expect(mockFunc).toHaveBeenCalledTimes(1); // First call
-
-      await debounceFunction(mockFunc); // Second call
-      await debounceFunction(mockFunc); // Third call
-
-      // Ensure setTimeout has been called twice
-      expect(setTimeout).toHaveBeenCalledTimes(2);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
-
-      // Fast-forward time by 30 seconds
-      jest.advanceTimersByTime(30000);
-
-      // Ensure function is called again after debounce time
-      expect(mockFunc).toHaveBeenCalledTimes(2);
-    });
-
-    it('should execute function immediately after 30 seconds', async () => {
-      await debounceFunction(mockFunc); // First call
-      expect(mockFunc).toHaveBeenCalledTimes(1);
-
-      // Mock current time to be 30 seconds after first call
-      const mockedCurrentTime = new Date(Date.now() + 30000);
-      window.Date.now = jest.fn(() => mockedCurrentTime.getTime());
-
-      await debounceFunction(mockFunc); // Second call
-      expect(mockFunc).toHaveBeenCalledTimes(2);
     });
   });
 });
