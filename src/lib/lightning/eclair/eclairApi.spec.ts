@@ -3,6 +3,7 @@ import * as ipc from 'lib/ipc/ipcService';
 import { getNetwork } from 'utils/tests';
 import { httpPost, setupListener } from './eclairApi';
 
+jest.mock('ws');
 jest.mock('lib/ipc/ipcService');
 
 const ipcMock = ipc as jest.Mocked<typeof ipc>;
@@ -47,6 +48,10 @@ describe('EclairApi', () => {
   });
 
   it('should setup a listener for the provided EclairNode', () => {
+    const mockELN = { EclairWebSocket: jest.fn() };
+    const webSocketMock = new mockELN.EclairWebSocket();
+    jest.spyOn(window, 'WebSocket').mockReturnValue(webSocketMock);
+
     const listener = setupListener(node);
     expect(listener).not.toBe(null);
     expect(listener.on).not.toBe(null);
