@@ -681,9 +681,9 @@ const networkModel: NetworkModel = {
     if (networks.length === 0) {
       ipcRenderer.send('docker-shut-down');
     }
-    for (const network of networks) {
+    networks.forEach(async network => {
       await actions.stop(network.id);
-    }
+    });
     setInterval(async () => {
       networks = getState().networks.filter(
         n => n.status === Status.Started || n.status === Status.Stopping,
