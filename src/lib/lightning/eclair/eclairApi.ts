@@ -16,15 +16,14 @@ const request = async <T>(
   if (node.implementation !== 'eclair')
     throw new Error(`EclairService cannot be used for '${node.implementation}' nodes`);
 
-  // there is no username for Ecalir API so left of the colon is blank
-  const base64auth = Buffer.from(`:${eclairCredentials.pass}`).toString('base64');
+  const config = setupConfig(node as EclairNode);
   const args = {
-    url: `http://127.0.0.1:${node.ports.rest}/${path}`,
+    url: `http://${config.url}/${path}`,
     method,
     body,
     headers: {
+      ...config.headers,
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${base64auth}`,
     },
   };
   const ipc = createIpcSender('EclairApi', 'app');
