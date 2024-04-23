@@ -55,6 +55,14 @@ describe('App model', () => {
         btcd: 0,
         tapd: 0,
       },
+      basePorts: {
+        LND: 8081,
+        bitcoind: 18443,
+        'c-lightning': 9735,
+        btcd: null,
+        eclair: null,
+        tapd: null,
+      },
     });
     mockRepoService.load.mockResolvedValue({
       ...defaultRepoState,
@@ -137,6 +145,14 @@ describe('App model', () => {
           bitcoind: 1,
           btcd: 1,
           tapd: 1,
+        },
+        basePorts: {
+          LND: 8081,
+          bitcoind: 18443,
+          'c-lightning': 9735,
+          btcd: null,
+          eclair: null,
+          tapd: null,
         },
       });
     });

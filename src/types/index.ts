@@ -62,6 +62,7 @@ export interface AppSettings {
   };
   /** The default number of each node when creating a new network */
   newNodeCounts: Record<NodeImplementation, number>;
+  basePorts: Record<NodeImplementation, number | null>;
 }
 
 export interface SettingsInjection {

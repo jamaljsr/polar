@@ -36,6 +36,7 @@ import { range } from './numbers';
 import { isVersionCompatible } from './strings';
 import { getPolarPlatform } from './system';
 import { prefixTranslation } from './translate';
+import store from 'store';
 
 const { l } = prefixTranslation('utils.network');
 
@@ -159,6 +160,10 @@ export const createLndNetworkNode = (
     compatibility,
     bitcoin,
   );
+  const lndRestPort = store.getState().app.settings.basePorts.LND;
+
+  const basePortRest = lndRestPort ? lndRestPort : BasePorts.LND.rest;
+
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   return {
@@ -173,7 +178,7 @@ export const createLndNetworkNode = (
     backendName: backends[id % backends.length].name,
     paths: getLndFilePaths(name, network),
     ports: {
-      rest: BasePorts.LND.rest + id,
+      rest: basePortRest + id,
       grpc: BasePorts.LND.grpc + id,
       p2p: BasePorts.LND.p2p + id,
     },
@@ -200,6 +205,12 @@ export const createCLightningNetworkNode = (
   const supportsGrpc = !isVersionCompatible(version, '0.10.2');
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
+
+  const clightningRestPort = store.getState().app.settings.basePorts['c-lightning'];
+  const basePortRest = clightningRestPort
+    ? clightningRestPort
+    : BasePorts['c-lightning'].rest;
+
   return {
     id,
     networkId: network.id,
@@ -212,7 +223,7 @@ export const createCLightningNetworkNode = (
     backendName: backends[id % backends.length].name,
     paths: getCLightningFilePaths(name, supportsGrpc, network),
     ports: {
-      rest: BasePorts['c-lightning'].rest + id,
+      rest: basePortRest + id,
       grpc: supportsGrpc ? BasePorts['c-lightning'].grpc + id : 0,
       p2p: BasePorts['c-lightning'].p2p + id,
     },
@@ -237,6 +248,8 @@ export const createEclairNetworkNode = (
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
+  const eclairRestPort = store.getState().app.settings.basePorts.eclair;
+  const basePortRest = eclairRestPort ? eclairRestPort : BasePorts.eclair.rest;
   return {
     id,
     networkId: network.id,
@@ -248,7 +261,7 @@ export const createEclairNetworkNode = (
     // alternate between backend nodes
     backendName: backends[id % backends.length].name,
     ports: {
-      rest: BasePorts.eclair.rest + id,
+      rest: basePortRest + id,
       p2p: BasePorts.eclair.p2p + id,
     },
     docker,
@@ -263,7 +276,8 @@ export const createBitcoindNetworkNode = (
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
-
+  const bitcoindRestPort = store.getState().app.settings.basePorts.bitcoind;
+  const basePortRest = bitcoindRestPort ? bitcoindRestPort : BasePorts.bitcoind.rest;
   const name = `backend${id + 1}`;
   const node: BitcoinNode = {
     id,
@@ -275,7 +289,7 @@ export const createBitcoindNetworkNode = (
     peers: [],
     status,
     ports: {
-      rpc: BasePorts.bitcoind.rest + id,
+      rpc: basePortRest + id,
       p2p: BasePorts.bitcoind.p2p + id,
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
@@ -335,6 +349,8 @@ export const createTapdNetworkNode = (
 
   const id = tap.length ? Math.max(...tap.map(n => n.id)) + 1 : 0;
   const name = `${lndBackend.name}-tap`;
+  const tapdRestPort = store.getState().app.settings.basePorts.tapd;
+  const basePortRest = tapdRestPort ? tapdRestPort : BasePorts.tapd.rest;
   const node: TapdNode = {
     id,
     networkId: network.id,
@@ -346,7 +362,7 @@ export const createTapdNetworkNode = (
     lndName: lndBackend.name,
     paths: getTapdFilePaths(name, network),
     ports: {
-      rest: BasePorts.tapd.rest + id,
+      rest: basePortRest + id,
       grpc: BasePorts.tapd.grpc + id,
     },
     docker,

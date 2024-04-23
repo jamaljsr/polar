@@ -14,9 +14,11 @@ import {
   Switch as AnimatedSwitch,
   TERMINAL,
   NETWORK_IMPORT,
+  NETWORK_SETTING,
 } from 'components/routing';
 import { DockerTerminal } from 'components/terminal';
 import ImportNetwork from 'components/network/ImportNetwork';
+import NetworkSetting from 'components/network/NetworkSetting';
 
 const Routes: React.FC = () => (
   <Switch>
@@ -28,6 +30,7 @@ const Routes: React.FC = () => (
           <Route path={HOME} exact component={Home} />
           <Route path={NETWORK_IMPORT} exact component={ImportNetwork} />
           <Route path={NETWORK_NEW} exact component={NewNetwork} />
+          <Route path={NETWORK_SETTING} exact component={NetworkSetting} />
           <Route path={NETWORK_VIEW(':id')} component={NetworkView} />
           <Route path={NODE_IMAGES} component={NodeImagesView} />
         </AnimatedSwitch>

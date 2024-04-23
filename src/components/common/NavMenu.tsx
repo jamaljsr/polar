@@ -1,14 +1,24 @@
 import React, { useCallback } from 'react';
-import { DatabaseOutlined, ImportOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DatabaseOutlined,
+  ImportOutlined,
+  PlusOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Menu, MenuProps } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
-import { NETWORK_IMPORT, NETWORK_NEW, NODE_IMAGES } from 'components/routing';
+import {
+  NETWORK_IMPORT,
+  NETWORK_NEW,
+  NODE_IMAGES,
+  NETWORK_SETTING,
+} from 'components/routing';
 
 const Styled = {
   Menu: styled.div`
-    width: 496px;
+    width: 600px;
   `,
 };
 
@@ -24,6 +34,7 @@ const NavMenu: React.FC = () => {
     { label: l('createNetwork'), key: NETWORK_NEW, icon: <PlusOutlined /> },
     { label: l('importNetwork'), key: NETWORK_IMPORT, icon: <ImportOutlined /> },
     { label: l('manageNodes'), key: NODE_IMAGES, icon: <DatabaseOutlined /> },
+    { label: l('networkSetting'), key: NETWORK_SETTING, icon: <SettingOutlined /> },
   ];
 
   return (
