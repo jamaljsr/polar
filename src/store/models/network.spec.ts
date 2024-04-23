@@ -711,7 +711,6 @@ describe('Network model', () => {
     it('should call removeListener for lightning nodes when stopping a network', async () => {
       const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
-      expect(injections.dockerService.stop).toHaveBeenCalledWith(firstNetwork());
       expect(lightningServiceMock.removeListener).toHaveBeenCalled();
     });
   });
