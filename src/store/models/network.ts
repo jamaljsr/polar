@@ -662,10 +662,10 @@ const networkModel: NetworkModel = {
     actions.autoMine({ id: network.id, mode: AutoMineMode.AutoOff });
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
-      // Remove listeners from lightning nodes
-      await getStoreActions().lightning.removeListeners(network);
       await injections.dockerService.stop(network);
       actions.setStatus({ id: network.id, status: Status.Stopped });
+      // Remove listeners from lightning nodes
+      await getStoreActions().lightning.removeListeners(network);
       // clear cached RPC data
       getStoreActions().app.clearAppCache();
     } catch (e: any) {
