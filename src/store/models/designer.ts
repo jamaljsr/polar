@@ -272,7 +272,7 @@ const designerModel: DesignerModel = {
       // Ensure the node exists
       const node = chart.nodes[nodeId];
       if (!node) {
-        throw new Error(`Bitcoi node with id ${nodeId} not found.`);
+        throw new Error(`Bitcoin node with id ${nodeId} not found.`);
       }
 
       // Update the node chart
@@ -291,7 +291,6 @@ const designerModel: DesignerModel = {
       allCharts[activeId] = updatedChart;
       // remove the old node with previous key
       getStoreActions().designer.removeNode(nodeId);
-      // loop through lightning nodes to update backend links
     },
   ),
   renameTapNode: thunk(
