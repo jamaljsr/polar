@@ -140,6 +140,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--plugin=/opt/c-lightning-rest/plugin.js',
       '--rest-port=8080',
       '--rest-protocol=http',
+      '--developer',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
@@ -295,8 +296,8 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '23.05.2',
-      versions: ['23.05.2', '23.02.2', '22.11', '0.12.0', '0.11.2', '0.10.2'],
+      latest: '24.02.2',
+      versions: ['24.02.2', '23.05.2', '23.02.2', '22.11', '0.12.0', '0.11.2', '0.10.2'],
     },
     eclair: {
       latest: '0.10.0',

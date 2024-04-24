@@ -97,6 +97,7 @@ Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
 
 ### Tags
 
+- `24.02.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `23.05.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `23.02.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `22.11` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
@@ -115,21 +116,10 @@ Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
 
 **Building the image**
 
-Core Lightning requires building the arm64 image using a separate Dockerfile, so docker buildx cannot be used. We must build two images separately them merge them into a single multi-arch image using docker manifest.
-
 ```sh
 $ cd clightning
-# build amd64 image (note: this takes a long time on ARM machines)
-$ docker build --platform linux/amd64 --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version>-amd64 .
-$ docker push polarlightning/clightning:<version>-amd64
 
-# build arm64 image (note: this takes a long time on x86/x64 machines)
-$ docker build --platform linux/arm64 --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version>-arm64 -f Dockerfile.arm64 .
-$ docker push polarlightning/clightning:<version>-arm64
-
-# combine into a single multi-arch image
-$ docker manifest create polarlightning/clightning:<version> --amend polarlightning/clightning:<version>-arm64 --amend polarlightning/clightning:<version>-amd64
-$ docker manifest push polarlightning/clightning:<version>
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg CLN_VERSION=<version> -t polarlightning/clightning:<version> --push .
 ```
 
 Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
