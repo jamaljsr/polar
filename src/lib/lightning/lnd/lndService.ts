@@ -207,7 +207,7 @@ class LndService implements LightningService {
   }
 
   async removeListener(node: LightningNode): Promise<void> {
-    debug('removeListener LndNode on port: ', node.ports);
+    debug('removeListener LndNode on port: ', node.ports.rest);
   }
 
   private cast(node: LightningNode): LndNode {

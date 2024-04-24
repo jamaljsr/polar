@@ -443,46 +443,70 @@ describe('EclairService', () => {
     });
   });
 
-  it('should subscribe to channel events', async () => {
-    const mockListener = {
-      on: jest.fn(),
-    } as unknown as ELN.EclairWebSocket;
+  describe('subscribeChannelEvents', () => {
+    it('should successfully subscribe to channel events', async () => {
+      const mockListener = {
+        on: jest.fn(),
+      } as unknown as ELN.EclairWebSocket;
 
-    const callback = jest.fn();
+      const mockCallback = jest.fn();
 
-    (eclairApi.getListener as jest.Mock).mockReturnValue(mockListener);
+      (eclairApi.getListener as jest.Mock).mockReturnValue(mockListener);
 
-    await eclairService.subscribeChannelEvents(node, callback);
+      await eclairService.subscribeChannelEvents(node, mockCallback);
 
-    // Simulate receiving messages of different types
-    const messageHandlers = (mockListener.on as jest.Mock).mock.calls;
-    for (const [eventName, handler] of messageHandlers) {
-      if (eventName === 'message') {
-        // Simulate message of type 'channel-created'
-        handler(JSON.stringify({ type: 'channel-created' }));
+      // Simulate receiving messages of different types
+      const messageHandlers = (mockListener.on as jest.Mock).mock.calls;
+      for (const [eventName, handler] of messageHandlers) {
+        if (eventName === 'message') {
+          // Simulate message of type 'channel-created'
+          handler(JSON.stringify({ type: 'channel-created' }));
 
-        // Expect callback to be called with { type: 'Pending' }
-        expect(callback).toHaveBeenCalledWith({ type: 'Pending' });
+          // Expect callback to be called with { type: 'Pending' }
+          expect(mockCallback).toHaveBeenCalledWith({ type: 'Pending' });
 
-        // Simulate message of type 'channel-opened'
-        handler(JSON.stringify({ type: 'channel-opened' }));
+          // Simulate message of type 'channel-opened'
+          handler(JSON.stringify({ type: 'channel-opened' }));
 
-        // Expect callback to be called with { type: 'Open' }
-        expect(callback).toHaveBeenCalledWith({ type: 'Open' });
+          // Expect callback to be called with { type: 'Open' }
+          expect(mockCallback).toHaveBeenCalledWith({ type: 'Open' });
 
-        // Simulate message of type 'channel-closed'
-        handler(JSON.stringify({ type: 'channel-closed' }));
+          // Simulate message of type 'channel-closed'
+          handler(JSON.stringify({ type: 'channel-closed' }));
 
-        // Expect callback to be called with { type: 'Closed' }
-        expect(callback).toHaveBeenCalledWith({ type: 'Closed' });
+          // Expect callback to be called with { type: 'Closed' }
+          expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
 
-        // Simulate message of unknown type
-        handler(JSON.stringify({ type: 'unknown-type' }));
+          // Simulate message of unknown type
+          handler(JSON.stringify({ type: 'unknown-type' }));
 
-        // Expect callback to be called with { type: 'Unknown' }
-        expect(callback).toHaveBeenCalledWith({ type: 'Unknown' });
+          // Expect callback to be called with { type: 'Unknown' }
+          expect(mockCallback).toHaveBeenCalledWith({ type: 'Unknown' });
+        }
       }
-    }
-    expect(eclairApi.getListener).toHaveBeenCalledWith(node);
+      expect(eclairApi.getListener).toHaveBeenCalledWith(node);
+    });
+
+    it('should throw an error when the implementation is not eclair', async () => {
+      const lndNode = getNetwork().nodes.lightning[0];
+      const mockCallback = jest.fn();
+      await expect(
+        eclairService.subscribeChannelEvents(lndNode, mockCallback),
+      ).rejects.toThrow("EclairService cannot be used for 'LND' nodes");
+    });
+
+    it('should add listener to node', async () => {
+      const mockSetupListener = jest.fn();
+      (eclairApi.setupListener as jest.Mock).mockReturnValue(mockSetupListener);
+      eclairService.addListenerToNode(node);
+      expect(eclairApi.setupListener).toHaveBeenCalled();
+    });
+
+    it('should remove Listener', async () => {
+      const mockRemoveListener = jest.fn();
+      (eclairApi.removeListener as jest.Mock).mockReturnValue(mockRemoveListener);
+      eclairService.removeListener(node);
+      expect(eclairApi.removeListener).toHaveBeenCalled();
+    });
   });
 });

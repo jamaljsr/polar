@@ -1,3 +1,4 @@
+import { debug } from 'electron-log';
 import {
   defaultLndChannel,
   defaultLndInfo,
@@ -11,6 +12,7 @@ import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests'
 import lndProxyClient from './lndProxyClient';
 import lndService from './lndService';
 
+jest.mock('electron-log');
 jest.mock('./lndProxyClient');
 
 describe('LndService', () => {
@@ -197,12 +199,14 @@ describe('LndService', () => {
     const openChannelEvent = { activeChannel: { fundingTxidBytes: 'txid' } };
     const inActiveChannelEvent = { inactiveChannel: { fundingTxidBytes: 'txid' } };
     const closedChannelEvent = { closedChannel: { closingTxHash: 'txhash' } };
+    const unknownChannelEvent = { unknownChannel: { txid: 'txid' } };
 
     lndProxyClient.subscribeChannelEvents = jest.fn().mockImplementation((_, cb) => {
       cb(pendingChannelEvent);
       cb(openChannelEvent);
       cb(inActiveChannelEvent);
       cb(closedChannelEvent);
+      cb(unknownChannelEvent);
     });
 
     await lndService.subscribeChannelEvents(node, mockCallback);
@@ -215,5 +219,21 @@ describe('LndService', () => {
     expect(mockCallback).toHaveBeenCalledWith({ type: 'Pending' });
     expect(mockCallback).toHaveBeenCalledWith({ type: 'Open' });
     expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
+  });
+
+  it('addListenerToNode should call debug with node port', async () => {
+    await lndService.addListenerToNode(node);
+    expect(debug).toHaveBeenCalledWith(
+      'addListenerToNode LndNode on port: ',
+      node.ports.rest,
+    );
+  });
+
+  it('removeListener should call debug with node port', async () => {
+    await lndService.removeListener(node);
+    expect(debug).toHaveBeenCalledWith(
+      'removeListener LndNode on port: ',
+      node.ports.rest,
+    );
   });
 });
