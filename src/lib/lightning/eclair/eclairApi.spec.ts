@@ -1,7 +1,8 @@
 import { EclairNode } from 'shared/types';
 import * as ipc from 'lib/ipc/ipcService';
 import { getNetwork } from 'utils/tests';
-import { httpPost, setupListener } from './eclairApi';
+import { httpPost, setupListener, getListener } from './eclairApi';
+import WebSocket from 'ws';
 
 jest.mock('ws');
 jest.mock('lib/ipc/ipcService');
@@ -47,13 +48,37 @@ describe('EclairApi', () => {
     );
   });
 
-  it('should setup a listener for the provided EclairNode', () => {
+  it('should get a listener for the provided EclairNode', () => {
     const mockELN = { EclairWebSocket: jest.fn() };
     const webSocketMock = new mockELN.EclairWebSocket();
     jest.spyOn(window, 'WebSocket').mockReturnValue(webSocketMock);
 
+    const listener = getListener(node);
+    expect(listener).not.toBe(null);
+    expect(listener.on).not.toBe(null);
+
+    expect(mockELN.EclairWebSocket).toHaveBeenCalled();
+  });
+
+  it('should setup a listener for the provided EclairNode', () => {
+    jest.useFakeTimers();
+
+    const webSocketMock = jest
+      .spyOn(WebSocket.prototype, 'ping')
+      .mockImplementation(() => {
+        return { ping: jest.fn() };
+      });
+
     const listener = setupListener(node);
     expect(listener).not.toBe(null);
     expect(listener.on).not.toBe(null);
+
+    // Fast-forward time to trigger the interval
+    jest.advanceTimersByTime(50e3);
+
+    // Verify ping is called within the interval
+    expect(
+      (webSocketMock.mock.instances[0] as unknown as WebSocket).ping,
+    ).toHaveBeenCalled();
   });
 });

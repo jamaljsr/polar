@@ -1,8 +1,10 @@
+import { debug } from 'electron-log';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
 import { clightningService } from './';
 import * as clightningApi from './clightningApi';
 import * as CLN from './types';
 
+jest.mock('electron-log');
 jest.mock('./clightningApi');
 
 const clightningApiMock = clightningApi as jest.Mocked<typeof clightningApi>;
@@ -251,14 +253,52 @@ describe('CLightningService', () => {
   });
 
   describe('subscribeChannelEvents', () => {
-    it('should set up interval to check channels every 30 seconds', async () => {
-      jest.spyOn(window, 'setInterval');
+    afterEach(() => {
+      // Clean up any resources or mock implementations after each test
+      jest.restoreAllMocks();
+    });
 
-      const callback = jest.fn();
-      await clightningService.subscribeChannelEvents(node, callback);
+    it('should create a channel cache, set interval, and call checkChannels', async () => {
+      jest.useFakeTimers();
+      const mockCallback = jest.fn();
+
+      jest.spyOn(clightningService, 'checkChannels').mockReturnValue(Promise.resolve());
+
+      await clightningService.subscribeChannelEvents(node, mockCallback);
 
       expect(setInterval).toHaveBeenCalledTimes(1);
       expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 30 * 1000);
+
+      // Fast-forward time by 30 seconds to trigger the interval callback
+      jest.advanceTimersByTime(30 * 1000);
+
+      expect(clightningService.checkChannels).toHaveBeenCalledTimes(1);
+      expect(clightningService.checkChannels).toHaveBeenLastCalledWith(
+        node,
+        mockCallback,
+      );
+
+      expect(clightningService.channelCaches).toBeDefined();
+    });
+
+    it('should do nothing if node has already subscribed to channel event', async () => {
+      jest.useFakeTimers();
+      const mockCallback = jest.fn();
+
+      jest.spyOn(clightningService, 'checkChannels').mockReturnValue(Promise.resolve());
+
+      await clightningService.subscribeChannelEvents(node, mockCallback);
+
+      expect(setInterval).toHaveBeenCalledTimes(0);
+      expect(clightningService.checkChannels).toHaveBeenCalledTimes(0);
+    });
+
+    it('should throw an error when the implementation is not c-lightning', async () => {
+      const lndNode = getNetwork().nodes.lightning[0];
+      const mockCallback = jest.fn();
+      await expect(
+        clightningService.subscribeChannelEvents(lndNode, mockCallback),
+      ).rejects.toThrow("ClightningService cannot be used for 'LND' nodes");
     });
 
     it('checkChannels should call callback with channel events', async () => {
@@ -284,6 +324,25 @@ describe('CLightningService', () => {
       expect(mockCallback).toHaveBeenCalledTimes(3);
       expect(mockCallback).toHaveBeenCalledWith({ type: 'Pending' });
       expect(mockCallback).toHaveBeenCalledWith({ type: 'Open' });
+      expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
+    });
+
+    it('checkChannels edge case for empty apiChannels but cache channels is not empty', async () => {
+      const mockCallback = jest.fn();
+      clightningService.channelCaches = {
+        [node.ports.rest!]: {
+          intervalId: setInterval(() => {}, 1000),
+          channels: [
+            { channelID: '01ff', pending: true, status: 'Opening' },
+            { channelID: '04bb', pending: false, status: 'Open' },
+          ],
+        },
+      };
+      clightningApiMock.httpGet.mockResolvedValue([]);
+
+      await clightningService.checkChannels(node, mockCallback);
+
+      expect(mockCallback).toHaveBeenCalledTimes(1);
       expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
     });
 
@@ -347,6 +406,14 @@ describe('CLightningService', () => {
 
       expect(mockCallback).toHaveBeenCalledTimes(1); // called once for updated channel state
       expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
+    });
+
+    it('should add listener to node, log a debug message with the node port', async () => {
+      await clightningService.addListenerToNode(node);
+      expect(debug).toHaveBeenCalledWith(
+        'addListenerToNode CLN on port: ',
+        node.ports.rest,
+      );
     });
   });
 });

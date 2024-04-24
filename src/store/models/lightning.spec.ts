@@ -209,8 +209,16 @@ describe('Lightning Model', () => {
   });
 
   it('should add Channel Listeners to each lightning node in the network', async () => {
+    lightningServiceMock.subscribeChannelEvents.mockImplementation(async (_node, cb) => {
+      cb({ type: 'Pending' });
+      cb({ type: 'Open' });
+      cb({ type: 'Closed' });
+      cb({ type: 'Unknown' });
+    });
+
     const { addChannelListeners } = store.getActions().lightning;
     await addChannelListeners(network);
+
     expect(lightningServiceMock.subscribeChannelEvents).toHaveBeenCalledTimes(
       network.nodes.lightning.length,
     );
