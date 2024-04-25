@@ -19,13 +19,14 @@ const request = async <T>(
   const id = Math.round(Math.random() * Date.now());
   const url = `http://127.0.0.1:${cln.ports.rest}/v1/${path}`;
   const body = bodyObj ? JSON.stringify(bodyObj) : undefined;
-  debug(`c-lightning API: [request] ${cln.name} ${id} "${url}" ${body}`);
+  const rune = await read(cln.paths.rune, 'utf-8');
+  debug(`c-lightning API: [request] ${cln.name} ${id} "${url}" ${body || ''}`);
 
   const response = await httpRequest(url, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      macaroon: await read(cln.paths.macaroon, 'base64'),
+      rune,
     },
     body,
   });
@@ -48,7 +49,7 @@ export const httpGet = async <T>(node: LightningNode, path: string): Promise<T> 
 export const httpPost = async <T>(
   node: LightningNode,
   path: string,
-  body: any,
+  body?: any,
 ): Promise<T> => {
   return request<T>(node, 'POST', path, body);
 };

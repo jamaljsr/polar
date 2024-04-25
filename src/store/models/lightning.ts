@@ -253,6 +253,7 @@ const lightningModel: LightningModel = {
 
       const network = getStoreState().network.networkById(node.networkId);
       // synchronize the chart with the new channel
+      await getStoreActions().lightning.waitForNodes(network.nodes.lightning);
       await getStoreActions().designer.syncChart(network);
 
       return receipt;

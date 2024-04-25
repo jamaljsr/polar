@@ -43,7 +43,7 @@ export interface LndNode extends LightningNode {
 
 export interface CLightningNode extends LightningNode {
   paths: {
-    macaroon: string;
+    rune: string;
     tlsCert?: string;
     tlsClientCert?: string;
     tlsClientKey?: string;
