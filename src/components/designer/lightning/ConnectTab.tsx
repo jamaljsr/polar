@@ -37,12 +37,16 @@ export interface ConnectionInfo {
   grpcUrl?: string;
   grpcDocsUrl?: string;
   credentials: {
+    // LND
     admin?: string;
     readOnly?: string;
     invoice?: string;
     cert?: string;
+    // c-lightning
     clientCert?: string;
     clientKey?: string;
+    rune?: string;
+    // Eclair
     basicAuth?: string;
   };
   p2pUriExternal: string;
@@ -85,10 +89,11 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         const cln = node as CLightningNode;
         return {
           restUrl: `http://127.0.0.1:${cln.ports.rest}`,
-          restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
+          restDocsUrl: 'https://docs.corelightning.org/docs/rest',
           grpcUrl: cln.ports.grpc ? `127.0.0.1:${cln.ports.grpc}` : undefined,
+          grpcDocsUrl: 'https://docs.corelightning.org/docs/grpc',
           credentials: {
-            admin: cln.paths.macaroon,
+            rune: cln.paths.rune,
             cert: cln.paths.tlsCert,
             clientCert: cln.paths.tlsClientCert,
             clientKey: cln.paths.tlsClientKey,
@@ -183,7 +188,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
-        {credentials.admin && [
+        {(credentials.admin || credentials.rune) && [
           <Radio.Button key="paths" value="paths">
             {l('filePaths')}
           </Radio.Button>,

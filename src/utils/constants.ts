@@ -137,9 +137,9 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--grpc-port=11001',
       '--log-file=-', // log to stdout
       '--log-file=/home/clightning/.lightning/debug.log',
-      '--plugin=/opt/c-lightning-rest/plugin.js',
-      '--rest-port=8080',
-      '--rest-protocol=http',
+      '--clnrest-port=8080',
+      '--clnrest-protocol=http',
+      '--clnrest-host=0.0.0.0',
       '--developer',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables

@@ -103,6 +103,7 @@ export const getCLightningFilePaths = (
   const path = nodePath(network, 'c-lightning', name);
   return {
     macaroon: join(path, 'rest-api', 'access.macaroon'),
+    rune: join(path, 'lightningd', 'admin.rune'),
     tlsCert: withTls ? join(path, 'lightningd', 'regtest', 'ca.pem') : undefined,
     tlsClientCert: withTls
       ? join(path, 'lightningd', 'regtest', 'client.pem')

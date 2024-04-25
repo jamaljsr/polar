@@ -10,7 +10,7 @@ const abs = (path: string): string => (isAbsolute(path) ? path : join(dataPath, 
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  * @param content the contents of the file
  */
-export const write = async (filePath: string, content: string) =>
+export const write = async (filePath: string, content: string | Buffer) =>
   await outputFile(abs(filePath), content);
 
 /**
