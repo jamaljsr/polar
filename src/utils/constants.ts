@@ -93,6 +93,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     command: [
       'lnd',
       '--noseedbackup',
+      '--debuglevel=debug',
       '--trickledelay=5000',
       '--alias={{name}}',
       '--externalip={{name}}',
@@ -254,7 +255,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 57,
+  version: 58,
   images: {
     LND: {
       latest: '0.17.4-beta',
@@ -275,18 +276,18 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.17.4-beta': '26.0',
-        '0.17.3-beta': '26.0',
-        '0.17.2-beta': '26.0',
-        '0.17.1-beta': '26.0',
-        '0.17.0-beta': '26.0',
-        '0.16.4-beta': '26.0',
-        '0.16.2-beta': '26.0',
-        '0.16.1-beta': '26.0',
-        '0.16.0-beta': '26.0',
-        '0.15.5-beta': '26.0',
-        '0.14.3-beta': '26.0',
-        '0.13.1-beta': '26.0',
+        '0.17.4-beta': '27.0',
+        '0.17.3-beta': '27.0',
+        '0.17.2-beta': '27.0',
+        '0.17.1-beta': '27.0',
+        '0.17.0-beta': '27.0',
+        '0.16.4-beta': '27.0',
+        '0.16.2-beta': '27.0',
+        '0.16.1-beta': '27.0',
+        '0.16.0-beta': '27.0',
+        '0.15.5-beta': '27.0',
+        '0.14.3-beta': '27.0',
+        '0.13.1-beta': '27.0',
       },
     },
     'c-lightning': {
@@ -298,8 +299,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.10.0', '0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
     },
     bitcoind: {
-      latest: '26.0',
-      versions: ['26.0', '25.0', '24.0', '23.0', '22.0', '0.21.1'],
+      latest: '27.0',
+      versions: ['27.0', '26.0', '25.0', '24.0', '23.0', '22.0', '0.21.1'],
     },
     btcd: {
       latest: '',
