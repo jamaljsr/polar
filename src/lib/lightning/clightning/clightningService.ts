@@ -269,15 +269,13 @@ export class CLightningService implements LightningService {
       'listpeerchannels',
     );
 
-    const apiChannels = channels
-      .filter(c => c.opener === 'local')
-      .map(channel => {
-        const status = ChannelStateToStatus[channel.state];
-        return {
-          channelId: channel.channelId,
-          status,
-        };
-      });
+    const apiChannels = channels.map(channel => {
+      const status = ChannelStateToStatus[channel.state];
+      return {
+        channelId: channel.channelId,
+        status,
+      };
+    });
 
     const cache = this.channelCaches[this.getNodePort(node)] || { channels: [] };
     const uniqueChannels = this.getUniqueChannels(cache.channels, apiChannels);

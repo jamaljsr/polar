@@ -1,12 +1,18 @@
 import { debug } from 'electron-log';
-import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
+import fs from 'fs-extra';
+import Dockerode from 'dockerode';
+import { defaultStateInfo, getNetwork } from 'utils/tests';
 import * as clightningApi from './clightningApi';
 import { CLightningService } from './clightningService';
 import * as CLN from './types';
 
+jest.mock('dockerode');
 jest.mock('./clightningApi');
+jest.mock('fs-extra');
 
 const clightningApiMock = clightningApi as jest.Mocked<typeof clightningApi>;
+const fsMock = fs as jest.Mocked<typeof fs>;
+const mockDockerode = Dockerode as unknown as jest.Mock<Dockerode>;
 
 describe('CLightningService', () => {
   const node = getNetwork().nodes.lightning[1];
@@ -27,90 +33,63 @@ describe('CLightningService', () => {
       numInactiveChannels: 0,
       warningLightningdSync: 'blah',
     };
-    clightningApiMock.httpGet.mockResolvedValue(infoResponse);
+    clightningApiMock.httpPost.mockResolvedValue(infoResponse);
     const expected = defaultStateInfo({ pubkey: 'asdf', rpcUrl: 'asdf@bob:9735' });
     const actual = await clightningService.getInfo(node);
     expect(actual).toEqual(expected);
   });
 
   it('should get wallet balance', async () => {
-    const ballanceResponse = {
-      totalBalance: 0,
-      confBalance: 1000,
-      unconfBalance: 0,
+    const listFundsResponse: Partial<CLN.ListFundsResponse> = {
+      outputs: [
+        { status: 'confirmed', amountMsat: 1000000 },
+        { status: 'unconfirmed', amountMsat: 1000000 },
+      ],
     };
-    clightningApiMock.httpGet.mockResolvedValue(ballanceResponse);
-    const expected = defaultStateBalances({ confirmed: '1000' });
+    clightningApiMock.httpPost.mockResolvedValue(listFundsResponse);
+    const expected = { confirmed: '1000', total: '2000', unconfirmed: '1000' };
     const actual = await clightningService.getBalances(node);
     expect(actual).toEqual(expected);
   });
 
   it('should get new address', async () => {
+    const newAddrResponse: Partial<CLN.NewAddrResponse> = {
+      bech32: 'abcdef',
+    };
     const expected = { address: 'abcdef' };
-    clightningApiMock.httpGet.mockResolvedValue(expected);
+    clightningApiMock.httpPost.mockResolvedValue(newAddrResponse);
     const actual = await clightningService.getNewAddress(node);
     expect(actual).toEqual(expected);
   });
 
   it('should get list of channels', async () => {
-    const infoResponse: Partial<CLN.GetInfoResponse> = {
-      id: 'abc',
-      binding: [],
-    };
-    const chanResponse: Partial<CLN.GetChannelsResponse>[] = [
-      {
-        id: 'xyz',
-        channelId: '',
-        fundingTxid: '',
-        state: CLN.ChannelState.CHANNELD_NORMAL,
-        msatoshiTotal: 0,
-        msatoshiToUs: 0,
-        fundingAllocationMsat: {
-          abc: 100,
-          xyz: 0,
+    const chanResponse: Partial<CLN.ListPeerChannelsResponse> = {
+      channels: [
+        {
+          peerId: 'xyz',
+          channelId: '',
+          state: CLN.ChannelState.CHANNELD_NORMAL,
+          totalMsat: 0,
+          toUsMsat: 0,
+          opener: 'local',
+          private: false,
+          shortChannelId: '123x1x1',
         },
-      },
-    ];
-    clightningApiMock.httpGet.mockResolvedValue(chanResponse);
-    clightningApiMock.httpGet.mockResolvedValueOnce(infoResponse);
-    const expected = [expect.objectContaining({ pubkey: 'xyz' })];
-    const actual = await clightningService.getChannels(node);
-    expect(actual).toEqual(expected);
-  });
-
-  it('should get list of channels with a funding txid', async () => {
-    const infoResponse: Partial<CLN.GetInfoResponse> = {
-      id: 'abc',
-      binding: [],
+      ],
     };
-    const chanResponse: Partial<CLN.GetChannelsResponse>[] = [
-      {
-        id: 'xyz',
-        channelId: '',
-        fundingTxid: 'bec9d46e09f7787f16e4c190b3469dab2faa41899427402d0cb558c66e2757fa',
-        state: CLN.ChannelState.CHANNELD_NORMAL,
-        msatoshiTotal: 0,
-        msatoshiToUs: 0,
-        fundingAllocationMsat: {
-          abc: 100,
-          xyz: 0,
-        },
-      },
-    ];
-    clightningApiMock.httpGet.mockResolvedValue(chanResponse);
-    clightningApiMock.httpGet.mockResolvedValueOnce(infoResponse);
+    clightningApiMock.httpPost.mockResolvedValue(chanResponse);
     const expected = [expect.objectContaining({ pubkey: 'xyz' })];
     const actual = await clightningService.getChannels(node);
     expect(actual).toEqual(expected);
   });
 
   it('should not throw error when connecting to peers', async () => {
-    const listPeersResponse: Partial<CLN.Peer>[] = [
-      { id: 'asdf', connected: true, netaddr: ['1.1.1.1:9735'] },
-    ];
-    clightningApiMock.httpGet.mockResolvedValueOnce(listPeersResponse);
+    const listPeersResponse = {
+      peers: [{ id: 'abcd', connected: true, netaddr: ['1.1.1.1:9735'] }],
+    } as CLN.ListPeersResponse;
+    clightningApiMock.httpPost.mockResolvedValueOnce(listPeersResponse);
     clightningApiMock.httpPost.mockRejectedValue(new Error('peer-error'));
-    await expect(clightningService.connectPeers(node, ['fdsa'])).resolves.not.toThrow();
+    await expect(clightningService.connectPeers(node, ['abcde'])).resolves.not.toThrow();
   });
 
   it('should close the channel', async () => {
@@ -133,7 +112,7 @@ describe('CLightningService', () => {
   it('should pay an invoice', async () => {
     const payResponse: Partial<CLN.PayResponse> = {
       paymentPreimage: 'preimage',
-      msatoshi: 123000,
+      amountMsat: 123000,
       destination: 'asdf',
     };
     clightningApiMock.httpPost.mockResolvedValue(payResponse);
@@ -143,58 +122,32 @@ describe('CLightningService', () => {
     expect(actual.destination).toEqual('asdf');
   });
 
+  it('should pay an invoice with an amount', async () => {
+    const payResponse: Partial<CLN.PayResponse> = {
+      paymentPreimage: 'preimage',
+      amountMsat: 123000,
+      destination: 'asdf',
+    };
+    clightningApiMock.httpPost.mockResolvedValue(payResponse);
+    const actual = await clightningService.payInvoice(node, 'lnbc1invoice', 1000);
+    expect(actual.preimage).toEqual('preimage');
+    expect(actual.amount).toEqual(123);
+    expect(actual.destination).toEqual('asdf');
+  });
+
   describe('openChannel', () => {
+    let listPeersResponse = {
+      peers: [{ id: 'fdsa', connected: true, netaddr: ['1.1.1.1:9735'] }],
+    } as CLN.ListPeersResponse;
+    const connectResponse = { id: 'asdf' };
+    const openChanResponse: Partial<CLN.OpenChannelResponse> = {
+      txid: 'xyz',
+      outnum: 0,
+    };
+
     it('should open the channel successfully', async () => {
-      const listPeersResponse: Partial<CLN.Peer>[] = [
-        { id: 'asdf', connected: true, netaddr: ['1.1.1.1:9735'] },
-      ];
-      const openChanResponse: Partial<CLN.OpenChannelResponse> = { txid: 'xyz' };
-      clightningApiMock.httpGet.mockResolvedValueOnce(listPeersResponse);
-      clightningApiMock.httpPost.mockResolvedValueOnce(openChanResponse);
-
-      const expected = { txid: 'xyz', index: 0 };
-      const actual = await clightningService.openChannel({
-        from: node,
-        toRpcUrl: 'asdf@1.1.1.1:9735',
-        amount: '1000',
-        isPrivate: false,
-      });
-      expect(actual).toEqual(expected);
-      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
-      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
-    });
-
-    it('should open a private channel successfully', async () => {
-      const listPeersResponse: Partial<CLN.Peer>[] = [
-        { id: 'asdf', connected: true, netaddr: ['1.1.1.1:9735'] },
-      ];
-      const openChanResponse: Partial<CLN.OpenChannelResponse> = { txid: 'xyz' };
-      clightningApiMock.httpGet.mockResolvedValueOnce(listPeersResponse);
-      clightningApiMock.httpPost.mockResolvedValueOnce(openChanResponse);
-
-      const expected = { txid: 'xyz', index: 0 };
-      const actual = await clightningService.openChannel({
-        from: node,
-        toRpcUrl: 'asdf@1.1.1.1:9735',
-        amount: '1000',
-        isPrivate: true,
-      });
-      expect(actual).toEqual(expected);
-      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
-      expect(clightningApiMock.httpPost).toHaveBeenLastCalledWith(
-        expect.objectContaining({ implementation: 'c-lightning' }),
-        'channel/openChannel',
-        { announce: 'false', feeRate: '253perkw', id: 'asdf', satoshis: '1000' },
-      );
-      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
-    });
-
-    it('should connect peer then open the channel', async () => {
-      const listPeersResponse: Partial<CLN.Peer>[] = [{ id: 'fdsa', connected: true }];
-      const connectResponse = { id: 'asdf' };
-      const openChanResponse: Partial<CLN.OpenChannelResponse> = { txid: 'xyz' };
-      clightningApiMock.httpGet.mockResolvedValueOnce(listPeersResponse);
       clightningApiMock.httpPost
+        .mockResolvedValueOnce(listPeersResponse)
         .mockResolvedValueOnce(connectResponse)
         .mockResolvedValueOnce(openChanResponse);
 
@@ -206,24 +159,118 @@ describe('CLightningService', () => {
         isPrivate: false,
       });
       expect(actual).toEqual(expected);
-      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(2);
-      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(3);
+    });
+
+    it('should open a private channel successfully', async () => {
+      clightningApiMock.httpPost
+        .mockResolvedValueOnce(listPeersResponse)
+        .mockResolvedValueOnce(connectResponse)
+        .mockResolvedValueOnce(openChanResponse);
+
+      const expected = { txid: 'xyz', index: 0 };
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: true,
+      });
+      expect(actual).toEqual(expected);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(3);
+      expect(clightningApiMock.httpPost).toHaveBeenLastCalledWith(
+        expect.objectContaining({ implementation: 'c-lightning' }),
+        'fundchannel',
+        { announce: false, feerate: '253perkw', id: 'asdf', amount: '1000' },
+      );
+    });
+
+    it('should connect peer then open the channel', async () => {
+      listPeersResponse = {
+        peers: [{ id: 'fdsa', connected: true }],
+      } as CLN.ListPeersResponse;
+      clightningApiMock.httpPost
+        .mockResolvedValueOnce(listPeersResponse)
+        .mockResolvedValueOnce(connectResponse)
+        .mockResolvedValueOnce(openChanResponse);
+
+      const expected = { txid: 'xyz', index: 0 };
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: false,
+      });
+      expect(actual).toEqual(expected);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(3);
+    });
+
+    it('should open a private channel successfully', async () => {
+      clightningApiMock.httpPost
+        .mockResolvedValueOnce(listPeersResponse)
+        .mockResolvedValueOnce(connectResponse)
+        .mockResolvedValueOnce(openChanResponse);
+
+      const expected = { txid: 'xyz', index: 0 };
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: true,
+      });
+      expect(actual).toEqual(expected);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(3);
+      expect(clightningApiMock.httpPost).toHaveBeenLastCalledWith(
+        expect.objectContaining({ implementation: 'c-lightning' }),
+        'fundchannel',
+        { announce: false, feerate: '253perkw', id: 'asdf', amount: '1000' },
+      );
+    });
+
+    it('should connect peer then open the channel', async () => {
+      listPeersResponse = {
+        peers: [{ id: 'fdsa', connected: true }],
+      } as CLN.ListPeersResponse;
+      clightningApiMock.httpPost
+        .mockResolvedValueOnce(listPeersResponse)
+        .mockResolvedValueOnce(connectResponse)
+        .mockResolvedValueOnce(openChanResponse);
+
+      const expected = { txid: 'xyz', index: 0 };
+      const actual = await clightningService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: false,
+      });
+      expect(actual).toEqual(expected);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(3);
     });
   });
 
   describe('waitUntilOnline', () => {
+    beforeEach(() => {
+      fsMock.pathExists = jest.fn().mockResolvedValue(true);
+    });
+
+    it('should throw an error for an incorrect node', async () => {
+      const lnd = getNetwork().nodes.lightning[0];
+      await expect(clightningService.waitUntilOnline(lnd, 0.1, 0.3)).rejects.toThrow(
+        "CLightningService cannot be used for 'LND' nodes",
+      );
+    });
+
     it('should wait successfully', async () => {
-      clightningApiMock.httpGet.mockResolvedValue({ binding: [] });
+      clightningApiMock.httpPost.mockResolvedValue({ binding: [] });
       await expect(clightningService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(1);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
-      clightningApiMock.httpGet.mockRejectedValue(new Error('test-error'));
+      clightningApiMock.httpPost.mockRejectedValue(new Error('test-error'));
       await expect(clightningService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(clightningApiMock.httpGet).toHaveBeenCalledTimes(4);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(4);
     });
   });
 
@@ -312,21 +359,23 @@ describe('CLightningService', () => {
 
     it('checkChannels should call callback with channel events', async () => {
       const mockCallback = jest.fn();
-      const mockChannels: Partial<CLN.GetChannelsResponse>[] = [
-        {
-          channelId: '01aa',
-          state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
-        },
-        {
-          channelId: '04bb',
-          state: CLN.ChannelState.CHANNELD_NORMAL,
-        },
-        {
-          channelId: '07cc',
-          state: CLN.ChannelState.CLOSED,
-        },
-      ];
-      clightningApiMock.httpGet.mockResolvedValue(mockChannels);
+      const mockChannels = {
+        channels: [
+          {
+            channelId: '01aa',
+            state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
+          },
+          {
+            channelId: '04bb',
+            state: CLN.ChannelState.CHANNELD_NORMAL,
+          },
+          {
+            channelId: '07cc',
+            state: CLN.ChannelState.CLOSED,
+          },
+        ],
+      };
+      clightningApiMock.httpPost.mockResolvedValue(mockChannels);
 
       await clightningService.checkChannels(node, mockCallback);
 
@@ -347,7 +396,7 @@ describe('CLightningService', () => {
           ],
         },
       };
-      clightningApiMock.httpGet.mockResolvedValue([]);
+      clightningApiMock.httpPost.mockResolvedValue({ channels: [] });
 
       await clightningService.checkChannels(node, mockCallback);
 
@@ -366,21 +415,23 @@ describe('CLightningService', () => {
           ],
         },
       };
-      const mockChannels: Partial<CLN.GetChannelsResponse>[] = [
-        {
-          channelId: '01ff',
-          state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
-        },
-        {
-          channelId: '04bb',
-          state: CLN.ChannelState.CHANNELD_NORMAL,
-        },
-        {
-          channelId: '07cc',
-          state: CLN.ChannelState.CLOSED, // New channel returned by api
-        },
-      ];
-      clightningApiMock.httpGet.mockResolvedValue(mockChannels);
+      const mockChannels = {
+        channels: [
+          {
+            channelId: '01ff',
+            state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
+          },
+          {
+            channelId: '04bb',
+            state: CLN.ChannelState.CHANNELD_NORMAL,
+          },
+          {
+            channelId: '07cc',
+            state: CLN.ChannelState.CLOSED, // New channel returned by api
+          },
+        ],
+      };
+      clightningApiMock.httpPost.mockResolvedValue(mockChannels);
 
       await clightningService.checkChannels(node, mockCallback);
 
@@ -399,17 +450,19 @@ describe('CLightningService', () => {
           ],
         },
       };
-      const mockChannels: Partial<CLN.GetChannelsResponse>[] = [
-        {
-          channelId: '01ff',
-          state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
-        },
-        {
-          channelId: '04bb',
-          state: CLN.ChannelState.CLOSED, // updated channel state from open to closed
-        },
-      ];
-      clightningApiMock.httpGet.mockResolvedValue(mockChannels);
+      const mockChannels = {
+        channels: [
+          {
+            channelId: '01ff',
+            state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
+          },
+          {
+            channelId: '04bb',
+            state: CLN.ChannelState.CLOSED, // updated channel state from open to closed
+          },
+        ],
+      };
+      clightningApiMock.httpPost.mockResolvedValue(mockChannels);
 
       await clightningService.checkChannels(node, mockCallback);
 
@@ -423,6 +476,87 @@ describe('CLightningService', () => {
         'addListenerToNode CLN on port: ',
         node.ports.rest,
       );
+    });
+  });
+
+  describe('createRune', () => {
+    const infoResponse: Partial<CLN.GetInfoResponse> = {
+      id: 'asdf',
+      alias: '',
+      binding: [{ type: 'ipv4', address: '0.0.0.0', port: 9735 }],
+      blockheight: 0,
+      numActiveChannels: 0,
+      numPendingChannels: 0,
+      numInactiveChannels: 0,
+      warningLightningdSync: 'blah',
+    };
+    const listContainers = mockDockerode.prototype.listContainers as jest.Mock;
+    const getContainer = mockDockerode.prototype.getContainer as jest.Mock;
+    const streamMock = jest.fn();
+    const dockerExecOutput = `
+      lightning-cli --network regtest createrune
+      exit
+      [?2004hclightning@bob:/$ lightning-cli --network regtest createrune
+      [?2004l
+      {
+        "rune": "TGrQQlUxyhs_Ek6XSqyAQS7wLGqQqpdkgvZ5b-ttttY9MA==",
+        "unique_id": "0",
+      }
+      [?2004hclightning@bob:/$ exit
+      [?2004l
+      exit
+    `;
+
+    beforeEach(() => {
+      listContainers.mockResolvedValue([
+        {
+          Id: '123',
+          Names: [`/polar-n${node.networkId}-${node.name}`],
+        },
+      ]);
+      getContainer.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({
+          start: jest.fn().mockResolvedValue({
+            on: streamMock,
+            write: jest.fn(),
+            destroy: jest.fn(),
+          }),
+        }),
+      });
+    });
+
+    it('should throw an error if the container is not found', async () => {
+      listContainers.mockResolvedValueOnce([]);
+      expect(clightningService.waitUntilOnline(node, 0.1, 0.3)).rejects.toThrow(
+        'Docker container not found: polar-n1-bob',
+      );
+
+      getContainer.mockReturnValueOnce(undefined);
+      expect(clightningService.waitUntilOnline(node, 0.1, 0.3)).rejects.toThrow(
+        'Docker container not found: polar-n1-bob',
+      );
+    });
+
+    it('should throw an error if there no rune in the output', async () => {
+      clightningApiMock.httpPost.mockResolvedValue(infoResponse);
+      streamMock.mockImplementation((event: string, cb: (arg: any) => void) => {
+        cb(Buffer.from('no rune here'));
+      });
+      expect(clightningService.waitUntilOnline(node, 0.1, 0.3)).rejects.toThrow(
+        'Failed to create CLN rune',
+      );
+    });
+
+    it('should create a rune', async () => {
+      clightningApiMock.httpPost.mockResolvedValue(infoResponse);
+      streamMock.mockImplementation((event: string, cb: (arg: any) => void) => {
+        cb(Buffer.from(dockerExecOutput));
+      });
+
+      await clightningService.waitUntilOnline(node, 0.1, 0.3);
+
+      expect(listContainers).toHaveBeenCalledTimes(1);
+      expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
     });
   });
 });
