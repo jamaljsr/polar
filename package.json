@@ -147,7 +147,7 @@
     "stylelint": "16.4.0",
     "stylelint-config-prettier": "9.0.5",
     "stylelint-config-standard": "36.0.0",
-    "testcafe": "3.5.0",
+    "testcafe": "3.6.0",
     "testcafe-browser-provider-electron": "0.0.21",
     "testcafe-react-selectors": "5.0.3",
     "ts-node": "10.9.2",
