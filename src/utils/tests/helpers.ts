@@ -94,12 +94,12 @@ export const testRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.17.4-beta': '26.0',
-        '0.17.3-beta': '26.0',
-        '0.17.2-beta': '26.0',
-        '0.17.1-beta': '26.0',
-        '0.17.0-beta': '26.0',
-        '0.16.4-beta': '26.0',
+        '0.17.4-beta': '27.0',
+        '0.17.3-beta': '27.0',
+        '0.17.2-beta': '27.0',
+        '0.17.1-beta': '27.0',
+        '0.17.0-beta': '27.0',
+        '0.16.4-beta': '27.0',
         '0.16.2-beta': '25.0',
         '0.16.1-beta': '25.0',
         '0.16.0-beta': '25.0',
@@ -138,8 +138,9 @@ export const testRepoState: DockerRepoState = {
       versions: ['0.10.0', '0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
     },
     bitcoind: {
-      latest: '26.0',
+      latest: '27.0',
       versions: [
+        '27.0',
         '26.0',
         '25.0',
         '24.0',
