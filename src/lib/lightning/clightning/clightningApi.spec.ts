@@ -14,7 +14,7 @@ describe('CLightningApi', () => {
   const node = getNetwork().nodes.lightning[1] as CLightningNode;
 
   beforeEach(() => {
-    fsMock.readFile.mockResolvedValue(Buffer.from('macaroon-content'));
+    fsMock.readFile.mockResolvedValue(Buffer.from('rune-content'));
   });
 
   it('should perform a successful httpGet', async () => {
@@ -57,7 +57,7 @@ describe('CLightningApi', () => {
       body: '{"data":"asdf"}',
       headers: {
         'Content-Type': 'application/json',
-        macaroon: 'bWFjYXJvb24tY29udGVudA==',
+        rune: 'rune-content',
       },
       method: 'POST',
     });

@@ -329,10 +329,16 @@ describe('LightningDetails', () => {
         shell.openExternal = jest.fn().mockResolvedValue(true);
         const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
+        fireEvent.click(getByText('GRPC'));
+        await waitFor(() => {
+          expect(shell.openExternal).toBeCalledWith(
+            'https://docs.corelightning.org/docs/grpc',
+          );
+        });
         fireEvent.click(getByText('REST'));
         await waitFor(() => {
           expect(shell.openExternal).toBeCalledWith(
-            'https://github.com/Ride-The-Lightning/c-lightning-REST',
+            'https://docs.corelightning.org/docs/rest',
           );
         });
       });

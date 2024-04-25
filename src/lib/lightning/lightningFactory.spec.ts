@@ -27,14 +27,14 @@ describe('LightningFactory', () => {
   });
 
   it('should return a working c-lightning service', async () => {
-    clightningApiMock.httpGet.mockResolvedValue({
+    clightningApiMock.httpPost.mockResolvedValue({
       id: 'asdf',
       binding: [],
     });
     const node = network.nodes.lightning[1];
     const service = factory.getService(node);
     await service.getInfo(node);
-    expect(clightningApiMock.httpGet).toBeCalledTimes(1);
+    expect(clightningApiMock.httpPost).toBeCalledTimes(1);
   });
 
   it('should return an unimplemented eclair service', async () => {
