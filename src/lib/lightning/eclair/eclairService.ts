@@ -1,11 +1,11 @@
 import { debug } from 'electron-log';
-import { BitcoinNode, LightningNode, OpenChannelOptions, EclairNode } from 'shared/types';
+import { BitcoinNode, EclairNode, LightningNode, OpenChannelOptions } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { toSats } from 'utils/units';
 import * as PLN from '../types';
-import { httpPost, setupListener, getListener, removeListener } from './eclairApi';
+import { getListener, httpPost, removeListener, setupListener } from './eclairApi';
 import * as ELN from './types';
 
 const ChannelStateToStatus: Record<ELN.ChannelState, PLN.LightningNodeChannel['status']> =
@@ -266,6 +266,7 @@ class EclairService implements LightningService {
     // listen for incoming channel messages
     listener?.on('message', async (data: any) => {
       const response = JSON.parse(data.toString());
+      debug('Received Eclair WebSocket message:', response);
       switch (response.type) {
         case 'channel-created':
           callback({ type: 'Pending' });

@@ -195,6 +195,7 @@ class LndService implements LightningService {
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
     const cb = (data: LND.ChannelEventUpdate) => {
+      debug('Received LND ChannelEventUpdate message:', data);
       if (data.pendingOpenChannel) {
         callback({ type: 'Pending' });
       } else if (data.activeChannel?.fundingTxidBytes) {

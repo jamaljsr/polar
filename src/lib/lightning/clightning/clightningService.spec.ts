@@ -1,16 +1,20 @@
 import { debug } from 'electron-log';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
-import { clightningService } from './';
 import * as clightningApi from './clightningApi';
+import { CLightningService } from './clightningService';
 import * as CLN from './types';
 
-jest.mock('electron-log');
 jest.mock('./clightningApi');
 
 const clightningApiMock = clightningApi as jest.Mocked<typeof clightningApi>;
 
 describe('CLightningService', () => {
   const node = getNetwork().nodes.lightning[1];
+  let clightningService: CLightningService;
+
+  beforeEach(() => {
+    clightningService = new CLightningService();
+  });
 
   it('should get node info', async () => {
     const infoResponse: Partial<CLN.GetInfoResponse> = {
@@ -253,11 +257,6 @@ describe('CLightningService', () => {
   });
 
   describe('subscribeChannelEvents', () => {
-    afterEach(() => {
-      // Clean up any resources or mock implementations after each test
-      jest.restoreAllMocks();
-    });
-
     it('should create a channel cache, set interval, and call checkChannels', async () => {
       jest.useFakeTimers();
       const mockCallback = jest.fn();
@@ -279,6 +278,7 @@ describe('CLightningService', () => {
       );
 
       expect(clightningService.channelCaches).toBeDefined();
+      jest.useRealTimers();
     });
 
     it('should do nothing if node has already subscribed to channel event', async () => {
@@ -288,9 +288,18 @@ describe('CLightningService', () => {
       jest.spyOn(clightningService, 'checkChannels').mockReturnValue(Promise.resolve());
 
       await clightningService.subscribeChannelEvents(node, mockCallback);
+      jest.advanceTimersByTime(30 * 1000);
 
-      expect(setInterval).toHaveBeenCalledTimes(0);
-      expect(clightningService.checkChannels).toHaveBeenCalledTimes(0);
+      expect(setInterval).toHaveBeenCalledTimes(1);
+      expect(clightningService.checkChannels).toHaveBeenCalledTimes(1);
+
+      // the second time should not call setInterval or checkChannels again
+      await clightningService.subscribeChannelEvents(node, mockCallback);
+
+      expect(setInterval).toHaveBeenCalledTimes(1);
+      expect(clightningService.checkChannels).toHaveBeenCalledTimes(1);
+
+      jest.useRealTimers();
     });
 
     it('should throw an error when the implementation is not c-lightning', async () => {
@@ -333,8 +342,8 @@ describe('CLightningService', () => {
         [node.ports.rest!]: {
           intervalId: setInterval(() => {}, 1000),
           channels: [
-            { channelID: '01ff', pending: true, status: 'Opening' },
-            { channelID: '04bb', pending: false, status: 'Open' },
+            { channelId: '01ff', status: 'Opening' },
+            { channelId: '04bb', status: 'Open' },
           ],
         },
       };
@@ -352,8 +361,8 @@ describe('CLightningService', () => {
         [node.ports.rest!]: {
           intervalId: setInterval(() => {}, 1000),
           channels: [
-            { channelID: '01ff', pending: true, status: 'Opening' },
-            { channelID: '04bb', pending: false, status: 'Open' },
+            { channelId: '01ff', status: 'Opening' },
+            { channelId: '04bb', status: 'Open' },
           ],
         },
       };
@@ -385,8 +394,8 @@ describe('CLightningService', () => {
         [node.ports.rest!]: {
           intervalId: setInterval(() => {}, 1000),
           channels: [
-            { channelID: '01ff', pending: true, status: 'Opening' },
-            { channelID: '04bb', pending: false, status: 'Open' },
+            { channelId: '01ff', status: 'Opening' },
+            { channelId: '04bb', status: 'Open' },
           ],
         },
       };

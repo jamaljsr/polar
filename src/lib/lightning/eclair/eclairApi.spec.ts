@@ -1,13 +1,14 @@
 import { EclairNode } from 'shared/types';
+import WebSocket from 'ws';
 import * as ipc from 'lib/ipc/ipcService';
 import { getNetwork } from 'utils/tests';
-import { httpPost, setupListener, getListener } from './eclairApi';
-import WebSocket from 'ws';
+import { getListener, httpPost, removeListener, setupListener } from './eclairApi';
 
 jest.mock('ws');
 jest.mock('lib/ipc/ipcService');
 
 const ipcMock = ipc as jest.Mocked<typeof ipc>;
+const webSocketMock = WebSocket as unknown as jest.Mock<typeof WebSocket>;
 
 describe('EclairApi', () => {
   const node = getNetwork().nodes.lightning[2] as EclairNode;
@@ -63,11 +64,14 @@ describe('EclairApi', () => {
   it('should setup a listener for the provided EclairNode', () => {
     jest.useFakeTimers();
 
-    const webSocketMock = jest
-      .spyOn(WebSocket.prototype, 'ping')
-      .mockImplementation(() => {
-        return { ping: jest.fn() };
-      });
+    const pingMock = jest.fn();
+    webSocketMock.mockImplementationOnce(
+      () =>
+        ({
+          ping: pingMock,
+          readyState: WebSocket.OPEN,
+        } as any),
+    );
 
     const listener = setupListener(node);
     expect(listener).not.toBe(null);
@@ -77,8 +81,52 @@ describe('EclairApi', () => {
     jest.advanceTimersByTime(50e3);
 
     // Verify ping is called within the interval
-    expect(
-      (webSocketMock.mock.instances[0] as unknown as WebSocket).ping,
-    ).toHaveBeenCalled();
+    expect(pingMock).toHaveBeenCalled();
+  });
+
+  it('should should not send ping on a closed socket', () => {
+    jest.useFakeTimers();
+
+    const pingMock = jest.fn();
+    webSocketMock.mockImplementationOnce(
+      () =>
+        ({
+          ping: pingMock,
+          readyState: WebSocket.CLOSED,
+        } as any),
+    );
+
+    const listener = setupListener(node);
+    expect(listener).not.toBe(null);
+    expect(listener.on).not.toBe(null);
+
+    // Fast-forward time to trigger the interval
+    jest.advanceTimersByTime(50e3);
+
+    // Verify ping is called within the interval
+    expect(pingMock).not.toHaveBeenCalled();
+  });
+
+  it('should remove a listener for the provided LightningNode', () => {
+    // make sure the listener is cached
+    const listener = getListener(node);
+    expect(listener).not.toBe(null);
+
+    removeListener(node);
+
+    // it should return a different listener for the same node after removing it
+    const listener2 = getListener(node);
+    expect(listener2).not.toBe(null);
+    expect(listener2).not.toBe(listener);
+  });
+
+  it('should do nothing when removing a listener that does not exist', () => {
+    // Use a different port to ensure the listener isn't cached
+    const otherNode = {
+      ...node,
+      ports: { ...node.ports, rest: 1234 },
+    };
+    // removing a listener that doesn't exist should not throw
+    expect(() => removeListener(otherNode)).not.toThrow();
   });
 });

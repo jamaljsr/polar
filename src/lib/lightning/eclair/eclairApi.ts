@@ -1,6 +1,6 @@
-import WebSocket from 'ws';
 import { ipcChannels } from 'shared';
 import { EclairNode, LightningNode } from 'shared/types';
+import WebSocket from 'ws';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { eclairCredentials } from 'utils/constants';
 import * as ELN from './types';
@@ -87,7 +87,7 @@ const listen = (options: ELN.ConfigOptions): ELN.EclairWebSocket => {
   });
   // ping every 50s to keep it alive
   setInterval(() => {
-    if (socket) {
+    if (socket.readyState === WebSocket.OPEN) {
       socket.ping();
     }
   }, 50e3);
