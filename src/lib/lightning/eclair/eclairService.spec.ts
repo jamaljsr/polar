@@ -451,7 +451,7 @@ describe('EclairService', () => {
 
       const mockCallback = jest.fn();
 
-      (eclairApi.getListener as jest.Mock).mockReturnValue(mockListener);
+      jest.spyOn(eclairApi, 'getListener').mockReturnValue(mockListener);
 
       await eclairService.subscribeChannelEvents(node, mockCallback);
 
@@ -496,15 +496,11 @@ describe('EclairService', () => {
     });
 
     it('should add listener to node', async () => {
-      const mockSetupListener = jest.fn();
-      (eclairApi.setupListener as jest.Mock).mockReturnValue(mockSetupListener);
       eclairService.addListenerToNode(node);
       expect(eclairApi.setupListener).toHaveBeenCalled();
     });
 
     it('should remove Listener', async () => {
-      const mockRemoveListener = jest.fn();
-      (eclairApi.removeListener as jest.Mock).mockReturnValue(mockRemoveListener);
       eclairService.removeListener(node);
       expect(eclairApi.removeListener).toHaveBeenCalled();
     });
