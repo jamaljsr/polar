@@ -71,6 +71,8 @@ export interface ListPeerChannelsResponse {
     toUsMsat: number;
     totalMsat: number;
     private: boolean;
+    fundingTxid: string;
+    fundingOutnum: number;
   }[];
 }
 
@@ -133,4 +135,15 @@ export interface PayResponse {
   status: string;
   paymentHash: string;
   parts: number;
+}
+
+export interface ChannelStateChangeEvent {
+  peer_id: string;
+  channel_id: string;
+  short_channel_id: string;
+  timestamp: string;
+  old_state: ChannelState;
+  new_state: ChannelState;
+  cause: string;
+  message: string;
 }

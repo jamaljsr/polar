@@ -1,6 +1,7 @@
-import { debug } from 'electron-log';
+// import { debug } from 'electron-log';
 import fs from 'fs-extra';
 import Dockerode from 'dockerode';
+import { Socket } from 'socket.io-client';
 import { defaultStateInfo, getNetwork } from 'utils/tests';
 import * as clightningApi from './clightningApi';
 import { CLightningService } from './clightningService';
@@ -9,6 +10,7 @@ import * as CLN from './types';
 jest.mock('dockerode');
 jest.mock('./clightningApi');
 jest.mock('fs-extra');
+jest.mock('socket.io-client');
 
 const clightningApiMock = clightningApi as jest.Mocked<typeof clightningApi>;
 const fsMock = fs as jest.Mocked<typeof fs>;
@@ -74,6 +76,32 @@ describe('CLightningService', () => {
           opener: 'local',
           private: false,
           shortChannelId: '123x1x1',
+          fundingTxid: 'abc',
+          fundingOutnum: 0,
+        },
+      ],
+    };
+    clightningApiMock.httpPost.mockResolvedValue(chanResponse);
+    const expected = [expect.objectContaining({ pubkey: 'xyz' })];
+    const actual = await clightningService.getChannels(node);
+    expect(actual).toEqual(expected);
+  });
+
+  it('should get list of pending channels', async () => {
+    // state is CHANNELD_AWAITING_LOCKIN with no shortChannelId
+    const chanResponse: Partial<CLN.ListPeerChannelsResponse> = {
+      channels: [
+        {
+          peerId: 'xyz',
+          channelId: 'abcd',
+          state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
+          totalMsat: 0,
+          toUsMsat: 0,
+          opener: 'local',
+          private: false,
+          shortChannelId: '',
+          fundingTxid: 'abc',
+          fundingOutnum: 0,
         },
       ],
     };
@@ -94,7 +122,7 @@ describe('CLightningService', () => {
 
   it('should close the channel', async () => {
     const expected = true;
-    clightningApiMock.httpDelete.mockResolvedValue(expected);
+    clightningApiMock.httpPost.mockResolvedValue(expected);
     const actual = await clightningService.closeChannel(node, 'chanPoint');
     expect(actual).toEqual(expected);
   });
@@ -274,208 +302,68 @@ describe('CLightningService', () => {
     });
   });
 
-  describe('removeListener', () => {
-    jest.spyOn(window, 'clearInterval');
-
-    it('should remove channel if channel exists in cache', async () => {
-      const intervalId = setInterval(() => {}, 1000);
-      clightningService.channelCaches = {
-        [node.ports.rest!]: {
-          intervalId,
-          channels: [],
-        },
-      };
-      await clightningService.removeListener(node);
-      expect(clearInterval).toHaveBeenCalledTimes(1);
-      expect(clearInterval).toHaveBeenCalledWith(intervalId);
-    });
-
-    it('should do nothing if channel does not exists in cache', async () => {
-      clightningService.channelCaches = {
-        [1234]: {
-          // using a random node port
-          intervalId: setInterval(() => {}, 1000),
-          channels: [],
-        },
-      };
-      await clightningService.removeListener(node);
-      expect(clearInterval).not.toHaveBeenCalled();
-    });
-  });
-
   describe('subscribeChannelEvents', () => {
-    it('should create a channel cache, set interval, and call checkChannels', async () => {
-      jest.useFakeTimers();
+    it('should successfully subscribe to channel events', async () => {
       const mockCallback = jest.fn();
 
-      jest.spyOn(clightningService, 'checkChannels').mockReturnValue(Promise.resolve());
+      jest.spyOn(clightningApi, 'getListener').mockResolvedValue({
+        on: jest.fn().mockImplementation((event, cb) => {
+          const message = {
+            channel_state_changed: {
+              peer_id:
+                '0226ad0baeb164fafda0d9670c706d6320a51a7986623ccf63d16b8d8dd76d9ef6',
+              channel_id:
+                'ac7f0f83163ac57ed3a63a16576b8e69a3f881e338ce8a2ab2ce2fa4a41a40a0',
+              short_channel_id: '108x1x0',
+              timestamp: '2024-04-26T06:45:43.521Z',
+              old_state: 'unknown',
+              new_state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
+              cause: 'user',
+              message: 'new channel opened',
+            },
+          };
+          cb(message);
+          message.channel_state_changed.new_state = CLN.ChannelState.CHANNELD_NORMAL;
+          cb(message);
+          message.channel_state_changed.new_state = CLN.ChannelState.ONCHAIN;
+          cb(message);
+          message.channel_state_changed.new_state = CLN.ChannelState.CLOSED;
+          cb(message);
+          // send a different message to test that it can handle unknown messages
+          cb({
+            block_added: {
+              hash: '13fcc5a69db722ccd16b02a953128a0bf1d3aed833ffdc8a63854293da1dedcd',
+              height: 101,
+            },
+          });
+        }),
+      } as unknown as Socket);
 
       await clightningService.subscribeChannelEvents(node, mockCallback);
 
-      expect(setInterval).toHaveBeenCalledTimes(1);
-      expect(setInterval).toHaveBeenLastCalledWith(expect.any(Function), 30 * 1000);
+      expect(mockCallback).toHaveBeenCalledWith({ type: 'Pending' });
+      expect(mockCallback).toHaveBeenCalledWith({ type: 'Open' });
+      expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
 
-      // Fast-forward time by 30 seconds to trigger the interval callback
-      jest.advanceTimersByTime(30 * 1000);
-
-      expect(clightningService.checkChannels).toHaveBeenCalledTimes(1);
-      expect(clightningService.checkChannels).toHaveBeenLastCalledWith(
-        node,
-        mockCallback,
-      );
-
-      expect(clightningService.channelCaches).toBeDefined();
-      jest.useRealTimers();
+      expect(clightningApi.getListener).toHaveBeenCalledWith(node);
     });
 
-    it('should do nothing if node has already subscribed to channel event', async () => {
-      jest.useFakeTimers();
-      const mockCallback = jest.fn();
-
-      jest.spyOn(clightningService, 'checkChannels').mockReturnValue(Promise.resolve());
-
-      await clightningService.subscribeChannelEvents(node, mockCallback);
-      jest.advanceTimersByTime(30 * 1000);
-
-      expect(setInterval).toHaveBeenCalledTimes(1);
-      expect(clightningService.checkChannels).toHaveBeenCalledTimes(1);
-
-      // the second time should not call setInterval or checkChannels again
-      await clightningService.subscribeChannelEvents(node, mockCallback);
-
-      expect(setInterval).toHaveBeenCalledTimes(1);
-      expect(clightningService.checkChannels).toHaveBeenCalledTimes(1);
-
-      jest.useRealTimers();
-    });
-
-    it('should throw an error when the implementation is not c-lightning', async () => {
+    it('should throw an error when the implementation is not eclair', async () => {
       const lndNode = getNetwork().nodes.lightning[0];
       const mockCallback = jest.fn();
       await expect(
         clightningService.subscribeChannelEvents(lndNode, mockCallback),
-      ).rejects.toThrow("ClightningService cannot be used for 'LND' nodes");
+      ).rejects.toThrow("CLightningService cannot be used for 'LND' nodes");
     });
 
-    it('checkChannels should call callback with channel events', async () => {
-      const mockCallback = jest.fn();
-      const mockChannels = {
-        channels: [
-          {
-            channelId: '01aa',
-            state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
-          },
-          {
-            channelId: '04bb',
-            state: CLN.ChannelState.CHANNELD_NORMAL,
-          },
-          {
-            channelId: '07cc',
-            state: CLN.ChannelState.CLOSED,
-          },
-        ],
-      };
-      clightningApiMock.httpPost.mockResolvedValue(mockChannels);
-
-      await clightningService.checkChannels(node, mockCallback);
-
-      expect(mockCallback).toHaveBeenCalledTimes(3);
-      expect(mockCallback).toHaveBeenCalledWith({ type: 'Pending' });
-      expect(mockCallback).toHaveBeenCalledWith({ type: 'Open' });
-      expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
+    it('should add listener to node', async () => {
+      clightningService.addListenerToNode(node);
+      expect(clightningApi.setupListener).toHaveBeenCalled();
     });
 
-    it('checkChannels edge case for empty apiChannels but cache channels is not empty', async () => {
-      const mockCallback = jest.fn();
-      clightningService.channelCaches = {
-        [node.ports.rest!]: {
-          intervalId: setInterval(() => {}, 1000),
-          channels: [
-            { channelId: '01ff', status: 'Opening' },
-            { channelId: '04bb', status: 'Open' },
-          ],
-        },
-      };
-      clightningApiMock.httpPost.mockResolvedValue({ channels: [] });
-
-      await clightningService.checkChannels(node, mockCallback);
-
-      expect(mockCallback).toHaveBeenCalledTimes(1);
-      expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
-    });
-
-    it('checkChannels should call callback for only new channel returned by api', async () => {
-      const mockCallback = jest.fn();
-      clightningService.channelCaches = {
-        [node.ports.rest!]: {
-          intervalId: setInterval(() => {}, 1000),
-          channels: [
-            { channelId: '01ff', status: 'Opening' },
-            { channelId: '04bb', status: 'Open' },
-          ],
-        },
-      };
-      const mockChannels = {
-        channels: [
-          {
-            channelId: '01ff',
-            state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
-          },
-          {
-            channelId: '04bb',
-            state: CLN.ChannelState.CHANNELD_NORMAL,
-          },
-          {
-            channelId: '07cc',
-            state: CLN.ChannelState.CLOSED, // New channel returned by api
-          },
-        ],
-      };
-      clightningApiMock.httpPost.mockResolvedValue(mockChannels);
-
-      await clightningService.checkChannels(node, mockCallback);
-
-      expect(mockCallback).toHaveBeenCalledTimes(1); // called once for new channel
-      expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
-    });
-
-    it('checkChannels should call callback if channel state has been updated', async () => {
-      const mockCallback = jest.fn();
-      clightningService.channelCaches = {
-        [node.ports.rest!]: {
-          intervalId: setInterval(() => {}, 1000),
-          channels: [
-            { channelId: '01ff', status: 'Opening' },
-            { channelId: '04bb', status: 'Open' },
-          ],
-        },
-      };
-      const mockChannels = {
-        channels: [
-          {
-            channelId: '01ff',
-            state: CLN.ChannelState.CHANNELD_AWAITING_LOCKIN,
-          },
-          {
-            channelId: '04bb',
-            state: CLN.ChannelState.CLOSED, // updated channel state from open to closed
-          },
-        ],
-      };
-      clightningApiMock.httpPost.mockResolvedValue(mockChannels);
-
-      await clightningService.checkChannels(node, mockCallback);
-
-      expect(mockCallback).toHaveBeenCalledTimes(1); // called once for updated channel state
-      expect(mockCallback).toHaveBeenCalledWith({ type: 'Closed' });
-    });
-
-    it('should add listener to node, log a debug message with the node port', async () => {
-      await clightningService.addListenerToNode(node);
-      expect(debug).toHaveBeenCalledWith(
-        'addListenerToNode CLN on port: ',
-        node.ports.rest,
-      );
+    it('should remove Listener', async () => {
+      clightningService.removeListener(node);
+      expect(clightningApi.removeListener).toHaveBeenCalled();
     });
   });
 
