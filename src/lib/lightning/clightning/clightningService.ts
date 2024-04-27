@@ -6,7 +6,7 @@ import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { exists, write } from 'utils/files';
 import { getContainerName } from 'utils/network';
-import { httpPost } from './clightningApi';
+import { getListener, httpPost, removeListener, setupListener } from './clightningApi';
 import * as CLN from './types';
 
 // exec command and options configuration
@@ -107,8 +107,8 @@ export class CLightningService implements LightningService {
         const status = ChannelStateToStatus[c.state];
         return {
           pending: status !== 'Open',
-          uniqueId: c.shortChannelId,
-          channelPoint: c.channelId,
+          uniqueId: c.shortChannelId || c.channelId,
+          channelPoint: `${c.fundingTxid}:${c.fundingOutnum}`,
           pubkey: c.peerId,
           capacity: this.toSats(c.totalMsat),
           localBalance: this.toSats(c.toUsMsat),
@@ -230,102 +230,44 @@ export class CLightningService implements LightningService {
       timeout,
     );
   }
-  // this method doesn't have any implementation because Polling is used for CLN nodes
+
   async addListenerToNode(node: LightningNode): Promise<void> {
-    debug('addListenerToNode CLN on port: ', node.ports.rest);
+    await setupListener(this.cast(node));
   }
 
   async removeListener(node: LightningNode): Promise<void> {
-    const nodePort = this.getNodePort(node);
-    const cache = this.channelCaches[nodePort];
-    if (cache) {
-      clearInterval(cache.intervalId);
-      delete this.channelCaches[nodePort];
-    }
+    removeListener(this.cast(node));
   }
 
   async subscribeChannelEvents(
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
-    const nodePort = this.getNodePort(node);
-    if (!this.channelCaches[nodePort]) {
-      // check c-lightning channels every 30 seconds
-      this.channelCaches[nodePort] = {
-        intervalId: setInterval(() => {
-          this.checkChannels(node, callback);
-        }, 30 * 1000),
-        channels: [],
-      };
-    }
+    const listener = await getListener(this.cast(node));
+    debug(`c-lightning API: [stream] ${node.name}: Listening for channel events`);
+    // listen for incoming channel messages
+    listener.on('message', async (response: any) => {
+      if (!response.channel_state_changed) return;
+      const event: CLN.ChannelStateChangeEvent = response.channel_state_changed;
+
+      debug(`c-lightning API: [stream] ${node.name}`, response);
+      switch (event.new_state) {
+        case CLN.ChannelState.CHANNELD_NORMAL:
+          callback({ type: 'Open' });
+          break;
+        case CLN.ChannelState.ONCHAIN:
+        case CLN.ChannelState.CLOSED:
+          callback({ type: 'Closed' });
+          break;
+        default:
+          callback({ type: 'Pending' });
+          break;
+      }
+    });
   }
-
-  checkChannels = async (
-    node: LightningNode,
-    callback: (event: PLN.LightningNodeChannelEvent) => void,
-  ) => {
-    const { channels } = await httpPost<CLN.ListPeerChannelsResponse>(
-      node,
-      'listpeerchannels',
-    );
-
-    const apiChannels = channels.map(channel => {
-      const status = ChannelStateToStatus[channel.state];
-      return {
-        channelId: channel.channelId,
-        status,
-      };
-    });
-
-    const cache = this.channelCaches[this.getNodePort(node)] || { channels: [] };
-    const uniqueChannels = this.getUniqueChannels(cache.channels, apiChannels);
-    uniqueChannels.forEach(channel => {
-      if (channel.status === 'Open') {
-        callback({ type: 'Open' });
-      } else if (channel.status === 'Closed') {
-        callback({ type: 'Closed' });
-      } else {
-        callback({ type: 'Pending' });
-      }
-    });
-    // edge case for empty apiChannels but cache channels is not empty
-    if (cache.channels.length && !apiChannels.length) {
-      callback({ type: 'Closed' });
-    }
-
-    cache.channels = apiChannels;
-  };
-
-  getUniqueChannels = (
-    cacheChannels: CachedChannelStatus[],
-    apiChannels: CachedChannelStatus[],
-  ): CachedChannelStatus[] => {
-    const uniqueChannels: CachedChannelStatus[] = [];
-    // Check channels in apiChannels that are not in cacheChannels
-    for (const channel of apiChannels) {
-      if (
-        !cacheChannels.some(
-          cacheCh =>
-            cacheCh.channelId === channel.channelId && cacheCh.status === channel.status,
-        )
-      ) {
-        uniqueChannels.push(channel);
-      }
-    }
-
-    return uniqueChannels;
-  };
 
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
-  }
-
-  private getNodePort(node: LightningNode): number {
-    if (node.implementation !== 'c-lightning')
-      throw new Error(
-        `ClightningService cannot be used for '${node.implementation}' nodes`,
-      );
-    return (node as CLightningNode).ports.rest;
   }
 
   private cast(node: LightningNode): CLightningNode {
@@ -345,14 +287,16 @@ export class CLightningService implements LightningService {
   private async createRune(node: CLightningNode) {
     if (await exists(node.paths.rune)) return;
 
+    const log = (...args: any[]) => debug(`CLightningService ${node.name}:`, ...args);
+
     // lookup the docker container by name
     const name = getContainerName(node);
-    debug(`creating rune for CLN node ${name}`);
+    log(`creating rune for CLN node ${name}`);
     const docker = await getDocker();
-    debug(`getting docker container with name '${name}'`);
+    log(`getting docker container with name '${name}'`);
     const containers = await docker.listContainers();
     const info = containers.find(c => c.Names.includes(`/${name}`));
-    debug(`found container: ${info?.Id}`);
+    log(`found container: ${info?.Id}`);
     const container = info && docker.getContainer(info.Id);
     if (!container) throw new Error(`Docker container not found: ${name}`);
     // create an exec instance
@@ -367,7 +311,7 @@ export class CLightningService implements LightningService {
     });
 
     // send the createrune command and exit immediately to end the stream
-    debug(`sending createrune command`);
+    log(`sending createrune command`);
     stream.write('lightning-cli --network regtest createrune\n');
     stream.write('exit\n');
 
@@ -376,14 +320,14 @@ export class CLightningService implements LightningService {
     stream.destroy();
 
     // parse the result for the rune
-    debug(`createrune result:\n${result}`);
+    log(`createrune result:\n${result}`);
     const rune = /^\s+"rune": "(?<rune>.*)",$/gm.exec(result)?.groups?.rune;
-    debug(`captured rune: ${rune}`);
+    log(`captured rune: ${rune}`);
     if (!rune) throw new Error('Failed to create CLN rune');
 
     // save the rune to the node's data directory
     await write(node.paths.rune, rune);
-    debug(`saved rune to ${node.paths.rune}`);
+    log(`saved rune to ${node.paths.rune}`);
   }
 }
 

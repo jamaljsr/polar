@@ -263,10 +263,11 @@ class EclairService implements LightningService {
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
     const listener = getListener(this.cast(node));
+    debug(`Eclair API: [stream] ${node.name}: Listening for channel events`);
     // listen for incoming channel messages
     listener?.on('message', async (data: any) => {
       const response = JSON.parse(data.toString());
-      debug('Received Eclair WebSocket message:', response);
+      debug(`Eclair API: [stream] ${node.name}`, response);
       switch (response.type) {
         case 'channel-created':
           callback({ type: 'Pending' });

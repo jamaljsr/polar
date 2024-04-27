@@ -314,22 +314,24 @@ const lightningModel: LightningModel = {
   addChannelListeners: thunk(
     async (actions, network, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(network.id);
+
+      // throttle the sync to avoid too many back to back requests
+      const syncThrottled = throttle(
+        () => {
+          const net = getStoreState().network.networkById(network.id);
+          getStoreActions().designer.syncChart(net);
+        },
+        5 * 1000,
+        { leading: true, trailing: true },
+      );
+
       for (const node of nodes.lightning) {
         await injections.lightningFactory
           .getService(node)
           .subscribeChannelEvents(node, async (event: PLN.LightningNodeChannelEvent) => {
-            if (
-              event.type === 'Pending' ||
-              event.type === 'Open' ||
-              event.type === 'Closed'
-            ) {
-              await actions.getAllInfo(node);
-              const network = getStoreState().network.networkById(node.networkId);
-              // throttleFunction makes sure multiple syncChart calls is done with a 10 seconds interval
-              const throttleFunction = throttle(() => {
-                getStoreActions().designer.syncChart(network);
-              }, 10 * 1000);
-              throttleFunction();
+            if (event.type !== 'Unknown') {
+              await actions.waitForNodes([node]);
+              syncThrottled();
             }
           });
       }
