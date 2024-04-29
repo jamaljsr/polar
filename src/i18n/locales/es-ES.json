@@ -277,7 +277,6 @@
   "cmps.designer.lightning.LightningDetails.actions": "Comportamiento",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "Esperando a que {{implementation}} se conecte",
   "cmps.designer.lightning.LightningDetails.connectError": "No se puede conectar al nodo {{implementation}}",
-  "cmps.designer.lightning.LightningDetails.menuRename": "Renombrar",
   "cmps.designer.SyncButton.syncSuccess": "El diseñador se ha sincronizado con los nodos Lightning",
   "cmps.designer.SyncButton.syncError": "Error al sincronizar la red",
   "cmps.designer.SyncButton.syncBtnTip": "Actualizar gráfico desde nodos",

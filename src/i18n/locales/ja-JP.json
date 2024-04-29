@@ -277,7 +277,6 @@
   "cmps.designer.lightning.LightningDetails.actions": "行動",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "がオンラインに {{implementation}} を待っています",
   "cmps.designer.lightning.LightningDetails.connectError": "{{implementation}} ノードに接続できません",
-  "cmps.designer.lightning.LightningDetails.menuRename": "リネーム",
   "cmps.designer.SyncButton.syncSuccess": "デザイナーはLightningノードと同期されました",
   "cmps.designer.SyncButton.syncError": "ネットワークの同期に失敗しました",
   "cmps.designer.SyncButton.syncBtnTip": "ノードからグラフを更新",

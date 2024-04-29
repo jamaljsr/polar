@@ -277,7 +277,6 @@
   "cmps.designer.lightning.LightningDetails.actions": "Azioni",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "In attesa che {{implementation}} venga online",
   "cmps.designer.lightning.LightningDetails.connectError": "Impossibile connettersi al nodo {{implementation}}",
-  "cmps.designer.lightning.LightningDetails.menuRename": "Rinominare",
   "cmps.designer.SyncButton.syncSuccess": "Il designer è stato sincronizzato con i nodi Lightning",
   "cmps.designer.SyncButton.syncError": "Sincronizzazione della rete non riuscita",
   "cmps.designer.SyncButton.syncBtnTip": "Aggiorna il grafico dai nodi",

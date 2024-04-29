@@ -287,7 +287,6 @@
   "cmps.designer.lightning.LightningDetails.actions": "Actions",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "Waiting for {{implementation}} to come online",
   "cmps.designer.lightning.LightningDetails.connectError": "Unable to connect to {{implementation}} node",
-  "cmps.designer.lightning.LightningDetails.menuRename": "Rename",
   "cmps.designer.SyncButton.syncSuccess": "The designer has been synced with the Lightning nodes",
   "cmps.designer.SyncButton.syncError": "Failed to sync the network",
   "cmps.designer.SyncButton.syncBtnTip": "Update graph from nodes",

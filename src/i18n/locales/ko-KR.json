@@ -277,7 +277,6 @@
   "cmps.designer.lightning.LightningDetails.actions": "행위",
   "cmps.designer.lightning.LightningDetails.waitingNotice": "{{implementation}} 이 온라인 상태가되기를 기다리는 중",
   "cmps.designer.lightning.LightningDetails.connectError": "{{implementation}} 노드에 연결할 수 없습니다",
-  "cmps.designer.lightning.LightningDetails.menuRename": "이름 바꾸기",
   "cmps.designer.SyncButton.syncSuccess": "디자이너가 Lightning 노드와 동기화되었습니다",
   "cmps.designer.SyncButton.syncError": "네트워크를 동기화하지 못했습니다",
   "cmps.designer.SyncButton.syncBtnTip": "노드에서 채널 업데이트",
