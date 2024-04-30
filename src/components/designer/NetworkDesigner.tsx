@@ -7,7 +7,7 @@ import { useDebounce } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { Loader } from 'components/common';
+import { Loader, RenameNodeModal } from 'components/common';
 import AdvancedOptionsModal from 'components/common/AdvancedOptionsModal';
 import SendOnChainModal from './bitcoind/actions/SendOnChainModal';
 import { CanvasOuterDark, Link, NodeInner, Port, Ports } from './custom';
@@ -61,6 +61,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     sendOnChain,
     advancedOptions,
     changeTapBackend,
+    renameNode,
   } = useStoreState(s => s.modals);
 
   const { save } = useStoreActions(s => s.network);
@@ -108,6 +109,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {newAddress.visible && <NewAddressModal network={network} />}
       {changeTapBackend.visible && <ChangeTapBackendModal network={network} />}
       {sendAsset.visible && <SendAssetModal network={network} />}
+      {renameNode.visible && <RenameNodeModal network={network} />}
     </Styled.Designer>
   );
 };

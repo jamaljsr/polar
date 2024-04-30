@@ -93,7 +93,7 @@ export interface LightningModel {
 const lightningModel: LightningModel = {
   // state properties
   nodes: {},
-
+  // reducer actions (mutations allowed thx to immer)
   removeNode: action((state, name) => {
     if (state.nodes[name]) {
       delete state.nodes[name];

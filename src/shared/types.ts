@@ -75,7 +75,6 @@ export interface BitcoinNode extends CommonNode {
 }
 
 export interface TapNode extends CommonNode {
-  lndName: string;
   type: 'tap';
   implementation: 'tapd';
   ports: Record<string, number | undefined>;

@@ -7,7 +7,7 @@ import {
   AdvancedOptionsButton,
   RemoveNode,
   RestartNode,
-  RenameNode,
+  RenameNodeButton,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
@@ -107,7 +107,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       <ViewLogsButton type="menu" node={node} />,
       [Status.Starting, Status.Started, Status.Error].includes(node.status),
     ),
-    addItemIf('rename', <RenameNode type="menu" node={node} />),
+    addItemIf('rename', <RenameNodeButton type="menu" node={node} />),
     addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
     addItemIf('remove', <RemoveNode type="menu" node={node} />),
   );

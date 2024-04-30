@@ -6,8 +6,10 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
   BitcoinNode,
+  CLightningNode,
   CommonNode,
   LightningNode,
+  LndNode,
   NodeImplementation,
   Status,
   TapdNode,
@@ -53,32 +55,6 @@ export interface AutoMinerModel {
   startTime: number;
   timer?: NodeJS.Timer;
   mining: boolean;
-}
-
-interface Paths {
-  tlsCert: string;
-  adminMacaroon: string;
-  invoiceMacaroon: string;
-  readonlyMacaroon: string;
-}
-
-interface Node {
-  id: number;
-  networkId: number;
-  name: string;
-  type: 'bitcoin' | 'lightning' | 'tap';
-  version: string;
-  status: Status;
-  errorMsg?: string;
-  docker: {
-    image: string;
-    command: string;
-  };
-  implementation: 'LND' | 'c-lightning' | 'eclair' | 'tapd' | 'bitcoind' | 'btcd';
-  backendName: string;
-  ports: Record<string, number | undefined>;
-  paths?: Partial<Paths>;
-  lndName: string;
 }
 
 export interface NetworkModel {
@@ -174,7 +150,7 @@ export interface NetworkModel {
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   renameNode: Thunk<
     NetworkModel,
-    { node: LightningNode | BitcoinNode | TapNode; newName: string },
+    { node: CommonNode; newName: string },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -1026,7 +1002,9 @@ const networkModel: NetworkModel = {
       let updatedNode;
       switch (node.type) {
         case 'lightning':
-          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as Node;
+          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as
+            | LndNode
+            | CLightningNode;
           getStoreActions().designer.renameLightningNode({
             name: newName,
             nodeId: updatedNode.name,
@@ -1045,7 +1023,7 @@ const networkModel: NetworkModel = {
           // TODO: Update the path of the bitcoin node
           break;
         case 'tap':
-          updatedNode = network?.nodes.tap.find(n => n.id === node.id) as Node;
+          updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
           getStoreActions().designer.renameTapNode({
             name: newName,
             nodeId: updatedNode.name,
@@ -1059,7 +1037,9 @@ const networkModel: NetworkModel = {
       }
 
       // Rename the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      const volumeDir = (node as AnyNode).implementation
+        .toLocaleLowerCase()
+        .replace('-', '');
       const oldPath = join(network.path, 'volumes', volumeDir, node.name);
       const newPath = join(network.path, 'volumes', volumeDir, newName);
 
