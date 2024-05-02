@@ -1,7 +1,7 @@
 import React from 'react';
-import { Form, Input } from 'antd';
+import { Input } from 'antd';
 import { FormInstance } from 'antd/lib/form';
-import { usePrefixedTranslation } from 'hooks';
+// import { usePrefixedTranslation } from 'hooks';
 
 interface Props {
   form: FormInstance;
@@ -10,17 +10,14 @@ interface Props {
   disabled?: boolean;
 }
 
-const RenameNodeInput: React.FC<Props> = ({ name, defaultName, disabled }) => {
-  const { l } = usePrefixedTranslation('cmps.common.form.RenameNodeInput');
+const RenameNodeInput: React.FC<Props> = ({ defaultName, disabled }) => {
   return (
-    <Form.Item name={name} label={l('label')}>
-      <Input
-        value={name}
-        defaultValue={defaultName}
-        placeholder="Enter node name"
-        disabled={disabled}
-      />
-    </Form.Item>
+    <Input
+      // value={name}
+      defaultValue={defaultName}
+      placeholder="Enter node name"
+      disabled={disabled}
+    />
   );
 };
 

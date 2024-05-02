@@ -15,7 +15,7 @@ const RenameNodeButton: React.FC<Props> = ({ node, type }) => {
   const { showRenameNode } = useStoreActions(s => s.modals);
   const handleClick = () => {
     showRenameNode({
-      defaultName: node.name,
+      oldNodeName: node.name,
     });
   };
 

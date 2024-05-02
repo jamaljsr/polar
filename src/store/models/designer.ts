@@ -73,21 +73,9 @@ export interface DesignerModel {
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
-  renameLightningNode: Thunk<
-    DesignerModel,
-    { nodeId: string; name: string; backendName: string },
-    StoreInjections,
-    RootModel
-  >;
-  renameBitcoinNode: Thunk<
+  renameNode: Thunk<
     DesignerModel,
     { nodeId: string; name: string },
-    StoreInjections,
-    RootModel
-  >;
-  renameTapNode: Thunk<
-    DesignerModel,
-    { nodeId: string; name: string; lndName: string },
     StoreInjections,
     RootModel
   >;
@@ -231,101 +219,45 @@ const designerModel: DesignerModel = {
       }
     });
   }),
-  renameLightningNode: thunk(
-    async (actions, { nodeId, name, backendName }, { getState, getStoreActions }) => {
-      const { allCharts, activeId } = getState();
-      const chart = allCharts[activeId];
+  renameNode: thunk(async (actions, { nodeId, name }, { getState, getStoreActions }) => {
+    const { allCharts, activeId } = getState();
+    const chart = allCharts[activeId];
 
-      // Ensure the node exists
-      const node = chart.nodes[nodeId];
-      if (!node) {
-        throw new Error(`Lightning node with id ${nodeId} not found.`);
-      }
+    // Ensure the node exists
+    const node = chart.nodes[nodeId];
+    if (!node) {
+      throw new Error(`${node} node with id ${nodeId} not found.`);
+    }
 
-      // Update the node chart
-      const updatedChart = {
-        ...chart,
-        nodes: {
-          ...chart.nodes,
-          [name]: {
-            ...chart.nodes[nodeId],
-            id: name,
-          },
+    // Update the node chart
+    const updatedChart = {
+      ...chart,
+      nodes: {
+        ...chart.nodes,
+        [name]: {
+          ...chart.nodes[nodeId],
+          id: name,
         },
-      };
+      },
+    };
 
-      // Update the state with the modified chart
-      allCharts[activeId] = updatedChart;
-      // remove the old node with previous key
-      getStoreActions().designer.removeNode(nodeId);
-      getStoreActions().designer.updateBackendLink({
-        lnName: name,
-        backendName: backendName,
-      });
-    },
-  ),
-  renameBitcoinNode: thunk(
-    async (actions, { nodeId, name }, { getState, getStoreActions }) => {
-      const { allCharts, activeId } = getState();
-      const chart = allCharts[activeId];
-
-      // Ensure the node exists
-      const node = chart.nodes[nodeId];
-      if (!node) {
-        throw new Error(`Bitcoin node with id ${nodeId} not found.`);
+    // Update the state with the modified chart
+    allCharts[activeId] = updatedChart;
+    // Remove the old node with the previous key
+    getStoreActions().designer.removeNode(nodeId);
+    // Iterate over all links in the chart
+    Object.values(updatedChart.links).forEach(link => {
+      // Check if the link is connected to the node being renamed
+      if (link.from.nodeId === nodeId) {
+        // Update the link with the new node ID
+        link.from.nodeId = name;
       }
-
-      // Update the node chart
-      const updatedChart = {
-        ...chart,
-        nodes: {
-          ...chart.nodes,
-          [name]: {
-            ...chart.nodes[nodeId],
-            id: name,
-          },
-        },
-      };
-
-      // Update the state with the modified chart
-      allCharts[activeId] = updatedChart;
-      // remove the old node with previous key
-      getStoreActions().designer.removeNode(nodeId);
-    },
-  ),
-  renameTapNode: thunk(
-    async (actions, { nodeId, name, lndName }, { getState, getStoreActions }) => {
-      const { allCharts, activeId } = getState();
-      const chart = allCharts[activeId];
-
-      // Ensure the node exists
-      const node = chart.nodes[nodeId];
-      if (!node) {
-        throw new Error(`Tap node with id ${nodeId} not found.`);
+      if (link.to.nodeId === nodeId) {
+        // Update the link with the new node ID
+        link.to.nodeId = name;
       }
-
-      // Update the node chart
-      const updatedChart = {
-        ...chart,
-        nodes: {
-          ...chart.nodes,
-          [name]: {
-            ...chart.nodes[nodeId],
-            id: name,
-          },
-        },
-      };
-
-      // Update the state with the modified chart
-      allCharts[activeId] = updatedChart;
-      // remove the old node with previous key
-      getStoreActions().designer.removeNode(nodeId);
-      getStoreActions().designer.updateTapBackendLink({
-        tapName: name,
-        lndName,
-      });
-    },
-  ),
+    });
+  }),
   addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];
     const { node, link } =

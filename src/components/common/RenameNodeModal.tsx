@@ -3,9 +3,9 @@ import { Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CommonNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import RenameNodeInput from './form/RenameNodeInput';
 import { useAsyncCallback } from 'react-async-hook';
 import { Network } from 'types';
+import RenameNodeInput from './form/RenameNodeInput';
 
 interface Props {
   network: Network;
@@ -15,7 +15,7 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.common.RenameNodeModal');
 
   const [form] = Form.useForm();
-  const { visible, newNodeName, defaultName } = useStoreState(s => s.modals.renameNode);
+  const { visible, newNodeName, oldNodeName } = useStoreState(s => s.modals.renameNode);
   const { hideRenameNode } = useStoreActions(s => s.modals);
   const { renameNode } = useStoreActions(s => s.network);
   const { notify } = useStoreActions(s => s.app);
@@ -33,9 +33,9 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
   const handleSubmit = (values: any) => {
     const { lightning, bitcoin, tap } = network.nodes;
     const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap];
-    const node = nodes.find(n => n.name === newNodeName);
+    const node = nodes.find(n => n.name === oldNodeName);
     if (!node) return;
-    updateAsync.execute(node, values.newName);
+    updateAsync.execute(node, values.newNodeName);
   };
 
   return (
@@ -61,8 +61,8 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
       >
         <RenameNodeInput
           form={form}
-          name="name"
-          defaultName={defaultName}
+          name=""
+          defaultName={oldNodeName}
           disabled={updateAsync.loading}
         />
       </Form>

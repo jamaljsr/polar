@@ -7,6 +7,7 @@ import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
 import {
+  AnyNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
@@ -23,6 +24,7 @@ import { exists, read, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
+import fs from 'fs/promises';
 
 let dockerInst: Dockerode | undefined;
 /**
@@ -346,6 +348,24 @@ class DockerService implements DockerLibrary {
         await ensureDir(join(nodeDir, apiDir as string));
       }
     }
+  }
+
+  /**
+   * Renames the docker volume directory on disk when a node is renamed
+   * @param network the network containing the node
+   * @param node the node that's to be renamed
+   * @param newName the new name for the node and directory
+   */
+  async updateDirs(network: Network, node: CommonNode, newName: string) {
+    const volumeDir = (node as AnyNode).implementation
+      .toLocaleLowerCase()
+      .replace('-', '');
+    const oldPath = join(network.path, 'volumes', volumeDir, node.name);
+    const newPath = join(network.path, 'volumes', volumeDir, newName);
+
+    fs.rename(oldPath, newPath)
+      .then(() => console.log(`Renamed directory from ${oldPath} to ${newPath}`))
+      .catch((err: any) => console.error(`Error renaming directory: ${err}`));
   }
 }
 

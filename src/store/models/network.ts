@@ -6,7 +6,6 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
   BitcoinNode,
-  CLightningNode,
   CommonNode,
   LightningNode,
   LndNode,
@@ -40,7 +39,6 @@ import { prefixTranslation } from 'utils/translate';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 const { l } = prefixTranslation('store.models.network');
-import fs from 'fs/promises';
 
 interface AddNetworkArgs {
   name: string;
@@ -988,7 +986,7 @@ const networkModel: NetworkModel = {
     actions.setAutoMineMode({ id, mode });
   }),
   renameNode: thunk(
-    async (actions, { node, newName }, { getState, getStoreActions, injections }) => {
+    async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
       if (!newName) throw new Error(l('renameErr', { newName }));
 
       if (node.status === Status.Started) {
@@ -1002,20 +1000,17 @@ const networkModel: NetworkModel = {
       let updatedNode;
       switch (node.type) {
         case 'lightning':
-          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as
-            | LndNode
-            | CLightningNode;
-          getStoreActions().designer.renameLightningNode({
+          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as LndNode;
+          getStoreActions().designer.renameNode({
             name: newName,
             nodeId: updatedNode.name,
-            backendName: updatedNode.backendName,
           });
           updatedNode.name = newName;
           updatedNode.paths = getLndFilePaths(newName, network);
           break;
         case 'bitcoin':
           updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
-          getStoreActions().designer.renameBitcoinNode({
+          getStoreActions().designer.renameNode({
             name: newName,
             nodeId: updatedNode.name,
           });
@@ -1024,10 +1019,9 @@ const networkModel: NetworkModel = {
           break;
         case 'tap':
           updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
-          getStoreActions().designer.renameTapNode({
+          getStoreActions().designer.renameNode({
             name: newName,
             nodeId: updatedNode.name,
-            lndName: updatedNode.lndName,
           });
           updatedNode.name = newName;
           updatedNode.paths = getTapdFilePaths(newName, network);
@@ -1037,29 +1031,21 @@ const networkModel: NetworkModel = {
       }
 
       // Rename the docker volume data from disk
-      const volumeDir = (node as AnyNode).implementation
-        .toLocaleLowerCase()
-        .replace('-', '');
-      const oldPath = join(network.path, 'volumes', volumeDir, node.name);
-      const newPath = join(network.path, 'volumes', volumeDir, newName);
-
-      fs.rename(oldPath, newPath)
-        .then(() => console.log(`Renamed directory from ${oldPath} to ${newPath}`))
-        .catch((err: any) => console.error(`Error renaming directory: ${err}`));
+      await injections.dockerService.updateDirs(network, node, newName);
 
       actions.setNetworks([...networks]);
       await actions.save();
 
       // Loop through lightning nodes to update backend links
-      if (node.type === 'bitcoin') {
-        const lNodes = network?.nodes.lightning;
-        for (let i = 0; i < lNodes.length; i++) {
-          getStoreActions().designer.updateBackendLink({
-            lnName: lNodes[i].name,
-            backendName: newName,
-          });
-        }
-      }
+      // if (node.type === 'bitcoin') {
+      //   const lNodes = network?.nodes.lightning;
+      //   for (let i = 0; i < lNodes.length; i++) {
+      //     getStoreActions().designer.updateBackendLink({
+      //       lnName: lNodes[i].name,
+      //       backendName: newName,
+      //     });
+      //   }
+      // }
 
       await injections.dockerService.saveComposeFile(network);
     },
