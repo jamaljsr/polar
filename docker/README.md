@@ -171,6 +171,21 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg TAPD_VERSIO
 
 Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
 
+## Lightning Terminal
+
+### Tags
+
+- `0.12.5-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+
+**Building the image**
+
+```sh
+$ cd litd
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LITD_VERSION=<version> -t polarlightning/litd:<version> --push .
+```
+
+Replace `<version>` with the desired Tap version (ex: `0.12.5-alpha`).
+
 # Out-of-Band Image Updates
 
 > Note: These steps can only be performed by developers with commit access to this GitHub repo and push access to the Docker Hub repo
