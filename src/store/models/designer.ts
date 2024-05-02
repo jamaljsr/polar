@@ -229,6 +229,16 @@ const designerModel: DesignerModel = {
       throw new Error(`${node} node with id ${nodeId} not found.`);
     }
 
+    // Iterate over all links in the chart to change nodeId
+    Object.values(chart.links).forEach(link => {
+      if (link.from.nodeId === nodeId) {
+        link.from.nodeId = name;
+      }
+      if (link.to.nodeId === nodeId) {
+        link.to.nodeId = name;
+      }
+    });
+
     // Update the node chart
     const updatedChart = {
       ...chart,
@@ -245,18 +255,6 @@ const designerModel: DesignerModel = {
     allCharts[activeId] = updatedChart;
     // Remove the old node with the previous key
     getStoreActions().designer.removeNode(nodeId);
-    // Iterate over all links in the chart
-    Object.values(updatedChart.links).forEach(link => {
-      // Check if the link is connected to the node being renamed
-      if (link.from.nodeId === nodeId) {
-        // Update the link with the new node ID
-        link.from.nodeId = name;
-      }
-      if (link.to.nodeId === nodeId) {
-        // Update the link with the new node ID
-        link.to.nodeId = name;
-      }
-    });
   }),
   addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];

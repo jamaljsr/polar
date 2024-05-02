@@ -1015,7 +1015,6 @@ const networkModel: NetworkModel = {
             nodeId: updatedNode.name,
           });
           updatedNode.name = newName;
-          // TODO: Update the path of the bitcoin node
           break;
         case 'tap':
           updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
@@ -1030,24 +1029,14 @@ const networkModel: NetworkModel = {
           throw new Error('Invalid node type');
       }
 
-      // Rename the docker volume data from disk
       await injections.dockerService.updateDirs(network, node, newName);
 
       actions.setNetworks([...networks]);
       await actions.save();
 
-      // Loop through lightning nodes to update backend links
-      // if (node.type === 'bitcoin') {
-      //   const lNodes = network?.nodes.lightning;
-      //   for (let i = 0; i < lNodes.length; i++) {
-      //     getStoreActions().designer.updateBackendLink({
-      //       lnName: lNodes[i].name,
-      //       backendName: newName,
-      //     });
-      //   }
-      // }
-
       await injections.dockerService.saveComposeFile(network);
+
+      await actions.start(node.networkId);
     },
   ),
 };

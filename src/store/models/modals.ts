@@ -76,7 +76,6 @@ interface ChangeTapBackendModel {
 
 interface RenameNodeModel {
   visible: boolean;
-  newNodeName?: string;
   oldNodeName?: string;
 }
 
@@ -353,13 +352,12 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  showRenameNode: thunk((actions, { newNodeName, oldNodeName }) => {
-    actions.setRenameNode({ visible: true, newNodeName, oldNodeName });
+  showRenameNode: thunk((actions, { oldNodeName }) => {
+    actions.setRenameNode({ visible: true, oldNodeName });
   }),
   hideRenameNode: thunk(actions => {
     actions.setRenameNode({
       visible: false,
-      newNodeName: undefined,
       oldNodeName: undefined,
     });
   }),

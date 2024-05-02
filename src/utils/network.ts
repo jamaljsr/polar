@@ -518,45 +518,6 @@ export const createNetwork = (config: {
   return network;
 };
 
-// export const renameNode = (
-//   network: Network,
-//   newName: string,
-//   node: CommonNode,
-//   updatedNode: BitcoinNode | LndNode | CLightningNode | TapdNode,
-// ) => {
-//   switch (node.type) {
-//     case 'lightning':
-//       updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as LndNode;
-//       getStoreActions().designer.renameNode({
-//         name: newName,
-//         nodeId: updatedNode.name,
-//       });
-//       updatedNode.name = newName;
-//       updatedNode.paths = getLndFilePaths(newName, network);
-//       break;
-//     case 'bitcoin':
-//       updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
-//       getStoreActions().designer.renameNode({
-//         name: newName,
-//         nodeId: updatedNode.name,
-//       });
-//       updatedNode.name = newName;
-//       // TODO: Update the path of the bitcoin node
-//       break;
-//     case 'tap':
-//       updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
-//       getStoreActions().designer.renameNode({
-//         name: newName,
-//         nodeId: updatedNode.name,
-//       });
-//       updatedNode.name = newName;
-//       updatedNode.paths = getTapdFilePaths(newName, network);
-//       break;
-//     default:
-//       throw new Error('Invalid node type');
-//   }
-// };
-
 /**
  * Returns the images needed to start a network that are not included in the list
  * of images already pulled

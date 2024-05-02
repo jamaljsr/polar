@@ -1,11 +1,10 @@
 import React from 'react';
-import { Form, Modal } from 'antd';
+import { Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { CommonNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { useAsyncCallback } from 'react-async-hook';
 import { Network } from 'types';
-import RenameNodeInput from './form/RenameNodeInput';
 
 interface Props {
   network: Network;
@@ -15,7 +14,7 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.common.RenameNodeModal');
 
   const [form] = Form.useForm();
-  const { visible, newNodeName, oldNodeName } = useStoreState(s => s.modals.renameNode);
+  const { visible, oldNodeName } = useStoreState(s => s.modals.renameNode);
   const { hideRenameNode } = useStoreActions(s => s.modals);
   const { renameNode } = useStoreActions(s => s.network);
   const { notify } = useStoreActions(s => s.app);
@@ -56,15 +55,12 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
         layout="vertical"
         hideRequiredMark
         colon={false}
-        initialValues={{ newNodeName }}
+        initialValues={{ newNodeName: oldNodeName }}
         onFinish={handleSubmit}
       >
-        <RenameNodeInput
-          form={form}
-          name=""
-          defaultName={oldNodeName}
-          disabled={updateAsync.loading}
-        />
+        <Form.Item name="newNodeName">
+          <Input placeholder="Enter node name" disabled={updateAsync.loading} />
+        </Form.Item>
       </Form>
     </Modal>
   );
