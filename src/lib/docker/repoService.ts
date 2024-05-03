@@ -59,6 +59,7 @@ class RepoService implements RepoServiceInjection {
       LND: [],
       'c-lightning': [],
       eclair: [],
+      litd: [],
       bitcoind: [],
       btcd: [],
       tapd: [],

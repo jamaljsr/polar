@@ -1,0 +1,18 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient gradientUnits="userSpaceOnUse" cx="32.235" cy="32.324" r="30.995" id="gradient-0"
+      gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
+      <stop offset="0" style="stop-color: #fff;"></stop>
+      <stop offset="1" style="stop-color: #ddd;"></stop>
+    </radialGradient>
+  </defs>
+  <ellipse style="fill: url(#gradient-0); fill-rule: evenodd; paint-order: fill;" cx="32.235" cy="32.324" rx="30.995"
+    ry="30.995" transform="matrix(0, -1, 1, 0, -0.089001, 64.559006)"></ellipse>
+  <g fill-rule="nonzero" transform="matrix(0.779289, 0, 0, 0.779289, 22.143003, 10.859306)" style="">
+    <path
+      d="M27.25 30.506L11.354 53.692a.84.84 0 11-1.385-.954l15.896-23.185a.84.84 0 111.385.953zM25.16 26.374L9.629 49.082a.84.84 0 01-1.385-.954L23.776 25.42a.84.84 0 011.385.954zM20.438 1.576L2.43 27.895h16.895l-1.136 1.68H.363a.84.84 0 01-.227-1.158L19.006.622a.84.84 0 011.159-.227c.398.253.52.78.273 1.181z"
+      style="fill: rgb(37, 47, 74);"></path>
+    <path d="M22.118 6.617L10.24 23.99h11.763l-1.158 1.68H7.062l1.136-1.68L20.733 5.686a.84.84 0 011.385.931z"
+      style="fill: rgb(37, 47, 74);"></path>
+  </g>
+</svg>

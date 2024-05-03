@@ -19,6 +19,7 @@ class LightningFactory {
       LND: lndService,
       'c-lightning': clightningService,
       eclair: eclairService,
+      litd: lndService,
     };
   }
 

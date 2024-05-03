@@ -213,7 +213,7 @@ class LndService implements LightningService {
   }
 
   private cast(node: LightningNode): LndNode {
-    if (node.implementation !== 'LND')
+    if (node.implementation !== 'LND' && node.implementation !== 'litd')
       throw new Error(`LndService cannot be used for '${node.implementation}' nodes`);
 
     return node as LndNode;

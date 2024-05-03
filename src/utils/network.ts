@@ -12,6 +12,7 @@ import {
   CommonNode,
   EclairNode,
   LightningNode,
+  LitdNode,
   LndNode,
   NodeImplementation,
   Status,
@@ -56,6 +57,7 @@ const groupNodes = (network: Network) => {
       n => n.implementation === 'c-lightning',
     ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair') as EclairNode[],
+    litd: lightning.filter(n => n.implementation === 'litd') as LitdNode[],
     tapd: tap.filter(n => n.implementation === 'tapd') as TapdNode[],
   };
 };
@@ -79,20 +81,43 @@ export const getImageCommand = (
 // long path games
 export const getLndFilePaths = (name: string, network: Network) => {
   // returns /volumes/lnd/lnd-1
-  const lndDataPath = (name: string) => nodePath(network, 'LND', name);
+  const lndDataPath = nodePath(network, 'LND', name);
   // returns /volumes/lnd/lnd-1/tls.cert
-  const lndCertPath = (name: string) => join(lndDataPath(name), 'tls.cert');
+  const lndCertPath = join(lndDataPath, 'tls.cert');
   // returns /data/chain/bitcoin/regtest
   const macaroonPath = join('data', 'chain', 'bitcoin', 'regtest');
   // returns /volumes/lnd/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
-  const lndMacaroonPath = (name: string, macaroon: string) =>
-    join(lndDataPath(name), macaroonPath, `${macaroon}.macaroon`);
+  const lndMacaroonPath = (macaroon: string) =>
+    join(lndDataPath, macaroonPath, `${macaroon}.macaroon`);
 
   return {
-    tlsCert: lndCertPath(name),
-    adminMacaroon: lndMacaroonPath(name, 'admin'),
-    invoiceMacaroon: lndMacaroonPath(name, 'invoice'),
-    readonlyMacaroon: lndMacaroonPath(name, 'readonly'),
+    tlsCert: lndCertPath,
+    adminMacaroon: lndMacaroonPath('admin'),
+    invoiceMacaroon: lndMacaroonPath('invoice'),
+    readonlyMacaroon: lndMacaroonPath('readonly'),
+  };
+};
+
+// long path games
+export const getLitdFilePaths = (name: string, network: Network) => {
+  // /volumes/litd/<name>
+  const basePath = nodePath(network, 'litd', name);
+  // /volumes/litd/<name>/lnd/data/chain/bitcoin/regtest
+  const macaroonPath = join(basePath, 'lnd', 'data', 'chain', 'bitcoin', 'regtest');
+
+  return {
+    // /volumes/litd/<name>/lnd/tls.cert
+    tlsCert: join(basePath, 'lnd', 'tls.cert'),
+    // /volumes/litd/<name>/lit/tls.cert
+    litTlsCert: join(basePath, 'lit', 'tls.cert'),
+    // /volumes/litd/<name>/lnd/data/chain/bitcoin/regtest/admin.macaroon
+    adminMacaroon: join(macaroonPath, 'admin.macaroon'),
+    invoiceMacaroon: join(macaroonPath, 'invoice.macaroon'),
+    readonlyMacaroon: join(macaroonPath, 'readonly.macaroon'),
+    // /volumes/litd/<name>/lit/regtest/lit.macaroon
+    litMacaroon: join(basePath, 'lit', 'regtest', 'lit.macaroon'),
+    // /volumes/litd/<name>/tapd/data/regtest/admin.macaroon
+    tapMacaroon: join(basePath, 'tapd', 'data', 'regtest', 'admin.macaroon'),
   };
 };
 
@@ -256,6 +281,44 @@ export const createEclairNetworkNode = (
     ports: {
       rest: basePort.rest + id,
       p2p: BasePorts.eclair.p2p + id,
+    },
+    docker,
+  };
+};
+
+export const createLitdNetworkNode = (
+  network: Network,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+): LitdNode => {
+  const { bitcoin, lightning } = network.nodes;
+  const implementation: LitdNode['implementation'] = 'litd';
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
+  const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
+  const name = getName(id);
+  return {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'lightning',
+    implementation,
+    version,
+    status,
+    // alternate between backend nodes
+    backendName: backends[id % backends.length].name,
+    paths: getLitdFilePaths(name, network),
+    ports: {
+      rest: BasePorts.litd.rest + id,
+      grpc: BasePorts.litd.grpc + id,
+      p2p: BasePorts.litd.p2p + id,
+      web: BasePorts.litd.web + id,
     },
     docker,
   };
@@ -638,6 +701,7 @@ export interface OpenPorts {
     zmqBlock?: number;
     zmqTx?: number;
     p2p?: number;
+    web?: number;
   };
 }
 
@@ -694,7 +758,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  let { lnd, clightning, eclair, tapd } = groupNodes(network);
+  let { lnd, clightning, eclair, litd, tapd } = groupNodes(network);
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);
@@ -777,6 +841,47 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
         ports[eclair[index].name] = {
           ...(ports[eclair[index].name] || {}),
           p2p: port,
+        };
+      });
+    }
+  }
+
+  litd = litd.filter(n => n.status !== Status.Started);
+  if (litd.length) {
+    let existingPorts = litd.map(n => n.ports.rest);
+    let openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[litd[index].name] = { rest: port };
+      });
+    }
+
+    existingPorts = litd.map(n => n.ports.grpc);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[litd[index].name] = { grpc: port };
+      });
+    }
+
+    existingPorts = litd.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[litd[index].name] = {
+          ...(ports[litd[index].name] || {}),
+          p2p: port,
+        };
+      });
+    }
+
+    existingPorts = litd.map(n => n.ports.web);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[litd[index].name] = {
+          ...(ports[litd[index].name] || {}),
+          web: port,
         };
       });
     }

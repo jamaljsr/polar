@@ -1,5 +1,5 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
-import { BitcoinNode, LightningNode, TapdNode } from 'shared/types';
+import { BitcoinNode, LightningNode, TapdNode, TapNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
@@ -73,7 +73,7 @@ export const createLightningChartNode = (ln: LightningNode) => {
   return { node, link };
 };
 
-export const createTapdChartNode = (tap: TapdNode) => {
+export const createTapdChartNode = (tap: TapNode) => {
   const node: INode = {
     id: tap.name,
     type: 'tap',
@@ -88,14 +88,18 @@ export const createTapdChartNode = (tap: TapdNode) => {
     },
   };
 
-  const link: ILink = {
-    id: `${tap.name}-${tap.lndName}`,
-    from: { nodeId: tap.name, portId: 'lndbackend' },
-    to: { nodeId: tap.lndName, portId: 'lndbackend' },
-    properties: {
-      type: 'lndbackend',
-    },
-  };
+  let link: ILink | undefined = undefined;
+  if (tap.implementation === 'tapd') {
+    const tapd = tap as TapdNode;
+    link = {
+      id: `${tapd.name}-${tapd.lndName}`,
+      from: { nodeId: tapd.name, portId: 'lndbackend' },
+      to: { nodeId: tapd.lndName, portId: 'lndbackend' },
+      properties: {
+        type: 'lndbackend',
+      },
+    };
+  }
 
   return { node, link };
 };
@@ -161,7 +165,7 @@ export const initChartFromNetwork = (network: Network): IChart => {
   network.nodes.tap.forEach(n => {
     const { node, link } = createTapdChartNode(n as TapdNode);
     chart.nodes[node.id] = node;
-    chart.links[link.id] = link;
+    if (link) chart.links[link.id] = link;
   });
 
   return chart;
