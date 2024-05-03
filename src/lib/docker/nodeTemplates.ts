@@ -147,3 +147,37 @@ export const tapd = (
     `${grpcPort}:10029`, // gRPC
   ],
 });
+
+export const litd = (
+  name: string,
+  container: string,
+  image: string,
+  restPort: number,
+  grpcPort: number,
+  p2pPort: number,
+  webPort: number,
+  command: string,
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [
+    `./volumes/${dockerConfigs.litd.volumeDirName}/${name}/lit:/home/litd/.lit`,
+    `./volumes/${dockerConfigs.litd.volumeDirName}/${name}/lnd:/home/litd/.lnd`,
+    `./volumes/${dockerConfigs.litd.volumeDirName}/${name}/tapd:/home/litd/.tapd`,
+  ],
+  expose: [
+    '8080', // REST
+    '10009', // gRPC
+    '9735', // p2p
+    '8443', // web
+  ],
+  ports: [
+    `${restPort}:8080`, // REST
+    `${grpcPort}:10009`, // gRPC
+    `${p2pPort}:9735`, // p2p
+    `${webPort}:8443`, // web
+  ],
+});

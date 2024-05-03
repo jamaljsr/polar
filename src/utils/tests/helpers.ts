@@ -178,6 +178,13 @@ export const testRepoState: DockerRepoState = {
         '0.2.0-alpha': '0.16.0-beta',
       },
     },
+    litd: {
+      latest: '0.12.5-alpha',
+      versions: ['0.12.5-alpha'],
+      compatibility: {
+        '0.12.5-alpha': '27.0',
+      },
+    },
   },
 };
 

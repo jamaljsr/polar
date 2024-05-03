@@ -87,6 +87,7 @@ const appModel: AppModel = {
       bitcoind: 1,
       btcd: 0,
       tapd: 0,
+      litd: 0,
     },
     basePorts: {
       LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },

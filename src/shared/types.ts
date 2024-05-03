@@ -22,7 +22,7 @@ export interface CommonNode {
 
 export interface LightningNode extends CommonNode {
   type: 'lightning';
-  implementation: 'LND' | 'c-lightning' | 'eclair';
+  implementation: 'LND' | 'c-lightning' | 'eclair' | 'litd';
   backendName: string;
   ports: Record<string, number | undefined>;
 }
@@ -89,6 +89,27 @@ export interface TapdNode extends TapNode {
   ports: {
     rest: number;
     grpc: number;
+  };
+}
+
+export interface LitdNode extends LightningNode {
+  paths: {
+    // lnd paths
+    tlsCert: string;
+    adminMacaroon: string;
+    invoiceMacaroon: string;
+    readonlyMacaroon: string;
+    // lit paths
+    litTlsCert: string;
+    litMacaroon: string;
+    // tap paths
+    tapMacaroon: string;
+  };
+  ports: {
+    rest: number;
+    grpc: number;
+    p2p: number;
+    web: number;
   };
 }
 

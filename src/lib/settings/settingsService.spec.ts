@@ -27,6 +27,7 @@ describe('SettingsService', () => {
         bitcoind: 1,
         btcd: 0,
         tapd: 0,
+        litd: 0,
       },
       basePorts: {
         LND: {

@@ -3,6 +3,7 @@ import { DockerConfig, DockerRepoState } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
+import litdLogo from 'resources/litd.svg';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
 import packageJson from '../../package.json';
@@ -70,6 +71,12 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     grpc: 12029,
     rest: 8289,
   },
+  litd: {
+    rest: 8381,
+    grpc: 13001,
+    p2p: 9635,
+    web: 8443,
+  },
 };
 
 export const bitcoinCredentials = {
@@ -81,6 +88,10 @@ export const bitcoinCredentials = {
 
 export const eclairCredentials = {
   pass: 'eclairpw',
+};
+
+export const litdCredentials = {
+  pass: 'polarpass',
 };
 
 export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
@@ -241,6 +252,44 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'lndName'],
   },
+  litd: {
+    name: 'Terminal (litd)',
+    imageName: 'polarlightning/litd',
+    logo: litdLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'litd',
+    command: [
+      'litd',
+      '--httpslisten=0.0.0.0:8443',
+      '--uipassword={{litdPass}}',
+      '--network=regtest',
+      '--lnd-mode=integrated',
+      '--pool-mode=disable',
+      '--loop-mode=disable',
+      '--autopilot.disable',
+      '--lnd.noseedbackup',
+      '--lnd.debuglevel=debug',
+      '--lnd.trickledelay=5000',
+      '--lnd.alias={{name}}',
+      '--lnd.externalip={{name}}',
+      '--lnd.tlsextradomain={{name}}',
+      '--lnd.tlsextradomain={{containerName}}',
+      '--lnd.tlsextradomain=host.docker.internal',
+      '--lnd.listen=0.0.0.0:9735',
+      '--lnd.rpclisten=0.0.0.0:10009',
+      '--lnd.restlisten=0.0.0.0:8080',
+      '--lnd.bitcoin.active',
+      '--lnd.bitcoin.regtest',
+      '--lnd.bitcoin.node=bitcoind',
+      '--lnd.bitcoind.rpchost={{backendName}}',
+      '--lnd.bitcoind.rpcuser={{rpcUser}}',
+      '--lnd.bitcoind.rpcpass={{rpcPass}}',
+      '--lnd.bitcoind.zmqpubrawblock=tcp://{{backendName}}:28334',
+      '--lnd.bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335',
+    ].join('\n  '),
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
+    variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
+  },
 };
 
 /**
@@ -317,6 +366,13 @@ export const defaultRepoState: DockerRepoState = {
       compatibility: {
         '0.3.3-alpha': '0.16.0-beta',
         '0.3.2-alpha': '0.16.0-beta',
+      },
+    },
+    litd: {
+      latest: '0.12.5-alpha',
+      versions: ['0.12.5-alpha'],
+      compatibility: {
+        '0.12.5-alpha': '27.0',
       },
     },
   },
