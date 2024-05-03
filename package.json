@@ -159,6 +159,9 @@
     "webpack": "4.44.2",
     "ws": "8.17.0"
   },
+  "resolutions": {
+    "react-error-overlay": "6.0.9"
+  },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",

@@ -16,6 +16,7 @@
     "@radar/lnrpc",
     "electron",
     "electron-is-dev",
-    "docker-compose"
+    "docker-compose",
+    "react-error-overlay"
   ]
 }
