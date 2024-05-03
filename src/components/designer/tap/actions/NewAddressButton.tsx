@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { QrcodeOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -14,9 +14,13 @@ const OpenSendAssetModal: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.actions.NewAddressButton');
   const { showNewAddress } = useStoreActions(s => s.modals);
 
+  const handleClick = useCallback(() => {
+    showNewAddress({ nodeName: node.name, networkId: node.networkId });
+  }, [node]);
+
   if (type === 'menu') {
     return (
-      <div onClick={() => showNewAddress({ nodeName: node.name })}>
+      <div onClick={handleClick}>
         <QrcodeOutlined />
         <span>{l('newAddress')}</span>
       </div>
@@ -25,11 +29,7 @@ const OpenSendAssetModal: React.FC<Props> = ({ node, type }) => {
 
   return (
     <Form.Item label={l('title')} colon={false}>
-      <Button
-        onClick={() => showNewAddress({ nodeName: node.name })}
-        icon={<QrcodeOutlined />}
-        block
-      >
+      <Button onClick={handleClick} icon={<QrcodeOutlined />} block>
         {l('newAddress')}
       </Button>
     </Form.Item>

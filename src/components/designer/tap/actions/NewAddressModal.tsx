@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { DownOutlined } from '@ant-design/icons';
@@ -14,10 +14,10 @@ import {
   Select,
 } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TapdNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/tap';
 import { Network } from 'types';
+import { getTapdNodes } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
@@ -52,7 +52,6 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.actions.NewAddressModal');
 
   const { notify } = useStoreActions(s => s.app);
-  const { syncChart } = useStoreActions(s => s.designer);
   const { visible, nodeName } = useStoreState(s => s.modals.newAddress);
   const { hideNewAddress } = useStoreActions(s => s.modals);
   const { syncUniverse, getNewAddress } = useStoreActions(s => s.tap);
@@ -63,21 +62,24 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const [tapAddress, setTapAddress] = useState('');
 
   const [form] = Form.useForm();
-  const thisTapNode = network.nodes.tap.find(node => node.name === nodeName) as TapdNode;
-  const otherTapNodes = network.nodes.tap.filter(node => node.name !== nodeName);
 
-  // When polar is first opened, we need to populate the state with the lightning node data
-  useEffect(() => syncChart(network), []);
+  const { node, otherNodes } = useMemo(() => {
+    const tapNodes = getTapdNodes(network);
+    const node = tapNodes.find(node => node.name === nodeName);
+    const otherNodes = tapNodes.filter(node => node.name !== nodeName);
+    if (!node) throw new Error(`${nodeName} is not a TAP node`);
+    return { node, otherNodes };
+  }, [network.nodes, nodeName]);
 
   const handleSync = useAsyncCallback(async e => {
-    const node = otherTapNodes[e.key];
-    const hostname = node.name;
+    const from = otherNodes[e.key];
+    const hostname = from.implementation === 'litd' ? `${from.name}:8443` : from.name;
 
     try {
-      const numUpdated = await syncUniverse({ node: thisTapNode, hostname });
-      message.success(l('syncSuccess', { count: numUpdated, hostname }));
+      const numUpdated = await syncUniverse({ node, hostname });
+      message.success(l('syncSuccess', { count: numUpdated, hostname: from.name }));
     } catch (error: any) {
-      notify({ message: l('syncError', { hostname }), error });
+      notify({ message: l('syncError', { hostname: from.name }), error });
     }
   });
 
@@ -93,7 +95,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
 
   const handleSubmit = (values: { assetId: string; amount: string }) => {
     const payload: NewAddressPayload = {
-      node: thisTapNode,
+      node,
       assetId: values.assetId,
       amount: values.amount,
     };
@@ -105,13 +107,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     hideNewAddress();
   };
 
-  const assetOptions = useMemo(() => {
-    const node = nodes[thisTapNode.name];
-    if (node && node.assetRoots) {
-      return node.assetRoots;
-    }
-    return [];
-  }, [nodes, thisTapNode.name]);
+  const assetOptions = nodes[node.name]?.assetRoots || [];
 
   let cmp: ReactNode;
   if (!tapAddress) {
@@ -135,7 +131,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             help={
               <Styled.Dropdown
                 menu={{
-                  items: otherTapNodes.map((n, i) => ({
+                  items: otherNodes.map((n, i) => ({
                     key: i,
                     label: n.name,
                   })),

@@ -63,6 +63,7 @@ interface MintAssetModel {
 interface NewAddressModel {
   visible: boolean;
   nodeName?: string;
+  networkId?: number;
 }
 
 interface SendAssetModel {
@@ -123,7 +124,12 @@ export interface ModalsModel {
   setMintAsset: Action<ModalsModel, Partial<MintAssetModel>>;
   showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections, RootModel>;
   hideMintAsset: Thunk<ModalsModel>;
-  showNewAddress: Thunk<ModalsModel, Partial<NewAddressModel>, StoreInjections>;
+  showNewAddress: Thunk<
+    ModalsModel,
+    Partial<NewAddressModel>,
+    StoreInjections,
+    RootModel
+  >;
   hideNewAddress: Thunk<ModalsModel>;
   setNewAddress: Action<ModalsModel, Partial<NewAddressModel>>;
   setSendAsset: Action<ModalsModel, SendAssetModel>;
@@ -315,7 +321,12 @@ const modalsModel: ModalsModel = {
     },
   ),
   hideMintAsset: thunk(actions => {
-    actions.setMintAsset({ visible: false });
+    actions.setMintAsset({
+      visible: false,
+      nodeName: undefined,
+      networkId: undefined,
+      lndName: undefined,
+    });
   }),
   setMintAsset: action((state, payload) => {
     state.mintAsset = {
@@ -323,10 +334,17 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
-  //New TAP Address Modal
-  showNewAddress: thunk((actions, { nodeName }) => {
-    actions.setNewAddress({ visible: true, nodeName });
-  }),
+  showNewAddress: thunk(
+    (actions, { nodeName, networkId }, { getStoreState, getStoreActions }) => {
+      actions.setNewAddress({ visible: true, nodeName, networkId });
+
+      // get the wallet balance for the associated LND node when we show the modal
+      const network = getStoreState().network.networks.find(n => n.id === networkId);
+      if (network) {
+        getStoreActions().designer.syncChart(network);
+      }
+    },
+  ),
   hideNewAddress: thunk(actions => {
     actions.setNewAddress({ visible: false });
   }),

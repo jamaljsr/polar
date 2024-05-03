@@ -62,6 +62,16 @@ export const getTapBackendName = (node: CommonNode) => {
   }
 };
 
+/**
+ * Gets the tapd nodes in the network, which includes both tapd and litd nodes
+ */
+export const getTapdNodes = (network: Network): TapNode[] => {
+  const { lightning, tap } = network.nodes;
+  return [...lightning, ...tap].filter(
+    node => node.implementation === 'tapd' || node.implementation === 'litd',
+  ) as TapdNode[];
+};
+
 const groupNodes = (network: Network) => {
   const { bitcoin, lightning, tap } = network.nodes;
   return {
