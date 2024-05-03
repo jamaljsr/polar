@@ -286,6 +286,9 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--lnd.bitcoind.rpcpass={{rpcPass}}',
       '--lnd.bitcoind.zmqpubrawblock=tcp://{{backendName}}:28334',
       '--lnd.bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335',
+      '--taproot-assets.allow-public-uni-proof-courier',
+      '--taproot-assets.allow-public-stats',
+      '--taproot-assets.universe.public-access',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],

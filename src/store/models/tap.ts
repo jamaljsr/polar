@@ -21,7 +21,7 @@ export interface TapNodeModel {
 }
 
 export interface MintAssetPayload {
-  node: TapdNode;
+  node: TapNode;
   assetType: PTAP.TAP_ASSET_TYPE.NORMAL | PTAP.TAP_ASSET_TYPE.COLLECTIBLE;
   name: string;
   amount: number;
@@ -31,24 +31,24 @@ export interface MintAssetPayload {
 }
 
 export interface SyncUniversePayload {
-  node: TapdNode;
+  node: TapNode;
   hostname: string;
 }
 
 export interface NewAddressPayload {
-  node: TapdNode;
+  node: TapNode;
   assetId: string;
   amount: string;
 }
 
 export interface SendAssetPayload {
-  node: TapdNode;
+  node: TapNode;
   address: string;
   autoFund: boolean;
 }
 
 export interface DecodeAddressPayload {
-  node: TapdNode;
+  node: TapNode;
   address: string;
 }
 
@@ -141,11 +141,15 @@ const tapModel: TapModel = {
         payload;
 
       const network = getStoreState().network.networkById(node.networkId);
-      const lndNode = network.nodes.lightning.find(
-        n => n.name === node.lndName,
-      ) as LightningNode;
       // fund lnd node
-      if (autoFund) {
+      if (
+        autoFund &&
+        (node.implementation === 'tapd' || node.implementation === 'litd')
+      ) {
+        const lndNode = network.nodes.lightning.find(
+          n => n.name === (node as TapdNode).lndName,
+        ) as LightningNode;
+
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
           sats: TAP_MIN_LND_BALANCE.toString(),
@@ -170,9 +174,7 @@ const tapModel: TapModel = {
         await api.finalizeBatch(node);
 
         // update network
-        const btcNode =
-          network.nodes.bitcoin.find(n => n.name === lndNode.backendName) ||
-          network.nodes.bitcoin[0];
+        const btcNode = network.nodes.bitcoin[0];
         // missing await is intentional, we don't have to wait for bitcoin to mine
         getStoreActions().bitcoind.mine({
           blocks: BLOCKS_TIL_CONFIRMED,
@@ -202,11 +204,15 @@ const tapModel: TapModel = {
       { injections, getState, getStoreState, getStoreActions },
     ) => {
       const network = getStoreState().network.networkById(node.networkId);
-      const lndNode = network.nodes.lightning.find(
-        n => n.name === node.lndName,
-      ) as LightningNode;
       // fund lnd node
-      if (autoFund) {
+      if (
+        autoFund &&
+        (node.implementation === 'tapd' || node.implementation === 'litd')
+      ) {
+        const lndNode = network.nodes.lightning.find(
+          n => n.name === (node as TapdNode).lndName,
+        ) as LightningNode;
+
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
           sats: (2 * TAP_MIN_LND_BALANCE).toString(),

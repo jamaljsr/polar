@@ -23,6 +23,7 @@ import {
 } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { exists } from 'utils/files';
+import { getTapdNodes } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
@@ -128,7 +129,7 @@ const designerModel: DesignerModel = {
           .map(getStoreActions().lightning.getAllInfo),
       );
       await Promise.all(
-        network.nodes.tap
+        getTapdNodes(network)
           .filter(n => n.status === Status.Started)
           .map(getStoreActions().tap.getAllInfo),
       );
