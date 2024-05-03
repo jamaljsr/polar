@@ -48,6 +48,20 @@ export const getContainerName = (node: CommonNode) =>
 export const getNetworkBackendId = (node: BitcoinNode) =>
   `${node.networkId}-${node.name}`;
 
+/**
+ * Gets the LND node name that is the backend for a tap or litd node
+ */
+export const getTapBackendName = (node: CommonNode) => {
+  if (node.type === 'tap' && (node as TapNode).implementation === 'tapd') {
+    return (node as TapdNode).lndName;
+  } else if (
+    node.type === 'lightning' &&
+    (node as LightningNode).implementation === 'litd'
+  ) {
+    return node.name;
+  }
+};
+
 const groupNodes = (network: Network) => {
   const { bitcoin, lightning, tap } = network.nodes;
   return {
@@ -219,7 +233,7 @@ export const createCLightningNetworkNode = (
   basePort = BasePorts['c-lightning'],
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
-  const implementation: LndNode['implementation'] = 'c-lightning';
+  const implementation: LightningNode['implementation'] = 'c-lightning';
   const backends = filterCompatibleBackends(
     implementation,
     version,
@@ -313,6 +327,7 @@ export const createLitdNetworkNode = (
     status,
     // alternate between backend nodes
     backendName: backends[id % backends.length].name,
+    lndName: name,
     paths: getLitdFilePaths(name, network),
     ports: {
       rest: BasePorts.litd.rest + id,

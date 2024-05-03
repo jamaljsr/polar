@@ -28,6 +28,7 @@ export interface LightningNode extends CommonNode {
 }
 
 export interface LndNode extends LightningNode {
+  implementation: 'LND';
   paths: {
     tlsCert: string;
     adminMacaroon: string;
@@ -42,6 +43,7 @@ export interface LndNode extends LightningNode {
 }
 
 export interface CLightningNode extends LightningNode {
+  implementation: 'c-lightning';
   paths: {
     rune: string;
     tlsCert?: string;
@@ -56,6 +58,7 @@ export interface CLightningNode extends LightningNode {
 }
 
 export interface EclairNode extends LightningNode {
+  implementation: 'eclair';
   ports: {
     rest: number;
     p2p: number;
@@ -76,11 +79,12 @@ export interface BitcoinNode extends CommonNode {
 
 export interface TapNode extends CommonNode {
   type: 'tap';
-  implementation: 'tapd';
+  implementation: 'tapd' | 'litd';
   ports: Record<string, number | undefined>;
 }
 
 export interface TapdNode extends TapNode {
+  implementation: 'tapd';
   lndName: string;
   paths: {
     tlsCert: string;
@@ -93,6 +97,12 @@ export interface TapdNode extends TapNode {
 }
 
 export interface LitdNode extends LightningNode {
+  implementation: 'litd';
+  // lndName is the name of the lnd node that the lit node is connected to. For litd,
+  // this will always be the same as the litd node name, since it runs tapd integrated.
+  // We keep it also under this field for consistency with TapdNode. It greatly simplifies
+  // the code used to get the lnd node name that the lit node is connected to.
+  lndName: string;
   paths: {
     // lnd paths
     tlsCert: string;
@@ -119,6 +129,8 @@ export type NodeImplementation =
   | TapNode['implementation'];
 
 export type AnyNode = BitcoinNode | LightningNode | TapNode;
+
+export type TapSupportedNode = TapdNode | LitdNode;
 
 export interface OpenChannelOptions {
   from: LightningNode;

@@ -141,7 +141,7 @@ class TapdService implements TapService {
   }
 
   private cast(node: TapNode): TapdNode {
-    if (node.implementation !== 'tapd')
+    if (node.implementation !== 'tapd' && node.implementation !== 'litd')
       throw new Error(`TapdService cannot be used for '${node.implementation}' nodes`);
 
     return node as TapdNode;

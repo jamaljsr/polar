@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { WalletOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
@@ -14,9 +14,13 @@ const MintAssetButton: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.actions.MintAssetButton');
   const { showMintAsset } = useStoreActions(s => s.modals);
 
+  const handleClick = useCallback(() => {
+    showMintAsset({ nodeName: node.name, networkId: node.networkId });
+  }, [node]);
+
   if (type === 'menu') {
     return (
-      <div onClick={() => showMintAsset({ nodeName: node.name })}>
+      <div onClick={handleClick}>
         <WalletOutlined />
         <span>{l('mint')}</span>
       </div>
@@ -24,11 +28,7 @@ const MintAssetButton: React.FC<Props> = ({ node, type }) => {
   }
   return (
     <Form.Item label={l('title')} colon={false}>
-      <Button
-        onClick={() => showMintAsset({ nodeName: node.name })}
-        icon={<WalletOutlined />}
-        block
-      >
+      <Button onClick={handleClick} icon={<WalletOutlined />} block>
         {l('mint')}
       </Button>
     </Form.Item>

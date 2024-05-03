@@ -27,8 +27,6 @@ const getRpcOptions = (node: TapNode | LitdNode) => {
       certPath = litd.paths.litTlsCert;
       macaroonPath = litd.paths.tapMacaroon;
       break;
-    default:
-      throw new Error(`Unknown implementation: ${node.implementation}`);
   }
   return { port, certPath, macaroonPath };
 };
