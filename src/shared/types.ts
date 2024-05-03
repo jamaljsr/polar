@@ -84,7 +84,6 @@ export interface TapNode extends CommonNode {
 }
 
 export interface TapdNode extends TapNode {
-  implementation: 'tapd';
   lndName: string;
   paths: {
     tlsCert: string;

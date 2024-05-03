@@ -2,11 +2,11 @@ import React, { useCallback, useMemo } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Form, Input, InputNumber, Modal, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TapdNode } from 'shared/types';
 import { TAP_ASSET_TYPE } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { MintAssetPayload, TAP_MIN_LND_BALANCE } from 'store/models/tap';
 import { Network } from 'types';
+import { mapToTapd } from 'utils/network';
 
 interface Props {
   network: Network;
@@ -64,7 +64,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
       if (!node) return;
 
       const payload: MintAssetPayload = {
-        node: node as TapdNode,
+        node: mapToTapd(node),
         assetType: assetType === 1 ? TAP_ASSET_TYPE.COLLECTIBLE : TAP_ASSET_TYPE.NORMAL,
         name: values.name,
         amount: values.amount,

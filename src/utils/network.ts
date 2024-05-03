@@ -48,37 +48,6 @@ export const getContainerName = (node: CommonNode) =>
 export const getNetworkBackendId = (node: BitcoinNode) =>
   `${node.networkId}-${node.name}`;
 
-/**
- * Gets the LND node that is the backend for a tap or litd node
- */
-export const getTapBackendNode = (nodeName: string, network: Network) => {
-  const { lightning, tap } = network.nodes;
-  const node = [...tap, ...lightning].find(n => n.name === nodeName);
-
-  let tapNode: TapdNode | LitdNode | undefined = undefined;
-  if (node?.type === 'tap' && (node as TapNode).implementation === 'tapd') {
-    tapNode = node as TapdNode;
-  } else if (
-    node?.type === 'lightning' &&
-    (node as LightningNode).implementation === 'litd'
-  ) {
-    tapNode = node as LitdNode;
-  }
-  if (tapNode && ['litd', 'tapd'].includes(tapNode.implementation)) {
-    return network?.nodes.lightning.find(n => n.name === tapNode.lndName);
-  }
-};
-
-/**
- * Gets the tapd nodes in the network, which includes both tapd and litd nodes
- */
-export const getTapdNodes = (network: Network) => {
-  const { lightning, tap } = network.nodes;
-  return [...lightning, ...tap].filter(
-    node => node.implementation === 'tapd' || node.implementation === 'litd',
-  ) as (TapdNode | LitdNode)[];
-};
-
 const groupNodes = (network: Network) => {
   const { bitcoin, lightning, tap } = network.nodes;
   return {
@@ -1085,4 +1054,72 @@ export const zipNetwork = async (
   const ipc = createIpcSender('NetworkUtil', 'app');
   await ipc(ipcChannels.zip, { source: network.path, destination: zipPath });
   // await zip(network.path, zipPath);
+};
+
+/**
+ * Gets the LND node that is the backend for a tap or litd node
+ */
+export const getTapBackendNode = (nodeName: string, network: Network) => {
+  const { lightning, tap } = network.nodes;
+  const node = [...tap, ...lightning].find(n => n.name === nodeName);
+
+  let tapNode: TapdNode | LitdNode | undefined = undefined;
+  if (node?.type === 'tap' && (node as TapNode).implementation === 'tapd') {
+    tapNode = node as TapdNode;
+  } else if (
+    node?.type === 'lightning' &&
+    (node as LightningNode).implementation === 'litd'
+  ) {
+    tapNode = node as LitdNode;
+  }
+  if (tapNode && ['litd', 'tapd'].includes(tapNode.implementation)) {
+    return network?.nodes.lightning.find(n => n.name === tapNode.lndName);
+  }
+};
+
+/**
+ * Gets the tapd nodes in the network, which includes both tapd and litd nodes
+ */
+export const getTapdNodes = (network: Network) => {
+  const { lightning, tap } = network.nodes;
+  return [...lightning, ...tap]
+    .filter(node => node.implementation === 'tapd' || node.implementation === 'litd')
+    .map(mapToTapd);
+};
+
+/**
+ * Maps a litd node to a tapd node. This is needed to reuse the TAP store and services
+ * for both implementations.
+ */
+export const mapToTapd = (node: CommonNode): TapdNode => {
+  // if the node is already a tapd node, return it
+  if (node.type === 'tap' && (node as TapNode).implementation === 'tapd') {
+    return node as TapdNode;
+  }
+  // if the node is not a litd node, throw an error
+  if (node.type !== 'lightning' && (node as LightningNode).implementation !== 'litd') {
+    throw new Error(`Node "${node.name}" is not a litd node`);
+  }
+
+  const litd = node as LitdNode;
+  const tapd: TapdNode = {
+    id: litd.id,
+    networkId: litd.networkId,
+    name: litd.name,
+    type: 'tap',
+    implementation: 'tapd',
+    version: litd.version,
+    status: litd.status,
+    lndName: litd.lndName,
+    docker: litd.docker,
+    paths: {
+      tlsCert: litd.paths.litTlsCert,
+      adminMacaroon: litd.paths.tapMacaroon,
+    },
+    ports: {
+      grpc: litd.ports.web,
+      rest: litd.ports.rest,
+    },
+  };
+  return tapd;
 };

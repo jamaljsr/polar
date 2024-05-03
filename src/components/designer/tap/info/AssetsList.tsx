@@ -17,12 +17,11 @@ const Styled = {
 };
 
 interface Props {
-  title: string;
   balances: TapBalance[];
   nodeName: string;
 }
 
-const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
+const AssetsList: React.FC<Props> = ({ balances, nodeName }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.AssetsList');
   const { showAssetInfo } = useStoreActions(s => s.modals);
 
@@ -53,7 +52,7 @@ const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
   const { Wrapper } = Styled;
   return (
     <Wrapper>
-      <Divider>{title}</Divider>
+      <Divider>{l('title')}</Divider>
       {balances && balances.length > 0 ? (
         <DetailsList details={assetDetails} />
       ) : (
