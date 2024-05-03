@@ -43,28 +43,13 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   // don't add a context menu if the node is not valid
   if (!node) return <>{children}</>;
 
-  const isTap = node.type === 'tap';
+  const isTap = node.type === 'tap' || node.implementation === 'litd';
   const isLN = node.type === 'lightning';
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
 
   let items: MenuProps['items'] = [];
   items = items.concat(
-    addItemIf(
-      'sendAsset',
-      <SendAssetButton type={'menu'} node={node as TapNode} />,
-      isStarted && isTap,
-    ),
-    addItemIf(
-      'newAddress',
-      <NewAddressButton type={'menu'} node={node as TapNode} />,
-      isStarted && isTap,
-    ),
-    addItemIf(
-      'mintAsset',
-      <MintAssetButton type={'menu'} node={node as TapNode} />,
-      isStarted && isTap,
-    ),
     addItemIf(
       'inv',
       <PaymentButtons menuType="create" node={node as LightningNode} />,
@@ -84,6 +69,21 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       'incoming',
       <OpenChannelButtons menuType="incoming" node={node as LightningNode} />,
       isStarted && isLN,
+    ),
+    addItemIf(
+      'sendAsset',
+      <SendAssetButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
+    ),
+    addItemIf(
+      'newAddress',
+      <NewAddressButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
+    ),
+    addItemIf(
+      'mintAsset',
+      <MintAssetButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
     ),
     addItemIf(
       'sendonchain',

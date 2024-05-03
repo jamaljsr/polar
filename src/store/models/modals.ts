@@ -1,4 +1,5 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
+import { Status, TapdNode } from 'shared/types';
 import { StoreInjections } from 'types';
 import { RootModel } from './';
 
@@ -55,6 +56,8 @@ interface AssetInfoModel {
 interface MintAssetModel {
   visible: boolean;
   nodeName?: string;
+  networkId?: number;
+  lndName?: string;
 }
 
 interface NewAddressModel {
@@ -118,7 +121,7 @@ export interface ModalsModel {
   showAssetInfo: Thunk<ModalsModel, Partial<AssetInfoModel>, StoreInjections>;
   hideAssetInfo: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setMintAsset: Action<ModalsModel, Partial<MintAssetModel>>;
-  showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections>;
+  showMintAsset: Thunk<ModalsModel, Partial<MintAssetModel>, StoreInjections, RootModel>;
   hideMintAsset: Thunk<ModalsModel>;
   showNewAddress: Thunk<ModalsModel, Partial<NewAddressModel>, StoreInjections>;
   hideNewAddress: Thunk<ModalsModel>;
@@ -290,9 +293,27 @@ const modalsModel: ModalsModel = {
       nodeName: undefined,
     });
   }),
-  showMintAsset: thunk((actions, { nodeName }) => {
-    actions.setMintAsset({ visible: true, nodeName });
-  }),
+  showMintAsset: thunk(
+    async (actions, { nodeName, networkId }, { getStoreState, getStoreActions }) => {
+      actions.setMintAsset({ visible: true, nodeName });
+
+      // get the wallet balance for the associated LND node when we show the modal
+      const network = getStoreState().network.networks.find(n => n.id === networkId);
+      if (network) {
+        const { lightning, tap } = network.nodes;
+        const tapNode = [...tap, ...lightning].find(n => n.name === nodeName);
+        if (tapNode?.implementation === 'tapd' || tapNode?.implementation === 'litd') {
+          const lndNode = network.nodes.lightning.find(
+            n => n.name === (tapNode as TapdNode).lndName,
+          );
+          if (lndNode && lndNode.status === Status.Started) {
+            await getStoreActions().lightning.getWalletBalance(lndNode);
+            actions.setMintAsset({ lndName: lndNode.name });
+          }
+        }
+      }
+    },
+  ),
   hideMintAsset: thunk(actions => {
     actions.setMintAsset({ visible: false });
   }),
