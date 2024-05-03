@@ -8,28 +8,7 @@ import {
   TapdDefaultsKey,
   withTapdDefaults,
 } from '../../src/shared';
-import { LitdNode, TapdNode, TapNode } from '../../src/shared/types';
-
-const getRpcOptions = (node: TapNode | LitdNode) => {
-  let port: number;
-  let certPath: string;
-  let macaroonPath: string;
-  switch (node.implementation) {
-    case 'tapd':
-      const tapd = node as TapdNode;
-      port = tapd.ports.grpc;
-      certPath = tapd.paths.tlsCert;
-      macaroonPath = tapd.paths.adminMacaroon;
-      break;
-    case 'litd':
-      const litd = node as LitdNode;
-      port = litd.ports.web;
-      certPath = litd.paths.litTlsCert;
-      macaroonPath = litd.paths.tapMacaroon;
-      break;
-  }
-  return { port, certPath, macaroonPath };
-};
+import { TapdNode } from '../../src/shared/types';
 
 /**
  * mapping of node name <-> TapRpcApis to cache these objects. The createLndRpc function
@@ -41,28 +20,28 @@ let rpcCache: Record<string, TARO.TapdRpcApis> = {};
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: TapNode): Promise<TARO.TapdRpcApis> => {
+const getRpc = async (node: TapdNode): Promise<TARO.TapdRpcApis> => {
   const { name, networkId } = node;
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
-    const { port, certPath, macaroonPath } = getRpcOptions(node);
+    const { ports, paths } = node as TapdNode;
     const options: TARO.TapdClientOptions = {
-      socket: `127.0.0.1:${port}`,
-      cert: (await readFile(certPath)).toString('hex'),
-      macaroon: (await readFile(macaroonPath)).toString('hex'),
+      socket: `127.0.0.1:${ports.grpc}`,
+      cert: (await readFile(paths.tlsCert)).toString('hex'),
+      macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
     };
     rpcCache[id] = TARO.TapClient.create(options);
   }
   return rpcCache[id];
 };
 
-const listAssets = async (args: { node: TapNode }): Promise<TARO.ListAssetResponse> => {
+const listAssets = async (args: { node: TapdNode }): Promise<TARO.ListAssetResponse> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.listAssets();
 };
 
 const listBalances = async (args: {
-  node: TapNode;
+  node: TapdNode;
 }): Promise<TARO.ListBalancesResponse> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.listBalances({
@@ -71,7 +50,7 @@ const listBalances = async (args: {
 };
 
 const mintAsset = async (args: {
-  node: TapNode;
+  node: TapdNode;
   req: TARO.MintAssetRequestPartial;
 }): Promise<TARO.MintAssetResponse> => {
   const { mint } = await getRpc(args.node);
@@ -79,14 +58,14 @@ const mintAsset = async (args: {
 };
 
 const finalizeBatch = async (args: {
-  node: TapNode;
+  node: TapdNode;
 }): Promise<TARO.FinalizeBatchResponse> => {
   const { mint } = await getRpc(args.node);
   return await mint.finalizeBatch();
 };
 
 const newAddress = async (args: {
-  node: TapNode;
+  node: TapdNode;
   req: TARO.NewAddrRequestPartial;
 }): Promise<TARO.Addr> => {
   const { taprootAssets } = await getRpc(args.node);
@@ -94,7 +73,7 @@ const newAddress = async (args: {
 };
 
 const sendAsset = async (args: {
-  node: TapNode;
+  node: TapdNode;
   req: TARO.SendAssetRequestPartial;
 }): Promise<TARO.SendAssetResponse> => {
   const { taprootAssets } = await getRpc(args.node);
@@ -102,20 +81,20 @@ const sendAsset = async (args: {
 };
 
 const decodeAddress = async (args: {
-  node: TapNode;
+  node: TapdNode;
   req: TARO.DecodeAddrRequestPartial;
 }): Promise<TARO.Addr> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.decodeAddr(args.req);
 };
 
-const assetRoots = async (args: { node: TapNode }): Promise<TARO.AssetRootResponse> => {
+const assetRoots = async (args: { node: TapdNode }): Promise<TARO.AssetRootResponse> => {
   const { universe } = await getRpc(args.node);
   return await universe.assetRoots({ withAmountsById: true });
 };
 
 const assetLeaves = async (args: {
-  node: TapNode;
+  node: TapdNode;
   req: TARO.IDPartial;
 }): Promise<TARO.AssetLeafResponse> => {
   const { universe } = await getRpc(args.node);
@@ -123,7 +102,7 @@ const assetLeaves = async (args: {
 };
 
 const syncUniverse = async (args: {
-  node: TapNode;
+  node: TapdNode;
   req: TARO.SyncRequestPartial;
 }): Promise<TARO.SyncResponse> => {
   const { universe } = await getRpc(args.node);

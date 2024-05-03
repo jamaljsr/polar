@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Divider, Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TapNode } from 'shared/types';
 import { TapAddress } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import {
@@ -11,7 +10,7 @@ import {
   TAP_MIN_LND_BALANCE,
 } from 'store/models/tap';
 import { Network } from 'types';
-import { getTapdNodes } from 'utils/network';
+import { getTapdNodes, mapToTapd } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { CopyIcon } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -30,7 +29,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
   const { sendAsset, decodeAddress } = useStoreActions(s => s.tap);
 
   const [decodedAddress, setDecodedAddress] = useState<TapAddress & { name?: string }>();
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
 
   const [form] = Form.useForm();
   const autoFund: string = Form.useWatch('autoFund', form);
@@ -67,7 +66,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
 
   const handleSubmit = (values: { address: string; autoFund: boolean }) => {
     const payload: SendAssetPayload = {
-      node: node as TapNode,
+      node: mapToTapd(node),
       address: values.address,
       autoFund: values.autoFund,
     };
@@ -78,19 +77,18 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     try {
       const addr = await decodeAddress(payload);
       setDecodedAddress(addr);
-      setError(false);
+      setError(undefined);
     } catch (error: any) {
       setDecodedAddress(undefined);
-      setError(true);
-      notify({ message: l('decodeError'), error });
+      setError(error.message);
     }
   });
 
   const handleAddress = async (tapAddress: string) => {
     if (tapAddress.length > 0) {
-      decodeAddressAsync.execute({ address: tapAddress, node: node as TapNode });
+      decodeAddressAsync.execute({ address: tapAddress, node: mapToTapd(node) });
     } else {
-      setError(false);
+      setError(undefined);
     }
   };
 
@@ -140,10 +138,14 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         }}
         onFinish={handleSubmit}
       >
-        <Form.Item name="address" label={l('address')} help={error && l('decodingError')}>
+        <Form.Item
+          name="address"
+          label={l('address')}
+          help={error}
+          validateStatus={error ? 'error' : ''}
+        >
           <Input.TextArea
             rows={5}
-            status={error ? 'error' : ''}
             placeholder={l('address')}
             onChange={e => handleAddress(e.target.value)}
             disabled={sendAssetAsync.loading}

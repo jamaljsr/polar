@@ -5,6 +5,7 @@ import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
+import { mapToTapd } from 'utils/network';
 import { abbreviate } from 'utils/numbers';
 import { Loader } from 'components/common';
 import SidebarCard from '../SidebarCard';
@@ -20,12 +21,19 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.LightningDetails');
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lightning);
+  const { getAssets, getBalances } = useStoreActions(s => s.tap);
   const getInfoAsync = useAsync(
     async (node: LightningNode) => {
       if (node.status !== Status.Started) return;
       await getInfo(node);
       await getWalletBalance(node);
       await getChannels(node);
+
+      if (node.implementation === 'litd') {
+        const tapNode = mapToTapd(node);
+        await getAssets(tapNode);
+        await getBalances(tapNode);
+      }
     },
     [node],
   );

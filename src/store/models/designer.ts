@@ -11,7 +11,7 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { AnyNode, LndNode, Status, TapdNode, TapNode } from 'shared/types';
+import { AnyNode, LndNode, Status, TapdNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createBitcoinChartNode,
@@ -131,7 +131,7 @@ const designerModel: DesignerModel = {
       await Promise.all(
         getTapdNodes(network)
           .filter(n => n.status === Status.Started)
-          .map(n => getStoreActions().tap.getAllInfo(n as TapNode)),
+          .map(getStoreActions().tap.getAllInfo),
       );
 
       const nodesData = getStoreState().lightning.nodes;
@@ -314,7 +314,7 @@ const designerModel: DesignerModel = {
         return showError(l('linkErrBitcoin'));
       } else if (fromNode.type === 'tap' || toNode.type === 'tap') {
         if (fromNode.type === 'tap' && toNode.type === 'tap') {
-          //connecting tap to tap isn't supported
+          // connecting tap to tap isn't supported
           return showError(l('linkErrTapd'));
         }
         const tapName = fromNode.type === 'tap' ? fromNodeId : toNodeId;
@@ -326,6 +326,7 @@ const designerModel: DesignerModel = {
           return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
         }
         const tapNode = network.nodes.tap.find(n => n.name === tapName) as TapdNode;
+        // Cannot change the backend if the node was already started once
         const macaroonPresent = await exists(tapNode.paths.adminMacaroon);
         if (!macaroonPresent) {
           getStoreActions().modals.showChangeTapBackend({

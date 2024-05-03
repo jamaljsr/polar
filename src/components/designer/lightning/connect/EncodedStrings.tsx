@@ -18,7 +18,8 @@ const EncodedStrings: React.FC<Props> = ({ encoding, credentials }) => {
   const { notify } = useStoreActions(s => s.app);
   const [encodedValues, setEncodedValues] = useState<Record<string, string>>({});
   useAsync(async () => {
-    const { cert, clientCert, clientKey, admin, invoice, readOnly, rune } = credentials;
+    const { cert, clientCert, clientKey, admin, invoice, readOnly, rune, lit, tap } =
+      credentials;
     try {
       const values: Record<string, string> = {};
       if (cert) values[l('tlsCert')] = await read(cert, encoding);
@@ -34,6 +35,8 @@ const EncodedStrings: React.FC<Props> = ({ encoding, credentials }) => {
         values[l('rune')] =
           encoding === 'base64' ? value : Buffer.from(value, 'base64').toString(encoding);
       }
+      if (lit) values[l('litMacaroon')] = await read(lit, encoding);
+      if (tap) values[l('tapMacaroon')] = await read(tap, encoding);
       setEncodedValues(values);
     } catch (error: any) {
       notify({ message: l('error'), error });

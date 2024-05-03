@@ -14,11 +14,10 @@ import {
   Select,
 } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TapNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/tap';
 import { Network } from 'types';
-import { getTapdNodes } from 'utils/network';
+import { getTapdNodes, mapToTapd } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
@@ -77,7 +76,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     const hostname = from.implementation === 'litd' ? `${from.name}:8443` : from.name;
 
     try {
-      const numUpdated = await syncUniverse({ node: node as TapNode, hostname });
+      const numUpdated = await syncUniverse({ node: mapToTapd(node), hostname });
       message.success(l('syncSuccess', { count: numUpdated, hostname: from.name }));
     } catch (error: any) {
       notify({ message: l('syncError', { hostname: from.name }), error });
@@ -95,7 +94,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
 
   const handleSubmit = (values: { assetId: string; amount: string }) => {
     const payload: NewAddressPayload = {
-      node: node as TapNode,
+      node: mapToTapd(node),
       assetId: values.assetId,
       amount: values.amount,
     };
