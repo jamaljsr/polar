@@ -86,7 +86,7 @@ export interface TapModel {
     DecodeAddressPayload,
     StoreInjections,
     RootModel,
-    Promise<PTAP.TapAddress>
+    Promise<PTAP.TapAddress & { name?: string }>
   >;
 }
 
@@ -248,14 +248,19 @@ const tapModel: TapModel = {
       return res;
     },
   ),
-  decodeAddress: thunk(async (actions, { node, address }, { injections }) => {
-    const api = injections.tapFactory.getService(node);
-    const sendReq: TAP.DecodeAddrRequestPartial = {
-      addr: address,
-    };
-    const res = await api.decodeAddress(node, sendReq);
-    return res;
-  }),
+  decodeAddress: thunk(
+    async (actions, { node, address }, { injections, getStoreState }) => {
+      const api = injections.tapFactory.getService(node);
+      const sendReq: TAP.DecodeAddrRequestPartial = {
+        addr: address,
+      };
+      const res = await api.decodeAddress(node, sendReq);
+      const name = getStoreState().tap.nodes[node.name]?.assets?.find(
+        a => a.id === res.id,
+      )?.name;
+      return { ...res, name };
+    },
+  ),
   mineListener: thunkOn(
     (actions, storeActions) => storeActions.bitcoind.mine,
     async (actions, { payload }, { getStoreState, getStoreActions }) => {

@@ -14,6 +14,7 @@ import {
   Select,
 } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { TapNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/tap';
 import { Network } from 'types';
@@ -76,14 +77,13 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
     const hostname = from.implementation === 'litd' ? `${from.name}:8443` : from.name;
 
     try {
-      const numUpdated = await syncUniverse({ node, hostname });
+      const numUpdated = await syncUniverse({ node: node as TapNode, hostname });
       message.success(l('syncSuccess', { count: numUpdated, hostname: from.name }));
     } catch (error: any) {
       notify({ message: l('syncError', { hostname: from.name }), error });
     }
   });
 
-  //submit
   const newAddressAsync = useAsyncCallback(async (payload: NewAddressPayload) => {
     try {
       const res = await getNewAddress(payload);
@@ -95,7 +95,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
 
   const handleSubmit = (values: { assetId: string; amount: string }) => {
     const payload: NewAddressPayload = {
-      node,
+      node: node as TapNode,
       assetId: values.assetId,
       amount: values.amount,
     };

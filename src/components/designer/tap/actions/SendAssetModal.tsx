@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Divider, Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LightningNode, TapdNode } from 'shared/types';
-import { TapAddress, TapAsset } from 'lib/tap/types';
+import { TapNode } from 'shared/types';
+import { TapAddress } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import {
   DecodeAddressPayload,
@@ -11,6 +11,7 @@ import {
   TAP_MIN_LND_BALANCE,
 } from 'store/models/tap';
 import { Network } from 'types';
+import { getTapdNodes } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { CopyIcon } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -22,33 +23,25 @@ interface Props {
 const SendAssetModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.actions.SendAssetModal');
 
-  //app
   const { notify } = useStoreActions(s => s.app);
-
-  //modal visibility
-  const { visible, nodeName } = useStoreState(s => s.modals.sendAsset);
+  const { visible, nodeName, lndName } = useStoreState(s => s.modals.sendAsset);
   const { hideSendAsset } = useStoreActions(s => s.modals);
-
-  //component state
-  const [isLNDBalanceLow, setIsLNDBalanceLow] = useState<boolean>(false);
-  const [autoDepositFunds, setAutoDepositFunds] = useState<boolean>(false);
-  const [decodedAddress, setDecodedAddress] = useState<TapAddress>();
-  const [assetName, setAssetName] = useState<string>();
-  const [error, setError] = useState<boolean>(false);
-
-  //store model
   const { nodes: lightningNodes } = useStoreState(s => s.lightning);
-  const { getWalletBalance } = useStoreActions(s => s.lightning);
-  const { nodes: tapNodes } = useStoreState(s => s.tap);
   const { sendAsset, decodeAddress } = useStoreActions(s => s.tap);
 
-  //component local variables
-  const [form] = Form.useForm();
-  const thisTapNode: TapdNode = network.nodes.tap.find(
-    node => node.name === nodeName,
-  ) as TapdNode;
+  const [decodedAddress, setDecodedAddress] = useState<TapAddress & { name?: string }>();
+  const [error, setError] = useState<boolean>(false);
 
-  const assets: TapAsset[] = tapNodes[thisTapNode.name].assets || [];
+  const [form] = Form.useForm();
+  const autoFund: string = Form.useWatch('autoFund', form);
+
+  const { node } = useMemo(() => {
+    const tapNodes = getTapdNodes(network);
+    const node = tapNodes.find(node => node.name === nodeName);
+    const otherNodes = tapNodes.filter(node => node.name !== nodeName);
+    if (!node) throw new Error(`${nodeName} is not a TAP node`);
+    return { node, otherNodes };
+  }, [network.nodes, nodeName]);
 
   const sendAssetAsync = useAsyncCallback(async (payload: SendAssetPayload) => {
     try {
@@ -56,7 +49,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
       notify({
         message: l('success', {
           amount: decodedAddress?.amount,
-          assetName,
+          assetName: decodedAddress?.name,
           addr: ellipseInner(payload.address, 6),
         }),
       });
@@ -65,25 +58,16 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
       notify({ message: l('submitError'), error });
     }
   });
-  //When polar is first opened, we need to populate the state with the lightning node data
-  useEffect(() => {
-    const lndNode: LightningNode = network.nodes.lightning.find(
-      n => n.name === thisTapNode?.lndName,
-    ) as LightningNode;
-    getWalletBalance(lndNode);
-  }, []);
 
-  useMemo(() => {
-    const lndNodeModel = lightningNodes[thisTapNode?.lndName];
-    lndNodeModel &&
-      setIsLNDBalanceLow(
-        Number(lndNodeModel.walletBalance?.confirmed) < TAP_MIN_LND_BALANCE * 2,
-      );
-  }, [network.nodes.lightning, lightningNodes]);
+  const lowBalance = useMemo(() => {
+    if (!lndName) return false;
+    const lndNodeModel = lightningNodes[lndName];
+    return Number(lndNodeModel?.walletBalance?.confirmed) < TAP_MIN_LND_BALANCE;
+  }, [lightningNodes, lndName]);
 
   const handleSubmit = (values: { address: string; autoFund: boolean }) => {
     const payload: SendAssetPayload = {
-      node: thisTapNode,
+      node: node as TapNode,
       address: values.address,
       autoFund: values.autoFund,
     };
@@ -92,21 +76,19 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
 
   const decodeAddressAsync = useAsyncCallback(async (payload: DecodeAddressPayload) => {
     try {
-      const res = await decodeAddress(payload);
-      const assetName = assets.find(asset => asset.id === res.id);
-      setAssetName(assetName?.name);
-      setDecodedAddress(res);
+      const addr = await decodeAddress(payload);
+      setDecodedAddress(addr);
       setError(false);
     } catch (error: any) {
-      setAssetName(undefined);
       setDecodedAddress(undefined);
       setError(true);
+      notify({ message: l('decodeError'), error });
     }
   });
 
   const handleAddress = async (tapAddress: string) => {
     if (tapAddress.length > 0) {
-      decodeAddressAsync.execute({ address: tapAddress, node: thisTapNode });
+      decodeAddressAsync.execute({ address: tapAddress, node: node as TapNode });
     } else {
       setError(false);
     }
@@ -116,14 +98,14 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     const details: DetailValues = [
       {
         label: l('assetName'),
-        value: assetName,
+        value: decodedAddress?.name,
       },
       { label: l('type'), value: decodedAddress?.type },
       { label: l('amount'), value: decodedAddress?.amount },
     ];
 
     return <DetailsList details={details} />;
-  }, [decodedAddress, tapNodes]);
+  }, [decodedAddress]);
 
   const missingAssetCmp = useMemo(() => {
     const details = [
@@ -140,11 +122,11 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     return (
       <Alert
         type="error"
-        message={l('missingAsset', { nodeName: thisTapNode?.name })}
+        message={l('missingAsset', { nodeName: node.name })}
         description={<DetailsList details={details} />}
       />
     );
-  }, [decodedAddress, tapNodes]);
+  }, [decodedAddress]);
 
   const cmp = (
     <>
@@ -171,23 +153,21 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
           {decodedAddress && (
             <>
               <Divider>{l('addressInfo')}</Divider>
-              {assetName ? successDescriptionCmp : missingAssetCmp}
+              {decodedAddress?.name ? successDescriptionCmp : missingAssetCmp}
             </>
           )}
         </div>
-        {isLNDBalanceLow && !autoDepositFunds && (
+        {lowBalance && !autoFund && (
           <>
             <Alert
               type="warning"
-              message={l('lndBalanceError', { lndNode: thisTapNode?.lndName })}
+              message={l('lndBalanceError', { lndNode: node.lndName })}
             />
           </>
         )}
-        {isLNDBalanceLow && (
+        {lowBalance && (
           <Form.Item name="autoFund" valuePropName="checked">
-            <Checkbox onChange={e => setAutoDepositFunds(e.target.checked)}>
-              {l('deposit', { selectedFrom: thisTapNode?.lndName })}
-            </Checkbox>
+            <Checkbox>{l('deposit', { selectedFrom: node.lndName })}</Checkbox>
           </Form.Item>
         )}
       </Form>
@@ -197,7 +177,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
   return (
     <>
       <Modal
-        title={l('title', { name: thisTapNode?.name })}
+        title={l('title', { name: node.name })}
         open={visible}
         destroyOnClose
         cancelText={l('cancelBtn')}
@@ -205,7 +185,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         onCancel={() => hideSendAsset()}
         okButtonProps={{
           loading: sendAssetAsync.loading,
-          disabled: !decodedAddress || (decodedAddress && !assetName),
+          disabled: !decodedAddress || (decodedAddress && !decodedAddress?.name),
         }}
         onOk={form.submit}
       >

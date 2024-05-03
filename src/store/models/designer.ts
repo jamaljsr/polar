@@ -11,7 +11,7 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { AnyNode, LndNode, Status, TapdNode } from 'shared/types';
+import { AnyNode, LndNode, Status, TapdNode, TapNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
   createBitcoinChartNode,
@@ -131,7 +131,7 @@ const designerModel: DesignerModel = {
       await Promise.all(
         getTapdNodes(network)
           .filter(n => n.status === Status.Started)
-          .map(getStoreActions().tap.getAllInfo),
+          .map(n => getStoreActions().tap.getAllInfo(n as TapNode)),
       );
 
       const nodesData = getStoreState().lightning.nodes;
