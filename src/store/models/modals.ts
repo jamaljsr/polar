@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
-import { Status, TapdNode } from 'shared/types';
 import { StoreInjections } from 'types';
+import { getTapBackendNode } from 'utils/network';
 import { RootModel } from './';
 
 interface OpenChannelModel {
@@ -69,6 +69,8 @@ interface NewAddressModel {
 interface SendAssetModel {
   visible: boolean;
   nodeName?: string;
+  networkId?: number;
+  lndName?: string;
 }
 
 interface ChangeTapBackendModel {
@@ -134,7 +136,7 @@ export interface ModalsModel {
   setNewAddress: Action<ModalsModel, Partial<NewAddressModel>>;
   setSendAsset: Action<ModalsModel, SendAssetModel>;
   hideSendAsset: Thunk<ModalsModel>;
-  showSendAsset: Thunk<ModalsModel, Partial<SendAssetModel>, StoreInjections>;
+  showSendAsset: Thunk<ModalsModel, Partial<SendAssetModel>, StoreInjections, RootModel>;
   showChangeTapBackend: Thunk<
     ModalsModel,
     Partial<ChangeTapBackendModel>,
@@ -305,17 +307,11 @@ const modalsModel: ModalsModel = {
 
       // get the wallet balance for the associated LND node when we show the modal
       const network = getStoreState().network.networks.find(n => n.id === networkId);
-      if (network) {
-        const { lightning, tap } = network.nodes;
-        const tapNode = [...tap, ...lightning].find(n => n.name === nodeName);
-        if (tapNode?.implementation === 'tapd' || tapNode?.implementation === 'litd') {
-          const lndNode = network.nodes.lightning.find(
-            n => n.name === (tapNode as TapdNode).lndName,
-          );
-          if (lndNode && lndNode.status === Status.Started) {
-            await getStoreActions().lightning.getWalletBalance(lndNode);
-            actions.setMintAsset({ lndName: lndNode.name });
-          }
+      if (nodeName && network) {
+        const lndNode = getTapBackendNode(nodeName, network);
+        if (lndNode) {
+          await getStoreActions().lightning.getWalletBalance(lndNode);
+          actions.setMintAsset({ lndName: lndNode.name });
         }
       }
     },
@@ -354,11 +350,21 @@ const modalsModel: ModalsModel = {
       ...payload,
     };
   }),
+  showSendAsset: thunk(
+    async (actions, { nodeName, networkId }, { getStoreState, getStoreActions }) => {
+      actions.setSendAsset({ visible: true, nodeName });
 
-  //Send TAP Asset Modal
-  showSendAsset: thunk((actions, { nodeName }) => {
-    actions.setSendAsset({ visible: true, nodeName });
-  }),
+      // get the wallet balance for the associated LND node when we show the modal
+      const network = getStoreState().network.networks.find(n => n.id === networkId);
+      if (nodeName && network) {
+        const lndNode = getTapBackendNode(nodeName, network);
+        if (lndNode) {
+          await getStoreActions().lightning.getWalletBalance(lndNode);
+          actions.setMintAsset({ lndName: lndNode.name });
+        }
+      }
+    },
+  ),
   hideSendAsset: thunk(actions => {
     actions.setSendAsset({ visible: false });
   }),

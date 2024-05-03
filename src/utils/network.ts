@@ -49,27 +49,34 @@ export const getNetworkBackendId = (node: BitcoinNode) =>
   `${node.networkId}-${node.name}`;
 
 /**
- * Gets the LND node name that is the backend for a tap or litd node
+ * Gets the LND node that is the backend for a tap or litd node
  */
-export const getTapBackendName = (node: CommonNode) => {
-  if (node.type === 'tap' && (node as TapNode).implementation === 'tapd') {
-    return (node as TapdNode).lndName;
+export const getTapBackendNode = (nodeName: string, network: Network) => {
+  const { lightning, tap } = network.nodes;
+  const node = [...tap, ...lightning].find(n => n.name === nodeName);
+
+  let tapNode: TapdNode | LitdNode | undefined = undefined;
+  if (node?.type === 'tap' && (node as TapNode).implementation === 'tapd') {
+    tapNode = node as TapdNode;
   } else if (
-    node.type === 'lightning' &&
+    node?.type === 'lightning' &&
     (node as LightningNode).implementation === 'litd'
   ) {
-    return node.name;
+    tapNode = node as LitdNode;
+  }
+  if (tapNode && ['litd', 'tapd'].includes(tapNode.implementation)) {
+    return network?.nodes.lightning.find(n => n.name === tapNode.lndName);
   }
 };
 
 /**
  * Gets the tapd nodes in the network, which includes both tapd and litd nodes
  */
-export const getTapdNodes = (network: Network): TapNode[] => {
+export const getTapdNodes = (network: Network) => {
   const { lightning, tap } = network.nodes;
   return [...lightning, ...tap].filter(
     node => node.implementation === 'tapd' || node.implementation === 'litd',
-  ) as TapdNode[];
+  ) as (TapdNode | LitdNode)[];
 };
 
 const groupNodes = (network: Network) => {
