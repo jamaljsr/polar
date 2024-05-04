@@ -29,12 +29,24 @@ describe('SettingsService', () => {
         tapd: 0,
       },
       basePorts: {
-        LND: 8081,
-        bitcoind: 18443,
-        'c-lightning': 9735,
-        btcd: null,
-        eclair: null,
-        tapd: null,
+        LND: {
+          rest: 8080,
+          grpc: 10001,
+        },
+        bitcoind: {
+          rest: 18443,
+        },
+        'c-lightning': {
+          rest: 8181,
+          grpc: 11001,
+        },
+        eclair: {
+          rest: 8281,
+        },
+        tapd: {
+          rest: 8289,
+          grpc: 12029,
+        },
       },
     };
   });

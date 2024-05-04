@@ -105,3 +105,24 @@ export interface OpenChannelOptions {
   amount: string;
   isPrivate: boolean;
 }
+
+export interface NodeBasePorts {
+  LND: {
+    rest: number | null;
+    grpc: number | null;
+  };
+  'c-lightning': {
+    rest: number | null;
+    grpc: number | null;
+  };
+  eclair: {
+    rest: number | null;
+  };
+  bitcoind: {
+    rest: number | null;
+  };
+  tapd: {
+    rest: number | null;
+    grpc: number | null;
+  };
+}
