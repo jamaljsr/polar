@@ -49,6 +49,7 @@
   "cmps.common.RemoveNode.invalidType": "未知节点类型 '{{type}}'",
   "cmps.common.RemoveNode.success": "节点 {{name}} 已从网络中删除",
   "cmps.common.RemoveNode.error": "无法删除节点",
+  "cmps.common.DockerContainerShutdown.shutdownMsg": "Shutting down...",
   "cmps.designer.bitcoind.BitcoinDetails.info": "信息",
   "cmps.designer.bitcoind.BitcoinDetails.connect": "连接",
   "cmps.designer.bitcoind.BitcoinDetails.actions": "动作",
