@@ -1,7 +1,7 @@
 import React from 'react';
-import { CloudSyncOutlined } from '@ant-design/icons';
+import { CloudSyncOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Switch } from 'antd';
+import { Button } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { NodeImplementation } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
@@ -18,10 +18,29 @@ const Styled = {
     opacity: 0.5;
     font-size: 12px;
   `,
-  Toggle: styled.div`
+  Nodes: styled.div`
     display: flex;
+    flex-direction: column;
+  `,
+  NodeRow: styled.div`
+    display: flex;
+    align-items: center;
     justify-content: space-between;
-    margin: 10px 5px;
+  `,
+  Arrow: styled.span<{ visible?: boolean; collapsible?: boolean }>`
+    margin-top: ${props => (props.visible ? 20 : 0)}px;
+    width: 25px;
+    text-align: right;
+
+    > .anticon {
+      opacity: 0.4;
+      display: ${props => (props.collapsible ? 'inline' : 'none')};
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
   `,
   UpdatesButton: styled(Button)`
     margin-top: 30px;
@@ -31,21 +50,27 @@ const Styled = {
 const DefaultSidebar: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
 
-  const { updateSettings } = useStoreActions(s => s.app);
   const { showImageUpdates } = useStoreActions(s => s.modals);
   const { settings, dockerRepoState } = useStoreState(s => s.app);
-  const showAll = settings.showAllNodeVersions;
   const currPlatform = getPolarPlatform();
 
-  const toggleVersions = () => updateSettings({ showAllNodeVersions: !showAll });
+  const [expanded, setExpanded] = React.useState<NodeImplementation[]>([]);
+  const toggleExpanded = (type: NodeImplementation) => {
+    if (expanded.includes(type)) {
+      setExpanded(expanded.filter(t => t !== type));
+    } else {
+      setExpanded([...expanded, type]);
+    }
+  };
   const toggleModal = () => showImageUpdates();
 
   const nodes: {
     label: string;
     logo: string;
     version: string;
-    type: string;
-    latest: boolean;
+    type: NodeImplementation;
+    collapsible: boolean;
+    visible: boolean;
     customId?: string;
   }[] = [];
 
@@ -59,20 +84,35 @@ const DefaultSidebar: React.FC = () => {
       logo,
       version: latest,
       type: image.implementation,
-      latest: true,
+      collapsible: false,
       customId: image.id,
+      visible: true,
     });
   });
 
   // add managed nodes
-  Object.entries(dockerRepoState.images).forEach(([type, entry]) => {
+  Object.entries(dockerRepoState.images).forEach(([key, entry]) => {
+    const type = key as NodeImplementation;
     const { name, logo, platforms } = dockerConfigs[type as NodeImplementation];
     if (!platforms.includes(currPlatform)) return;
-    entry.versions.forEach(version => {
-      const label = `${name} v${version}`;
-      const latest = version === entry.latest;
-      nodes.push({ label, logo, version, type, latest });
+    if (!entry.latest) return;
+
+    nodes.push({
+      label: `${name} v${entry.latest}`,
+      logo,
+      version: entry.latest,
+      type,
+      collapsible: entry.versions.length > 1,
+      visible: true,
     });
+    entry.versions
+      .filter(v => v != entry.latest)
+      .forEach(version => {
+        const label = `${name} v${version}`;
+        const collapsible = false;
+        const visible = expanded.includes(type);
+        nodes.push({ label, logo, version, collapsible, visible, type });
+      });
   });
 
   return (
@@ -80,20 +120,26 @@ const DefaultSidebar: React.FC = () => {
       <p>{l('mainDesc')}</p>
       <Styled.AddNodes>{l('addNodesTitle')}</Styled.AddNodes>
       <Styled.AddDesc>{l('addNodesDesc')}</Styled.AddDesc>
-      <Styled.Toggle>
-        <span>{l('showVersions')}</span>
-        <Switch checked={showAll} onClick={toggleVersions} />
-      </Styled.Toggle>
-      {nodes.map(({ label, logo, version, latest, type, customId }) => (
-        <DraggableNode
-          key={label}
-          label={label}
-          desc={showAll && latest ? 'latest' : ''}
-          icon={logo}
-          properties={{ type, version, customId }}
-          visible={showAll || latest}
-        />
-      ))}
+      <Styled.Nodes>
+        {nodes.map(({ label, logo, version, type, collapsible, visible, customId }) => (
+          <Styled.NodeRow key={label}>
+            <DraggableNode
+              key={label}
+              label={label}
+              icon={logo}
+              properties={{ type, version, customId }}
+              visible={visible}
+            />
+            <Styled.Arrow visible={visible} collapsible={collapsible}>
+              {expanded.includes(type) ? (
+                <UpOutlined onClick={() => toggleExpanded(type)} />
+              ) : (
+                <DownOutlined onClick={() => toggleExpanded(type)} />
+              )}
+            </Styled.Arrow>
+          </Styled.NodeRow>
+        ))}
+      </Styled.Nodes>
       <Styled.UpdatesButton
         type="link"
         block

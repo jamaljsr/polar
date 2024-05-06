@@ -74,7 +74,6 @@ const appModel: AppModel = {
   settings: {
     lang: getI18n().language,
     theme: 'dark',
-    showAllNodeVersions: false,
     checkForUpdatesOnStartup: false,
     nodeImages: {
       managed: [],

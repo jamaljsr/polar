@@ -18,6 +18,7 @@ const Styled = {
     height: 46px;
     padding: 10px 10px;
     margin-top: 20px;
+    flex-grow: 1;
 
     &.hide {
       opacity: 0;

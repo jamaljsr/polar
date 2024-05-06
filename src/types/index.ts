@@ -65,7 +65,6 @@ export interface NodeBasePorts {
 export interface AppSettings {
   lang: string;
   theme: 'light' | 'dark';
-  showAllNodeVersions: boolean;
   checkForUpdatesOnStartup: boolean;
   /** lists of docker image customizations */
   nodeImages: {

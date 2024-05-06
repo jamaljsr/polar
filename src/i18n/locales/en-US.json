@@ -110,7 +110,6 @@
   "cmps.designer.default.DefaultSidebar.mainDesc": "Click on an element in the designer to see details",
   "cmps.designer.default.DefaultSidebar.addNodesTitle": "Add Nodes",
   "cmps.designer.default.DefaultSidebar.addNodesDesc": "Drag a node below onto the canvas to add it to the network",
-  "cmps.designer.default.DefaultSidebar.showVersions": "Show All Versions",
   "cmps.designer.default.DefaultSidebar.checkUpdates": "Check for new Node Versions",
   "cmps.designer.default.ImageUpdatesModal.title": "Check for new Node Versions",
   "cmps.designer.default.ImageUpdatesModal.updatesTitle": "There are new node versions available",
