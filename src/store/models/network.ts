@@ -278,6 +278,18 @@ const networkModel: NetworkModel = {
       getStoreActions().designer.setChart({ id: newNetwork.id, chart });
       getStoreActions().designer.setActiveId(newNetwork.id);
       await actions.save();
+
+      await getStoreActions().app.updateSettings({
+        newNodeCounts: {
+          LND: lndNodes,
+          'c-lightning': clightningNodes,
+          eclair: eclairNodes,
+          bitcoind: bitcoindNodes,
+          btcd: 0,
+          tapd: 0,
+        },
+      });
+
       dispatch(push(NETWORK_VIEW(newNetwork.id)));
     },
   ),

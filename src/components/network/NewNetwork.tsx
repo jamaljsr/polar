@@ -73,10 +73,10 @@ const NewNetwork: React.FC = () => {
           layout="vertical"
           colon={false}
           initialValues={{
-            lndNodes: isWindows() ? 2 : 1,
-            clightningNodes: isWindows() ? 0 : 1,
-            eclairNodes: 1,
-            bitcoindNodes: 1,
+            lndNodes: settings.newNodeCounts.LND,
+            clightningNodes: settings.newNodeCounts['c-lightning'],
+            eclairNodes: settings.newNodeCounts.eclair,
+            bitcoindNodes: settings.newNodeCounts.bitcoind,
             customNodes: initialCustomValues,
           }}
           onFinish={createAsync.execute}
