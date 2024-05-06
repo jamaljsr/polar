@@ -7458,13 +7458,13 @@ electron-builder@24.13.3:
     simple-update-notifier "2.0.0"
     yargs "^17.6.2"
 
-electron-debug@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/electron-debug/-/electron-debug-4.0.0.tgz#ec424edd8ea58fbf81857f65e816d6d397150075"
-  integrity sha512-GuDHlug+EGBcZezEFzwXyal/YI28rxtSzRPNfRfc+BQ3siEkqy2voN5bI1c0cGEloK40mV/LzRMaiI84KCNvqg==
+electron-debug@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/electron-debug/-/electron-debug-3.2.0.tgz#46a15b555c3b11872218c65ea01d058aa0814920"
+  integrity sha512-7xZh+LfUvJ52M9rn6N+tPuDw6oRAjxUj9SoxAZfJ0hVCXhZCsdkrSt7TgXOiWiEOBgEV8qwUIO/ScxllsPS7ow==
   dependencies:
-    electron-is-dev "^3.0.1"
-    electron-localshortcut "^3.2.1"
+    electron-is-dev "^1.1.0"
+    electron-localshortcut "^3.1.0"
 
 electron-devtools-installer@3.2.0:
   version "3.2.0"
@@ -7486,12 +7486,12 @@ electron-is-dev@2.0.0:
   resolved "https://registry.yarnpkg.com/electron-is-dev/-/electron-is-dev-2.0.0.tgz#833487a069b8dad21425c67a19847d9064ab19bd"
   integrity sha512-3X99K852Yoqu9AcW50qz3ibYBWY79/pBhlMCab8ToEWS48R0T9tyxRiQhwylE7zQdXrMnx2JKqUJyMPmt5FBqA==
 
-electron-is-dev@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/electron-is-dev/-/electron-is-dev-3.0.1.tgz#1cbc79b1dd046787903acd357efdfab6549dc17a"
-  integrity sha512-8TjjAh8Ec51hUi3o4TaU0mD3GMTOESi866oRNavj9A3IQJ7pmv+MJVmdZBFGw4GFT36X7bkqnuDNYvkQgvyI8Q==
+electron-is-dev@^1.1.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/electron-is-dev/-/electron-is-dev-1.2.0.tgz#2e5cea0a1b3ccf1c86f577cee77363ef55deb05e"
+  integrity sha512-R1oD5gMBPS7PVU8gJwH6CtT0e6VSoD0+SzSnYpNm+dBkcijgA+K7VAMHDfnRq/lkKPZArpzplTW6jfiMYosdzw==
 
-electron-localshortcut@^3.2.1:
+electron-localshortcut@^3.1.0:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/electron-localshortcut/-/electron-localshortcut-3.2.1.tgz#cfc83a3eff5e28faf98ddcc87f80a2ce4f623cd3"
   integrity sha512-DWvhKv36GsdXKnaFFhEiK8kZZA+24/yFLgtTwJJHc7AFgDjNRIBJZ/jq62Y/dWv9E4ypYwrVWN2bVrCYw1uv7Q==
