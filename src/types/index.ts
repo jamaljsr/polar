@@ -60,6 +60,8 @@ export interface AppSettings {
     managed: ManagedImage[];
     custom: CustomImage[];
   };
+  /** The default number of each node when creating a new network */
+  newNodeCounts: Record<NodeImplementation, number>;
 }
 
 export interface SettingsInjection {

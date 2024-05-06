@@ -20,6 +20,14 @@ describe('SettingsService', () => {
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
+      newNodeCounts: {
+        LND: 1,
+        'c-lightning': 1,
+        eclair: 1,
+        bitcoind: 1,
+        btcd: 0,
+        tapd: 0,
+      },
     };
   });
 

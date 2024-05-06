@@ -17,6 +17,7 @@ import {
   StoreInjections,
 } from 'types';
 import { defaultRepoState } from 'utils/constants';
+import { isWindows } from 'utils/system';
 import { changeTheme } from 'utils/theme';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
@@ -79,6 +80,14 @@ const appModel: AppModel = {
       managed: [],
       custom: [],
     },
+    newNodeCounts: {
+      LND: 1,
+      'c-lightning': 1,
+      eclair: 1,
+      bitcoind: 1,
+      btcd: 0,
+      tapd: 0,
+    },
   },
   dockerVersions: { docker: '', compose: '' },
   dockerImages: [],
@@ -123,7 +132,18 @@ const appModel: AppModel = {
       ...settings,
     };
   }),
-  loadSettings: thunk(async (actions, _, { injections }) => {
+  loadSettings: thunk(async (actions, _, { injections, getState }) => {
+    // before loading settings, set the default CLN count to 0 on Windows
+    if (isWindows()) {
+      actions.setSettings({
+        newNodeCounts: {
+          ...getState().settings.newNodeCounts,
+          LND: 2,
+          'c-lightning': 0,
+        },
+      });
+    }
+
     const settings = await injections.settingsService.load();
     if (settings) {
       actions.setSettings(settings);

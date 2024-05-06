@@ -1,5 +1,6 @@
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
+import os from 'os';
 import { defaultRepoState } from 'utils/constants';
 import { injections } from 'utils/tests';
 import appModel from './app';
@@ -7,6 +8,9 @@ import designerModel from './designer';
 import modalsModel from './modals';
 import networkModel from './network';
 
+jest.mock('os');
+
+const mockOS = os as jest.Mocked<typeof os>;
 const mockDockerService = injections.dockerService as jest.Mocked<
   typeof injections.dockerService
 >;
@@ -43,6 +47,14 @@ describe('App model', () => {
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
+      newNodeCounts: {
+        LND: 1,
+        'c-lightning': 1,
+        eclair: 1,
+        bitcoind: 1,
+        btcd: 0,
+        tapd: 0,
+      },
     });
     mockRepoService.load.mockResolvedValue({
       ...defaultRepoState,
@@ -53,9 +65,30 @@ describe('App model', () => {
   it('should initialize', async () => {
     await store.getActions().app.initialize();
     expect(store.getState().app.initialized).toBe(true);
-    expect(mockSettingsService.load).toBeCalledTimes(1);
-    expect(mockDockerService.getVersions).toBeCalledTimes(1);
-    expect(mockDockerService.loadNetworks).toBeCalledTimes(1);
+    expect(mockSettingsService.load).toHaveBeenCalledTimes(1);
+    expect(mockDockerService.getVersions).toHaveBeenCalledTimes(1);
+    expect(mockDockerService.loadNetworks).toHaveBeenCalledTimes(1);
+  });
+
+  it('should have correct default node counts on Windows', async () => {
+    mockOS.platform.mockReturnValue('win32');
+    mockSettingsService.load.mockResolvedValue({
+      lang: 'en-US',
+      showAllNodeVersions: true,
+      checkForUpdatesOnStartup: false,
+      theme: 'dark',
+      nodeImages: { custom: [], managed: [] },
+    } as any);
+    await store.getActions().app.initialize();
+    expect(store.getState().app.initialized).toBe(true);
+    expect(store.getState().app.settings.newNodeCounts).toEqual({
+      LND: 2,
+      'c-lightning': 0,
+      eclair: 1,
+      bitcoind: 1,
+      btcd: 0,
+      tapd: 0,
+    });
   });
 
   it('should initialize with missing settings', async () => {
@@ -97,6 +130,14 @@ describe('App model', () => {
         checkForUpdatesOnStartup: true,
         theme: 'dark',
         nodeImages: { custom: [], managed: [] },
+        newNodeCounts: {
+          LND: 1,
+          'c-lightning': 1,
+          eclair: 1,
+          bitcoind: 1,
+          btcd: 1,
+          tapd: 1,
+        },
       });
     });
 
@@ -106,7 +147,7 @@ describe('App model', () => {
       });
       await store.getActions().app.initialize();
       expect(store.getState().app.initialized).toBe(true);
-      expect(mockRepoService.checkForUpdates).toBeCalledTimes(1);
+      expect(mockRepoService.checkForUpdates).toHaveBeenCalledTimes(1);
       expect(store.getState().modals.imageUpdates.visible).toBe(false);
     });
 
@@ -125,7 +166,7 @@ describe('App model', () => {
 
       await store.getActions().app.initialize();
       expect(store.getState().app.initialized).toBe(true);
-      expect(mockRepoService.checkForUpdates).toBeCalledTimes(1);
+      expect(mockRepoService.checkForUpdates).toHaveBeenCalledTimes(1);
       expect(store.getState().modals.imageUpdates.visible).toBe(true);
     });
 
