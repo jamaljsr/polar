@@ -43,7 +43,6 @@ describe('App model', () => {
     });
     mockSettingsService.load.mockResolvedValue({
       lang: 'en-US',
-      showAllNodeVersions: true,
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
@@ -127,8 +126,8 @@ describe('App model', () => {
   });
 
   it('should update settings', async () => {
-    store.getActions().app.updateSettings({ showAllNodeVersions: true });
-    expect(store.getState().app.settings.showAllNodeVersions).toBe(true);
+    store.getActions().app.updateSettings({ theme: 'dark' });
+    expect(store.getState().app.settings.theme).toBe('dark');
   });
 
   it('should truncate long error notifications', async () => {
@@ -148,7 +147,6 @@ describe('App model', () => {
     beforeEach(() => {
       mockSettingsService.load.mockResolvedValue({
         lang: 'en-US',
-        showAllNodeVersions: true,
         checkForUpdatesOnStartup: true,
         theme: 'dark',
         nodeImages: { custom: [], managed: [] },
