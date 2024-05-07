@@ -201,6 +201,8 @@ export const getNetwork = (
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    tapdNodes: 0,
+    litdNodes: 0,
     status,
     repoState: defaultRepoState,
     managedImages: testManagedImages,

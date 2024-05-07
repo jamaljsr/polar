@@ -46,6 +46,8 @@ interface AddNetworkArgs {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  tapdNodes: number;
+  litdNodes: number;
   customNodes: Record<string, number>;
 }
 
@@ -254,13 +256,13 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      { name, lndNodes, clightningNodes, eclairNodes, bitcoindNodes, customNodes },
+      payload,
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
       // convert the customNodes object into an array of custom images with counts
       const customImages: { image: CustomImage; count: number }[] = [];
-      Object.entries(customNodes)
+      Object.entries(payload.customNodes)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .filter(([_, count]) => count > 0)
         .forEach(([id, count]) => {
@@ -270,11 +272,13 @@ const networkModel: NetworkModel = {
       const nextId = Math.max(0, ...getState().networks.map(n => n.id)) + 1;
       const network = createNetwork({
         id: nextId,
-        name,
-        lndNodes,
-        clightningNodes,
-        eclairNodes,
-        bitcoindNodes,
+        name: payload.name,
+        lndNodes: payload.lndNodes,
+        clightningNodes: payload.clightningNodes,
+        eclairNodes: payload.eclairNodes,
+        bitcoindNodes: payload.bitcoindNodes,
+        tapdNodes: payload.tapdNodes,
+        litdNodes: payload.litdNodes,
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
@@ -291,13 +295,13 @@ const networkModel: NetworkModel = {
 
       await getStoreActions().app.updateSettings({
         newNodeCounts: {
-          LND: lndNodes,
-          'c-lightning': clightningNodes,
-          eclair: eclairNodes,
-          bitcoind: bitcoindNodes,
+          LND: payload.lndNodes,
+          'c-lightning': payload.clightningNodes,
+          eclair: payload.eclairNodes,
+          bitcoind: payload.bitcoindNodes,
+          tapd: payload.tapdNodes,
+          litd: payload.litdNodes,
           btcd: 0,
-          tapd: 0,
-          litd: 0,
         },
       });
 
