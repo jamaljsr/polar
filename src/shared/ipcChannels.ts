@@ -34,4 +34,11 @@ export default {
     assetLeaves: 'tapd-asset-leaves',
     syncUniverse: 'tapd-sync-universe',
   },
+  // litd proxy channels
+  litd: {
+    status: 'litd-status',
+    listSessions: 'litd-list-sessions',
+    addSession: 'litd-add-session',
+    revokeSession: 'litd-revoke-session',
+  },
 };

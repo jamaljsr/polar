@@ -1,3 +1,4 @@
+import * as LITD from '@lightningpolar/litd-api';
 import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
@@ -6,6 +7,7 @@ import {
   BitcoinNode,
   CommonNode,
   LightningNode,
+  LitdNode,
   NodeImplementation,
   OpenChannelOptions,
   Status,
@@ -13,6 +15,7 @@ import {
 } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
+import * as PLIT from 'lib/litd/types';
 import * as PTAP from 'lib/tap/types';
 import { PolarPlatform } from 'utils/system';
 
@@ -208,6 +211,13 @@ export interface TapFactoryInjection {
   getService: (node: TapNode) => TapService;
 }
 
+export interface LitdLibrary {
+  status: (node: LitdNode) => Promise<LITD.SubServerStatusResp>;
+  listSessions: (node: LitdNode) => Promise<PLIT.Session[]>;
+  addSession: (node: LitdNode, label: string) => Promise<PLIT.Session>;
+  revokeSession: (node: LitdNode, localPublicKey: string) => Promise<void>;
+}
+
 export interface StoreInjections {
   ipc: IpcSender;
   settingsService: SettingsInjection;
@@ -216,6 +226,7 @@ export interface StoreInjections {
   bitcoindService: BitcoindLibrary;
   lightningFactory: LightningFactoryInjection;
   tapFactory: TapFactoryInjection;
+  litdService: LitdLibrary;
 }
 
 export interface NetworksFile {

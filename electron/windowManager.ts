@@ -5,6 +5,7 @@ import { join } from 'path';
 import { initAppIpcListener } from './appIpcListener';
 import { appMenuTemplate } from './appMenu';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
+import { initLitdProxy } from './litd/litdProxyServer';
 import {
   clearLndProxyCache,
   initLndProxy,
@@ -22,6 +23,7 @@ class WindowManager {
       await this.createMainWindow();
       initLndProxy(ipcMain);
       initTapdProxy(ipcMain);
+      initLitdProxy(ipcMain);
       initAppIpcListener(ipcMain);
       initLndSubscriptions(this.sendMessageToRenderer);
     });

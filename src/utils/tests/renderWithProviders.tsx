@@ -77,6 +77,12 @@ export const injections: StoreInjections = {
   tapFactory: {
     getService: () => tapServiceMock,
   },
+  litdService: {
+    status: jest.fn(),
+    listSessions: jest.fn(),
+    addSession: jest.fn(),
+    revokeSession: jest.fn(),
+  },
 };
 
 /**
