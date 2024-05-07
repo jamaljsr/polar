@@ -434,6 +434,8 @@ export const createNetwork = (config: {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  tapdNodes: number;
+  litdNodes: number;
   repoState: DockerRepoState;
   managedImages: ManagedImage[];
   customImages: { image: CustomImage; count: number }[];
@@ -447,6 +449,8 @@ export const createNetwork = (config: {
     clightningNodes,
     eclairNodes,
     bitcoindNodes,
+    tapdNodes,
+    litdNodes,
     repoState,
     managedImages,
     customImages,
@@ -535,7 +539,7 @@ export const createNetwork = (config: {
     });
 
   // add lightning nodes in an alternating pattern
-  range(Math.max(lndNodes, clightningNodes, eclairNodes)).forEach(i => {
+  range(Math.max(lndNodes, clightningNodes, eclairNodes, litdNodes)).forEach(i => {
     if (i < lndNodes) {
       const { latest, compatibility } = repoState.images.LND;
       const cmd = getImageCommand(managedImages, 'LND', latest);
@@ -578,6 +582,21 @@ export const createNetwork = (config: {
         ),
       );
     }
+    if (i < litdNodes) {
+      const { latest, compatibility } = repoState.images.litd;
+      const cmd = getImageCommand(managedImages, 'litd', latest);
+      lightning.push(
+        createLitdNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+      );
+    }
+  });
+
+  range(tapdNodes).forEach(() => {
+    const { latest, compatibility } = repoState.images.tapd;
+    const cmd = getImageCommand(managedImages, 'tapd', latest);
+    network.nodes.tap.push(
+      createTapdNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+    );
   });
 
   return network;
