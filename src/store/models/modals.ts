@@ -1,4 +1,5 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
+import * as PLIT from 'lib/litd/types';
 import { StoreInjections } from 'types';
 import { getTapBackendNode } from 'utils/network';
 import { RootModel } from './';
@@ -85,6 +86,24 @@ interface RenameNodeModel {
   oldNodeName?: string;
 }
 
+interface LncSessionInfoModel {
+  visible: boolean;
+  sessionId?: string;
+  nodeName?: string;
+}
+
+interface AddLncSessionModel {
+  visible: boolean;
+  nodeName?: string;
+  // form values entered by the user
+  label?: string;
+  type?: PLIT.Session['type'];
+  mailboxServerAddr?: string;
+  expiresAt?: number;
+  // success values returned by the API
+  pairingPhrase?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -98,6 +117,8 @@ export interface ModalsModel {
   newAddress: NewAddressModel;
   sendAsset: SendAssetModel;
   renameNode: RenameNodeModel;
+  lncSessionInfo: LncSessionInfoModel;
+  addLncSession: AddLncSessionModel;
   changeTapBackend: ChangeTapBackendModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
@@ -147,9 +168,16 @@ export interface ModalsModel {
   setRenameNode: Action<ModalsModel, RenameNodeModel>;
   showRenameNode: Thunk<ModalsModel, Partial<RenameNodeModel>, StoreInjections>;
   hideRenameNode: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setLncSessionInfo: Action<ModalsModel, LncSessionInfoModel>;
+  showLncSessionInfo: Thunk<ModalsModel, Partial<LncSessionInfoModel>, StoreInjections>;
+  hideLncSessionInfo: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setAddLncSession: Action<ModalsModel, AddLncSessionModel>;
+  showAddLncSession: Thunk<ModalsModel, Partial<AddLncSessionModel>, StoreInjections>;
+  hideAddLncSession: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
+  // state properties
   openChannel: { visible: false },
   mintAsset: { visible: false },
   sendAsset: { visible: false },
@@ -163,6 +191,9 @@ const modalsModel: ModalsModel = {
   assetInfo: { visible: false },
   changeTapBackend: { visible: false },
   renameNode: { visible: false },
+  lncSessionInfo: { visible: false },
+  addLncSession: { visible: false },
+  // reducer actions (mutations allowed thx to immer)
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -404,6 +435,37 @@ const modalsModel: ModalsModel = {
     actions.setRenameNode({
       visible: false,
       oldNodeName: undefined,
+    });
+  }),
+  setLncSessionInfo: action((state, payload) => {
+    state.lncSessionInfo = {
+      ...state.lncSessionInfo,
+      ...payload,
+    };
+  }),
+  showLncSessionInfo: thunk((actions, { sessionId, nodeName }) => {
+    actions.setLncSessionInfo({ visible: true, sessionId, nodeName });
+  }),
+  hideLncSessionInfo: thunk(actions => {
+    actions.setLncSessionInfo({
+      visible: false,
+      sessionId: undefined,
+      nodeName: undefined,
+    });
+  }),
+  setAddLncSession: action((state, payload) => {
+    state.addLncSession = {
+      ...state.addLncSession,
+      ...payload,
+    };
+  }),
+  showAddLncSession: thunk((actions, { nodeName, pairingPhrase }) => {
+    actions.setAddLncSession({ visible: true, nodeName, pairingPhrase });
+  }),
+  hideAddLncSession: thunk(actions => {
+    actions.setAddLncSession({
+      visible: false,
+      nodeName: undefined,
     });
   }),
 };

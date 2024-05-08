@@ -14,9 +14,22 @@ class LitdService implements LitdLibrary {
     return sessions.map(s => this.mapSession(s));
   }
 
-  async addSession(node: LitdNode, label: string): Promise<PLIT.Session> {
+  async addSession(
+    node: LitdNode,
+    label: string,
+    type: PLIT.Session['type'],
+    expiresAt: number,
+    mailboxServerAddr?: string,
+  ): Promise<PLIT.Session> {
     const req: LITD.AddSessionRequestPartial = {
       label,
+      sessionType:
+        type === 'Admin'
+          ? LITD.SessionType.TYPE_MACAROON_ADMIN
+          : LITD.SessionType.TYPE_MACAROON_READONLY,
+      expiryTimestampSeconds: Math.floor(expiresAt / 1000),
+      mailboxServerAddr,
+      devServer: true,
     };
     const { session } = await proxy.addSession(node, req);
     return this.mapSession(session as LITD.Session);
