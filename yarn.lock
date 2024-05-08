@@ -3713,6 +3713,11 @@ address@^1.0.1:
   resolved "https://registry.yarnpkg.com/address/-/address-1.2.2.tgz#2b5248dac5485a6390532c6a517fda2e3faac89e"
   integrity sha512-4B/qKCfeE/ODUaAUpSwfzazo5x29WD4r3vXiWsB7I2mSDAihwEqKO+g8GELZUQSSAo5e1XTYh3ZVfLyxBc12nA==
 
+address@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/address/-/address-2.0.2.tgz#7c1063d26bfc647a695f3bd7bdb29d688b5fac73"
+  integrity sha512-u6nFssvaX9RHQmjMSqgT7b7QJbf/5/U8+ntbTL8vgABfIiEmm02ZSM5MwljKjCrIrm7iIbgYEya2YW6AaRccVA==
+
 adjust-sourcemap-loader@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/adjust-sourcemap-loader/-/adjust-sourcemap-loader-3.0.0.tgz#5ae12fb5b7b1c585e80bbb5a63ec163a1a45e61e"
@@ -7068,13 +7073,12 @@ detect-port-alt@1.1.6:
     address "^1.0.1"
     debug "^2.6.0"
 
-detect-port@1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/detect-port/-/detect-port-1.5.1.tgz#451ca9b6eaf20451acb0799b8ab40dff7718727b"
-  integrity sha512-aBzdj76lueB6uUst5iAs7+0H/oOjqI5D16XUWxlWMIMROhcM0rfsNVk93zTngq1dDNpoXRr++Sus7ETAExppAQ==
+detect-port@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/detect-port/-/detect-port-1.6.0.tgz#5907b17f09883549cbfdcb786c64915f6a9e7a37"
+  integrity sha512-iKO0phS1ebSLst7ULM1hw4qjndYHqyKe76Pk0q+QDvoANFth/f9Pp6oSZzOIM367SeRi+ufseIGvIiThTPERSg==
   dependencies:
-    address "^1.0.1"
-    debug "4"
+    address "^2.0.2"
 
 device-specs@^1.0.0:
   version "1.0.1"
