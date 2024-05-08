@@ -2235,6 +2235,14 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@lightningpolar/litd-api@0.12.5-alpha":
+  version "0.12.5-alpha"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/litd-api/-/litd-api-0.12.5-alpha.tgz#b809a9c01fc07036361ff485c2e4d90935034136"
+  integrity sha512-qYQBLiT+03rRVkEalm2BWx8KYm/zPVHeJYOYL/+wU3apYVRdZfcdLkVF28w/vkcEVmjtjs0aQDQ/Bjuq6ECU+g==
+  dependencies:
+    "@grpc/grpc-js" "1.7.2"
+    "@grpc/proto-loader" "0.7.3"
+
 "@lightningpolar/tapd-api@0.3.3-alpha.1":
   version "0.3.3-alpha.1"
   resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.3-alpha.1.tgz#55869e0959c5345fa4d36d50374fc0b182a30c1f"

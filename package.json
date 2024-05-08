@@ -43,6 +43,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
+    "@lightningpolar/litd-api": "0.12.5-alpha",
     "@lightningpolar/tapd-api": "0.3.3-alpha.1",
     "@radar/lnrpc": "0.11.1-beta.1",
     "@types/lodash": "4.17.1",
