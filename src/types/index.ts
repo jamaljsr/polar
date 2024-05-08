@@ -214,7 +214,13 @@ export interface TapFactoryInjection {
 export interface LitdLibrary {
   status: (node: LitdNode) => Promise<LITD.SubServerStatusResp>;
   listSessions: (node: LitdNode) => Promise<PLIT.Session[]>;
-  addSession: (node: LitdNode, label: string) => Promise<PLIT.Session>;
+  addSession: (
+    node: LitdNode,
+    label: string,
+    type: PLIT.Session['type'],
+    expiresAt: number,
+    mailboxServerAddr?: string,
+  ) => Promise<PLIT.Session>;
   revokeSession: (node: LitdNode, localPublicKey: string) => Promise<void>;
 }
 

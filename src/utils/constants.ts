@@ -21,6 +21,9 @@ export const COINBASE_MATURITY_DELAY = 100;
 // https://github.com/bitcoin/bitcoin/blob/v0.19.0.1/src/chainparams.cpp#L258
 export const HALVING_INTERVAL = 150;
 
+// litd
+export const LNC_MAILBOX_SERVER = 'mailbox.terminal.lightning.today:443';
+
 // designer chart
 export const LOADING_NODE_ID = 'loading_id';
 

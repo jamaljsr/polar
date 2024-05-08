@@ -3,7 +3,7 @@ import { useAsync } from 'react-async-hook';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Alert } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LightningNode, Status } from 'shared/types';
+import { LightningNode, LitdNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { mapToTapd } from 'utils/network';
 import { abbreviate } from 'utils/numbers';
@@ -22,6 +22,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
   const [activeTab, setActiveTab] = useState('info');
   const { getInfo, getWalletBalance, getChannels } = useStoreActions(s => s.lightning);
   const { getAssets, getBalances } = useStoreActions(s => s.tap);
+  const { getSessions } = useStoreActions(s => s.lit);
   const getInfoAsync = useAsync(
     async (node: LightningNode) => {
       if (node.status !== Status.Started) return;
@@ -33,6 +34,7 @@ const LightningDetails: React.FC<Props> = ({ node }) => {
         const tapNode = mapToTapd(node);
         await getAssets(tapNode);
         await getBalances(tapNode);
+        await getSessions(node as LitdNode);
       }
     },
     [node],

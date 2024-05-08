@@ -17,6 +17,7 @@ import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { BasicAuth, EncodedStrings, FilePaths, LndConnect } from './connect';
+import LncSessionsList from './connect/LncSessionsList';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -75,7 +76,11 @@ interface Props {
 const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.ConnectTab');
   const [authType, setAuthType] = useState<string>(
-    node.implementation === 'eclair' ? 'basic' : 'paths',
+    node.implementation === 'eclair'
+      ? 'basic'
+      : node.implementation === 'litd'
+      ? 'lnc'
+      : 'paths',
   );
   const { openInBrowser } = useStoreActions(s => s.app);
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
@@ -144,7 +149,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             tap: litd.paths.tapMacaroon,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${litd.ports.p2p}`,
-          authTypes: ['paths', 'hex', 'base64'],
+          authTypes: ['paths', 'hex', 'base64', 'lnc'],
         };
       }
     }
@@ -234,6 +239,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   });
 
   const authCmps: Record<string, ReactNode> = {
+    lnc: node.implementation === 'litd' && <LncSessionsList node={node as LitdNode} />,
     paths: <FilePaths credentials={credentials} />,
     hex: <EncodedStrings credentials={credentials} encoding="hex" />,
     base64: <EncodedStrings credentials={credentials} encoding="base64" />,
@@ -250,6 +256,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
+        {node.implementation === 'litd' && (
+          <Radio.Button value="lnc">{l('lnc')}</Radio.Button>
+        )}
         {(credentials.admin || credentials.rune) && [
           <Radio.Button key="paths" value="paths">
             {l('filePaths')}
