@@ -41,7 +41,7 @@
   "cmps.common.RenameNodeButton.title": "Rename",
   "cmps.common.RenameNodeButton.btn": "Rename",
   "cmps.common.RenameNodeButton.menu": "Rename",
-  "cmps.common.RenameNodeModal.title": "Rename Node",
+  "cmps.common.RenameNodeModal.title": "Rename Node {{name}}",
   "cmps.common.RenameNodeModal.label": "New Node Name",
   "cmps.common.RenameNodeModal.okBtn": "Save",
   "cmps.common.RenameNodeModal.btnText": "Rename",

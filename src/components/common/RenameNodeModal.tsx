@@ -39,7 +39,7 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
 
   return (
     <Modal
-      title={l('title')}
+      title={l('title', { name: oldNodeName })}
       open={visible}
       onCancel={() => hideRenameNode()}
       destroyOnClose
