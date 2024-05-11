@@ -8,7 +8,6 @@ import {
   BitcoinNode,
   CommonNode,
   LightningNode,
-  LndNode,
   NodeImplementation,
   Status,
   TapdNode,
@@ -27,12 +26,11 @@ import {
   createNetwork,
   createTapdNetworkNode,
   filterCompatibleBackends,
-  getLndFilePaths,
   getMissingImages,
   getOpenPorts,
-  getTapdFilePaths,
   importNetworkFromZip,
   OpenPorts,
+  renameNode,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -148,7 +146,7 @@ export interface NetworkModel {
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   renameNode: Thunk<
     NetworkModel,
-    { node: CommonNode; newName: string },
+    { node: AnyNode; newName: string },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -989,54 +987,35 @@ const networkModel: NetworkModel = {
     async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
       if (!newName) throw new Error(l('renameErr', { newName }));
 
-      if (node.status === Status.Started) {
+      const wasStarted = node.status === Status.Started;
+
+      if (wasStarted) {
         await actions.stop(node.networkId);
       }
+      const oldNodeName = node.name;
 
       const networks = getState().networks;
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
 
-      let updatedNode;
-      switch (node.type) {
-        case 'lightning':
-          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as LndNode;
-          getStoreActions().designer.renameNode({
-            name: newName,
-            nodeId: updatedNode.name,
-          });
-          updatedNode.name = newName;
-          updatedNode.paths = getLndFilePaths(newName, network);
-          break;
-        case 'bitcoin':
-          updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
-          getStoreActions().designer.renameNode({
-            name: newName,
-            nodeId: updatedNode.name,
-          });
-          updatedNode.name = newName;
-          break;
-        case 'tap':
-          updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
-          getStoreActions().designer.renameNode({
-            name: newName,
-            nodeId: updatedNode.name,
-          });
-          updatedNode.name = newName;
-          updatedNode.paths = getTapdFilePaths(newName, network);
-          break;
-        default:
-          throw new Error('Invalid node type');
+      await renameNode(network, node, newName);
+      await getStoreActions().designer.renameNode({
+        name: newName,
+        nodeId: oldNodeName,
+      });
+
+      await injections.dockerService.renameNodeDir(network, node, newName);
+
+      if (wasStarted) {
+        actions.setNetworks([...networks]);
+        await actions.save();
+        await injections.dockerService.saveComposeFile(network);
+        await actions.start(node.networkId);
+      } else {
+        actions.setNetworks([...networks]);
+        await actions.save();
+        await injections.dockerService.saveComposeFile(network);
       }
-
-      await injections.dockerService.updateDirs(network, node, newName);
-
-      actions.setNetworks([...networks]);
-      await actions.save();
-
-      await injections.dockerService.saveComposeFile(network);
-
-      await actions.start(node.networkId);
     },
   ),
 };

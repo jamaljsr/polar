@@ -226,7 +226,7 @@ const designerModel: DesignerModel = {
     // Ensure the node exists
     const node = chart.nodes[nodeId];
     if (!node) {
-      throw new Error(`${node} node with id ${nodeId} not found.`);
+      throw new Error(`Node with id ${nodeId} not found.`);
     }
 
     // Iterate over all links in the chart to change nodeId

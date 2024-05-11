@@ -6,6 +6,7 @@ import detectPort from 'detect-port';
 import { tmpdir } from 'os';
 import { ipcChannels } from 'shared';
 import {
+  AnyNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
@@ -516,6 +517,48 @@ export const createNetwork = (config: {
   });
 
   return network;
+};
+
+export const renameNode = async (network: Network, node: AnyNode, newName: string) => {
+  let updatedNode;
+
+  switch (node.type) {
+    case 'lightning':
+      switch (node.implementation) {
+        case 'LND':
+          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as LndNode;
+          updatedNode.name = newName;
+          updatedNode.paths = getLndFilePaths(newName, network);
+          break;
+        case 'c-lightning':
+          updatedNode = network?.nodes.lightning.find(
+            n => n.id === node.id,
+          ) as CLightningNode;
+          const supportsGrpc = updatedNode.ports.grpc !== 0;
+          updatedNode.name = newName;
+          updatedNode.paths = getCLightningFilePaths(newName, supportsGrpc, network);
+          break;
+        case 'eclair':
+          updatedNode = network?.nodes.lightning.find(
+            n => n.id === node.id,
+          ) as EclairNode;
+          updatedNode.name = newName;
+          break;
+      }
+      break;
+    case 'bitcoin':
+      updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
+      updatedNode.name = newName;
+      break;
+    case 'tap':
+      updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
+      updatedNode.name = newName;
+      updatedNode.paths = getTapdFilePaths(newName, network);
+      break;
+    default:
+      throw new Error('Invalid node type');
+  }
+  return updatedNode;
 };
 
 /**
