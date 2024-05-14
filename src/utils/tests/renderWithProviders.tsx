@@ -84,6 +84,9 @@ export const injections: StoreInjections = {
     revokeSession: jest.fn(),
   },
 };
+export const litdServiceMock = injections.litdService as jest.Mocked<
+  typeof injections.litdService
+>;
 
 /**
  * Renders a component inside of the redux provider for state and

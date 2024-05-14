@@ -37,7 +37,18 @@ const sampleAsset: Asset = {
     '02f758c6f4b2d0df3bd7b6ba3e9ef3c34d51c0f6df682396a88b826326b2e98f3f',
   ),
   scriptKeyIsLocal: true,
-  assetGroup: null,
+  assetGroup: {
+    rawGroupKey: Buffer.from(
+      '0295811c2a86e219eb3b7c1ab810145d32984003c515d1ac25264ea0e0906b2d12',
+    ),
+    tweakedGroupKey: Buffer.from(
+      '031f593aec22e3afd98c133b2520e1a41795d2bfed51d0470e69b55aebc7e5bb78',
+      'hex',
+    ),
+    assetWitness: Buffer.from(
+      '0140a74c7b8c9287084fe41adb806e970aba66d9abf95b051cf48d6287e57d355bce953fea942b7bfc6fbc76ddc1db3cd417db74500f94b757c1768184a326b5a0f4',
+    ),
+  },
   chainAnchor: {
     anchorTx: Buffer.from(
       '02000000000102217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d256410110100000000ffffffff217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d2564101100000000000000000003e803000000000000225120540b38f3ef8dcf37d5c85b89d5ba15274cdc13f4d7cf300cfcdeedc3b1335d6de8030000000000002251205f158a5743cd9747732cb03b0a605cb08719ff5cf58234b7ec5276c851494e6e81e80e0000000000225120c2b958e9c347a30781e358940d20adef09079ae604faa509a34d789d5697e4c40140786d837c15c27efdf459b071a8b68691080c0e6c4d152b15cd359254e1408f76f2e8ca8680b0035202bb9e5407101aca5fa45a3c556f7e28cf275f19a584dd4001407883d96a241cd6354efacea726b0abbb8ec63f8b417d1cc5bb903078761dd0da58573a11972204a056bcc5f2c489682e5122521c128d7015a8bca7b1b690691100000000',
@@ -147,8 +158,21 @@ describe('TapdService', () => {
   });
 
   it('should list assets', async () => {
-    const apiResponse = defaultTapdListAssets({ assets: [sampleAsset] });
+    const apiResponse = defaultTapdListAssets({
+      assets: [sampleAsset, { ...sampleAsset, assetGroup: null }],
+    });
     const expected = [
+      expect.objectContaining({
+        id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
+        name: 'LUSD',
+        type: 'NORMAL',
+        amount: '900',
+        anchorOutpoint:
+          'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e:0',
+        genesisPoint:
+          '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
+        groupKey: '031f593aec22e3afd98c133b2520e1a41795d2bfed51d0470e69b55aebc7e5bb78',
+      }),
       expect.objectContaining({
         id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
         name: 'LUSD',

@@ -71,25 +71,22 @@ describe('DefaultSidebar Component', () => {
     mockOS.platform.mockReturnValue('darwin');
   });
 
-  it('should display the version toggle', () => {
-    const { getByText } = renderComponent();
-    expect(getByText('Show All Versions')).toBeInTheDocument();
-  });
-
-  it('should display old versions when the toggle is clicked', () => {
-    const { getByText, getAllByText, getByRole } = renderComponent();
-    fireEvent.click(getByRole('switch'));
+  it('should expand the list of LND nodes', async () => {
+    const { getByText, getAllByLabelText } = renderComponent();
+    expect(getByText(`LND v${lndLatest}`)).toBeInTheDocument();
     const prevVersion = defaultRepoState.images.LND.versions[2];
-    expect(getByText(`LND v${prevVersion}`)).toBeInTheDocument();
-    expect(getAllByText('latest')).toHaveLength(5);
+    expect(getByText(`LND v${prevVersion}`)).not.toBeVisible();
+    fireEvent.click(getAllByLabelText('down')[0]);
+    expect(getByText(`LND v${prevVersion}`)).toBeVisible();
+    fireEvent.click(getAllByLabelText('up')[0]);
+    expect(getByText(`LND v${prevVersion}`)).not.toBeVisible();
   });
 
   it('should display the Image Updates Modal', async () => {
     mockRepoService.checkForUpdates.mockResolvedValue({
       state: defaultRepoState,
     });
-    const { getByText, getByRole, store } = renderComponent();
-    fireEvent.click(getByRole('switch'));
+    const { getByText, store } = renderComponent();
     expect(getByText('Check for new Node Versions')).toBeInTheDocument();
     fireEvent.click(getByText('Check for new Node Versions'));
     expect(store.getState().modals.imageUpdates.visible).toBe(true);
@@ -97,10 +94,8 @@ describe('DefaultSidebar Component', () => {
 
   it('should not display c-lightning nodes on Windows', () => {
     mockOS.platform.mockReturnValue('win32');
-    const { queryByText, getAllByText, getByRole } = renderComponent();
+    const { queryByText } = renderComponent();
     expect(queryByText('c-lightning')).not.toBeInTheDocument();
-    fireEvent.click(getByRole('switch'));
-    expect(getAllByText('latest')).toHaveLength(4);
   });
 
   it('should display custom images', () => {

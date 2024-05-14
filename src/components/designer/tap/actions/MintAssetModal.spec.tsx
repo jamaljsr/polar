@@ -4,6 +4,8 @@ import { waitFor } from '@testing-library/react';
 import { Status, TapNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
+import { createLitdNetworkNode } from 'utils/network';
 import {
   defaultTapAsset,
   getNetwork,
@@ -11,6 +13,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
   tapServiceMock,
+  testNodeDocker,
 } from 'utils/tests';
 import MintAssetModal from './MintAssetModal';
 
@@ -20,7 +23,7 @@ describe('MintAssetModal', () => {
   let unmount: () => void;
   let node: TapNode;
 
-  const renderComponent = async () => {
+  const renderComponent = async (nodeName = 'alice-tap', showModal = true) => {
     const network = getNetwork(1, 'test network', Status.Started, 2);
     node = network.nodes.tap[0];
 
@@ -34,15 +37,14 @@ describe('MintAssetModal', () => {
           [network.id]: initChartFromNetwork(network),
         },
       },
-      modals: {
-        mintAsset: {
-          visible: true,
-          nodeName: 'alice-tap',
-        },
-      },
     };
     const cmp = <MintAssetModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
+    if (showModal) {
+      await result.store
+        .getActions()
+        .modals.showMintAsset({ nodeName, networkId: network.id });
+    }
     unmount = result.unmount;
     return {
       ...result,
@@ -144,7 +146,7 @@ describe('MintAssetModal', () => {
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
         expect(tapServiceMock.mintAsset).toHaveBeenCalled();
-        expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+        expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -161,7 +163,7 @@ describe('MintAssetModal', () => {
             asset: expect.objectContaining({ assetType: 'COLLECTIBLE' }),
           }),
         );
-        expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+        expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -177,6 +179,17 @@ describe('MintAssetModal', () => {
       ).toBeInTheDocument();
     });
 
+    it('should not display warning with missing balance info', async () => {
+      const { getByText, queryByText, store } = await renderComponent();
+      expect(getByText('Mint')).toBeInTheDocument();
+      expect(lightningServiceMock.getBalances).toHaveBeenCalled();
+      // clear the store to re-render the component without node data
+      store.getActions().lightning.clearNodes();
+      expect(
+        queryByText('Insufficient balance on lnd node alice'),
+      ).not.toBeInTheDocument();
+    });
+
     it('should deposit enough funds to mint', async () => {
       lightningServiceMock.getBalances.mockResolvedValue({
         confirmed: '0',
@@ -188,9 +201,45 @@ describe('MintAssetModal', () => {
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
 
       await waitFor(() => {
-        expect(lightningServiceMock.getBalances).toBeCalled();
+        expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
       fireEvent.click(getByText('Deposit enough funds to alice'));
+      fireEvent.click(getByText('Mint'));
+      await waitFor(() => {
+        expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();
+      });
+    });
+
+    it('should call new address when send is clicked for tapd', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '0',
+        unconfirmed: '0',
+        total: '0',
+      });
+      const { getByLabelText, getByText, network, store } = await renderComponent(
+        'invalid',
+        false,
+      );
+      const litdNode = createLitdNetworkNode(
+        network,
+        defaultRepoState.images.litd.latest,
+        defaultRepoState.images.litd.compatibility,
+        testNodeDocker,
+      );
+      network.nodes.lightning.push(litdNode);
+      await store
+        .getActions()
+        .modals.showMintAsset({ nodeName: litdNode.name, networkId: network.id });
+      await waitFor(() => {
+        expect(lightningServiceMock.getBalances).toHaveBeenCalled();
+      });
+      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
+
+      await waitFor(() => {
+        expect(lightningServiceMock.getBalances).toHaveBeenCalled();
+      });
+      fireEvent.click(getByText('Deposit enough funds to carol'));
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
         expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();
@@ -208,6 +257,18 @@ describe('MintAssetModal', () => {
       fireEvent.click(getByText('Mint'));
       expect(await findByText('Failed to mint 100 test')).toBeInTheDocument();
       expect(await findByText('error-msg')).toBeInTheDocument();
+    });
+
+    it('should not mint with an invalid node name', async () => {
+      const { findByText, getByLabelText } = await renderComponent('invalid-node');
+      expect(await findByText('Mint')).toBeInTheDocument();
+      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
+      fireEvent.click(await findByText('Mint'));
+      await waitFor(() => {
+        expect(tapServiceMock.mintAsset).not.toHaveBeenCalled();
+      });
+      expect(await findByText('Mint')).toBeInTheDocument();
     });
   });
 });

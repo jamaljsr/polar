@@ -27,6 +27,11 @@ export const testManagedImages: ManagedImage[] = [
     version: defaultRepoState.images.tapd.latest,
     command: '',
   },
+  {
+    implementation: 'litd',
+    version: defaultRepoState.images.litd.latest,
+    command: '',
+  },
 ];
 
 export const testCustomImages: CustomImage[] = [

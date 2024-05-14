@@ -234,6 +234,21 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the LncAddSession modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    store.getActions().designer.onCanvasDrop({
+      data: { type: 'litd', version: testRepoState.images.litd.latest },
+      position: { x: 584, y: 343 },
+      id: 'test-id',
+    });
+    expect(await findByText('carol')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showAddLncSession({ nodeName: 'carol' });
+    });
+    expect(await findByText('Add new LNC Session')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText, store } = renderComponent();
     // add a new LN node that doesn't have a tap node connected

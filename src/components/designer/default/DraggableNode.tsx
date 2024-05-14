@@ -33,10 +33,6 @@ const Styled = {
     padding-left: 10px;
     font-weight: bold;
   `,
-  Desc: styled.sup`
-    font-weight: normal;
-    opacity: 0.7;
-  `,
   Logo: styled.img`
     width: 24px;
     height: 24px;
@@ -45,13 +41,12 @@ const Styled = {
 
 interface Props {
   label: string;
-  desc?: string;
   icon: string;
   properties: any;
   visible: boolean;
 }
 
-const DraggableNode: React.FC<Props> = ({ label, desc, icon, properties, visible }) => {
+const DraggableNode: React.FC<Props> = ({ label, icon, properties, visible }) => {
   const theme = useTheme();
   return (
     <Styled.Node
@@ -62,9 +57,7 @@ const DraggableNode: React.FC<Props> = ({ label, desc, icon, properties, visible
       className={!visible ? 'hide' : ''}
       colors={theme.dragNode}
     >
-      <Styled.Label>
-        {label} {desc && <Styled.Desc>{desc}</Styled.Desc>}
-      </Styled.Label>
+      <Styled.Label>{label}</Styled.Label>
       <Styled.Logo src={icon} alt={label} />
     </Styled.Node>
   );
