@@ -17,7 +17,6 @@ import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
 import { BasePorts, dockerConfigs } from 'utils/constants';
-import { isWindows } from 'utils/system';
 import { HOME } from 'components/routing';
 import { useAsyncCallback } from 'react-async-hook';
 
@@ -95,16 +94,16 @@ const NetworkSetting: React.FC = () => {
           layout="vertical"
           colon={false}
           initialValues={{
-            LND: settings.basePorts.LND.rest || BasePorts.LND.rest,
+            LND: settings.basePorts.LND.rest ?? BasePorts.LND.rest,
             'c-lightning':
-              settings.basePorts['c-lightning'].rest || BasePorts['c-lightning'].rest,
-            eclair: settings.basePorts.eclair.rest || BasePorts.eclair.rest,
-            bitcoind: settings.basePorts.bitcoind.rest || BasePorts.bitcoind.rest,
-            tapd: settings.basePorts.tapd.rest || BasePorts.tapd.rest,
-            grpcLND: settings.basePorts.LND.grpc || BasePorts.LND.grpc,
+              settings.basePorts['c-lightning'].rest ?? BasePorts['c-lightning'].rest,
+            eclair: settings.basePorts.eclair.rest ?? BasePorts.eclair.rest,
+            bitcoind: settings.basePorts.bitcoind.rest ?? BasePorts.bitcoind.rest,
+            tapd: settings.basePorts.tapd.rest ?? BasePorts.tapd.rest,
+            grpcLND: settings.basePorts.LND.grpc ?? BasePorts.LND.grpc,
             'grpcC-lightning':
-              settings.basePorts['c-lightning'].grpc || BasePorts['c-lightning'].grpc,
-            grpcTapd: settings.basePorts.tapd.grpc || BasePorts.tapd.grpc,
+              settings.basePorts['c-lightning'].grpc ?? BasePorts['c-lightning'].grpc,
+            grpcTapd: settings.basePorts.tapd.grpc ?? BasePorts.tapd.grpc,
           }}
           onFinish={saveSettingsAsync.execute}
         >
@@ -117,12 +116,8 @@ const NetworkSetting: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item
-                name="c-lightning"
-                label={dockerConfigs['c-lightning'].name}
-                extra={isWindows() ? l('clightningWindows') : ''}
-              >
-                <InputNumber disabled={isWindows()} />
+              <Form.Item name="c-lightning" label={dockerConfigs['c-lightning'].name}>
+                <InputNumber />
               </Form.Item>
             </Col>
             <Col span={6}>

@@ -26,6 +26,7 @@ import {
   ManagedImage,
   Network,
   NetworksFile,
+  NodeBasePorts,
 } from 'types';
 import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO, dockerConfigs } from './constants';
@@ -36,7 +37,6 @@ import { range } from './numbers';
 import { isVersionCompatible } from './strings';
 import { getPolarPlatform } from './system';
 import { prefixTranslation } from './translate';
-import store from 'store';
 
 const { l } = prefixTranslation('utils.network');
 
@@ -151,6 +151,7 @@ export const createLndNetworkNode = (
   compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
+  basePort = BasePorts.LND,
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'LND';
@@ -160,11 +161,9 @@ export const createLndNetworkNode = (
     compatibility,
     bitcoin,
   );
-  const lndRestPort = store.getState().app.settings.basePorts.LND.rest;
-  const lndGrpcPort = store.getState().app.settings.basePorts.LND.grpc;
 
-  const basePortRest = lndRestPort ? lndRestPort : BasePorts.LND.rest;
-  const basePortGrpc = lndGrpcPort ? lndGrpcPort : BasePorts.LND.grpc;
+  const basePortRest = basePort.rest;
+  const basePortGrpc = basePort.grpc;
 
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
@@ -194,6 +193,7 @@ export const createCLightningNetworkNode = (
   compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
+  basePort = BasePorts['c-lightning'],
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'c-lightning';
@@ -208,15 +208,8 @@ export const createCLightningNetworkNode = (
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
 
-  const clightningRestPort = store.getState().app.settings.basePorts['c-lightning'].rest;
-  const clightningGrpcPort = store.getState().app.settings.basePorts['c-lightning'].grpc;
-
-  const basePortRest = clightningRestPort
-    ? clightningRestPort
-    : BasePorts['c-lightning'].rest;
-  const basePortGrpc = clightningGrpcPort
-    ? clightningGrpcPort
-    : BasePorts['c-lightning'].grpc;
+  const basePortRest = basePort.rest;
+  const basePortGrpc = basePort.grpc;
 
   return {
     id,
@@ -244,6 +237,7 @@ export const createEclairNetworkNode = (
   compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
+  basePort = BasePorts.eclair,
 ): EclairNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: EclairNode['implementation'] = 'eclair';
@@ -255,8 +249,9 @@ export const createEclairNetworkNode = (
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
-  const eclairRestPort = store.getState().app.settings.basePorts.eclair.rest;
-  const basePortRest = eclairRestPort ? eclairRestPort : BasePorts.eclair.rest;
+
+  const basePortRest = basePort.rest;
+
   return {
     id,
     networkId: network.id,
@@ -280,11 +275,13 @@ export const createBitcoindNetworkNode = (
   version: string,
   docker: CommonNode['docker'],
   status = Status.Stopped,
+  basePort = BasePorts.bitcoind,
 ): BitcoinNode => {
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
-  const bitcoindRestPort = store.getState().app.settings.basePorts.bitcoind.rest;
-  const basePortRest = bitcoindRestPort ? bitcoindRestPort : BasePorts.bitcoind.rest;
+
+  const basePortRest = basePort.rest;
+
   const name = `backend${id + 1}`;
   const node: BitcoinNode = {
     id,
@@ -349,6 +346,7 @@ export const createTapdNetworkNode = (
   compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
+  basePort = BasePorts.tapd,
 ): TapdNode => {
   const { tap } = network.nodes;
   const implementation: TapdNode['implementation'] = 'tapd';
@@ -357,11 +355,8 @@ export const createTapdNetworkNode = (
   const id = tap.length ? Math.max(...tap.map(n => n.id)) + 1 : 0;
   const name = `${lndBackend.name}-tap`;
 
-  const tapdRestPort = store.getState().app.settings.basePorts.tapd.rest;
-  const tapdGrpcPort = store.getState().app.settings.basePorts.tapd.grpc;
-
-  const basePortRest = tapdRestPort ? tapdRestPort : BasePorts.tapd.rest;
-  const basePortGrpc = tapdGrpcPort ? tapdGrpcPort : BasePorts.tapd.grpc;
+  const basePortRest = basePort.rest;
+  const basePortGrpc = basePort.grpc;
 
   const node: TapdNode = {
     id,
@@ -394,6 +389,7 @@ export const createNetwork = (config: {
   managedImages: ManagedImage[];
   customImages: { image: CustomImage; count: number }[];
   status?: Status;
+  basePorts?: NodeBasePorts;
 }): Network => {
   const {
     id,
@@ -405,6 +401,7 @@ export const createNetwork = (config: {
     repoState,
     managedImages,
     customImages,
+    basePorts,
   } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
@@ -432,7 +429,15 @@ export const createNetwork = (config: {
       const version = repoState.images.bitcoind.latest;
       const docker = { image: i.image.dockerImage, command: i.image.command };
       range(i.count).forEach(() => {
-        bitcoin.push(createBitcoindNetworkNode(network, version, docker, status));
+        bitcoin.push(
+          createBitcoindNetworkNode(
+            network,
+            version,
+            docker,
+            status,
+            basePorts?.bitcoind,
+          ),
+        );
       });
     });
 
@@ -444,7 +449,15 @@ export const createNetwork = (config: {
       version = compat[repoState.images.LND.latest];
     }
     const cmd = getImageCommand(managedImages, 'bitcoind', version);
-    bitcoin.push(createBitcoindNetworkNode(network, version, dockerWrap(cmd), status));
+    bitcoin.push(
+      createBitcoindNetworkNode(
+        network,
+        version,
+        dockerWrap(cmd),
+        status,
+        basePorts?.bitcoind,
+      ),
+    );
   });
 
   // add custom lightning nodes
@@ -459,8 +472,16 @@ export const createNetwork = (config: {
           : image.implementation === 'c-lightning'
           ? createCLightningNetworkNode
           : createEclairNetworkNode;
+      const basePort =
+        image.implementation === 'LND'
+          ? basePorts?.LND
+          : image.implementation === 'c-lightning'
+          ? basePorts?.['c-lightning']
+          : basePorts?.eclair;
       range(count).forEach(() => {
-        lightning.push(createFunc(network, latest, compatibility, docker, status));
+        lightning.push(
+          createFunc(network, latest, compatibility, docker, status, basePort),
+        );
       });
     });
 
@@ -470,7 +491,14 @@ export const createNetwork = (config: {
       const { latest, compatibility } = repoState.images.LND;
       const cmd = getImageCommand(managedImages, 'LND', latest);
       lightning.push(
-        createLndNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+        createLndNetworkNode(
+          network,
+          latest,
+          compatibility,
+          dockerWrap(cmd),
+          status,
+          basePorts?.LND,
+        ),
       );
     }
     if (i < clightningNodes) {
@@ -483,6 +511,7 @@ export const createNetwork = (config: {
           compatibility,
           dockerWrap(cmd),
           status,
+          basePorts?.['c-lightning'],
         ),
       );
     }
@@ -490,7 +519,14 @@ export const createNetwork = (config: {
       const { latest, compatibility } = repoState.images.eclair;
       const cmd = getImageCommand(managedImages, 'eclair', latest);
       lightning.push(
-        createEclairNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+        createEclairNetworkNode(
+          network,
+          latest,
+          compatibility,
+          dockerWrap(cmd),
+          status,
+          basePorts?.eclair,
+        ),
       );
     }
   });
