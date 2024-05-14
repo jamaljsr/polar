@@ -21,6 +21,7 @@ import appModel from './app';
 import bitcoindModel from './bitcoind';
 import designerModel from './designer';
 import lightningModel from './lightning';
+import litModel from './lit';
 import networkModel from './network';
 import tapModel from './tap';
 
@@ -47,6 +48,7 @@ describe('Network model', () => {
     bitcoind: bitcoindModel,
     designer: designerModel,
     tap: tapModel,
+    lit: litModel,
   };
   // initialize store for type inference
   let store = createStore(rootModel, { injections });
@@ -61,7 +63,7 @@ describe('Network model', () => {
     eclairNodes: 1,
     bitcoindNodes: 1,
     tapdNodes: 0,
-    litdNodes: 0,
+    litdNodes: 1,
     customNodes: {},
   };
 
@@ -123,7 +125,7 @@ describe('Network model', () => {
     it('should add a network with the correct lightning nodes', async () => {
       await store.getActions().network.addNetwork(addNetworkArgs);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning.length).toBe(4);
+      expect(lightning.length).toBe(5);
       lightning.forEach(node => {
         expect(node.type).toBe('lightning');
       });
@@ -216,7 +218,7 @@ describe('Network model', () => {
       const payload = { id: firstNetwork().id, type: 'LND', version: lndLatest };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(5);
+      expect(lightning).toHaveLength(6);
       expect(lightning[0].name).toBe('alice');
       expect(lightning[0].implementation).toBe('LND');
     });
@@ -229,7 +231,7 @@ describe('Network model', () => {
       };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(5);
+      expect(lightning).toHaveLength(6);
       expect(lightning[1].name).toBe('bob');
       expect(lightning[1].implementation).toBe('c-lightning');
     });
@@ -238,7 +240,7 @@ describe('Network model', () => {
       const payload = { id: firstNetwork().id, type: 'eclair', version: eclairLatest };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(5);
+      expect(lightning).toHaveLength(6);
       expect(lightning[2].name).toBe('carol');
       expect(lightning[2].implementation).toBe('eclair');
     });
@@ -275,8 +277,8 @@ describe('Network model', () => {
       };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning[4].docker.image).toBe(testCustomImages[0].dockerImage);
-      expect(lightning[4].docker.command).toBe(testCustomImages[0].command);
+      expect(lightning[5].docker.image).toBe(testCustomImages[0].dockerImage);
+      expect(lightning[5].docker.command).toBe(testCustomImages[0].command);
     });
 
     it('should add a c-lightning custom node', async () => {
@@ -295,8 +297,8 @@ describe('Network model', () => {
       };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning[4].docker.image).toBe(testCustomImages[1].dockerImage);
-      expect(lightning[4].docker.command).toBe(testCustomImages[1].command);
+      expect(lightning[5].docker.image).toBe(testCustomImages[1].dockerImage);
+      expect(lightning[5].docker.command).toBe(testCustomImages[1].command);
     });
 
     it('should add a bitcoind custom node', async () => {
@@ -364,7 +366,7 @@ describe('Network model', () => {
       const payload = { id: firstNetwork().id, type: 'LND', version: lndLatest };
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
-      expect(lightning[4].docker.command).toBe('test-command');
+      expect(lightning[5].docker.command).toBe('test-command');
     });
   });
 
@@ -381,14 +383,20 @@ describe('Network model', () => {
       const node = firstNetwork().nodes.lightning[0];
       await store.getActions().network.removeLightningNode({ node });
       const { lightning } = firstNetwork().nodes;
-      expect(lightning).toHaveLength(3);
+      expect(lightning).toHaveLength(4);
       expect(lightning[0].name).toBe('bob');
     });
 
     it('should remove a c-lightning node from an existing network', async () => {
       const node = firstNetwork().nodes.lightning[1];
       await store.getActions().network.removeLightningNode({ node });
-      expect(firstNetwork().nodes.lightning).toHaveLength(3);
+      expect(firstNetwork().nodes.lightning).toHaveLength(4);
+    });
+
+    it('should remove a litd node from an existing network', async () => {
+      const node = firstNetwork().nodes.lightning[3];
+      await store.getActions().network.removeLightningNode({ node });
+      expect(firstNetwork().nodes.lightning).toHaveLength(4);
     });
 
     it('should throw an error if the lightning node network id is invalid', async () => {
@@ -434,7 +442,7 @@ describe('Network model', () => {
       // try to remove the old bitcoind version
       const node = firstNetwork().nodes.bitcoin[2];
       await expect(removeBitcoinNode({ node })).rejects.toThrow(
-        'There are no other compatible backends for erin to connect to. You must remove the erin node first',
+        'There are no other compatible backends for frank to connect to. You must remove the frank node first',
       );
     });
 
@@ -601,7 +609,7 @@ describe('Network model', () => {
       await start(network.id);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[0].ports.grpc).toBe(10001);
-      expect(lightning[3].ports.grpc).toBe(10004);
+      expect(lightning[4].ports.grpc).toBe(10005);
       expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(0);
       expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(0);
     });
@@ -624,7 +632,7 @@ describe('Network model', () => {
       await start(network.id);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[0].ports.grpc).toBe(10002);
-      expect(lightning[3].ports.grpc).toBe(10004);
+      expect(lightning[4].ports.grpc).toBe(10005);
       expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(1);
       expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(1);
     });
@@ -870,10 +878,10 @@ describe('Network model', () => {
         Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
       );
       const { toggleNode } = store.getActions().network;
-      let node = firstNetwork().nodes.lightning[3];
+      let node = firstNetwork().nodes.lightning[4];
       await toggleNode(node);
       // get a reference to the updated nodes
-      node = firstNetwork().nodes.lightning[3];
+      node = firstNetwork().nodes.lightning[4];
       expect(node.ports.rest).toBe(8085);
     });
   });
@@ -1008,6 +1016,15 @@ describe('Network model', () => {
   });
 
   describe('Other actions', () => {
+    it('should remove a network', async () => {
+      expect(store.getState().network.networks).toHaveLength(0);
+      await store.getActions().network.addNetwork(addNetworkArgs);
+      expect(store.getState().network.networks).toHaveLength(1);
+      const networkId = firstNetwork().id;
+      await store.getActions().network.remove(networkId);
+      expect(store.getState().network.networks).toHaveLength(0);
+    });
+
     it('should fail to set the status with an invalid id', () => {
       const { setStatus: setNetworkStatus } = store.getActions().network;
       expect(() => setNetworkStatus({ id: 10, status: Status.Starting })).toThrow();

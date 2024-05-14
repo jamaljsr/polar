@@ -5,14 +5,13 @@ import { BitcoindLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
-import { createNetwork, createTapdNetworkNode } from 'utils/network';
+import { createNetwork } from 'utils/network';
 import {
   injections,
   lightningServiceMock,
   renderWithProviders,
   tapServiceMock,
   testManagedImages,
-  testNodeDocker,
 } from 'utils/tests';
 import RenameNodeModal from './RenameNodeModal';
 
@@ -34,21 +33,14 @@ describe('RenameNodeModal', () => {
       lndNodes: 2,
       clightningNodes: 1,
       eclairNodes: 1,
+      litdNodes: 1,
       bitcoindNodes: 3,
+      tapdNodes: 1,
       status,
       repoState: defaultRepoState,
       managedImages: testManagedImages,
       customImages: [],
     });
-    network.nodes.tap.push(
-      createTapdNetworkNode(
-        network,
-        defaultRepoState.images.tapd.latest,
-        defaultRepoState.images.tapd.compatibility,
-        testNodeDocker,
-        status,
-      ),
-    );
     const initialState = {
       network: {
         networks: [network],

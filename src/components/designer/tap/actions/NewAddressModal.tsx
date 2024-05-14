@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { DownOutlined } from '@ant-design/icons';
@@ -17,7 +17,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/tap';
 import { Network } from 'types';
-import { getTapdNodes, mapToTapd } from 'utils/network';
+import { getTapdNodes } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
@@ -44,6 +44,13 @@ const Styled = {
   `,
 };
 
+const getNode = (network: Network, nodeName?: string) => {
+  const tapNodes = getTapdNodes(network);
+  const node = tapNodes.find(node => node.name === nodeName);
+  const otherNodes = tapNodes.filter(node => node.name !== nodeName);
+  return { node, otherNodes };
+};
+
 interface Props {
   network: Network;
 }
@@ -63,50 +70,47 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
 
   const [form] = Form.useForm();
 
-  const { node, otherNodes } = useMemo(() => {
-    const tapNodes = getTapdNodes(network);
-    const node = tapNodes.find(node => node.name === nodeName);
-    const otherNodes = tapNodes.filter(node => node.name !== nodeName);
-    if (!node) throw new Error(`${nodeName} is not a TAP node`);
-    return { node, otherNodes };
-  }, [network.nodes, nodeName]);
-
   const handleSync = useAsyncCallback(async e => {
+    const { node, otherNodes } = getNode(network, nodeName);
     const from = otherNodes[e.key];
-    const hostname = from.implementation === 'litd' ? `${from.name}:8443` : from.name;
+    const hostname = `${from.name}:${from.implementation === 'litd' ? '8443' : '10029'}`;
 
     try {
-      const numUpdated = await syncUniverse({ node: mapToTapd(node), hostname });
+      if (!node) throw new Error(`${nodeName} is not a TAP node`);
+
+      const numUpdated = await syncUniverse({ node, hostname });
       message.success(l('syncSuccess', { count: numUpdated, hostname: from.name }));
     } catch (error: any) {
       notify({ message: l('syncError', { hostname: from.name }), error });
     }
   });
 
-  const newAddressAsync = useAsyncCallback(async (payload: NewAddressPayload) => {
-    try {
-      const res = await getNewAddress(payload);
-      setTapAddress(res.encoded);
-    } catch (error: any) {
-      notify({ message: l('submitError'), error });
-    }
-  });
+  const newAddressAsync = useAsyncCallback(
+    async (values: { assetId: string; amount: string }) => {
+      try {
+        const { node } = getNode(network, nodeName);
+        if (!node) throw new Error(`${nodeName} is not a TAP node`);
+        const payload: NewAddressPayload = {
+          node,
+          assetId: values.assetId,
+          amount: values.amount,
+        };
 
-  const handleSubmit = (values: { assetId: string; amount: string }) => {
-    const payload: NewAddressPayload = {
-      node: mapToTapd(node),
-      assetId: values.assetId,
-      amount: values.amount,
-    };
-    newAddressAsync.execute(payload);
-  };
+        const res = await getNewAddress(payload);
+        setTapAddress(res.encoded);
+      } catch (error: any) {
+        notify({ message: l('submitError'), error });
+      }
+    },
+  );
 
   const handleCopy = () => {
     message.success(l('copied', { address: ellipseInner(tapAddress, 10, 10) }), 2);
     hideNewAddress();
   };
 
-  const assetOptions = nodes[node.name]?.assetRoots || [];
+  const { otherNodes } = getNode(network, nodeName);
+  const assetRoots = (nodeName && nodes[nodeName]?.assetRoots) || [];
 
   let cmp: ReactNode;
   if (!tapAddress) {
@@ -121,7 +125,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             assetId: '',
             amount: '100',
           }}
-          onFinish={handleSubmit}
+          onFinish={newAddressAsync.execute}
         >
           <Form.Item
             name="assetId"
@@ -147,7 +151,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
               disabled={handleSync.loading}
               onChange={(_, option: any) => setSelectedName(option.label)}
             >
-              {assetOptions.map(a => (
+              {assetRoots.map(a => (
                 <Select.Option key={a.id} value={a.id}>
                   <Styled.AssetOption>
                     <span>{a.name}</span>

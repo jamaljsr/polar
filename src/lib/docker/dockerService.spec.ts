@@ -5,7 +5,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import { v2 as compose } from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
-import { CLightningNode, LndNode, TapdNode } from 'shared/types';
+import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -49,7 +49,7 @@ describe('DockerService', () => {
       }),
     });
     await dockerService.getVersions();
-    expect(composeMock.version).toBeCalledWith(
+    expect(composeMock.version).toHaveBeenCalledWith(
       expect.objectContaining({
         env: expect.objectContaining({ __TESTVAR: 'TESTVAL' }),
       }),
@@ -61,7 +61,7 @@ describe('DockerService', () => {
     mockOS.platform.mockReturnValue('linux');
     mockOS.userInfo.mockReturnValue({ uid: '999', gid: '999' } as any);
     await dockerService.getVersions();
-    expect(composeMock.version).toBeCalledWith(
+    expect(composeMock.version).toHaveBeenCalledWith(
       expect.objectContaining({
         env: expect.objectContaining({ USERID: '999', GROUPID: '999' }),
       }),
@@ -152,12 +152,12 @@ describe('DockerService', () => {
     it('should save the docker-compose.yml file', () => {
       dockerService.saveComposeFile(network);
 
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining('version:'),
       );
 
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining('services:'),
       );
@@ -165,7 +165,7 @@ describe('DockerService', () => {
 
     it('should save with the bitcoin node in the compose file', () => {
       dockerService.saveComposeFile(network);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.bitcoin[0].name}`,
@@ -175,7 +175,7 @@ describe('DockerService', () => {
 
     it('should save with the lnd node in the compose file', () => {
       dockerService.saveComposeFile(network);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
@@ -199,7 +199,7 @@ describe('DockerService', () => {
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
@@ -223,7 +223,7 @@ describe('DockerService', () => {
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
@@ -247,7 +247,7 @@ describe('DockerService', () => {
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
@@ -258,7 +258,7 @@ describe('DockerService', () => {
     it('should not save unknown lightning implementation', () => {
       network.nodes.lightning[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(network);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.not.stringContaining(
           `container_name: polar-n1-${network.nodes.lightning[0].name}`,
@@ -269,7 +269,7 @@ describe('DockerService', () => {
     it('should save the tapd node with the named LND node as backend', () => {
       const net = getNetwork(1, 'my network', undefined, 2);
       dockerService.saveComposeFile(net);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(`--lnd.host=polar-n1-${net.nodes.lightning[1].name}`),
       );
@@ -280,7 +280,7 @@ describe('DockerService', () => {
       const tapNode = net.nodes.tap[0] as TapdNode;
       tapNode.lndName = 'invalid';
       dockerService.saveComposeFile(net);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(`--lnd.host=polar-n1-${net.nodes.lightning[0].name}`),
       );
@@ -290,15 +290,86 @@ describe('DockerService', () => {
       const net = getNetwork(1, 'my network', undefined, 2);
       net.nodes.tap[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(net);
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.not.stringContaining(`container_name: polar-n1-${net.nodes.tap[0].name}`),
       );
     });
 
+    it('should save the litd node with the named LND node as backend', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+      });
+      dockerService.saveComposeFile(net);
+      const { backendName } = net.nodes.lightning[0] as LitdNode;
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`--lnd.bitcoind.rpchost=polar-n1-${backendName}`),
+      );
+    });
+
+    it('should save the litd node with the first bitcoin node as backend', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+      });
+      const litdNode = net.nodes.lightning[0] as LitdNode;
+      litdNode.backendName = 'invalid';
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(
+          `--lnd.bitcoind.rpchost=polar-n1-${net.nodes.bitcoin[0].name}`,
+        ),
+      );
+    });
+
+    it('should not save unknown litd implementation', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+      });
+      net.nodes.lightning[0].implementation = 'unknown' as any;
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.not.stringContaining(
+          `container_name: polar-n1-${net.nodes.lightning[0].name}`,
+        ),
+      );
+    });
+
     it('should save a list of networks to disk', () => {
       dockerService.saveNetworks({ version: '0.1.0', networks: [network], charts: {} });
-      expect(filesMock.write).toBeCalledWith(
+      expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
         expect.stringContaining(`"name": "${network.name}"`),
       );
@@ -466,7 +537,7 @@ describe('DockerService', () => {
       filesMock.read.mockResolvedValue(fileData);
       const { networks } = await dockerService.loadNetworks();
       expect(networks.length).toBe(0);
-      expect(filesMock.read).toBeCalledWith(
+      expect(filesMock.read).toHaveBeenCalledWith(
         expect.stringContaining(join('networks', 'networks.json')),
       );
     });
@@ -608,7 +679,7 @@ describe('DockerService', () => {
     it('should call compose.upAll when a network is started', async () => {
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
-      expect(composeMock.upAll).toBeCalledWith(
+      expect(composeMock.upAll).toHaveBeenCalledWith(
         expect.objectContaining({ cwd: network.path }),
         undefined,
       );
@@ -617,13 +688,32 @@ describe('DockerService', () => {
     it('should create volume dirs when the network is started', async () => {
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
-      expect(fsMock.ensureDir).toBeCalledTimes(7);
+      expect(fsMock.ensureDir).toHaveBeenCalledTimes(7);
+    });
+
+    it('should create volume dirs when the network is started', async () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        lndNodes: 1,
+        clightningNodes: 1,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+      });
+      composeMock.upAll.mockResolvedValue(mockResult);
+      await dockerService.start(net);
+      expect(fsMock.ensureDir).toHaveBeenCalledTimes(9);
     });
 
     it('should call compose.down when a network is stopped', async () => {
       composeMock.down.mockResolvedValue(mockResult);
       await dockerService.stop(network);
-      expect(composeMock.down).toBeCalledWith(
+      expect(composeMock.down).toHaveBeenCalledWith(
         expect.objectContaining({ cwd: network.path }),
         undefined,
       );
@@ -634,7 +724,7 @@ describe('DockerService', () => {
       composeMock.upOne.mockResolvedValue(mockResult);
       const node = network.nodes.lightning[0];
       await dockerService.startNode(network, node);
-      expect(composeMock.upOne).toBeCalledWith(
+      expect(composeMock.upOne).toHaveBeenCalledWith(
         node.name,
         expect.objectContaining({ cwd: network.path }),
       );
@@ -644,7 +734,7 @@ describe('DockerService', () => {
       composeMock.stopOne.mockResolvedValue(mockResult);
       const node = network.nodes.lightning[0];
       await dockerService.stopNode(network, node);
-      expect(composeMock.stopOne).toBeCalledWith(
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
         node.name,
         expect.objectContaining({ cwd: network.path }),
       );
@@ -655,11 +745,11 @@ describe('DockerService', () => {
       composeMock.rm.mockResolvedValue(mockResult);
       const node = network.nodes.lightning[0];
       await dockerService.removeNode(network, node);
-      expect(composeMock.stopOne).toBeCalledWith(
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
         node.name,
         expect.objectContaining({ cwd: network.path }),
       );
-      expect(composeMock.rm).toBeCalledWith(
+      expect(composeMock.rm).toHaveBeenCalledWith(
         expect.objectContaining({ cwd: network.path }),
         node.name,
       );
@@ -712,7 +802,7 @@ describe('DockerService', () => {
       Object.defineProperty(electronMock.remote, 'process', { get: () => undefined });
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(network);
-      expect(composeMock.upAll).toBeCalledWith(
+      expect(composeMock.upAll).toHaveBeenCalledWith(
         expect.objectContaining({ cwd: network.path }),
         undefined,
       );
@@ -726,7 +816,7 @@ describe('DockerService', () => {
         get: () => ({ env: { DOCKER_HOST: '/var/run/docker.sock' } }),
       });
       await getDocker(false);
-      expect(mockDockerode.prototype.constructor).toBeCalledWith();
+      expect(mockDockerode.prototype.constructor).toHaveBeenCalledWith();
       Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
     });
 
@@ -739,9 +829,9 @@ describe('DockerService', () => {
         return Promise.resolve(path === '/var/run/docker.sock');
       });
       await getDocker(false);
-      expect(filesMock.exists).toBeCalledWith('/home/user/.docker/run/docker.sock');
-      expect(filesMock.exists).toBeCalledWith('/var/run/docker.sock');
-      expect(mockDockerode.prototype.constructor).toBeCalledWith({
+      expect(filesMock.exists).toHaveBeenCalledWith('/home/user/.docker/run/docker.sock');
+      expect(filesMock.exists).toHaveBeenCalledWith('/var/run/docker.sock');
+      expect(mockDockerode.prototype.constructor).toHaveBeenCalledWith({
         socketPath: '/var/run/docker.sock',
       });
       Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
@@ -756,9 +846,9 @@ describe('DockerService', () => {
         return Promise.resolve(path === '/var/run/docker.sock');
       });
       await getDocker(false);
-      expect(filesMock.exists).toBeCalledWith('/home/user/.docker/run/docker.sock');
-      expect(filesMock.exists).toBeCalledWith('/var/run/docker.sock');
-      expect(mockDockerode.prototype.constructor).toBeCalledWith({
+      expect(filesMock.exists).toHaveBeenCalledWith('/home/user/.docker/run/docker.sock');
+      expect(filesMock.exists).toHaveBeenCalledWith('/var/run/docker.sock');
+      expect(mockDockerode.prototype.constructor).toHaveBeenCalledWith({
         socketPath: '/var/run/docker.sock',
       });
       Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
@@ -767,7 +857,7 @@ describe('DockerService', () => {
     it('should not check paths on windows', async () => {
       mockOS.platform.mockReturnValue('win32');
       await getDocker(false);
-      expect(mockDockerode.prototype.constructor).toBeCalledWith();
+      expect(mockDockerode.prototype.constructor).toHaveBeenCalledWith();
     });
 
     it('should reuse a cached instance for multiple calls', async () => {

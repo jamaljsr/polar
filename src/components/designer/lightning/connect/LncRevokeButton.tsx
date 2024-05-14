@@ -29,7 +29,6 @@ const LncRevokeButton: React.FC<Props> = ({ node, localPublicKey }) => {
           notify({ message: l('success') });
         } catch (error: any) {
           notify({ message: l('error'), error });
-          throw error;
         }
       },
     });

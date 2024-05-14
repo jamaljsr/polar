@@ -1,8 +1,10 @@
 import React from 'react';
+import { ipcRenderer, IpcRendererEvent } from 'electron';
+import { waitFor } from '@testing-library/react';
 import { renderWithProviders } from 'utils/tests';
 import DockerContainerShutdown from './DockerContainerShutdown';
-import { ipcRenderer } from '__mocks__/electron';
-import { waitFor } from '@testing-library/react';
+
+const ipcRenderMock = ipcRenderer as jest.Mocked<typeof ipcRenderer>;
 
 describe('DockerContainerShutdown component', () => {
   let unmount: () => void;
@@ -19,9 +21,14 @@ describe('DockerContainerShutdown component', () => {
   });
 
   it('should set isShuttingDown to true when app is closing', async () => {
+    let callback: (event: IpcRendererEvent, ...args: any[]) => void = () => {};
+    ipcRenderMock.on.mockImplementationOnce((event, cb) => {
+      callback = cb;
+      return ipcRenderMock;
+    });
     const { getByText } = await renderComponent();
 
-    ipcRenderer.on.mock.calls[0][1]();
+    callback('app-closing' as any);
     await waitFor(() => expect(getByText('Shutting down...')).toBeInTheDocument());
   });
 });

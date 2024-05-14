@@ -1,9 +1,11 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
 import { waitFor } from '@testing-library/react';
-import { Status } from 'shared/types';
+import { Status, TapdNode } from 'shared/types';
 import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
+import { createLitdNetworkNode } from 'utils/network';
 import {
   defaultTapAddress,
   defaultTapAsset,
@@ -13,6 +15,7 @@ import {
   lightningServiceMock,
   renderWithProviders,
   tapServiceMock,
+  testNodeDocker,
 } from 'utils/tests';
 import SendAssetModal from './SendAssetModal';
 
@@ -21,7 +24,7 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLi
 describe('SendAssetModal', () => {
   let unmount: () => void;
 
-  const renderComponent = async () => {
+  const renderComponent = async (nodeName = 'alice-tap', showModal = true) => {
     const network = getNetwork(1, 'test network', Status.Started, 2);
 
     const initialState = {
@@ -46,16 +49,15 @@ describe('SendAssetModal', () => {
           [network.id]: initChartFromNetwork(network),
         },
       },
-      modals: {
-        sendAsset: {
-          visible: true,
-          nodeName: 'alice-tap',
-        },
-      },
     };
     const cmp = <SendAssetModal network={network} />;
 
     const result = renderWithProviders(cmp, { initialState, wrapForm: true });
+    if (showModal) {
+      await result.store
+        .getActions()
+        .modals.showSendAsset({ nodeName, networkId: network.id });
+    }
     unmount = result.unmount;
     return {
       ...result,
@@ -82,7 +84,33 @@ describe('SendAssetModal', () => {
         expect(queryByText('Cancel')).not.toBeInTheDocument();
       });
     });
+
+    it('should not show when the node is invalid', async () => {
+      const { queryByText } = await renderComponent('invalid-node');
+      expect(queryByText('Send Asset from invalid-node')).not.toBeInTheDocument();
+    });
+
+    it('should set lndName to the tap node backend', async () => {
+      const { getByLabelText, store } = await renderComponent();
+      expect(getByLabelText('Send Asset from alice-tap')).toBeInTheDocument();
+      expect(store.getState().modals.sendAsset.visible).toBe(true);
+      expect(store.getState().modals.sendAsset.lndName).toBe('alice');
+    });
+
+    it('should not set lndName for invalid backend', async () => {
+      const { getByLabelText, store, network } = await renderComponent('bob-tap', false);
+      expect(store.getState().modals.sendAsset.visible).toBe(false);
+      expect(store.getState().modals.sendAsset.lndName).toBeUndefined();
+      (network.nodes.tap[1] as TapdNode).lndName = 'invalid';
+      await store
+        .getActions()
+        .modals.showSendAsset({ nodeName: 'bob-tap', networkId: network.id });
+      expect(getByLabelText('Send Asset from bob-tap')).toBeInTheDocument();
+      expect(store.getState().modals.sendAsset.visible).toBe(true);
+      expect(store.getState().modals.sendAsset.lndName).toBeUndefined();
+    });
   });
+
   describe('When lnd balance is low', () => {
     beforeEach(() => {
       lightningServiceMock.getBalances.mockResolvedValue({
@@ -94,12 +122,14 @@ describe('SendAssetModal', () => {
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
     });
-    it('should an alert should display', async () => {
+
+    it('should display a low balance alert', async () => {
       const { findByText } = await renderComponent();
       expect(
         await findByText('Insufficient balance on lnd node alice'),
       ).toBeInTheDocument();
     });
+
     it('should auto deposit should be present', async () => {
       const { findByText, getByText } = await renderComponent();
       expect(
@@ -107,6 +137,7 @@ describe('SendAssetModal', () => {
       ).toBeInTheDocument();
       expect(getByText('Deposit enough funds to alice')).toBeInTheDocument();
     });
+
     it('should disable the alert when auto deposit is enabled', async () => {
       const { queryByText, getByText } = await renderComponent();
       await waitFor(() => {
@@ -117,7 +148,8 @@ describe('SendAssetModal', () => {
         queryByText('Insufficient balance on lnd node alice'),
       ).not.toBeInTheDocument();
     });
-    it('should call new address when send is clicked', async () => {
+
+    it('should call new address when send is clicked for litd', async () => {
       tapServiceMock.decodeAddress.mockResolvedValue(
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
@@ -139,7 +171,44 @@ describe('SendAssetModal', () => {
         expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();
       });
     });
+
+    it('should call new address when send is clicked for tapd', async () => {
+      tapServiceMock.decodeAddress.mockResolvedValue(
+        defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
+      );
+      const { getByLabelText, getByText, network, store } = await renderComponent(
+        'invalid',
+        false,
+      );
+      const litdNode = createLitdNetworkNode(
+        network,
+        defaultRepoState.images.litd.latest,
+        defaultRepoState.images.litd.compatibility,
+        testNodeDocker,
+      );
+      network.nodes.lightning.push(litdNode);
+      await store
+        .getActions()
+        .modals.showSendAsset({ nodeName: litdNode.name, networkId: network.id });
+      await waitFor(() => {
+        expect(lightningServiceMock.getBalances).toBeCalled();
+      });
+      const input = getByLabelText('TAP Address');
+      expect(input).toBeInTheDocument();
+      fireEvent.change(input, { target: { value: 'tap1address' } });
+      await waitFor(() => {
+        expect(tapServiceMock.decodeAddress).toBeCalled();
+      });
+      fireEvent.click(getByText('Deposit enough funds to carol'));
+
+      expect(getByText('Address Info')).toBeInTheDocument();
+      fireEvent.click(getByText('Send'));
+      await waitFor(() => {
+        expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();
+      });
+    });
   });
+
   describe('When the lnd balance is high', () => {
     beforeEach(() => {
       lightningServiceMock.getBalances.mockResolvedValue({
@@ -262,7 +331,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('ERROR: Invalid Address')).toBeInTheDocument();
+      expect(getByText('Error message')).toBeInTheDocument();
     });
     it('should clear the error when tap address field is reset', async () => {
       const { getByText, getByLabelText, queryByText } = await renderComponent();
@@ -273,9 +342,9 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('ERROR: Invalid Address')).toBeInTheDocument();
+      expect(getByText('Error message')).toBeInTheDocument();
       fireEvent.change(input, { target: { value: '' } });
-      expect(queryByText('ERROR: Invalid Address')).toBeNull();
+      expect(queryByText('Error message')).toBeNull();
     });
   });
 

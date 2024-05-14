@@ -114,5 +114,19 @@ describe('NewNetwork component', () => {
       expect(await findByText('Unable to create the new network')).toBeInTheDocument();
       expect(await findByText('asdf')).toBeInTheDocument();
     });
+
+    it('should show an error when there are move tapd than LND node chosen', async () => {
+      const { nameInput, createBtn, getByLabelText, findByText } = renderComponent();
+      fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(getByLabelText('LND'), { target: { value: 1 } });
+      fireEvent.change(getByLabelText('Taproot Assets'), { target: { value: 2 } });
+      fireEvent.click(createBtn);
+      expect(await findByText('Unable to create the new network')).toBeInTheDocument();
+      expect(
+        await findByText(
+          'The number of Taproot Assets nodes must be less than or equal to the number of LND nodes',
+        ),
+      ).toBeInTheDocument();
+    });
   });
 });

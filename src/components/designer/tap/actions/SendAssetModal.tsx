@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Divider, Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
+import { TapdNode } from 'shared/types';
 import { TapAddress } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import {
@@ -10,7 +11,7 @@ import {
   TAP_MIN_LND_BALANCE,
 } from 'store/models/tap';
 import { Network } from 'types';
-import { getTapdNodes, mapToTapd } from 'utils/network';
+import { getTapdNodes } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { CopyIcon } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -36,42 +37,39 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
 
   const { node } = useMemo(() => {
     const tapNodes = getTapdNodes(network);
-    const node = tapNodes.find(node => node.name === nodeName);
+    const node = tapNodes.find(node => node.name === nodeName) as TapdNode;
     const otherNodes = tapNodes.filter(node => node.name !== nodeName);
-    if (!node) throw new Error(`${nodeName} is not a TAP node`);
     return { node, otherNodes };
   }, [network.nodes, nodeName]);
 
-  const sendAssetAsync = useAsyncCallback(async (payload: SendAssetPayload) => {
-    try {
-      await sendAsset(payload);
-      notify({
-        message: l('success', {
-          amount: decodedAddress?.amount,
-          assetName: decodedAddress?.name,
-          addr: ellipseInner(payload.address, 6),
-        }),
-      });
-      hideSendAsset();
-    } catch (error: any) {
-      notify({ message: l('submitError'), error });
-    }
-  });
+  const sendAssetAsync = useAsyncCallback(
+    async (values: { address: string; autoFund: boolean }) => {
+      try {
+        const payload: SendAssetPayload = {
+          node,
+          address: values.address,
+          autoFund: values.autoFund,
+        };
+        await sendAsset(payload);
+        notify({
+          message: l('success', {
+            amount: decodedAddress?.amount,
+            assetName: decodedAddress?.name,
+            addr: ellipseInner(payload.address, 6),
+          }),
+        });
+        hideSendAsset();
+      } catch (error: any) {
+        notify({ message: l('submitError'), error });
+      }
+    },
+  );
 
   const lowBalance = useMemo(() => {
     if (!lndName) return false;
     const lndNodeModel = lightningNodes[lndName];
     return Number(lndNodeModel?.walletBalance?.confirmed) < TAP_MIN_LND_BALANCE;
   }, [lightningNodes, lndName]);
-
-  const handleSubmit = (values: { address: string; autoFund: boolean }) => {
-    const payload: SendAssetPayload = {
-      node: mapToTapd(node),
-      address: values.address,
-      autoFund: values.autoFund,
-    };
-    sendAssetAsync.execute(payload);
-  };
 
   const decodeAddressAsync = useAsyncCallback(async (payload: DecodeAddressPayload) => {
     try {
@@ -84,9 +82,9 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  const handleAddress = async (tapAddress: string) => {
+  const handleAddressChange = async (tapAddress: string) => {
     if (tapAddress.length > 0) {
-      decodeAddressAsync.execute({ address: tapAddress, node: mapToTapd(node) });
+      decodeAddressAsync.execute({ address: tapAddress, node });
     } else {
       setError(undefined);
     }
@@ -120,11 +118,13 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
     return (
       <Alert
         type="error"
-        message={l('missingAsset', { nodeName: node.name })}
+        message={l('missingAsset', { nodeName: node?.name })}
         description={<DetailsList details={details} />}
       />
     );
   }, [decodedAddress]);
+
+  if (!node) return null;
 
   const cmp = (
     <>
@@ -136,7 +136,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
           balanceIndex: 0,
           autoFund: false,
         }}
-        onFinish={handleSubmit}
+        onFinish={sendAssetAsync.execute}
       >
         <Form.Item
           name="address"
@@ -147,7 +147,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
           <Input.TextArea
             rows={5}
             placeholder={l('address')}
-            onChange={e => handleAddress(e.target.value)}
+            onChange={e => handleAddressChange(e.target.value)}
             disabled={sendAssetAsync.loading}
           />
         </Form.Item>
@@ -187,7 +187,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         onCancel={() => hideSendAsset()}
         okButtonProps={{
           loading: sendAssetAsync.loading,
-          disabled: !decodedAddress || (decodedAddress && !decodedAddress?.name),
+          disabled: !decodedAddress,
         }}
         onOk={form.submit}
       >

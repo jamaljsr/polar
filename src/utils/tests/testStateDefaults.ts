@@ -3,6 +3,7 @@ import {
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
+import { Session } from 'lib/litd/types';
 import { TapAddress, TapAsset, TapBalance } from 'lib/tap/types';
 
 export const defaultStateInfo = (
@@ -73,5 +74,20 @@ export const defaultTapAddress = (value: Partial<TapAddress>): TapAddress => ({
   scriptKey: '',
   internalKey: '',
   taprootOutputKey: '',
+  ...value,
+});
+
+export const defaultLitSession = (value: Partial<Session>): Session => ({
+  id: '',
+  label: '',
+  pairingPhrase: '',
+  mailboxServerAddr: '',
+  state: 'Created',
+  type: 'Admin',
+  accountId: '',
+  localPublicKey: '',
+  remotePublicKey: '',
+  createdAt: 0,
+  expiresAt: 0,
   ...value,
 });

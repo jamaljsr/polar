@@ -5,7 +5,7 @@ import { Button, Empty, Space, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { DetailsList } from 'components/common';
+import { DetailsList, Loader } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 import LncSessionDrawer from './LncSessionDrawer';
 
@@ -42,7 +42,7 @@ const LncSessionsList: React.FC<Props> = ({ node }) => {
     return nodes[node.name] || {};
   }, [nodes]);
 
-  if (!sessions) return null;
+  if (!sessions) return <Loader />;
 
   const details: DetailValues = sessions.map(session => {
     return {

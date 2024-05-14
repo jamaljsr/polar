@@ -23,8 +23,8 @@ const useLncSession = (nodeName?: string, sessionId?: string) => {
     const result: { session?: PLIT.Session } = {};
     if (!nodeName) return result;
     const nodeState = nodes[nodeName];
-    if (nodeState.sessions?.length) {
-      result.session = nodeState.sessions.find(a => a.id.toString() === sessionId);
+    if (nodeState?.sessions?.length) {
+      result.session = nodeState.sessions.find(a => a.id === sessionId);
     }
     return result;
   }, [nodes, sessionId, nodeName]);

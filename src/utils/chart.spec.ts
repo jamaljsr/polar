@@ -139,6 +139,14 @@ describe('Chart Util', () => {
       expect(result.links['backend1-backend2']).toBeDefined();
     });
 
+    it('should not create a tap link for litd implementation', () => {
+      const tapNode = createTapdNetworkNode(network, '0.3.0', undefined, testNodeDocker);
+      tapNode.implementation = 'litd';
+      network.nodes.tap.push(tapNode);
+      chart = initChartFromNetwork(network);
+      expect(chart.links['alice-tap-alice']).toBeUndefined();
+    });
+
     it('should create a tap link for LND', () => {
       network.nodes.tap.push(
         createTapdNetworkNode(network, '0.3.0', undefined, testNodeDocker),

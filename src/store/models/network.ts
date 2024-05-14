@@ -450,6 +450,10 @@ const networkModel: NetworkModel = {
       if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
+      if (node.implementation === 'litd') {
+        // remove the litd node from the litd redux state
+        getStoreActions().lit.removeNode(node.name);
+      }
       // update the network in the redux state and save to disk
       actions.setNetworks([...networks]);
       await actions.save();
@@ -888,6 +892,9 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
+    network.nodes.lightning
+      .filter(n => n.implementation === 'litd')
+      .forEach(n => getStoreActions().lit.removeNode(n.name));
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n));
     network.nodes.tap.forEach(n => getStoreActions().tap.removeNode(n.name));
     await actions.save();

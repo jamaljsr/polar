@@ -134,25 +134,24 @@ const tapModel: TapModel = {
     await actions.getBalances(node);
     await actions.getAssetRoots(node);
   }),
-
   mintAsset: thunk(
     async (actions, payload, { injections, getStoreState, getStoreActions }) => {
       const { node, assetType, name, amount, enableEmission, finalize, autoFund } =
         payload;
 
       const network = getStoreState().network.networkById(node.networkId);
-      // fund lnd node
       if (
         autoFund &&
         (node.implementation === 'tapd' || node.implementation === 'litd')
       ) {
+        // fund lnd node with 1M sats
         const lndNode = network.nodes.lightning.find(
           n => n.name === (node as TapdNode).lndName,
         ) as LightningNode;
 
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
-          sats: TAP_MIN_LND_BALANCE.toString(),
+          sats: '1000000',
         });
       }
 
@@ -204,18 +203,18 @@ const tapModel: TapModel = {
       { injections, getState, getStoreState, getStoreActions },
     ) => {
       const network = getStoreState().network.networkById(node.networkId);
-      // fund lnd node
       if (
         autoFund &&
         (node.implementation === 'tapd' || node.implementation === 'litd')
       ) {
+        // fund lnd node with 1M sats
         const lndNode = network.nodes.lightning.find(
           n => n.name === (node as TapdNode).lndName,
         ) as LightningNode;
 
         await getStoreActions().lightning.depositFunds({
           node: lndNode,
-          sats: (2 * TAP_MIN_LND_BALANCE).toString(),
+          sats: '1000000',
         });
       }
       const api = injections.tapFactory.getService(node);

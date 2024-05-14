@@ -603,13 +603,11 @@ export const createNetwork = (config: {
 };
 
 export const renameNode = async (network: Network, node: AnyNode, newName: string) => {
-  let updatedNode;
-
   switch (node.type) {
     case 'lightning':
       switch (node.implementation) {
         case 'LND':
-          updatedNode = network.nodes.lightning.find(n => n.id === node.id) as LndNode;
+          const lndNode = network.nodes.lightning.find(n => n.id === node.id) as LndNode;
           network.nodes.tap
             .filter(n => n.implementation === 'tapd')
             .map(n => n as TapdNode)
@@ -617,23 +615,31 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
             .forEach(n => {
               n.lndName = newName;
             });
-          updatedNode.name = newName;
-          updatedNode.paths = getLndFilePaths(newName, network);
-          break;
+          lndNode.name = newName;
+          lndNode.paths = getLndFilePaths(newName, network);
+          return lndNode;
         case 'c-lightning':
-          updatedNode = network.nodes.lightning.find(
+          const clnNode = network.nodes.lightning.find(
             n => n.id === node.id,
           ) as CLightningNode;
-          const supportsGrpc = updatedNode.ports.grpc !== 0;
-          updatedNode.name = newName;
-          updatedNode.paths = getCLightningFilePaths(newName, supportsGrpc, network);
-          break;
+          const supportsGrpc = clnNode.ports.grpc !== 0;
+          clnNode.name = newName;
+          clnNode.paths = getCLightningFilePaths(newName, supportsGrpc, network);
+          return clnNode;
         case 'eclair':
-          updatedNode = network.nodes.lightning.find(n => n.id === node.id) as EclairNode;
-          updatedNode.name = newName;
-          break;
+          const eclairNode = network.nodes.lightning.find(
+            n => n.id === node.id,
+          ) as EclairNode;
+          eclairNode.name = newName;
+          return eclairNode;
+        case 'litd':
+          const litdNode = network.nodes.lightning.find(
+            n => n.id === node.id,
+          ) as LitdNode;
+          litdNode.name = newName;
+          litdNode.paths = getLitdFilePaths(newName, network);
+          return litdNode;
       }
-      break;
     case 'bitcoin':
       network.nodes.lightning
         .filter(n => n.backendName === node.name)
@@ -645,18 +651,17 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
         .forEach(n => {
           n.peers = n.peers.map(peer => (peer === node.name ? newName : peer));
         });
-      updatedNode = network.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
-      updatedNode.name = newName;
-      break;
+      const btcNode = network.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
+      btcNode.name = newName;
+      return btcNode;
     case 'tap':
-      updatedNode = network.nodes.tap.find(n => n.id === node.id) as TapdNode;
-      updatedNode.name = newName;
-      updatedNode.paths = getTapdFilePaths(newName, network);
-      break;
+      const tapdNode = network.nodes.tap.find(n => n.id === node.id) as TapdNode;
+      tapdNode.name = newName;
+      tapdNode.paths = getTapdFilePaths(newName, network);
+      return tapdNode;
     default:
       throw new Error('Invalid node type');
   }
-  return updatedNode;
 };
 
 /**
@@ -866,7 +871,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  litd = litd.filter(n => n.status !== Status.Started);
+  litd = litd.filter(n => n.status !== Status.Started); //??
   if (litd.length) {
     let existingPorts = litd.map(n => n.ports.rest);
     let openPorts = await getOpenPortRange(existingPorts);
@@ -1092,7 +1097,7 @@ export const getTapBackendNode = (nodeName: string, network: Network) => {
     tapNode = node as LitdNode;
   }
   if (tapNode && ['litd', 'tapd'].includes(tapNode.implementation)) {
-    return network?.nodes.lightning.find(n => n.name === tapNode.lndName);
+    return network.nodes.lightning.find(n => n.name === tapNode.lndName);
   }
 };
 
@@ -1116,7 +1121,7 @@ export const mapToTapd = (node: CommonNode): TapdNode => {
     return node as TapdNode;
   }
   // if the node is not a litd node, throw an error
-  if (node.type !== 'lightning' && (node as LightningNode).implementation !== 'litd') {
+  if (node.type !== 'lightning' || (node as LightningNode).implementation !== 'litd') {
     throw new Error(`Node "${node.name}" is not a litd node`);
   }
 
@@ -1126,7 +1131,7 @@ export const mapToTapd = (node: CommonNode): TapdNode => {
     networkId: litd.networkId,
     name: litd.name,
     type: 'tap',
-    implementation: 'tapd',
+    implementation: 'litd',
     version: litd.version,
     status: litd.status,
     lndName: litd.lndName,
