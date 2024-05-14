@@ -16,7 +16,7 @@ import {
   ManagedImage,
   StoreInjections,
 } from 'types';
-import { defaultRepoState } from 'utils/constants';
+import { BasePorts, defaultRepoState } from 'utils/constants';
 import { isWindows } from 'utils/system';
 import { changeTheme } from 'utils/theme';
 import { NETWORK_VIEW } from 'components/routing';
@@ -89,11 +89,14 @@ const appModel: AppModel = {
       tapd: 0,
     },
     basePorts: {
-      LND: { grpc: null, rest: null },
-      bitcoind: { rest: null },
-      'c-lightning': { grpc: null, rest: null },
-      eclair: { rest: null },
-      tapd: { grpc: null, rest: null },
+      LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },
+      bitcoind: { rest: BasePorts.bitcoind.rest },
+      'c-lightning': {
+        grpc: BasePorts['c-lightning'].grpc,
+        rest: BasePorts['c-lightning'].rest,
+      },
+      eclair: { rest: BasePorts.eclair.rest },
+      tapd: { grpc: BasePorts.tapd.grpc, rest: BasePorts.tapd.rest },
     },
   },
   dockerVersions: { docker: '', compose: '' },

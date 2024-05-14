@@ -18,7 +18,7 @@ import {
 
 const Styled = {
   Menu: styled.div`
-    width: 600px;
+    width: 550px;
   `,
 };
 

@@ -269,6 +269,7 @@ const networkModel: NetworkModel = {
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
+        basePorts: settings.basePorts,
       });
       actions.add(network);
       const { networks } = getState();
@@ -325,6 +326,8 @@ const networkModel: NetworkModel = {
             version,
             dockerRepoState.images.LND.compatibility,
             docker,
+            undefined,
+            settings.basePorts.LND,
           );
           network.nodes.lightning.push(node);
           break;
@@ -334,6 +337,8 @@ const networkModel: NetworkModel = {
             version,
             dockerRepoState.images['c-lightning'].compatibility,
             docker,
+            undefined,
+            settings.basePorts['c-lightning'],
           );
           network.nodes.lightning.push(node);
           break;
@@ -343,11 +348,19 @@ const networkModel: NetworkModel = {
             version,
             dockerRepoState.images.eclair.compatibility,
             docker,
+            undefined,
+            settings.basePorts.eclair,
           );
           network.nodes.lightning.push(node);
           break;
         case 'bitcoind':
-          node = createBitcoindNetworkNode(network, version, docker);
+          node = createBitcoindNetworkNode(
+            network,
+            version,
+            docker,
+            undefined,
+            settings.basePorts.bitcoind,
+          );
           network.nodes.bitcoin.push(node);
           break;
         case 'tapd':
@@ -356,6 +369,8 @@ const networkModel: NetworkModel = {
             version,
             dockerRepoState.images.tapd.compatibility,
             docker,
+            undefined,
+            settings.basePorts.tapd,
           );
           network.nodes.tap.push(node);
           break;
