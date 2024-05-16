@@ -292,6 +292,10 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--taproot-assets.allow-public-uni-proof-courier',
       '--taproot-assets.allow-public-stats',
       '--taproot-assets.universe.public-access',
+      '--lnd.protocol.option-scid-alias',
+      '--lnd.protocol.zero-conf',
+      '--lnd.protocol.simple-taproot-chans',
+      '--lnd.accept-keysend',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
@@ -375,9 +379,10 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.12.5-alpha',
-      versions: ['0.12.5-alpha'],
+      latest: '0.12.99-alpha',
+      versions: ['0.12.99-alpha', '0.12.5-alpha'],
       compatibility: {
+        '0.12.99-alpha': '27.0',
         '0.12.5-alpha': '27.0',
       },
     },

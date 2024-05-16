@@ -79,6 +79,7 @@ const openChannel = async (args: {
   req: LND.OpenChannelRequest;
 }): Promise<LND.ChannelPoint> => {
   const rpc = await getRpc(args.node);
+  args.req.satPerByte = args.req.satPerByte || '1';
   return await rpc.openChannelSync(args.req);
 };
 
