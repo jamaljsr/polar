@@ -33,6 +33,7 @@ export default {
     assetRoots: 'tapd-asset-roots',
     assetLeaves: 'tapd-asset-leaves',
     syncUniverse: 'tapd-sync-universe',
+    fundChannel: 'tapd-fund-channel',
   },
   // litd proxy channels
   litd: {

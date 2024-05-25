@@ -31,6 +31,9 @@ export const defaultTapdMintAsset = (): MintAssetResponse => ({
     batchKey: Buffer.from(''),
     assets: [],
     state: 'BATCH_STATE_PENDING',
+    createdAt: '',
+    heightHint: 0,
+    batchPsbt: Buffer.from(''),
   },
 });
 
@@ -42,6 +45,9 @@ export const defaultTapdFinalizeBatch = (
     batchKey: Buffer.from(''),
     assets: [],
     state: 'BATCH_STATE_FINALIZED',
+    createdAt: '',
+    heightHint: 0,
+    batchPsbt: Buffer.from(''),
   },
   ...value,
 });

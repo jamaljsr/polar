@@ -217,6 +217,7 @@
   "cmps.designer.lightning.actions.OpenChannelModal.title": "Open New Channel",
   "cmps.designer.lightning.actions.OpenChannelModal.source": "Source",
   "cmps.designer.lightning.actions.OpenChannelModal.dest": "Destination",
+  "cmps.designer.lightning.actions.OpenChannelModal.asset": "Asset",
   "cmps.designer.lightning.actions.OpenChannelModal.capacityLabel": "Capacity",
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Deposit enough funds to {{selectedFrom}} to open the channel",
   "cmps.designer.lightning.actions.OpenChannelModal.private": "Make the channel private",

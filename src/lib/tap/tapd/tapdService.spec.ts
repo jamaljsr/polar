@@ -48,6 +48,10 @@ const sampleAsset: Asset = {
     assetWitness: Buffer.from(
       '0140a74c7b8c9287084fe41adb806e970aba66d9abf95b051cf48d6287e57d355bce953fea942b7bfc6fbc76ddc1db3cd417db74500f94b757c1768184a326b5a0f4',
     ),
+    tapscriptRoot: Buffer.from(
+      'dc886ced95397e55f52cc348196c5176adf888cb6f6a74bcd9305a48d95bfb9b',
+      'hex',
+    ),
   },
   chainAnchor: {
     anchorTx: Buffer.from(

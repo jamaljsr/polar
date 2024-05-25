@@ -1,7 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import { readFile } from 'fs-extra';
-import * as TARO from '@lightningpolar/tapd-api';
+import * as TAPD from '@lightningpolar/tapd-api';
 import {
   convertUInt8ArraysToHex,
   ipcChannels,
@@ -14,35 +14,35 @@ import { TapdNode } from '../../src/shared/types';
  * mapping of node name <-> TapRpcApis to cache these objects. The createLndRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
-let rpcCache: Record<string, TARO.TapdRpcApis> = {};
+let rpcCache: Record<string, TAPD.TapdRpcApis> = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: TapdNode): Promise<TARO.TapdRpcApis> => {
+const getRpc = async (node: TapdNode): Promise<TAPD.TapdRpcApis> => {
   const { name, networkId } = node;
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
     const { ports, paths } = node as TapdNode;
-    const options: TARO.TapdClientOptions = {
+    const options: TAPD.TapdClientOptions = {
       socket: `127.0.0.1:${ports.grpc}`,
       cert: (await readFile(paths.tlsCert)).toString('hex'),
       macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
     };
-    rpcCache[id] = TARO.TapClient.create(options);
+    rpcCache[id] = TAPD.TapClient.create(options);
   }
   return rpcCache[id];
 };
 
-const listAssets = async (args: { node: TapdNode }): Promise<TARO.ListAssetResponse> => {
+const listAssets = async (args: { node: TapdNode }): Promise<TAPD.ListAssetResponse> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.listAssets();
 };
 
 const listBalances = async (args: {
   node: TapdNode;
-}): Promise<TARO.ListBalancesResponse> => {
+}): Promise<TAPD.ListBalancesResponse> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.listBalances({
     assetId: true,
@@ -51,62 +51,70 @@ const listBalances = async (args: {
 
 const mintAsset = async (args: {
   node: TapdNode;
-  req: TARO.MintAssetRequestPartial;
-}): Promise<TARO.MintAssetResponse> => {
+  req: TAPD.MintAssetRequestPartial;
+}): Promise<TAPD.MintAssetResponse> => {
   const { mint } = await getRpc(args.node);
   return await mint.mintAsset(args.req);
 };
 
 const finalizeBatch = async (args: {
   node: TapdNode;
-}): Promise<TARO.FinalizeBatchResponse> => {
+}): Promise<TAPD.FinalizeBatchResponse> => {
   const { mint } = await getRpc(args.node);
   return await mint.finalizeBatch();
 };
 
 const newAddress = async (args: {
   node: TapdNode;
-  req: TARO.NewAddrRequestPartial;
-}): Promise<TARO.Addr> => {
+  req: TAPD.NewAddrRequestPartial;
+}): Promise<TAPD.Addr> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.newAddr(args.req);
 };
 
 const sendAsset = async (args: {
   node: TapdNode;
-  req: TARO.SendAssetRequestPartial;
-}): Promise<TARO.SendAssetResponse> => {
+  req: TAPD.SendAssetRequestPartial;
+}): Promise<TAPD.SendAssetResponse> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.sendAsset(args.req);
 };
 
 const decodeAddress = async (args: {
   node: TapdNode;
-  req: TARO.DecodeAddrRequestPartial;
-}): Promise<TARO.Addr> => {
+  req: TAPD.DecodeAddrRequestPartial;
+}): Promise<TAPD.Addr> => {
   const { taprootAssets } = await getRpc(args.node);
   return await taprootAssets.decodeAddr(args.req);
 };
 
-const assetRoots = async (args: { node: TapdNode }): Promise<TARO.AssetRootResponse> => {
+const assetRoots = async (args: { node: TapdNode }): Promise<TAPD.AssetRootResponse> => {
   const { universe } = await getRpc(args.node);
   return await universe.assetRoots({ withAmountsById: true });
 };
 
 const assetLeaves = async (args: {
   node: TapdNode;
-  req: TARO.IDPartial;
-}): Promise<TARO.AssetLeafResponse> => {
+  req: TAPD.IDPartial;
+}): Promise<TAPD.AssetLeafResponse> => {
   const { universe } = await getRpc(args.node);
   return await universe.assetLeaves(args.req);
 };
 
 const syncUniverse = async (args: {
   node: TapdNode;
-  req: TARO.SyncRequestPartial;
-}): Promise<TARO.SyncResponse> => {
+  req: TAPD.SyncRequestPartial;
+}): Promise<TAPD.SyncResponse> => {
   const { universe } = await getRpc(args.node);
   return await universe.syncUniverse(args.req);
+};
+
+const fundChannel = async (args: {
+  node: TapdNode;
+  req: TAPD.FundChannelRequestPartial;
+}): Promise<TAPD.FundChannelResponse> => {
+  const { channels } = await getRpc(args.node);
+  return await channels.fundChannel(args.req);
 };
 
 /**
@@ -126,6 +134,7 @@ const listeners: {
   [ipcChannels.tapd.assetRoots]: assetRoots,
   [ipcChannels.tapd.assetLeaves]: assetLeaves,
   [ipcChannels.tapd.syncUniverse]: syncUniverse,
+  [ipcChannels.tapd.fundChannel]: fundChannel,
 };
 
 /**
