@@ -122,6 +122,21 @@ class TapdService implements TapService {
     return await proxy.syncUniverse(this.cast(node), { universeHost });
   }
 
+  async fundChannel(
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    amount: number,
+  ): Promise<TAP.FundChannelResponse> {
+    const req: TAP.FundChannelRequestPartial = {
+      peerPubkey: Buffer.from(peerPubkey, 'hex'),
+      assetId: Buffer.from(assetId, 'hex'),
+      assetAmount: amount,
+      feeRateSatPerVbyte: 50,
+    };
+    return await proxy.fundChannel(this.cast(node), req);
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out

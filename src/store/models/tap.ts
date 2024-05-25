@@ -1,6 +1,7 @@
 import * as TAP from '@lightningpolar/tapd-api';
 import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
 import { BitcoinNode, LightningNode, Status, TapdNode, TapNode } from 'shared/types';
+import * as PLN from 'lib/lightning/types';
 import * as PTAP from 'lib/tap/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
@@ -52,6 +53,13 @@ export interface DecodeAddressPayload {
   address: string;
 }
 
+export interface FundChannelPayload {
+  from: TapNode;
+  to: LightningNode;
+  assetId: string;
+  amount: number;
+}
+
 export interface TapModel {
   nodes: TapNodeMapping;
   removeNode: Action<TapModel, string>;
@@ -88,6 +96,7 @@ export interface TapModel {
     RootModel,
     Promise<PTAP.TapAddress & { name?: string }>
   >;
+  fundChannel: Thunk<TapModel, FundChannelPayload, StoreInjections, RootModel>;
 }
 
 const tapModel: TapModel = {
@@ -258,6 +267,42 @@ const tapModel: TapModel = {
         a => a.id === res.id,
       )?.name;
       return { ...res, name };
+    },
+  ),
+  fundChannel: thunk(
+    async (
+      actions,
+      { from, to, assetId, amount },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      const assetBalance = getStoreState().tap.nodes[from.name]?.balances?.find(
+        b => b.id === assetId,
+      )?.balance;
+      if (assetBalance && parseInt(assetBalance) < amount) {
+        throw new Error(`Capacity cannot exceed the asset balance of ${assetBalance}`);
+      }
+      // get the pubkey of the destination node
+      const toNode = getStoreState().lightning.nodes[to.name];
+      if (!toNode || !toNode.info) await getStoreActions().lightning.getInfo(to);
+      // cast because it should never be undefined after calling getInfo above
+      const { pubkey } = getStoreState().lightning.nodes[to.name]
+        .info as PLN.LightningNodeInfo;
+      // open the channel via the tap node
+      const api = injections.tapFactory.getService(from);
+      await api.fundChannel(from, pubkey, assetId, amount);
+      // wait for the unconfirmed tx to be processed by the bitcoin node
+      await delay(500);
+      // mine some blocks to confirm the txn
+      const network = getStoreState().network.networkById(from.networkId);
+      const btcNode = network.nodes.bitcoin[0];
+      await getStoreActions().bitcoind.mine({
+        blocks: BLOCKS_TIL_CONFIRMED,
+        node: btcNode,
+      });
+      // add a small delay to allow nodes to process the mined blocks
+      await delay(2000);
+      // synchronize the chart with the new channel
+      await getStoreActions().designer.syncChart(network);
     },
   ),
   mineListener: thunkOn(

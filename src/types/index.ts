@@ -205,6 +205,12 @@ export interface TapService {
   ) => Promise<PTAP.TapAddress>;
   assetRoots: (node: TapNode) => Promise<PTAP.TapAssetRoot[]>;
   syncUniverse: (node: TapNode, universeHost: string) => Promise<TAP.SyncResponse>;
+  fundChannel: (
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    amount: number,
+  ) => Promise<TAP.FundChannelResponse>;
 }
 
 export interface TapFactoryInjection {
