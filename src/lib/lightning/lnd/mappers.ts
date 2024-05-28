@@ -1,9 +1,10 @@
-import { Channel, PendingChannel } from '@radar/lnrpc';
+import * as LND from '@lightningpolar/lnd-api';
+import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNodeChannel } from 'lib/lightning/types';
 
 const txid = (channelPoint: string) => channelPoint.split(':')[0];
 
-export const mapOpenChannel = (chan: Channel): LightningNodeChannel => ({
+export const mapOpenChannel = (chan: LND.Channel): LightningNodeChannel => ({
   pending: false,
   uniqueId: txid(chan.channelPoint).slice(-12),
   channelPoint: chan.channelPoint,

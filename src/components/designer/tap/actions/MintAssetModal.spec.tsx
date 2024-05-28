@@ -115,6 +115,9 @@ describe('MintAssetModal', () => {
           batchKey: Buffer.from('mocked success!'),
           assets: [],
           state: 'BATCH_STATE_FINALIZED',
+          batchPsbt: Buffer.from(''),
+          heightHint: 0,
+          createdAt: '',
         },
       });
 

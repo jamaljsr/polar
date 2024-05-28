@@ -1,5 +1,6 @@
 import { debug } from 'electron-log';
-import * as LND from '@radar/lnrpc';
+import * as LND from '@lightningpolar/lnd-api';
+import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNode, LndNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
@@ -44,8 +45,8 @@ class LndService implements LightningService {
       waitingCloseChannels: waitingClose,
     } = await proxy.pendingChannels(this.cast(node));
 
-    const pluckChan = (c: any) => c.channel as LND.PendingChannel;
-    const isChanInitiatorLocal = (c: LND.PendingChannel) =>
+    const pluckChan = (c: any) => c.channel as PendingChannel;
+    const isChanInitiatorLocal = (c: PendingChannel) =>
       c.initiator === LND.Initiator.INITIATOR_LOCAL;
     // merge all of the channel types into one array
     return [
@@ -109,7 +110,7 @@ class LndService implements LightningService {
     const [toPubKey] = toRpcUrl.split('@');
 
     // open channel
-    const req: LND.OpenChannelRequest = {
+    const req: LND.OpenChannelRequestPartial = {
       nodePubkeyString: toPubKey,
       localFundingAmount: amount,
       private: isPrivate,
@@ -123,7 +124,7 @@ class LndService implements LightningService {
 
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
     const [txid, txindex] = channelPoint.split(':');
-    const req: LND.CloseChannelRequest = {
+    const req: LND.CloseChannelRequestPartial = {
       channelPoint: {
         fundingTxidBytes: Buffer.from(txid),
         fundingTxidStr: txid,
@@ -138,7 +139,7 @@ class LndService implements LightningService {
     amount: number,
     memo?: string,
   ): Promise<string> {
-    const req: LND.Invoice = {
+    const req: LND.InvoicePartial = {
       value: amount.toString(),
       memo,
     };
@@ -151,7 +152,7 @@ class LndService implements LightningService {
     invoice: string,
     amount?: number,
   ): Promise<PLN.LightningNodePayReceipt> {
-    const req: LND.SendRequest = {
+    const req: LND.SendRequestPartial = {
       paymentRequest: invoice,
       amt: amount ? amount.toString() : undefined,
     };

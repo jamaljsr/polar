@@ -14,7 +14,6 @@
     "shell-env",
     "webpack",
     "webpack-dev-server",
-    "@radar/lnrpc",
     "electron",
     "electron-is-dev",
     "docker-compose",
