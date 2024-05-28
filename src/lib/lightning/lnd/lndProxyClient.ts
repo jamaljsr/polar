@@ -1,4 +1,4 @@
-import * as LND from '@radar/lnrpc';
+import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels } from 'shared';
 import { LndNode } from 'shared/types';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
@@ -26,24 +26,24 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.listPeers, { node });
   }
 
-  async connectPeer(node: LndNode, req: LND.ConnectPeerRequest): Promise<void> {
+  async connectPeer(node: LndNode, req: LND.ConnectPeerRequestPartial): Promise<void> {
     await this.ipc(ipcChannels.connectPeer, { node, req });
   }
 
   async openChannel(
     node: LndNode,
-    req: LND.OpenChannelRequest,
+    req: LND.OpenChannelRequestPartial,
   ): Promise<LND.ChannelPoint> {
     return await this.ipc(ipcChannels.openChannel, { node, req });
   }
 
-  async closeChannel(node: LndNode, req: LND.CloseChannelRequest): Promise<any> {
+  async closeChannel(node: LndNode, req: LND.CloseChannelRequestPartial): Promise<any> {
     return await this.ipc(ipcChannels.closeChannel, { node, req });
   }
 
   async listChannels(
     node: LndNode,
-    req: LND.ListChannelsRequest,
+    req: LND.ListChannelsRequestPartial,
   ): Promise<LND.ListChannelsResponse> {
     return await this.ipc(ipcChannels.listChannels, { node, req });
   }
@@ -52,15 +52,21 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.pendingChannels, { node });
   }
 
-  async createInvoice(node: LndNode, req: LND.Invoice): Promise<LND.AddInvoiceResponse> {
+  async createInvoice(
+    node: LndNode,
+    req: LND.InvoicePartial,
+  ): Promise<LND.AddInvoiceResponse> {
     return await this.ipc(ipcChannels.createInvoice, { node, req });
   }
 
-  async payInvoice(node: LndNode, req: LND.SendRequest): Promise<LND.SendResponse> {
+  async payInvoice(
+    node: LndNode,
+    req: LND.SendRequestPartial,
+  ): Promise<LND.SendResponse> {
     return await this.ipc(ipcChannels.payInvoice, { node, req });
   }
 
-  async decodeInvoice(node: LndNode, req: LND.PayReqString): Promise<LND.PayReq> {
+  async decodeInvoice(node: LndNode, req: LND.PayReqStringPartial): Promise<LND.PayReq> {
     return await this.ipc(ipcChannels.decodeInvoice, { node, req });
   }
 

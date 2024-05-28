@@ -1,6 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import createLndRpc, * as LND from '@radar/lnrpc';
+import { readFile } from 'fs-extra';
+import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
 
@@ -18,52 +19,52 @@ export const initLndSubscriptions = (
 };
 
 /**
- * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
+ * mapping of node name <-> LndRpcApis to cache these objects. The getRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
 let rpcCache: {
-  [key: string]: LND.LnRpc;
+  [key: string]: LND.LndRpcApis;
 } = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
+const getRpc = async (node: LndNode): Promise<LND.LndRpcApis> => {
   const { name, ports, paths, networkId } = node;
   // TODO: use node unique id for caching since is an application level global variable
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
-    const config = {
-      server: `127.0.0.1:${ports.grpc}`,
-      tls: paths.tlsCert,
-      macaroonPath: paths.adminMacaroon,
+    const config: LND.LndClientOptions = {
+      socket: `127.0.0.1:${ports.grpc}`,
+      cert: (await readFile(paths.tlsCert)).toString('hex'),
+      macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
     };
-    rpcCache[id] = await createLndRpc(config);
+    rpcCache[id] = LND.LndClient.create(config);
   }
   return rpcCache[id];
 };
 
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.getInfo();
+  return await rpc.lightning.getInfo();
 };
 
 const walletBalance = async (args: {
   node: LndNode;
 }): Promise<LND.WalletBalanceResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.walletBalance();
+  return await rpc.lightning.walletBalance();
 };
 
 const newAddress = async (args: { node: LndNode }): Promise<LND.NewAddressResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.newAddress();
+  return await rpc.lightning.newAddress();
 };
 
 const listPeers = async (args: { node: LndNode }): Promise<LND.ListPeersResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.listPeers();
+  return await rpc.lightning.listPeers();
 };
 
 const connectPeer = async (args: {
@@ -71,7 +72,7 @@ const connectPeer = async (args: {
   req: LND.ConnectPeerRequest;
 }): Promise<void> => {
   const rpc = await getRpc(args.node);
-  await rpc.connectPeer(args.req);
+  await rpc.lightning.connectPeer(args.req);
 };
 
 const openChannel = async (args: {
@@ -80,7 +81,7 @@ const openChannel = async (args: {
 }): Promise<LND.ChannelPoint> => {
   const rpc = await getRpc(args.node);
   args.req.satPerByte = args.req.satPerByte || '1';
-  return await rpc.openChannelSync(args.req);
+  return await rpc.lightning.openChannelSync(args.req);
 };
 
 const closeChannel = async (args: {
@@ -89,7 +90,7 @@ const closeChannel = async (args: {
 }): Promise<any> => {
   const rpc = await getRpc(args.node);
   // TODO: capture the stream events and push them to the UI
-  rpc.closeChannel(args.req);
+  rpc.lightning.closeChannel(args.req);
 };
 
 const listChannels = async (args: {
@@ -97,14 +98,14 @@ const listChannels = async (args: {
   req: LND.ListChannelsRequest;
 }): Promise<LND.ListChannelsResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.listChannels(args.req);
+  return await rpc.lightning.listChannels(args.req);
 };
 
 const pendingChannels = async (args: {
   node: LndNode;
 }): Promise<LND.PendingChannelsResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.pendingChannels();
+  return await rpc.lightning.pendingChannels();
 };
 
 const createInvoice = async (args: {
@@ -112,7 +113,7 @@ const createInvoice = async (args: {
   req: LND.Invoice;
 }): Promise<LND.AddInvoiceResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.addInvoice(args.req);
+  return await rpc.lightning.addInvoice(args.req);
 };
 
 const payInvoice = async (args: {
@@ -120,7 +121,7 @@ const payInvoice = async (args: {
   req: LND.SendRequest;
 }): Promise<LND.SendResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.sendPaymentSync(args.req);
+  return await rpc.lightning.sendPaymentSync(args.req);
 };
 
 const decodeInvoice = async (args: {
@@ -128,14 +129,14 @@ const decodeInvoice = async (args: {
   req: LND.PayReqString;
 }): Promise<LND.PayReq> => {
   const rpc = await getRpc(args.node);
-  return await rpc.decodePayReq(args.req);
+  return await rpc.lightning.decodePayReq(args.req);
 };
 
 const subscribeChannelEvents = async (args: { node: LndNode }): Promise<any> => {
   try {
     const rpc = await getRpc(args.node);
     const responseChan = `lnd-${ipcChannels.subscribeChannelEvents}-response-${args.node.ports.rest}`;
-    const stream = rpc.subscribeChannelEvents();
+    const stream = rpc.lightning.subscribeChannelEvents();
     if (stream) {
       stream.on('data', (data: LND.ChannelEventUpdate) => {
         handleEventCallback(responseChan, data);

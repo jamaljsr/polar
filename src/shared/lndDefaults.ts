@@ -1,5 +1,11 @@
-import * as LND from '@radar/lnrpc';
+import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels } from './';
+
+export type PendingChannel = LND._lnrpc_PendingChannelsResponse_PendingChannel;
+export type PendingOpenChannel = LND._lnrpc_PendingChannelsResponse_PendingOpenChannel;
+export type ClosedChannel = LND._lnrpc_PendingChannelsResponse_ClosedChannel;
+export type ForceClosedChannel = LND._lnrpc_PendingChannelsResponse_ForceClosedChannel;
+export type WaitingCloseChannel = LND._lnrpc_PendingChannelsResponse_WaitingCloseChannel;
 
 const mapArray = <T>(arr: T[], func: (value: T) => T) => (arr || []).map(func);
 
@@ -24,6 +30,8 @@ export const defaultLndInfo = (
   color: '',
   features: [],
   commitHash: '',
+  requireHtlcInterceptor: false,
+  storeFinalHtlcResolutions: false,
   ...value,
 });
 
@@ -33,6 +41,9 @@ export const defaultLndWalletBalance = (
   confirmedBalance: '0',
   totalBalance: '0',
   unconfirmedBalance: '0',
+  accountBalance: {},
+  lockedBalance: '0',
+  reservedBalanceAnchorChan: '',
   ...value,
 });
 
@@ -46,8 +57,8 @@ export const defaultLndListPeers = (
 export const defaultLndChannelPoint = (
   value: Partial<LND.ChannelPoint>,
 ): LND.ChannelPoint => ({
-  fundingTxidBytes: '',
   fundingTxidStr: '',
+  fundingTxid: 'fundingTxidStr',
   outputIndex: 0,
   ...value,
 });
@@ -75,12 +86,21 @@ export const defaultLndChannel = (value: Partial<LND.Channel>): LND.Channel => (
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
   staticRemoteKey: false,
-  lifetime: 0,
-  uptime: 0,
+  lifetime: '0',
+  uptime: '0',
   closeAddress: '',
-  commitmentType: 1, // LND.CommitmentType.STATIC_REMOTE_KEY
-  pushAmountSat: 0,
+  commitmentType: LND.CommitmentType.STATIC_REMOTE_KEY,
+  pushAmountSat: '0',
   thawHeight: 0,
+  localConstraints: null,
+  remoteConstraints: null,
+  aliasScids: [],
+  zeroConf: false,
+  zeroConfConfirmedScid: '',
+  peerAlias: '',
+  peerScidAlias: '',
+  memo: '',
+  customChannelData: Buffer.from(''),
   ...value,
 });
 
@@ -91,8 +111,8 @@ export const defaultLndListChannels = (
 });
 
 export const defaultLndPendingChannel = (
-  value: Partial<LND.PendingChannel>,
-): LND.PendingChannel => ({
+  value: Partial<PendingChannel>,
+): PendingChannel => ({
   remoteNodePub: '',
   channelPoint: '',
   capacity: '0',
@@ -100,18 +120,23 @@ export const defaultLndPendingChannel = (
   remoteBalance: '0',
   localChanReserveSat: '0',
   remoteChanReserveSat: '0',
-  initiator: 1, // LND.Initiator.INITIATOR_LOCAL
-  commitmentType: 1, // LND.CommitmentType.STATIC_REMOTE_KEY
+  initiator: LND.Initiator.INITIATOR_LOCAL,
+  commitmentType: LND.CommitmentType.STATIC_REMOTE_KEY,
+  numForwardingPackages: '',
+  chanStatusFlags: '',
+  private: false,
+  memo: '',
+  customChannelData: Buffer.from(''),
   ...value,
 });
 
 export const defaultLndPendingOpenChannel = (
-  value: Partial<LND.PendingOpenChannel>,
-): LND.PendingOpenChannel => {
+  value: Partial<PendingOpenChannel>,
+): PendingOpenChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
-    confirmationHeight: 0,
+    channel: defaultLndPendingChannel(channel as PendingChannel),
+    fundingExpiryBlocks: 0,
     commitFee: '0',
     commitWeight: '0',
     feePerKw: '0',
@@ -119,41 +144,42 @@ export const defaultLndPendingOpenChannel = (
   };
 };
 
-export const defaultLndClosedChannel = (
-  value: Partial<LND.ClosedChannel>,
-): LND.ClosedChannel => {
+export const defaultLndClosedChannel = (value: Partial<ClosedChannel>): ClosedChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as PendingChannel),
     closingTxid: '',
     ...rest,
   };
 };
 
 export const defaultLndForceClosedChannel = (
-  value: Partial<LND.ForceClosedChannel>,
-): LND.ForceClosedChannel => {
+  value: Partial<ForceClosedChannel>,
+): ForceClosedChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as PendingChannel),
     closingTxid: '',
     limboBalance: '0',
     maturityHeight: 0,
     blocksTilMaturity: 0,
     recoveredBalance: '0',
     pendingHtlcs: [],
-    anchor: 0, // LND.AnchorState.LIMBO
+    anchor: 'LIMBO',
     ...rest,
   };
 };
 
 export const defaultLndWaitingCloseChannel = (
-  value: Partial<LND.WaitingCloseChannel>,
-): LND.WaitingCloseChannel => {
+  value: Partial<WaitingCloseChannel>,
+): WaitingCloseChannel => {
   const { channel, ...rest } = value;
   return {
-    channel: defaultLndPendingChannel(channel as LND.PendingChannel),
+    channel: defaultLndPendingChannel(channel as PendingChannel),
     limboBalance: '0',
+    commitments: null,
+    closingTxHex: '',
+    closingTxid: '',
     ...rest,
   };
 };

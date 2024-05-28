@@ -319,7 +319,8 @@ const lightningModel: LightningModel = {
       // throttle the sync to avoid too many back to back requests
       const syncThrottled = throttle(
         () => {
-          const net = getStoreState().network.networkById(network.id);
+          const net = getStoreState().network.networks.find(n => n.id === network.id);
+          if (!net) return;
           getStoreActions().designer.syncChart(net);
         },
         5 * 1000,
