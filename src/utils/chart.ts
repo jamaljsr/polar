@@ -14,6 +14,7 @@ export interface LinkProperties {
   direction: 'ltr' | 'rtl';
   status: string;
   isPrivate: boolean;
+  assets?: LightningNodeChannel['assets'];
 }
 
 export const rotate = (
@@ -232,7 +233,7 @@ const updateLinksAndPorts = (
     ...(fromNode.ports[chanId] || {}),
     id: chanId,
     type: fromOnLeftSide ? 'right' : 'left',
-    properties: { nodeId: fromNode.id, initiator: true },
+    properties: { nodeId: fromNode.id, initiator: true, hasAssets: !!chan.assets },
   };
 
   // create or update the port on the to node
@@ -252,6 +253,7 @@ const updateLinksAndPorts = (
     direction: fromOnLeftSide ? 'ltr' : 'rtl',
     status: chan.status,
     isPrivate: chan.isPrivate,
+    assets: chan.assets,
   };
 
   // create or update the link
