@@ -178,17 +178,30 @@ class DockerService implements DockerLibrary {
     const nodes = new Set();
     const activities = new Set();
     network.simulationActivities.map(activity => {
+      const { source, destination } = activity;
+      // split the macaroon and cert path at "volumes/" to get the relative path
+      // to the docker volume. This is necessary because the docker volumes are
+      // mounted as a different path in the container
+      const sourceMacaroon = source.macaroon.split('volumes/').pop();
+      const sourceCert = source?.tlsCert
+        ? source.tlsCert?.split('volumes/').pop()
+        : source?.clientKey?.split('volumes/').pop();
+      const destMacaroon = destination.macaroon.split('volumes/').pop();
+      const destCert = destination.tlsCert
+        ? destination.tlsCert?.split('volumes/').pop()
+        : destination?.clientKey?.split('volumes/').pop();
+      info({ sourceMacaroon, sourceCert, destMacaroon, destCert });
       nodes.add({
         id: activity.source.id,
         address: activity.source.address,
-        macaroon: activity.source.macaroon,
-        cert: activity.source.clientCert ?? activity.source.clientKey,
+        macaroon: `/home/simln/.${sourceMacaroon}`,
+        cert: `/home/simln/.${sourceCert}`,
       });
       nodes.add({
         id: activity.destination.id,
         address: activity.destination.address,
-        macaroon: activity.destination.macaroon,
-        cert: activity.destination.clientCert ?? activity.destination.clientKey,
+        macaroon: `/home/simln/.${destMacaroon}`,
+        cert: `/home/simln/.${destCert}`,
       });
 
       activities.add({
@@ -200,7 +213,7 @@ class DockerService implements DockerLibrary {
     });
     return {
       nodes: Array.from(nodes),
-      activities: Array.from(activities) as SimulationActivity[],
+      activity: Array.from(activities) as SimulationActivity[],
     };
   }
 
@@ -210,8 +223,9 @@ class DockerService implements DockerLibrary {
    */
   async startSimulationActivity(network: Network) {
     const simJson = await this.constructSimJson(network);
-    console.log('simJson', simJson);
-    info(`simJson:  ${simJson}`);
+    info(
+      `simJson:  ${simJson} simJson.nodes: ${simJson.nodes} simJson.activities: ${simJson.activity}`,
+    );
     await this.ensureDirs(network, [
       ...network.nodes.bitcoin,
       ...network.nodes.lightning,
@@ -234,8 +248,12 @@ class DockerService implements DockerLibrary {
     info(`Simulation activity stopped:\n ${result.out || result.err}`);
 
     // remove container to avoid conflicts when starting the network again
-    await this.execute(compose.rm as any, this.getArgs(network), 'simln');
-    info(`Removed simln container`);
+    const removedContainer = await this.execute(
+      compose.rm as any,
+      this.getArgs(network),
+      'simln',
+    );
+    info(`Removed simln container ${removedContainer.out || removedContainer.err}`);
   }
 
   /**

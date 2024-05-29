@@ -186,9 +186,10 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
 
   useEffect(() => {
     isSimulationContainerRunning().then(isRunning => {
+      console.log('isRunning', isRunning);
       setIsStartSimulationActive(isRunning);
     });
-  }, []);
+  }, [isSimulationContainerRunning]);
 
   const startSimulationActivity = () => {
     if (network.status !== Status.Started) {
