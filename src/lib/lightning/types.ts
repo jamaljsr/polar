@@ -41,6 +41,13 @@ export interface LightningNodeChannel {
     | 'Closed'
     | 'Error';
   isPrivate: boolean;
+  assets?: {
+    id: string;
+    name: string;
+    capacity: string;
+    localBalance: string;
+    remoteBalance: string;
+  }[];
 }
 
 export interface LightningNodeChannelPoint {

@@ -48,7 +48,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
 
   // memoize these calculations for a bit of perf
   const { leftStop, rightStop, leftColor, rightColor, opacity } = useMemo(() => {
-    const [blue, green, orange] = ['#6495ED', '#52c41a', '#fa8c16'];
+    const [blue, yellow, orange, purple] = ['#3f9713', '#decf00', '#fa8c16', '#5D5FEF'];
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes
@@ -56,33 +56,41 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
     let rightColor = theme.link.default;
     let opacity = 1;
     if (link.properties) {
-      const { type, direction, toBalance, capacity, isPrivate } =
+      const { type, direction, toBalance, capacity, isPrivate, assets } =
         link.properties as LinkProperties;
 
-      if (isPrivate) opacity = 0.5;
+      if (isPrivate && !assets) opacity = 0.5;
 
       if (type === 'open-channel') {
-        // convert numeric strings to BigInts
-        const [to, total] = [toBalance, capacity].map(BigInt);
+        let primaryColor = orange;
+        let to = BigInt(toBalance);
+        let total = BigInt(capacity);
+        // use the first asset if available
+        if (assets?.length) {
+          to = BigInt(assets[0].remoteBalance);
+          total = BigInt(assets[0].capacity);
+          primaryColor = purple;
+        }
         // calculate the pct of the channel on the remote side
         const split = Number((to * BigInt(100)) / total);
         // swap colors and stops if the visual direction of the chanel is right to left
         if (direction === 'rtl') {
-          // show green from the right initiator node to left
+          // show primary color from the right initiator node to left
           leftColor = blue;
-          rightColor = green;
+          rightColor = primaryColor;
           leftStop = Math.max(split - 3, 0);
           rightStop = Math.min(split + 3, 100);
         } else {
-          // show green from the left initiator node to right
-          leftColor = green;
+          // show primary color from the left initiator node to right
+          leftColor = primaryColor;
           rightColor = blue;
           leftStop = Math.max(100 - split - 3, 0);
           rightStop = Math.min(100 - split + 3, 100);
         }
       } else if (type === 'pending-channel') {
-        leftColor = orange;
-        rightColor = orange;
+        leftColor = yellow;
+        rightColor = yellow;
+        // opacity = 0.5;
       }
     }
     return {

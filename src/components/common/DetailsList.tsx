@@ -60,7 +60,7 @@ export type DetailValues = {
 
 interface Props {
   details: DetailValues;
-  title?: string;
+  title?: React.ReactNode;
   oneCol?: boolean;
   className?: string;
 }
