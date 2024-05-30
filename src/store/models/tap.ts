@@ -1,5 +1,14 @@
 import * as TAP from '@lightningpolar/tapd-api';
-import { action, Action, thunk, Thunk, thunkOn, ThunkOn } from 'easy-peasy';
+import {
+  action,
+  Action,
+  computed,
+  Computed,
+  thunk,
+  Thunk,
+  thunkOn,
+  ThunkOn,
+} from 'easy-peasy';
 import { BitcoinNode, LightningNode, Status, TapdNode, TapNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import * as PTAP from 'lib/tap/types';
@@ -62,6 +71,7 @@ export interface FundChannelPayload {
 
 export interface TapModel {
   nodes: TapNodeMapping;
+  allAssetRoots: Computed<TapModel, PTAP.TapAssetRoot[], RootModel>;
   removeNode: Action<TapModel, string>;
   clearNodes: Action<TapModel, void>;
   setAssets: Action<TapModel, { node: TapNode; assets: PTAP.TapAsset[] }>;
@@ -102,6 +112,18 @@ export interface TapModel {
 const tapModel: TapModel = {
   // state properties
   nodes: {},
+  // computed properties
+  allAssetRoots: computed(state => {
+    // map by asset id to dedupe
+    const assets: Record<string, PTAP.TapAssetRoot> = {};
+    // collect assets from all tap nodes in the network
+    Object.values(state.nodes).forEach(node => {
+      node.assetRoots?.forEach(r => {
+        assets[r.id] = r;
+      });
+    });
+    return Object.values(assets);
+  }),
   // reducer actions (mutations allowed thx to immer)
   removeNode: action((state, name) => {
     if (state.nodes[name]) {
@@ -197,7 +219,7 @@ const tapModel: TapModel = {
     const { node, hostname } = payload;
     const api = injections.tapFactory.getService(node);
     const res = await api.syncUniverse(node, hostname);
-    await actions.getAssetRoots(node);
+    await actions.getAllInfo(node);
     return res.syncedUniverses.length;
   }),
   getNewAddress: thunk(async (actions, payload, { injections }) => {

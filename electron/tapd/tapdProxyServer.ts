@@ -117,6 +117,14 @@ const fundChannel = async (args: {
   return await channels.fundChannel(args.req);
 };
 
+const addAssetBuyOrder = async (args: {
+  node: TapdNode;
+  req: TAPD.AddAssetBuyOrderRequestPartial;
+}): Promise<TAPD.AddAssetBuyOrderResponse> => {
+  const { rfq } = await getRpc(args.node);
+  return await rfq.addAssetBuyOrder(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -135,6 +143,7 @@ const listeners: {
   [ipcChannels.tapd.assetLeaves]: assetLeaves,
   [ipcChannels.tapd.syncUniverse]: syncUniverse,
   [ipcChannels.tapd.fundChannel]: fundChannel,
+  [ipcChannels.tapd.addAssetBuyOrder]: addAssetBuyOrder,
 };
 
 /**

@@ -127,14 +127,38 @@ class TapdService implements TapService {
     peerPubkey: string,
     assetId: string,
     amount: number,
-  ): Promise<TAP.FundChannelResponse> {
+  ): Promise<string> {
     const req: TAP.FundChannelRequestPartial = {
       peerPubkey: Buffer.from(peerPubkey, 'hex'),
       assetId: Buffer.from(assetId, 'hex'),
       assetAmount: amount,
       feeRateSatPerVbyte: 50,
     };
-    return await proxy.fundChannel(this.cast(node), req);
+    const { txid } = await proxy.fundChannel(this.cast(node), req);
+    return txid;
+  }
+
+  async addAssetBuyOrder(
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    amount: number,
+  ): Promise<PTAP.BuyOrder> {
+    const req: TAP.AddAssetBuyOrderRequestPartial = {
+      peerPubKey: Buffer.from(peerPubkey, 'hex'),
+      assetSpecifier: {
+        assetId: Buffer.from(assetId, 'hex'),
+      },
+      minAssetAmount: amount,
+      expiry: Date.now() / 1000 + 300, // 5 minutes from now
+      timeoutSeconds: 60, // 1 minute
+    };
+    const res = await proxy.addAssetBuyOrder(this.cast(node), req);
+    const acceptedQuote = res.acceptedQuote as TAP.PeerAcceptedBuyQuote;
+    return {
+      askPrice: acceptedQuote.askPrice,
+      scid: acceptedQuote.scid,
+    };
   }
 
   /**
