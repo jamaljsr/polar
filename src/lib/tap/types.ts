@@ -46,6 +46,11 @@ export interface TapAssetRoot {
   rootSum: number;
 }
 
+export interface BuyOrder {
+  askPrice: string;
+  scid: string;
+}
+
 export enum TAP_ASSET_TYPE {
   NORMAL = 'NORMAL',
   COLLECTIBLE = 'COLLECTIBLE',

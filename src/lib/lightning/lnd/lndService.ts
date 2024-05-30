@@ -138,11 +138,24 @@ class LndService implements LightningService {
     node: LightningNode,
     amount: number,
     memo?: string,
+    hopHint?: {
+      nodeId: string;
+      chanId: string;
+      msats: string;
+    },
   ): Promise<string> {
     const req: LND.InvoicePartial = {
       value: amount.toString(),
       memo,
     };
+    // hop hints are used for creating TAP invoices
+    if (hopHint) {
+      req.value = undefined;
+      req.valueMsat = hopHint.msats;
+      req.routeHints = [
+        { hopHints: [{ nodeId: hopHint.nodeId, chanId: hopHint.chanId }] },
+      ];
+    }
     const res = await proxy.createInvoice(this.cast(node), req);
     return res.paymentRequest;
   }

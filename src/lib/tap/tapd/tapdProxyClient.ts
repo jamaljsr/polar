@@ -71,6 +71,13 @@ class TapdProxyClient {
   ): Promise<TAP.FundChannelResponse> {
     return await this.ipc(ipcChannels.tapd.fundChannel, { node, req });
   }
+
+  async addAssetBuyOrder(
+    node: TapdNode,
+    req: TAP.AddAssetBuyOrderRequestPartial,
+  ): Promise<TAP.AddAssetBuyOrderResponse> {
+    return await this.ipc(ipcChannels.tapd.addAssetBuyOrder, { node, req });
+  }
 }
 
 export default new TapdProxyClient();
