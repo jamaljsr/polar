@@ -10,7 +10,8 @@ import { Network } from 'types';
 import { Loader, RenameNodeModal } from 'components/common';
 import AdvancedOptionsModal from 'components/common/AdvancedOptionsModal';
 import SendOnChainModal from './bitcoind/actions/SendOnChainModal';
-import { CanvasOuterDark, Link, NodeInner, Port, Ports } from './custom';
+import { Link, NodeInner, Port, Ports } from './custom';
+import { CanvasOuterDark, CanvasOuterLight } from './custom/CanvasOuter';
 import {
   ChangeBackendModal,
   CreateInvoiceModal,
@@ -83,7 +84,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
         chart={chart}
         config={{ snapToGrid: true }}
         Components={{
-          CanvasOuter: theme.name === 'dark' ? CanvasOuterDark : undefined,
+          CanvasOuter: theme.name === 'dark' ? CanvasOuterDark : CanvasOuterLight,
           NodeInner,
           Link,
           Port,

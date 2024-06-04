@@ -40,7 +40,8 @@ const CustomPort: React.FC<IPortDefaultProps> = ({
   let tip = '';
   if (port.properties) {
     const { initiator, hasAssets } = port.properties;
-    color = initiator ? (hasAssets ? '#5D5FEF' : '#fa8c16') : '#3f9713';
+    const colors = hasAssets ? theme.channel.asset : theme.channel.bitcoin;
+    color = initiator ? colors.local : colors.remote;
     tip = initiator ? 'Source' : 'Destination';
   }
   return (
