@@ -239,11 +239,8 @@ class DockerService implements DockerLibrary {
    * @param newName the new name for the node and directory
    */
   async renameNodeDir(network: Network, node: AnyNode, newName: string) {
-    const volumeDir = (node as AnyNode).implementation
-      .toLocaleLowerCase()
-      .replace('-', '');
     const oldPath = nodePath(network, node.implementation, node.name);
-    const newPath = join(network.path, 'volumes', volumeDir, newName);
+    const newPath = nodePath(network, node.implementation, newName);
 
     renameFile(oldPath, newPath);
   }

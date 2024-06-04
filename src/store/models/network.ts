@@ -998,23 +998,19 @@ const networkModel: NetworkModel = {
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
 
+      await injections.dockerService.renameNodeDir(network, node, newName);
+
       await renameNode(network, node, newName);
       await getStoreActions().designer.renameNode({
         name: newName,
         nodeId: oldNodeName,
       });
 
-      await injections.dockerService.renameNodeDir(network, node, newName);
-
+      actions.setNetworks([...networks]);
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
       if (wasStarted) {
-        actions.setNetworks([...networks]);
-        await actions.save();
-        await injections.dockerService.saveComposeFile(network);
         await actions.start(node.networkId);
-      } else {
-        actions.setNetworks([...networks]);
-        await actions.save();
-        await injections.dockerService.saveComposeFile(network);
       }
     },
   ),

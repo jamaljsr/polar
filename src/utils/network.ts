@@ -526,12 +526,12 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
     case 'lightning':
       switch (node.implementation) {
         case 'LND':
-          updatedNode = network?.nodes.lightning.find(n => n.id === node.id) as LndNode;
+          updatedNode = network.nodes.lightning.find(n => n.id === node.id) as LndNode;
           updatedNode.name = newName;
           updatedNode.paths = getLndFilePaths(newName, network);
           break;
         case 'c-lightning':
-          updatedNode = network?.nodes.lightning.find(
+          updatedNode = network.nodes.lightning.find(
             n => n.id === node.id,
           ) as CLightningNode;
           const supportsGrpc = updatedNode.ports.grpc !== 0;
@@ -539,9 +539,7 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
           updatedNode.paths = getCLightningFilePaths(newName, supportsGrpc, network);
           break;
         case 'eclair':
-          updatedNode = network?.nodes.lightning.find(
-            n => n.id === node.id,
-          ) as EclairNode;
+          updatedNode = network.nodes.lightning.find(n => n.id === node.id) as EclairNode;
           updatedNode.name = newName;
           break;
       }
