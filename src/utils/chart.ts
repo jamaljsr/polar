@@ -241,7 +241,7 @@ const updateLinksAndPorts = (
     ...(toNode.ports[chanId] || {}),
     id: chanId,
     type: fromOnLeftSide ? 'left' : 'right',
-    properties: { nodeId: toNode.id },
+    properties: { nodeId: toNode.id, initiator: false, hasAssets: !!chan.assets },
   };
 
   const properties: LinkProperties = {
