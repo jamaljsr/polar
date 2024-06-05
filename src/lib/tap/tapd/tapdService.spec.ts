@@ -72,6 +72,8 @@ const sampleAsset: Asset = {
   leaseOwner: Buffer.from(''),
   leaseExpiry: '0',
   isBurn: false,
+  scriptKeyDeclaredKnown: false,
+  scriptKeyHasScriptPath: false,
 };
 
 const sampleBalance: AssetBalance = {
