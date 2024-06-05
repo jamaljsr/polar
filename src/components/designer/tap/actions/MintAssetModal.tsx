@@ -93,6 +93,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
           autoFund: true,
         }}
         onFinish={handleSubmit}
+        disabled={mintAssetAsync.loading}
       >
         <Form.Item name="assetType" label={l('assetType')}>
           <Select<number>
@@ -113,7 +114,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         <Form.Item name="amount" label={l('amount')}>
           <InputNumber<number>
             placeholder={l('amountPlaceholder')}
-            disabled={assetType === 1}
+            disabled={mintAssetAsync.loading || assetType === 1}
             style={{ width: '100%' }}
             formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
@@ -156,7 +157,6 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
           loading: mintAssetAsync.loading,
           disabled: (lowBalance && !autoFund) || assetName.length === 0,
         }}
-        cancelButtonProps={{ disabled: mintAssetAsync.loading }}
         onOk={form.submit}
       >
         {cmp}

@@ -165,7 +165,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
           nodeName={selectedFrom}
           tapNodesState={tapNodes}
           onChange={value =>
-            form.setFieldsValue({ capacity: getAssetBalance(value?.toString()) })
+            form.setFieldsValue({ capacity: getAssetBalance(value?.toString()) / 2 })
           }
         />
       )}
