@@ -15,6 +15,7 @@ export default {
   closeChannel: 'close-channel',
   listChannels: 'list-channels',
   pendingChannels: 'pending-channels',
+  getChanInfo: 'get-chan-info',
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',

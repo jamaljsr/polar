@@ -109,6 +109,14 @@ const pendingChannels = async (args: {
   return await rpc.lightning.pendingChannels();
 };
 
+const getChanInfo = async (args: {
+  node: LndNode;
+  req: LND.ChanInfoRequestPartial;
+}): Promise<LND.ChannelEdge> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.lightning.getChanInfo(args.req);
+};
+
 const createInvoice = async (args: {
   node: LndNode;
   req: LND.Invoice;
@@ -189,6 +197,7 @@ const listeners: {
   [ipcChannels.closeChannel]: closeChannel,
   [ipcChannels.listChannels]: listChannels,
   [ipcChannels.pendingChannels]: pendingChannels,
+  [ipcChannels.getChanInfo]: getChanInfo,
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,

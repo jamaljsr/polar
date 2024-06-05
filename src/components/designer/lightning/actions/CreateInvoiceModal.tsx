@@ -108,14 +108,14 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  const getAssetBalance = useCallback(
-    (value?: string) => {
-      if (!value || !isLitd) return 0;
-      if (value === 'sats') return 50000;
+  const calcAmount = useCallback(
+    (assetId?: string) => {
+      if (!assetId || !isLitd) return 0;
+      if (assetId === 'sats') return 50_000;
 
-      const balance = assets.find(b => b.id === value)?.remoteBalance;
+      const balance = assets.find(b => b.id === assetId)?.remoteBalance;
       if (!balance) return 0;
-      return parseInt(balance);
+      return Math.floor(parseInt(balance) / 2);
     },
     [assets, isLitd],
   );
@@ -157,7 +157,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
             <Select
               disabled={createAsync.loading}
               onChange={value =>
-                form.setFieldsValue({ amount: getAssetBalance(value?.toString()) })
+                form.setFieldsValue({ amount: calcAmount(value?.toString()) })
               }
             >
               <Select.Option value="sats">Bitcoin (sats)</Select.Option>

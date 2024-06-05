@@ -52,6 +52,13 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.pendingChannels, { node });
   }
 
+  async getChanInfo(
+    node: LndNode,
+    req: LND.ChanInfoRequestPartial,
+  ): Promise<LND.ChannelEdge> {
+    return await this.ipc(ipcChannels.getChanInfo, { node, req });
+  }
+
   async createInvoice(
     node: LndNode,
     req: LND.InvoicePartial,

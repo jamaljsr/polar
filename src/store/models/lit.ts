@@ -139,7 +139,7 @@ const litModel: LitModel = {
         .getService(node)
         .createInvoice(node, amount, '', {
           nodeId: peerPubkey,
-          chanId: buyOrder.scid,
+          scid: buyOrder.scid,
           msats: msats.toString(),
         });
       return invoice;
@@ -188,7 +188,7 @@ const litModel: LitModel = {
       const receipt = await lndService.payInvoice(
         node,
         invoice,
-        undefined,
+        Number(BigInt(decoded.amountMsat) / BigInt(1000)),
         customRecords,
       );
 

@@ -151,7 +151,7 @@ class TapdService implements TapService {
         assetId: Buffer.from(assetId, 'hex').toString('base64'),
       },
       minAssetAmount: amount,
-      expiry: Date.now() / 1000 + 300, // 5 minutes from now
+      expiry: Math.floor(Date.now() / 1000 + 300), // 5 minutes from now
       timeoutSeconds: 60, // 1 minute
     };
     const res = await proxy.addAssetBuyOrder(this.cast(node), req);

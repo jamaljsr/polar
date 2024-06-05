@@ -138,9 +138,9 @@ class LndService implements LightningService {
     node: LightningNode,
     amount: number,
     memo?: string,
-    hopHint?: {
+    assetInfo?: {
       nodeId: string;
-      chanId: string;
+      scid: string;
       msats: string;
     },
   ): Promise<string> {
@@ -149,12 +149,13 @@ class LndService implements LightningService {
       memo,
     };
     // hop hints are used for creating TAP invoices
-    if (hopHint) {
+    if (assetInfo) {
+      // set the msats value instead of sats
       req.value = undefined;
-      req.valueMsat = hopHint.msats;
-      req.routeHints = [
-        { hopHints: [{ nodeId: hopHint.nodeId, chanId: hopHint.chanId }] },
-      ];
+      req.valueMsat = assetInfo.msats;
+      // add the hop hint for the asset channel
+      const hopHint = await this.createHopHint(node, assetInfo.nodeId, assetInfo.scid);
+      req.routeHints = [{ hopHints: [hopHint] }];
     }
     const res = await proxy.createInvoice(this.cast(node), req);
     return res.paymentRequest;
@@ -166,16 +167,26 @@ class LndService implements LightningService {
     amount?: number,
     customRecords?: PLN.CustomRecords,
   ): Promise<PLN.LightningNodePayReceipt> {
+    let feeLimitSat = 1000;
+    if (amount && amount > 1000) {
+      feeLimitSat = Math.floor(amount * 0.05);
+    }
     const req: LND.SendPaymentRequestPartial = {
       paymentRequest: invoice,
-      amt: amount ? amount.toString() : undefined,
-      feeLimitSat: amount ? Math.floor(amount * 0.02) : '1000',
+      amt: amount?.toString(),
+      feeLimitSat,
       firstHopCustomRecords: customRecords,
+      timeoutSeconds: 60,
+      maxParts: 16,
     };
-    const res = await proxy.payInvoice(this.cast(node), req);
 
-    // decode the invoice to get additional information to return
+    // don't set an amount if the invoice has one set already
     const payReq = await proxy.decodeInvoice(this.cast(node), { payReq: invoice });
+    if (parseInt(payReq.numSatoshis) > 0) {
+      req.amt = undefined;
+    }
+
+    const res = await proxy.payInvoice(this.cast(node), req);
 
     return {
       amount: parseInt(payReq.numSatoshis),
@@ -238,6 +249,48 @@ class LndService implements LightningService {
 
   async removeListener(node: LightningNode): Promise<void> {
     debug('removeListener LndNode on port: ', node.ports.rest);
+  }
+
+  /**
+   * When creating a TAP invoice, we need to add a hop hint because the channel is private
+   * and the sender will not be able to find a route without it. The hop hint needs to
+   * include additional information about the channel, such as the fee rate and time lock
+   * delta.
+   */
+  private async createHopHint(
+    node: LightningNode,
+    nodeId: string,
+    chanId: string,
+  ): Promise<LND.HopHint> {
+    // find the asset channel with the peer
+    const { channels } = await proxy.listChannels(this.cast(node), {
+      peer: Buffer.from(nodeId, 'hex'),
+    });
+    const channel = channels
+      .map(c => ({ chanId: c.chanId, ...mapOpenChannel(c) }))
+      .find(c => !!c.assets);
+    if (!channel) {
+      throw new Error(`No asset channel found with peer ${nodeId}`);
+    }
+    const info = await proxy.getChanInfo(this.cast(node), {
+      chanId: channel.chanId,
+    });
+    if (!info) {
+      throw new Error(`No channel info found for channel ${channel.chanId}`);
+    }
+
+    const policy = info.node1Pub === nodeId ? info.node1Policy : info.node2Policy;
+    if (!policy) {
+      throw new Error(`No channel policy found for channel ${channel.chanId}`);
+    }
+
+    return {
+      nodeId,
+      chanId,
+      feeBaseMsat: parseInt(policy.feeBaseMsat),
+      feeProportionalMillionths: parseInt(policy.feeRateMilliMsat),
+      cltvExpiryDelta: policy.timeLockDelta,
+    };
   }
 
   private cast(node: LightningNode): LndNode {
