@@ -35,6 +35,8 @@ export default {
     syncUniverse: 'tapd-sync-universe',
     fundChannel: 'tapd-fund-channel',
     addAssetBuyOrder: 'tapd-add-asset-buy-order',
+    addAssetSellOrder: 'tapd-add-asset-sell-order',
+    encodeCustomRecords: 'tapd-encode-custom-records',
   },
   // litd proxy channels
   litd: {

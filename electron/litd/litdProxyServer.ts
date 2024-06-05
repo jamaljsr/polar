@@ -9,6 +9,7 @@ import {
   withLitdDefaults,
 } from '../../src/shared';
 import { LitdNode } from '../../src/shared/types';
+import { toJSON } from '../../src/shared/utils';
 
 /**
  * mapping of node name <-> LitRpcApis to cache these objects. The createLndRpc function
@@ -90,10 +91,7 @@ export const initLitdProxy = (ipc: IpcMain) => {
     debug(`LitdProxyServer: listening for ipc command "${channel}"`);
     ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
-      debug(
-        `LitdProxyServer: received request "${requestChan}"`,
-        JSON.stringify(args, null, 2),
-      );
+      debug(`LitdProxyServer: received request "${requestChan}"`, toJSON(args));
       // inspect the first arg to see if it has a specific channel to reply to
       let uniqueChan = responseChan;
       if (args && args[0] && args[0].replyTo) {
@@ -103,10 +101,7 @@ export const initLitdProxy = (ipc: IpcMain) => {
         // attempt to execute the associated function
         let result = await func(...args);
         // merge the result with default values since LND omits falsy values
-        debug(
-          `LitdProxyServer: send response "${uniqueChan}"`,
-          JSON.stringify(result, null, 2),
-        );
+        debug(`LitdProxyServer: send response "${uniqueChan}"`, toJSON(result));
         // add default values for missing objects
         result = withLitdDefaults(result, channel as LitdDefaultsKey);
         // convert UInt8Arrays to hex
@@ -115,10 +110,7 @@ export const initLitdProxy = (ipc: IpcMain) => {
         event.reply(uniqueChan, result);
       } catch (err: any) {
         // reply with an error message if the execution fails
-        debug(
-          `LitdProxyServer: send error "${uniqueChan}"`,
-          JSON.stringify(err, null, 2),
-        );
+        debug(`LitdProxyServer: send error "${uniqueChan}"`, toJSON(err));
         event.reply(uniqueChan, { err: err.message });
       }
     });

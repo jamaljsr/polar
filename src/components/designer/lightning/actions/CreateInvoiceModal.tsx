@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useCallback, useMemo } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
@@ -53,15 +53,20 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
   const { visible, nodeName, invoice, amount, assetName } = useStoreState(
     s => s.modals.createInvoice,
   );
-  const { allAssetRoots } = useStoreState(s => s.tap);
+  const { nodes } = useStoreState(s => s.lightning);
   const { showCreateInvoice, hideCreateInvoice } = useStoreActions(s => s.modals);
   const { createInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
-  const { createAssetInvoice } = useStoreActions(s => s.lit);
+  const { createAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
   const { getAssetRoots } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
   const [form] = Form.useForm();
   const assetId = Form.useWatch<string>('assetId', form) || 'sats';
+  const selectedNode = Form.useWatch<string>('node', form) || '';
+
+  const isLitd = network.nodes.lightning.some(
+    n => n.name === selectedNode && n.implementation === 'litd',
+  );
 
   const getAssetsAsync = useAsync(async () => {
     if (!visible) return;
@@ -72,6 +77,10 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       await getAssetRoots(mapToTapd(node));
     }
   }, [network.nodes, visible]);
+
+  const assets = useMemo(() => {
+    return getAssetsInChannels({ nodeName: selectedNode }).map(a => a.asset);
+  }, [nodes, selectedNode]);
 
   const createAsync = useAsyncCallback(async (values: FormValues) => {
     try {
@@ -87,7 +96,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       } else if (node.implementation === 'litd') {
         const litdNode = node as LitdNode;
         invoice = await createAssetInvoice({ node: litdNode, assetId, amount });
-        assetName = allAssetRoots.find(a => a.id === assetId)?.name || assetId;
+        assetName = assets.find(a => a.id === assetId)?.name || assetId;
       } else {
         throw new Error(
           `Cannot create an invoice for this node type: ${node.implementation}`,
@@ -98,6 +107,18 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       notify({ message: l('submitError'), error });
     }
   });
+
+  const getAssetBalance = useCallback(
+    (value?: string) => {
+      if (!value || !isLitd) return 0;
+      if (value === 'sats') return 50000;
+
+      const balance = assets.find(b => b.id === value)?.remoteBalance;
+      if (!balance) return 0;
+      return parseInt(balance);
+    },
+    [assets, isLitd],
+  );
 
   const handleCopy = () => {
     message.success(l('copied'), 2);
@@ -127,20 +148,27 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
           label={l('nodeLabel')}
           disabled={createAsync.loading}
         />
-        {allAssetRoots.length > 0 && (
+        {isLitd && assets.length > 0 && (
           <Form.Item
             name="assetId"
             label={l('assetLabel')}
             rules={[{ required: true, message: l('cmps.forms.required') }]}
           >
-            <Select>
+            <Select
+              disabled={createAsync.loading}
+              onChange={value =>
+                form.setFieldsValue({ amount: getAssetBalance(value?.toString()) })
+              }
+            >
               <Select.Option value="sats">Bitcoin (sats)</Select.Option>
               <Select.OptGroup label="Taproot Assets">
-                {allAssetRoots.map(a => (
+                {assets.map(a => (
                   <Select.Option key={a.id} value={a.id}>
                     <Styled.AssetOption>
-                      <span>{a.name}</span>
-                      <code>({ellipseInner(a.id, 4)})</code>
+                      <span>
+                        {a.name} <code>({ellipseInner(a.id, 4)})</code>
+                      </span>
+                      <code>{format(a.remoteBalance)}</code>
                     </Styled.AssetOption>
                   </Select.Option>
                 ))}

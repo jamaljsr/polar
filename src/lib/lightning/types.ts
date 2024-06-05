@@ -24,6 +24,14 @@ export interface LightningNodeAddress {
   address: string;
 }
 
+export interface LightningNodeChannelAsset {
+  id: string;
+  name: string;
+  capacity: string;
+  localBalance: string;
+  remoteBalance: string;
+}
+
 export interface LightningNodeChannel {
   pending: boolean;
   uniqueId: string;
@@ -41,13 +49,7 @@ export interface LightningNodeChannel {
     | 'Closed'
     | 'Error';
   isPrivate: boolean;
-  assets?: {
-    id: string;
-    name: string;
-    capacity: string;
-    localBalance: string;
-    remoteBalance: string;
-  }[];
+  assets?: LightningNodeChannelAsset[];
 }
 
 export interface LightningNodeChannelPoint {
@@ -66,6 +68,14 @@ export interface LightningNodePayReceipt {
   destination: string;
 }
 
+export interface LightningNodePaymentRequest {
+  paymentHash: string;
+  amountMsat: string;
+  expiry: string;
+}
+
 export interface LightningNodeChannelEvent {
   type: 'Open' | 'Pending' | 'Closed' | 'Unknown';
 }
+
+export interface CustomRecords extends Record<number, string> {}

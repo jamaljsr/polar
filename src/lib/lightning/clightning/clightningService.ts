@@ -212,6 +212,10 @@ export class CLightningService implements LightningService {
     };
   }
 
+  async decodeInvoice(node: LightningNode): Promise<PLN.LightningNodePaymentRequest> {
+    throw new Error(`decodeInvoice is not implemented for ${node.implementation} nodes`);
+  }
+
   /**
    * Helper function to continually query the node until a successful
    * response is received or it times out

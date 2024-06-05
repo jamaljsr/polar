@@ -51,6 +51,12 @@ export interface BuyOrder {
   scid: string;
 }
 
+export interface SellOrder {
+  bidPrice: string;
+  scid: string;
+  id: string;
+}
+
 export enum TAP_ASSET_TYPE {
   NORMAL = 'NORMAL',
   COLLECTIBLE = 'COLLECTIBLE',

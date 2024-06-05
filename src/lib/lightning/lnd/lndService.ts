@@ -164,21 +164,35 @@ class LndService implements LightningService {
     node: LightningNode,
     invoice: string,
     amount?: number,
+    customRecords?: PLN.CustomRecords,
   ): Promise<PLN.LightningNodePayReceipt> {
-    const req: LND.SendRequestPartial = {
+    const req: LND.SendPaymentRequestPartial = {
       paymentRequest: invoice,
       amt: amount ? amount.toString() : undefined,
+      feeLimitSat: amount ? Math.floor(amount * 0.02) : '1000',
+      firstHopCustomRecords: customRecords,
     };
     const res = await proxy.payInvoice(this.cast(node), req);
-    // handle errors manually
-    if (res.paymentError) throw new Error(res.paymentError);
 
+    // decode the invoice to get additional information to return
     const payReq = await proxy.decodeInvoice(this.cast(node), { payReq: invoice });
 
     return {
       amount: parseInt(payReq.numSatoshis),
       preimage: res.paymentPreimage.toString(),
       destination: payReq.destination,
+    };
+  }
+
+  async decodeInvoice(
+    node: LightningNode,
+    invoice: string,
+  ): Promise<PLN.LightningNodePaymentRequest> {
+    const res = await proxy.decodeInvoice(this.cast(node), { payReq: invoice });
+    return {
+      paymentHash: res.paymentHash,
+      amountMsat: res.numMsat,
+      expiry: res.expiry,
     };
   }
 

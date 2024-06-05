@@ -48,7 +48,6 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
 
   // memoize these calculations for a bit of perf
   const { leftStop, rightStop, leftColor, rightColor, opacity, dashed } = useMemo(() => {
-    // const [blue, yellow, orange, purple] = ['#3f9713', '#decf00', '#fa8c16', '#5D5FEF'];
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes
@@ -93,7 +92,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
 
         if (type === 'pending-channel') {
           dashed = true;
-          // opacity = 0.5;
+          opacity = 0.5;
         }
       }
     }

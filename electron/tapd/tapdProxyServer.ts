@@ -9,6 +9,7 @@ import {
   withTapdDefaults,
 } from '../../src/shared';
 import { TapdNode } from '../../src/shared/types';
+import { toJSON } from '../../src/shared/utils';
 
 /**
  * mapping of node name <-> TapRpcApis to cache these objects. The createLndRpc function
@@ -125,6 +126,22 @@ const addAssetBuyOrder = async (args: {
   return await rfq.addAssetBuyOrder(args.req);
 };
 
+const addAssetSellOrder = async (args: {
+  node: TapdNode;
+  req: TAPD.AddAssetSellOrderRequestPartial;
+}): Promise<TAPD.AddAssetSellOrderResponse> => {
+  const { rfq } = await getRpc(args.node);
+  return await rfq.addAssetSellOrder(args.req);
+};
+
+const encodeCustomRecords = async (args: {
+  node: TapdNode;
+  req: TAPD.EncodeCustomRecordsRequestPartial;
+}): Promise<TAPD.EncodeCustomRecordsResponse> => {
+  const { channels } = await getRpc(args.node);
+  return await channels.encodeCustomRecords(args.req);
+};
+
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -144,6 +161,8 @@ const listeners: {
   [ipcChannels.tapd.syncUniverse]: syncUniverse,
   [ipcChannels.tapd.fundChannel]: fundChannel,
   [ipcChannels.tapd.addAssetBuyOrder]: addAssetBuyOrder,
+  [ipcChannels.tapd.addAssetSellOrder]: addAssetSellOrder,
+  [ipcChannels.tapd.encodeCustomRecords]: encodeCustomRecords,
 };
 
 /**
@@ -160,10 +179,7 @@ export const initTapdProxy = (ipc: IpcMain) => {
     debug(`TapdProxyServer: listening for ipc command "${channel}"`);
     ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
-      debug(
-        `TapdProxyServer: received request "${requestChan}"`,
-        JSON.stringify(args, null, 2),
-      );
+      debug(`TapdProxyServer: received request "${requestChan}"`, toJSON(args));
       // inspect the first arg to see if it has a specific channel to reply to
       let uniqueChan = responseChan;
       if (args && args[0] && args[0].replyTo) {
@@ -173,10 +189,7 @@ export const initTapdProxy = (ipc: IpcMain) => {
         // attempt to execute the associated function
         let result = await func(...args);
         // merge the result with default values since LND omits falsy values
-        debug(
-          `TapdProxyServer: send response "${uniqueChan}"`,
-          JSON.stringify(result, null, 2),
-        );
+        debug(`TapdProxyServer: send response "${uniqueChan}"`, toJSON(result));
         // add default values for missing objects
         result = withTapdDefaults(result, channel as TapdDefaultsKey);
         // convert UInt8Arrays to hex
@@ -185,10 +198,7 @@ export const initTapdProxy = (ipc: IpcMain) => {
         event.reply(uniqueChan, result);
       } catch (err: any) {
         // reply with an error message if the execution fails
-        debug(
-          `TapdProxyServer: send error "${uniqueChan}"`,
-          JSON.stringify(err, null, 2),
-        );
+        debug(`TapdProxyServer: send error "${uniqueChan}"`, toJSON(err));
         event.reply(uniqueChan, { err: err.message });
       }
     });

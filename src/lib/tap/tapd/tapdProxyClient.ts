@@ -78,6 +78,20 @@ class TapdProxyClient {
   ): Promise<TAP.AddAssetBuyOrderResponse> {
     return await this.ipc(ipcChannels.tapd.addAssetBuyOrder, { node, req });
   }
+
+  async addAssetSellOrder(
+    node: TapdNode,
+    req: TAP.AddAssetSellOrderRequestPartial,
+  ): Promise<TAP.AddAssetSellOrderResponse> {
+    return await this.ipc(ipcChannels.tapd.addAssetSellOrder, { node, req });
+  }
+
+  async encodeCustomRecords(
+    node: TapdNode,
+    req: TAP.EncodeCustomRecordsRequestPartial,
+  ): Promise<TAP.EncodeCustomRecordsResponse> {
+    return await this.ipc(ipcChannels.tapd.encodeCustomRecords, { node, req });
+  }
 }
 
 export default new TapdProxyClient();

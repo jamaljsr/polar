@@ -4,6 +4,7 @@ import { readFile } from 'fs-extra';
 import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
 import { LndNode } from '../../src/shared/types';
+import { toJSON } from '../../src/shared/utils';
 
 /**
  * callback function responsible for sending messages from ipcMain to ipcRenderer.
@@ -118,10 +119,34 @@ const createInvoice = async (args: {
 
 const payInvoice = async (args: {
   node: LndNode;
-  req: LND.SendRequest;
-}): Promise<LND.SendResponse> => {
+  req: LND.SendPaymentRequestPartial;
+}): Promise<LND.Payment> => {
   const rpc = await getRpc(args.node);
-  return await rpc.lightning.sendPaymentSync(args.req);
+  args.req.timeoutSeconds = args.req.timeoutSeconds || 60;
+  const stream = rpc.router.sendPaymentV2(args.req);
+  // return a promise that resolves when the payment is completed
+  return new Promise((resolve, reject) => {
+    stream.on('data', (payment: LND.Payment) => {
+      switch (payment.status) {
+        case 'IN_FLIGHT':
+          debug('LndProxyServer: payment in-flight', toJSON(payment));
+          break;
+        case 'SUCCEEDED':
+          resolve(payment);
+          break;
+        case 'FAILED':
+        case 'UNKNOWN':
+          debug(
+            `LndProxyServer: payment failed: ${payment.failureReason}`,
+            toJSON(payment),
+          );
+          reject(new Error(`Payment failed: ${payment.failureReason}`));
+          break;
+      }
+    });
+    stream.on('error', err => reject(err));
+    stream.on('end', () => reject(new Error('Payment stream ended unexpectedly')));
+  });
 };
 
 const decodeInvoice = async (args: {
@@ -184,10 +209,7 @@ export const initLndProxy = (ipc: IpcMain) => {
     debug(`LndProxyServer: listening for ipc command "${channel}"`);
     ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
-      debug(
-        `LndProxyServer: received request "${requestChan}"`,
-        JSON.stringify(args, null, 2),
-      );
+      debug(`LndProxyServer: received request "${requestChan}"`, toJSON(args));
       // inspect the first arg to see if it has a specific channel to reply to
       let uniqueChan = responseChan;
       if (args && args[0] && args[0].replyTo) {
@@ -197,16 +219,13 @@ export const initLndProxy = (ipc: IpcMain) => {
         // attempt to execute the associated function
         let result = await func(...args);
         // merge the result with default values since LND omits falsy values
-        debug(
-          `LndProxyServer: send response "${uniqueChan}"`,
-          JSON.stringify(result, null, 2),
-        );
+        debug(`LndProxyServer: send response "${uniqueChan}"`, toJSON(result));
         result = withLndDefaults(result, channel as LndDefaultsKey);
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
       } catch (err: any) {
         // reply with an error message if the execution fails
-        debug(`LndProxyServer: send error "${uniqueChan}"`, JSON.stringify(err, null, 2));
+        debug(`LndProxyServer: send error "${uniqueChan}"`, toJSON(err));
         event.reply(uniqueChan, { err: err.message });
       }
     });
