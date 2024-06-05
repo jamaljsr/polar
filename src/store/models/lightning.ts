@@ -267,7 +267,7 @@ const lightningModel: LightningModel = {
       LND: 1,
       'c-lightning': 2,
       eclair: 2,
-      litd: 2,
+      litd: 1,
     };
     // determine the highest delay of all implementations
     const longestDelay = nodes.reduce(
