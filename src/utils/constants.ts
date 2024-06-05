@@ -292,6 +292,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--taproot-assets.allow-public-uni-proof-courier',
       '--taproot-assets.allow-public-stats',
       '--taproot-assets.universe.public-access',
+      '--taproot-assets.experimental.rfq.priceoracleaddress=use_mock_price_oracle_service_promise_to_not_use_on_mainnet',
+      '--taproot-assets.experimental.rfq.mockoraclecentpersat=5820600',
       '--lnd.protocol.option-scid-alias',
       '--lnd.protocol.zero-conf',
       '--lnd.protocol.simple-taproot-chans',

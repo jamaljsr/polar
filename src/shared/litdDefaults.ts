@@ -30,6 +30,7 @@ export const defaultLitdSession = (value: Partial<LITD.Session>): LITD.Session =
   featureConfigs: {},
   groupId: Buffer.from(''),
   revokedAt: '0',
+  privacyFlags: '1',
   ...value,
 });
 
