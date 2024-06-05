@@ -243,6 +243,7 @@ export interface TapFactoryInjection {
 }
 
 export interface LitdLibrary {
+  waitUntilOnline: (node: LitdNode) => Promise<void>;
   status: (node: LitdNode) => Promise<LITD.SubServerStatusResp>;
   listSessions: (node: LitdNode) => Promise<PLIT.Session[]>;
   addSession: (

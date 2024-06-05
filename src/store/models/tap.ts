@@ -15,6 +15,7 @@ import * as PTAP from 'lib/tap/types';
 import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
+import { mapToTapd } from 'utils/network';
 import { RootModel } from './';
 
 //This is the minimum balance that a tap node must have access to in order to mint assets
@@ -334,8 +335,14 @@ const tapModel: TapModel = {
       // update all tap nodes info when a block in mined
       const network = getStoreState().network.networkById(payload.node.networkId);
       await getStoreActions().lightning.waitForNodes(network.nodes.lightning);
+      const nodes = [
+        ...network.nodes.tap,
+        ...network.nodes.lightning
+          .filter(n => n.implementation === 'litd')
+          .map(mapToTapd),
+      ];
       await Promise.all(
-        network.nodes.tap
+        nodes
           .filter(n => n.status === Status.Started)
           .map(async n => {
             try {

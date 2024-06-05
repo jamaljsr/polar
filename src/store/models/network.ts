@@ -8,6 +8,7 @@ import {
   BitcoinNode,
   CommonNode,
   LightningNode,
+  LitdNode,
   NodeImplementation,
   Status,
   TapdNode,
@@ -801,16 +802,29 @@ const networkModel: NetworkModel = {
         // wait for lnd nodes to come online before updating their status
         if (node.type === 'lightning') {
           const ln = node as LightningNode;
-          // use .then() to continue execution while the promises are waiting to complete
-          const promise = injections.lightningFactory
-            .getService(ln)
-            .waitUntilOnline(ln)
-            .then(async () => {
-              actions.setStatus({ id, status: Status.Started, only: ln.name });
-            })
-            .catch(error =>
-              actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
-            );
+          let promise: Promise<void>;
+          if (ln.implementation !== 'litd') {
+            // use .then() to continue execution while the promises are waiting to complete
+            promise = injections.lightningFactory
+              .getService(ln)
+              .waitUntilOnline(ln)
+              .then(async () => {
+                actions.setStatus({ id, status: Status.Started, only: ln.name });
+              })
+              .catch(error =>
+                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
+              );
+          } else {
+            const litd = ln as LitdNode;
+            promise = injections.litdService
+              .waitUntilOnline(litd)
+              .then(async () => {
+                actions.setStatus({ id, status: Status.Started, only: ln.name });
+              })
+              .catch(error =>
+                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
+              );
+          }
           lnNodesOnline.push(promise);
         } else if (node.type === 'bitcoin') {
           const btc = node as BitcoinNode;

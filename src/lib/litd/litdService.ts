@@ -1,6 +1,7 @@
 import * as LITD from '@lightningpolar/litd-api';
 import { LitdNode } from 'shared/types';
 import { LitdLibrary } from 'types';
+import { waitFor } from 'utils/async';
 import { litdProxyClient as proxy } from './';
 import * as PLIT from './types';
 
@@ -40,6 +41,29 @@ class LitdService implements LitdLibrary {
       localPublicKey: Buffer.from(localPublicKey, 'hex'),
     };
     await proxy.revokeSession(node, req);
+  }
+
+  /**
+   * Helper function to continually query the litd node until all enabled sub-servers
+   * are running or it times out
+   */
+  async waitUntilOnline(
+    node: LitdNode,
+    interval = 3 * 1000, // check every 3 seconds
+    timeout = 120 * 1000, // timeout after 120 seconds
+  ): Promise<void> {
+    return waitFor(
+      async () => {
+        const { subServers } = await this.status(node);
+        Object.entries(subServers).forEach(([name, s]) => {
+          if (!s.disabled && !s.running) {
+            throw new Error(s.error || `Sub-server ${name} is not started yet.`);
+          }
+        });
+      },
+      interval,
+      timeout,
+    );
   }
 
   private mapSession(session: LITD.Session): PLIT.Session {
