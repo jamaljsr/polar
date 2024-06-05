@@ -90,7 +90,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
           amount: 1000,
           enableEmission: false,
           finalize: true,
-          autoFund: false,
+          autoFund: true,
         }}
         onFinish={handleSubmit}
       >

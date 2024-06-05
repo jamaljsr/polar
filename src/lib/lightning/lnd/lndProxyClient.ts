@@ -61,8 +61,8 @@ class LndProxyClient {
 
   async payInvoice(
     node: LndNode,
-    req: LND.SendRequestPartial,
-  ): Promise<LND.SendResponse> {
+    req: LND.SendPaymentRequestPartial,
+  ): Promise<LND.Payment> {
     return await this.ipc(ipcChannels.payInvoice, { node, req });
   }
 

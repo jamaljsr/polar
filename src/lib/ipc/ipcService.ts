@@ -1,5 +1,6 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { debug } from 'electron-log';
+import { toJSON } from 'shared/utils';
 
 export type IpcSender = <T>(
   channel: string,
@@ -42,20 +43,14 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
 
     return new Promise((resolve, reject) => {
       ipcRenderer.once(uniqPayload.replyTo, (event: IpcRendererEvent, res: any) => {
-        debug(
-          `${serviceName}: [response] "${uniqPayload.replyTo}"`,
-          JSON.stringify(res, null, 2),
-        );
+        debug(`${serviceName}: [response] "${uniqPayload.replyTo}"`, toJSON(res));
         if (res && res.err) {
           reject(new Error(res.err));
         } else {
           resolve(res);
         }
       });
-      debug(
-        `${serviceName}: [request] "${reqChan}"`,
-        JSON.stringify(stripNode(uniqPayload), null, 2),
-      );
+      debug(`${serviceName}: [request] "${reqChan}"`, toJSON(stripNode(uniqPayload)));
       ipcRenderer.send(reqChan, uniqPayload);
       if (callback) {
         // using resChan + node port for uniqueness

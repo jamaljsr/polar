@@ -1,12 +1,33 @@
-import React from 'react';
-import { useAsyncCallback } from 'react-async-hook';
-import { Form, Input, Modal } from 'antd';
+import React, { useMemo } from 'react';
+import { useAsync, useAsyncCallback } from 'react-async-hook';
+import styled from '@emotion/styled';
+import { Form, Input, Modal, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { LightningNode } from 'shared/types';
+import { LitdNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
+import { mapToTapd } from 'utils/network';
+import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
+import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
+
+const Styled = {
+  AssetOption: styled.div`
+    display: flex;
+    justify-content: space-between;
+
+    code {
+      color: #888;
+      font-size: 0.8em;
+    }
+  `,
+};
+
+interface FormValues {
+  node: string;
+  invoice: string;
+}
 
 interface Props {
   network: Network;
@@ -14,32 +35,64 @@ interface Props {
 
 const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.PayInvoiceModal');
-  const [form] = Form.useForm();
   const { visible, nodeName } = useStoreState(s => s.modals.payInvoice);
+  const { nodes } = useStoreState(s => s.lightning);
   const { hidePayInvoice } = useStoreActions(s => s.modals);
-  const { payInvoice } = useStoreActions(s => s.lightning);
+  const { payInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
+  const { payAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
+  const { getAssetRoots } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
-  const payAsync = useAsyncCallback(async (node: LightningNode, invoice: string) => {
+  const [form] = Form.useForm();
+  const assetId = Form.useWatch<string>('assetId', form) || 'sats';
+  const selectedName = Form.useWatch<string>('node', form) || '';
+
+  const getAssetsAsync = useAsync(async () => {
+    if (!visible) return;
+    const litNodes = network.nodes.lightning.filter(n => n.implementation === 'litd');
+    for (const node of litNodes) {
+      await getInfo(node);
+      await getChannels(node);
+      await getAssetRoots(mapToTapd(node));
+    }
+  }, [network.nodes, visible]);
+
+  const assets = useMemo(() => {
+    return getAssetsInChannels({ nodeName: selectedName }).map(a => a.asset);
+  }, [nodes, selectedName]);
+
+  const payAsync = useAsyncCallback(async (values: FormValues) => {
     try {
-      const { amount } = await payInvoice({ node, invoice });
+      const { lightning } = network.nodes;
+      const node = lightning.find(n => n.name === values.node);
+      if (!node || !values.invoice) return;
+
+      const invoice = values.invoice;
+      let amount = 0;
+      let assetName = 'sats';
+      if (assetId === 'sats') {
+        const res = await payInvoice({ node, invoice });
+        amount = res.amount;
+      } else if (node.implementation === 'litd') {
+        const litdNode = node as LitdNode;
+        const res = await payAssetInvoice({ node: litdNode, assetId, invoice });
+        amount = res.amount;
+        assetName = assets.find(a => a.id === assetId)?.name || assetId;
+      } else {
+        throw new Error(
+          `Cannot create an invoice for this node type: ${node.implementation}`,
+        );
+      }
       const nodeName = node.name;
       notify({
         message: l('successTitle'),
-        description: l('successDesc', { amount: format(amount), nodeName }),
+        description: l('successDesc', { amount: format(amount), nodeName, assetName }),
       });
       await hidePayInvoice();
     } catch (error: any) {
       notify({ message: l('submitError'), error });
     }
   });
-
-  const handleSubmit = (values: any) => {
-    const { lightning } = network.nodes;
-    const node = lightning.find(n => n.name === values.node);
-    if (!node || !values.invoice) return;
-    payAsync.execute(node, values.invoice);
-  };
 
   return (
     <Modal
@@ -54,28 +107,56 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       }}
       onOk={form.submit}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        hideRequiredMark
-        colon={false}
-        initialValues={{ node: nodeName }}
-        onFinish={handleSubmit}
-      >
-        <LightningNodeSelect
-          network={network}
-          name="node"
-          label={l('nodeLabel')}
+      {getAssetsAsync.loading ? (
+        <Loader />
+      ) : (
+        <Form
+          form={form}
+          layout="vertical"
+          requiredMark={false}
+          colon={false}
+          initialValues={{ node: nodeName, assetId: 'sats' }}
+          onFinish={payAsync.execute}
           disabled={payAsync.loading}
-        />
-        <Form.Item
-          name="invoice"
-          label={l('invoiceLabel')}
-          rules={[{ required: true, message: l('cmps.forms.required') }]}
         >
-          <Input.TextArea rows={6} disabled={payAsync.loading} />
-        </Form.Item>
-      </Form>
+          <LightningNodeSelect
+            network={network}
+            name="node"
+            label={l('nodeLabel')}
+            disabled={payAsync.loading}
+          />
+          {assets.length > 0 && (
+            <Form.Item
+              name="assetId"
+              label={l('assetLabel')}
+              rules={[{ required: true, message: l('cmps.forms.required') }]}
+            >
+              <Select>
+                <Select.Option value="sats">Bitcoin (sats)</Select.Option>
+                <Select.OptGroup label="Taproot Assets">
+                  {assets.map(a => (
+                    <Select.Option key={a.id} value={a.id}>
+                      <Styled.AssetOption>
+                        <span>
+                          {a.name} <code>({ellipseInner(a.id, 4)})</code>
+                        </span>
+                        <code>{format(a.localBalance)}</code>
+                      </Styled.AssetOption>
+                    </Select.Option>
+                  ))}
+                </Select.OptGroup>
+              </Select>
+            </Form.Item>
+          )}
+          <Form.Item
+            name="invoice"
+            label={l('invoiceLabel')}
+            rules={[{ required: true, message: l('cmps.forms.required') }]}
+          >
+            <Input.TextArea rows={6} disabled={payAsync.loading} />
+          </Form.Item>
+        </Form>
+      )}
     </Modal>
   );
 };

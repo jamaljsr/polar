@@ -16,7 +16,7 @@ export const mapOpenChannel = (chan: LND.Channel): LightningNodeChannel => {
     remoteBalance: chan.remoteBalance,
     status: 'Open',
     isPrivate: chan.private,
-    assets: parseCustomData(chan),
+    assets: parseCustomData(chan.chanId, chan.customChannelData),
   };
 };
 
@@ -32,6 +32,7 @@ export const mapPendingChannel =
     remoteBalance: chan.remoteBalance,
     status,
     isPrivate: false,
+    assets: parseCustomData(chan.channelPoint, chan.customChannelData),
   });
 
 /** The structure of the custom channel data JSON */
@@ -60,8 +61,11 @@ interface ChannelCustomData {
  * The custom channel data field is returned from the RPC as a UInt8Array. It needs to be
  * converted to a string and then parsed as JSON to extract the assets data.
  */
-const parseCustomData = (chan: LND.Channel): LightningNodeChannel['assets'] => {
-  const data = Buffer.from(chan.customChannelData).toString('utf8');
+const parseCustomData = (
+  id: string,
+  customChannelData: Buffer,
+): LightningNodeChannel['assets'] => {
+  const data = Buffer.from(customChannelData).toString('utf8');
   try {
     const chanData = JSON.parse(data) as ChannelCustomData;
     if (!chanData.assets) return undefined;
@@ -73,6 +77,6 @@ const parseCustomData = (chan: LND.Channel): LightningNodeChannel['assets'] => {
       remoteBalance: asset.remote_balance.toString(),
     }));
   } catch (e) {
-    debug(`Failed to parse customChannelData for channel ${chan.chanId}:` + data, e);
+    debug(`Failed to parse customChannelData for channel ${id}:` + data, e);
   }
 };

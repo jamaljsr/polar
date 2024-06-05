@@ -1,9 +1,9 @@
 import { app, remote } from 'electron';
 import log from 'electron-log';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import http from 'http';
 import https from 'https';
-import { existsSync } from 'fs';
 
 /**
  * setup logging to store log files in ~/.polar/logs/ dir
@@ -54,4 +54,22 @@ export const httpRequest = (
     }
     req.end();
   });
+};
+
+/**
+ * Converts an object to a JSON string, but converts any Buffer arrays to hex strings
+ */
+export const toJSON = (data: any): string => {
+  return JSON.stringify(
+    data,
+    (key, value) => {
+      if (value?.type === 'Buffer') {
+        return Buffer.from(value.data).toString('hex');
+      } else if (value instanceof Uint8Array) {
+        return Buffer.from(value).toString('hex');
+      }
+      return value;
+    },
+    2,
+  );
 };

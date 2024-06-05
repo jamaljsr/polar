@@ -1,5 +1,6 @@
 import * as TAP from '@lightningpolar/tapd-api';
 import { TapdNode, TapNode } from 'shared/types';
+import * as PLN from 'lib/lightning/types';
 import * as PTAP from 'lib/tap/types';
 import { TapService } from 'types';
 import { waitFor } from 'utils/async';
@@ -40,7 +41,7 @@ class TapdService implements TapService {
     amt: string,
   ): Promise<PTAP.TapAddress> {
     const res = await proxy.newAddress(this.cast(node), {
-      assetId: Buffer.from(assetId, 'hex'),
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
       amt,
     });
     return {
@@ -129,8 +130,8 @@ class TapdService implements TapService {
     amount: number,
   ): Promise<string> {
     const req: TAP.FundChannelRequestPartial = {
-      peerPubkey: Buffer.from(peerPubkey, 'hex'),
-      assetId: Buffer.from(assetId, 'hex'),
+      peerPubkey: Buffer.from(peerPubkey, 'hex').toString('base64'),
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
       assetAmount: amount,
       feeRateSatPerVbyte: 50,
     };
@@ -145,9 +146,9 @@ class TapdService implements TapService {
     amount: number,
   ): Promise<PTAP.BuyOrder> {
     const req: TAP.AddAssetBuyOrderRequestPartial = {
-      peerPubKey: Buffer.from(peerPubkey, 'hex'),
+      peerPubKey: Buffer.from(peerPubkey, 'hex').toString('base64'),
       assetSpecifier: {
-        assetId: Buffer.from(assetId, 'hex'),
+        assetId: Buffer.from(assetId, 'hex').toString('base64'),
       },
       minAssetAmount: amount,
       expiry: Date.now() / 1000 + 300, // 5 minutes from now
@@ -159,6 +160,50 @@ class TapdService implements TapService {
       askPrice: acceptedQuote.askPrice,
       scid: acceptedQuote.scid,
     };
+  }
+
+  async addAssetSellOrder(
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    maxAssetAmount: string,
+    minAskMsat: string,
+    expiry: string,
+  ): Promise<PTAP.SellOrder> {
+    const req: TAP.AddAssetSellOrderRequestPartial = {
+      peerPubKey: Buffer.from(peerPubkey, 'hex').toString('base64'),
+      assetSpecifier: {
+        assetId: Buffer.from(assetId, 'hex').toString('base64'),
+      },
+      minAsk: minAskMsat,
+      maxAssetAmount, // msat amount from the invoice
+      expiry, // from the invoice
+      timeoutSeconds: 60, // 1 minute
+    };
+    const res = await proxy.addAssetSellOrder(this.cast(node), req);
+    const acceptedQuote = res.acceptedQuote as TAP.PeerAcceptedSellQuote;
+    return {
+      bidPrice: acceptedQuote.bidPrice,
+      scid: acceptedQuote.scid,
+      id: acceptedQuote.id.toString(),
+    };
+  }
+
+  async encodeCustomRecords(node: TapNode, rfqId: string): Promise<PLN.CustomRecords> {
+    const req: TAP.EncodeCustomRecordsRequestPartial = {
+      routerSendPayment: {
+        rfqId: Buffer.from(rfqId, 'hex').toString('base64'),
+      },
+      input: 'routerSendPayment',
+    };
+    const res = await proxy.encodeCustomRecords(this.cast(node), req);
+    const records: PLN.CustomRecords = {};
+    Object.keys(res.customRecords).forEach(key => {
+      const keyNum = parseInt(key);
+      const value = res.customRecords[keyNum].toString();
+      records[keyNum] = Buffer.from(value, 'hex').toString('base64');
+    });
+    return records;
   }
 
   /**

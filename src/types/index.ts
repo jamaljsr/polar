@@ -177,7 +177,12 @@ export interface LightningService {
     node: LightningNode,
     invoice: string,
     amount?: number,
+    customRecords?: PLN.CustomRecords,
   ) => Promise<PLN.LightningNodePayReceipt>;
+  decodeInvoice: (
+    node: LightningNode,
+    invoice: string,
+  ) => Promise<PLN.LightningNodePaymentRequest>;
   addListenerToNode: (node: LightningNode) => Promise<void>;
   removeListener: (node: LightningNode) => Promise<void>;
   subscribeChannelEvents: (
@@ -222,6 +227,15 @@ export interface TapService {
     assetId: string,
     amount: number,
   ) => Promise<PTAP.BuyOrder>;
+  addAssetSellOrder: (
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    maxAssetAmount: string,
+    minAskMsat: string,
+    expiry: string,
+  ) => Promise<PTAP.SellOrder>;
+  encodeCustomRecords: (node: TapNode, rfqId: string) => Promise<PLN.CustomRecords>;
 }
 
 export interface TapFactoryInjection {
