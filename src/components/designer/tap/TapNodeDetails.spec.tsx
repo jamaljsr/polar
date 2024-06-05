@@ -256,7 +256,7 @@ describe('TapDetails', () => {
     it('should handle send address button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
-      fireEvent.click(await findByText('Send Asset'));
+      fireEvent.click(await findByText('Send Asset On-chain'));
       const { visible, nodeName } = store.getState().modals.sendAsset;
       expect(visible).toEqual(true);
       expect(nodeName).toEqual(node.name);

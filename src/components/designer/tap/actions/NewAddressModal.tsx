@@ -171,6 +171,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
               min={1}
               formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
+              style={{ width: '100%' }}
             />
           </Form.Item>
         </Form>
