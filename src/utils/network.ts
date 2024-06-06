@@ -161,10 +161,6 @@ export const createLndNetworkNode = (
     compatibility,
     bitcoin,
   );
-
-  const basePortRest = basePort.rest;
-  const basePortGrpc = basePort.grpc;
-
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
   return {
@@ -179,8 +175,8 @@ export const createLndNetworkNode = (
     backendName: backends[id % backends.length].name,
     paths: getLndFilePaths(name, network),
     ports: {
-      rest: basePortRest + id,
-      grpc: basePortGrpc + id,
+      rest: basePort.rest + id,
+      grpc: basePort.grpc + id,
       p2p: BasePorts.LND.p2p + id,
     },
     docker,
@@ -207,10 +203,6 @@ export const createCLightningNetworkNode = (
   const supportsGrpc = !isVersionCompatible(version, '0.10.2');
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
-
-  const basePortRest = basePort.rest;
-  const basePortGrpc = basePort.grpc;
-
   return {
     id,
     networkId: network.id,
@@ -223,8 +215,8 @@ export const createCLightningNetworkNode = (
     backendName: backends[id % backends.length].name,
     paths: getCLightningFilePaths(name, supportsGrpc, network),
     ports: {
-      rest: basePortRest + id,
-      grpc: supportsGrpc ? basePortGrpc + id : 0,
+      rest: basePort.rest + id,
+      grpc: supportsGrpc ? basePort.grpc + id : 0,
       p2p: BasePorts['c-lightning'].p2p + id,
     },
     docker,
@@ -249,9 +241,6 @@ export const createEclairNetworkNode = (
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
-
-  const basePortRest = basePort.rest;
-
   return {
     id,
     networkId: network.id,
@@ -263,7 +252,7 @@ export const createEclairNetworkNode = (
     // alternate between backend nodes
     backendName: backends[id % backends.length].name,
     ports: {
-      rest: basePortRest + id,
+      rest: basePort.rest + id,
       p2p: BasePorts.eclair.p2p + id,
     },
     docker,
@@ -280,8 +269,6 @@ export const createBitcoindNetworkNode = (
   const { bitcoin } = network.nodes;
   const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
 
-  const basePortRest = basePort.rest;
-
   const name = `backend${id + 1}`;
   const node: BitcoinNode = {
     id,
@@ -293,7 +280,7 @@ export const createBitcoindNetworkNode = (
     peers: [],
     status,
     ports: {
-      rpc: basePortRest + id,
+      rpc: basePort.rest + id,
       p2p: BasePorts.bitcoind.p2p + id,
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
@@ -354,10 +341,6 @@ export const createTapdNetworkNode = (
 
   const id = tap.length ? Math.max(...tap.map(n => n.id)) + 1 : 0;
   const name = `${lndBackend.name}-tap`;
-
-  const basePortRest = basePort.rest;
-  const basePortGrpc = basePort.grpc;
-
   const node: TapdNode = {
     id,
     networkId: network.id,
@@ -369,8 +352,8 @@ export const createTapdNetworkNode = (
     lndName: lndBackend.name,
     paths: getTapdFilePaths(name, network),
     ports: {
-      rest: basePortRest + id,
-      grpc: basePortGrpc + id,
+      rest: basePort.rest + id,
+      grpc: basePort.grpc + id,
     },
     docker,
   };

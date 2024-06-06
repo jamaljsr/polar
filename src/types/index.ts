@@ -54,24 +54,11 @@ export interface CustomImage {
  * The base ports for each implementation
  */
 export interface NodeBasePorts {
-  LND: {
-    rest?: number;
-    grpc?: number;
-  };
-  'c-lightning': {
-    rest?: number;
-    grpc?: number;
-  };
-  eclair: {
-    rest?: number;
-  };
-  bitcoind: {
-    rest?: number;
-  };
-  tapd: {
-    rest?: number;
-    grpc?: number;
-  };
+  LND: { rest: number; grpc: number };
+  'c-lightning': { rest: number; grpc: number };
+  eclair: { rest: number };
+  bitcoind: { rest: number };
+  tapd: { rest: number; grpc: number };
 }
 
 export interface AppSettings {

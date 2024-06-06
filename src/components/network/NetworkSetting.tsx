@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import {
@@ -16,9 +17,8 @@ import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
-import { BasePorts, dockerConfigs } from 'utils/constants';
+import { dockerConfigs } from 'utils/constants';
 import { HOME } from 'components/routing';
-import { useAsyncCallback } from 'react-async-hook';
 
 const Styled = {
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
@@ -44,41 +44,34 @@ const NetworkSetting: React.FC = () => {
   const { navigateTo, updateSettings, notify } = useStoreActions(s => s.app);
   const { settings } = useStoreState(s => s.app);
 
-  const saveSettingsAsync = useAsyncCallback(async (settings: any) => {
+  const saveSettingsAsync = useAsyncCallback(async (values: any) => {
     try {
       const updatedPorts = {
         LND: {
-          rest: settings.LND,
-          grpc: settings.grpcLND,
+          rest: values.LND,
+          grpc: values.grpcLND,
         },
         'c-lightning': {
-          rest: settings['c-lightning'],
-          grpc: settings['grpcC-lightning'],
+          rest: values['c-lightning'],
+          grpc: values['grpcC-lightning'],
         },
         eclair: {
-          rest: settings.eclair,
+          rest: values.eclair,
         },
         bitcoind: {
-          rest: settings.bitcoind,
+          rest: values.bitcoind,
         },
         tapd: {
-          rest: settings.tapd,
-          grpc: settings.grpcTapd,
+          rest: values.tapd,
+          grpc: values.grpcTapd,
         },
       };
 
-      await updateSettings({
-        basePorts: { ...updatedPorts },
-      });
+      await updateSettings({ basePorts: { ...updatedPorts } });
 
-      notify({
-        message: l('saveSuccess'),
-      });
+      notify({ message: l('saveSuccess') });
     } catch (error: any) {
-      notify({
-        message: l('saveError'),
-        error,
-      });
+      notify({ message: l('saveError'), error });
     }
   });
 
@@ -94,16 +87,14 @@ const NetworkSetting: React.FC = () => {
           layout="vertical"
           colon={false}
           initialValues={{
-            LND: settings.basePorts.LND.rest ?? BasePorts.LND.rest,
-            'c-lightning':
-              settings.basePorts['c-lightning'].rest ?? BasePorts['c-lightning'].rest,
-            eclair: settings.basePorts.eclair.rest ?? BasePorts.eclair.rest,
-            bitcoind: settings.basePorts.bitcoind.rest ?? BasePorts.bitcoind.rest,
-            tapd: settings.basePorts.tapd.rest ?? BasePorts.tapd.rest,
-            grpcLND: settings.basePorts.LND.grpc ?? BasePorts.LND.grpc,
-            'grpcC-lightning':
-              settings.basePorts['c-lightning'].grpc ?? BasePorts['c-lightning'].grpc,
-            grpcTapd: settings.basePorts.tapd.grpc ?? BasePorts.tapd.grpc,
+            LND: settings.basePorts.LND.rest,
+            'c-lightning': settings.basePorts['c-lightning'].rest,
+            eclair: settings.basePorts.eclair.rest,
+            bitcoind: settings.basePorts.bitcoind.rest,
+            tapd: settings.basePorts.tapd.rest,
+            grpcLND: settings.basePorts.LND.grpc,
+            'grpcC-lightning': settings.basePorts['c-lightning'].grpc,
+            grpcTapd: settings.basePorts.tapd.grpc,
           }}
           onFinish={saveSettingsAsync.execute}
         >
