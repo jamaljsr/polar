@@ -1016,6 +1016,9 @@ export const importNetworkFromZip = async (
     if (ln.implementation === 'LND') {
       const lnd = ln as LndNode;
       lnd.paths = getLndFilePaths(lnd.name, network);
+    } else if (ln.implementation === 'litd') {
+      const litd = ln as LitdNode;
+      litd.paths = getLitdFilePaths(litd.name, network);
     } else if (ln.implementation === 'c-lightning') {
       const cln = ln as CLightningNode;
       const supportsGrpc = cln.ports.grpc !== 0;
