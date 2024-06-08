@@ -45,7 +45,7 @@
   "dependencies": {
     "@lightningpolar/tapd-api": "0.3.3-alpha",
     "@radar/lnrpc": "0.11.1-beta.1",
-    "@types/lodash": "4.17.1",
+    "@types/lodash": "4.17.5",
     "archiver": "7.0.1",
     "docker-compose": "0.24.0",
     "dockerode": "4.0.2",
