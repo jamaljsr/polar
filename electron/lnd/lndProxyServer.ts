@@ -1,8 +1,9 @@
 import { IpcMain } from 'electron';
-import { debug } from 'electron-log';
+import { debug, error } from 'electron-log';
 import { readFile } from 'fs-extra';
 import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
+// import { RpcStreamResponse } from '../../src/shared/ipcChannels';
 import { LndNode } from '../../src/shared/types';
 import { toJSON } from '../../src/shared/utils';
 
@@ -11,12 +12,16 @@ import { toJSON } from '../../src/shared/utils';
  * @param responseChan The response channel identifier / IPC channel name.
  * @param message The message to be sent.
  */
-let handleEventCallback: (responseChan: string, message: any) => void;
+let sendStreamEvent: (channel: string, data: any) => void;
 
 export const initLndSubscriptions = (
-  callback: (responseChan: string, message: any) => void,
+  callback: (responseChan: string, data: any) => void,
 ) => {
-  handleEventCallback = callback;
+  // sendStreamEvent = (channel: string, data: any) => {
+  //   debug(`LndProxyServer: send stream event "${data.channel}"`, toJSON(data));
+  //   callback(`lnd-${ipcChannels.rpcStream}`, data);
+  // };
+  sendStreamEvent = callback;
 };
 
 /**
@@ -91,7 +96,8 @@ const closeChannel = async (args: {
 }): Promise<any> => {
   const rpc = await getRpc(args.node);
   // TODO: capture the stream events and push them to the UI
-  rpc.lightning.closeChannel(args.req);
+  const stream = rpc.lightning.closeChannel(args.req);
+  stream.on('error', err => error('LndProxyServer: closeChannel error', err));
 };
 
 const listChannels = async (args: {
@@ -165,20 +171,19 @@ const decodeInvoice = async (args: {
   return await rpc.lightning.decodePayReq(args.req);
 };
 
-const subscribeChannelEvents = async (args: { node: LndNode }): Promise<any> => {
-  try {
-    const rpc = await getRpc(args.node);
-    const responseChan = `lnd-${ipcChannels.subscribeChannelEvents}-response-${args.node.ports.rest}`;
-    const stream = rpc.lightning.subscribeChannelEvents();
-    if (stream) {
-      stream.on('data', (data: LND.ChannelEventUpdate) => {
-        handleEventCallback(responseChan, data);
-      });
-    }
-    return {};
-  } catch (err) {
-    return { err };
-  }
+const subscribeChannelEvents = async (args: {
+  node: LndNode;
+  replyTo: string;
+}): Promise<any> => {
+  debug('LndProxyServer: subscribeChannelEvents', toJSON(args));
+  const rpc = await getRpc(args.node);
+  const stream = rpc.lightning.subscribeChannelEvents();
+  stream.on('data', (data: LND.ChannelEventUpdate) => {
+    debug('LndProxyServer: stream event', args.node.name, args.replyTo, toJSON(data));
+    sendStreamEvent(args.replyTo, data);
+  });
+  stream.on('error', err => debug('LndProxyServer: stream error', args.replyTo, err));
+  return {};
 };
 
 /**
@@ -234,7 +239,7 @@ export const initLndProxy = (ipc: IpcMain) => {
         event.reply(uniqueChan, result);
       } catch (err: any) {
         // reply with an error message if the execution fails
-        debug(`LndProxyServer: send error "${uniqueChan}"`, toJSON(err));
+        debug(`LndProxyServer: send error "${uniqueChan}"`, err);
         event.reply(uniqueChan, { err: err.message });
       }
     });

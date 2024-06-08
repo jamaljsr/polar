@@ -248,7 +248,8 @@ class LndService implements LightningService {
   }
 
   async removeListener(node: LightningNode): Promise<void> {
-    debug('removeListener LndNode on port: ', node.ports.rest);
+    debug('LndService: removeListener', node.name, node.ports.rest);
+    proxy.unsubscribeEvents(this.cast(node));
   }
 
   /**

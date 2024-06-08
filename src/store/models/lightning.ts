@@ -320,11 +320,11 @@ const lightningModel: LightningModel = {
       const syncThrottled = throttle(
         () => {
           const net = getStoreState().network.networks.find(n => n.id === network.id);
-          if (!net) return;
+          if (!net || net.status !== Status.Started) return;
           getStoreActions().designer.syncChart(net);
         },
         5 * 1000,
-        { leading: true, trailing: true },
+        { leading: true, trailing: false },
       );
 
       for (const node of nodes.lightning) {
