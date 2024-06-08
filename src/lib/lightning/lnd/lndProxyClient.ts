@@ -1,13 +1,24 @@
+import { debug } from 'electron-log';
 import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels } from 'shared';
+// import { RpcStreamResponse } from 'shared/ipcChannels';
 import { LndNode } from 'shared/types';
-import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
+import {
+  createIpcSender,
+  createIpcStreamer,
+  IpcSender,
+  IpcStreamer,
+  IpcStreamEvent,
+} from 'lib/ipc/ipcService';
 
 class LndProxyClient {
   ipc: IpcSender;
+  streamer: IpcStreamer;
+  listeners: Record<string, (event: IpcStreamEvent, data: any) => void> = {};
 
   constructor() {
     this.ipc = createIpcSender('LndProxyClient', 'lnd');
+    this.streamer = createIpcStreamer('LndProxyClient', 'lnd');
   }
 
   async getInfo(node: LndNode): Promise<LND.GetInfoResponse> {
@@ -79,9 +90,28 @@ class LndProxyClient {
 
   async subscribeChannelEvents(
     node: LndNode,
-    callback: (event: LND.ChannelEventUpdate) => void,
-  ): Promise<any> {
-    return await this.ipc(ipcChannels.subscribeChannelEvents, { node }, callback);
+    callback: (data: LND.ChannelEventUpdate) => void,
+  ): Promise<void> {
+    const channel = `${ipcChannels.subscribeChannelEvents}-${node.ports.rest}`;
+    // create a listener for the stream. Wee need to keep a reference to the listener
+    // so we can unsubscribe later
+    const listener = (_: IpcStreamEvent, data: LND.ChannelEventUpdate) => {
+      debug('LndProxyClient: listener', data);
+      callback(data);
+    };
+    this.listeners[channel] = listener;
+    // subscribe to the stream
+    this.streamer.subscribe(ipcChannels.subscribeChannelEvents, { node }, listener);
+  }
+
+  unsubscribeEvents(node: LndNode) {
+    const channel = `${ipcChannels.subscribeChannelEvents}-${node.ports.rest}`;
+    if (this.listeners[channel]) {
+      // unsubscribe from the stream
+      this.streamer.unsubscribe(channel, this.listeners[channel]);
+      delete this.listeners[channel];
+      debug('LndProxyClient: unsubscribeEvents deleted', channel);
+    }
   }
 }
 
