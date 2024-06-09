@@ -134,6 +134,10 @@ class TapdService implements TapService {
       assetId: Buffer.from(assetId, 'hex').toString('base64'),
       assetAmount: amount,
       feeRateSatPerVbyte: 50,
+      // push amount above channel reserve so the peer can send assets back
+      // immediately after receiving them. Without this, the peer would have to
+      // wait for the channel reserve to be satisfied before sending assets back
+      pushSat: 5_000,
     };
     const { txid } = await proxy.fundChannel(this.cast(node), req);
     return txid;
