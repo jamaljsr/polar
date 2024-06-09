@@ -5,7 +5,7 @@ RUN apt-get update -y \
   && apt-get install -y git
 
 # Copy in the local repository to build from.
-RUN git clone --branch custom-channels-integration https://github.com/lightninglabs/lightning-terminal.git /go/src/github.com/lightninglabs/lightning-terminal/
+RUN git clone --branch 0-19-staging https://github.com/lightninglabs/lightning-terminal.git /go/src/github.com/lightninglabs/lightning-terminal/
 
 RUN cd /go/src/github.com/lightninglabs/lightning-terminal/app \
   && yarn install \

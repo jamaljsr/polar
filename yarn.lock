@@ -2229,14 +2229,13 @@
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
 
-"@lightningpolar/tapd-api@0.3.99-alpha.pre1":
-  version "0.3.99-alpha.pre1"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.99-alpha.pre1.tgz#ffb467f1b831fa63def70be4cfb6ff8783e90040"
-  integrity sha512-XYMT+jICfXdArG2fkLZe3nTC4IEOIEazIHq1CVtybDgb5rWQ7lJY9b0zvtzVALEXbUgDdYbn1vwhcZd9SNv2Tw==
+"@lightningpolar/tapd-api@0.3.99-alpha.pre2":
+  version "0.3.99-alpha.pre2"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.99-alpha.pre2.tgz#9d299600f00ddd6dfa383babf326c43f77bd6726"
+  integrity sha512-uFePKhAaDhix2H6HnWTYRIS9kRm1iv4irXVqKER6mjQQguxYBhVK0qY51/GqmNFRZm77VeE6/MWoqOx3fI7rCA==
   dependencies:
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
-    patch-package "^8.0.0"
 
 "@malept/cross-spawn-promise@^1.1.0":
   version "1.1.1"
@@ -13809,7 +13808,7 @@ pascalcase@^0.1.1:
   resolved "https://registry.yarnpkg.com/pascalcase/-/pascalcase-0.1.1.tgz#b363e55e8006ca6fe21784d2db22bd15d7917f14"
   integrity sha512-XHXfu/yOQRy9vYOtUDVMN60OEJjW013GoObG1o+xwQTpB9eYJX/BjXMsdW13ZDPruFhYYn0AG22w0xgQMwl3Nw==
 
-patch-package@8.0.0, patch-package@^8.0.0:
+patch-package@8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/patch-package/-/patch-package-8.0.0.tgz#d191e2f1b6e06a4624a0116bcb88edd6714ede61"
   integrity sha512-da8BVIhzjtgScwDJ2TtKsfT5JFWz1hYoBl9rUQ1f38MC2HwnEIkK8VN3dKMKcP7P7bvvgzNDbfNHtx3MsQb5vA==
