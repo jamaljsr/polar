@@ -61,7 +61,14 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
         {node?.status === Status.Started ? (
           <Alert type="warning" message={l('alert')} />
         ) : null}
-        <Form.Item name="newNodeName" label={l('label')}>
+        <Form.Item
+          name="newNodeName"
+          label={l('label')}
+          rules={[
+            { required: true, message: l('cmps.forms.required') },
+            { pattern: /^[a-zA-Z0-9_-]+$/, message: l('invalidName') },
+          ]}
+        >
           <Input placeholder="Enter node name" disabled={updateAsync.loading} />
         </Form.Item>
       </Form>

@@ -51,6 +51,7 @@
   "cmps.common.RenameNodeModal.success": "The node has been renamed",
   "cmps.common.RenameNodeModal.error": "Unable to rename the node",
   "cmps.common.RenameNodeModal.alert": "The network will be restarted to perform this operation",
+  "cmps.common.RenameNodeModal.invalidName": "Can only contain letters, numbers, underscores, and dashes..",
   "cmps.common.RemoveNode.title": "Remove Node From Network",
   "cmps.common.RemoveNode.btnText": "Remove",
   "cmps.common.RemoveNode.confirmTitle": "Are you sure you want to remove {{name}} from the network?",
