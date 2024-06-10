@@ -4,7 +4,8 @@ import { waitFor } from './async';
 import { dataPath } from './config';
 import { debug, info } from 'electron-log';
 
-const abs = (path: string): string => (isAbsolute(path) ? path : join(dataPath, path));
+export const abs = (path: string): string =>
+  isAbsolute(path) ? path : join(dataPath, path);
 
 /**
  * Writes data to file located in the app's data directory

@@ -1,15 +1,27 @@
 import detectPort from 'detect-port';
-import { CLightningNode, LndNode, NodeImplementation, Status } from 'shared/types';
+import {
+  BitcoinNode,
+  CLightningNode,
+  EclairNode,
+  LndNode,
+  NodeImplementation,
+  Status,
+  TapdNode,
+} from 'shared/types';
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
   createCLightningNetworkNode,
   createLndNetworkNode,
   createTapdNetworkNode,
+  getCLightningFilePaths,
   getImageCommand,
+  getLndFilePaths,
   getOpenPortRange,
   getOpenPorts,
+  getTapdFilePaths,
   OpenPorts,
+  renameNode,
 } from './network';
 import { getNetwork, testManagedImages } from './tests';
 
@@ -343,6 +355,104 @@ describe('Network Utils', () => {
           `This network does not contain a LND v${compatibleLnd} (or higher) node which is required for tapd v${latest}`,
         ),
       );
+    });
+  });
+
+  describe('renameNode', () => {
+    let network: Network;
+
+    beforeEach(() => {
+      network = getNetwork();
+    });
+
+    it('should rename a lightning LND node', async () => {
+      const node = network.nodes.lightning.find(
+        n => n.implementation === 'LND',
+      ) as LndNode;
+      const newName = 'new-lnd-node-name';
+      const updatedNode = await renameNode(network, node, newName);
+      expect(updatedNode).toBeDefined();
+      expect(updatedNode.name).toBe(newName);
+      expect((updatedNode as LndNode).paths).toStrictEqual(
+        getLndFilePaths(newName, network),
+      );
+    });
+
+    it('should rename a lightning c-lightning node', async () => {
+      const node = network.nodes.lightning.find(
+        n => n.implementation === 'c-lightning',
+      ) as CLightningNode;
+      const newName = 'new-clightning-node-name';
+      const updatedNode = await renameNode(network, node, newName);
+      expect(updatedNode).toBeDefined();
+      expect(updatedNode.name).toBe(newName);
+      const supportsGrpc = (updatedNode as CLightningNode).ports.grpc !== 0;
+      expect((updatedNode as CLightningNode).paths).toStrictEqual(
+        getCLightningFilePaths(newName, supportsGrpc, network),
+      );
+    });
+
+    it('should rename an Eclair node', async () => {
+      const node = network.nodes.lightning.find(
+        n => n.implementation === 'eclair',
+      ) as EclairNode;
+      expect(node).toBeDefined();
+      const newName = 'new-eclair-node-name';
+      const updatedNode = await renameNode(network, node, newName);
+      expect(updatedNode).toBeDefined();
+      expect(updatedNode.name).toBe(newName);
+    });
+
+    it('should rename a bitcoin node', async () => {
+      const node = network.nodes.bitcoin[0] as BitcoinNode;
+      const newName = 'new-bitcoin-node-name';
+      const updatedNode = await renameNode(network, node, newName);
+      expect(updatedNode).toBeDefined();
+      expect(updatedNode.name).toBe(newName);
+    });
+
+    it('should rename a tap node', async () => {
+      const lnd = createLndNetworkNode(
+        network,
+        defaultRepoState.images.LND.latest,
+        defaultRepoState.images.LND.compatibility,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.lightning.push(lnd);
+      expect(network.nodes.lightning.length).toBe(5);
+      const tap = createTapdNetworkNode(
+        network,
+        defaultRepoState.images.tapd.latest,
+        defaultRepoState.images.tapd.compatibility,
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.tap.push(tap);
+      expect(network.nodes.tap.length).toBe(1);
+
+      const node = network.nodes.tap[0] as TapdNode;
+      expect(node).toBeDefined();
+      const newName = 'new-tap-node-name';
+
+      const updatedNode = await renameNode(network, node, newName);
+      expect(updatedNode).toBeDefined();
+      expect(updatedNode.name).toBe(newName);
+      expect((updatedNode as TapdNode).paths).toStrictEqual(
+        getTapdFilePaths(newName, network),
+      );
+    });
+
+    it('should throw an error for invalid node type', async () => {
+      const invalidNode: any = { type: 'invalid', id: '123' };
+      await expect(renameNode(network, invalidNode, 'new-name')).rejects.toThrow(
+        'Invalid node type',
+      );
+    });
+
+    it('should throw an error if node is not found', async () => {
+      const nonExistentNode: any = { type: 'bitcoin', id: 'non-existent' };
+      await expect(renameNode(network, nonExistentNode, 'new-name')).rejects.toThrow();
     });
   });
 });
