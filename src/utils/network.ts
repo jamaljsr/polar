@@ -871,7 +871,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  litd = litd.filter(n => n.status !== Status.Started); //??
+  litd = litd.filter(n => n.status !== Status.Started);
   if (litd.length) {
     let existingPorts = litd.map(n => n.ports.rest);
     let openPorts = await getOpenPortRange(existingPorts);

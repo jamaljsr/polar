@@ -98,6 +98,11 @@ const closeChannel = async (args: {
   // TODO: capture the stream events and push them to the UI
   const stream = rpc.lightning.closeChannel(args.req);
   stream.on('error', err => error('LndProxyServer: closeChannel error', err));
+  stream.on('end', () => debug('LndProxyServer: closeChannel stream ended'));
+  stream.on('data', data =>
+    debug('LndProxyServer: closeChannel stream data', toJSON(data)),
+  );
+  return {};
 };
 
 const listChannels = async (args: {
@@ -143,7 +148,7 @@ const payInvoice = async (args: {
     stream.on('data', (payment: LND.Payment) => {
       switch (payment.status) {
         case 'IN_FLIGHT':
-          debug('LndProxyServer: payment in-flight', toJSON(payment));
+          debug('LndProxyServer: payInvoice payment in-flight', toJSON(payment));
           break;
         case 'SUCCEEDED':
           resolve(payment);
@@ -151,7 +156,7 @@ const payInvoice = async (args: {
         case 'FAILED':
         case 'UNKNOWN':
           debug(
-            `LndProxyServer: payment failed: ${payment.failureReason}`,
+            `LndProxyServer: payInvoice payment failed: ${payment.failureReason}`,
             toJSON(payment),
           );
           reject(new Error(`Payment failed: ${payment.failureReason}`));
@@ -159,7 +164,7 @@ const payInvoice = async (args: {
       }
     });
     stream.on('error', err => reject(err));
-    stream.on('end', () => reject(new Error('Payment stream ended unexpectedly')));
+    stream.on('end', () => reject(new Error('Payment stream ended')));
   });
 };
 

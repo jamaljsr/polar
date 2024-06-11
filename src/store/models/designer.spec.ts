@@ -176,6 +176,26 @@ describe('Designer model', () => {
       expect((firstChart().nodes['alice'].size || {}).height).toBeUndefined();
     });
 
+    it('should not sync the chart multiple times consecutively', async () => {
+      const { syncChart } = store.getActions().designer;
+
+      const lnSpy = jest.spyOn(store.getActions().lightning, 'getAllInfo');
+      const tapSpy = jest.spyOn(store.getActions().tap, 'getAllInfo');
+
+      store
+        .getActions()
+        .network.setStatus({ id: firstNetwork().id, status: Status.Started });
+      await syncChart(firstNetwork());
+
+      expect(lnSpy).toHaveBeenCalledTimes(3);
+      expect(tapSpy).toHaveBeenCalledTimes(2);
+
+      await syncChart(firstNetwork());
+      // should not call the actions again
+      expect(lnSpy).toHaveBeenCalledTimes(3);
+      expect(tapSpy).toHaveBeenCalledTimes(2);
+    });
+
     describe('renameNode', () => {
       it('should update chart when renaming a lightning node', () => {
         expect(firstChart().nodes['alice']).toBeDefined();
@@ -778,6 +798,14 @@ describe('Designer model', () => {
         // move the link
         onLinkMove({ linkId: 'test-link', toPosition: position } as any);
         expect(firstChart().links['test-link'].to.position).toBeDefined();
+      });
+
+      it('onLinkMove with missing link should do nothing', () => {
+        const { onLinkMove } = store.getActions().designer;
+        const chart = firstChart();
+        // move the link
+        onLinkMove({ linkId: 'test-link', toPosition: position } as any);
+        expect(firstChart()).toEqual(chart);
       });
 
       it('onLinkComplete', () => {

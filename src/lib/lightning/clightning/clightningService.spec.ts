@@ -163,6 +163,12 @@ describe('CLightningService', () => {
     expect(actual.destination).toEqual('asdf');
   });
 
+  it('should throw if decodeInvoice when called', async () => {
+    await expect(clightningService.decodeInvoice(node)).rejects.toThrow(
+      'decodeInvoice is not implemented for c-lightning nodes',
+    );
+  });
+
   describe('openChannel', () => {
     let listPeersResponse = {
       peers: [{ id: 'fdsa', connected: true, netaddr: ['1.1.1.1:9735'] }],

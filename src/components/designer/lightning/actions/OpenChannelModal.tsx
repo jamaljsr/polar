@@ -3,6 +3,7 @@ import { useAsync, useAsyncCallback } from 'react-async-hook';
 import { Alert, Checkbox, Col, Form, InputNumber, Modal, Row } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
+import { TapBalance } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
@@ -92,7 +93,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   const sameNode = selectedFrom === selectedTo;
   const showDeposit = useMemo(() => {
     const confirmed = nodes?.[selectedFrom]?.walletBalance?.confirmed || '0';
-    const balance = parseInt(confirmed || '0');
+    const balance = parseInt(confirmed);
     const hasLowBalance = assetId === 'sats' ? balance < capacity : balance < 5000;
     return !sameNode && hasLowBalance;
   }, [selectedFrom, capacity, nodes, sameNode, assetId]);
@@ -103,16 +104,15 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     return fromNode?.implementation === 'litd' && toNode?.implementation === 'litd';
   }, [selectedFrom, selectedTo, network.nodes.lightning]);
 
-  const getAssetBalance = useCallback(
-    (value?: string) => {
-      if (!value || !showAssets) return 0;
-      if (value === 'sats') return 250000;
+  const calcCapacity = useCallback(
+    (assetId?: string) => {
+      if (assetId === 'sats') return 250000;
 
-      const balance = tapNodes[selectedFrom]?.balances?.find(
-        b => b.id === value,
-      )?.balance;
-      if (!balance) return 0;
-      return parseInt(balance);
+      // its safe to cast because this will only be called with a valid assetId
+      const asset = tapNodes[selectedFrom]?.balances?.find(
+        b => b.id === assetId,
+      ) as TapBalance;
+      return parseInt(asset.balance);
     },
     [showAssets, selectedFrom, assetId, tapNodes],
   );
@@ -165,7 +165,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
           nodeName={selectedFrom}
           tapNodesState={tapNodes}
           onChange={value =>
-            form.setFieldsValue({ capacity: getAssetBalance(value?.toString()) / 2 })
+            form.setFieldsValue({ capacity: calcCapacity(value?.toString()) })
           }
         />
       )}

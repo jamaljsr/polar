@@ -282,19 +282,25 @@ class DockerService implements DockerLibrary {
       await this.copyLegacyData();
     }
 
+    const emptyFile = { version: APP_VERSION, networks: [], charts: {} };
     if (await exists(path)) {
-      const json = await read(path);
-      let data = JSON.parse(json);
-      info(`loaded ${data.networks.length} networks from '${path}'`);
-      // migrate data when the version differs or running locally
-      if (data.version !== APP_VERSION || process.env.NODE_ENV !== 'production') {
-        data = migrateNetworksFile(data);
-        await this.saveNetworks(data);
+      try {
+        const json = await read(path);
+        let data = JSON.parse(json);
+        info(`loaded ${data.networks.length} networks from '${path}'`);
+        // migrate data when the version differs or running locally
+        if (data.version !== APP_VERSION || process.env.NODE_ENV !== 'production') {
+          data = migrateNetworksFile(data);
+          await this.saveNetworks(data);
+        }
+        return data;
+      } catch (err: any) {
+        info(`failed to parse networks from '${path}'`, err);
+        return emptyFile;
       }
-      return data;
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
-      return { version: APP_VERSION, networks: [], charts: {} };
+      return emptyFile;
     }
   }
 

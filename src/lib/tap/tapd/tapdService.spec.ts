@@ -2,6 +2,9 @@ import { Asset, AssetBalance } from '@lightningpolar/tapd-api';
 import {
   defaultAssetRoots,
   defaultSyncUniverse,
+  defaultTapdAddAssetBuyOrder,
+  defaultTapdAddAssetSellOrder,
+  defaultTapdEncodeCustomRecords,
   defaultTapdFinalizeBatch,
   defaultTapdListAssets,
   defaultTapdListBalances,
@@ -15,80 +18,6 @@ import tapdProxyClient from './tapdProxyClient';
 import tapdService from './tapdService';
 
 jest.mock('./tapdProxyClient');
-
-const sampleAsset: Asset = {
-  version: 'ASSET_VERSION_V0',
-  assetGenesis: {
-    genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
-    name: 'LUSD',
-    metaHash: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
-    assetId: Buffer.from(
-      'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
-    ),
-    outputIndex: 0,
-    assetType: 'NORMAL',
-  },
-  amount: '900',
-  lockTime: 0,
-  relativeLockTime: 0,
-  scriptVersion: 0,
-  scriptKey: Buffer.from(
-    '02f758c6f4b2d0df3bd7b6ba3e9ef3c34d51c0f6df682396a88b826326b2e98f3f',
-  ),
-  scriptKeyIsLocal: true,
-  assetGroup: {
-    rawGroupKey: Buffer.from(
-      '0295811c2a86e219eb3b7c1ab810145d32984003c515d1ac25264ea0e0906b2d12',
-    ),
-    tweakedGroupKey: Buffer.from(
-      '031f593aec22e3afd98c133b2520e1a41795d2bfed51d0470e69b55aebc7e5bb78',
-      'hex',
-    ),
-    assetWitness: Buffer.from(
-      '0140a74c7b8c9287084fe41adb806e970aba66d9abf95b051cf48d6287e57d355bce953fea942b7bfc6fbc76ddc1db3cd417db74500f94b757c1768184a326b5a0f4',
-    ),
-    tapscriptRoot: Buffer.from(
-      'dc886ced95397e55f52cc348196c5176adf888cb6f6a74bcd9305a48d95bfb9b',
-      'hex',
-    ),
-  },
-  chainAnchor: {
-    anchorTx: Buffer.from(
-      '02000000000102217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d256410110100000000ffffffff217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d2564101100000000000000000003e803000000000000225120540b38f3ef8dcf37d5c85b89d5ba15274cdc13f4d7cf300cfcdeedc3b1335d6de8030000000000002251205f158a5743cd9747732cb03b0a605cb08719ff5cf58234b7ec5276c851494e6e81e80e0000000000225120c2b958e9c347a30781e358940d20adef09079ae604faa509a34d789d5697e4c40140786d837c15c27efdf459b071a8b68691080c0e6c4d152b15cd359254e1408f76f2e8ca8680b0035202bb9e5407101aca5fa45a3c556f7e28cf275f19a584dd4001407883d96a241cd6354efacea726b0abbb8ec63f8b417d1cc5bb903078761dd0da58573a11972204a056bcc5f2c489682e5122521c128d7015a8bca7b1b690691100000000',
-    ),
-    anchorBlockHash: '6a748adfd6a1399d08978c117767b29fe83ede8fe4cb0186eba41e942dd04542',
-    anchorOutpoint: 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e:0',
-    internalKey: Buffer.from(
-      '03eb44c581b4955fd4c8200ac2fe815b4e0bdeb4e13f7d027340aab8f4964ecc77',
-    ),
-    merkleRoot: Buffer.from(
-      'dc886ced95397e55f52cc348196c5176adf888cb6f6a74bcd9305a48d95bfb9b',
-    ),
-    tapscriptSibling: Buffer.from(''),
-    blockHeight: 0,
-  },
-  prevWitnesses: [],
-  isSpent: false,
-  leaseOwner: Buffer.from(''),
-  leaseExpiry: '0',
-  isBurn: false,
-  scriptKeyDeclaredKnown: false,
-  scriptKeyHasScriptPath: false,
-};
-
-const sampleBalance: AssetBalance = {
-  assetGenesis: {
-    genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
-    name: 'LUSD',
-    metaHash: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
-    assetId: Buffer.from(
-      'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
-    ),
-    outputIndex: 0,
-    assetType: 'NORMAL',
-  },
-  balance: '100',
-};
 
 describe('TapdService', () => {
   const node = getNetwork(1, 'test network', undefined, 2).nodes.tap[0] as TapdNode;
@@ -268,6 +197,100 @@ describe('TapdService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should fund a channel', async () => {
+    tapdProxyClient.fundChannel = jest.fn().mockResolvedValue({ txid: 'txid1' });
+    const peerPubkey = 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e';
+    const assetId = 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b';
+    const actual = await tapdService.fundChannel(node, peerPubkey, assetId, 100);
+    expect(actual).toEqual('txid1');
+    expect(tapdProxyClient.fundChannel).toHaveBeenCalledWith(node, {
+      assetAmount: 100,
+      assetId: 'tLkFj6liFUHtZ9RwyfJQ5WceSE68Ra1LqF1dL897IAs=',
+      feeRateSatPerVbyte: 50,
+      peerPubkey: '96i+XgXEYgxRD+2AeyRwPv657gp5z3aB364fhoJrlD4=',
+      pushSat: 5000,
+    });
+  });
+
+  it('should add an asset buy order', async () => {
+    const apiResponse = defaultTapdAddAssetBuyOrder({
+      acceptedQuote: {
+        peer: '0370bd9ea40f2fb4e9d0f8051cdacc4b3ded33723e92214afbffaeb390b4a3fda0',
+        id: Buffer.from(
+          '37ccc59562dccc0583bda051ac2999e5d52dd8590044113ef0a790e29433065e',
+          'hex',
+        ),
+        scid: '17340988193036764766',
+        assetAmount: '250',
+        askPrice: '100000',
+        expiry: '1718092983',
+      },
+    });
+    tapdProxyClient.addAssetBuyOrder = jest.fn().mockResolvedValue(apiResponse);
+
+    const peerPubkey = 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e';
+    const assetId = 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b';
+    const actual = await tapdService.addAssetBuyOrder(node, peerPubkey, assetId, 100);
+
+    expect(actual).toEqual({
+      askPrice: '100000',
+      scid: '17340988193036764766',
+    });
+  });
+
+  it('should add an asset sell order', async () => {
+    const quoteId = Buffer.from(
+      'f3a0773303057207788f007b33961445941a70dc47bdbee3da91a75f5a54c787',
+      'hex',
+    );
+    const apiResponse = defaultTapdAddAssetSellOrder({
+      acceptedQuote: {
+        peer: '03cd763f902a70cae27d07012fe7f1e2353238932676f1f5dee2e97bd72d2ab255',
+        id: quoteId,
+        scid: '15749553399870572423',
+        assetAmount: '500',
+        bidPrice: '100000',
+        expiry: '1718092989',
+      },
+    });
+    tapdProxyClient.addAssetSellOrder = jest.fn().mockResolvedValue(apiResponse);
+
+    const peerPubkey = 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e';
+    const assetId = 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b';
+    const actual = await tapdService.addAssetSellOrder(
+      node,
+      peerPubkey,
+      assetId,
+      '500',
+      '100000',
+      '1718092989',
+    );
+
+    expect(actual).toEqual({
+      bidPrice: '100000',
+      scid: '15749553399870572423',
+      id: quoteId.toString(),
+    });
+  });
+
+  it('should encode custom records', async () => {
+    const rfqId = '86B3MwMFcgd4jwB7M5YURZQacNxHvb7j2pGnX1pUx4c=';
+    const apiResponse = defaultTapdEncodeCustomRecords({
+      customRecords: {
+        '65536': '00',
+        '65538': '9fd67b4c8ad724195c1e9951b5814f76ce21bc66053c87c5dd9dddbab587ff2a',
+      } as any,
+    });
+    tapdProxyClient.encodeCustomRecords = jest.fn().mockResolvedValue(apiResponse);
+
+    const actual = await tapdService.encodeCustomRecords(node, rfqId);
+
+    expect(actual).toEqual({
+      '65536': 'AA==',
+      '65538': 'n9Z7TIrXJBlcHplRtYFPds4hvGYFPIfF3Z3durWH/yo=',
+    });
+  });
+
   it('should sync the universe', async () => {
     const apiResponse = defaultSyncUniverse({
       syncedUniverses: ['dummy-data' as any],
@@ -307,3 +330,77 @@ describe('TapdService', () => {
     });
   });
 });
+
+const sampleAsset: Asset = {
+  version: 'ASSET_VERSION_V0',
+  assetGenesis: {
+    genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
+    name: 'LUSD',
+    metaHash: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
+    assetId: Buffer.from(
+      'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
+    ),
+    outputIndex: 0,
+    assetType: 'NORMAL',
+  },
+  amount: '900',
+  lockTime: 0,
+  relativeLockTime: 0,
+  scriptVersion: 0,
+  scriptKey: Buffer.from(
+    '02f758c6f4b2d0df3bd7b6ba3e9ef3c34d51c0f6df682396a88b826326b2e98f3f',
+  ),
+  scriptKeyIsLocal: true,
+  assetGroup: {
+    rawGroupKey: Buffer.from(
+      '0295811c2a86e219eb3b7c1ab810145d32984003c515d1ac25264ea0e0906b2d12',
+    ),
+    tweakedGroupKey: Buffer.from(
+      '031f593aec22e3afd98c133b2520e1a41795d2bfed51d0470e69b55aebc7e5bb78',
+      'hex',
+    ),
+    assetWitness: Buffer.from(
+      '0140a74c7b8c9287084fe41adb806e970aba66d9abf95b051cf48d6287e57d355bce953fea942b7bfc6fbc76ddc1db3cd417db74500f94b757c1768184a326b5a0f4',
+    ),
+    tapscriptRoot: Buffer.from(
+      'dc886ced95397e55f52cc348196c5176adf888cb6f6a74bcd9305a48d95bfb9b',
+      'hex',
+    ),
+  },
+  chainAnchor: {
+    anchorTx: Buffer.from(
+      '02000000000102217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d256410110100000000ffffffff217b7c61d585238f5e1a614ef5c4041c32ca9eedcae38c608b22dc5d2564101100000000000000000003e803000000000000225120540b38f3ef8dcf37d5c85b89d5ba15274cdc13f4d7cf300cfcdeedc3b1335d6de8030000000000002251205f158a5743cd9747732cb03b0a605cb08719ff5cf58234b7ec5276c851494e6e81e80e0000000000225120c2b958e9c347a30781e358940d20adef09079ae604faa509a34d789d5697e4c40140786d837c15c27efdf459b071a8b68691080c0e6c4d152b15cd359254e1408f76f2e8ca8680b0035202bb9e5407101aca5fa45a3c556f7e28cf275f19a584dd4001407883d96a241cd6354efacea726b0abbb8ec63f8b417d1cc5bb903078761dd0da58573a11972204a056bcc5f2c489682e5122521c128d7015a8bca7b1b690691100000000',
+    ),
+    anchorBlockHash: '6a748adfd6a1399d08978c117767b29fe83ede8fe4cb0186eba41e942dd04542',
+    anchorOutpoint: 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e:0',
+    internalKey: Buffer.from(
+      '03eb44c581b4955fd4c8200ac2fe815b4e0bdeb4e13f7d027340aab8f4964ecc77',
+    ),
+    merkleRoot: Buffer.from(
+      'dc886ced95397e55f52cc348196c5176adf888cb6f6a74bcd9305a48d95bfb9b',
+    ),
+    tapscriptSibling: Buffer.from(''),
+    blockHeight: 0,
+  },
+  prevWitnesses: [],
+  isSpent: false,
+  leaseOwner: Buffer.from(''),
+  leaseExpiry: '0',
+  isBurn: false,
+  scriptKeyDeclaredKnown: false,
+  scriptKeyHasScriptPath: false,
+};
+
+const sampleBalance: AssetBalance = {
+  assetGenesis: {
+    genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
+    name: 'LUSD',
+    metaHash: Buffer.from('66616e746173746963206d6f6e6579'), // fantastic money
+    assetId: Buffer.from(
+      'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b',
+    ),
+    outputIndex: 0,
+    assetType: 'NORMAL',
+  },
+  balance: '100',
+};

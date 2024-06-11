@@ -25,9 +25,8 @@ export interface Props extends SelectProps<SelectValue> {
   name: string;
   label?: string;
   network: Network;
-  nodeName?: string;
+  nodeName: string;
   initialValue?: string;
-  showBalance?: boolean;
   tapNodesState?: {
     [key: string]: TapNodeModel;
   };
@@ -38,7 +37,6 @@ const TapAssetSelect: React.FC<Props> = ({
   label,
   nodeName,
   initialValue,
-  showBalance,
   tapNodesState,
   onChange,
   ...rest
@@ -46,22 +44,18 @@ const TapAssetSelect: React.FC<Props> = ({
   const { l } = usePrefixedTranslation('cmps.common.form.TapAssetSelect');
   const [selected, setSelected] = useState(initialValue || '');
 
-  const { assets, balance } = useMemo(() => {
+  const { assets } = useMemo(() => {
     let assets: TapBalance[] = [];
-    let balance = '';
-    const balances = nodeName ? tapNodesState?.[nodeName]?.balances : undefined;
+    const balances = tapNodesState?.[nodeName]?.balances;
     if (balances) {
       assets = balances.sort((a, b) => a.name.localeCompare(b.name));
-      const selectedBalance = balances.find(b => b.id === selected)?.balance;
-      if (showBalance && selectedBalance)
-        balance = l('balance', { balance: format(selectedBalance) });
     }
-    return { assets, balance };
+    return { assets };
   }, [selected, tapNodesState, l, nodeName]);
 
   const handleChange = (value: SelectValue, option: any) => {
     setSelected(`${value}`);
-    if (onChange) onChange(value, option);
+    onChange?.(value, option);
   };
 
   return (
@@ -69,7 +63,6 @@ const TapAssetSelect: React.FC<Props> = ({
       name={name}
       label={label}
       rules={[{ required: true, message: l('cmps.forms.required') }]}
-      extra={balance}
     >
       <Select {...rest} onChange={handleChange}>
         <Select.Option value="sats">Bitcoin (sats)</Select.Option>

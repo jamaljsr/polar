@@ -247,7 +247,7 @@ describe('TapDetails', () => {
     it('should handle new address button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
-      fireEvent.click(await findByText('New Address'));
+      fireEvent.click(await findByText('Create Asset Address'));
       const { visible, nodeName } = store.getState().modals.newAddress;
       expect(visible).toEqual(true);
       expect(nodeName).toEqual(node.name);

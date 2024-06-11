@@ -176,7 +176,8 @@ describe('MintAssetModal', () => {
         unconfirmed: '0',
         total: '0',
       });
-      const { findByText } = await renderComponent();
+      const { findByText, getByText } = await renderComponent();
+      fireEvent.click(getByText('Deposit enough funds to alice'));
       expect(
         await findByText('Insufficient balance on lnd node alice'),
       ).toBeInTheDocument();
@@ -206,7 +207,6 @@ describe('MintAssetModal', () => {
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
-      fireEvent.click(getByText('Deposit enough funds to alice'));
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
         expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();
@@ -242,7 +242,6 @@ describe('MintAssetModal', () => {
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
-      fireEvent.click(getByText('Deposit enough funds to carol'));
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
         expect(lightningServiceMock.getNewAddress).toHaveBeenCalled();

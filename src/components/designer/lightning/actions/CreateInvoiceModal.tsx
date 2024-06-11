@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
+import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
@@ -93,14 +94,11 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       let assetName = 'sats';
       if (assetId === 'sats') {
         invoice = await createInvoice({ node, amount, memo: '' });
-      } else if (node.implementation === 'litd') {
+      } else {
         const litdNode = node as LitdNode;
         invoice = await createAssetInvoice({ node: litdNode, assetId, amount });
-        assetName = assets.find(a => a.id === assetId)?.name || assetId;
-      } else {
-        throw new Error(
-          `Cannot create an invoice for this node type: ${node.implementation}`,
-        );
+        const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
+        assetName = asset.name;
       }
       await showCreateInvoice({ nodeName: node.name, amount, invoice, assetName });
     } catch (error: any) {
@@ -110,11 +108,10 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const calcAmount = useCallback(
     (assetId?: string) => {
-      if (!assetId || !isLitd) return 0;
       if (assetId === 'sats') return 50_000;
 
-      const balance = assets.find(b => b.id === assetId)?.remoteBalance;
-      if (!balance) return 0;
+      const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
+      const balance = asset.remoteBalance;
       return Math.floor(parseInt(balance) / 2);
     },
     [assets, isLitd],

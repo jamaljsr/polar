@@ -50,7 +50,7 @@ class NotImplementedService implements LightningService {
   ): Promise<PLN.LightningNodePayReceipt> {
     throw new Error(`payInvoice is not implemented for ${node.implementation} nodes`);
   }
-  async decodeInvoice(
+  decodeInvoice(
     node: LightningNode,
     invoice: string,
   ): Promise<PLN.LightningNodePaymentRequest> {
