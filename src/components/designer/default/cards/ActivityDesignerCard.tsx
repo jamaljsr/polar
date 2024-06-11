@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import {
   ArrowDownOutlined,
   ArrowRightOutlined,
@@ -11,7 +12,6 @@ import { Alert, Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
-import { getDocker } from 'lib/docker/dockerService';
 import { useStoreActions } from 'store';
 import { ThemeColors } from 'theme/colors';
 import { ActivityInfo, Network, SimulationActivity } from 'types';
@@ -152,7 +152,7 @@ const defaultActivityInfo: ActivityInfo = {
 };
 
 const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
-  const [isSimulationActive, setIsStartSimulationActive] = React.useState(false);
+  const [isSimulationActive, setIsSimulationActive] = React.useState(false);
   const [isAddActivityActive, setIsAddActivityActive] = React.useState(false);
   const [addActivityInvalidState, setAddActivityInvalidState] =
     useState<AddActivityInvalidState | null>(null);
@@ -168,81 +168,72 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
     startSimulation,
     stopSimulation,
   } = useStoreActions(s => s.network);
+  const { notify } = useStoreActions(s => s.app);
   const { lightning } = network.nodes;
 
   const activities = network.simulationActivities ?? [];
   const numberOfActivities = activities.length;
 
-  const isSimulationContainerRunning = async () => {
-    const docker = await getDocker();
-    const containers = await docker.listContainers();
-    const simContainer = containers.find(c => {
-      // remove the leading '/' from the container name
-      const name = c.Names[0].substring(1);
-      return name === `polar-n${network.id}-simln`;
-    });
-    return simContainer?.State === 'restarting' || simContainer?.State === 'running';
-  };
-
-  useEffect(() => {
-    isSimulationContainerRunning().then(isRunning => {
-      console.log('isRunning', isRunning);
-      setIsStartSimulationActive(isRunning);
-    });
-  }, [isSimulationContainerRunning]);
-
-  const startSimulationActivity = () => {
-    if (network.status !== Status.Started) {
-      setAddActivityInvalidState({
-        state: 'warning',
-        message: l('startWarning'),
-        action: 'start',
-      });
-      setIsStartSimulationActive(false);
-      return;
-    }
-    if (numberOfActivities === 0) {
-      setIsAddActivityActive(true);
-      setAddActivityInvalidState({
-        state: 'warning',
-        message: l('NoActivityAddedWarning'),
-        action: 'start',
-      });
-      setIsStartSimulationActive(false);
-      return;
-    }
-    const allNotStartedNodesSet = new Set();
-    const nodes = network.simulationActivities.flatMap(activity => {
-      const activityNodes = new Set([activity.source.label, activity.destination.label]);
-      return lightning
-        .filter(node => node.status !== Status.Started && activityNodes.has(node.name))
-        .filter(node => {
-          const notStarted = !allNotStartedNodesSet.has(node.name);
-          if (notStarted) {
-            allNotStartedNodesSet.add(node.name);
-          }
-          return notStarted;
+  const startSimulationActivity = useAsyncCallback(async () => {
+    try {
+      if (network.status !== Status.Started) {
+        setAddActivityInvalidState({
+          state: 'warning',
+          message: l('startWarning'),
+          action: 'start',
         });
-    });
-    if (nodes.length > 0) {
-      setIsAddActivityActive(true);
-      setAddActivityInvalidState({
-        state: 'warning',
-        message: l('startWarning'),
-        action: 'start',
+        setIsSimulationActive(false);
+        return;
+      }
+      if (numberOfActivities === 0) {
+        setIsAddActivityActive(true);
+        setAddActivityInvalidState({
+          state: 'warning',
+          message: l('NoActivityAddedWarning'),
+          action: 'start',
+        });
+        setIsSimulationActive(false);
+        return;
+      }
+      const allNotStartedNodesSet = new Set();
+      const nodes = network.simulationActivities.flatMap(activity => {
+        const activityNodes = new Set([
+          activity.source.label,
+          activity.destination.label,
+        ]);
+        return lightning
+          .filter(node => node.status !== Status.Started && activityNodes.has(node.name))
+          .filter(node => {
+            const notStarted = !allNotStartedNodesSet.has(node.name);
+            if (notStarted) {
+              allNotStartedNodesSet.add(node.name);
+            }
+            return notStarted;
+          });
       });
-      setIsStartSimulationActive(false);
-      return;
+      if (nodes.length > 0) {
+        setIsAddActivityActive(true);
+        setAddActivityInvalidState({
+          state: 'warning',
+          message: l('startWarning'),
+          action: 'start',
+        });
+        setIsSimulationActive(false);
+        return;
+      }
+      setAddActivityInvalidState(null);
+      if (isSimulationActive) {
+        setIsSimulationActive(false);
+        await stopSimulation({ id: network.id });
+        return;
+      }
+      setIsSimulationActive(true);
+      await startSimulation({ id: network.id });
+    } catch (error: any) {
+      setIsSimulationActive(false);
+      notify({ message: l('startError'), error });
     }
-    setAddActivityInvalidState(null);
-    if (isSimulationActive) {
-      setIsStartSimulationActive(false);
-      stopSimulation({ id: network.id });
-      return;
-    }
-    setIsStartSimulationActive(true);
-    startSimulation({ id: network.id });
-  };
+  });
 
   const toggleAddActivity = () => {
     setIsAddActivityActive(prev => !prev);
@@ -293,6 +284,19 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
 
   const reset = () => {
     setActivityInfo(defaultActivityInfo);
+  };
+
+  const primaryCtaText = () => {
+    if (!isSimulationActive && startSimulationActivity.loading) {
+      return l('stopping');
+    }
+    if (isSimulationActive && startSimulationActivity.loading) {
+      return l('starting');
+    }
+    if (isSimulationActive && !startSimulationActivity.loading) {
+      return l('stop');
+    }
+    return l('start');
   };
 
   if (!visible) return null;
@@ -367,9 +371,11 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
       <Styled.StartStopButton
         colors={theme.dragNode}
         active={isSimulationActive}
-        onClick={startSimulationActivity}
+        onClick={startSimulationActivity.execute}
+        loading={startSimulationActivity.loading}
+        disabled={startSimulationActivity.loading}
       >
-        {isSimulationActive ? l('stop') : l('start')}
+        {primaryCtaText()}
       </Styled.StartStopButton>
     </>
   );
