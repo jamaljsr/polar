@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import { Form, Input, Modal, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
+import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
@@ -73,15 +74,12 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       if (assetId === 'sats') {
         const res = await payInvoice({ node, invoice });
         amount = res.amount;
-      } else if (node.implementation === 'litd') {
+      } else {
         const litdNode = node as LitdNode;
         const res = await payAssetInvoice({ node: litdNode, assetId, invoice });
         amount = res.amount;
-        assetName = assets.find(a => a.id === assetId)?.name || assetId;
-      } else {
-        throw new Error(
-          `Cannot create an invoice for this node type: ${node.implementation}`,
-        );
+        const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
+        assetName = asset.name;
       }
       const nodeName = node.name;
       notify({

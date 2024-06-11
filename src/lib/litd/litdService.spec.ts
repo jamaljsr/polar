@@ -118,4 +118,120 @@ describe('LitdService', () => {
   it('should revoke an LNC session', async () => {
     await expect(litdService.revokeSession(node, 'abcd')).resolves.not.toThrow();
   });
+
+  describe('waitUntilOnline', () => {
+    it('should wait successfully', async () => {
+      const apiResponse = defaultLitdStatus({
+        subServers: {
+          loop: {
+            disabled: true,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          pool: {
+            disabled: true,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          'taproot-assets': {
+            disabled: false,
+            running: true,
+            error: '',
+            customStatus: '',
+          },
+          lnd: {
+            disabled: false,
+            running: true,
+            error: '',
+            customStatus: '',
+          },
+          lit: {
+            disabled: false,
+            running: true,
+            error: '',
+            customStatus: '',
+          },
+          accounts: {
+            disabled: false,
+            running: true,
+            error: '',
+            customStatus: '',
+          },
+          faraday: {
+            disabled: false,
+            running: true,
+            error: '',
+            customStatus: '',
+          },
+        },
+      });
+      litdProxyClient.status = jest.fn().mockResolvedValue(apiResponse);
+      await expect(litdService.waitUntilOnline(node)).resolves.not.toThrow();
+      expect(litdProxyClient.status).toBeCalledTimes(1);
+    });
+
+    it('should throw error if the sub-servers never start up', async () => {
+      const apiResponse = defaultLitdStatus({
+        subServers: {
+          loop: {
+            disabled: true,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          pool: {
+            disabled: true,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          'taproot-assets': {
+            disabled: false,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          lnd: {
+            disabled: false,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          lit: {
+            disabled: false,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          accounts: {
+            disabled: false,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+          faraday: {
+            disabled: false,
+            running: false,
+            error: '',
+            customStatus: '',
+          },
+        },
+      });
+      litdProxyClient.status = jest.fn().mockResolvedValue(apiResponse);
+      await expect(litdService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
+        'Sub-server taproot-assets is not started yet.',
+      );
+      expect(litdProxyClient.status).toBeCalledTimes(4);
+    });
+
+    it('should throw error if waiting fails', async () => {
+      litdProxyClient.status = jest.fn().mockRejectedValue(new Error('test-error'));
+      await expect(litdService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
+        'test-error',
+      );
+      expect(litdProxyClient.status).toBeCalledTimes(4);
+    });
+  });
 });

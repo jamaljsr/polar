@@ -549,6 +549,14 @@ describe('DockerService', () => {
       expect(networks.length).toBe(0);
     });
 
+    it('should return an empty list if no networks are saved', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue('');
+      const { networks } = await dockerService.loadNetworks();
+      expect(Array.isArray(networks)).toBe(true);
+      expect(networks.length).toBe(0);
+    });
+
     it('should copy networks folder from an older version', async () => {
       filesMock.exists.mockResolvedValueOnce(true); // legacy path
       filesMock.exists.mockResolvedValueOnce(false); // current path before copy

@@ -1,10 +1,14 @@
 import {
+  AddAssetBuyOrderResponse,
+  AddAssetSellOrderResponse,
   Addr,
   AssetRootResponse,
+  EncodeCustomRecordsResponse,
   FinalizeBatchResponse,
   ListAssetResponse,
   ListBalancesResponse,
   MintAssetResponse,
+  QuoteRespStatus,
   SendAssetResponse,
   SyncResponse,
 } from '@lightningpolar/tapd-api';
@@ -93,12 +97,74 @@ export const defaultSyncUniverse = (value: Partial<SyncResponse>): SyncResponse 
   ...value,
 });
 
+export const defaultTapdAddAssetBuyOrder = (
+  value: Partial<AddAssetBuyOrderResponse>,
+): AddAssetBuyOrderResponse => ({
+  acceptedQuote: {
+    peer: '',
+    id: Buffer.from(''),
+    scid: '',
+    assetAmount: '',
+    askPrice: '',
+    expiry: '',
+  },
+  invalidQuote: {
+    status: QuoteRespStatus.INVALID_EXPIRY,
+    peer: '',
+    id: Buffer.from(''),
+  },
+  rejectedQuote: {
+    peer: '',
+    id: Buffer.from(''),
+    errorMessage: '',
+    errorCode: 0,
+  },
+  response: 'acceptedQuote',
+  ...value,
+});
+
+export const defaultTapdAddAssetSellOrder = (
+  value: Partial<AddAssetSellOrderResponse>,
+): AddAssetSellOrderResponse => ({
+  acceptedQuote: {
+    peer: '',
+    id: Buffer.from(''),
+    scid: '',
+    assetAmount: '',
+    bidPrice: '',
+    expiry: '',
+  },
+  invalidQuote: {
+    status: QuoteRespStatus.INVALID_EXPIRY,
+    peer: '',
+    id: Buffer.from(''),
+  },
+  rejectedQuote: {
+    peer: '',
+    id: Buffer.from(''),
+    errorMessage: '',
+    errorCode: 0,
+  },
+  response: 'acceptedQuote',
+  ...value,
+});
+
+export const defaultTapdEncodeCustomRecords = (
+  value: Partial<EncodeCustomRecordsResponse>,
+): EncodeCustomRecordsResponse => ({
+  customRecords: {},
+  ...value,
+});
+
 const defaults = {
   [ipcChannels.tapd.listAssets]: defaultTapdListAssets,
   [ipcChannels.tapd.listBalances]: defaultTapdListBalances,
   [ipcChannels.tapd.mintAsset]: defaultTapdMintAsset,
   [ipcChannels.tapd.newAddress]: defaultTapdNewAddress,
   [ipcChannels.tapd.sendAsset]: defaultTapdSendAsset,
+  [ipcChannels.tapd.addAssetBuyOrder]: defaultTapdAddAssetBuyOrder,
+  [ipcChannels.tapd.addAssetSellOrder]: defaultTapdAddAssetSellOrder,
+  [ipcChannels.tapd.encodeCustomRecords]: defaultTapdEncodeCustomRecords,
 };
 
 export type TapdDefaultsKey = keyof typeof defaults;

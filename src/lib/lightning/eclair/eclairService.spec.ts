@@ -353,6 +353,12 @@ describe('EclairService', () => {
     );
   });
 
+  it('should throw if decodeInvoice when called', async () => {
+    await expect(eclairService.decodeInvoice(node)).rejects.toThrow(
+      'decodeInvoice is not implemented for eclair nodes',
+    );
+  });
+
   describe('pay invoice', () => {
     const mockResponses = (v8: boolean) => {
       const payReq = {

@@ -129,7 +129,7 @@ describe('NetworkDesigner Component', () => {
     act(() => {
       store.getActions().modals.showOpenChannel({});
     });
-    expect(await findByText('Capacity (sats)')).toBeInTheDocument();
+    expect(await findByText('Capacity')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
@@ -139,7 +139,7 @@ describe('NetworkDesigner Component', () => {
     act(() => {
       store.getActions().modals.showCreateInvoice({});
     });
-    expect(await findByText('Amount (sats)')).toBeInTheDocument();
+    expect(await findByText('Amount')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 

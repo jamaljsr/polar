@@ -1,5 +1,6 @@
+import { waitFor } from '@testing-library/react';
 import { createStore } from 'easy-peasy';
-import { LndNode } from 'shared/types';
+import { LndNode, Status } from 'shared/types';
 import {
   LightningNodeBalances,
   LightningNodeChannel,
@@ -228,5 +229,28 @@ describe('Lightning Model', () => {
         expect.any(Function),
       ),
     );
+  });
+
+  it('should sync the chart when a channel event occurs', async () => {
+    const callbacks: Record<string, any> = {};
+    lightningServiceMock.subscribeChannelEvents.mockImplementation(async (_node, cb) => {
+      callbacks[_node.name] = cb;
+    });
+
+    const { addChannelListeners } = store.getActions().lightning;
+    await addChannelListeners(network);
+    expect(Object.keys(callbacks)).toHaveLength(4);
+
+    // spy on the syncChart action and prevent it from running because it requires
+    // mocking a bunch and API calls
+    const spy = jest
+      .spyOn(store.getActions().designer, 'syncChart')
+      .mockResolvedValue(false);
+    store.getActions().network.setStatus({ id: network.id, status: Status.Started });
+
+    // simulate a channel event
+    const callback = callbacks[network.nodes.lightning[0].name];
+    callback({ type: 'Pending' });
+    waitFor(() => expect(spy).toHaveBeenCalledTimes(1));
   });
 });

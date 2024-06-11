@@ -2,6 +2,7 @@ import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
+import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,
@@ -17,7 +18,10 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 >;
 
 describe('Channel component', () => {
-  const renderComponent = (status = Status.Stopped) => {
+  const renderComponent = (
+    status = Status.Stopped,
+    assets?: LightningNodeChannelAsset[],
+  ) => {
     const network = getNetwork(1, 'test network', status);
     const lnd1 = network.nodes.lightning[0];
     const lnd2 = network.nodes.lightning[3];
@@ -33,6 +37,7 @@ describe('Channel component', () => {
         direction: 'ltr',
         status: 'Open',
         isPrivate: false,
+        assets,
       },
     };
     const initialState = {
@@ -152,6 +157,27 @@ describe('Channel component', () => {
         expect(getByText('Unable to close the channel')).toBeInTheDocument();
         expect(getByText('test error')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('with assets', () => {
+    it('should display list of assets', async () => {
+      const asset: LightningNodeChannelAsset = {
+        id: 'testId',
+        name: 'test asset',
+        capacity: '2345',
+        localBalance: '1647',
+        remoteBalance: '853',
+      };
+      const { getByText } = renderComponent(Status.Stopped, [asset]);
+      expect(getByText('test asset')).toBeInTheDocument();
+      expect(getByText('(Taproot Asset)')).toBeInTheDocument();
+      expect(getByText('testId')).toBeInTheDocument();
+      expect(getByText('Asset ID')).toBeInTheDocument();
+      expect(getByText('testId')).toBeInTheDocument();
+      expect(getByText('2,345')).toBeInTheDocument();
+      expect(getByText('1,647')).toBeInTheDocument();
+      expect(getByText('853')).toBeInTheDocument();
     });
   });
 });

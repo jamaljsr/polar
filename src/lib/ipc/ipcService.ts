@@ -86,7 +86,7 @@ export const createIpcStreamer = (serviceName: string, prefix: string): IpcStrea
   const unsubscribe = (channel: string, callback: IpcStreamCallback) => {
     const subChan = `${prefix}-${channel}-stream`;
     debug(`${serviceName}: [unsubscribe] "${subChan}"`);
-    ipcRenderer.off(channel, callback);
+    ipcRenderer.off(subChan, callback);
   };
 
   return { subscribe, unsubscribe };

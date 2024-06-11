@@ -9,6 +9,7 @@ import { createNetwork } from 'utils/network';
 import {
   injections,
   lightningServiceMock,
+  litdServiceMock,
   renderWithProviders,
   tapServiceMock,
   testManagedImages,
@@ -144,6 +145,7 @@ describe('RenameNodeModal', () => {
       lightningServiceMock.waitUntilOnline.mockResolvedValue();
       bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
       tapServiceMock.waitUntilOnline.mockResolvedValue();
+      litdServiceMock.waitUntilOnline.mockResolvedValue();
       const { getByText, getByLabelText, store } = await renderComponent(
         Status.Started,
         'backend1',

@@ -37,6 +37,13 @@ describe('RepoService', () => {
     expect(result).not.toBeDefined();
   });
 
+  it('should not load state from disk if the file is empty', async () => {
+    filesMock.exists.mockResolvedValue(true);
+    filesMock.read.mockResolvedValue('');
+    const result = await repoService.load();
+    expect(result).not.toBeDefined();
+  });
+
   describe('checkForUpdates', () => {
     const localState = defaultRepoState;
     const updatedState: DockerRepoState = {

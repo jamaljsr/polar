@@ -13,6 +13,7 @@ import {
   getNetwork,
   injections,
   lightningServiceMock,
+  litdServiceMock,
   tapServiceMock,
   testCustomImages,
   testRepoState,
@@ -74,6 +75,7 @@ describe('Network model', () => {
     filesMock.waitForFile.mockResolvedValue();
     lightningServiceMock.waitUntilOnline.mockResolvedValue();
     bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
+    litdServiceMock.waitUntilOnline.mockResolvedValue();
   });
 
   it('should have a valid initial state', () => {
@@ -560,6 +562,7 @@ describe('Network model', () => {
 
     it('should set lightning node status to error if the node startup fails', async () => {
       lightningServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
+      litdServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
       const { start } = store.getActions().network;
       await start(firstNetwork().id);
       const { lightning } = firstNetwork().nodes;

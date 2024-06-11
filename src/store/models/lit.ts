@@ -156,7 +156,7 @@ const litModel: LitModel = {
         .filter(a => a.asset.id === assetId);
 
       if (assetsInChannels.length === 0) {
-        throw new Error('Not enough assets in a channel to create the invoice');
+        throw new Error('Not enough assets in a channel to pay the invoice');
       }
 
       const peerPubkey = assetsInChannels[0].peerPubkey;

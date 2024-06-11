@@ -13,6 +13,7 @@ import {
 import { Network } from 'types';
 import { getTapdNodes } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
+import { format } from 'utils/units';
 import { CopyIcon } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
@@ -97,7 +98,7 @@ const SendAssetModal: React.FC<Props> = ({ network }) => {
         value: decodedAddress?.name,
       },
       { label: l('type'), value: decodedAddress?.type },
-      { label: l('amount'), value: decodedAddress?.amount },
+      { label: l('amount'), value: format(decodedAddress?.amount || '0') },
     ];
 
     return <DetailsList details={details} />;

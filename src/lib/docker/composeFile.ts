@@ -54,7 +54,7 @@ class ComposeFile {
         USERID: '${USERID:-1000}',
         GROUPID: '${GROUPID:-1000}',
       },
-      stop_grace_period: '2m',
+      stop_grace_period: '30s',
       ...service,
     };
   }
