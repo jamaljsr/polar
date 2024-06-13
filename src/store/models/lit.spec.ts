@@ -158,12 +158,12 @@ describe('LIT Model', () => {
 
     it('should create an asset invoice', async () => {
       await store.getActions().lightning.getChannels(node);
-      const invoice = await store.getActions().lit.createAssetInvoice({
+      const res = await store.getActions().lit.createAssetInvoice({
         node,
         assetId: 'test-id',
         amount: 200,
       });
-      expect(invoice).toEqual('lnbc1invoice');
+      expect(res).toEqual({ invoice: 'lnbc1invoice', sats: 20 });
     });
 
     it('should throw an error when creating an asset invoice with a high balance', async () => {

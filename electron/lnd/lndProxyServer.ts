@@ -188,6 +188,7 @@ const subscribeChannelEvents = async (args: {
     sendStreamEvent(args.replyTo, data);
   });
   stream.on('error', err => debug('LndProxyServer: stream error', args.replyTo, err));
+  stream.on('end', () => debug('LndProxyServer: stream ended', args.replyTo));
   return {};
 };
 

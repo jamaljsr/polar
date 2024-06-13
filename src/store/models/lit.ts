@@ -58,7 +58,7 @@ export interface LitModel {
     CreateInvoicePayload,
     StoreInjections,
     RootModel,
-    Promise<string> // returns the payment request
+    Promise<{ invoice: string; sats: number }> // returns the payment request and sats amount
   >;
   payAssetInvoice: Thunk<
     LitModel,
@@ -142,7 +142,9 @@ const litModel: LitModel = {
           scid: buyOrder.scid,
           msats: msats.toString(),
         });
-      return invoice;
+
+      const sats = Number(msats / BigInt(1000));
+      return { invoice, sats };
     },
   ),
   payAssetInvoice: thunk(

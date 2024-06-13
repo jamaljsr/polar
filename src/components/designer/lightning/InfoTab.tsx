@@ -87,7 +87,8 @@ const InfoTab: React.FC<Props> = ({ node }) => {
 
   let balances: TapBalance[] | undefined = undefined;
   const tapState = tapNodes[node.name];
-  if (node.status === Status.Started && tapState) {
+  const isLitd = node.implementation === 'litd';
+  if (node.status === Status.Started && isLitd && tapState) {
     if (tapState.balances) {
       balances = tapState.balances;
     }

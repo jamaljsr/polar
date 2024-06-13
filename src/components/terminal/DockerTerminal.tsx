@@ -79,6 +79,7 @@ const nodeConfig: Record<string, { user: string; commands: string[] }> = {
     user: 'litd',
     commands: [
       'alias litcli="litcli --network regtest"',
+      'alias litcliln="litcli --macaroonpath ~/.lnd/data/chain/bitcoin/regtest/admin.macaroon ln"',
       'alias lncli="lncli --network regtest --rpcserver localhost:8443 --tlscertpath ~/.lit/tls.cert"',
       'alias tapcli="tapcli --network regtest --rpcserver localhost:8443 --tlscertpath ~/.lit/tls.cert"',
     ],
