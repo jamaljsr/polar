@@ -37,6 +37,8 @@ const Styled = {
   `,
 };
 
+const ASSET_WARNING_THRESHOLD = 5000;
+
 interface FormValues {
   node: string;
   assetId: string;
@@ -63,6 +65,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const [form] = Form.useForm();
   const assetId = Form.useWatch<string>('assetId', form) || 'sats';
+  const selectedAmount = Form.useWatch<number>('amount', form) || 0;
   const selectedNode = Form.useWatch<string>('node', form) || '';
 
   const isLitd = network.nodes.lightning.some(
@@ -96,9 +99,10 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
         invoice = await createInvoice({ node, amount, memo: '' });
       } else {
         const litdNode = node as LitdNode;
-        invoice = await createAssetInvoice({ node: litdNode, assetId, amount });
+        const res = await createAssetInvoice({ node: litdNode, assetId, amount });
+        invoice = res.invoice;
         const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
-        assetName = asset.name;
+        assetName = `${asset.name} (${format(res.sats)} sats)`;
       }
       await showCreateInvoice({ nodeName: node.name, amount, invoice, assetName });
     } catch (error: any) {
@@ -111,8 +115,8 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       if (assetId === 'sats') return 50_000;
 
       const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
-      const balance = asset.remoteBalance;
-      return Math.floor(parseInt(balance) / 2);
+      const balance = parseInt(asset.remoteBalance);
+      return Math.min(Math.floor(balance / 2), ASSET_WARNING_THRESHOLD);
     },
     [assets, isLitd],
   );
@@ -177,6 +181,11 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
           name="amount"
           label={l('amountLabel')}
           rules={[{ required: true, message: l('cmps.forms.required') }]}
+          help={
+            assetId === 'sats' || selectedAmount <= ASSET_WARNING_THRESHOLD
+              ? undefined
+              : l('amountHelp', { threshold: format(ASSET_WARNING_THRESHOLD) })
+          }
         >
           <InputNumber<number>
             min={1}

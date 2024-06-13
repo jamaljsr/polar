@@ -180,6 +180,7 @@
   "cmps.designer.lightning.actions.CreateInvoiceModal.nodeLabel": "Node",
   "cmps.designer.lightning.actions.CreateInvoiceModal.assetLabel": "Asset to Receive",
   "cmps.designer.lightning.actions.CreateInvoiceModal.amountLabel": "Amount",
+  "cmps.designer.lightning.actions.CreateInvoiceModal.amountHelp": "With the default mock exchange rate of 100 sats to 1 asset, it is best to use amounts below {{threshold}} to reduce the chances of payment failures.",
   "cmps.designer.lightning.actions.CreateInvoiceModal.cancelBtn": "Cancel",
   "cmps.designer.lightning.actions.CreateInvoiceModal.okBtn": "Create Invoice",
   "cmps.designer.lightning.actions.CreateInvoiceModal.submitError": "Unable to create the Invoice",

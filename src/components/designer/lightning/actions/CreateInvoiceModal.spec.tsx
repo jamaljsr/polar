@@ -206,6 +206,17 @@ describe('CreateInvoiceModal', () => {
       });
     });
 
+    it('should display a warning for large asset amounts', async () => {
+      const { getByLabelText, findByText, changeSelect } = await renderComponent();
+      expect(await findByText('Node')).toBeInTheDocument();
+      changeSelect('Asset to Receive', 'test asset');
+      fireEvent.change(getByLabelText('Amount'), { target: { value: '10000' } });
+      const warning =
+        'With the default mock exchange rate of 100 sats to 1 asset, ' +
+        'it is best to use amounts below 5,000 to reduce the chances of payment failures.';
+      expect(await findByText(warning)).toBeInTheDocument();
+    });
+
     it('should display an error when creating an asset invoice with a high balance', async () => {
       const { getByText, getByLabelText, findByText, changeSelect } =
         await renderComponent();
