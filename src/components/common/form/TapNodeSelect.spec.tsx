@@ -7,7 +7,7 @@ import TapNodeSelect from './TapNodeSelect';
 
 describe('TapNodeSelect', () => {
   const renderComponent = () => {
-    const network = getNetwork(1, 'test network', Status.Stopped, 3);
+    const network = getNetwork(1, 'test network', Status.Stopped.toString(), 3);
     const TestForm = () => {
       const [form] = Form.useForm();
       return (

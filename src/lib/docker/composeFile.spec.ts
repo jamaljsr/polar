@@ -11,7 +11,7 @@ describe('ComposeFile', () => {
   const clnNode = network.nodes.lightning[1] as CLightningNode;
   // create a separate network for tap nodes because it won't include any
   // c-lightning nodes
-  const tapNetwork = getNetwork(2, 'tap', Status.Stopped, 2);
+  const tapNetwork = getNetwork(2, 'tap', Status.Stopped?.toString(), 2);
   const tapNode = tapNetwork.nodes.tap[0] as TapdNode;
   const tapLndNode = network.nodes.lightning[0] as LndNode;
 

@@ -88,6 +88,18 @@ const NewNetwork: React.FC = () => {
           >
             <Input placeholder={l('namePhldr')} />
           </Form.Item>
+
+          <Form.Item
+            name="description"
+            label={l('descriptionLabel')}
+            rules={[
+              { required: true, message: l('cmps.forms.required') },
+              { max: 80, message: 'Maximum length is 80 characters' },
+            ]}
+          >
+            <Input placeholder={l('descriptionPhldr')} />
+          </Form.Item>
+
           {customNodes.length > 0 && (
             <>
               <Styled.Divider orientation="left">{l('customLabel')}</Styled.Divider>

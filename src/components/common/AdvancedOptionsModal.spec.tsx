@@ -13,7 +13,7 @@ describe('AdvancedOptionsModal', () => {
   let unmount: () => void;
 
   const renderComponent = async (status?: Status, nodeName = 'alice') => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     const initialState = {
       network: {
         networks: [network],

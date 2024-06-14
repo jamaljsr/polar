@@ -45,7 +45,7 @@ describe('LinkContextMenu', () => {
     },
   });
   const renderComponent = (link: ILink, activeId?: number) => {
-    const network = getNetwork(1, 'test network', Status.Started, 2);
+    const network = getNetwork(1, 'test network', Status.Started?.toString(), 2);
     const chart = initChartFromNetwork(network);
     chart.links[link.id] = link;
     const initialState = {

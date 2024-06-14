@@ -23,6 +23,7 @@ describe('SendOnChainModal', () => {
     const network = createNetwork({
       id: 1,
       name: 'test network',
+      description: 'test network description',
       lndNodes: 2,
       clightningNodes: 1,
       eclairNodes: 1,

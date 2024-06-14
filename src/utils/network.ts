@@ -364,6 +364,7 @@ export const createTapdNetworkNode = (
 export const createNetwork = (config: {
   id: number;
   name: string;
+  description: string;
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
@@ -377,6 +378,7 @@ export const createNetwork = (config: {
   const {
     id,
     name,
+    description,
     lndNodes,
     clightningNodes,
     eclairNodes,
@@ -392,6 +394,7 @@ export const createNetwork = (config: {
   const network: Network = {
     id: id,
     name,
+    description,
     status,
     path: join(networksPath, id.toString()),
     nodes: {

@@ -16,7 +16,7 @@ const dockerServiceMock = injections.dockerService as jest.Mocked<DockerLibrary>
 
 describe('RestartNode', () => {
   const renderComponent = (status?: Status) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     const initialState = {
       network: {
         networks: [network],

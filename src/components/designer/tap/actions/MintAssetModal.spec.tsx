@@ -21,7 +21,7 @@ describe('MintAssetModal', () => {
   let node: TapNode;
 
   const renderComponent = async () => {
-    const network = getNetwork(1, 'test network', Status.Started, 2);
+    const network = getNetwork(1, 'test network', Status.Started?.toString(), 2);
     node = network.nodes.tap[0];
 
     const initialState = {

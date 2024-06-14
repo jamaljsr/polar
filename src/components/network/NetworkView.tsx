@@ -172,6 +172,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       <Styled.PageHeader
         colors={theme.pageHeader}
         title={network.name}
+        description={'network.description'}
         onBack={handleBackClick}
         tags={<StatusTag status={network.status} />}
         extra={

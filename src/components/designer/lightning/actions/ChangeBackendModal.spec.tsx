@@ -22,7 +22,7 @@ describe('ChangeBackendModal', () => {
     lnName = 'alice',
     backendName = 'backend1',
   ) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     const oldBitcoind = createBitcoindNetworkNode(
       network,
       '0.18.1',

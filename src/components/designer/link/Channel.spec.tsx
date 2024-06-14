@@ -18,7 +18,7 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 
 describe('Channel component', () => {
   const renderComponent = (status = Status.Stopped) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status?.toString());
     const lnd1 = network.nodes.lightning[0];
     const lnd2 = network.nodes.lightning[3];
     const link: ILink = {
