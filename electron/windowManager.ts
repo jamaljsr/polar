@@ -1,12 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  nativeImage,
-  nativeTheme,
-  Tray,
-} from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import { error, warn } from 'electron-log';
 import windowState from 'electron-window-state';
 import { join } from 'path';
@@ -19,10 +11,11 @@ import {
   initLndSubscriptions,
 } from './lnd/lndProxyServer';
 import { initTapdProxy } from './tapd/tapdProxyServer';
+import TrayManager from './trayManager';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
-  tray: Tray | null = null;
+  trayManager: TrayManager | null = null;
 
   start() {
     app.on('ready', async () => {
@@ -61,8 +54,8 @@ class WindowManager {
     });
 
     // create App system tray icon with context menus
-    if (!this.tray) {
-      this.createAppTray();
+    if (!this.trayManager) {
+      this.trayManager = new TrayManager(this.mainWindow);
     }
 
     this.mainWindow.setMenuBarVisibility(false);
@@ -104,12 +97,12 @@ class WindowManager {
 
   onMainClosed() {
     this.mainWindow = null;
-    this.tray?.destroy();
+    this.trayManager?.destroy();
     app.quit();
   }
 
   onAllClosed() {
-    this.tray?.destroy();
+    this.trayManager?.destroy();
     app.quit();
   }
 
@@ -136,141 +129,6 @@ class WindowManager {
       error(`unable to send message ${message} to renderer on channel ${responseChan}`);
     }
   };
-
-  TRAY_ICONS_ROOT: string[] = [APP_ROOT, 'assets', 'icons', 'tray'];
-
-  /**
-   * select `light` or `dark` icon based on host OS
-   * system theme
-   * @param path
-   * @returns
-   */
-  iconSelector = (path: 'quit' | 'minimize' | 'show') => {
-    console.log('nativeTheme.shouldUseDarkColors', nativeTheme.shouldUseDarkColors);
-    if (nativeTheme.shouldUseDarkColors) {
-      let iconName;
-      switch (process.platform) {
-        case 'darwin':
-          iconName = '16x16Template.png';
-          break;
-        case 'win32':
-          iconName = '16x16icon-dark.png';
-          break;
-        case 'linux':
-          iconName = '96x96icon-dark.png';
-          break;
-        default:
-          iconName = '96x96icon-dark.png';
-          break;
-      }
-      const imagePath = join(...this.TRAY_ICONS_ROOT, path, iconName);
-      const nativeImageFromPath = nativeImage.createFromPath(imagePath);
-      nativeImageFromPath.setTemplateImage(true);
-      return nativeImageFromPath;
-    }
-
-    if (!nativeTheme.shouldUseDarkColors) {
-      let iconName;
-      switch (process.platform) {
-        case 'darwin':
-          iconName = '16x16Template.png';
-          break;
-        case 'win32':
-          iconName = '16x16icon-light.png';
-          break;
-        case 'linux':
-          iconName = '96x96icon-light.png';
-          break;
-        default:
-          iconName = '96x96icon-light.png';
-          break;
-      }
-      const imagePath = join(...this.TRAY_ICONS_ROOT, path, iconName);
-      const nativeImageFromPath = nativeImage.createFromPath(imagePath);
-      nativeImageFromPath.setTemplateImage(true);
-      return nativeImageFromPath;
-    }
-  };
-
-  /**
-   * `hides` polar windows
-   */
-  handleOnHideClick = () => {
-    app.dock?.hide();
-    this.mainWindow?.setSkipTaskbar(true);
-    this.mainWindow?.hide();
-  };
-
-  /**
-   * `shows` polar window
-   */
-  handleOnShowClick = () => {
-    app.dock?.show();
-    this.mainWindow?.setSkipTaskbar(false);
-    this.mainWindow?.show();
-  };
-
-  /**
-   * closes all windows and quits the app
-   */
-  handleQuitClick = () => {
-    app.quit();
-  };
-
-  updateTrayIcons(tray: Tray | null) {
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Minimize Window',
-        click: this.handleOnHideClick,
-        icon: this.iconSelector('minimize'),
-      },
-      {
-        label: 'Show Window',
-        click: this.handleOnShowClick,
-        icon: this.iconSelector('show'),
-      },
-      {
-        type: 'separator',
-      },
-      {
-        label: 'Quit Polar',
-        click: this.handleQuitClick,
-        icon: this.iconSelector('quit'),
-      },
-    ]);
-
-    tray?.setContextMenu(contextMenu);
-  }
-
-  /**
-   * Creates App tray icon with a menu of options
-   * to `Hide/Show` the app window
-   * and also `quite` the running app instance
-   * @returns void
-   */
-  createAppTray() {
-    const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
-    const trayIcon =
-      process.platform === 'darwin'
-        ? join(...this.TRAY_ICONS_ROOT, '16x16Template.png')
-        : join(...this.TRAY_ICONS_ROOT, `1024x1024-${theme}.png`);
-    const nativeImageFromPath = nativeImage.createFromPath(trayIcon as string);
-    nativeImageFromPath.setTemplateImage(true);
-    this.tray = new Tray(nativeImageFromPath);
-
-    // initial creation of tray menu
-    this.updateTrayIcons(this.tray);
-
-    this.tray.on('click', () => {
-      // show the window when the user clicks on the tray icon
-      this.handleOnShowClick();
-    });
-
-    nativeTheme.on('updated', () => {
-      // re-create tray context menu when system theme changes
-      this.updateTrayIcons(this?.tray);
-    });
-  }
 }
 
 export default WindowManager;
