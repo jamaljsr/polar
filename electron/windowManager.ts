@@ -11,9 +11,11 @@ import {
   initLndSubscriptions,
 } from './lnd/lndProxyServer';
 import { initTapdProxy } from './tapd/tapdProxyServer';
+import TrayManager from './trayManager';
 
 class WindowManager {
   mainWindow: BrowserWindow | null = null;
+  trayManager: TrayManager | null = null;
 
   start() {
     app.on('ready', async () => {
@@ -50,6 +52,12 @@ class WindowManager {
         enableRemoteModule: true,
       },
     });
+
+    // create App system tray icon with context menus
+    if (!this.trayManager) {
+      this.trayManager = new TrayManager(this.mainWindow);
+    }
+
     this.mainWindow.setMenuBarVisibility(false);
 
     if (IS_DEV) {
@@ -89,12 +97,13 @@ class WindowManager {
 
   onMainClosed() {
     this.mainWindow = null;
+    this.trayManager?.destroy();
+    app.quit();
   }
 
   onAllClosed() {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
+    this.trayManager?.destroy();
+    app.quit();
   }
 
   onMainWindowClose() {
