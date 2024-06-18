@@ -146,6 +146,7 @@ class WindowManager {
    * @returns
    */
   iconSelector = (path: 'quit' | 'minimize' | 'show') => {
+    console.log('nativeTheme.shouldUseDarkColors', nativeTheme.shouldUseDarkColors);
     if (nativeTheme.shouldUseDarkColors) {
       let iconName;
       switch (process.platform) {
@@ -248,16 +249,22 @@ class WindowManager {
    * @returns void
    */
   createAppTray() {
+    const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
     const trayIcon =
       process.platform === 'darwin'
         ? join(...this.TRAY_ICONS_ROOT, '16x16Template.png')
-        : join(...this.TRAY_ICONS_ROOT, '1024x1024-white.png');
+        : join(...this.TRAY_ICONS_ROOT, `1024x1024-${theme}.png`);
     const nativeImageFromPath = nativeImage.createFromPath(trayIcon as string);
     nativeImageFromPath.setTemplateImage(true);
     this.tray = new Tray(nativeImageFromPath);
 
     // initial creation of tray menu
     this.updateTrayIcons(this.tray);
+
+    this.tray.on('click', () => {
+      // show the window when the user clicks on the tray icon
+      this.handleOnShowClick();
+    });
 
     nativeTheme.on('updated', () => {
       // re-create tray context menu when system theme changes
