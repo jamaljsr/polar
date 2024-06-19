@@ -77,13 +77,13 @@ describe('Designer model', () => {
 
     beforeEach(async () => {
       const network = getNetwork(2, 'test network', Status.Stopped, 2);
-      const cligntningNode = createCLightningNetworkNode(
+      const clnNode = createCLightningNetworkNode(
         network,
         testRepoState.images['c-lightning'].latest,
         testRepoState.images['c-lightning'].compatibility,
         testNodeDocker,
       );
-      network.nodes.lightning.push(cligntningNode);
+      network.nodes.lightning.push(clnNode);
       const bitcoinNode = createBitcoindNetworkNode(
         network,
         testRepoState.images.bitcoind.latest,
@@ -172,6 +172,91 @@ describe('Designer model', () => {
       expect((firstChart().nodes['alice'].size || {}).height).toBeUndefined();
       redrawChart();
       expect((firstChart().nodes['alice'].size || {}).height).toBeUndefined();
+    });
+
+    describe('renameNode', () => {
+      it('should update chart when renaming a lightning node', () => {
+        expect(firstChart().nodes['alice']).toBeDefined();
+        expect(firstChart().links['alice-backend1']).toBeDefined();
+
+        const { renameNode } = store.getActions().designer;
+        renameNode({ nodeId: 'alice', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['alice']).toBeUndefined();
+
+        expect(firstChart().links['test-backend1']).toBeDefined();
+        expect(firstChart().links['alice-backend1']).toBeUndefined();
+      });
+
+      it('should update chart when renaming a bitcoin node', () => {
+        expect(firstChart().nodes['backend1']).toBeDefined();
+        expect(firstChart().links['backend1-backend2']).toBeDefined();
+
+        const { renameNode } = store.getActions().designer;
+        renameNode({ nodeId: 'backend1', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['backend1']).toBeUndefined();
+
+        expect(firstChart().links['test-backend2']).toBeDefined();
+        expect(firstChart().links['backend1-backend2']).toBeUndefined();
+      });
+
+      it('should update chart when renaming a TAP node', () => {
+        expect(firstChart().nodes['alice-tap']).toBeDefined();
+        expect(firstChart().links['alice-tap-alice']).toBeDefined();
+
+        const { renameNode } = store.getActions().designer;
+        renameNode({ nodeId: 'alice-tap', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['alice-tap']).toBeUndefined();
+
+        expect(firstChart().links['test-alice']).toBeDefined();
+        expect(firstChart().links['alice-tap-alice']).toBeUndefined();
+      });
+
+      it('should update channel links when renaming a lightning node', () => {
+        const chart = firstChart();
+        const chartWithChannel = {
+          ...chart,
+          links: {
+            ...chart.links,
+            'test-chan-id': {
+              id: 'test-chan-id',
+              from: { nodeId: 'alice', portId: 'peer-right' },
+              to: { nodeId: 'bob', portId: 'peer-left' },
+              properties: {
+                type: 'open-channel',
+              },
+            },
+          },
+        };
+        const { renameNode, setChart } = store.getActions().designer;
+        setChart({ id: firstNetwork().id, chart: chartWithChannel });
+
+        expect(firstChart().nodes['alice']).toBeDefined();
+        expect(firstChart().links['test-chan-id']).toBeDefined();
+        expect(firstChart().links['test-chan-id'].from.nodeId).toBe('alice');
+        expect(firstChart().links['test-chan-id'].to.nodeId).toBe('bob');
+
+        renameNode({ nodeId: 'alice', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['alice']).toBeUndefined();
+
+        expect(firstChart().links['test-chan-id']).toBeDefined();
+        expect(firstChart().links['test-chan-id'].from.nodeId).toBe('test');
+        expect(firstChart().links['test-chan-id'].to.nodeId).toBe('bob');
+      });
+
+      it('should throw an error for an invalid node to rename', () => {
+        const { renameNode } = store.getActions().designer;
+        expect(() => renameNode({ nodeId: 'unknown', name: 'test' })).toThrow(
+          'Node with id unknown not found.',
+        );
+      });
     });
 
     describe('onLinkCompleteListener', () => {

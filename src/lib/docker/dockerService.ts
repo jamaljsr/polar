@@ -20,7 +20,7 @@ import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs } from 'utils/constants';
-import { exists, read, renameFile, write } from 'utils/files';
+import { exists, read, renameFile, rm, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
@@ -242,7 +242,15 @@ class DockerService implements DockerLibrary {
     const oldPath = nodePath(network, node.implementation, node.name);
     const newPath = nodePath(network, node.implementation, newName);
 
-    renameFile(oldPath, newPath);
+    if (node.implementation === 'LND') {
+      const certPath = (node as LndNode).paths.tlsCert;
+      const keyPath = certPath.replace('.cert', '.key');
+      // need to delete the tls cert so that it is recreated with the new hostname
+      if (await exists(certPath)) await rm(certPath);
+      if (await exists(keyPath)) await rm(keyPath);
+    }
+
+    if (await exists(oldPath)) renameFile(oldPath, newPath);
   }
 
   /**

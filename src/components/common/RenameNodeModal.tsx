@@ -1,9 +1,9 @@
 import React from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { Alert, Form, Input, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { AnyNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { useAsyncCallback } from 'react-async-hook';
 import { Network } from 'types';
 
 interface Props {
@@ -21,9 +21,10 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
 
   const updateAsync = useAsyncCallback(async (node: AnyNode, newName: string) => {
     try {
+      const name = node.name;
       await renameNode({ node, newName });
       hideRenameNode();
-      notify({ message: l('success', { name: node.name }) });
+      notify({ message: l('success', { name, newName }) });
     } catch (error: any) {
       notify({ message: l('error'), error });
     }

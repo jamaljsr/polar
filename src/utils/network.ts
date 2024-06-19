@@ -527,6 +527,13 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
       switch (node.implementation) {
         case 'LND':
           updatedNode = network.nodes.lightning.find(n => n.id === node.id) as LndNode;
+          network.nodes.tap
+            .filter(n => n.implementation === 'tapd')
+            .map(n => n as TapdNode)
+            .filter(n => n.lndName === node.name)
+            .forEach(n => {
+              n.lndName = newName;
+            });
           updatedNode.name = newName;
           updatedNode.paths = getLndFilePaths(newName, network);
           break;
@@ -545,11 +552,21 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
       }
       break;
     case 'bitcoin':
-      updatedNode = network?.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
+      network.nodes.lightning
+        .filter(n => n.backendName === node.name)
+        .forEach(n => {
+          n.backendName = newName;
+        });
+      network.nodes.bitcoin
+        .filter(n => n.peers.includes(node.name))
+        .forEach(n => {
+          n.peers = n.peers.map(peer => (peer === node.name ? newName : peer));
+        });
+      updatedNode = network.nodes.bitcoin.find(n => n.id === node.id) as BitcoinNode;
       updatedNode.name = newName;
       break;
     case 'tap':
-      updatedNode = network?.nodes.tap.find(n => n.id === node.id) as TapdNode;
+      updatedNode = network.nodes.tap.find(n => n.id === node.id) as TapdNode;
       updatedNode.name = newName;
       updatedNode.paths = getTapdFilePaths(newName, network);
       break;

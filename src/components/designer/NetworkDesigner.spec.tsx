@@ -224,6 +224,16 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the Rename Node modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showRenameNode({ oldNodeName: 'alice' });
+    });
+    expect(await findByText('Rename Node alice')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText, store } = renderComponent();
     // add a new LN node that doesn't have a tap node connected

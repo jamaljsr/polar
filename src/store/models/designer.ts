@@ -46,6 +46,7 @@ export interface DesignerModel {
   updateTapBackendLink: Action<DesignerModel, { tapName: string; lndName: string }>;
   removeNode: Action<DesignerModel, string>;
   addNode: Action<DesignerModel, { newNode: AnyNode; position: IPosition }>;
+  renameNode: Action<DesignerModel, { nodeId: string; name: string }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   zoomIn: Action<DesignerModel, any>;
@@ -73,12 +74,6 @@ export interface DesignerModel {
   onPortPositionChange: Action<DesignerModel, Parameters<RFC.IOnPortPositionChange>[0]>;
   onCanvasDrop: Action<DesignerModel, Parameters<RFC.IOnCanvasDrop>[0]>;
   onZoomCanvas: Action<DesignerModel, Parameters<RFC.IOnZoomCanvas>[0]>;
-  renameNode: Thunk<
-    DesignerModel,
-    { nodeId: string; name: string },
-    StoreInjections,
-    RootModel
-  >;
 }
 
 const designerModel: DesignerModel = {
@@ -219,43 +214,6 @@ const designerModel: DesignerModel = {
       }
     });
   }),
-  renameNode: thunk(async (actions, { nodeId, name }, { getState, getStoreActions }) => {
-    const { allCharts, activeId } = getState();
-    const chart = allCharts[activeId];
-
-    // Ensure the node exists
-    const node = chart.nodes[nodeId];
-    if (!node) {
-      throw new Error(`Node with id ${nodeId} not found.`);
-    }
-
-    // Iterate over all links in the chart to change nodeId
-    Object.values(chart.links).forEach(link => {
-      if (link.from.nodeId === nodeId) {
-        link.from.nodeId = name;
-      }
-      if (link.to.nodeId === nodeId) {
-        link.to.nodeId = name;
-      }
-    });
-
-    // Update the node chart
-    const updatedChart = {
-      ...chart,
-      nodes: {
-        ...chart.nodes,
-        [name]: {
-          ...chart.nodes[nodeId],
-          id: name,
-        },
-      },
-    };
-
-    // Update the state with the modified chart
-    allCharts[activeId] = updatedChart;
-    // Remove the old node with the previous key
-    getStoreActions().designer.removeNode(nodeId);
-  }),
   addNode: action((state, { newNode, position }) => {
     const chart = state.allCharts[state.activeId];
     const { node, link } =
@@ -267,6 +225,51 @@ const designerModel: DesignerModel = {
     node.position = position;
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
+  }),
+  renameNode: action((state, payload) => {
+    const { nodeId, name } = payload;
+    const chart = state.allCharts[state.activeId];
+
+    // Ensure the node exists
+    const node = chart.nodes[nodeId];
+    if (!node) {
+      throw new Error(`Node with id ${nodeId} not found.`);
+    }
+
+    const newLinks: Record<string, RFC.ILink> = {};
+    // Iterate over all links in the chart to change nodeId
+    Object.values(chart.links).forEach(link => {
+      if (link.from.nodeId === nodeId) {
+        link.from.nodeId = name;
+      }
+      if (link.to.nodeId === nodeId) {
+        link.to.nodeId = name;
+      }
+      // Update the link id if it's a backend or peer link
+      if (['backend', 'btcpeer', 'lndbackend'].includes(link.properties.type)) {
+        link.id = `${link.from.nodeId}-${link.to.nodeId}`;
+      }
+      newLinks[link.id] = link;
+    });
+
+    // Update the node chart
+    const updatedChart: RFC.IChart = {
+      ...chart,
+      nodes: {
+        ...chart.nodes,
+        // Add the new node
+        [name]: {
+          ...chart.nodes[nodeId],
+          id: name,
+        },
+      },
+      links: newLinks,
+    };
+    // Remove the old node
+    delete updatedChart.nodes[nodeId];
+
+    // Update the state with the modified chart
+    state.allCharts[state.activeId] = updatedChart;
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,

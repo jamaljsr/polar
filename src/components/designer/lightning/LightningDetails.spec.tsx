@@ -283,6 +283,15 @@ describe('LightningDetails', () => {
       expect(nodeName).toEqual(node.name);
     });
 
+    it('should handle rename button click', async () => {
+      const { findByText, node, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Rename', { selector: 'span' }));
+      const { visible, oldNodeName } = store.getState().modals.renameNode;
+      expect(visible).toEqual(true);
+      expect(oldNodeName).toEqual(node.name);
+    });
+
     it('should handle advanced options button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));

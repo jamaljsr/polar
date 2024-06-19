@@ -36,6 +36,7 @@ import {
 import { prefixTranslation } from 'utils/translate';
 import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
+
 const { l } = prefixTranslation('store.models.network');
 
 interface AddNetworkArgs {
@@ -985,8 +986,6 @@ const networkModel: NetworkModel = {
   }),
   renameNode: thunk(
     async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
-      if (!newName) throw new Error(l('renameErr', { newName }));
-
       const wasStarted = node.status === Status.Started;
 
       if (wasStarted) {
@@ -998,19 +997,40 @@ const networkModel: NetworkModel = {
       const network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
 
+      // rename the node's directory on disk
       await injections.dockerService.renameNodeDir(network, node, newName);
 
+      // update the node's name in the network
       await renameNode(network, node, newName);
-      await getStoreActions().designer.renameNode({
-        name: newName,
+      // update the node's name in the chart
+      getStoreActions().designer.renameNode({
         nodeId: oldNodeName,
+        name: newName,
       });
+      // remove the stored node data from the appropriate store
+      switch (node.type) {
+        case 'lightning':
+          getStoreActions().lightning.removeNode(oldNodeName);
+          break;
+        case 'bitcoin':
+          getStoreActions().bitcoind.removeNode(node);
+          break;
+        case 'tap':
+          getStoreActions().tap.removeNode(oldNodeName);
+          break;
+      }
 
+      // update the network in the store and save the changes to disk
       actions.setNetworks([...networks]);
       await actions.save();
       await injections.dockerService.saveComposeFile(network);
+
+      // clear cached RPC data, specifically LND certs
+      getStoreActions().app.clearAppCache();
+
       if (wasStarted) {
-        await actions.start(node.networkId);
+        // do not await this so the modal will close while the network is starting
+        actions.start(node.networkId);
       }
     },
   ),
