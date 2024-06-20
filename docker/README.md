@@ -175,7 +175,7 @@ Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
 
 ### Tags
 
-- `0.12.5-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+- `0.13.0-alpha.rc1` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 
 **Building the image**
 
