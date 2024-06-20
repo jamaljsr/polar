@@ -74,6 +74,11 @@ interface ChangeTapBackendModel {
   linkId?: string;
 }
 
+interface RenameNodeModel {
+  visible: boolean;
+  oldNodeName?: string;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -86,6 +91,7 @@ export interface ModalsModel {
   mintAsset: MintAssetModel;
   newAddress: NewAddressModel;
   sendAsset: SendAssetModel;
+  renameNode: RenameNodeModel;
   changeTapBackend: ChangeTapBackendModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
@@ -127,6 +133,9 @@ export interface ModalsModel {
   >;
   hideChangeTapBackend: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setChangeTapBackend: Action<ModalsModel, Partial<ChangeTapBackendModel>>;
+  setRenameNode: Action<ModalsModel, RenameNodeModel>;
+  showRenameNode: Thunk<ModalsModel, Partial<RenameNodeModel>, StoreInjections>;
+  hideRenameNode: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -142,6 +151,7 @@ const modalsModel: ModalsModel = {
   sendOnChain: { visible: false },
   assetInfo: { visible: false },
   changeTapBackend: { visible: false },
+  renameNode: { visible: false },
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
       ...state.openChannel,
@@ -335,6 +345,21 @@ const modalsModel: ModalsModel = {
       ...state.changeTapBackend,
       ...payload,
     };
+  }),
+  setRenameNode: action((state, payload) => {
+    state.renameNode = {
+      ...state.renameNode,
+      ...payload,
+    };
+  }),
+  showRenameNode: thunk((actions, { oldNodeName }) => {
+    actions.setRenameNode({ visible: true, oldNodeName });
+  }),
+  hideRenameNode: thunk(actions => {
+    actions.setRenameNode({
+      visible: false,
+      oldNodeName: undefined,
+    });
   }),
 };
 

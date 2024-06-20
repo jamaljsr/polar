@@ -249,7 +249,7 @@ export const updateChartFromNodes = (
   Object.entries(nodesData).forEach(([fromName, data]) => {
     const fromNode = nodes[fromName];
 
-    if (data.channels) {
+    if (fromNode && data.channels) {
       data.channels
         // ignore channels to nodes that no longer exist in the network
         .filter(c => !!pubkeys[c.pubkey])

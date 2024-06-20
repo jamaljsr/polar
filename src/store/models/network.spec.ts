@@ -1085,5 +1085,17 @@ describe('Network model', () => {
       const { mineBlock } = store.getActions().network;
       await expect(mineBlock({ id: 10 })).rejects.toThrow();
     });
+
+    it('should fail to rename node with an invalid id', async () => {
+      const { addNetwork, renameNode } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 999,
+      };
+      await expect(renameNode({ node, newName: 'asdf' })).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
   });
 });

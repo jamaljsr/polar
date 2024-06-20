@@ -22,6 +22,8 @@ jest.mock('utils/files', () => ({
   write: jest.fn(),
   read: jest.fn(),
   exists: jest.fn(),
+  renameFile: jest.fn(),
+  rm: jest.fn(),
 }));
 
 const mockOS = os as jest.Mocked<typeof os>;
@@ -651,6 +653,38 @@ describe('DockerService', () => {
         expect.objectContaining({ cwd: network.path }),
         node.name,
       );
+    });
+
+    it('should rename a node dir', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      const node = network.nodes.lightning[0];
+      await dockerService.renameNodeDir(network, node, 'new-name');
+      expect(filesMock.renameFile).toHaveBeenCalledWith(
+        join(network.path, 'volumes', 'lnd', node.name),
+        join(network.path, 'volumes', 'lnd', 'new-name'),
+      );
+      expect(filesMock.rm).toHaveBeenCalledWith(
+        join(network.path, 'volumes', 'lnd', node.name, 'tls.cert'),
+      );
+    });
+
+    it('should not rename a node dir that doesnt exist', async () => {
+      filesMock.exists.mockResolvedValue(false);
+      const node = network.nodes.lightning[0];
+      await dockerService.renameNodeDir(network, node, 'new-name');
+      expect(filesMock.exists).toHaveBeenCalled();
+      expect(filesMock.renameFile).not.toHaveBeenCalled();
+    });
+
+    it('should not delete certs when renaming a non-LND node', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      const node = network.nodes.lightning[1];
+      await dockerService.renameNodeDir(network, node, 'new-name');
+      expect(filesMock.renameFile).toHaveBeenCalledWith(
+        join(network.path, 'volumes', 'c-lightning', node.name),
+        join(network.path, 'volumes', 'c-lightning', 'new-name'),
+      );
+      expect(filesMock.rm).not.toHaveBeenCalled();
     });
 
     it('should reformat thrown exceptions', async () => {

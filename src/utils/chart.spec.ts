@@ -144,7 +144,6 @@ describe('Chart Util', () => {
         createTapdNetworkNode(network, '0.3.0', undefined, testNodeDocker),
       );
       chart = initChartFromNetwork(network);
-      // console.log(JSON.stringify(chart.links, null, 2));
       expect(chart.links['alice-tap-alice']).toBeDefined();
       delete chart.links['alice-tap-alice'];
       const result = updateChartFromNodes(chart, network, nodesData);

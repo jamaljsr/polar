@@ -2,7 +2,12 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { BitcoinNode, Status } from 'shared/types';
-import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import {
+  AdvancedOptionsButton,
+  RemoveNode,
+  RestartNode,
+  RenameNodeButton,
+} from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import MineBlocksInput from './actions/MineBlocksInput';
@@ -31,6 +36,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         </>
       )}
       <RestartNode node={node} />
+      <RenameNodeButton node={node} />
       <AdvancedOptionsButton node={node} />
       <RemoveNode node={node} />
     </Form>

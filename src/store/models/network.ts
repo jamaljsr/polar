@@ -30,6 +30,7 @@ import {
   getOpenPorts,
   importNetworkFromZip,
   OpenPorts,
+  renameNode,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -144,6 +145,13 @@ export interface NetworkModel {
     Promise<void>
   >;
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  renameNode: Thunk<
+    NetworkModel,
+    { node: AnyNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 
   /**
    * If user didn't cancel the process, returns the destination of the generated Zip
@@ -976,6 +984,56 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
+  renameNode: thunk(
+    async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
+      const wasStarted = node.status === Status.Started;
+
+      if (wasStarted) {
+        await actions.stop(node.networkId);
+      }
+      const oldNodeName = node.name;
+
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+
+      // rename the node's directory on disk
+      await injections.dockerService.renameNodeDir(network, node, newName);
+
+      // update the node's name in the network
+      await renameNode(network, node, newName);
+      // update the node's name in the chart
+      getStoreActions().designer.renameNode({
+        nodeId: oldNodeName,
+        name: newName,
+      });
+      // remove the stored node data from the appropriate store
+      switch (node.type) {
+        case 'lightning':
+          getStoreActions().lightning.removeNode(oldNodeName);
+          break;
+        case 'bitcoin':
+          getStoreActions().bitcoind.removeNode(node);
+          break;
+        case 'tap':
+          getStoreActions().tap.removeNode(oldNodeName);
+          break;
+      }
+
+      // update the network in the store and save the changes to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
+
+      // clear cached RPC data, specifically LND certs
+      getStoreActions().app.clearAppCache();
+
+      if (wasStarted) {
+        // do not await this so the modal will close while the network is starting
+        actions.start(node.networkId);
+      }
+    },
+  ),
 };
 
 export default networkModel;

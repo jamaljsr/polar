@@ -7,6 +7,7 @@ import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
 import {
+  AnyNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
@@ -19,7 +20,7 @@ import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs } from 'utils/constants';
-import { exists, read, write } from 'utils/files';
+import { exists, read, renameFile, rm, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
@@ -229,6 +230,27 @@ class DockerService implements DockerLibrary {
     // IDockerComposeOptions as the first param and a spread for the remaining
     result = await this.execute(compose.rm as any, this.getArgs(network), node.name);
     info(`Removed:\n ${result.out || result.err}`);
+  }
+
+  /**
+   * Renames the docker volume directory on disk when a node is renamed
+   * @param network the network containing the node
+   * @param node the node that's to be renamed
+   * @param newName the new name for the node and directory
+   */
+  async renameNodeDir(network: Network, node: AnyNode, newName: string) {
+    const oldPath = nodePath(network, node.implementation, node.name);
+    const newPath = nodePath(network, node.implementation, newName);
+
+    if (node.implementation === 'LND') {
+      const certPath = (node as LndNode).paths.tlsCert;
+      const keyPath = certPath.replace('.cert', '.key');
+      // need to delete the tls cert so that it is recreated with the new hostname
+      if (await exists(certPath)) await rm(certPath);
+      if (await exists(keyPath)) await rm(keyPath);
+    }
+
+    if (await exists(oldPath)) renameFile(oldPath, newPath);
   }
 
   /**

@@ -7,3 +7,5 @@ export { default as RestartNode } from './RestartNode';
 export { default as StatusBadge } from './StatusBadge';
 export { default as StatusTag } from './StatusTag';
 export { default as RemoveNode } from './RemoveNode';
+export { default as RenameNodeModal } from './RenameNodeModal';
+export { default as RenameNodeButton } from './RenameNodeButton';

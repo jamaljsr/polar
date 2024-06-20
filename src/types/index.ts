@@ -2,6 +2,7 @@ import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import {
+  AnyNode,
   BitcoinNode,
   CommonNode,
   LightningNode,
@@ -131,6 +132,7 @@ export interface DockerLibrary {
   removeNode: (network: Network, node: CommonNode) => Promise<void>;
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
+  renameNodeDir: (network: Network, node: AnyNode, newName: string) => Promise<void>;
 }
 
 export interface RepoServiceInjection {
