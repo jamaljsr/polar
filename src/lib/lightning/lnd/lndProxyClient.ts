@@ -1,7 +1,6 @@
 import { debug } from 'electron-log';
 import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels } from 'shared';
-// import { RpcStreamResponse } from 'shared/ipcChannels';
 import { LndNode } from 'shared/types';
 import {
   createIpcSender,
@@ -11,10 +10,12 @@ import {
   IpcStreamEvent,
 } from 'lib/ipc/ipcService';
 
+type IpcListener = (event: IpcStreamEvent, data: any) => void;
+
 class LndProxyClient {
   ipc: IpcSender;
   streamer: IpcStreamer;
-  listeners: Record<string, (event: IpcStreamEvent, data: any) => void> = {};
+  listeners: Record<string, IpcListener> = {};
 
   constructor() {
     this.ipc = createIpcSender('LndProxyClient', 'lnd');

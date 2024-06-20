@@ -1,44 +1,3 @@
-# Start with a NodeJS base image that also contains yarn.
-FROM node:16.14.2-buster-slim as nodejsbuilder
-
-RUN apt-get update -y \
-  && apt-get install -y git
-
-# Copy in the local repository to build from.
-RUN git clone --branch 0-19-staging https://github.com/lightninglabs/lightning-terminal.git /go/src/github.com/lightninglabs/lightning-terminal/
-
-RUN cd /go/src/github.com/lightninglabs/lightning-terminal/app \
-  && yarn install \
-  && yarn build
-
-# The first stage is already done and all static assets should now be generated
-# in the app/build sub directory.
-# If you change this value, please also update:
-# /Dockerfile
-# /.github/workflows/main.yml
-FROM golang:1.22-bookworm as golangbuilder
-
-# Instead of checking out from git again, we just copy the whole working
-# directory of the previous stage that includes the generated static assets.
-COPY --from=nodejsbuilder /go/src/github.com/lightninglabs/lightning-terminal /go/src/github.com/lightninglabs/lightning-terminal
-
-# Force Go to use the cgo based DNS resolver. This is required to ensure DNS
-# queries required to connect to linked containers succeed.
-ENV GODEBUG netdns=cgo
-
-# Install dependencies and install/build lightning-terminal.
-# RUN apk add --no-cache --update alpine-sdk \
-#   make \
-#   && cd /go/src/github.com/lightninglabs/lightning-terminal \
-#   && make go-install \
-#   && make go-install-cli
-
-RUN apt-get update -y \
-  && apt-get install -y make \
-  && cd /go/src/github.com/lightninglabs/lightning-terminal \
-  && make go-install \
-  && make go-install-cli
-
 FROM debian:stable-slim
 
 ARG LITD_VERSION
@@ -49,14 +8,12 @@ RUN apt-get update -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Copy the binaries and entrypoint from the builder image.
-COPY --from=golangbuilder /go/bin/litd /bin/
-COPY --from=golangbuilder /go/bin/litcli /bin/
-COPY --from=golangbuilder /go/bin/lncli /bin/
-COPY --from=golangbuilder /go/bin/frcli /bin/
-COPY --from=golangbuilder /go/bin/loop /bin/
-COPY --from=golangbuilder /go/bin/pool /bin/
-COPY --from=golangbuilder /go/bin/tapcli /bin/
+RUN SYS_ARCH="$(dpkg --print-architecture)" \
+  && curl -SLO https://github.com/lightninglabs/lightning-terminal/releases/download/v${LITD_VERSION}/lightning-terminal-linux-${SYS_ARCH}-v${LITD_VERSION}.tar.gz \
+  && tar -xzf *.tar.gz \
+  && mkdir /opt/litd \
+  && mv ./lightning-terminal-linux-${SYS_ARCH}-v${LITD_VERSION}/* /opt/litd \
+  && rm *.tar.gz
 
 COPY docker-entrypoint.sh /entrypoint.sh
 
@@ -64,7 +21,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/litd/.litd"]
 
-EXPOSE 8443 10009 9735
+EXPOSE 9735 8080 10000
 
 ENTRYPOINT ["/entrypoint.sh"]
 
