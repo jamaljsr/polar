@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0-rc1](https://github.com/jamaljsr/polar/compare/v2.2.0...v3.0.0-rc1)
+
+The big feature of this major release is added support for Lightning Terminal (`litd`) nodes with the ability to open Taproot Asset channels and send/receive assets across the network. There are also a handful of new improvements developed by new contributors to the project.
+
+### Features
+
+- Shutdown Docker Containers when Closing Polar GUI by @Abdulkbk in https://github.com/jamaljsr/polar/pull/844
+- Channel UI feature: Real-time updates of channels status by @kelvinator07 in https://github.com/jamaljsr/polar/pull/837
+- Remember node counts when creating new networks by @jamaljsr in https://github.com/jamaljsr/polar/pull/895
+- Add custom base port for nodes by @Abdulkbk in https://github.com/jamaljsr/polar/pull/878
+- Added app tray, users can minimize, maximize and quit polar from system tray by @AdamuAbba in https://github.com/jamaljsr/polar/pull/842
+- Rename Nodes by @Jem256 in https://github.com/jamaljsr/polar/pull/841
+
+### Node Updates
+
+- Add support for LND v0.17.5 and Bitcoin Core v27.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/880
+- Add support for LND v0.18.0-beta final by @jamaljsr in https://github.com/jamaljsr/polar/pull/912
+- Add support for Core Lightning v23.08.2, v24.02.2 & v24.05 by @jamaljsr in https://github.com/jamaljsr/polar/pull/879
+- Add support for Terminal (litd) by @jamaljsr in https://github.com/jamaljsr/polar/pull/902
+
+### Bug Fixes
+
+- Added default value for isPrivate checkbox by @kelvinator07 in https://github.com/jamaljsr/polar/pull/852
+
+### Docs / Translations
+
+- Fix japanese by @Hakkadaikon in https://github.com/jamaljsr/polar/pull/849
+- Fix some comments by @soonsouth in https://github.com/jamaljsr/polar/pull/858
+
 ## [2.2.0](https://github.com/jamaljsr/polar/compare/v2.1.0...v2.2.0)
 
 This minor release adds support for the latest LND, Eclair, and tapd nodes. It includes

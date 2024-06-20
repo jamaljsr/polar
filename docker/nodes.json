@@ -1,5 +1,5 @@
 {
-  "version": 60,
+  "version": 61,
   "images": {
     "LND": {
       "latest": "0.18.0-beta",
@@ -37,8 +37,8 @@
       }
     },
     "c-lightning": {
-      "latest": "23.05.2",
-      "versions": ["23.05.2", "23.02.2", "22.11", "0.12.0", "0.11.2", "0.10.2"]
+      "latest": "24.05",
+      "versions": ["24.05", "24.02.2", "23.11.2"]
     },
     "eclair": {
       "latest": "0.10.0",
@@ -58,6 +58,13 @@
       "compatibility": {
         "0.3.3-alpha": "0.16.0-beta",
         "0.3.2-alpha": "0.16.0-beta"
+      }
+    },
+    "litd": {
+      "latest": "0.13.0-alpha.rc1",
+      "versions": ["0.13.0-alpha.rc1"],
+      "compatibility": {
+        "0.13.0-alpha.rc1": "27.0"
       }
     }
   }

@@ -32,6 +32,7 @@ With Polar you can:
 - Manually mine new blocks
 - Deposit regtest coins into each Lightning node
 - Mint, Send & Receive Taproot Assets
+- Create & Pay Taproot Asset invoices
 - Export and import networks, for sharing with other Lightning developers
 - Create you own docker images to use as [custom nodes](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md) (ex: master branch, local fork)
 
@@ -59,11 +60,11 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v2.2.0 for your OS
+Download Polar v3.0.0-rc1 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-mac-x64-v2.2.0.dmg))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-linux-amd64-v2.2.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-linux-x86_64-v2.2.0.AppImage)), [RPM](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-linux-x86_64-v2.1.0.rpm))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v2.2.0/polar-win-x64-v2.2.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v3.0.0-rc1/polar-mac-x64-v3.0.0-rc1.dmg))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v3.0.0-rc1/polar-linux-amd64-v3.0.0-rc1.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v3.0.0-rc1/polar-linux-x86_64-v3.0.0-rc1.AppImage)), [RPM](https://github.com/jamaljsr/polar/releases/download/v3.0.0-rc1/polar-linux-x86_64-v2.1.0.rpm))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v3.0.0-rc1/polar-win-x64-v3.0.0-rc1.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
