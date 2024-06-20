@@ -32,6 +32,7 @@ With Polar you can:
 - Manually mine new blocks
 - Deposit regtest coins into each Lightning node
 - Mint, Send & Receive Taproot Assets
+- Create & Pay Taproot Asset invoices
 - Export and import networks, for sharing with other Lightning developers
 - Create you own docker images to use as [custom nodes](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md) (ex: master branch, local fork)
 
