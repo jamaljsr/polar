@@ -256,7 +256,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     variables: ['name', 'containerName', 'lndName'],
   },
   litd: {
-    name: 'Terminal (litd)',
+    name: 'Terminal',
     imageName: 'polarlightning/litd',
     logo: litdLogo,
     platforms: ['mac', 'linux', 'windows'],
@@ -299,7 +299,6 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--taproot-assets.universerpccourier.initialbackoff=300ms',
       '--taproot-assets.universerpccourier.maxbackoff=600ms',
       '--taproot-assets.experimental.rfq.priceoracleaddress=use_mock_price_oracle_service_promise_to_not_use_on_mainnet',
-      // '--taproot-assets.experimental.rfq.mockoraclecentpersat=5820600',
       '--taproot-assets.experimental.rfq.mockoraclecentpersat=1000000',
       '--lnd.protocol.option-scid-alias',
       '--lnd.protocol.zero-conf',
@@ -390,10 +389,10 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.12.96-alpha',
-      versions: ['0.12.96-alpha'],
+      latest: '0.13.0-alpha.rc1',
+      versions: ['0.13.0-alpha.rc1'],
       compatibility: {
-        '0.12.96-alpha': '27.0',
+        '0.13.0-alpha.rc1': '27.0',
       },
     },
   },
