@@ -209,13 +209,32 @@ describe('OpenChannelModal', () => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const node2 = network.nodes.lightning[1];
-      expect(lightningServiceMock.openChannel).toBeCalledWith({
+      expect(lightningServiceMock.openChannel).toHaveBeenCalledWith({
         from: node2,
         toRpcUrl: 'asdf@host',
         amount: 1000,
         isPrivate: false,
       });
-      expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
+    });
+
+    it('should open a private channel successfully', async () => {
+      const { getByText, getByLabelText, store } = await renderComponent('bob', 'alice');
+      fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
+      fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
+      fireEvent.click(getByText('Make the channel private'));
+      fireEvent.click(getByText('Open Channel'));
+      await waitFor(() => {
+        expect(store.getState().modals.openChannel.visible).toBe(false);
+      });
+      const node2 = network.nodes.lightning[1];
+      expect(lightningServiceMock.openChannel).toHaveBeenCalledWith({
+        from: node2,
+        toRpcUrl: 'asdf@host',
+        amount: 1000,
+        isPrivate: true,
+      });
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
     });
 
     it('should open a channel and deposit funds', async () => {
@@ -226,15 +245,15 @@ describe('OpenChannelModal', () => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
       });
       const node2 = network.nodes.lightning[1];
-      expect(lightningServiceMock.openChannel).toBeCalledWith({
+      expect(lightningServiceMock.openChannel).toHaveBeenCalledWith({
         from: node2,
         toRpcUrl: 'asdf@host',
         amount: 1000,
         isPrivate: false,
       });
-      expect(bitcoindServiceMock.mine).toBeCalledTimes(2);
-      expect(bitcoindServiceMock.sendFunds).toBeCalledTimes(1);
-      expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(2);
+      expect(bitcoindServiceMock.sendFunds).toHaveBeenCalledTimes(1);
+      expect(lightningServiceMock.getNewAddress).toHaveBeenCalledTimes(1);
     });
 
     it('should display an error when opening a channel fails', async () => {

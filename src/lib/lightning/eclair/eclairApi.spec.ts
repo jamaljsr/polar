@@ -124,7 +124,7 @@ describe('EclairApi', () => {
     // Fast-forward time to trigger the interval
     jest.advanceTimersByTime(50e3);
 
-    // Verify ping is called within the interval
+    // Verify ping is not called within the interval
     expect(pingMock).not.toHaveBeenCalled();
   });
 
