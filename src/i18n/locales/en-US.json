@@ -146,6 +146,7 @@
   "cmps.designer.link.Channel.destinationBalance": "Destination Balance",
   "cmps.designer.link.Channel.isPrivate": "Is Private",
   "cmps.designer.link.Channel.channelPoint": "Channel Point",
+  "cmps.designer.link.Channel.channelId": "Channel ID",
   "cmps.designer.link.Channel.assetTitle": "Taproot Asset",
   "cmps.designer.link.Channel.assetId": "Asset ID",
   "cmps.designer.link.Channel.name": "Name",

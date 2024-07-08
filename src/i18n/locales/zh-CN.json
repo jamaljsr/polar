@@ -146,6 +146,7 @@
   "cmps.designer.link.Channel.destinationBalance": "目标余额",
   "cmps.designer.link.Channel.isPrivate": "是私有的",
   "cmps.designer.link.Channel.channelPoint": "通道点",
+  "cmps.designer.link.Channel.channelId": "通道号",
   "cmps.designer.link.Channel.assetTitle": "Taproot Asset",
   "cmps.designer.link.Channel.assetId": "Asset ID",
   "cmps.designer.link.Channel.name": "名称",
