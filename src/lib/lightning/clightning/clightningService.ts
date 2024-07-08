@@ -47,14 +47,6 @@ export interface CachedChannelStatus {
 }
 
 export class CLightningService implements LightningService {
-  // Cache of channel states for each node, in order to simulate channel event streaming
-  channelCaches: {
-    [nodePort: number]: {
-      intervalId: NodeJS.Timeout;
-      channels: CachedChannelStatus[];
-    };
-  } = {};
-
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpPost<CLN.GetInfoResponse>(node, 'getinfo');
     return {
@@ -107,8 +99,8 @@ export class CLightningService implements LightningService {
         const status = ChannelStateToStatus[c.state];
         return {
           pending: status !== 'Open',
-          uniqueId: c.shortChannelId || c.channelId,
-          channelPoint: `${c.fundingTxid}:${c.fundingOutnum}`,
+          uniqueId: c.channelId.slice(-12),
+          channelPoint: c.channelId,
           pubkey: c.peerId,
           capacity: this.toSats(c.totalMsat),
           localBalance: this.toSats(c.toUsMsat),
@@ -172,7 +164,7 @@ export class CLightningService implements LightningService {
   }
 
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
-    const body = { id: channelPoint };
+    const body = { id: channelPoint, unilateraltimeout: 1 }; // close the channel unilaterally after 1 ms
     await httpPost<CLN.CloseChannelResponse>(node, `close`, body);
     return true;
   }
