@@ -12,13 +12,13 @@ jobs:
   test:
     name: Run tests on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    # Run always on push, or on pull requests that are not from release or ci branches. This prevents duplaicate runs.
-    if: github.event_name == 'push' || (startsWith(github.head_ref, 'release/') == false && startsWith(github.head_ref, 'ci/') == false)
+    # Run always on push, or on pull requests that are not from release or ci branches. This prevents duplicate runs.
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'ci/'))
 
     strategy:
       matrix:
         node_version: [20.x]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macos-13]
 
     steps:
       - name: ubuntu file watcher tweak
@@ -46,6 +46,7 @@ jobs:
         run: yarn test:ci
 
       - name: build check
+        if: startsWith(github.ref_name, 'release/') == false
         run: yarn build
 
       - name: coverage
