@@ -43,9 +43,9 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@lightningpolar/litd-api": "0.12.99-alpha.pre1",
-    "@lightningpolar/lnd-api": "0.18.99-beta.pre2",
-    "@lightningpolar/tapd-api": "0.3.99-alpha.pre2",
+    "@lightningpolar/litd-api": "0.12.99-alpha.pre2",
+    "@lightningpolar/lnd-api": "0.18.99-beta.pre3",
+    "@lightningpolar/tapd-api": "0.3.99-alpha.pre3",
     "@types/lodash": "4.17.1",
     "archiver": "7.0.1",
     "docker-compose": "0.24.0",

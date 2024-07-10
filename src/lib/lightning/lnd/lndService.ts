@@ -156,7 +156,11 @@ class LndService implements LightningService {
       // add the hop hint for the asset channel
       const hopHint = await this.createHopHint(node, assetInfo.nodeId, assetInfo.scid);
       req.routeHints = [{ hopHints: [hopHint] }];
+    } else {
+      // set the private flag to allow payments over private channels
+      req.private = true;
     }
+
     const res = await proxy.createInvoice(this.cast(node), req);
     return res.paymentRequest;
   }

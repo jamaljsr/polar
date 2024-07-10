@@ -69,13 +69,16 @@ const parseCustomData = (
   try {
     const chanData = JSON.parse(data) as ChannelCustomData;
     if (!chanData.assets) return undefined;
-    return chanData.assets.map(asset => ({
+    debug(`Parsed customChannelData for channel ${id}:`, chanData);
+    const assets = chanData.assets.map(asset => ({
       id: asset.asset_utxo.asset_genesis.asset_id,
       name: asset.asset_utxo.asset_genesis.name,
       capacity: asset.capacity.toString(),
       localBalance: asset.local_balance.toString(),
       remoteBalance: asset.remote_balance.toString(),
     }));
+    debug(`Parsed customChannelData for channel ${id}:`, assets);
+    return assets;
   } catch (e) {
     debug(`Failed to parse customChannelData for channel ${id}:` + data, e);
   }

@@ -389,6 +389,9 @@ const sampleAsset: Asset = {
   isBurn: false,
   scriptKeyDeclaredKnown: false,
   scriptKeyHasScriptPath: false,
+  decimalDisplay: {
+    decimalDisplay: 0,
+  },
 };
 
 const sampleBalance: AssetBalance = {

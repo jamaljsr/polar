@@ -18,6 +18,7 @@ export const defaultTapdListAssets = (
   value: Partial<ListAssetResponse>,
 ): ListAssetResponse => ({
   assets: [],
+  unconfirmedTransfers: '0',
   ...value,
 });
 
@@ -68,6 +69,7 @@ export const defaultTapdNewAddress = (value: Partial<Addr>): Addr => ({
   tapscriptSibling: Buffer.from(''),
   proofCourierAddr: '',
   assetVersion: 'ASSET_VERSION_V0',
+  addressVersion: 'ADDR_VERSION_V0',
   ...value,
 });
 

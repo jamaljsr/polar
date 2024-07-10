@@ -38,7 +38,10 @@ const getRpc = async (node: TapdNode): Promise<TAPD.TapdRpcApis> => {
 
 const listAssets = async (args: { node: TapdNode }): Promise<TAPD.ListAssetResponse> => {
   const { taprootAssets } = await getRpc(args.node);
-  return await taprootAssets.listAssets();
+  return await taprootAssets.listAssets({
+    includeLeased: true,
+    withWitness: true,
+  });
 };
 
 const listBalances = async (args: {
