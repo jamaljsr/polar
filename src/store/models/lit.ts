@@ -117,7 +117,7 @@ const litModel: LitModel = {
       const assetsInChannels = actions
         .getAssetsInChannels({ nodeName: node.name })
         .filter(a => a.asset.id === assetId)
-        .filter(a => BigInt(a.asset.remoteBalance) > BigInt(amount));
+        .filter(a => BigInt(a.asset.remoteBalance) >= BigInt(amount));
 
       if (assetsInChannels.length === 0) {
         throw new Error('Not enough assets in a channel to create the invoice');

@@ -298,7 +298,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--taproot-assets.universerpccourier.initialbackoff=300ms',
       '--taproot-assets.universerpccourier.maxbackoff=600ms',
       '--taproot-assets.experimental.rfq.priceoracleaddress=use_mock_price_oracle_service_promise_to_not_use_on_mainnet',
-      '--taproot-assets.experimental.rfq.mockoraclecentpersat=1000000',
+      '--taproot-assets.experimental.rfq.mockoracleassetsperbtc=1000000',
       '--lnd.trickledelay=50',
       '--lnd.gossip.sub-batch-delay=5ms',
       '--lnd.caches.rpc-graph-cache-duration=100ms',
@@ -398,10 +398,10 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.13.99-alpha.rc2',
-      versions: ['0.13.99-alpha.rc2'],
+      latest: '0.13.99-alpha.rc4',
+      versions: ['0.13.99-alpha.rc4'],
       compatibility: {
-        '0.13.99-alpha.rc2': '27.0',
+        '0.13.99-alpha.rc4': '27.0',
       },
     },
   },
