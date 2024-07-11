@@ -1,7 +1,7 @@
 import React from 'react';
 import { ILink } from '@mrblenny/react-flow-chart';
 import { fireEvent, waitFor } from '@testing-library/react';
-import { Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -18,28 +18,12 @@ const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
 >;
 
 describe('Channel component', () => {
-  const renderComponent = (
-    status = Status.Stopped,
-    assets?: LightningNodeChannelAsset[],
-  ) => {
+  const createChannelData = (status = Status.Stopped) => {
     const network = getNetwork(1, 'test network', status);
-    const lnd1 = network.nodes.lightning[0];
-    const lnd2 = network.nodes.lightning[3];
-    const link: ILink = {
-      id: 'asdf',
-      from: { nodeId: lnd1.name, portId: 'asdf' },
-      to: { nodeId: lnd2.name, portId: 'asdf' },
-      properties: {
-        type: 'open-channel',
-        capacity: '1000',
-        fromBalance: '600',
-        toBalance: '400',
-        direction: 'ltr',
-        status: 'Open',
-        isPrivate: false,
-        assets,
-      },
-    };
+
+    const lnd = network.nodes.lightning[0];
+    const cln = network.nodes.lightning[1];
+
     const initialState = {
       network: {
         networks: [network],
@@ -51,57 +35,132 @@ describe('Channel component', () => {
         },
       },
     };
-    const result = renderWithProviders(<Channel link={link} from={lnd1} to={lnd2} />, {
-      initialState,
-    });
-    return { ...result, lnd1, lnd2, link };
+    return { initialState, lnd, cln };
   };
+
+  const renderComponent = (
+    initialState: object,
+    sourceNode: LightningNode,
+    destNode: LightningNode,
+    assets?: LightningNodeChannelAsset[],
+  ) => {
+    const link: ILink = {
+      id: 'asdf',
+      from: { nodeId: sourceNode.name, portId: 'asdf' },
+      to: { nodeId: destNode.name, portId: 'asdf' },
+      properties: {
+        type: 'open-channel',
+        capacity: '1000',
+        fromBalance: '600',
+        toBalance: '400',
+        direction: 'ltr',
+        status: 'Open',
+        channelPoint: '884b29be9946380937cba43cefe431b75c1a9ad3c45184e55f444eda09e56150',
+        isPrivate: false,
+        assets,
+      },
+    };
+    const result = renderWithProviders(
+      <Channel link={link} from={sourceNode} to={destNode} />,
+      {
+        initialState,
+      },
+    );
+    return { ...result };
+  };
+
+  const { initialState, lnd, cln } = createChannelData();
 
   describe('Channel Details', () => {
     it('should display Status', () => {
-      const { getAllByText } = renderComponent();
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
       expect(getAllByText('Status')).toHaveLength(3);
       expect(getAllByText('Stopped')).toHaveLength(2);
     });
 
     it('should display Capacity', () => {
-      const { getByText } = renderComponent();
+      const { getByText } = renderComponent(initialState, lnd, cln);
       expect(getByText('Capacity')).toBeInTheDocument();
       expect(getByText('1,000 sats')).toBeInTheDocument();
     });
 
     it('should display Source Balance', () => {
-      const { getByText } = renderComponent();
+      const { getByText } = renderComponent(initialState, lnd, cln);
       expect(getByText('Source Balance')).toBeInTheDocument();
       expect(getByText('600 sats')).toBeInTheDocument();
     });
 
     it('should display Destination Balance', () => {
-      const { getByText } = renderComponent();
+      const { getByText } = renderComponent(initialState, lnd, cln);
       expect(getByText('Destination Balance')).toBeInTheDocument();
       expect(getByText('600 sats')).toBeInTheDocument();
     });
+
+    it('should display "Channel Point" when source node is LND', () => {
+      const { getByText } = renderComponent(initialState, lnd, cln);
+      expect(getByText('Channel Point')).toBeInTheDocument();
+      expect(getByText('884b...e56150')).toBeInTheDocument();
+    });
+
+    it('should display "Channel ID" when source node is CLN', () => {
+      const { getByText } = renderComponent(initialState, cln, lnd);
+      expect(getByText('Channel ID')).toBeInTheDocument();
+      expect(getByText('884b...e56150')).toBeInTheDocument();
+    });
+
+    it('should display isPrivate', () => {
+      const { getByText } = renderComponent(initialState, lnd, cln);
+      expect(getByText('Is Private')).toBeInTheDocument();
+      expect(getByText('false')).toBeInTheDocument();
+    });
   });
 
-  describe('LND Details', () => {
+  describe('LND Source Details', () => {
     it('should display Name', () => {
-      const { getByText } = renderComponent();
-      expect(getByText('alice')).toBeInTheDocument();
-      expect(getByText('dave')).toBeInTheDocument();
+      const { getByText } = renderComponent(initialState, lnd, cln);
+      expect(getByText(lnd.name)).toBeInTheDocument();
+    });
+
+    it('should display Implementation', () => {
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
+      expect(getAllByText(lnd.implementation)).toHaveLength(1);
     });
 
     it('should display Version', () => {
-      const { getAllByText, lnd1 } = renderComponent();
-      expect(getAllByText(`v${lnd1.version}`)).toHaveLength(2);
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
+      expect(getAllByText(`v${lnd.version}`)).toHaveLength(1);
     });
 
     it('should display Status', () => {
-      const { getAllByText, lnd1 } = renderComponent();
-      expect(getAllByText(Status[lnd1.status])).toHaveLength(2);
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
+      expect(getAllByText(Status[lnd.status])).toHaveLength(2);
+    });
+  });
+
+  describe('CLN Destination Details', () => {
+    it('should display Name', () => {
+      const { getByText } = renderComponent(initialState, lnd, cln);
+      expect(getByText(cln.name)).toBeInTheDocument();
+    });
+
+    it('should display Implementation', () => {
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
+      expect(getAllByText(cln.implementation)).toHaveLength(1);
+    });
+
+    it('should display Version', () => {
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
+      expect(getAllByText(`v${cln.version}`)).toHaveLength(1);
+    });
+
+    it('should display Status', () => {
+      const { getAllByText } = renderComponent(initialState, lnd, cln);
+      expect(getAllByText(Status[cln.status])).toHaveLength(2);
     });
   });
 
   describe('Close Channel', () => {
+    const { initialState, lnd, cln } = createChannelData(Status.Started);
     beforeEach(() => {
       lightningServiceMock.closeChannel.mockResolvedValue(true);
       lightningServiceMock.getChannels.mockResolvedValue([]);
@@ -109,7 +168,7 @@ describe('Channel component', () => {
     });
 
     it('should show the close channel modal', async () => {
-      const { getByText, findByText } = renderComponent(Status.Started);
+      const { getByText, findByText } = renderComponent(initialState, lnd, cln);
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       expect(
@@ -120,7 +179,11 @@ describe('Channel component', () => {
     });
 
     it('should close the channel successfully', async () => {
-      const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
+      const { getByText, findByText, getByLabelText } = renderComponent(
+        initialState,
+        lnd,
+        cln,
+      );
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       // antd creates two modals in the DOM for some silly reason. Need to click one
@@ -128,12 +191,13 @@ describe('Channel component', () => {
       // wait for the error notification to be displayed
       await waitFor(() => getByLabelText('check-circle'));
       expect(getByText('The channel has been closed')).toBeInTheDocument();
-      expect(lightningServiceMock.closeChannel).toBeCalledTimes(1);
-      expect(bitcoindServiceMock.mine).toBeCalledTimes(1);
+      expect(lightningServiceMock.closeChannel).toHaveBeenCalledTimes(1);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
     });
 
     it('should display an error if the node is not started', async () => {
-      const { getByText, getByLabelText } = renderComponent(Status.Stopped);
+      const { initialState, lnd, cln } = createChannelData(Status.Stopped);
+      const { getByText, getByLabelText } = renderComponent(initialState, lnd, cln);
       expect(getByText('Close Channel')).toBeInTheDocument();
       fireEvent.click(getByText('Close Channel'));
       // wait for the error notification to be displayed
@@ -147,7 +211,11 @@ describe('Channel component', () => {
       // this suppresses those errors from being displayed in test runs
       await suppressConsoleErrors(async () => {
         lightningServiceMock.closeChannel.mockRejectedValue(new Error('test error'));
-        const { getByText, findByText, getByLabelText } = renderComponent(Status.Started);
+        const { getByText, findByText, getByLabelText } = renderComponent(
+          initialState,
+          lnd,
+          cln,
+        );
         expect(getByText('Close Channel')).toBeInTheDocument();
         fireEvent.click(getByText('Close Channel'));
         // antd creates two modals in the DOM for some silly reason. Need to click one
@@ -169,7 +237,8 @@ describe('Channel component', () => {
         localBalance: '1647',
         remoteBalance: '853',
       };
-      const { getByText } = renderComponent(Status.Stopped, [asset]);
+      const { initialState, lnd, cln } = createChannelData(Status.Stopped);
+      const { getByText } = renderComponent(initialState, lnd, cln, [asset]);
       expect(getByText('test asset')).toBeInTheDocument();
       expect(getByText('(Taproot Asset)')).toBeInTheDocument();
       expect(getByText('testId')).toBeInTheDocument();

@@ -69,7 +69,7 @@ describe('CLightningService', () => {
       channels: [
         {
           peerId: 'xyz',
-          channelId: '',
+          channelId: '884b29be9946380937cba43cefe431b75c1a9ad3c45184e55f444eda09e56150',
           state: CLN.ChannelState.CHANNELD_NORMAL,
           totalMsat: 0,
           toUsMsat: 0,
@@ -121,10 +121,12 @@ describe('CLightningService', () => {
   });
 
   it('should close the channel', async () => {
+    const body = { id: 'chanPoint', unilateraltimeout: 1 };
     const expected = true;
     clightningApiMock.httpPost.mockResolvedValue(expected);
-    const actual = await clightningService.closeChannel(node, 'chanPoint');
+    const actual = await clightningService.closeChannel(node, body.id);
     expect(actual).toEqual(expected);
+    expect(clightningApiMock.httpPost).toHaveBeenCalledWith(node, 'close', body);
   });
 
   it('should create an invoice', async () => {
