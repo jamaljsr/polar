@@ -250,7 +250,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--lnd.tlspath=/home/tap/.lnd/tls.cert',
       '--allow-public-uni-proof-courier',
       '--allow-public-stats',
-      '--universe.public-access',
+      '--universe.public-access=rw',
+      '--universe.sync-all-assets',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'lndName'],
@@ -391,8 +392,11 @@ export const defaultRepoState: DockerRepoState = {
     },
     tapd: {
       latest: '0.3.3-alpha',
-      versions: ['0.3.3-alpha', '0.3.2-alpha'],
+      versions: ['0.4.0-alpha.rc4', '0.3.3-alpha', '0.3.2-alpha'],
+      // Not all tapd versions are compatible with all LND versions.
+      // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
+        '0.4.0-alpha.rc4': '0.18.0-beta',
         '0.3.3-alpha': '0.16.0-beta',
         '0.3.2-alpha': '0.16.0-beta',
       },
