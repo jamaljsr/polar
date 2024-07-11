@@ -36,7 +36,7 @@ import { read, rm } from './files';
 import { migrateNetworksFile } from './migrations';
 import { getName } from './names';
 import { range } from './numbers';
-import { isVersionCompatible } from './strings';
+import { isVersionBelow, isVersionCompatible } from './strings';
 import { getPolarPlatform } from './system';
 import { prefixTranslation } from './translate';
 
@@ -686,6 +686,26 @@ export const getMissingImages = (network: Network, pulled: string[]): string[] =
   if (unique.length)
     debug(`The network '${network.name}' is missing docker images`, unique);
   return unique;
+};
+
+/**
+ * Returns the default docker command for a given implementation and version. This will
+ * tweak commands for older node versions that do not support certain flags.
+ */
+export const getDefaultCommand = (
+  implementation: NodeImplementation,
+  version: string,
+) => {
+  let command = dockerConfigs[implementation].command;
+
+  // Remove the flags that are not supported in versions before v0.4.0
+  if (implementation === 'tapd' && isVersionBelow(version, '0.4.0-alpha')) {
+    command = command
+      .replace('--universe.public-access=rw', '--universe.public-access')
+      .replace('--universe.sync-all-assets', '');
+  }
+
+  return command;
 };
 
 /**

@@ -13,7 +13,7 @@ import {
   eclairCredentials,
   litdCredentials,
 } from 'utils/constants';
-import { getContainerName } from 'utils/network';
+import { getContainerName, getDefaultCommand } from 'utils/network';
 import { bitcoind, clightning, eclair, litd, lnd, tapd } from './nodeTemplates';
 
 export interface ComposeService {
@@ -71,7 +71,7 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.bitcoind.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs.bitcoind.command;
+    const nodeCommand = node.docker.command || getDefaultCommand('bitcoind', version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
@@ -94,7 +94,7 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.LND.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs.LND.command;
+    const nodeCommand = node.docker.command || getDefaultCommand('LND', version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
@@ -117,7 +117,7 @@ class ComposeFile {
     const image =
       node.docker.image || `${dockerConfigs['c-lightning'].imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    let nodeCommand = node.docker.command || dockerConfigs['c-lightning'].command;
+    let nodeCommand = node.docker.command || getDefaultCommand('c-lightning', version);
     // do not include the GRPC port arg in the command for unsupported versions
     if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
     // replace the variables in the command
@@ -142,7 +142,7 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.eclair.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs.eclair.command;
+    const nodeCommand = node.docker.command || getDefaultCommand('eclair', version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
@@ -166,7 +166,7 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.litd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs.litd.command;
+    const nodeCommand = node.docker.command || getDefaultCommand('litd', version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
@@ -187,7 +187,7 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.tapd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || dockerConfigs.tapd.command;
+    const nodeCommand = node.docker.command || getDefaultCommand('tapd', version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service

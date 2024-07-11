@@ -1,4 +1,4 @@
-import { ellipseInner, isVersionCompatible } from './strings';
+import { compareVersions, ellipseInner, isVersionCompatible } from './strings';
 
 describe('strings util', () => {
   describe('ellipseInner', () => {
@@ -36,6 +36,7 @@ describe('strings util', () => {
       expect(isVersionCompatible('0.17.0', '0.18.1')).toBe(true);
       expect(isVersionCompatible('0.17.2', '0.18.1')).toBe(true);
       expect(isVersionCompatible('0.18.0.1', '0.18.1')).toBe(true);
+      expect(isVersionCompatible('0.7.1-beta', '0.16.0-beta')).toBe(true);
     });
 
     it('should return false for incompatible versions', () => {
@@ -44,15 +45,55 @@ describe('strings util', () => {
       expect(isVersionCompatible('1.18.1', '0.18.1')).toBe(false);
       expect(isVersionCompatible('0.18.1.1', '0.18.1')).toBe(false);
       expect(isVersionCompatible('0.19.0.1', '0.18.1')).toBe(false);
+      expect(isVersionCompatible('0.17.1-beta', '0.6.0-beta')).toBe(false);
     });
 
-    it('should return false for garbage input', () => {
+    it('should handle garbage input', () => {
       expect(isVersionCompatible('123', '0.18.1')).toBe(false);
-      expect(isVersionCompatible('asdf', '0.18.1')).toBe(false);
-      expect(isVersionCompatible('', '0.18.1')).toBe(false);
-      expect(isVersionCompatible('0.18.asds', '0.18.1')).toBe(false);
-      expect(isVersionCompatible('asf.18.0', '0.18.1')).toBe(false);
-      expect(isVersionCompatible(undefined as any, '0.18.1')).toBe(false);
+      expect(isVersionCompatible('asdf', 'xyz')).toBe(true);
+      expect(isVersionCompatible('', '0.18.1')).toBe(true);
+      expect(isVersionCompatible(undefined as any, '0.18.1')).toBe(true);
+    });
+  });
+
+  describe('compareVersions', () => {
+    it('should return 0 for equal versions', () => {
+      expect(compareVersions('0.18.1', '0.18.1')).toBe(0);
+      expect(compareVersions('0.18.0', '0.18.0')).toBe(0);
+      expect(compareVersions('0.17.0', '0.17.0')).toBe(0);
+      expect(compareVersions('0.17.2', '0.17.2')).toBe(0);
+    });
+
+    it('should return 1 for higher versions', () => {
+      expect(compareVersions('0.19.0', '0.18.1')).toBe(1);
+      expect(compareVersions('0.18.2', '0.18.1')).toBe(1);
+      expect(compareVersions('1.18.1', '0.18.1')).toBe(1);
+      expect(compareVersions('1.18.1.1', '0.18.1')).toBe(1);
+      expect(compareVersions('0.17.1-beta.rc1', '0.17.1-beta')).toBe(1);
+    });
+
+    it('should return -1 for lower versions', () => {
+      expect(compareVersions('0.17.0', '0.18.1')).toBe(-1);
+      expect(compareVersions('0.7.2', '0.18.1')).toBe(-1);
+      expect(compareVersions('1.17.1', '1.18.1')).toBe(-1);
+      expect(compareVersions('1.17.1.1', '1.18.1')).toBe(-1);
+      expect(compareVersions('0.7.1-beta', '0.16.0-beta')).toBe(-1);
+      expect(compareVersions('0.17.1-beta', '0.17.1-beta.rc1')).toBe(-1);
+    });
+
+    it('should return 0 for garbage input', () => {
+      expect(compareVersions('asdf', 'xyz')).toBe(0);
+      expect(compareVersions('', '0.18.1')).toBe(0);
+      expect(compareVersions(undefined as any, '0.18.1')).toBe(0);
+      expect(compareVersions('0.18.1', undefined as any)).toBe(0);
+    });
+
+    it('should handle pre-release tags', () => {
+      expect(compareVersions('0.18.1-beta', '0.18.1-alpha')).toBe(0);
+      expect(compareVersions('0.18.1-beta', '0.18.1-beta')).toBe(0);
+      expect(compareVersions('0.18.1-beta', '0.18.1-beta.rc1')).toBe(-1);
+      expect(compareVersions('0.18.1-beta.rc2', '0.18.1-beta.rc1')).toBe(1);
+      expect(compareVersions('0.18.2-beta', '0.18.1-beta.rc1')).toBe(1);
     });
   });
 });

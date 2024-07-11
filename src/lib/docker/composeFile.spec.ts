@@ -143,11 +143,31 @@ describe('ComposeFile', () => {
   });
 
   it('should use the tapd nodes custom docker data', () => {
-    tapNode.docker = { image: 'my-image', command: 'my-command' };
-    composeFile.addTapd(tapNode, lndNode);
+    const tap = {
+      ...tapNode,
+      docker: { image: 'my-image', command: 'my-command' },
+    };
+    composeFile.addTapd(tap, lndNode);
     const service = composeFile.content.services['alice-tap'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
+  });
+
+  it('should use the correct command for tapd v3', () => {
+    const tap = { ...tapNode, version: '0.3.3' };
+    composeFile.addTapd(tap, lndNode);
+    const service = composeFile.content.services['alice-tap'];
+    expect(service.command).toContain('--universe.public-access');
+    expect(service.command).not.toContain('--universe.public-access=rw');
+    expect(service.command).not.toContain('--universe.sync-all-assets');
+  });
+
+  it('should use the correct command for tapd v4+', () => {
+    const tap = { ...tapNode, version: '0.4.0' };
+    composeFile.addTapd(tap, lndNode);
+    const service = composeFile.content.services['alice-tap'];
+    expect(service.command).toContain('--universe.public-access=rw');
+    expect(service.command).toContain('--universe.sync-all-assets');
   });
 
   it('should add an litd config', () => {

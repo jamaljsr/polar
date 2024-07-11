@@ -6,6 +6,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { ManagedImage } from 'types';
 import { dockerConfigs } from 'utils/constants';
+import { getDefaultCommand } from 'utils/network';
 import { CommandVariables } from './';
 
 const Styled = {
@@ -68,7 +69,10 @@ const ManagedImageModal: React.FC<Props> = ({ image, onClose }) => {
         layout="vertical"
         hideRequiredMark
         colon={false}
-        initialValues={{ command: image.command || config.command }}
+        initialValues={{
+          command:
+            image.command || getDefaultCommand(image.implementation, image.version),
+        }}
         onFinish={handleSubmit}
       >
         <Styled.Summary>{l('summary')}</Styled.Summary>
