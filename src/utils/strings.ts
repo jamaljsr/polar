@@ -36,29 +36,47 @@ export const ellipseInner = (
  * isVersionCompatible('0.19.0.1', '0.18.1') => false
  */
 export const isVersionCompatible = (version: string, maxVersion: string): boolean => {
+  return compareVersions(version, maxVersion) <= 0;
+};
+
+/**
+ * Checks if the version provided is lower than the maximum version provided.
+ */
+export const isVersionBelow = (version: string, maxVersion: string): boolean => {
+  return compareVersions(version, maxVersion) < 0;
+};
+
+/**
+ * Compares two versions and returns a number indicating if the first version is higher,
+ * lower, or equal to the second version.
+ * @returns 0 if the versions are equal, 1 if the first version is higher, and -1 if the
+ * first version is lower
+ */
+export const compareVersions = (aVersion: string, bVersion: string): number => {
   // sanity checks
-  if (!version || !maxVersion) return false;
+  if (!aVersion || !bVersion) return 0;
+
+  // helper function to split the version into an array of numbers using a regex
+  const split = (ver: string) => [...ver.matchAll(/\d+/g)].map(a => parseInt(a[0]));
+
   // convert version into a number array
-  const versionParts = version.split('.').map(n => parseInt(n));
-  // convert maxversion into a number array
-  const maxParts = maxVersion.split('.').map(n => parseInt(n));
+  const aParts = split(aVersion);
+  // convert minVersion into a number array
+  const bParts = split(bVersion);
+
   // get the longest length of the two versions. May be 3 or 4 with bitcoind
-  const len = Math.max(versionParts.length, maxParts.length);
+  const len = Math.max(aParts.length, bParts.length);
   // loop over each number in the version from left ot right
   for (let i = 0; i < len; i++) {
-    const ver = versionParts[i];
-    const max = maxParts[i];
-    // if version has more digits than maxVersion, return the result of the previous digit
-    // '0.18.0.1' <= '0.18.1' = true
-    // '0.18.1.1' <= '0.18.1' = false
-    if (max === undefined) return versionParts[i - 1] < maxParts[i - 1];
-    // bail for non-numeric input
-    if (isNaN(ver) || isNaN(max)) return false;
-    // if any number is higher, then the version is not compatible
-    if (ver > max) return false;
-    // if the numder is lower, then return true immediately
-    if (ver < max) return true;
-    //if the digits are equal, check the next digit
+    const aNum = aParts[i] || 0;
+    const bNum = bParts[i] || 0;
+    // if the digit is higher, then return a positive number
+    if (aNum < bNum) return -1;
+    // if the digit is lower, then return a negative number
+    if (aNum > bNum) return 1;
+    // if the digits are equal, check the next digit
   }
-  return true;
+
+  // if all digits are equal, return 0
+  return 0;
 };
