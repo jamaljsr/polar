@@ -164,7 +164,9 @@ export class CLightningService implements LightningService {
   }
 
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
-    const body = { id: channelPoint, unilateraltimeout: 1 }; // close the channel unilaterally after 1 ms
+    // The unilateraltimeout option is added to force close the channel because CLN v24.05 has a compatibility issue with Eclair v0.10.0.
+    // It should be removed after the issue is fixed in subsequent versions for CLN or Eclair nodes.
+    const body = { id: channelPoint, unilateraltimeout: 1 }; // close the channel unilaterally after 1 second
     await httpPost<CLN.CloseChannelResponse>(node, `close`, body);
     return true;
   }
