@@ -92,7 +92,7 @@
     "@types/react-router-dom": "5.3.3",
     "@types/redux-logger": "3.0.12",
     "@types/unzipper": "0.10.9",
-    "@types/ws": "8.5.10",
+    "@types/ws": "8.5.11",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
     "antd": "4.24.12",
