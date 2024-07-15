@@ -146,6 +146,7 @@
   "cmps.designer.link.Channel.destinationBalance": "대상 잔액",
   "cmps.designer.link.Channel.isPrivate": "僅用於中文",
   "cmps.designer.link.Channel.channelPoint": "채널 포인트",
+  "cmps.designer.link.Channel.channelId": "Channel ID",
   "cmps.designer.link.Channel.assetTitle": "Taproot Asset",
   "cmps.designer.link.Channel.assetId": "자산 ID",
   "cmps.designer.link.Channel.name": "이름",
