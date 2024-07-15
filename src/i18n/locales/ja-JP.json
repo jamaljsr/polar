@@ -146,6 +146,7 @@
   "cmps.designer.link.Channel.destinationBalance": "宛先残高",
   "cmps.designer.link.Channel.isPrivate": "非公開です",
   "cmps.designer.link.Channel.channelPoint": "チャンネルポイント",
+  "cmps.designer.link.Channel.channelId": "Channel ID",
   "cmps.designer.link.Channel.assetTitle": "Taproot Asset",
   "cmps.designer.link.Channel.assetId": "Asset ID",
   "cmps.designer.link.Channel.name": "名前",
