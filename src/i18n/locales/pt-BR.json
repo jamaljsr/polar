@@ -146,6 +146,7 @@
   "cmps.designer.link.Channel.destinationBalance": "Saldo do destino",
   "cmps.designer.link.Channel.isPrivate": "É privado",
   "cmps.designer.link.Channel.channelPoint": "Ponto do canal",
+  "cmps.designer.link.Channel.channelId": "ID do canal",
   "cmps.designer.link.Channel.assetTitle": "Taproot Asset",
   "cmps.designer.link.Channel.assetId": "Asset ID",
   "cmps.designer.link.Channel.name": "Nome",

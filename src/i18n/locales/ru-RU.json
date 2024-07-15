@@ -146,6 +146,7 @@
   "cmps.designer.link.Channel.destinationBalance": "Баланс назначения",
   "cmps.designer.link.Channel.isPrivate": "Приватный",
   "cmps.designer.link.Channel.channelPoint": "Канал Точка",
+  "cmps.designer.link.Channel.channelId": "идентификатор канала",
   "cmps.designer.link.Channel.assetTitle": "Taproot Asset",
   "cmps.designer.link.Channel.assetId": "Asset ID",
   "cmps.designer.link.Channel.name": "имя",
