@@ -381,7 +381,7 @@ class DockerService implements DockerLibrary {
       } else if (node.implementation === 'litd') {
         await ensureDir(join(nodeDir, 'lit'));
         await ensureDir(join(nodeDir, 'lnd'));
-        await ensureDir(join(nodeDir, 'tap'));
+        await ensureDir(join(nodeDir, 'tapd'));
       }
     }
   }
