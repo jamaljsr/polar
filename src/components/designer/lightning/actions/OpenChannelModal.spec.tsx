@@ -314,6 +314,7 @@ describe('OpenChannelModal', () => {
         defaultTapBalance({ id: 'abcd', name: 'test asset', balance: '1000' }),
         defaultTapBalance({ id: 'efgh', name: 'other asset', balance: '5000' }),
       ]);
+      tapServiceMock.syncUniverse.mockResolvedValue({ syncedUniverses: [] });
       tapServiceMock.addAssetBuyOrder.mockResolvedValue({
         scid: 'abcd',
         askPrice: '100',

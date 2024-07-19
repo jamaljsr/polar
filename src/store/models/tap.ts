@@ -310,8 +310,12 @@ const tapModel: TapModel = {
       // cast because it should never be undefined after calling getInfo above
       const { pubkey } = getStoreState().lightning.nodes[to.name]
         .info as PLN.LightningNodeInfo;
-      // open the channel via the tap node
+
       const api = injections.tapFactory.getService(from);
+      // ensure the recipient node's assets are in sync with the initiator node
+      const hostname = `${from.name}:8443`;
+      await actions.syncUniverse({ node: mapToTapd(to), hostname });
+      // open the channel via the tap node
       await api.fundChannel(from, pubkey, assetId, amount);
       // wait for the unconfirmed tx to be processed by the bitcoin node
       await delay(500);
