@@ -382,10 +382,10 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.13.99-alpha.rc4',
-      versions: ['0.13.99-alpha.rc4'],
+      latest: '0.13.99-alpha.b801',
+      versions: ['0.13.99-alpha.b801'],
       compatibility: {
-        '0.13.99-alpha.rc4': '27.0',
+        '0.13.99-alpha.b801': '27.0',
       },
     },
   },

@@ -2226,10 +2226,10 @@
   resolved "https://registry.yarnpkg.com/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz#9299f82874bab9e4c7f9c48d865becbfe8d6907c"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@lightningpolar/litd-api@0.12.99-alpha.pre2":
-  version "0.12.99-alpha.pre2"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/litd-api/-/litd-api-0.12.99-alpha.pre2.tgz#38e25c7546b6c3ed7ca63e73fd88c3af295afa89"
-  integrity sha512-QEEO7IzaqnonsR/zrVYuYyirpNUlgpDa0JZ9R9mYeU4fNa2KXENXaJ1gf8kgxu8BozwIQtyO5Xl3avyoIRr53w==
+"@lightningpolar/litd-api@0.13.99-alpha":
+  version "0.13.99-alpha"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/litd-api/-/litd-api-0.13.99-alpha.tgz#97281b127a671fa680b6ec16454405abda072d29"
+  integrity sha512-6y6g3AwM2vRDKKjaJGWC6VFWsfBNlB5q/Dh4Aq7SZXBoonQwZIZxa5PgC4x7BeFCYc4nHFv8sqFee/FdT/k+Sw==
   dependencies:
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
@@ -2242,10 +2242,10 @@
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
 
-"@lightningpolar/tapd-api@0.3.99-alpha.pre3":
-  version "0.3.99-alpha.pre3"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.3.99-alpha.pre3.tgz#eb207ce8c00e23815659b0b3a1784c036d251515"
-  integrity sha512-S/7veu9eun8mP2toPxxBMkyF8Dadpg1f8GAM7LZSdE2YAbUhx1/Eieku+9W4H9yAh5QsimNGDGbK46XJQ8phwA==
+"@lightningpolar/tapd-api@0.4.0-alpha":
+  version "0.4.0-alpha"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.4.0-alpha.tgz#a89f92277aad625048bd63854f06db973b6c76e2"
+  integrity sha512-rL97a/nvPVk9FB2AsFT1VY73fOatFVuCNPUdnlP8fihlCHbWAM5WCLBxZEVkr8MlUBN0cPKD4AeWIXJBtz/Rtw==
   dependencies:
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"

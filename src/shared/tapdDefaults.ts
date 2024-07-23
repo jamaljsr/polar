@@ -19,6 +19,7 @@ export const defaultTapdListAssets = (
 ): ListAssetResponse => ({
   assets: [],
   unconfirmedTransfers: '0',
+  unconfirmedMints: '0',
   ...value,
 });
 
