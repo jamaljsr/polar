@@ -1,11 +1,13 @@
 # Start with a NodeJS base image that also contains yarn.
 FROM node:16.14.2-buster-slim as nodejsbuilder
 
+ARG LITD_VERSION
+
 RUN apt-get update -y \
   && apt-get install -y git
 
 # Copy in the local repository to build from.
-RUN git clone --branch 0-19-staging https://github.com/lightninglabs/lightning-terminal.git /go/src/github.com/lightninglabs/lightning-terminal/
+RUN git clone --branch ${LITD_VERSION} https://github.com/lightninglabs/lightning-terminal.git /go/src/github.com/lightninglabs/lightning-terminal/
 
 RUN cd /go/src/github.com/lightninglabs/lightning-terminal/app \
   && yarn install \
@@ -41,7 +43,6 @@ RUN apt-get update -y \
 
 FROM debian:stable-slim
 
-ARG LITD_VERSION
 ENV PATH=/opt/litd:$PATH
 
 RUN apt-get update -y \
