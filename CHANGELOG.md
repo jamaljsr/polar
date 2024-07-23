@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [3.0.0-rc1](https://github.com/jamaljsr/polar/compare/v2.2.0...v3.0.0-rc1)
+## [3.0.0](https://github.com/jamaljsr/polar/compare/v2.2.0...v3.0.0)
 
 The big feature of this major release is added support for Lightning Terminal (`litd`) nodes with the ability to open Taproot Asset channels and send/receive assets across the Lightning Network. There are also a handful of new improvements developed by new contributors to the project.
 
@@ -12,7 +12,7 @@ The big feature of this major release is added support for Lightning Terminal (`
 - Real-time updates of channel status changes by @kelvinator07 in https://github.com/jamaljsr/polar/pull/837
 - Remember node counts when creating new networks by @jamaljsr in https://github.com/jamaljsr/polar/pull/895
 - Add custom base port for nodes by @Abdulkbk in https://github.com/jamaljsr/polar/pull/878
-- Added app tray. users can minimize, maximize and quit polar from system tray by @AdamuAbba in https://github.com/jamaljsr/polar/pull/842
+- Add ability to minimize, maximize and quit polar from system tray by @AdamuAbba in https://github.com/jamaljsr/polar/pull/842
 - Add ability to rename nodes by @Jem256 in https://github.com/jamaljsr/polar/pull/841
 
 ### Node Updates
@@ -21,8 +21,8 @@ The big feature of this major release is added support for Lightning Terminal (`
 - Add support for LND v0.18.0-beta final by @jamaljsr in https://github.com/jamaljsr/polar/pull/912
 - Add support for LND v0.18.2-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/912
 - Add support for Core Lightning v23.08.2, v24.02.2 & v24.05 by @jamaljsr in https://github.com/jamaljsr/polar/pull/879
-- Add support for Terminal (litd) by @jamaljsr in https://github.com/jamaljsr/polar/pull/902
-- Add support for Taproot Assets v0.4.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/936
+- Add support for Terminal (litd) v0.13.99-experimental by @jamaljsr in https://github.com/jamaljsr/polar/pull/902
+- Add support for Taproot Assets v0.4.0-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/936
 
 ### Bug Fixes
 
