@@ -171,21 +171,23 @@ export const testRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.4.0-alpha',
-      versions: ['0.4.0-alpha', '0.3.3-alpha', '0.3.2-alpha'],
+      latest: '0.4.1-alpha',
+      versions: ['0.4.1-alpha', '0.4.0-alpha', '0.3.3-alpha', '0.3.2-alpha'],
       // Not all tapd versions are compatible with all LND versions.
       // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
+        '0.4.1-alpha': '0.18.0-beta',
         '0.4.0-alpha': '0.18.0-beta',
         '0.3.3-alpha': '0.16.0-beta',
         '0.3.2-alpha': '0.16.0-beta',
       },
     },
     litd: {
-      latest: '0.13.99-alpha',
-      versions: ['0.13.99-alpha'],
+      latest: '0.13.991-exp',
+      versions: ['0.13.991-exp', '0.13.99-exp'],
       compatibility: {
-        '0.13.99-alpha': '27.0',
+        '0.13.991-exp': '27.0',
+        '0.13.99-exp': '27.0',
       },
     },
   },
