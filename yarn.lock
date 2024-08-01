@@ -19227,10 +19227,10 @@ unzip-crx-3@^0.2.0:
     mkdirp "^0.5.1"
     yaku "^0.16.6"
 
-unzipper@0.12.2:
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/unzipper/-/unzipper-0.12.2.tgz#34392e350b5f98f08e9fda9876ff98694078a112"
-  integrity sha512-ecRhBc+ZfQkYnRr8L7OkxvAAWDkqP3Dun9CHUmYYZx/mErGdy7N7ju6ODJ7uKmm9PD99aAG8grxzl5y9lmEK2A==
+unzipper@0.12.3:
+  version "0.12.3"
+  resolved "https://registry.yarnpkg.com/unzipper/-/unzipper-0.12.3.tgz#31958f5eed7368ed8f57deae547e5a673e984f87"
+  integrity sha512-PZ8hTS+AqcGxsaQntl3IRBw65QrBI6lxzqDEL7IAo/XCEqRTKGfOX56Vea5TH9SZczRVxuzk1re04z/YjuYCJA==
   dependencies:
     bluebird "~3.7.2"
     duplexer2 "~0.1.4"
