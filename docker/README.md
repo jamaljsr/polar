@@ -179,7 +179,8 @@ Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
 
 ### Tags
 
-- `0.13.99-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+- `0.13.991-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+- `0.13.99-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 
 **Building the image**
 
@@ -188,7 +189,7 @@ $ cd litd
 $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LITD_VERSION=<version> -t polarlightning/litd:<version> --push .
 ```
 
-Replace `<version>` with the desired Tap version (ex: `0.12.5-alpha`).
+Replace `<version>` with the desired Tap version (ex: `0.13.3-alpha`).
 
 # Out-of-Band Image Updates
 
