@@ -1,5 +1,5 @@
 # Start with a NodeJS base image that also contains yarn.
-FROM node:16.14.2-buster-slim as nodejsbuilder
+FROM node:16.20.2-buster-slim as nodejsbuilder
 
 ARG LITD_VERSION
 
