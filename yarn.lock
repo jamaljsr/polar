@@ -3142,10 +3142,10 @@
   dependencies:
     source-map "^0.6.1"
 
-"@types/unzipper@0.10.9":
-  version "0.10.9"
-  resolved "https://registry.yarnpkg.com/@types/unzipper/-/unzipper-0.10.9.tgz#ccbc393ecd1ec013dbe9bc6f13332dad0aa00a0f"
-  integrity sha512-vHbmFZAw8emNAOVkHVbS3qBnbr0x/qHQZ+ei1HE7Oy6Tyrptl+jpqnOX+BF5owcu/HZLOV0nJK+K9sjs1Ox2JA==
+"@types/unzipper@0.10.10":
+  version "0.10.10"
+  resolved "https://registry.yarnpkg.com/@types/unzipper/-/unzipper-0.10.10.tgz#4407f7f633db0c5cf20f05257352cb8197fb9e5a"
+  integrity sha512-jKJdNxhmCHTZsaKW5x0qjn6rB+gHk0w5VFbEKsw84i+RJqXZyfTmGnpjDcKqzMpjz7VVLsUBMtO5T3mVidpt0g==
   dependencies:
     "@types/node" "*"
 
