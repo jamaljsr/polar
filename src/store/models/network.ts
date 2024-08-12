@@ -43,6 +43,7 @@ const { l } = prefixTranslation('store.models.network');
 
 interface AddNetworkArgs {
   name: string;
+  description: string;
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
@@ -143,7 +144,7 @@ export interface NetworkModel {
   >;
   rename: Thunk<
     NetworkModel,
-    { id: number; name: string },
+    { id: number; name: string; description: string },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -274,6 +275,7 @@ const networkModel: NetworkModel = {
       const network = createNetwork({
         id: nextId,
         name: payload.name,
+        description: payload.description,
         lndNodes: payload.lndNodes,
         clightningNodes: payload.clightningNodes,
         eclairNodes: payload.eclairNodes,
@@ -880,12 +882,13 @@ const networkModel: NetworkModel = {
       }
     },
   ),
-  rename: thunk(async (actions, { id, name }, { getState }) => {
+  rename: thunk(async (actions, { id, name, description }, { getState }) => {
     if (!name) throw new Error(l('renameErr', { name }));
     const { networks } = getState();
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
     network.name = name;
+    network.description = description;
     actions.setNetworks(networks);
     await actions.save();
   }),
