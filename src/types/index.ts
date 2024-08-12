@@ -22,6 +22,7 @@ import { PolarPlatform } from 'utils/system';
 export interface Network {
   id: number;
   name: string;
+  description: string;
   status: Status;
   path: string;
   autoMineMode: AutoMineMode;

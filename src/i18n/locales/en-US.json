@@ -493,6 +493,8 @@
   "cmps.network.NewNetwork.title": "Create a new Lightning Network",
   "cmps.network.NewNetwork.nameLabel": "Network Name",
   "cmps.network.NewNetwork.namePhldr": "My Lightning Simnet",
+  "cmps.network.NewNetwork.descriptionLabel": "Network Description",
+  "cmps.network.NewNetwork.namePhlDescription": "My Network Description",
   "cmps.network.NewNetwork.customLabel": "How many Custom Nodes?",
   "cmps.network.NewNetwork.managedLabel": "How many Managed Nodes?",
   "cmps.network.NewNetwork.clightningWindows": "Not supported on Windows yet.",
