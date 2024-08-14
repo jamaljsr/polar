@@ -112,7 +112,7 @@ describe('CreateInvoiceModal', () => {
       expect(await findByText('Successfully Created the Invoice')).toBeInTheDocument();
       expect(getByDisplayValue('lnbc1invoice')).toBeInTheDocument();
       const node = network.nodes.lightning[0];
-      expect(lightningServiceMock.createInvoice).toBeCalledWith(node, 1000, '');
+      expect(lightningServiceMock.createInvoice).toHaveBeenCalledWith(node, 1000, '');
     });
 
     it('should close the modal', async () => {
@@ -139,6 +139,7 @@ describe('CreateInvoiceModal', () => {
       network = createNetwork({
         id: 1,
         name: 'test network',
+        description: 'network description',
         lndNodes: 0,
         clightningNodes: 0,
         eclairNodes: 0,

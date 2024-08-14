@@ -34,6 +34,7 @@ describe('LIT Model', () => {
   const network = createNetwork({
     id: 1,
     name: 'my network',
+    description: 'network description',
     lndNodes: 0,
     clightningNodes: 0,
     eclairNodes: 0,

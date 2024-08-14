@@ -68,6 +68,7 @@ describe('Network Utils', () => {
       network = createNetwork({
         id: 1,
         name: 'my-test',
+        description: 'my-test-description',
         lndNodes: 2,
         clightningNodes: 1,
         eclairNodes: 1,
@@ -404,6 +405,7 @@ describe('Network Utils', () => {
       network = createNetwork({
         id: 1,
         name: 'my-test',
+        description: 'my-test-description',
         lndNodes: 2,
         clightningNodes: 1,
         eclairNodes: 1,

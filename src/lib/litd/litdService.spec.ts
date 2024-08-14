@@ -14,6 +14,7 @@ describe('LitdService', () => {
   const network = createNetwork({
     id: 1,
     name: 'my network',
+    description: 'network description',
     lndNodes: 0,
     clightningNodes: 0,
     eclairNodes: 0,
@@ -169,7 +170,7 @@ describe('LitdService', () => {
       });
       litdProxyClient.status = jest.fn().mockResolvedValue(apiResponse);
       await expect(litdService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(litdProxyClient.status).toBeCalledTimes(1);
+      expect(litdProxyClient.status).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if the sub-servers never start up', async () => {
@@ -223,7 +224,7 @@ describe('LitdService', () => {
       await expect(litdService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'Sub-server taproot-assets is not started yet.',
       );
-      expect(litdProxyClient.status).toBeCalledTimes(4);
+      expect(litdProxyClient.status).toHaveBeenCalledTimes(4);
     });
 
     it('should throw error if waiting fails', async () => {
@@ -231,7 +232,7 @@ describe('LitdService', () => {
       await expect(litdService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(litdProxyClient.status).toBeCalledTimes(4);
+      expect(litdProxyClient.status).toHaveBeenCalledTimes(4);
     });
   });
 });

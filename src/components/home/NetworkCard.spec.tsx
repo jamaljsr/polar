@@ -7,7 +7,7 @@ import { NETWORK_VIEW } from 'components/routing';
 import NetworkCard from './NetworkCard';
 
 describe('NetworkCard component', () => {
-  const network = getNetwork(1, 'my network 1', Status.Stopped, 4);
+  const network = getNetwork(1, 'my network 1', Status.Stopped, 4, 'network description');
   const renderComponent = () => {
     const initialState = {
       network: {
@@ -25,6 +25,14 @@ describe('NetworkCard component', () => {
   it("should display the network's name", () => {
     const { getByText } = renderComponent();
     expect(getByText('my network 1')).toBeInTheDocument();
+  });
+
+  it("should display the tooltip for the network's description", async () => {
+    const { getByLabelText, findByText } = renderComponent();
+    const infoIcon = getByLabelText('info-circle');
+    fireEvent.mouseOver(infoIcon);
+    const tooltipElement = await findByText('network description');
+    expect(tooltipElement).toBeInTheDocument();
   });
 
   it('should display the number of lightning and tap nodes', () => {

@@ -198,10 +198,12 @@ export const getNetwork = (
   name?: string,
   status?: Status,
   tapNodeCount = 0,
+  description?: string,
 ): Network => {
   const config = {
     id: networkId,
     name: name || 'my-test',
+    description: description || 'my-test-description',
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,

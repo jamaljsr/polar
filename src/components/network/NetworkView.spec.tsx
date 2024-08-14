@@ -38,7 +38,7 @@ describe('NetworkView Component', () => {
     images?: string[],
     withBitcoinData = true,
   ) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status, 0, 'network description');
     const bitcoinData = {
       nodes: {
         '1-backend1': {
@@ -96,9 +96,14 @@ describe('NetworkView Component', () => {
     expect(queryByText('test network')).toBeNull();
   });
 
-  it('should render the name', () => {
+  it('should render the network name', () => {
     const { getByText } = renderComponent('1');
     expect(getByText('test network')).toBeInTheDocument();
+  });
+
+  it('should render the network description', () => {
+    const { getByText } = renderComponent('1');
+    expect(getByText('network description')).toBeInTheDocument();
   });
 
   it('should navigate home when back button clicked', () => {
@@ -228,27 +233,38 @@ describe('NetworkView Component', () => {
   });
 
   describe('rename network', () => {
-    it('should show the rename input', async () => {
+    it('should show the rename inputs for the network name and description', async () => {
       const { getByLabelText, findByText, findByDisplayValue } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Rename'));
-      const input = (await findByDisplayValue('test network')) as HTMLInputElement;
-      expect(input).toBeInTheDocument();
-      expect(input.type).toBe('text');
+      const nameInput = (await findByDisplayValue('test network')) as HTMLInputElement;
+      expect(nameInput).toBeInTheDocument();
+      expect(nameInput.type).toBe('text');
+      const descriptionInput = (await findByText(
+        'network description',
+      )) as HTMLTextAreaElement;
+      expect(descriptionInput).toBeInTheDocument();
+      expect(descriptionInput.type).toBe('textarea');
       fireEvent.click(await findByText('Cancel'));
-      expect(input).not.toBeInTheDocument();
+      expect(nameInput).not.toBeInTheDocument();
+      expect(descriptionInput).not.toBeInTheDocument();
       expect(await findByText('Start')).toBeInTheDocument();
     });
 
-    it('should rename the network', async () => {
+    it('should rename the network name and description', async () => {
       const { getByLabelText, findByText, findByDisplayValue, store } =
         renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Rename'));
-      const input = await findByDisplayValue('test network');
-      fireEvent.change(input, { target: { value: 'new network name' } });
+      const nameInput = await findByDisplayValue('test network');
+      fireEvent.change(nameInput, { target: { value: 'new network name' } });
+      const descriptionInput = await findByText('network description');
+      fireEvent.change(descriptionInput, {
+        target: { value: 'new description' },
+      });
       fireEvent.click(await findByText('Save'));
       expect(store.getState().network.networkById(1).name).toBe('new network name');
+      expect(store.getState().network.networkById(1).description).toBe('new description');
       expect(await findByText('Start')).toBeInTheDocument();
     });
 
@@ -260,6 +276,17 @@ describe('NetworkView Component', () => {
       fireEvent.change(input, { target: { value: '' } });
       fireEvent.click(await findByText('Save'));
       expect(await findByText('Failed to rename the network')).toBeInTheDocument();
+    });
+
+    it('should not display description text area if renamed to empty string', async () => {
+      const { getByLabelText, findByText, queryByText } = renderComponent('1');
+      expect(await findByText('network description')).toBeInTheDocument();
+      fireEvent.mouseOver(getByLabelText('more'));
+      fireEvent.click(await findByText('Rename'));
+      const descriptionInput = await findByText('network description');
+      fireEvent.change(descriptionInput, { target: { value: '' } });
+      fireEvent.click(await findByText('Save'));
+      expect(queryByText('network description')).not.toBeInTheDocument();
     });
   });
 
@@ -288,7 +315,7 @@ describe('NetworkView Component', () => {
       expect(
         getByText("The network 'test network' and its data has been deleted!"),
       ).toBeInTheDocument();
-      expect(fsMock.remove).toBeCalledWith(expect.stringContaining(network.path));
+      expect(fsMock.remove).toHaveBeenCalledWith(expect.stringContaining(network.path));
     });
 
     it('should display an error if the delete fails', async () => {
@@ -341,9 +368,9 @@ describe('NetworkView Component', () => {
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Export'));
       await waitFor(() => {
-        expect(logMock.info).toBeCalledWith('User aborted network export');
+        expect(logMock.info).toHaveBeenCalledWith('User aborted network export');
       });
-      expect(dialogMock.showSaveDialog).toBeCalled();
+      expect(dialogMock.showSaveDialog).toHaveBeenCalled();
       expect(queryByText("Exported 'test network'", { exact: false })).toBeNull();
     });
   });

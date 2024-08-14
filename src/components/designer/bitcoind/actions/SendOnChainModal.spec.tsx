@@ -23,6 +23,7 @@ describe('SendOnChainModal', () => {
     const network = createNetwork({
       id: 1,
       name: 'test network',
+      description: 'network description',
       lndNodes: 2,
       clightningNodes: 1,
       eclairNodes: 1,
@@ -155,8 +156,8 @@ describe('SendOnChainModal', () => {
         expect(store.getState().modals.sendOnChain.visible).toBe(false);
       });
       const node = network.nodes.bitcoin[0];
-      expect(bitcoindServiceMock.sendFunds).toBeCalledWith(node, 'bc1...', 0.001);
-      expect(bitcoindServiceMock.mine).toBeCalledWith(6, node);
+      expect(bitcoindServiceMock.sendFunds).toHaveBeenCalledWith(node, 'bc1...', 0.001);
+      expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(6, node);
     });
 
     it('should not mine block when the option is unchecked', async () => {
@@ -174,8 +175,8 @@ describe('SendOnChainModal', () => {
         expect(store.getState().modals.sendOnChain.visible).toBe(false);
       });
       const node = network.nodes.bitcoin[0];
-      expect(bitcoindServiceMock.sendFunds).toBeCalledWith(node, 'bc1...', 0.001);
-      expect(bitcoindServiceMock.mine).not.toBeCalled();
+      expect(bitcoindServiceMock.sendFunds).toHaveBeenCalledWith(node, 'bc1...', 0.001);
+      expect(bitcoindServiceMock.mine).not.toHaveBeenCalled();
     });
 
     it('should display an error when amount is above balance', async () => {

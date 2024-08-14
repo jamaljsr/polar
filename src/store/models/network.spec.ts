@@ -59,6 +59,7 @@ describe('Network model', () => {
   // reusable args for adding a new network
   const addNetworkArgs = {
     name: 'test',
+    description: 'test description',
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,
@@ -100,6 +101,7 @@ describe('Network model', () => {
       expect(network).not.toBeNull();
       expect(network.id).toBe(1);
       expect(network.name).toBe('test');
+      expect(network.description).toBe('test description');
     });
 
     it('should fail to fetch a node with invalid id', () => {
@@ -116,6 +118,7 @@ describe('Network model', () => {
       const { networks } = store.getState().network;
       expect(networks.length).toBe(1);
       expect(networks[0].name).toBe('test');
+      expect(networks[0].description).toBe('test description');
     });
 
     it('should call the docker service when adding a new network', async () => {
@@ -159,11 +162,14 @@ describe('Network model', () => {
       await store.getActions().network.addNetwork({
         ...addNetworkArgs,
         name: 'test2',
+        description: 'test2 description',
       });
       const { networks } = store.getState().network;
       expect(networks.length).toBe(2);
       expect(networks[0].name).toBe('test');
+      expect(networks[0].description).toBe('test description');
       expect(networks[1].name).toBe('test2');
+      expect(networks[1].description).toBe('test2 description');
     });
 
     it('should save the networks to disk', async () => {
@@ -627,6 +633,7 @@ describe('Network model', () => {
       await store.getActions().network.addNetwork({
         ...addNetworkArgs,
         name: 'test2',
+        description: 'test2 description',
       });
       (injections.dockerService.saveComposeFile as jest.Mock).mockReset();
       (injections.dockerService.saveNetworks as jest.Mock).mockReset();
@@ -1035,7 +1042,9 @@ describe('Network model', () => {
 
     it('should fail to rename with an invalid id', async () => {
       const { rename } = store.getActions().network;
-      await expect(rename({ id: 10, name: 'asdf' })).rejects.toThrow();
+      await expect(
+        rename({ id: 10, name: 'asdf', description: 'qwerty' }),
+      ).rejects.toThrow();
     });
 
     it('should fail to remove with an invalid id', async () => {
