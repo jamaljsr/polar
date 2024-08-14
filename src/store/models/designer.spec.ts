@@ -124,6 +124,7 @@ describe('Designer model', () => {
       const { addNetwork } = store.getActions().network;
       await addNetwork({
         name: 'test 2',
+        description: 'network description',
         lndNodes: 2,
         clightningNodes: 0,
         eclairNodes: 0,
@@ -304,7 +305,7 @@ describe('Designer model', () => {
         setStatus({ id: firstNetwork().id, status: Status.Started });
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).not.toBeUndefined();
-        expect(mockNotification.error).not.toBeCalled();
+        expect(mockNotification.error).not.toHaveBeenCalled();
         expect(store.getState().modals.openChannel.visible).toBe(true);
       });
 
@@ -314,7 +315,7 @@ describe('Designer model', () => {
         payload.toNodeId = 'alice';
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
-        expect(mockNotification.error).not.toBeCalled();
+        expect(mockNotification.error).not.toHaveBeenCalled();
       });
 
       it('should not add link if the two nodes are not lightning', async () => {
@@ -325,7 +326,7 @@ describe('Designer model', () => {
 
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
-        expect(mockNotification.error).toBeCalledWith(
+        expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
           }),
@@ -340,7 +341,7 @@ describe('Designer model', () => {
         expect(
           store.getState().designer.activeChart.links[payload.linkId],
         ).toBeUndefined();
-        expect(mockNotification.error).toBeCalledWith(
+        expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
           }),
@@ -351,7 +352,7 @@ describe('Designer model', () => {
         const { onLinkComplete } = store.getActions().designer;
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
-        expect(mockNotification.error).toBeCalledWith(
+        expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
             description: 'The nodes must be Started first',
           }),
@@ -370,7 +371,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error(
@@ -392,7 +393,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error(
@@ -494,7 +495,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error('tapd nodes cannot connect to each other.'),
@@ -513,7 +514,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error('carol is not an LND implementation'),
@@ -573,6 +574,7 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'network description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
@@ -601,6 +603,7 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'network description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
@@ -620,7 +623,7 @@ describe('Designer model', () => {
         const tapdData = { type: 'tapd', version: tapdLatest };
         onCanvasDrop({ id, data: tapdData, position });
         await waitFor(() => {
-          expect(spy).toBeCalledWith(
+          expect(spy).toHaveBeenCalledWith(
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
@@ -637,6 +640,7 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'network description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
@@ -663,7 +667,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
+          expect(mockDockerService.saveComposeFile).toHaveBeenCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[3].name).toBe('dave');
         });
@@ -676,7 +680,7 @@ describe('Designer model', () => {
         const data = { type: 'LND', version: '0.7.1-beta' };
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(spy).toBeCalledWith(
+          expect(spy).toHaveBeenCalledWith(
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
@@ -694,7 +698,7 @@ describe('Designer model', () => {
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
-          expect(mockNotification.error).toBeCalledWith(
+          expect(mockNotification.error).toHaveBeenCalledWith(
             expect.objectContaining({ message: 'Failed to add node' }),
           );
         });
@@ -726,8 +730,8 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(mockDockerService.startNode).toBeCalledTimes(1);
-          expect(mockDockerService.startNode).toBeCalledWith(
+          expect(mockDockerService.startNode).toHaveBeenCalledTimes(1);
+          expect(mockDockerService.startNode).toHaveBeenCalledWith(
             expect.objectContaining({ name: firstNetwork().name }),
             expect.objectContaining({ name: firstNetwork().nodes.lightning[3].name }),
           );

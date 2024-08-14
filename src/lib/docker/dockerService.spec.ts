@@ -187,6 +187,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 1,
         clightningNodes: 0,
         eclairNodes: 0,
@@ -211,6 +212,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 0,
         clightningNodes: 1,
         eclairNodes: 0,
@@ -235,6 +237,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 0,
         clightningNodes: 0,
         eclairNodes: 1,
@@ -300,6 +303,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 0,
         clightningNodes: 0,
         eclairNodes: 0,
@@ -322,6 +326,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 0,
         clightningNodes: 0,
         eclairNodes: 0,
@@ -347,6 +352,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 0,
         clightningNodes: 0,
         eclairNodes: 0,
@@ -381,6 +387,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 2,
         clightningNodes: 1,
         eclairNodes: 0,
@@ -510,6 +517,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 2,
         clightningNodes: 1,
         eclairNodes: 0,
@@ -703,6 +711,7 @@ describe('DockerService', () => {
       const net = createNetwork({
         id: 1,
         name: 'my network',
+        description: 'network description',
         lndNodes: 1,
         clightningNodes: 1,
         eclairNodes: 0,

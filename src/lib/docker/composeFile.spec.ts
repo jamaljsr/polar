@@ -9,6 +9,7 @@ describe('ComposeFile', () => {
   const network = createNetwork({
     id: 1,
     name: 'test network',
+    description: 'network description',
     lndNodes: 1,
     clightningNodes: 1,
     eclairNodes: 1,

@@ -61,6 +61,7 @@ describe('ImportNetwork component', () => {
     network = createNetwork({
       id: 1,
       name: 'my-test',
+      description: 'network description',
       lndNodes: 2,
       clightningNodes: 1,
       eclairNodes: 1,

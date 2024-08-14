@@ -278,6 +278,7 @@ describe('OpenChannelModal', () => {
       network = createNetwork({
         id: 1,
         name: 'test network',
+        description: 'network description',
         lndNodes: 1,
         clightningNodes: 0,
         eclairNodes: 0,
