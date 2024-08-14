@@ -18,7 +18,7 @@ RUN cd /go/src/github.com/lightninglabs/lightning-terminal/app \
 # If you change this value, please also update:
 # /Dockerfile
 # /.github/workflows/main.yml
-FROM golang:1.22-bookworm as golangbuilder
+FROM golang:1.23-bookworm as golangbuilder
 
 # Instead of checking out from git again, we just copy the whole working
 # directory of the previous stage that includes the generated static assets.
