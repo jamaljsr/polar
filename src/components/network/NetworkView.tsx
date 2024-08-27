@@ -3,7 +3,8 @@ import { useAsyncCallback } from 'react-async-hook';
 import { Redirect, RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Alert, Button, Empty, Input, Modal, PageHeader, Descriptions } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { Alert, Button, Empty, Input, Modal, PageHeader, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
@@ -162,11 +163,13 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
               name="newNetworkName"
               value={editingName}
               onChange={e => setEditingName(e.target.value)}
+              placeholder={l('namePhl')}
             />
             <Styled.DescriptionInput
               name="newNetworkDescription"
               value={editingDescription}
               onChange={e => setEditingDescription(e.target.value)}
+              placeholder={l('descriptionPhl')}
               size="small"
               maxLength={100}
               autoSize
@@ -198,7 +201,16 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
     header = (
       <Styled.PageHeader
         colors={theme.pageHeader}
-        title={network.name}
+        title={
+          <>
+            {`${network.name} `}
+            {network.description && (
+              <Tooltip title={network.description}>
+                <InfoCircleOutlined />
+              </Tooltip>
+            )}
+          </>
+        }
         onBack={handleBackClick}
         tags={<StatusTag status={network.status} />}
         extra={
@@ -214,15 +226,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
             onExportClick={() => exportAsync.execute(network.id, network.name)}
           />
         }
-      >
-        {network.description && (
-          <Descriptions size="small">
-            <Descriptions.Item label="Description">
-              {network.description}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Styled.PageHeader>
+      />
     );
   }
   const missingImages = getMissingImages(network, dockerImages);
