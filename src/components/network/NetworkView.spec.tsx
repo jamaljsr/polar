@@ -101,9 +101,10 @@ describe('NetworkView Component', () => {
     expect(getByText('test network')).toBeInTheDocument();
   });
 
-  it('should render the network description', () => {
-    const { getByText } = renderComponent('1');
-    expect(getByText('network description')).toBeInTheDocument();
+  it('should render the tooltip for the network description', async () => {
+    const { getAllByLabelText, findByText } = renderComponent('1');
+    fireEvent.mouseOver(getAllByLabelText('info-circle')[0]);
+    expect(await findByText('network description')).toBeInTheDocument();
   });
 
   it('should navigate home when back button clicked', () => {
@@ -278,15 +279,19 @@ describe('NetworkView Component', () => {
       expect(await findByText('Failed to rename the network')).toBeInTheDocument();
     });
 
-    it('should not display description text area if renamed to empty string', async () => {
-      const { getByLabelText, findByText, queryByText } = renderComponent('1');
+    it('should not display tooltip for description field if renamed to empty string', async () => {
+      const { getAllByLabelText, getByLabelText, findByText } = renderComponent('1');
+      const infoIcon = getAllByLabelText('info-circle')[0];
+      expect(infoIcon).toBeInTheDocument();
+      fireEvent.mouseOver(infoIcon);
       expect(await findByText('network description')).toBeInTheDocument();
+
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Rename'));
       const descriptionInput = await findByText('network description');
       fireEvent.change(descriptionInput, { target: { value: '' } });
       fireEvent.click(await findByText('Save'));
-      expect(queryByText('network description')).not.toBeInTheDocument();
+      expect(infoIcon).not.toBeInTheDocument();
     });
   });
 
