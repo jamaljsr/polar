@@ -883,7 +883,7 @@ const networkModel: NetworkModel = {
     },
   ),
   rename: thunk(async (actions, { id, name, description }, { getState }) => {
-    if (!name) throw new Error(l('renameErr', { name }));
+    if (!name) throw new Error(l('missingNetworkName', { name }));
     const { networks } = getState();
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
