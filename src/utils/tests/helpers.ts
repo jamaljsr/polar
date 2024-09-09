@@ -59,7 +59,7 @@ export const testCustomImages: CustomImage[] = [
 ];
 
 export const testRepoState: DockerRepoState = {
-  version: 49,
+  version: 50,
   images: {
     LND: {
       latest: '0.18.2-beta',
@@ -144,8 +144,8 @@ export const testRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '23.05.2',
-      versions: ['23.05.2', '23.02.2', '22.11', '0.12.0', '0.11.2', '0.10.2'],
+      latest: '24.08',
+      versions: ['24.08', '24.05', '24.02.2', '23.11.2'],
     },
     eclair: {
       latest: '0.10.0',
