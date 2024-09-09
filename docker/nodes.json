@@ -1,5 +1,5 @@
 {
-  "version": 64,
+  "version": 65,
   "images": {
     "LND": {
       "latest": "0.18.2-beta",
@@ -21,8 +21,8 @@
       }
     },
     "c-lightning": {
-      "latest": "24.05",
-      "versions": ["24.05", "24.02.2", "23.11.2"]
+      "latest": "24.08",
+      "versions": ["24.08", "24.05", "24.02.2", "23.11.2"]
     },
     "eclair": {
       "latest": "0.10.0",
