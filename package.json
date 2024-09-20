@@ -126,7 +126,7 @@
     "less-loader": "12.2.0",
     "lint-staged": "14.0.1",
     "lndconnect": "0.2.10",
-    "nodemon": "3.1.5",
+    "nodemon": "3.1.7",
     "patch-package": "8.0.0",
     "prettier": "2.8.8",
     "react": "17.0.2",
