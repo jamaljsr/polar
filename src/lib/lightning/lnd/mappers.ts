@@ -65,21 +65,26 @@ const parseCustomData = (
   id: string,
   customChannelData: Buffer,
 ): LightningNodeChannel['assets'] => {
-  const data = Buffer.from(customChannelData).toString('utf8');
+  if (!customChannelData || customChannelData.length === 0) return [];
+  const data = customChannelData.toString('utf8');
   try {
     const chanData = JSON.parse(data) as ChannelCustomData;
-    if (!chanData.assets) return undefined;
+    if (!chanData.assets) {
+      debug(`No assets found in customChannelData for channel ${id}`);
+      return [];
+    }
     debug(`Parsed customChannelData for channel ${id}:`, chanData);
     const assets = chanData.assets.map(asset => ({
-      id: asset.asset_utxo.asset_genesis.asset_id,
-      name: asset.asset_utxo.asset_genesis.name,
-      capacity: asset.capacity.toString(),
-      localBalance: asset.local_balance.toString(),
-      remoteBalance: asset.remote_balance.toString(),
+      id: asset.asset_utxo?.asset_genesis?.asset_id,
+      name: asset.asset_utxo?.asset_genesis?.name,
+      capacity: asset.capacity?.toString(),
+      localBalance: asset.local_balance?.toString(),
+      remoteBalance: asset.remote_balance?.toString(),
     }));
     debug(`Parsed customChannelData for channel ${id}:`, assets);
     return assets;
   } catch (e) {
-    debug(`Failed to parse customChannelData for channel ${id}:` + data, e);
+    debug(`Failed to parse customChannelData for channel ${id}:`, data, e);
+    return [];
   }
 };

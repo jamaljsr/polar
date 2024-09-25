@@ -50,7 +50,13 @@ describe('LndService', () => {
 
   it('should get list of channels', async () => {
     const mocked = defaultLndListChannels({
-      channels: [defaultLndChannel({ remotePubkey: 'xyz', initiator: true })],
+      channels: [
+        defaultLndChannel({
+          remotePubkey: 'xyz',
+          initiator: true,
+          customChannelData: Buffer.from('random data'),
+        }),
+      ],
     });
     const expected = [expect.objectContaining({ pubkey: 'xyz' })];
     lndProxyClient.listChannels = jest.fn().mockResolvedValue(mocked);
