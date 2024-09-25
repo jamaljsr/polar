@@ -46,7 +46,7 @@
     "@lightningpolar/litd-api": "0.13.99-alpha",
     "@lightningpolar/lnd-api": "0.18.99-beta.pre3",
     "@lightningpolar/tapd-api": "0.4.0-alpha",
-    "@types/lodash": "4.17.7",
+    "@types/lodash": "4.17.9",
     "archiver": "7.0.1",
     "docker-compose": "0.24.0",
     "dockerode": "4.0.2",
