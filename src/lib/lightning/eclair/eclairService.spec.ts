@@ -398,10 +398,9 @@ describe('EclairService', () => {
 
     it('should pay an invoice for < v0.8.0', async () => {
       mockResponses(false);
-      const promise = eclairService.payInvoice(node, 'lnbc100xyz');
-      const res = await promise;
+      const res = await eclairService.payInvoice(node, 'lnbc100xyz');
       expect(res.preimage).toEqual('pre-image');
-      expect(res.amount).toEqual(100000);
+      expect(res.amount).toEqual(100);
       expect(res.destination).toEqual('abcdef');
       // test payments with amount specified
       eclairService.payInvoice(node, 'lnbc100xyz', 1000);
@@ -416,10 +415,9 @@ describe('EclairService', () => {
 
     it('should pay an invoice for >= v0.8.0', async () => {
       mockResponses(true);
-      const promise = eclairService.payInvoice(node, 'lnbc100xyz');
-      const res = await promise;
+      const res = await eclairService.payInvoice(node, 'lnbc100xyz');
       expect(res.preimage).toEqual('pre-image');
-      expect(res.amount).toEqual(100000);
+      expect(res.amount).toEqual(100);
       expect(res.destination).toEqual('abcdef');
       // test payments with amount specified
       eclairService.payInvoice(node, 'lnbc100xyz', 1000);
