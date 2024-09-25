@@ -154,11 +154,6 @@ describe('DockerService', () => {
 
       expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
-        expect.stringContaining('version:'),
-      );
-
-      expect(filesMock.write).toHaveBeenCalledWith(
-        expect.stringContaining('docker-compose.yml'),
         expect.stringContaining('services:'),
       );
     });

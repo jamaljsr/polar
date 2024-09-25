@@ -34,10 +34,6 @@ describe('ComposeFile', () => {
     expect(composeFile.content.services).toEqual({});
   });
 
-  it('should have a valid docker version', () => {
-    expect(composeFile.content.version).toEqual('3.3');
-  });
-
   it('should have a name', () => {
     expect(composeFile.content.name).toEqual('polar-network-1');
   });
