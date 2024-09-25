@@ -204,7 +204,7 @@ class EclairService implements LightningService {
     const payReq = paymentRequest || resInvoice;
     return {
       preimage: status.paymentPreimage,
-      amount: payReq.amount,
+      amount: payReq.amount / 1000,
       destination: payReq.nodeId,
     };
   }
