@@ -66,7 +66,7 @@ const parseCustomData = (
   customChannelData: Buffer,
 ): LightningNodeChannel['assets'] => {
   if (!customChannelData || customChannelData.length === 0) return [];
-  const data = customChannelData.toString('utf8');
+  const data = Buffer.from(customChannelData).toString('utf8');
   try {
     const chanData = JSON.parse(data) as ChannelCustomData;
     if (!chanData.assets) {
