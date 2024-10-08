@@ -366,7 +366,7 @@ export const defaultRepoState: DockerRepoState = {
     },
     bitcoind: {
       latest: '27.0',
-      versions: ['27.0', '26.0', '25.0', '24.0', '23.0', '22.0', '0.21.1'],
+      versions: ['28.0', '27.0', '26.0', '25.0', '24.0', '23.0', '22.0', '0.21.1'],
     },
     btcd: {
       latest: '',
