@@ -39,6 +39,7 @@ export interface MintAssetPayload {
   enableEmission: boolean;
   finalize: boolean;
   autoFund: boolean;
+  decimals: number;
 }
 
 export interface SyncUniversePayload {
@@ -168,8 +169,16 @@ const tapModel: TapModel = {
   }),
   mintAsset: thunk(
     async (actions, payload, { injections, getStoreState, getStoreActions }) => {
-      const { node, assetType, name, amount, enableEmission, finalize, autoFund } =
-        payload;
+      const {
+        node,
+        assetType,
+        name,
+        amount,
+        enableEmission,
+        finalize,
+        autoFund,
+        decimals,
+      } = payload;
 
       const network = getStoreState().network.networkById(node.networkId);
       if (
@@ -196,6 +205,11 @@ const tapModel: TapModel = {
           name,
           amount: assetType === PTAP.TAP_ASSET_TYPE.COLLECTIBLE ? '1' : amount.toString(),
           newGroupedAsset: enableEmission,
+          decimalDisplay: decimals,
+          assetMeta:
+            assetType === PTAP.TAP_ASSET_TYPE.COLLECTIBLE || decimals === 0
+              ? undefined
+              : { type: TAP.AssetMetaType.META_TYPE_JSON },
         },
       };
       const res = await api.mintAsset(node, req);

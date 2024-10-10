@@ -35,3 +35,14 @@ export const abbreviate = (value: number | string): string => {
   // format value and add suffix
   return scaled.toFixed(1) + suffix;
 };
+
+export const formatDecimals = (value: number | undefined, decimals: number) => {
+  if (typeof value === 'undefined') return '';
+
+  const formatter = new Intl.NumberFormat('en', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  return formatter.format(value);
+};

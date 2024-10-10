@@ -59,14 +59,15 @@ describe('MintAssetModal', () => {
     expect(getByText('Mint an asset for alice-tap')).toBeInTheDocument();
     expect(getByText('Asset Type')).toBeInTheDocument();
     expect(getByText('Asset Name')).toBeInTheDocument();
-    expect(getByText('Amount')).toBeInTheDocument();
+    expect(getByText('Supply')).toBeInTheDocument();
+    expect(getByText('Decimal Places')).toBeInTheDocument();
     expect(getByText('Finalize batch to mint asset immediately')).toBeInTheDocument();
   });
 
   it('should render form inputs', async () => {
     const { getByLabelText } = await renderComponent();
     expect(getByLabelText('Asset Name')).toBeInTheDocument();
-    expect(getByLabelText('Amount')).toBeInTheDocument();
+    expect(getByLabelText('Supply')).toBeInTheDocument();
   });
 
   it('should render button', async () => {
@@ -78,11 +79,11 @@ describe('MintAssetModal', () => {
 
   it('should update amount when type changes', async () => {
     const { getByLabelText, changeSelect } = await renderComponent();
-    expect(getByLabelText('Amount')).toHaveValue('1,000');
+    expect(getByLabelText('Supply')).toHaveValue('100,000');
     changeSelect('Asset Type', 'Collectible');
-    expect(getByLabelText('Amount')).toHaveValue('1');
+    expect(getByLabelText('Supply')).toHaveValue('1');
     changeSelect('Asset Type', 'Normal');
-    expect(getByLabelText('Amount')).toHaveValue('1,000');
+    expect(getByLabelText('Supply')).toHaveValue('100,000');
   });
 
   it('should hide modal when cancel is clicked', async () => {
@@ -144,7 +145,8 @@ describe('MintAssetModal', () => {
 
     it('should mint normal asset', async () => {
       const { getByText, getByLabelText } = await renderComponent();
-      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Supply'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Decimal Places'), { target: { value: '3' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
@@ -156,7 +158,7 @@ describe('MintAssetModal', () => {
     it('should mint collectible asset', async () => {
       const { getByText, getByLabelText, changeSelect } = await renderComponent();
       changeSelect('Asset Type', 'Collectible');
-      expect(getByLabelText('Amount')).toHaveAttribute('disabled');
+      expect(getByLabelText('Supply')).toHaveAttribute('disabled');
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {
@@ -201,7 +203,7 @@ describe('MintAssetModal', () => {
         total: '0',
       });
       const { getByText, getByLabelText } = await renderComponent();
-      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Supply'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
 
       await waitFor(() => {
@@ -236,7 +238,7 @@ describe('MintAssetModal', () => {
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
-      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Supply'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
 
       await waitFor(() => {
@@ -254,7 +256,7 @@ describe('MintAssetModal', () => {
       const btn = getByText('Mint');
       expect(btn).toBeInTheDocument();
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
-      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Supply'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
       fireEvent.click(getByText('Mint'));
       expect(await findByText('Failed to mint 100 test')).toBeInTheDocument();
@@ -264,7 +266,7 @@ describe('MintAssetModal', () => {
     it('should not mint with an invalid node name', async () => {
       const { findByText, getByLabelText } = await renderComponent('invalid-node');
       expect(await findByText('Mint')).toBeInTheDocument();
-      fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+      fireEvent.change(getByLabelText('Supply'), { target: { value: '100' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
       fireEvent.click(await findByText('Mint'));
       await waitFor(() => {

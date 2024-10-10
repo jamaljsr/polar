@@ -1,12 +1,24 @@
 import React, { useCallback, useMemo } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import { Alert, Checkbox, Form, Input, InputNumber, Modal, Select } from 'antd';
+import {
+  Alert,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Slider,
+} from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TAP_ASSET_TYPE } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { MintAssetPayload, TAP_MIN_LND_BALANCE } from 'store/models/tap';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
+import { formatDecimals } from 'utils/numbers';
 
 interface Props {
   network: Network;
@@ -26,12 +38,15 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   const assetType: number = Form.useWatch('assetType', form);
   const assetName: string = Form.useWatch('name', form) || '';
   const autoFund: string = Form.useWatch('autoFund', form);
+  const amount: number = Form.useWatch('amount', form);
+  const decimals: number = Form.useWatch('decimals', form);
 
   const mintAssetAsync = useAsyncCallback(async (payload: MintAssetPayload) => {
     try {
       await mintAsset(payload);
+      const amt = formatDecimals(payload.amount, payload.decimals);
       notify({
-        message: l('mintSuccess', { name: payload.name, amt: payload.amount }),
+        message: l('mintSuccess', { name: payload.name, amt }),
       });
       hideMintAsset();
     } catch (error: any) {
@@ -41,7 +56,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
   });
 
   const handleTypeChange = useCallback((value: number) => {
-    form.setFieldsValue({ amount: value === 1 ? 1 : 1000 });
+    form.setFieldsValue({ amount: value === 1 ? 1 : 100000 });
   }, []);
 
   const lowBalance = useMemo(() => {
@@ -58,6 +73,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
       enableEmission: boolean;
       finalize: boolean;
       autoFund: boolean;
+      decimals: number;
     }) => {
       const { lightning, tap } = network.nodes;
       const node = [...lightning, ...tap].find(node => node.name === nodeName);
@@ -71,6 +87,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         enableEmission: values.enableEmission,
         finalize: values.finalize,
         autoFund: values.autoFund,
+        decimals: assetType === 1 ? 0 : values.decimals,
       };
       mintAssetAsync.execute(payload);
     },
@@ -87,10 +104,11 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         initialValues={{
           assetType: 0,
           name: '',
-          amount: 1000,
+          amount: 100000,
           enableEmission: false,
           finalize: true,
           autoFund: true,
+          decimals: 2,
         }}
         onFinish={handleSubmit}
         disabled={mintAssetAsync.loading}
@@ -111,16 +129,37 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
         >
           <Input placeholder={l('namePlaceholder')} />
         </Form.Item>
-        <Form.Item name="amount" label={l('amount')}>
-          <InputNumber<number>
-            placeholder={l('amountPlaceholder')}
-            disabled={mintAssetAsync.loading || assetType === 1}
-            style={{ width: '100%' }}
-            formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
-            min={1}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item name="amount" label={l('amount')}>
+              <InputNumber<number>
+                placeholder={l('amountPlaceholder')}
+                disabled={mintAssetAsync.loading || assetType === 1}
+                style={{ width: '100%' }}
+                formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={v => parseFloat(`${v}`.replace(/(undefined|,*)/g, ''))}
+                min={1}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="decimals"
+              label={l('decimals')}
+              help={l('decimalsInfo', {
+                example: formatDecimals(amount / 10 ** decimals, decimals),
+              })}
+              hidden={assetType === 1}
+            >
+              <Slider
+                min={0}
+                max={8}
+                step={1}
+                disabled={mintAssetAsync.loading || assetType === 1}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
         {/*
         Hidden until asset groups is fully supported
