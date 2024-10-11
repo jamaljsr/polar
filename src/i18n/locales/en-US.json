@@ -359,6 +359,7 @@
   "cmps.designer.tap.info.AssetInfoDrawer.type": "Type",
   "cmps.designer.tap.info.AssetInfoDrawer.assetId": "Asset ID",
   "cmps.designer.tap.info.AssetInfoDrawer.genesisPoint": "Genesis Point",
+  "cmps.designer.tap.info.AssetInfoDrawer.decimals": "Decimal Display",
   "cmps.designer.tap.info.AssetInfoDrawer.emission": "Emission Allowed",
   "cmps.designer.tap.info.AssetInfoDrawer.groupKey": "Group Key",
   "cmps.designer.tap.info.AssetInfoDrawer.utxos": "UTXOs",

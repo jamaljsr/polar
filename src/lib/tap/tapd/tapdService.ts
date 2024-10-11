@@ -83,6 +83,7 @@ class TapdService implements TapService {
         genesisPoint: genesis.genesisPoint,
         anchorOutpoint: anchor.anchorOutpoint,
         groupKey: asset.assetGroup?.tweakedGroupKey.toString('hex') || '',
+        decimals: asset.decimalDisplay?.decimalDisplay || 0,
       };
     });
   }

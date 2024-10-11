@@ -10,6 +10,7 @@ export interface TapAsset {
   genesisPoint: string;
   anchorOutpoint: string;
   groupKey: string;
+  decimals: number;
 }
 
 export interface TapBalance {

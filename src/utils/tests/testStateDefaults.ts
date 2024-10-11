@@ -52,6 +52,7 @@ export const defaultTapAsset = (value: Partial<TapAsset>): TapAsset => ({
   genesisPoint: '',
   anchorOutpoint: '',
   groupKey: '',
+  decimals: 0,
   ...value,
 });
 
