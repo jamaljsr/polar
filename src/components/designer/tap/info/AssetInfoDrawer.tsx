@@ -42,8 +42,8 @@ const DetailValue: React.FC<{ value: string }> = ({ value }) => {
   );
 };
 
-const AssetInfoModal: React.FC = () => {
-  const { l } = usePrefixedTranslation('cmps.designer.tap.info.AssetInfoModal');
+const AssetInfoDrawer: React.FC = () => {
+  const { l } = usePrefixedTranslation('cmps.designer.tap.info.AssetInfoDrawer');
   const { visible, assetId, nodeName } = useStoreState(s => s.modals.assetInfo);
   const { hideAssetInfo } = useStoreActions(s => s.modals);
   const { assets, balance } = useAssetState(nodeName, assetId);
@@ -93,4 +93,4 @@ const AssetInfoModal: React.FC = () => {
   );
 };
 
-export default AssetInfoModal;
+export default AssetInfoDrawer;
