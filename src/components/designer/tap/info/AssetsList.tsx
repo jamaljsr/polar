@@ -5,7 +5,7 @@ import { Button, Divider, Space } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TapBalance } from 'lib/tap/types';
 import { useStoreActions } from 'store';
-import { format } from 'utils/units';
+import AssetAmount from 'components/common/AssetAmount';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import AssetInfoDrawer from './AssetInfoDrawer';
 
@@ -38,7 +38,7 @@ const AssetsList: React.FC<Props> = ({ balances, nodeName }) => {
         label: asset.name,
         value: (
           <Space>
-            {format(asset.balance)}
+            <AssetAmount assetId={asset.id} amount={asset.balance} />
             <Button
               type="text"
               icon={<UnorderedListOutlined />}
