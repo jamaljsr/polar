@@ -39,9 +39,6 @@ export const tapServiceMock: jest.Mocked<TapService> = {
   fundChannel: jest.fn(),
   addInvoice: jest.fn(),
   sendPayment: jest.fn(),
-  addAssetBuyOrder: jest.fn(),
-  addAssetSellOrder: jest.fn(),
-  encodeCustomRecords: jest.fn(),
 };
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
