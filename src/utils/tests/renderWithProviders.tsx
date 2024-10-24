@@ -37,6 +37,8 @@ export const tapServiceMock: jest.Mocked<TapService> = {
   assetRoots: jest.fn(),
   syncUniverse: jest.fn(),
   fundChannel: jest.fn(),
+  addInvoice: jest.fn(),
+  sendPayment: jest.fn(),
   addAssetBuyOrder: jest.fn(),
   addAssetSellOrder: jest.fn(),
   encodeCustomRecords: jest.fn(),

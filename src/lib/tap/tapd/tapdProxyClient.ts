@@ -72,6 +72,20 @@ class TapdProxyClient {
     return await this.ipc(ipcChannels.tapd.fundChannel, { node, req });
   }
 
+  async addInvoice(
+    node: TapdNode,
+    req: TAP.tapchannelrpc.AddInvoiceRequestPartial,
+  ): Promise<TAP.tapchannelrpc.AddInvoiceResponse> {
+    return await this.ipc(ipcChannels.tapd.addInvoice, { node, req });
+  }
+
+  async sendPayment(
+    node: TapdNode,
+    req: TAP.tapchannelrpc.SendPaymentRequestPartial,
+  ): Promise<TAP.tapchannelrpc.SendPaymentResponse> {
+    return await this.ipc(ipcChannels.tapd.sendPayment, { node, req });
+  }
+
   async addAssetBuyOrder(
     node: TapdNode,
     req: TAP.AddAssetBuyOrderRequestPartial,

@@ -143,6 +143,52 @@ class TapdService implements TapService {
     return txid;
   }
 
+  async addInvoice(
+    node: TapNode,
+    assetId: string,
+    amount: number,
+    memo: string,
+    expiry: number,
+  ): Promise<string> {
+    const req: TAP.AddInvoiceRequestPartial = {
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
+      assetAmount: amount,
+      invoiceRequest: {
+        memo,
+        expiry,
+      },
+    };
+    const res = await proxy.addInvoice(this.cast(node), req);
+    return res.invoiceResult?.paymentRequest || '';
+  }
+
+  async sendPayment(
+    node: TapNode,
+    assetId: string,
+    invoice: string,
+    feeLimitMsat: number,
+    peerPubkey?: string,
+  ): Promise<PLN.LightningNodePayReceipt> {
+    const req: TAP.tapchannelrpc.SendPaymentRequestPartial = {
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
+      paymentRequest: {
+        paymentRequest: invoice,
+        timeoutSeconds: 60 * 60, // 1 hour
+        feeLimitMsat,
+      },
+    };
+    if (peerPubkey) {
+      req.peerPubkey = Buffer.from(peerPubkey, 'hex').toString('base64');
+    }
+    const res = await proxy.sendPayment(this.cast(node), req);
+    const pmt = res.paymentResult as LND.Payment;
+    return {
+      amount: parseInt(res.acceptedSellOrder?.assetAmount || pmt.valueSat),
+      preimage: pmt.paymentPreimage.toString(),
+      destination: '',
+    };
+  }
+
   async addAssetBuyOrder(
     node: TapNode,
     peerPubkey: string,
