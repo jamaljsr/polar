@@ -1,10 +1,9 @@
 # Start with a NodeJS base image that also contains yarn.
-FROM node:16.20.2-buster-slim as nodejsbuilder
+FROM node:22.8.0-alpine@sha256:bec0ea49c2333c429b62e74e91f8ba1201b060110745c3a12ff957cd51b363c6 as nodejsbuilder
 
 ARG LITD_VERSION
 
-RUN apt-get update -y \
-  && apt-get install -y git
+RUN apk add --no-cache --update git
 
 # Copy in the local repository to build from.
 RUN git clone --branch ${LITD_VERSION} https://github.com/lightninglabs/lightning-terminal.git /go/src/github.com/lightninglabs/lightning-terminal/
