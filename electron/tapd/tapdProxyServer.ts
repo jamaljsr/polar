@@ -151,30 +151,6 @@ const sendPayment = async (args: {
   });
 };
 
-const addAssetBuyOrder = async (args: {
-  node: TapdNode;
-  req: TAPD.AddAssetBuyOrderRequestPartial;
-}): Promise<TAPD.AddAssetBuyOrderResponse> => {
-  const { rfq } = await getRpc(args.node);
-  return await rfq.addAssetBuyOrder(args.req);
-};
-
-const addAssetSellOrder = async (args: {
-  node: TapdNode;
-  req: TAPD.AddAssetSellOrderRequestPartial;
-}): Promise<TAPD.AddAssetSellOrderResponse> => {
-  const { rfq } = await getRpc(args.node);
-  return await rfq.addAssetSellOrder(args.req);
-};
-
-const encodeCustomRecords = async (args: {
-  node: TapdNode;
-  req: TAPD.EncodeCustomRecordsRequestPartial;
-}): Promise<TAPD.EncodeCustomRecordsResponse> => {
-  const { channels } = await getRpc(args.node);
-  return await channels.encodeCustomRecords(args.req);
-};
-
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
@@ -195,9 +171,6 @@ const listeners: {
   [ipcChannels.tapd.fundChannel]: fundChannel,
   [ipcChannels.tapd.addInvoice]: addInvoice,
   [ipcChannels.tapd.sendPayment]: sendPayment,
-  [ipcChannels.tapd.addAssetBuyOrder]: addAssetBuyOrder,
-  [ipcChannels.tapd.addAssetSellOrder]: addAssetSellOrder,
-  [ipcChannels.tapd.encodeCustomRecords]: encodeCustomRecords,
 };
 
 /**

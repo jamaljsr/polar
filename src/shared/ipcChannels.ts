@@ -37,9 +37,6 @@ export default {
     fundChannel: 'tapd-fund-channel',
     addInvoice: 'tapd-add-invoice',
     sendPayment: 'tapd-send-payment',
-    addAssetBuyOrder: 'tapd-add-asset-buy-order',
-    addAssetSellOrder: 'tapd-add-asset-sell-order',
-    encodeCustomRecords: 'tapd-encode-custom-records',
   },
   // litd proxy channels
   litd: {

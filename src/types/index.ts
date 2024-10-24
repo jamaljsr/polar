@@ -236,21 +236,6 @@ export interface TapService {
     feeLimitMsat: number,
     peerPubkey?: string,
   ) => Promise<PLN.LightningNodePayReceipt>;
-  addAssetBuyOrder: (
-    node: TapNode,
-    peerPubkey: string,
-    assetId: string,
-    amount: number,
-  ) => Promise<PTAP.BuyOrder>;
-  addAssetSellOrder: (
-    node: TapNode,
-    peerPubkey: string,
-    assetId: string,
-    maxAssetAmount: string,
-    minAskMsat: string,
-    expiry: string,
-  ) => Promise<PTAP.SellOrder>;
-  encodeCustomRecords: (node: TapNode, rfqId: string) => Promise<PLN.CustomRecords>;
 }
 
 export interface TapFactoryInjection {
