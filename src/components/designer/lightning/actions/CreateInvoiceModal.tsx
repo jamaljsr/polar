@@ -37,8 +37,6 @@ const Styled = {
   `,
 };
 
-const ASSET_WARNING_THRESHOLD = 5000;
-
 interface FormValues {
   node: string;
   assetId: string;
@@ -65,7 +63,6 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const [form] = Form.useForm();
   const assetId = Form.useWatch<string>('assetId', form) || 'sats';
-  const selectedAmount = Form.useWatch<number>('amount', form) || 0;
   const selectedNode = Form.useWatch<string>('node', form) || '';
 
   const isLitd = network.nodes.lightning.some(
@@ -116,7 +113,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
       const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
       const balance = parseInt(asset.remoteBalance);
-      return Math.min(Math.floor(balance / 2), ASSET_WARNING_THRESHOLD);
+      return Math.floor(balance / 2);
     },
     [assets, isLitd],
   );
@@ -181,11 +178,6 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
           name="amount"
           label={l('amountLabel')}
           rules={[{ required: true, message: l('cmps.forms.required') }]}
-          help={
-            assetId === 'sats' || selectedAmount <= ASSET_WARNING_THRESHOLD
-              ? undefined
-              : l('amountHelp', { threshold: format(ASSET_WARNING_THRESHOLD) })
-          }
         >
           <InputNumber<number>
             min={1}

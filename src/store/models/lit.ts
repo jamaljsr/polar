@@ -122,28 +122,19 @@ const litModel: LitModel = {
       if (assetsInChannels.length === 0) {
         throw new Error('Not enough assets in a channel to create the invoice');
       }
-      const peerPubkey = assetsInChannels[0].peerPubkey;
 
-      // create a buy order with the channel peer for the asset
+      // create the invoice using the TAPD RPC
       const tapdNode = mapToTapd(node);
-      const buyOrder = await injections.tapFactory
+      const invoice = await injections.tapFactory
         .getService(tapdNode)
-        .addAssetBuyOrder(tapdNode, peerPubkey, assetId, amount);
+        .addInvoice(tapdNode, assetId, amount, '', 3600);
 
-      // calculate the amount of msats for the invoice
-      const msatPerUnit = BigInt(buyOrder.askPrice);
-      const msats = BigInt(amount) * msatPerUnit;
-
-      // create the invoice
-      const invoice = await injections.lightningFactory
+      // decode the invoice to get the amount in sats
+      const decoded = await injections.lightningFactory
         .getService(node)
-        .createInvoice(node, amount, '', {
-          nodeId: peerPubkey,
-          scid: buyOrder.scid,
-          msats: msats.toString(),
-        });
+        .decodeInvoice(node, invoice);
+      const sats = Number(decoded.amountMsat) / 1000;
 
-      const sats = Number(msats / BigInt(1000));
       return { invoice, sats };
     },
   ),
@@ -161,45 +152,31 @@ const litModel: LitModel = {
         throw new Error('Not enough assets in a channel to pay the invoice');
       }
 
-      const peerPubkey = assetsInChannels[0].peerPubkey;
-      const assetBalance = assetsInChannels[0].asset.localBalance;
-
-      // decode the invoice to get the amount
+      // decode the invoice to get the amount in msats
       const lndService = injections.lightningFactory.getService(node);
       const decoded = await lndService.decodeInvoice(node, invoice);
+      const amtMsat = Number(decoded.amountMsat);
 
-      // create a buy order with the channel peer for the asset
+      // mimics the behavior of the LND CLI, which will use 5% of the amount if it's
+      // greater than 1,000 sats, otherwise it will use the full amount
+      const feeLimit = Math.floor(amtMsat > 1_000_000 ? amtMsat * 0.05 : amtMsat);
+      const peerPubkey = assetsInChannels[0].peerPubkey;
+
       const tapdNode = mapToTapd(node);
       const tapService = injections.tapFactory.getService(tapdNode);
-      const sellOrder = await tapService.addAssetSellOrder(
+      const receipt = await tapService.sendPayment(
         tapdNode,
-        peerPubkey,
         assetId,
-        assetBalance,
-        decoded.amountMsat,
-        decoded.expiry,
-      );
-
-      const msatPerUnit = BigInt(sellOrder.bidPrice);
-      const numUnits = BigInt(decoded.amountMsat) / msatPerUnit;
-
-      // encode the first hop custom records for the payment
-      const customRecords = await tapService.encodeCustomRecords(tapdNode, sellOrder.id);
-
-      // send the custom payment request to the node
-      const receipt = await lndService.payInvoice(
-        node,
         invoice,
-        Number(BigInt(decoded.amountMsat) / BigInt(1000)),
-        customRecords,
+        feeLimit,
+        peerPubkey,
       );
 
-      const network = getStoreState().network.networkById(node.networkId);
       // synchronize the chart with the new channel
+      const network = getStoreState().network.networkById(node.networkId);
       await getStoreActions().lightning.waitForNodes(network.nodes.lightning);
       await getStoreActions().designer.syncChart(network);
 
-      receipt.amount = parseInt(numUnits.toString());
       return receipt;
     },
   ),
