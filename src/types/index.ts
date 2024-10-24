@@ -222,6 +222,20 @@ export interface TapService {
     assetId: string,
     amount: number,
   ) => Promise<string>;
+  addInvoice: (
+    node: TapNode,
+    assetId: string,
+    amount: number,
+    memo: string,
+    expiry: number,
+  ) => Promise<string>;
+  sendPayment: (
+    node: TapNode,
+    assetId: string,
+    invoice: string,
+    feeLimitMsat: number,
+    peerPubkey?: string,
+  ) => Promise<PLN.LightningNodePayReceipt>;
   addAssetBuyOrder: (
     node: TapNode,
     peerPubkey: string,

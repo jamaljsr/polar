@@ -78,6 +78,10 @@ export const defaultTapdSendAsset = (
   value: Partial<SendAssetResponse>,
 ): SendAssetResponse => ({
   transfer: {
+    anchorTxBlockHash: {
+      hash: Buffer.from(''),
+      hashStr: '',
+    },
     anchorTxChainFees: '',
     anchorTxHash: Buffer.from(''),
     anchorTxHeightHint: 0,
@@ -108,7 +112,10 @@ export const defaultTapdAddAssetBuyOrder = (
     id: Buffer.from(''),
     scid: '',
     assetAmount: '',
-    askPrice: '',
+    askAssetRate: {
+      coefficient: '0',
+      scale: 0,
+    },
     expiry: '',
   },
   invalidQuote: {
@@ -134,7 +141,10 @@ export const defaultTapdAddAssetSellOrder = (
     id: Buffer.from(''),
     scid: '',
     assetAmount: '',
-    bidPrice: '',
+    bidAssetRate: {
+      coefficient: '0',
+      scale: 0,
+    },
     expiry: '',
   },
   invalidQuote: {

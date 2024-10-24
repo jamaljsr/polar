@@ -1,6 +1,7 @@
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
 import { readFile } from 'fs-extra';
+import * as LND from '@lightningpolar/lnd-api';
 import * as TAPD from '@lightningpolar/tapd-api';
 import {
   convertUInt8ArraysToHex,
@@ -121,6 +122,35 @@ const fundChannel = async (args: {
   return await channels.fundChannel(args.req);
 };
 
+const addInvoice = async (args: {
+  node: TapdNode;
+  req: TAPD.AddInvoiceRequestPartial;
+}): Promise<TAPD.tapchannelrpc.AddInvoiceResponse> => {
+  const { channels } = await getRpc(args.node);
+  return await channels.addInvoice(args.req);
+};
+
+const sendPayment = async (args: {
+  node: TapdNode;
+  req: TAPD.tapchannelrpc.SendPaymentRequestPartial;
+}): Promise<TAPD.tapchannelrpc.SendPaymentResponse> => {
+  const { channels } = await getRpc(args.node);
+  return new Promise((resolve, reject) => {
+    const stream = channels.sendPayment(args.req);
+    stream.on('data', (res: TAPD.tapchannelrpc.SendPaymentResponse) => {
+      // this callback will be called multiple times for each payment attempt. We only
+      // want to resolve the promise when the payment is successful or failed.
+      if (res.paymentResult?.status === LND._lnrpc_Payment_PaymentStatus.SUCCEEDED) {
+        resolve(res);
+      } else if (res.paymentResult?.status === LND._lnrpc_Payment_PaymentStatus.FAILED) {
+        reject(new Error(`Payment failed: ${res.paymentResult?.failureReason}`));
+      }
+    });
+    stream.on('error', err => reject(err));
+    stream.on('end', () => reject(new Error('Stream ended without a payment result')));
+  });
+};
+
 const addAssetBuyOrder = async (args: {
   node: TapdNode;
   req: TAPD.AddAssetBuyOrderRequestPartial;
@@ -163,6 +193,8 @@ const listeners: {
   [ipcChannels.tapd.assetLeaves]: assetLeaves,
   [ipcChannels.tapd.syncUniverse]: syncUniverse,
   [ipcChannels.tapd.fundChannel]: fundChannel,
+  [ipcChannels.tapd.addInvoice]: addInvoice,
+  [ipcChannels.tapd.sendPayment]: sendPayment,
   [ipcChannels.tapd.addAssetBuyOrder]: addAssetBuyOrder,
   [ipcChannels.tapd.addAssetSellOrder]: addAssetSellOrder,
   [ipcChannels.tapd.encodeCustomRecords]: encodeCustomRecords,

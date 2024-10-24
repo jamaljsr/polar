@@ -35,6 +35,8 @@ export default {
     assetLeaves: 'tapd-asset-leaves',
     syncUniverse: 'tapd-sync-universe',
     fundChannel: 'tapd-fund-channel',
+    addInvoice: 'tapd-add-invoice',
+    sendPayment: 'tapd-send-payment',
     addAssetBuyOrder: 'tapd-add-asset-buy-order',
     addAssetSellOrder: 'tapd-add-asset-sell-order',
     encodeCustomRecords: 'tapd-encode-custom-records',
