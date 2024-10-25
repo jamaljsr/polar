@@ -135,7 +135,9 @@ describe('SendAssetModal', () => {
       expect(
         await findByText('Insufficient balance on lnd node alice'),
       ).toBeInTheDocument();
-      expect(getByText('Deposit enough funds to alice')).toBeInTheDocument();
+      expect(
+        getByText('Deposit enough sats to alice to pay on-chain fees'),
+      ).toBeInTheDocument();
     });
 
     it('should disable the alert when auto deposit is enabled', async () => {
@@ -143,7 +145,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(lightningServiceMock.getBalances).toBeCalled();
       });
-      fireEvent.click(getByText('Deposit enough funds to alice'));
+      fireEvent.click(getByText('Deposit enough sats to alice to pay on-chain fees'));
       expect(
         queryByText('Insufficient balance on lnd node alice'),
       ).not.toBeInTheDocument();
@@ -163,7 +165,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toBeCalled();
       });
-      fireEvent.click(getByText('Deposit enough funds to alice'));
+      fireEvent.click(getByText('Deposit enough sats to alice to pay on-chain fees'));
 
       expect(getByText('Address Info')).toBeInTheDocument();
       fireEvent.click(getByText('Send'));
@@ -199,7 +201,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toBeCalled();
       });
-      fireEvent.click(getByText('Deposit enough funds to carol'));
+      fireEvent.click(getByText('Deposit enough sats to carol to pay on-chain fees'));
 
       expect(getByText('Address Info')).toBeInTheDocument();
       fireEvent.click(getByText('Send'));

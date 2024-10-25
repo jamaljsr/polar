@@ -135,46 +135,35 @@ describe('TapdProxyClient', () => {
     });
   });
 
-  it('should call the addAssetBuyOrder ipc', async () => {
-    const req: TAP.AddAssetBuyOrderRequestPartial = {
-      peerPubKey: 'A3C9nqQPL7Tp0PgFHNrMSz3tM3I+kiFK+/+us5C0o/2g',
-      assetSpecifier: { assetId: 'i0bx/3yDykK4sKGamaD8zPPPt/GoPeowpf3VUgAiV9o=' },
-      minAssetAmount: 25,
-      expiry: 1718091371,
-      timeoutSeconds: 60,
+  it('should call the addInvoice ipc', () => {
+    const req: TAP.tapchannelrpc.AddInvoiceRequestPartial = {
+      assetId: 'test asset id',
+      assetAmount: '1000',
+      peerPubkey: 'test peer pubkey',
+      invoiceRequest: {
+        paymentRequest: 'lnbc1test',
+      },
     };
-    tapdProxyClient.addAssetBuyOrder(node, req);
-    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.addAssetBuyOrder, {
+    tapdProxyClient.addInvoice(node, req);
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.addInvoice, {
       node,
       req,
     });
   });
 
-  it('should call the addAssetSellOrder ipc', async () => {
-    const req: TAP.AddAssetSellOrderRequestPartial = {
-      peerPubKey: 'A812P5AqcMrifQcBL+fx4jUyOJMmdvH13uLpe9ctKrJV',
-      assetSpecifier: { assetId: 'i0bx/3yDykK4sKGamaD8zPPPt/GoPeowpf3VUgAiV9o=' },
-      minAsk: '2500000',
-      maxAssetAmount: '225',
-      expiry: '86400',
-      timeoutSeconds: 60,
+  it('should call the sendPayment ipc', () => {
+    const req: TAP.tapchannelrpc.SendPaymentRequestPartial = {
+      assetId: 'test asset id',
+      assetAmount: '1000',
+      peerPubkey: 'test peer pubkey',
+      paymentRequest: {
+        paymentRequest: 'lnbc1test',
+      },
     };
-    tapdProxyClient.addAssetSellOrder(node, req);
-    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.addAssetSellOrder, {
+    tapdProxyClient.sendPayment(node, req);
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.sendPayment, {
       node,
       req,
     });
-  });
-
-  it('should call the encodeCustomRecords ipc', async () => {
-    const req: TAP.EncodeCustomRecordsRequestPartial = {
-      routerSendPayment: { rfqId: 'n9Z7TIrXJBlcHplRtYFPds4hvGYFPIfF3Z3durWH/yo=' },
-      input: 'routerSendPayment',
-    };
-    tapdProxyClient.encodeCustomRecords(node, req);
-    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(
-      ipcChannels.tapd.encodeCustomRecords,
-      { node, req },
-    );
   });
 });
