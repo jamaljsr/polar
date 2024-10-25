@@ -5,7 +5,7 @@ import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from 'utils/network';
+import { createNetwork, mapToTapd } from 'utils/network';
 import {
   defaultStateChannel,
   getNetwork,
@@ -161,14 +161,15 @@ describe('CreateInvoiceModal', () => {
       lightningServiceMock.getChannels.mockResolvedValue([
         defaultStateChannel({ assets: [asset] }),
       ]);
-      lightningServiceMock.createInvoice.mockResolvedValue('lnbc1invoice');
+      lightningServiceMock.decodeInvoice.mockResolvedValue({
+        amountMsat: '20000',
+        expiry: '3600',
+        paymentHash: 'payment-hash',
+      });
       tapServiceMock.assetRoots.mockResolvedValue([
         { id: 'abcd', name: 'test asset', rootSum: 100 },
       ]);
-      tapServiceMock.addAssetBuyOrder.mockResolvedValue({
-        scid: 'abcd',
-        askPrice: '100',
-      });
+      tapServiceMock.addInvoice.mockResolvedValue('lnbc1invoice');
     });
 
     it('should display the asset dropdown', async () => {
@@ -200,22 +201,14 @@ describe('CreateInvoiceModal', () => {
       expect(await findByText('Successfully Created the Invoice')).toBeInTheDocument();
       expect(getByDisplayValue('lnbc1invoice')).toBeInTheDocument();
       const node = network.nodes.lightning[0];
-      expect(lightningServiceMock.createInvoice).toHaveBeenCalledWith(node, 200, '', {
-        msats: '20000',
-        nodeId: '',
-        scid: 'abcd',
-      });
-    });
-
-    it('should display a warning for large asset amounts', async () => {
-      const { getByLabelText, findByText, changeSelect } = await renderComponent();
-      expect(await findByText('Node')).toBeInTheDocument();
-      changeSelect('Asset to Receive', 'test asset');
-      fireEvent.change(getByLabelText('Amount'), { target: { value: '10000' } });
-      const warning =
-        'With the default mock exchange rate of 100 sats to 1 asset, ' +
-        'it is best to use amounts below 5,000 to reduce the chances of payment failures.';
-      expect(await findByText(warning)).toBeInTheDocument();
+      const tapNode = mapToTapd(node);
+      expect(tapServiceMock.addInvoice).toHaveBeenCalledWith(
+        tapNode,
+        'abcd',
+        200,
+        '',
+        3600,
+      );
     });
 
     it('should display an error when creating an asset invoice with a high balance', async () => {

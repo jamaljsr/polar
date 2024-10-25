@@ -4,7 +4,7 @@ import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { Session } from 'lib/litd/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from 'utils/network';
+import { createNetwork, mapToTapd } from 'utils/network';
 import {
   defaultLitSession,
   defaultStateChannel,
@@ -140,20 +140,11 @@ describe('LIT Model', () => {
         amountMsat: '100000',
         expiry: '123456',
       });
-      lightningServiceMock.createInvoice.mockResolvedValue('lnbc1invoice');
-      lightningServiceMock.payInvoice.mockResolvedValue({
+      tapServiceMock.addInvoice.mockResolvedValue('lnbc1invoice');
+      tapServiceMock.sendPayment.mockResolvedValue({
         preimage: 'preimage',
         destination: 'asdf',
         amount: 1000,
-      });
-      tapServiceMock.addAssetBuyOrder.mockResolvedValue({
-        scid: 'abcd',
-        askPrice: '100',
-      });
-      tapServiceMock.addAssetSellOrder.mockResolvedValue({
-        id: 'abcd',
-        bidPrice: '100',
-        scid: '12345',
       });
     });
 
@@ -164,7 +155,7 @@ describe('LIT Model', () => {
         assetId: 'test-id',
         amount: 200,
       });
-      expect(res).toEqual({ invoice: 'lnbc1invoice', sats: 20 });
+      expect(res).toEqual({ invoice: 'lnbc1invoice', sats: 100 });
     });
 
     it('should throw an error when creating an asset invoice with a high balance', async () => {
@@ -184,6 +175,32 @@ describe('LIT Model', () => {
         assetId: 'test-id',
         invoice: 'lnbc1invoice',
       });
+      expect(receipt).toEqual({
+        preimage: 'preimage',
+        destination: 'asdf',
+        amount: 1000,
+      });
+    });
+
+    it('should pay an asset invoice with a percentage fee limit', async () => {
+      await store.getActions().lightning.getChannels(node);
+      lightningServiceMock.decodeInvoice.mockResolvedValue({
+        paymentHash: 'pmt-hash',
+        amountMsat: '10000000',
+        expiry: '123456',
+      });
+      const receipt = await store.getActions().lit.payAssetInvoice({
+        node,
+        assetId: 'test-id',
+        invoice: 'lnbc1invoice',
+      });
+      expect(tapServiceMock.sendPayment).toHaveBeenCalledWith(
+        mapToTapd(node),
+        'test-id',
+        'lnbc1invoice',
+        500000,
+        '',
+      );
       expect(receipt).toEqual({
         preimage: 'preimage',
         destination: 'asdf',

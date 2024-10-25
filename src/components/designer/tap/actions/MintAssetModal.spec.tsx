@@ -177,7 +177,7 @@ describe('MintAssetModal', () => {
         total: '0',
       });
       const { findByText, getByText } = await renderComponent();
-      fireEvent.click(getByText('Deposit enough funds to alice'));
+      fireEvent.click(getByText('Deposit enough sats to alice to pay on-chain fees'));
       expect(
         await findByText('Insufficient balance on lnd node alice'),
       ).toBeInTheDocument();

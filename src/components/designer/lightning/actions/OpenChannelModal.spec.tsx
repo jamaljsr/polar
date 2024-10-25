@@ -180,7 +180,7 @@ describe('OpenChannelModal', () => {
       lightningServiceMock.getBalances.mockResolvedValue(balances('0'));
       const { findByText } = await renderComponent();
       expect(
-        await findByText('Deposit enough funds to alice to open the channel'),
+        await findByText('Deposit enough sats to alice to fund the channel'),
       ).toBeInTheDocument();
     });
   });
@@ -203,7 +203,7 @@ describe('OpenChannelModal', () => {
     it('should open a channel successfully', async () => {
       const { getByText, getByLabelText, store } = await renderComponent('bob', 'alice');
       fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
-      fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
+      fireEvent.click(getByLabelText('Deposit enough sats to bob to fund the channel'));
       fireEvent.click(getByText('Open Channel'));
       await waitFor(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
@@ -221,7 +221,7 @@ describe('OpenChannelModal', () => {
     it('should open a private channel successfully', async () => {
       const { getByText, getByLabelText, store } = await renderComponent('bob', 'alice');
       fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
-      fireEvent.click(getByLabelText('Deposit enough funds to bob to open the channel'));
+      fireEvent.click(getByLabelText('Deposit enough sats to bob to fund the channel'));
       fireEvent.click(getByText('Make the channel private'));
       fireEvent.click(getByText('Open Channel'));
       await waitFor(() => {
@@ -263,7 +263,7 @@ describe('OpenChannelModal', () => {
       fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
       changeSelect('Destination', 'alice');
       fireEvent.click(
-        await findByLabelText('Deposit enough funds to bob to open the channel'),
+        await findByLabelText('Deposit enough sats to bob to fund the channel'),
       );
       fireEvent.click(getByText('Open Channel'));
       await waitFor(() => {
@@ -310,16 +310,11 @@ describe('OpenChannelModal', () => {
         total: '300',
       });
       bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
-      lightningServiceMock.createInvoice.mockResolvedValue('lnbc1invoice');
       tapServiceMock.listBalances.mockResolvedValue([
         defaultTapBalance({ id: 'abcd', name: 'test asset', balance: '1000' }),
         defaultTapBalance({ id: 'efgh', name: 'other asset', balance: '5000' }),
       ]);
       tapServiceMock.syncUniverse.mockResolvedValue({ syncedUniverses: [] });
-      tapServiceMock.addAssetBuyOrder.mockResolvedValue({
-        scid: 'abcd',
-        askPrice: '100',
-      });
     });
 
     it('should display the asset dropdown', async () => {

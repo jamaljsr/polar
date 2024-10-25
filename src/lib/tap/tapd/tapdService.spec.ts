@@ -1,10 +1,7 @@
-import { Asset, AssetBalance } from '@lightningpolar/tapd-api';
+import * as TAP from '@lightningpolar/tapd-api';
 import {
   defaultAssetRoots,
   defaultSyncUniverse,
-  defaultTapdAddAssetBuyOrder,
-  defaultTapdAddAssetSellOrder,
-  defaultTapdEncodeCustomRecords,
   defaultTapdFinalizeBatch,
   defaultTapdListAssets,
   defaultTapdListBalances,
@@ -55,6 +52,10 @@ describe('TapdService', () => {
     const apiResponse = defaultTapdSendAsset({
       transfer: {
         anchorTxChainFees: '',
+        anchorTxBlockHash: {
+          hash: Buffer.from(txid, 'hex'),
+          hashStr: txid,
+        },
         anchorTxHash: Buffer.from(txid, 'hex'),
         anchorTxHeightHint: 0,
         transferTimestamp: '',
@@ -212,82 +213,54 @@ describe('TapdService', () => {
     });
   });
 
-  it('should add an asset buy order', async () => {
-    const apiResponse = defaultTapdAddAssetBuyOrder({
-      acceptedQuote: {
-        peer: '0370bd9ea40f2fb4e9d0f8051cdacc4b3ded33723e92214afbffaeb390b4a3fda0',
-        id: Buffer.from(
-          '37ccc59562dccc0583bda051ac2999e5d52dd8590044113ef0a790e29433065e',
-          'hex',
-        ),
-        scid: '17340988193036764766',
-        assetAmount: '250',
-        askPrice: '100000',
-        expiry: '1718092983',
-      },
-    });
-    tapdProxyClient.addAssetBuyOrder = jest.fn().mockResolvedValue(apiResponse);
-
-    const peerPubkey = 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e';
+  it('should add an invoice', async () => {
     const assetId = 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b';
-    const actual = await tapdService.addAssetBuyOrder(node, peerPubkey, assetId, 100);
+    tapdProxyClient.addInvoice = jest
+      .fn()
+      .mockResolvedValue({ invoiceResult: { paymentRequest: 'lnbc1invoice' } });
+    let actual = await tapdService.addInvoice(node, assetId, 1000, 'memo', 100);
+    expect(actual).toEqual('lnbc1invoice');
 
-    expect(actual).toEqual({
-      askPrice: '100000',
-      scid: '17340988193036764766',
-    });
+    tapdProxyClient.addInvoice = jest.fn().mockResolvedValue({});
+    actual = await tapdService.addInvoice(node, assetId, 1000, 'memo', 100);
+    expect(actual).toEqual('');
   });
 
-  it('should add an asset sell order', async () => {
-    const quoteId = Buffer.from(
-      'f3a0773303057207788f007b33961445941a70dc47bdbee3da91a75f5a54c787',
-      'hex',
-    );
-    const apiResponse = defaultTapdAddAssetSellOrder({
-      acceptedQuote: {
-        peer: '03cd763f902a70cae27d07012fe7f1e2353238932676f1f5dee2e97bd72d2ab255',
-        id: quoteId,
-        scid: '15749553399870572423',
-        assetAmount: '500',
-        bidPrice: '100000',
-        expiry: '1718092989',
-      },
-    });
-    tapdProxyClient.addAssetSellOrder = jest.fn().mockResolvedValue(apiResponse);
-
+  it('should send a payment', async () => {
     const peerPubkey = 'f7a8be5e05c4620c510fed807b24703efeb9ee0a79cf7681dfae1f86826b943e';
     const assetId = 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b200b';
-    const actual = await tapdService.addAssetSellOrder(
+    const res = {
+      acceptedSellOrder: {
+        assetAmount: '1000',
+      },
+      paymentResult: {
+        paymentPreimage: Buffer.from('preimage'),
+        valueSat: 1000,
+      },
+    };
+    tapdProxyClient.sendPayment = jest.fn().mockResolvedValue(res);
+    let actual = await tapdService.sendPayment(
       node,
-      peerPubkey,
       assetId,
-      '500',
-      '100000',
-      '1718092989',
+      'lnbc1invoice',
+      1000,
+      peerPubkey,
     );
-
     expect(actual).toEqual({
-      bidPrice: '100000',
-      scid: '15749553399870572423',
-      id: quoteId.toString(),
+      amount: 1000,
+      preimage: 'preimage',
+      destination: '',
     });
-  });
 
-  it('should encode custom records', async () => {
-    const rfqId = '86B3MwMFcgd4jwB7M5YURZQacNxHvb7j2pGnX1pUx4c=';
-    const apiResponse = defaultTapdEncodeCustomRecords({
-      customRecords: {
-        '65536': '00',
-        '65538': '9fd67b4c8ad724195c1e9951b5814f76ce21bc66053c87c5dd9dddbab587ff2a',
-      } as any,
+    tapdProxyClient.sendPayment = jest.fn().mockResolvedValue({
+      ...res,
+      acceptedSellOrder: undefined,
     });
-    tapdProxyClient.encodeCustomRecords = jest.fn().mockResolvedValue(apiResponse);
-
-    const actual = await tapdService.encodeCustomRecords(node, rfqId);
-
+    actual = await tapdService.sendPayment(node, assetId, 'lnbc1invoice', 1000);
     expect(actual).toEqual({
-      '65536': 'AA==',
-      '65538': 'n9Z7TIrXJBlcHplRtYFPds4hvGYFPIfF3Z3durWH/yo=',
+      amount: 1000,
+      preimage: 'preimage',
+      destination: '',
     });
   });
 
@@ -331,7 +304,7 @@ describe('TapdService', () => {
   });
 });
 
-const sampleAsset: Asset = {
+const sampleAsset: TAP.Asset = {
   version: 'ASSET_VERSION_V0',
   assetGenesis: {
     genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
@@ -394,7 +367,7 @@ const sampleAsset: Asset = {
   },
 };
 
-const sampleBalance: AssetBalance = {
+const sampleBalance: TAP.AssetBalance = {
   assetGenesis: {
     genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
     name: 'LUSD',

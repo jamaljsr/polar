@@ -5,7 +5,7 @@ import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
-import { createNetwork } from 'utils/network';
+import { createNetwork, mapToTapd } from 'utils/network';
 import {
   defaultStateChannel,
   getNetwork,
@@ -163,18 +163,13 @@ describe('PayInvoiceModal', () => {
         amountMsat: '400000',
         expiry: '123456',
       });
-      lightningServiceMock.payInvoice.mockResolvedValue({
-        preimage: 'preimage',
-        amount: 1000,
-        destination: 'asdf',
-      });
       tapServiceMock.assetRoots.mockResolvedValue([
         { id: 'abcd', name: 'test asset', rootSum: 100 },
       ]);
-      tapServiceMock.addAssetSellOrder.mockResolvedValue({
-        id: 'abcd',
-        bidPrice: '100',
-        scid: '12345',
+      tapServiceMock.sendPayment.mockResolvedValue({
+        preimage: 'preimage',
+        amount: 1000,
+        destination: 'asdf',
       });
     });
 
@@ -195,11 +190,13 @@ describe('PayInvoiceModal', () => {
         expect(store.getState().modals.payInvoice.visible).toBe(false);
       });
       const node = network.nodes.lightning[1];
-      expect(lightningServiceMock.payInvoice).toHaveBeenCalledWith(
-        node,
+      const tapdNode = mapToTapd(node);
+      expect(tapServiceMock.sendPayment).toHaveBeenCalledWith(
+        tapdNode,
+        'abcd',
         'lnbc1',
-        400,
-        undefined,
+        400000,
+        '',
       );
     });
   });
