@@ -307,7 +307,7 @@ const tapModel: TapModel = {
       const decimals =
         getStoreState().tap.nodes[node.name]?.assets?.find(a => a.id === res.id)
           ?.decimals || 0;
-      res.amount = formatDecimals(parseInt(res.amount) / 10 ** decimals, decimals);
+      res.amount = formatDecimals(parseInt(res.amount), decimals);
       return { ...res, name };
     },
   ),
