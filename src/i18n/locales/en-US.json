@@ -402,6 +402,7 @@
   "cmps.designer.tap.actions.NewAddressModal.selectBalance": "Choose a balance from TAP node",
   "cmps.designer.tap.actions.NewAddressModal.amount": "Amount",
   "cmps.designer.tap.actions.NewAddressModal.amountPlaceholder": "1",
+  "cmps.designer.tap.actions.NewAddressModal.amountInfo": "Up to {{decimals}} decimal places",
   "cmps.designer.tap.actions.NewAddressModal.address": "Address",
   "cmps.designer.tap.actions.NewAddressModal.addressPlaceholder": "Address",
   "cmps.designer.tap.actions.NewAddressModal.syncSuccess": "Synced {{count}} assets from {{hostname}}",
