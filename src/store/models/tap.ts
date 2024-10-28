@@ -16,6 +16,7 @@ import { StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { mapToTapd } from 'utils/network';
+import { formatDecimals } from 'utils/numbers';
 import { RootModel } from './';
 
 //This is the minimum balance that a tap node must have access to in order to mint assets
@@ -303,6 +304,10 @@ const tapModel: TapModel = {
       const name = getStoreState().tap.nodes[node.name]?.assets?.find(
         a => a.id === res.id,
       )?.name;
+      const decimals =
+        getStoreState().tap.nodes[node.name]?.assets?.find(a => a.id === res.id)
+          ?.decimals || 0;
+      res.amount = formatDecimals(parseInt(res.amount) / 10 ** decimals, decimals);
       return { ...res, name };
     },
   ),
