@@ -7,6 +7,7 @@ import { TapBalance } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
+import { formatDecimals } from 'utils/numbers';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 import TapAssetSelect from 'components/common/form/TapAssetSelect';
@@ -44,6 +45,13 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   const selectedTo = Form.useWatch<string>('to', form) || '';
   const capacity = Form.useWatch<number>('capacity', form) || 0;
 
+  const selectedAsset = useMemo(() => {
+    for (const node of Object.values(tapNodes)) {
+      const asset = node.assets?.find(a => a.id === assetId);
+      if (asset) return asset;
+    }
+  }, [nodes, assetId]);
+
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
     const nodes = network.nodes.lightning.filter(n => n.status === Status.Started);
@@ -76,11 +84,14 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         // automatically deposit funds when the node doesn't have enough BTC to open the
         // channel. The node needs at least 100,000 sats + fees to open an asset channel.
         if (values.autoFund) await depositFunds({ node: fromNode, sats: '500000' });
+
+        if (!selectedAsset) throw new Error('Invalid asset selected');
+
         // open an asset channel
         await fundChannel({
           from: mapToTapd(fromNode),
           to: toNode,
-          amount: parseInt(values.capacity),
+          amount: Number(values.capacity) * 10 ** selectedAsset.decimals,
           assetId,
         });
       }
@@ -106,13 +117,15 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
 
   const calcCapacity = useCallback(
     (assetId?: string) => {
-      if (assetId === 'sats') return 250000;
+      if (assetId === 'sats') return 10_000_000;
 
       // its safe to cast because this will only be called with a valid assetId
       const asset = tapNodes[selectedFrom]?.balances?.find(
         b => b.id === assetId,
       ) as TapBalance;
-      return parseInt(asset.balance);
+      const decimals =
+        tapNodes[selectedFrom]?.assets?.find(a => a.id === assetId)?.decimals || 0;
+      return formatDecimals(parseInt(asset.balance), decimals);
     },
     [showAssets, selectedFrom, assetId, tapNodes],
   );
@@ -126,7 +139,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       initialValues={{
         from,
         to,
-        capacity: 250000,
+        capacity: 10_000_000,
         autoFund: true,
         isPrivate: false,
         assetId: 'sats',
@@ -174,11 +187,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         label={l('capacityLabel')}
         rules={[{ required: true, message: l('cmps.forms.required') }]}
       >
-        <InputNumber<number>
-          formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
-          style={{ width: '100%' }}
-        />
+        <InputNumber<number> style={{ width: '100%' }} />
       </Form.Item>
       {showDeposit && (
         <Form.Item name="autoFund" valuePropName="checked">
