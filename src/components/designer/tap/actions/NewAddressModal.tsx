@@ -102,10 +102,9 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       try {
         const { node } = getNode(network, nodeName);
         if (!node) throw new Error(`${nodeName} is not a TAP node`);
+        if (!selectedAsset) throw new Error('Invalid asset selected');
 
-        const amount = selectedAsset
-          ? (Number(values.amount) * 10 ** selectedAsset.decimals).toFixed(0)
-          : values.amount;
+        const amount = (Number(values.amount) * 10 ** selectedAsset.decimals).toFixed(0);
 
         const payload: NewAddressPayload = {
           node,
@@ -117,8 +116,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         setTapAddress(res.encoded);
         setSuccessMsg(
           l('successDesc', {
-            assetName: selectedAsset?.name,
-            amount: formatDecimals(Number(values.amount), selectedAsset?.decimals || 0),
+            assetName: selectedAsset.name,
+            amount: formatDecimals(Number(amount), selectedAsset.decimals),
           }),
         );
       } catch (error: any) {

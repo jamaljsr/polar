@@ -15,7 +15,7 @@ const AssetAmount: React.FC<Props> = ({ assetId, amount, includeName }) => {
     for (const node of Object.values(nodes)) {
       const asset = node.assets?.find(a => a.id === assetId);
       if (asset) {
-        const amt = formatDecimals(Number(amount) / 10 ** asset.decimals, asset.decimals);
+        const amt = formatDecimals(Number(amount), asset.decimals);
         if (includeName) {
           return `${amt} ${asset.name}`;
         }

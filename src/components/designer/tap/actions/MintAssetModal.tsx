@@ -147,7 +147,7 @@ const MintAssetModal: React.FC<Props> = ({ network }) => {
               name="decimals"
               label={l('decimals')}
               help={l('decimalsInfo', {
-                example: formatDecimals(amount / 10 ** decimals, decimals),
+                example: formatDecimals(amount, decimals),
               })}
               hidden={assetType === 1}
             >

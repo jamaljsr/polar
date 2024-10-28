@@ -39,10 +39,12 @@ export const abbreviate = (value: number | string): string => {
 export const formatDecimals = (value: number | undefined, decimals: number) => {
   if (typeof value === 'undefined') return '';
 
+  const scaled = value / 10 ** decimals;
+
   const formatter = new Intl.NumberFormat('en', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
 
-  return formatter.format(value);
+  return formatter.format(scaled);
 };
