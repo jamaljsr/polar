@@ -83,9 +83,21 @@ export interface TapModel {
   getBalances: Thunk<TapModel, TapNode, StoreInjections, RootModel>;
   setAssetRoots: Action<TapModel, { node: TapNode; roots: PTAP.TapAssetRoot[] }>;
   getAssetRoots: Thunk<TapModel, TapNode, StoreInjections, RootModel>;
-
   getAllInfo: Thunk<TapModel, TapNode, RootModel>;
-  mineListener: ThunkOn<TapModel, StoreInjections, RootModel>;
+  formatAssetAmount: Thunk<
+    TapModel,
+    { assetId: string; amount: string; includeName?: boolean },
+    StoreInjections,
+    RootModel,
+    string
+  >;
+  toAssetUnits: Thunk<
+    TapModel,
+    { assetId: string; amount: number },
+    StoreInjections,
+    RootModel,
+    number
+  >;
   mintAsset: Thunk<TapModel, MintAssetPayload, StoreInjections, RootModel>;
   syncUniverse: Thunk<
     TapModel,
@@ -110,6 +122,7 @@ export interface TapModel {
     Promise<PTAP.TapAddress & { name?: string }>
   >;
   fundChannel: Thunk<TapModel, FundChannelPayload, StoreInjections, RootModel>;
+  mineListener: ThunkOn<TapModel, StoreInjections, RootModel>;
 }
 
 const tapModel: TapModel = {
@@ -167,6 +180,32 @@ const tapModel: TapModel = {
     await actions.getAssets(node);
     await actions.getBalances(node);
     await actions.getAssetRoots(node);
+  }),
+  formatAssetAmount: thunk(
+    (actions, { assetId, amount, includeName }, { getStoreState }) => {
+      // convert asset units to the amount with decimals
+      for (const node of Object.values(getStoreState().tap.nodes)) {
+        const asset = node.assets?.find(a => a.id === assetId);
+        if (asset) {
+          const amt = formatDecimals(Number(amount), asset.decimals);
+          if (includeName) {
+            return `${amt} ${asset.name}`;
+          }
+          return amt;
+        }
+      }
+      return amount;
+    },
+  ),
+  toAssetUnits: thunk((actions, { assetId, amount }, { getStoreState }) => {
+    // convert amount which may include decimals to integer asset units
+    for (const node of Object.values(getStoreState().tap.nodes)) {
+      const asset = node.assets?.find(a => a.id === assetId);
+      if (asset) {
+        return amount * 10 ** asset.decimals;
+      }
+    }
+    return amount;
   }),
   mintAsset: thunk(
     async (actions, payload, { injections, getStoreState, getStoreActions }) => {
