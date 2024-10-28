@@ -22,6 +22,7 @@ import { mapToTapd } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { Loader } from 'components/common';
+import AssetAmount from 'components/common/AssetAmount';
 import CopyableInput from 'components/common/form/CopyableInput';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
@@ -58,7 +59,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
   const { showCreateInvoice, hideCreateInvoice } = useStoreActions(s => s.modals);
   const { createInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
   const { createAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
-  const { getAssetRoots } = useStoreActions(s => s.tap);
+  const { getAssetRoots, formatAssetAmount, toAssetUnits } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
   const [form] = Form.useForm();
@@ -88,20 +89,26 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       const { lightning } = network.nodes;
       const node = lightning.find(n => n.name === values.node);
       if (!node || !values.amount) return;
-      const amount = parseInt(`${values.amount}`);
 
       let invoice: string;
       let assetName = 'sats';
       if (assetId === 'sats') {
+        const amount = parseInt(`${values.amount}`);
         invoice = await createInvoice({ node, amount, memo: '' });
       } else {
         const litdNode = node as LitdNode;
+        const amount = toAssetUnits({ assetId, amount: values.amount });
         const res = await createAssetInvoice({ node: litdNode, assetId, amount });
         invoice = res.invoice;
         const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
         assetName = `${asset.name} (${format(res.sats)} sats)`;
       }
-      await showCreateInvoice({ nodeName: node.name, amount, invoice, assetName });
+      await showCreateInvoice({
+        nodeName: node.name,
+        amount: values.amount,
+        invoice,
+        assetName,
+      });
     } catch (error: any) {
       notify({ message: l('submitError'), error });
     }
@@ -109,11 +116,13 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const calcAmount = useCallback(
     (assetId?: string) => {
+      if (!assetId) return '0';
       if (assetId === 'sats') return 50_000;
 
       const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
-      const balance = parseInt(asset.remoteBalance);
-      return Math.floor(balance / 2);
+      const amount = Math.floor(parseInt(asset.remoteBalance) / 2).toString();
+
+      return formatAssetAmount({ assetId, amount });
     },
     [assets, isLitd],
   );
@@ -166,7 +175,9 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
                       <span>
                         {a.name} <code>({ellipseInner(a.id, 4)})</code>
                       </span>
-                      <code>{format(a.remoteBalance)}</code>
+                      <code>
+                        <AssetAmount assetId={a.id} amount={a.remoteBalance} />
+                      </code>
                     </Styled.AssetOption>
                   </Select.Option>
                 ))}
@@ -183,7 +194,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
             min={1}
             disabled={createAsync.loading}
             formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
+            parser={v => parseFloat(`${v}`.replace(/(undefined|,*)/g, ''))}
             style={{ width: '100%' }}
           />
         </Form.Item>
