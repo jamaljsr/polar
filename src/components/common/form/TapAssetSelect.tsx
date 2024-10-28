@@ -7,7 +7,7 @@ import { TapBalance } from 'lib/tap/types';
 import { TapNodeModel } from 'store/models/tap';
 import { Network } from 'types';
 import { ellipseInner } from 'utils/strings';
-import { format } from 'utils/units';
+import AssetAmount from '../AssetAmount';
 
 const Styled = {
   AssetOption: styled.div`
@@ -74,7 +74,9 @@ const TapAssetSelect: React.FC<Props> = ({
                   <span>
                     {a.name} <code>({ellipseInner(a.id, 4)})</code>
                   </span>
-                  <code>{format(a.balance)}</code>
+                  <code>
+                    <AssetAmount assetId={a.id} amount={a.balance} />
+                  </code>
                 </Styled.AssetOption>
               </Select.Option>
             ))}

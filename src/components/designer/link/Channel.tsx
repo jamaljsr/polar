@@ -7,6 +7,7 @@ import { LinkProperties } from 'utils/chart';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { CopyIcon, DetailsList, StatusBadge } from 'components/common';
+import AssetAmount from 'components/common/AssetAmount';
 import { DetailValues } from 'components/common/DetailsList';
 import SidebarCard from '../SidebarCard';
 import CloseChannelButton from './CloseChannelButton';
@@ -76,11 +77,17 @@ const Channel: React.FC<Props> = ({ link, from, to }) => {
                 />
               ),
             },
-            { label: l('capacity'), value: `${format(a.capacity)}` },
-            { label: l('sourceBalance'), value: `${format(a.localBalance)}` },
+            {
+              label: l('capacity'),
+              value: <AssetAmount assetId={a.id} amount={a.capacity} />,
+            },
+            {
+              label: l('sourceBalance'),
+              value: <AssetAmount assetId={a.id} amount={a.localBalance} />,
+            },
             {
               label: l('destinationBalance'),
-              value: `${format(a.remoteBalance)}`,
+              value: <AssetAmount assetId={a.id} amount={a.remoteBalance} />,
             },
           ]}
         />
