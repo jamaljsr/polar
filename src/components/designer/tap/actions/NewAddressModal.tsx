@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { DownOutlined } from '@ant-design/icons';
@@ -18,8 +18,8 @@ import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/tap';
 import { Network } from 'types';
 import { getTapdNodes } from 'utils/network';
+import { formatDecimals } from 'utils/numbers';
 import { ellipseInner } from 'utils/strings';
-import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
 import TapDataSelect from 'components/common/form/TapDataSelect';
 
@@ -64,11 +64,23 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { syncUniverse, getNewAddress } = useStoreActions(s => s.tap);
   const { nodes } = useStoreState(s => s.tap);
 
-  const [selectedAmount, setSelectedAmount] = useState(100);
-  const [selectedName, setSelectedName] = useState('');
+  // const [selectedAmount, setSelectedAmount] = useState(100);
+  // const [selectedName, setSelectedName] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [tapAddress, setTapAddress] = useState('');
 
   const [form] = Form.useForm();
+
+  const selectedAssetId: string = Form.useWatch('assetId', form);
+  // const selectedAmount: number = Form.useWatch('amount', form);
+  // console.log('NewAddressModal', { selectedAssetId, selectedAmount });
+
+  const selectedAsset = useMemo(() => {
+    for (const node of Object.values(nodes)) {
+      const asset = node.assets?.find(a => a.id === selectedAssetId);
+      if (asset) return asset;
+    }
+  }, [nodes, selectedAssetId]);
 
   const handleSync = useAsyncCallback(async e => {
     const { node, otherNodes } = getNode(network, nodeName);
@@ -90,14 +102,25 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       try {
         const { node } = getNode(network, nodeName);
         if (!node) throw new Error(`${nodeName} is not a TAP node`);
+
+        const amount = selectedAsset
+          ? (Number(values.amount) * 10 ** selectedAsset.decimals).toFixed(0)
+          : values.amount;
+
         const payload: NewAddressPayload = {
           node,
           assetId: values.assetId,
-          amount: values.amount,
+          amount,
         };
 
         const res = await getNewAddress(payload);
         setTapAddress(res.encoded);
+        setSuccessMsg(
+          l('successDesc', {
+            assetName: selectedAsset?.name,
+            amount: formatDecimals(Number(values.amount), selectedAsset?.decimals || 0),
+          }),
+        );
       } catch (error: any) {
         notify({ message: l('submitError'), error });
       }
@@ -147,10 +170,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
               </Styled.Dropdown>
             }
           >
-            <Select
-              disabled={handleSync.loading}
-              onChange={(_, option: any) => setSelectedName(option.label)}
-            >
+            <Select disabled={handleSync.loading}>
               {assetRoots.map(a => (
                 <Select.Option key={a.id} value={a.id}>
                   <Styled.AssetOption>
@@ -165,14 +185,11 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             label={l('amount')}
             name="amount"
             rules={[{ required: true, message: l('cmps.forms.required') }]}
+            help={
+              selectedAsset ? l('amountInfo', { decimals: selectedAsset.decimals }) : ''
+            }
           >
-            <InputNumber<number>
-              onChange={v => setSelectedAmount(v as number)}
-              min={1}
-              formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
-              style={{ width: '100%' }}
-            />
+            <InputNumber<number> min={1} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </>
@@ -182,10 +199,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       <Result
         status="success"
         title={l('successTitle')}
-        subTitle={l('successDesc', {
-          assetName: selectedName,
-          amount: format(`${selectedAmount}`),
-        })}
+        subTitle={successMsg}
         extra={
           <Form>
             <Form.Item>
