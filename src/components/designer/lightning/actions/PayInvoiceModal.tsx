@@ -11,6 +11,7 @@ import { mapToTapd } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { Loader } from 'components/common';
+import AssetAmount from 'components/common/AssetAmount';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 const Styled = {
@@ -41,7 +42,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   const { hidePayInvoice } = useStoreActions(s => s.modals);
   const { payInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
   const { payAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
-  const { getAssetRoots } = useStoreActions(s => s.tap);
+  const { getAssetRoots, formatAssetAmount } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
   const [form] = Form.useForm();
@@ -69,15 +70,15 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       if (!node || !values.invoice) return;
 
       const invoice = values.invoice;
-      let amount = 0;
+      let amount = '0';
       let assetName = 'sats';
       if (assetId === 'sats') {
         const res = await payInvoice({ node, invoice });
-        amount = res.amount;
+        amount = format(res.amount);
       } else {
         const litdNode = node as LitdNode;
         const res = await payAssetInvoice({ node: litdNode, assetId, invoice });
-        amount = res.amount;
+        amount = formatAssetAmount({ assetId, amount: res.amount });
         const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
         assetName = asset.name;
       }
@@ -138,7 +139,9 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
                         <span>
                           {a.name} <code>({ellipseInner(a.id, 4)})</code>
                         </span>
-                        <code>{format(a.localBalance)}</code>
+                        <code>
+                          <AssetAmount assetId={a.id} amount={a.localBalance} />
+                        </code>
                       </Styled.AssetOption>
                     </Select.Option>
                   ))}

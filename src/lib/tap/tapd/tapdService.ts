@@ -185,7 +185,8 @@ class TapdService implements TapService {
     const res = await proxy.sendPayment(this.cast(node), req);
     const pmt = res.paymentResult as LND.Payment;
     return {
-      amount: parseInt(res.acceptedSellOrder?.assetAmount || pmt.valueSat),
+      // convert from msat to asset units using the default oracle exchange rate
+      amount: parseInt(pmt.valueMsat) / 100_000,
       preimage: pmt.paymentPreimage.toString(),
       destination: '',
     };
