@@ -86,7 +86,7 @@ export interface TapModel {
   getAllInfo: Thunk<TapModel, TapNode, RootModel>;
   formatAssetAmount: Thunk<
     TapModel,
-    { assetId: string; amount: string; includeName?: boolean },
+    { assetId: string; amount: string | number; includeName?: boolean },
     StoreInjections,
     RootModel,
     string
@@ -194,7 +194,7 @@ const tapModel: TapModel = {
           return amt;
         }
       }
-      return amount;
+      return amount.toString();
     },
   ),
   toAssetUnits: thunk((actions, { assetId, amount }, { getStoreState }) => {

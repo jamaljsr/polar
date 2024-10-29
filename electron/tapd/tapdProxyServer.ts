@@ -136,14 +136,27 @@ const sendPayment = async (args: {
 }): Promise<TAPD.tapchannelrpc.SendPaymentResponse> => {
   const { channels } = await getRpc(args.node);
   return new Promise((resolve, reject) => {
+    let sellOrder: TAPD.PeerAcceptedSellQuote | undefined;
     const stream = channels.sendPayment(args.req);
     stream.on('data', (res: TAPD.tapchannelrpc.SendPaymentResponse) => {
-      // this callback will be called multiple times for each payment attempt. We only
-      // want to resolve the promise when the payment is successful or failed.
-      if (res.paymentResult?.status === LND._lnrpc_Payment_PaymentStatus.SUCCEEDED) {
-        resolve(res);
-      } else if (res.paymentResult?.status === LND._lnrpc_Payment_PaymentStatus.FAILED) {
-        reject(new Error(`Payment failed: ${res.paymentResult?.failureReason}`));
+      // This callback will be called multiple times for each payment attempt and once
+      // with the accepted sell order.
+      if (res.result === 'acceptedSellOrder') {
+        // keep a reference to the accepted sell order which we'll return with the
+        // payment result
+        sellOrder = res.acceptedSellOrder ?? undefined;
+      }
+
+      // We only want to resolve the promise when the payment is successful or failed.
+      if (res.result === 'paymentResult') {
+        const pmt = res.paymentResult as TAPD.Payment;
+        if (pmt.status === LND._lnrpc_Payment_PaymentStatus.SUCCEEDED) {
+          // add the accepted sell order to the payment result before resolving
+          res.acceptedSellOrder = sellOrder;
+          resolve(res);
+        } else if (pmt.status === LND._lnrpc_Payment_PaymentStatus.FAILED) {
+          reject(new Error(`Payment failed: ${pmt.failureReason}`));
+        }
       }
     });
     stream.on('error', err => reject(err));
