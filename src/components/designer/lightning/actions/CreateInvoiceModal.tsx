@@ -114,9 +114,8 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
     }
   });
 
-  const calcAmount = useCallback(
-    (assetId?: string) => {
-      if (!assetId) return '0';
+  const suggestAmt = useCallback(
+    (assetId: string) => {
       if (assetId === 'sats') return 50_000;
 
       const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
@@ -163,9 +162,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
           >
             <Select
               disabled={createAsync.loading}
-              onChange={value =>
-                form.setFieldsValue({ amount: calcAmount(value?.toString()) })
-              }
+              onChange={value => form.setFieldsValue({ amount: suggestAmt(value) })}
             >
               <Select.Option value="sats">Bitcoin (sats)</Select.Option>
               <Select.OptGroup label="Taproot Assets">

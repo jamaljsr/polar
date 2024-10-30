@@ -224,8 +224,8 @@ describe('Channel component', () => {
       const asset: LightningNodeChannelAsset = {
         id: 'testId',
         name: 'test asset',
-        capacity: '2345',
-        localBalance: '1647',
+        capacity: '2,345',
+        localBalance: '1,647',
         remoteBalance: '853',
       };
       const { getByText } = renderComponent(Status.Stopped, 'alice', 'bob', [asset]);

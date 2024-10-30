@@ -50,16 +50,10 @@ describe('TAP Model', () => {
     store = createStore(rootModel, { injections, initialState });
 
     tapServiceMock.listAssets.mockResolvedValue([
-      defaultTapAsset({
-        name: 'my-asset',
-        amount: '100',
-      }),
+      defaultTapAsset({ id: 'abcd', name: 'my-asset', amount: '100' }),
     ]);
     tapServiceMock.listBalances.mockResolvedValue([
-      defaultTapBalance({
-        name: 'my-asset',
-        balance: '100',
-      }),
+      defaultTapBalance({ id: 'abcd', name: 'my-asset', balance: '100' }),
     ]);
   });
 
@@ -109,6 +103,7 @@ describe('TAP Model', () => {
       enableEmission: false,
       finalize: true,
       autoFund: false,
+      decimals: 0,
     };
     await store.getActions().tap.mintAsset(payload);
     expect(tapServiceMock.mintAsset).toHaveBeenCalledWith(
@@ -133,6 +128,7 @@ describe('TAP Model', () => {
       enableEmission: false,
       finalize: false,
       autoFund: false,
+      decimals: 0,
     };
     await store.getActions().tap.mintAsset(payload);
     expect(tapServiceMock.mintAsset).toHaveBeenCalledWith(
@@ -141,5 +137,57 @@ describe('TAP Model', () => {
     );
     expect(tapServiceMock.finalizeBatch).not.toHaveBeenCalled();
     expect(bitcoindServiceMock.mine).not.toHaveBeenCalled();
+  });
+
+  it('should format the asset amount', async () => {
+    const { formatAssetAmount } = store.getActions().tap;
+    const payload = {
+      assetId: 'abcd',
+      amount: '10000',
+      includeName: true,
+    };
+
+    tapServiceMock.listAssets.mockResolvedValue([
+      defaultTapAsset({ id: 'abcd', name: 'my-asset', amount: '100', decimals: 2 }),
+    ]);
+    await store.getActions().tap.getAssets(node);
+    expect(store.getState().tap.nodes[node.name].assets).toBeDefined();
+
+    let result = formatAssetAmount(payload);
+    expect(result).toEqual(`100.00 my-asset`);
+
+    result = formatAssetAmount({ ...payload, includeName: false });
+    expect(result).toEqual('100.00');
+
+    // induce a missing asset situation
+    tapServiceMock.listAssets.mockResolvedValue(undefined as any);
+    await store.getActions().tap.getAssets(node);
+    result = formatAssetAmount({ ...payload, assetId: 'efgh' });
+    expect(result).toEqual('10000');
+  });
+
+  it('should convert an amount to asset units', async () => {
+    const { toAssetUnits } = store.getActions().tap;
+    const payload = {
+      assetId: 'abcd',
+      amount: 100,
+    };
+
+    tapServiceMock.listAssets.mockResolvedValue([
+      defaultTapAsset({ id: 'abcd', name: 'my-asset', amount: '100', decimals: 2 }),
+    ]);
+    await store.getActions().tap.getAssets(node);
+
+    let result = toAssetUnits(payload);
+    expect(result).toEqual(10000);
+
+    result = toAssetUnits({ ...payload, assetId: 'efgh' });
+    expect(result).toEqual(100);
+
+    // induce a missing asset situation
+    tapServiceMock.listAssets.mockResolvedValue(undefined as any);
+    await store.getActions().tap.getAssets(node);
+    result = toAssetUnits(payload);
+    expect(result).toEqual(100);
   });
 });

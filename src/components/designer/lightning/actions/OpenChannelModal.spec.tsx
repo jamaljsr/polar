@@ -11,6 +11,7 @@ import { createNetwork, mapToTapd } from 'utils/network';
 import {
   defaultStateChannel,
   defaultStateInfo,
+  defaultTapAsset,
   defaultTapBalance,
   getNetwork,
   injections,
@@ -314,6 +315,10 @@ describe('OpenChannelModal', () => {
         defaultTapBalance({ id: 'abcd', name: 'test asset', balance: '1000' }),
         defaultTapBalance({ id: 'efgh', name: 'other asset', balance: '5000' }),
       ]);
+      tapServiceMock.listAssets.mockResolvedValue([
+        defaultTapAsset({ id: 'abcd', name: 'test asset', amount: '1000' }),
+        defaultTapAsset({ id: 'efgh', name: 'other asset', amount: '5000' }),
+      ]);
       tapServiceMock.syncUniverse.mockResolvedValue({ syncedUniverses: [] });
     });
 
@@ -353,14 +358,14 @@ describe('OpenChannelModal', () => {
         'carol',
       );
       expect(await findByText('Source')).toBeInTheDocument();
-      expect(getByLabelText('Capacity')).toHaveValue('250,000');
+      expect(getByLabelText('Capacity')).toHaveValue('10000000');
       expect(await findByText('Asset')).toBeInTheDocument();
       // select the asset
       changeSelect('Asset', 'test asset');
       expect(getByLabelText('Capacity')).toHaveValue('1,000'); // half of the remote balance
       // select sats
       changeSelect('Asset', 'Bitcoin (sats)');
-      expect(getByLabelText('Capacity')).toHaveValue('250,000');
+      expect(getByLabelText('Capacity')).toHaveValue('10000000');
     });
 
     it('should open an asset channel and deposit funds', async () => {
@@ -411,7 +416,7 @@ describe('OpenChannelModal', () => {
       );
     });
 
-    it('should display and error when opening an asset channel', async () => {
+    it('should display and error when when capacity is too large', async () => {
       lightningServiceMock.getBalances.mockResolvedValue({
         confirmed: '1000000',
         unconfirmed: '0',
@@ -421,12 +426,26 @@ describe('OpenChannelModal', () => {
         await renderComponent('bob', 'carol');
 
       changeSelect('Asset', 'test asset');
-      fireEvent.change(getByLabelText('Capacity'), { target: { value: '5000' } });
+      fireEvent.change(getByLabelText('Capacity'), { target: { value: '50000000' } });
       fireEvent.click(getByText('Open Channel'));
 
       expect(
         await findByText('Capacity cannot exceed the asset balance of 1000'),
       ).toBeInTheDocument();
+      expect(tapServiceMock.fundChannel).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error when the asset is not found', async () => {
+      tapServiceMock.listAssets.mockResolvedValue([
+        defaultTapAsset({ id: 'abcd', name: 'test asset', amount: '1000' }),
+      ]);
+      const { getByText, findByText, getByLabelText, changeSelect } =
+        await renderComponent('bob', 'carol');
+      changeSelect('Asset', 'other asset');
+      fireEvent.change(getByLabelText('Capacity'), { target: { value: '50000000' } });
+      fireEvent.click(getByText('Open Channel'));
+
+      expect(await findByText('Invalid asset selected')).toBeInTheDocument();
       expect(tapServiceMock.fundChannel).not.toHaveBeenCalled();
     });
   });

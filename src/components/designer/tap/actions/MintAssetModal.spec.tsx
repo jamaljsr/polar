@@ -146,7 +146,6 @@ describe('MintAssetModal', () => {
     it('should mint normal asset', async () => {
       const { getByText, getByLabelText } = await renderComponent();
       fireEvent.change(getByLabelText('Supply'), { target: { value: '100' } });
-      fireEvent.change(getByLabelText('Decimal Places'), { target: { value: '3' } });
       fireEvent.change(getByLabelText('Asset Name'), { target: { value: 'test' } });
       fireEvent.click(getByText('Mint'));
       await waitFor(() => {

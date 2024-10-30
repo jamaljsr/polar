@@ -6,6 +6,7 @@ import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { createLitdNetworkNode, mapToTapd } from 'utils/network';
 import {
+  defaultTapAsset,
   getNetwork,
   renderWithProviders,
   tapServiceMock,
@@ -98,6 +99,9 @@ describe('NewAddressModal', () => {
       tapServiceMock.syncUniverse.mockResolvedValue({
         syncedUniverses: ['dummy-data' as any],
       });
+      tapServiceMock.listAssets.mockResolvedValue([
+        defaultTapAsset({ id: 'test-id', name: 'LUSD', amount: '1000' }),
+      ]);
     });
 
     it('should generate address', async () => {
@@ -113,6 +117,7 @@ describe('NewAddressModal', () => {
       expect(btn).toBeInTheDocument();
       expect(btn.parentElement).toBeInstanceOf(HTMLButtonElement);
       await store.getActions().tap.getAssetRoots(network.nodes.tap[0]);
+      await store.getActions().tap.getAssets(network.nodes.tap[0]);
       changeSelect('Asset', 'LUSD');
       fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
       fireEvent.click(getByText('Generate'));
@@ -126,6 +131,7 @@ describe('NewAddressModal', () => {
       const { getByText, findByText, getByLabelText, changeSelect, store } =
         await renderComponent();
       await store.getActions().tap.getAssetRoots(network.nodes.tap[0]);
+      await store.getActions().tap.getAssets(network.nodes.tap[0]);
       changeSelect('Asset', 'LUSD');
       fireEvent.change(getByLabelText('Amount'), {
         target: { value: '1000' },
@@ -159,6 +165,7 @@ describe('NewAddressModal', () => {
       const { getByText, findByText, getByLabelText, changeSelect, store } =
         await renderComponent();
       await store.getActions().tap.getAssetRoots(network.nodes.tap[0]);
+      await store.getActions().tap.getAssets(network.nodes.tap[0]);
       changeSelect('Asset', 'LUSD');
       fireEvent.change(getByLabelText('Amount'), {
         target: { value: '1000' },
@@ -192,6 +199,7 @@ describe('NewAddressModal', () => {
         expect(getByText('Generate', { selector: 'span' })).toBeInTheDocument();
         const tapdNode = mapToTapd(node);
         await store.getActions().tap.getAssetRoots(tapdNode);
+        await store.getActions().tap.getAssets(tapdNode);
         changeSelect('Asset', 'LUSD');
         fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
         fireEvent.click(getByText('Generate'));
@@ -245,6 +253,19 @@ describe('NewAddressModal', () => {
         fireEvent.mouseDown(getByLabelText('Asset'));
         expect(await findByText('Failed to sync assets from carol')).toBeInTheDocument();
         expect(await findByText('invalid-node is not a TAP node')).toBeInTheDocument();
+      });
+
+      it('should throw an error when the asset is not found', async () => {
+        const { getByText, findByText, getByLabelText, changeSelect, store } =
+          await renderComponent('carol');
+        const tapdNode = mapToTapd(node);
+        await store.getActions().tap.getAssetRoots(tapdNode);
+        changeSelect('Asset', 'LUSD');
+        fireEvent.change(getByLabelText('Amount'), { target: { value: '100' } });
+        fireEvent.click(getByText('Generate'));
+
+        expect(await findByText('Unable to generate address')).toBeInTheDocument();
+        expect(await findByText('Invalid asset selected')).toBeInTheDocument();
       });
     });
   });
