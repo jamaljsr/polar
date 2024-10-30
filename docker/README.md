@@ -182,12 +182,7 @@ Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
 
 ### Tags
 
-- `0.13.995-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
-- `0.13.994-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
-- `0.13.993-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
-- `0.13.992-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
-- `0.13.991-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
-- `0.13.99-exp` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+- `0.14.0-alpha.rc1` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 
 **Building the image**
 
