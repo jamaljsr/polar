@@ -64,16 +64,11 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { syncUniverse, getNewAddress } = useStoreActions(s => s.tap);
   const { nodes } = useStoreState(s => s.tap);
 
-  // const [selectedAmount, setSelectedAmount] = useState(100);
-  // const [selectedName, setSelectedName] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [tapAddress, setTapAddress] = useState('');
 
   const [form] = Form.useForm();
-
   const selectedAssetId: string = Form.useWatch('assetId', form);
-  // const selectedAmount: number = Form.useWatch('amount', form);
-  // console.log('NewAddressModal', { selectedAssetId, selectedAmount });
 
   const selectedAsset = useMemo(() => {
     for (const node of Object.values(nodes)) {
@@ -102,9 +97,13 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       try {
         const { node } = getNode(network, nodeName);
         if (!node) throw new Error(`${nodeName} is not a TAP node`);
-        if (!selectedAsset) throw new Error('Invalid asset selected');
 
-        const amount = (Number(values.amount) * 10 ** selectedAsset.decimals).toFixed(0);
+        const asset = Object.values(nodes)
+          .flatMap(n => n.assets)
+          .find(a => a?.id === selectedAssetId);
+        if (!asset) throw new Error('Invalid asset selected');
+
+        const amount = (Number(values.amount) * 10 ** asset.decimals).toFixed(0);
 
         const payload: NewAddressPayload = {
           node,
@@ -116,8 +115,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
         setTapAddress(res.encoded);
         setSuccessMsg(
           l('successDesc', {
-            assetName: selectedAsset.name,
-            amount: formatDecimals(Number(amount), selectedAsset.decimals),
+            assetName: asset.name,
+            amount: formatDecimals(Number(amount), asset.decimals),
           }),
         );
       } catch (error: any) {

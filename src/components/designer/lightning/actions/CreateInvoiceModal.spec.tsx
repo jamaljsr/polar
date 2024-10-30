@@ -205,7 +205,7 @@ describe('CreateInvoiceModal', () => {
       expect(tapServiceMock.addInvoice).toHaveBeenCalledWith(
         tapNode,
         'abcd',
-        200,
+        '200',
         '',
         3600,
       );

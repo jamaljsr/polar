@@ -291,6 +291,27 @@ describe('TapDetails', () => {
         expect(await findByText('50 LUSD')).toBeInTheDocument();
       });
 
+      it('should display the asset drawer without emission', async () => {
+        const { findByText, findAllByLabelText, queryByText } = renderComponent(
+          Status.Started,
+        );
+        fireEvent.click(await findByText('Info'));
+        const buttons = await findAllByLabelText('unordered-list');
+        expect(buttons.length).toEqual(2);
+        fireEvent.click(buttons[1]);
+        expect(await findByText('TAP Asset Info')).toBeInTheDocument();
+        expect(await findByText('Type')).toBeInTheDocument();
+        expect(await findByText('NORMAL')).toBeInTheDocument();
+        expect(await findByText('Asset ID')).toBeInTheDocument();
+        expect(await findByText('b4b905...7b2002')).toBeInTheDocument();
+        expect(await findByText('Genesis Point')).toBeInTheDocument();
+        expect(await findByText('64e4cf...9c58:2')).toBeInTheDocument();
+        expect(queryByText('Group Key')).not.toBeInTheDocument();
+        expect(await findByText('Emission Allowed')).toBeInTheDocument();
+        expect(await findByText('False')).toBeInTheDocument();
+        expect(await findByText('500 PTOKEN')).toBeInTheDocument();
+      });
+
       it('should handle a node with no assets', async () => {
         const { findByText, findAllByLabelText, store } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Info'));

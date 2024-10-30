@@ -36,7 +36,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     s => s.lightning,
   );
   const { fundChannel } = useStoreActions(s => s.tap);
-  const { getBalances } = useStoreActions(s => s.tap);
+  const { getAssets, getBalances } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
   const [form] = Form.useForm();
@@ -44,13 +44,6 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   const selectedFrom = Form.useWatch<string>('from', form) || '';
   const selectedTo = Form.useWatch<string>('to', form) || '';
   const capacity = Form.useWatch<number>('capacity', form) || 0;
-
-  const selectedAsset = useMemo(() => {
-    for (const node of Object.values(tapNodes)) {
-      const asset = node.assets?.find(a => a.id === assetId);
-      if (asset) return asset;
-    }
-  }, [nodes, assetId]);
 
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
@@ -60,6 +53,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
     }
     const litNodes = nodes.filter(n => n.implementation === 'litd').map(mapToTapd);
     for (const node of litNodes) {
+      await getAssets(node);
       await getBalances(node);
     }
   }, [network.nodes, visible]);
@@ -85,13 +79,16 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         // channel. The node needs at least 100,000 sats + fees to open an asset channel.
         if (values.autoFund) await depositFunds({ node: fromNode, sats: '500000' });
 
-        if (!selectedAsset) throw new Error('Invalid asset selected');
+        const asset = Object.values(tapNodes)
+          .flatMap(n => n.assets)
+          .find(a => a?.id === assetId);
+        if (!asset) throw new Error('Invalid asset selected');
 
         // open an asset channel
         await fundChannel({
           from: mapToTapd(fromNode),
           to: toNode,
-          amount: Number(values.capacity) * 10 ** selectedAsset.decimals,
+          amount: Number(values.capacity) * 10 ** asset.decimals,
           assetId,
         });
       }
