@@ -49,6 +49,7 @@ Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
 ### Tags
 
+- `0.18.4-beta.rc1` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.18.3-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.18.2-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.18.1-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
@@ -92,7 +93,7 @@ Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
 ```sh
 $ cd lnd
-$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LND_VERSION=<version> -t polarlightning/lnd:<version> --push .
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LND_VERSION=0.18.4-beta.rc1 -t polarlightning/lnd:0.18.4-beta.rc1 --push .
 ```
 
 Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
