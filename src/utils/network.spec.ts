@@ -324,7 +324,7 @@ describe('Network Utils', () => {
     it('should add a tap node linked to the exact minimum LND version', async () => {
       const lnd = createLndNetworkNode(
         network,
-        '0.18.0-beta',
+        '0.18.4-beta.rc1',
         defaultRepoState.images.LND.compatibility,
         { image: '', command: '' },
         Status.Stopped,
