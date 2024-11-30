@@ -356,11 +356,12 @@ const tapModel: TapModel = {
       { from, to, assetId, amount },
       { injections, getStoreState, getStoreActions },
     ) => {
-      const assetBalance = getStoreState().tap.nodes[from.name]?.balances?.find(
-        b => b.id === assetId,
-      )?.balance;
+      const fromNode = getStoreState().tap.nodes[from.name];
+      const assetBalance = fromNode?.balances?.find(b => b.id === assetId)?.balance;
       if (assetBalance && parseInt(assetBalance) < amount) {
-        throw new Error(`Capacity cannot exceed the asset balance of ${assetBalance}`);
+        const decimals = fromNode?.assets?.find(a => a.id === assetId)?.decimals || 0;
+        const amtLabel = formatDecimals(parseInt(assetBalance), decimals);
+        throw new Error(`Capacity cannot exceed the asset balance of ${amtLabel}`);
       }
       // get the pubkey of the destination node
       const toNode = getStoreState().lightning.nodes[to.name];

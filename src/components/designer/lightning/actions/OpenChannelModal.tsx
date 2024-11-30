@@ -88,7 +88,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         await fundChannel({
           from: mapToTapd(fromNode),
           to: toNode,
-          amount: Number(values.capacity) * 10 ** asset.decimals,
+          amount: Math.floor(Number(values.capacity) * 10 ** asset.decimals),
           assetId,
         });
       }
@@ -184,7 +184,17 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         label={l('capacityLabel')}
         rules={[{ required: true, message: l('cmps.forms.required') }]}
       >
-        <InputNumber<number> style={{ width: '100%' }} />
+        <InputNumber<number>
+          formatter={v =>
+            `${v}`
+              // add commas between every 3 digits
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              // remove commas after the decimal point
+              .replace(/\..*/, match => match.replace(/,/g, ''))
+          }
+          parser={v => parseFloat(`${v}`.replace(/(undefined|,*)/g, ''))}
+          style={{ width: '100%' }}
+        />
       </Form.Item>
       {showDeposit && (
         <Form.Item name="autoFund" valuePropName="checked">

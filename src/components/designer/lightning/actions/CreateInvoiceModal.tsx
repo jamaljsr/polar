@@ -116,7 +116,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const suggestAmt = useCallback(
     (assetId: string) => {
-      if (assetId === 'sats') return 50_000;
+      if (assetId === 'sats') return 1_000_000;
 
       const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
       const amount = Math.floor(parseInt(asset.remoteBalance) / 2).toString();
@@ -141,7 +141,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
         layout="vertical"
         requiredMark={false}
         colon={false}
-        initialValues={{ node: nodeName, amount: 50000, assetId: 'sats' }}
+        initialValues={{ node: nodeName, amount: 1_000_000, assetId: 'sats' }}
         onFinish={createAsync.execute}
       >
         <Row gutter={16}>

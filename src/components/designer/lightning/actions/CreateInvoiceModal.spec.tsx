@@ -182,14 +182,14 @@ describe('CreateInvoiceModal', () => {
     it('should update amount when an asset is selected', async () => {
       const { findByText, getByLabelText, changeSelect } = await renderComponent();
       expect(await findByText('Node')).toBeInTheDocument();
-      expect(getByLabelText('Amount')).toHaveValue('50,000');
+      expect(getByLabelText('Amount')).toHaveValue('1,000,000');
       expect(await findByText('Asset to Receive')).toBeInTheDocument();
       // select the asset
       changeSelect('Asset to Receive', 'test asset');
       expect(getByLabelText('Amount')).toHaveValue('200'); // half of the remote balance
       // select sats
       changeSelect('Asset to Receive', 'Bitcoin (sats)');
-      expect(getByLabelText('Amount')).toHaveValue('50,000');
+      expect(getByLabelText('Amount')).toHaveValue('1,000,000');
     });
 
     it('should create an asset invoice successfully', async () => {

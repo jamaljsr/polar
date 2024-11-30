@@ -352,20 +352,28 @@ describe('OpenChannelModal', () => {
       expect(tapServiceMock.listBalances).toHaveBeenCalledTimes(3);
     });
 
+    it('should format the capacity with commas and decimals', async () => {
+      const { findByText, getByLabelText } = await renderComponent('bob', 'carol');
+      expect(await findByText('Source')).toBeInTheDocument();
+      expect(getByLabelText('Capacity')).toHaveValue('10,000,000');
+      fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000.1234' } });
+      expect(getByLabelText('Capacity')).toHaveValue('1,000.1234');
+    });
+
     it('should update capacity when an asset is selected', async () => {
       const { findByText, getByLabelText, changeSelect } = await renderComponent(
         'bob',
         'carol',
       );
       expect(await findByText('Source')).toBeInTheDocument();
-      expect(getByLabelText('Capacity')).toHaveValue('10000000');
+      expect(getByLabelText('Capacity')).toHaveValue('10,000,000');
       expect(await findByText('Asset')).toBeInTheDocument();
       // select the asset
       changeSelect('Asset', 'test asset');
       expect(getByLabelText('Capacity')).toHaveValue('1,000'); // half of the remote balance
       // select sats
       changeSelect('Asset', 'Bitcoin (sats)');
-      expect(getByLabelText('Capacity')).toHaveValue('10000000');
+      expect(getByLabelText('Capacity')).toHaveValue('10,000,000');
     });
 
     it('should open an asset channel and deposit funds', async () => {
@@ -430,7 +438,7 @@ describe('OpenChannelModal', () => {
       fireEvent.click(getByText('Open Channel'));
 
       expect(
-        await findByText('Capacity cannot exceed the asset balance of 1000'),
+        await findByText('Capacity cannot exceed the asset balance of 1,000'),
       ).toBeInTheDocument();
       expect(tapServiceMock.fundChannel).not.toHaveBeenCalled();
     });
