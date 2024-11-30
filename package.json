@@ -1,6 +1,6 @@
 {
   "name": "polar",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "homepage": "https://lightningpolar.com",
   "description": "One-click Bitcoin Lightning networks for local app development & testing",
   "author": {
