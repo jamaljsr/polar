@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/jamaljsr/polar/compare/v3.0.0...v3.1.0)
+
+This minor release is needed to support the latest released versions of `litd` and `tapd`.
+
+### Features
+
+- Add Description field when creating a new network by kelvinator07 in https://github.com/jamaljsr/polar/pull/978
+- Add full support for decimal display for TAP assets by jamaljsr in https://github.com/jamaljsr/polar/pull/1040
+
+### Node Updates
+
+- Add support for tapd v0.5.0-alpha.rc1 by jamaljsr in https://github.com/jamaljsr/polar/pull/1064
+- Add support for lnd v0.18.4-beta.rc1 by jamaljsr in https://github.com/jamaljsr/polar/pull/1064
+- Add support for litd v0.14.0-alpha.rc1 by jamaljsr in https://github.com/jamaljsr/polar/pull/1039
+- add support for LND v0.18.3 by jamaljsr in https://github.com/jamaljsr/polar/pull/1023
+- add support for Core Lightning v24.08.1 by jamaljsr in https://github.com/jamaljsr/polar/pull/1023
+- add support for Bitcoin Core v28.0 by jamaljsr in https://github.com/jamaljsr/polar/pull/1023
+- add support for Terminal v0.13.995 by jamaljsr in https://github.com/jamaljsr/polar/pull/1023
+- add support for CLN v24.08 by kelvinator07 in https://github.com/jamaljsr/polar/pull/994
+- add support for litd v0.13.993-experimental by jamaljsr in https://github.com/jamaljsr/polar/pull/980
+- add support for tapd v0.4.1 and litd v0.13.991 by jamaljsr in https://github.com/jamaljsr/polar/pull/969
+
+### Bug Fixes
+
+- Fix broken bitcoin-cli bash completion link by Abdulkbk in https://github.com/jamaljsr/polar/pull/977
+- Updated deprecated husky command by kelvinator07 in https://github.com/jamaljsr/polar/pull/1013
+- Fixed error when trying to parse empty customChannelData (lnd) by kelvinator07 in https://github.com/jamaljsr/polar/pull/1013
+- Updated returned payinvoice amount to sats (eclair) by kelvinator07 in https://github.com/jamaljsr/polar/pull/1013
+- Removed obsolete version field from compose file by kelvinator07 in https://github.com/jamaljsr/polar/pull/1013
+
 ## [3.0.0](https://github.com/jamaljsr/polar/compare/v2.2.0...v3.0.0)
 
 The big feature of this major release is added support for Lightning Terminal (`litd`) nodes with the ability to open Taproot Asset channels and send/receive assets across the Lightning Network. There are also a handful of new improvements developed by new contributors to the project.
