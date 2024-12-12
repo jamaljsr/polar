@@ -12,6 +12,7 @@ import {
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
+  createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createLitdNetworkNode,
   createLndNetworkNode,
@@ -324,7 +325,7 @@ describe('Network Utils', () => {
     it('should add a tap node linked to the exact minimum LND version', async () => {
       const lnd = createLndNetworkNode(
         network,
-        '0.18.4-beta.rc1',
+        '0.18.4-beta.rc2',
         defaultRepoState.images.LND.compatibility,
         { image: '', command: '' },
         Status.Stopped,
@@ -343,6 +344,13 @@ describe('Network Utils', () => {
     });
 
     it('should fail to create a tap node without a compatible LND version', async () => {
+      const btc = createBitcoindNetworkNode(
+        network,
+        '27.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(btc);
       const lnd = createLndNetworkNode(
         network,
         '0.15.5-beta',

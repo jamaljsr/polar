@@ -627,7 +627,7 @@ describe('Designer model', () => {
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
-                'This network does not contain a LND v0.18.4-beta.rc1 (or higher) ' +
+                'This network does not contain a LND v0.18.4-beta.rc2 (or higher) ' +
                   `node which is required for tapd v${tapdLatest}`,
               ),
             }),
