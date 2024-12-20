@@ -345,7 +345,6 @@ export const defaultRepoState: DockerRepoState = {
         '0.18.0-beta',
         '0.17.5-beta',
         '0.16.4-beta',
-        '0.15.5-beta',
       ],
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
@@ -357,20 +356,19 @@ export const defaultRepoState: DockerRepoState = {
         '0.18.0-beta': '27.0',
         '0.17.5-beta': '27.0',
         '0.16.4-beta': '27.0',
-        '0.15.5-beta': '27.0',
       },
     },
     'c-lightning': {
       latest: '24.11.1',
-      versions: ['24.11.1', '24.11', '24.08.1', '24.08', '24.05', '24.02.2', '23.11.2'],
+      versions: ['24.11.1', '24.11', '24.08.1', '24.05'],
     },
     eclair: {
       latest: '0.11.0',
-      versions: ['0.11.0', '0.10.0', '0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
+      versions: ['0.11.0', '0.10.0', '0.9.0'],
     },
     bitcoind: {
       latest: '28.0',
-      versions: ['28.0', '27.0', '26.0', '25.0', '24.0', '23.0', '22.0', '0.21.1'],
+      versions: ['28.0', '27.0', '26.0'],
     },
     btcd: {
       latest: '',
@@ -378,21 +376,13 @@ export const defaultRepoState: DockerRepoState = {
     },
     tapd: {
       latest: '0.5.0-alpha',
-      versions: [
-        '0.5.0-alpha',
-        '0.4.1-alpha',
-        '0.4.0-alpha',
-        '0.3.3-alpha',
-        '0.3.2-alpha',
-      ],
+      versions: ['0.5.0-alpha', '0.4.1-alpha', '0.3.3-alpha'],
       // Not all tapd versions are compatible with all LND versions.
       // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
         '0.5.0-alpha': '0.18.4-beta',
         '0.4.1-alpha': '0.18.0-beta',
-        '0.4.0-alpha': '0.18.0-beta',
         '0.3.3-alpha': '0.16.0-beta',
-        '0.3.2-alpha': '0.16.0-beta',
       },
     },
     litd: {
