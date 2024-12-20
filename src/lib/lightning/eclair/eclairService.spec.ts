@@ -67,166 +67,98 @@ describe('EclairService', () => {
     expect(actual).toEqual(expected);
   });
 
-  it('should get a list of channels for v0.7.0', async () => {
-    const node7 = { ...node, version: '0.7.0' };
-    const chanResponse: ELN.ChannelResponse = {
-      nodeId: 'abcdef',
-      channelId: '65sdfd7',
-      state: ELN.ChannelState.NORMAL,
-      data: {
-        commitments: {
-          params: {
-            localParams: {
-              isInitiator: false,
-            },
-            channelFlags: {
-              announceChannel: false,
-            },
-          },
-          active: [
-            {
-              fundingTx: {
-                amountSatoshis: 0,
+  describe('getChannels', () => {
+    let chanResponse: ELN.ChannelResponse;
+
+    beforeEach(() => {
+      chanResponse = {
+        nodeId: 'abcdef',
+        channelId: '65sdfd7',
+        state: ELN.ChannelState.NORMAL,
+        data: {
+          commitments: {
+            params: {
+              localParams: {
+                isInitiator: false,
+                isChannelOpener: false,
               },
-              localCommit: {
-                spec: {
-                  toLocal: 0,
-                  toRemote: 0,
+              channelFlags: {
+                announceChannel: false,
+              },
+            },
+            active: [
+              {
+                fundingTx: {
+                  amountSatoshis: 0,
+                },
+                localCommit: {
+                  spec: {
+                    toLocal: 0,
+                    toRemote: 0,
+                  },
                 },
               },
-            },
-          ],
-          localParams: {
-            isFunder: true,
-            isInitiator: false,
-          },
-          channelFlags: {
-            announceChannel: true,
-          },
-          localCommit: {
-            spec: {
-              toLocal: 250000000,
-              toRemote: 0,
-            },
-          },
-          commitInput: {
-            amountSatoshis: 250000,
-          },
-        },
-      },
-    };
-    eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
-    const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
-    const actual = await eclairService.getChannels(node7);
-    expect(actual).toEqual(expected);
-  });
-
-  it('should get a list of channels for v0.8.0', async () => {
-    const node8 = { ...node, version: '0.8.0' };
-    const chanResponse: ELN.ChannelResponse = {
-      nodeId: 'abcdef',
-      channelId: '65sdfd7',
-      state: ELN.ChannelState.NORMAL,
-      data: {
-        commitments: {
-          params: {
+            ],
             localParams: {
+              isFunder: false,
               isInitiator: false,
-            },
-            channelFlags: {
-              announceChannel: false,
-            },
-          },
-          active: [
-            {
-              fundingTx: {
-                amountSatoshis: 0,
-              },
-              localCommit: {
-                spec: {
-                  toLocal: 0,
-                  toRemote: 0,
-                },
-              },
-            },
-          ],
-          localParams: {
-            isFunder: false,
-            isInitiator: true,
-          },
-          channelFlags: {
-            announceChannel: true,
-          },
-          localCommit: {
-            spec: {
-              toLocal: 250000000,
-              toRemote: 0,
-            },
-          },
-          commitInput: {
-            amountSatoshis: 250000,
-          },
-        },
-      },
-    };
-    eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
-    const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
-    const actual = await eclairService.getChannels(node8);
-    expect(actual).toEqual(expected);
-  });
-
-  it('should get a list of channels for >= v0.9.0', async () => {
-    const node9 = { ...node, version: '0.9.0' };
-    const chanResponse: ELN.ChannelResponse = {
-      nodeId: 'abcdef',
-      channelId: '65sdfd7',
-      state: ELN.ChannelState.NORMAL,
-      data: {
-        commitments: {
-          params: {
-            localParams: {
-              isInitiator: true,
             },
             channelFlags: {
               announceChannel: true,
             },
-          },
-          active: [
-            {
-              fundingTx: {
-                amountSatoshis: 250000,
-              },
-              localCommit: {
-                spec: {
-                  toLocal: 250000000,
-                  toRemote: 0,
-                },
+            localCommit: {
+              spec: {
+                toLocal: 250000000,
+                toRemote: 0,
               },
             },
-          ],
-          localParams: {
-            isFunder: false,
-            isInitiator: false,
-          },
-          channelFlags: {
-            announceChannel: false,
-          },
-          localCommit: {
-            spec: {
-              toLocal: 0,
-              toRemote: 0,
+            commitInput: {
+              amountSatoshis: 250000,
             },
-          },
-          commitInput: {
-            amountSatoshis: 0,
           },
         },
-      },
-    };
-    eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
-    const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
-    const actual = await eclairService.getChannels(node9);
-    expect(actual).toEqual(expected);
+      };
+    });
+
+    it('should get a list of channels for v0.7.0', async () => {
+      const node7 = { ...node, version: '0.7.0' };
+      chanResponse.data.commitments.localParams.isFunder = true;
+
+      eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
+      const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
+      const actual = await eclairService.getChannels(node7);
+      expect(actual).toEqual(expected);
+    });
+
+    it('should get a list of channels for v0.8.0', async () => {
+      const node8 = { ...node, version: '0.8.0' };
+      chanResponse.data.commitments.localParams.isInitiator = true;
+
+      eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
+      const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
+      const actual = await eclairService.getChannels(node8);
+      expect(actual).toEqual(expected);
+    });
+
+    it('should get a list of channels for v0.9.0 and v0.10.0', async () => {
+      const node9 = { ...node, version: '0.9.0' };
+      chanResponse.data.commitments.params.localParams.isInitiator = true;
+
+      eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
+      const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
+      const actual = await eclairService.getChannels(node9);
+      expect(actual).toEqual(expected);
+    });
+
+    it('should get a list of channels for v0.11.0', async () => {
+      const node11 = { ...node, version: '0.11.0' };
+      chanResponse.data.commitments.params.localParams.isChannelOpener = true;
+
+      eclairApiMock.httpPost.mockResolvedValue([chanResponse]);
+      const expected = [expect.objectContaining({ pubkey: 'abcdef' })];
+      const actual = await eclairService.getChannels(node11);
+      expect(actual).toEqual(expected);
+    });
   });
 
   it('should get a list of peers', async () => {
