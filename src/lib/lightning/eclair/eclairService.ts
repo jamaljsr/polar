@@ -73,7 +73,8 @@ class EclairService implements LightningService {
         c =>
           c.data.commitments?.localParams?.isFunder ||
           c.data.commitments?.localParams?.isInitiator ||
-          c.data.commitments?.params?.localParams?.isInitiator,
+          c.data.commitments?.params?.localParams?.isInitiator ||
+          c.data.commitments?.params?.localParams?.isChannelOpener,
       )
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {

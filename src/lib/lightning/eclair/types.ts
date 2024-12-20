@@ -51,6 +51,8 @@ interface ChannelData {
     params: {
       localParams: {
         isInitiator: boolean;
+        // isInitiator was renamed to isChannelOpener in v0.11.0
+        isChannelOpener: boolean;
       };
       channelFlags: {
         announceChannel: boolean;
