@@ -109,7 +109,7 @@
     "easy-peasy": "6.0.5",
     "electron": "13.6.3",
     "electron-builder": "24.13.3",
-    "electron-devtools-installer": "3.2.1",
+    "electron-devtools-installer": "4.0.0",
     "eslint": "7.11.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "3.4.1",
