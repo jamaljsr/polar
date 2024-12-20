@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/jamaljsr/polar/compare/v3.1.0...v3.2.0)
+
+This release adds support for the final v0.14.0 version of Terminal (`litd`) which officially adds support for making asset payments over Lightning.
+
+All of the node implementations have also been updated to their latests versions:
+
+- LND v0.18.4-beta
+- Taproot Assets (tapd) v0.5.0-alpha
+- Terminal (litd) v0.14.0-alpha
+- Core Lightning v24.11.1
+- Eclair v0.11.0
+
+### Features
+
+- Minor updates for litd v0.14.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/1072
+- Update node implementations to their latest versions by @jamaljsr in https://github.com/jamaljsr/polar/pull/1076
+- December 20204 Node Updates by @jamaljsr in https://github.com/jamaljsr/polar/pull/1085
+
 ## [3.1.0](https://github.com/jamaljsr/polar/compare/v3.0.0...v3.1.0)
 
 This minor release is needed to support the latest released versions of `litd` and `tapd`.
