@@ -185,8 +185,7 @@ Replace `<version>` with the desired Tap version (ex: `0.2.0-alpha`).
 
 ### Tags
 
-- `0.14.0-alpha.rc2` ([litd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/litd/Dockerfile))
-- `0.14.0-alpha.rc1` ([litd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/litd/Dockerfile))
+- `0.14.0-alpha` ([litd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/litd/Dockerfile))
 
 **Building the image**
 
