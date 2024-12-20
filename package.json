@@ -103,7 +103,7 @@
     "concurrently": "9.1.0",
     "connected-react-router": "6.9.3",
     "cross-env": "7.0.3",
-    "detect-port": "1.6.1",
+    "detect-port": "2.1.0",
     "docker-compose": "0.24.0",
     "dockerode": "4.0.2",
     "easy-peasy": "6.0.5",
