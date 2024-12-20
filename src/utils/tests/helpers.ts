@@ -194,10 +194,10 @@ export const testRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.14.0-alpha.rc1',
-      versions: ['0.14.0-alpha.rc1'],
+      latest: '0.14.0-alpha',
+      versions: ['0.14.0-alpha'],
       compatibility: {
-        '0.14.0-alpha.rc1': '28.0',
+        '0.14.0-alpha': '28.0',
       },
     },
   },
