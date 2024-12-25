@@ -1,7 +1,7 @@
 import logger from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
 import { BitcoinNode } from 'shared/types';
-import { BitcoindLibrary } from 'types';
+import { BitcoinService } from 'types';
 import { delay, waitFor } from 'utils/async';
 import {
   bitcoinCredentials,
@@ -10,7 +10,7 @@ import {
   INITIAL_BLOCK_REWARD,
 } from 'utils/constants';
 
-class BitcoindService implements BitcoindLibrary {
+class BitcoindService implements BitcoinService {
   // the types in the v5 release are missing many functions so we have to cast as `any`
   // to prevent TS errors.
   createClient(node: BitcoinNode): any {
