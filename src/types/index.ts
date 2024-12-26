@@ -144,17 +144,6 @@ export interface RepoServiceInjection {
   checkForUpdates: (currState: DockerRepoState) => Promise<DockerRepoUpdates>;
 }
 
-export interface BitcoindLibrary {
-  waitUntilOnline: (node: BitcoinNode) => Promise<void>;
-  createDefaultWallet: (node: BitcoinNode) => Promise<void>;
-  getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
-  getWalletInfo: (node: BitcoinNode) => Promise<WalletInfo>;
-  getNewAddress: (node: BitcoinNode) => Promise<string>;
-  connectPeers: (node: BitcoinNode) => Promise<void>;
-  mine: (numBlocks: number, node: BitcoinNode) => Promise<string[]>;
-  sendFunds: (node: BitcoinNode, addr: string, amount: number) => Promise<string>;
-}
-
 export interface BitcoinService {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
   createDefaultWallet: (node: BitcoinNode) => Promise<void>;
