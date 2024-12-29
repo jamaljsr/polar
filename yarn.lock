@@ -6182,10 +6182,10 @@ concat-stream@^2.0.0:
     readable-stream "^3.0.2"
     typedarray "^0.0.6"
 
-concurrently@9.1.0:
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/concurrently/-/concurrently-9.1.0.tgz#8da6d609f4321752912dab9be8710232ac496aa0"
-  integrity sha512-VxkzwMAn4LP7WyMnJNbHN5mKV9L2IbyDjpzemKr99sXNR3GqRNMMHdm7prV1ws9wg7ETj6WUkNOigZVsptwbgg==
+concurrently@9.1.1:
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/concurrently/-/concurrently-9.1.1.tgz#609dde2ce12f4f12d6a5ea6eace4c38bb7ab2ead"
+  integrity sha512-6VX8lrBIycgZKTwBsWS+bLrmkGRkDmvtGsYylRN9b93CygN6CbK46HmnQ3rdSOR8HRjdahDrxb5MqD9cEFOg5Q==
   dependencies:
     chalk "^4.1.2"
     lodash "^4.17.21"
