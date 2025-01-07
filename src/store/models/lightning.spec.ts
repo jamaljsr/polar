@@ -9,17 +9,18 @@ import {
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import {
+  bitcoinServiceMock,
   defaultStateInfo,
   getNetwork,
   injections,
   lightningServiceMock,
   mockProperty,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import appModel from './app';
 import bitcoinModel from './bitcoin';
 import designerModel from './designer';
 import lightningModel from './lightning';
+import modalsModel from './modals';
 import networkModel from './network';
 
 jest.mock('utils/async');
@@ -32,6 +33,7 @@ describe('Lightning Model', () => {
     lightning: lightningModel,
     bitcoin: bitcoinModel,
     designer: designerModel,
+    modals: modalsModel,
   };
   const network = getNetwork();
   const initialState = {
@@ -48,6 +50,21 @@ describe('Lightning Model', () => {
   // initialize store for type inference
   let store = createStore(rootModel, { injections, initialState });
   const node = initialState.network.networks[0].nodes.lightning[0] as LndNode;
+  const mockChannelInfo = {
+    uniqueId: 'channel1',
+    id: 'channel1',
+    to: 'node2',
+    from: 'node1',
+    localBalance: '1000',
+    remoteBalance: '2000',
+    nextLocalBalance: 1000,
+    pending: false,
+    channelPoint: '',
+    pubkey: '',
+    capacity: '',
+    status: 'Open' as const,
+    isPrivate: false,
+  };
 
   beforeEach(() => {
     // reset the store before each test run
@@ -68,7 +85,7 @@ describe('Lightning Model', () => {
       unconfirmed: '200',
       total: '300',
     });
-    lightningServiceMock.getChannels.mockResolvedValueOnce([]);
+    lightningServiceMock.getChannels.mockResolvedValue([]);
   });
 
   it('should have a valid initial state', () => {
@@ -251,5 +268,57 @@ describe('Lightning Model', () => {
     const callback = callbacks[network.nodes.lightning[0].name];
     callback({ type: 'Pending' });
     waitFor(() => expect(spy).toHaveBeenCalledTimes(1));
+  });
+
+  it('should reset channels info', async () => {
+    lightningServiceMock.getChannels.mockResolvedValue([mockChannelInfo]);
+
+    const linksMock = {
+      channel1: {
+        id: 'channel1',
+        from: { nodeId: 'node1', portId: 'port1' },
+        to: { nodeId: 'node2', portId: 'port2' },
+      },
+    };
+    store.getState().designer.activeChart.links = linksMock;
+
+    const { resetChannelsInfo } = store.getActions().lightning;
+    await resetChannelsInfo(network);
+    const { channelsInfo } = store.getState().lightning;
+
+    expect(channelsInfo).toHaveLength(4);
+    expect([channelsInfo[0]]).toEqual([
+      {
+        id: 'channel1',
+        to: 'node2',
+        from: 'node1',
+        localBalance: '1000',
+        remoteBalance: '2000',
+        nextLocalBalance: 1000,
+      },
+    ]);
+  });
+
+  it('should manually balance channel', () => {
+    store.getActions().lightning.setChannelsInfo([mockChannelInfo]);
+    const { manualBalanceChannelsInfo } = store.getActions().lightning;
+    manualBalanceChannelsInfo({ value: 500000, index: 0 });
+    const { channelsInfo } = store.getState().lightning;
+    expect(channelsInfo[0].nextLocalBalance).toBe(500000);
+  });
+
+  it('should auto balance channels', () => {
+    // Test case when channelsInfo is undefined
+    // setChannelsInfo([!mockChannelInfo]);
+    // autoBalanceChannelsInfo();
+    let { channelsInfo } = store.getState().lightning;
+    // expect(channelsInfo).toBeUndefined();
+
+    // Test case when channelsInfo is populated with mock data
+    store.getActions().lightning.setChannelsInfo([mockChannelInfo]);
+    const { autoBalanceChannelsInfo } = store.getActions().lightning;
+    autoBalanceChannelsInfo();
+    channelsInfo = store.getState().lightning.channelsInfo;
+    expect(channelsInfo[0].nextLocalBalance).toBe(1500);
   });
 });
