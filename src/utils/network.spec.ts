@@ -3,6 +3,7 @@ import {
   BitcoinNode,
   CLightningNode,
   EclairNode,
+  LightningNode,
   LitdNode,
   LndNode,
   NodeImplementation,
@@ -20,6 +21,7 @@ import {
   createTapdNetworkNode,
   getCLightningFilePaths,
   getImageCommand,
+  getInvoicePayload,
   getLndFilePaths,
   getOpenPortRange,
   getOpenPorts,
@@ -33,6 +35,87 @@ import { getNetwork, testManagedImages, testNodeDocker } from './tests';
 const mockDetectPort = detectPort as jest.Mock;
 
 describe('Network Utils', () => {
+  describe('getInvoicePayload', () => {
+    const localNode: LightningNode = {
+      id: 1,
+      networkId: 1,
+      name: 'Local Node',
+      type: 'lightning',
+      version: 'v0.1.0',
+      docker: {
+        image: 'lightning-node-image',
+        command: 'start-node',
+      },
+      implementation: 'LND',
+      backendName: 'Bitcoin Core',
+      ports: {
+        grpc: 10009,
+        rest: 8080,
+      },
+      status: Status.Started,
+    };
+
+    const remoteNode: LightningNode = {
+      id: 2,
+      networkId: 1,
+      name: 'Remote Node',
+      type: 'lightning',
+      version: 'v0.1.0',
+      status: Status.Started,
+      docker: {
+        image: 'lightning-node-image',
+        command: 'start-node',
+      },
+      implementation: 'LND',
+      backendName: 'Bitcoin Core',
+      ports: {
+        grpc: 10010,
+        rest: 8081,
+      },
+    };
+
+    it('should return correct payload when local balance is greater than remote balance', () => {
+      const channel = {
+        pending: false,
+        uniqueId: 'channel1',
+        channelPoint: 'point1',
+        pubkey: 'pubkey1',
+        capacity: '1000',
+        localBalance: '1000',
+        remoteBalance: '500',
+        status: 'Open' as const,
+        isPrivate: false,
+      };
+      const nextLocalBalance = 800;
+      const payload = getInvoicePayload(channel, localNode, remoteNode, nextLocalBalance);
+
+      expect(payload.source).toBe(localNode);
+      expect(payload.target).toBe(remoteNode);
+      expect(payload.amount).toBe(200);
+    });
+
+    it('should return correct payload when local balance is less than next local balance', () => {
+      const channel = {
+        pending: false,
+        uniqueId: 'channel2',
+        channelPoint: 'point2',
+        pubkey: 'pubkey2',
+        capacity: '1000',
+        localBalance: '800',
+        remoteBalance: '1000',
+        status: 'Open' as const,
+        isPrivate: false,
+      };
+
+      const nextLocalBalance = 1000;
+      const payload = getInvoicePayload(channel, localNode, remoteNode, nextLocalBalance);
+
+      expect(payload.source).toBe(remoteNode);
+      expect(payload.target).toBe(localNode);
+      expect(payload.amount).toBe(200);
+    });
+  });
+
   describe('getImageCommand', () => {
     it('should return the commands for managed images', () => {
       // create images with the commands set to their implementation
