@@ -186,7 +186,7 @@ class TapdService implements TapService {
     const pmt = res.paymentResult as LND.Payment;
     return {
       // convert from msat to asset units using the default oracle exchange rate
-      amount: parseInt(pmt.valueMsat) / 100_000,
+      amount: parseInt(pmt.valueMsat) / 1000,
       preimage: pmt.paymentPreimage.toString(),
       destination: '',
     };

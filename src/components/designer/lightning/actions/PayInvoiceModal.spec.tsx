@@ -106,8 +106,8 @@ describe('PayInvoiceModal', () => {
       });
     });
 
-    it('should pay invoice successfully', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
+    it('should pay invoice successfully and show correctly formatted success message', async () => {
+      const { getByText, getByLabelText, store, findByText } = await renderComponent();
       fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
       fireEvent.click(getByText('Pay Invoice'));
       await waitFor(() => {
@@ -119,6 +119,8 @@ describe('PayInvoiceModal', () => {
         'lnbc1',
         undefined,
       );
+      const element = await findByText('Sent 1,000 sats from alice');
+      expect(element).toBeInTheDocument();
     });
 
     it('should display an error when paying the invoice fails', async () => {
