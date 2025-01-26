@@ -126,6 +126,7 @@
   "cmps.designer.default.cards.SimulationDesignerCard.startWarning": "The network and activity nodes must be started to run simulations",
   "cmps.designer.default.cards.SimulationDesignerCard.NoActivityAddedWarning": "Please add at least one activity to run simulations",
   "cmps.designer.default.cards.SimulationDesignerCard.linkErrNotStarted": "The nodes must be started first",
+  "cmps.designer.default.cards.SimulationDesignerCard.addActivity": "Add activity",
 
   "cmps.designer.default.cards.NetworkDesignerCard.showVersions": "Show All Versions",
 
