@@ -13,7 +13,7 @@ export interface Props extends SelectProps<SelectValue> {
   name: string;
   label?: string;
   nodeStatus?: Status;
-  implementation?: LightningNode['implementation'];
+  implementations?: LightningNode['implementation'][];
   initialValue?: string;
   nodes?: {
     [key: string]: LightningNodeModel;
@@ -25,7 +25,7 @@ const LightningNodeSelect: React.FC<Props> = ({
   name,
   label,
   nodeStatus,
-  implementation,
+  implementations = [],
   initialValue,
   nodes,
   onChange,
@@ -53,8 +53,8 @@ const LightningNodeSelect: React.FC<Props> = ({
   if (nodeStatus !== undefined) {
     lnNodes = lnNodes.filter(n => n.status === nodeStatus);
   }
-  if (implementation) {
-    lnNodes = lnNodes.filter(n => n.implementation === implementation);
+  if (implementations.length > 0) {
+    lnNodes = lnNodes.filter(n => implementations.includes(n.implementation));
   }
   return (
     <Form.Item
