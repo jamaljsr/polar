@@ -97,7 +97,7 @@
     "@typescript-eslint/parser": "6.21.0",
     "antd": "4.24.12",
     "babel-plugin-import": "1.13.8",
-    "bitcoin-core": "4.2.0",
+    "bitcoin-core": "5.0.0",
     "bufferutil": "4.0.9",
     "commitizen": "4.3.1",
     "concurrently": "9.1.2",
