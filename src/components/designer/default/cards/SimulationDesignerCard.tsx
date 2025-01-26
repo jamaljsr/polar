@@ -1,20 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import {
-  ArrowDownOutlined,
-  ArrowRightOutlined,
-  ArrowUpOutlined,
-  DeleteOutlined,
-} from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Alert, Button } from 'antd';
+import { Alert, Button, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
 import { useStoreActions } from 'store';
 import { ThemeColors } from 'theme/colors';
-import { ActivityInfo, Network, SimulationActivity } from 'types';
-import ActivityGenerator from '../../ActivityGenerator';
+import { Network, SimulationActivity } from 'types';
 
 const Styled = {
   AddNodes: styled.div`
@@ -135,29 +130,37 @@ export interface AddActivityInvalidState {
   message: string;
 }
 
-const defaultActivityInfo: ActivityInfo = {
-  sourceNode: undefined,
-  targetNode: undefined,
-  amount: 1000,
-  frequency: 1,
-};
-
-const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
+const SimulationDesignerCard: React.FC<Props> = ({ visible, network }) => {
   const [isSimulationActive, setIsSimulationActive] = useState(false);
-  const [isAddActivityActive, setIsAddActivityActive] = useState(false);
   const [addActivityInvalidState, setAddActivityInvalidState] =
     useState<AddActivityInvalidState | null>(null);
-  const [activityInfo, setActivityInfo] = useState<ActivityInfo>(defaultActivityInfo);
 
   const theme = useTheme();
   const { l } = usePrefixedTranslation(
-    'cmps.designer.default.cards.ActivityDesignerCard',
+    'cmps.designer.default.cards.SimulationDesignerCard',
   );
   const { removeSimulationActivity, startSimulation, stopSimulation } = useStoreActions(
     s => s.network,
   );
+  const { showAddSimLnActivity } = useStoreActions(s => s.modals);
+
   const { notify } = useStoreActions(s => s.app);
   const { lightning } = network.nodes;
+
+  const simulationActivities = useMemo(() => {
+    return network.simulationActivities || [];
+  }, [network.simulationActivities]);
+
+  const handleCreate = useCallback(() => {
+    if (network.status != Status.Started) {
+      notify({
+        message: l('linkErrNotStarted'),
+        error: new Error(l('startWarning')),
+      });
+      return;
+    }
+    showAddSimLnActivity({ interval: 10, amount: 1000 });
+  }, []);
 
   const startSimulationActivity = useAsyncCallback(async () => {
     try {
@@ -186,7 +189,6 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
       });
 
       if (nodes.length > 0) {
-        setIsAddActivityActive(true);
         setAddActivityInvalidState({
           state: 'warning',
           message: l('startWarning'),
@@ -210,10 +212,6 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
     }
   });
 
-  const toggleAddActivity = useCallback(() => {
-    setIsAddActivityActive(prev => !prev);
-  }, []);
-
   const handleRemoveActivity = useCallback(
     async (
       e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -221,25 +219,9 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
     ) => {
       e.stopPropagation();
       await removeSimulationActivity(activity);
-      // update UI
-      reset();
     },
     [removeSimulationActivity],
   );
-
-  const resolveUpdater = <T extends keyof ActivityInfo>({
-    name,
-    value,
-  }: {
-    name: T;
-    value: ActivityInfo[T];
-  }) => {
-    setActivityInfo(prev => ({ ...prev, [name]: value }));
-  };
-
-  const reset = useCallback(() => {
-    setActivityInfo(defaultActivityInfo);
-  }, []);
 
   const primaryCtaText = useCallback(() => {
     if (!isSimulationActive && startSimulationActivity.loading) {
@@ -263,29 +245,15 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
       </div>
       <Styled.AddNodes>
         <h3>{l('addActivitiesTitle')}</h3>
-        <Styled.Toggle
-          type="ghost"
-          size="small"
-          shape="circle"
-          icon={isAddActivityActive ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
-          onClick={toggleAddActivity}
-        />
+        <Tooltip overlay={l('createBtn')}>
+          <Button type="text" icon={<PlusOutlined />} onClick={handleCreate} />
+        </Tooltip>
       </Styled.AddNodes>
       <Styled.AddDesc>{l('addActivitiesDesc')}</Styled.AddDesc>
-      <ActivityGenerator
-        visible={isAddActivityActive}
-        activityInfo={activityInfo}
-        network={network}
-        addActivityInvalidState={addActivityInvalidState}
-        setAddActivityInvalidState={setAddActivityInvalidState}
-        toggle={toggleAddActivity}
-        updater={resolveUpdater}
-        reset={reset}
-      />
       <Styled.Divider />
       <p>
         {l('activities')}
-        {` (${network.simulationActivities.length})`}
+        {` (${simulationActivities.length})`}
       </p>
       {network.simulationActivities.map(activity => (
         <Styled.Activity
@@ -322,4 +290,4 @@ const ActivityDesignerCard: React.FC<Props> = ({ visible, network }) => {
   );
 };
 
-export default ActivityDesignerCard;
+export default SimulationDesignerCard;
