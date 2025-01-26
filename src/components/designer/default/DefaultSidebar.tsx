@@ -3,7 +3,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { Network } from 'types';
 import SidebarCard from '../SidebarCard';
 import NetworkDesignerCard from './cards/NetworkDesignerCard';
-import ActivityDesignerCard from './cards/ActivityDesignerCard';
+import SimulationDesignerCard from './cards/SimulationDesignerCard';
 
 interface Props {
   network: Network;
@@ -21,7 +21,7 @@ const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const tabContents: Record<string, React.ReactNode> = {
     network: <NetworkDesignerCard />,
     activity: (
-      <ActivityDesignerCard visible={designerType === 'activity'} network={network} />
+      <SimulationDesignerCard visible={designerType === 'activity'} network={network} />
     ),
   };
 
