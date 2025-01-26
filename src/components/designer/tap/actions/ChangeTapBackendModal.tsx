@@ -135,7 +135,7 @@ const ChangeTapBackendModal: React.FC<Props> = ({ network }) => {
                 name="LNDName"
                 label={l('LNDNodeLabel')}
                 disabled={changeAsync.loading}
-                implementation="LND"
+                implementations={['LND']}
                 onChange={v => setSelectedLNDBackend(v?.toString())}
               />
             </Col>

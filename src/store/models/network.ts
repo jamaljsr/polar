@@ -1159,10 +1159,12 @@ const networkModel: NetworkModel = {
       await actions.save();
       await injections.dockerService.saveComposeFile(network);
       info(
-        `Simulation started for network '${JSON.stringify(
+        `Simulation starting for network '${JSON.stringify(
           network.simulationActivities,
         )}'`,
       );
+      // TODO: check if there's an open channel btw the nodes in the activities
+      // TODO: check if the source node have enough funds to send to the destination node
       try {
         const lightningNodes = network.nodes.lightning;
         network.simulationActivities.forEach(activity => {

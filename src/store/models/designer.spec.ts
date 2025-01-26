@@ -354,7 +354,7 @@ describe('Designer model', () => {
         expect(firstChart().links[payload.linkId]).toBeUndefined();
         expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
-            description: 'The nodes must be Started first',
+            description: 'The nodes must be started first',
           }),
         );
       });

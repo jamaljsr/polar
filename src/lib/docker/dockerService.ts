@@ -381,6 +381,7 @@ class DockerService implements DockerLibrary {
     };
 
     network.simulationActivities.forEach(activity => {
+      info(`[constructSimJson] activity docker for \n ${JSON.stringify(activity)}`);
       const { source, destination } = activity;
       const nodeArray = [source, destination];
 
@@ -420,7 +421,6 @@ class DockerService implements DockerLibrary {
             throw new Error(`unsupported node type ${node.implementation}`);
         }
 
-        // console.log(`simNode >> \n ${JSON.stringify(simNode)}`);
         // Add the node to the nodes Set (duplicates are automatically handled)
         simJson.nodes.push(simNode);
       }
@@ -433,7 +433,6 @@ class DockerService implements DockerLibrary {
         amount_msat: activity.amountMsat * 1000,
       };
 
-      // console.log(`simActivity >> \n ${JSON.stringify(simActivity)}`);
       // Add the activity to the activity Set (duplicates are automatically handled)
       simJson.activity.push(simActivity);
     });
@@ -456,7 +455,6 @@ class DockerService implements DockerLibrary {
    */
   async startSimulationActivity(network: Network) {
     const simJson = this.constructSimJson(network);
-    // console.log(`simJson >> \n ${JSON.stringify(simJson)}`);
     await this.ensureDirs(network, [
       ...network.nodes.bitcoin,
       ...network.nodes.lightning,
@@ -464,12 +462,13 @@ class DockerService implements DockerLibrary {
     ]);
     const simjsonPath = nodePath(network, 'simln', 'sim.json');
     await write(simjsonPath, JSON.stringify(simJson));
-    console.log(`simjsonPath >> \n ${JSON.stringify(simjsonPath)}`);
+    info(`[startSimulationActivity] simjsonPath >> \n ${JSON.stringify(simjsonPath)}`);
     const result = await this.execute(compose.upOne, 'simln', this.getArgs(network));
     info(`Simulation activity started:\n ${result.out || result.err}`);
   }
 
   async stopSimulationActivity(network: Network) {
+    // TODO: stop simulation activity docker container
     info(`[stopSimulationActivity] \n ${network}`);
   }
 
