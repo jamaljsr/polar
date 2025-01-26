@@ -245,7 +245,7 @@ const SimulationDesignerCard: React.FC<Props> = ({ visible, network }) => {
       </div>
       <Styled.AddNodes>
         <h3>{l('addActivitiesTitle')}</h3>
-        <Tooltip overlay={l('createBtn')}>
+        <Tooltip overlay={l('addActivity')}>
           <Button type="text" icon={<PlusOutlined />} onClick={handleCreate} />
         </Tooltip>
       </Styled.AddNodes>
