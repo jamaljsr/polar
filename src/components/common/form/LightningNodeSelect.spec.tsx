@@ -23,7 +23,7 @@ describe('LightningNodeSelect', () => {
             name="from"
             label="Source"
             initialValue={initialValue}
-            implementation="LND"
+            implementations={['LND']}
             nodes={nodes}
           />
         </Form>
