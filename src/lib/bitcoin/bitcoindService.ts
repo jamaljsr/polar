@@ -11,10 +11,11 @@ import {
 } from 'utils/constants';
 
 class BitcoindService implements BitcoindLibrary {
-  createClient(node: BitcoinNode) {
+  // the types in the v5 release are missing many functions so we have to cast as `any`
+  // to prevent TS errors.
+  createClient(node: BitcoinNode): any {
     return new BitcoinCore({
-      host: '127.0.0.1',
-      port: `${node.ports.rpc}`,
+      host: `http://127.0.0.1:${node.ports.rpc}`,
       username: bitcoinCredentials.user,
       password: bitcoinCredentials.pass,
       logger: this.log(),
@@ -107,7 +108,7 @@ class BitcoindService implements BitcoindLibrary {
     const utxos = await this.createClient(node).listTransactions();
     // determine the highest # of confirmations of all utxos. this is
     // the utxo we'd like to spend from
-    const confs = Math.max(0, ...utxos.map(u => u.confirmations));
+    const confs = Math.max(0, ...utxos.map((u: any) => u.confirmations));
     const neededConfs = Math.max(0, COINBASE_MATURITY_DELAY - confs);
     if (neededConfs > 0) {
       await this.mine(neededConfs, node);
