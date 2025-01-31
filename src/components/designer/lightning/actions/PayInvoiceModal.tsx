@@ -85,7 +85,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       const nodeName = node.name;
       notify({
         message: l('successTitle'),
-        description: l('successDesc', { amount: format(amount), nodeName, assetName }),
+        description: l('successDesc', { amount, nodeName, assetName }),
       });
       await hidePayInvoice();
     } catch (error: any) {
