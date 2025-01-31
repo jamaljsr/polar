@@ -1,7 +1,7 @@
 #########################
 # Original Source: https://github.com/ACINQ/eclair/blob/v0.3.3/Dockerfile
 #########################
-FROM eclipse-temurin:17.0.13_11-jdk-focal as BUILD
+FROM eclipse-temurin:17.0.14_7-jdk-focal as BUILD
 
 # Setup maven, we don't use https://hub.docker.com/_/maven/ as it declare .m2 as volume, we loose all mvn cache
 # We can alternatively do as proposed by https://github.com/carlossg/docker-maven#packaging-a-local-repository-with-the-image
