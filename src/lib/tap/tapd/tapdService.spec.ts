@@ -235,7 +235,7 @@ describe('TapdService', () => {
       },
       paymentResult: {
         paymentPreimage: Buffer.from('preimage'),
-        valueMsat: 100_000_000,
+        valueMsat: 1_000_000,
       },
     };
     tapdProxyClient.sendPayment = jest.fn().mockResolvedValue(res);
