@@ -6,11 +6,39 @@ export enum Status {
   Error,
 }
 
+export type NodeType = 'bitcoin' | 'lightning' | 'tap' | 'ark';
+
+export type NodeTypeToImplementation<T extends NodeType> = T extends 'bitcoin'
+  ? BitcoinNode
+  : T extends 'lightning'
+  ? LightningNode
+  : T extends 'tap'
+  ? TapNode
+  : T extends 'ark'
+  ? ArkNode
+  : never;
+
+export type NodeImplementationToType<T extends NodeImplementation> = T extends 'bitcoind'
+  ? BitcoindNode
+  : T extends 'arkd'
+  ? ArkNode
+  : T extends 'LND'
+  ? LndNode
+  : T extends 'eclair'
+  ? EclairNode
+  : T extends 'c-lightning'
+  ? CLightningNode
+  : T extends 'litd'
+  ? LitdNode
+  : T extends 'tapd'
+  ? TapdNode
+  : never;
+
 export interface CommonNode {
   id: number;
   networkId: number;
   name: string;
-  type: 'bitcoin' | 'lightning' | 'tap';
+  type: NodeType;
   version: string;
   status: Status;
   errorMsg?: string;
@@ -20,9 +48,11 @@ export interface CommonNode {
   };
 }
 
+export type LightningImplementations = 'LND' | 'c-lightning' | 'eclair' | 'litd';
+
 export interface LightningNode extends CommonNode {
   type: 'lightning';
-  implementation: 'LND' | 'c-lightning' | 'eclair' | 'litd';
+  implementation: LightningImplementations;
   backendName: string;
   ports: Record<string, number | undefined>;
 }
@@ -65,9 +95,11 @@ export interface EclairNode extends LightningNode {
   };
 }
 
+export type BitcoinImplementations = 'bitcoind' | 'btcd';
+
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
-  implementation: 'bitcoind' | 'btcd';
+  implementation: BitcoinImplementations;
   peers: string[];
   ports: Record<string, number>;
 }
@@ -76,15 +108,18 @@ export interface BitcoindNode extends BitcoinNode {
   implementation: 'bitcoind';
   ports: {
     rpc: number;
+    rest: number;
     p2p: number;
     zmqBlock: number;
     zmqTx: number;
   };
 }
 
+export type TapImplementations = 'tapd' | 'litd';
+
 export interface TapNode extends CommonNode {
   type: 'tap';
-  implementation: 'tapd' | 'litd';
+  implementation: TapImplementations;
   ports: Record<string, number | undefined>;
 }
 
@@ -98,6 +133,25 @@ export interface TapdNode extends TapNode {
     rest: number;
     grpc: number;
   };
+}
+
+export type ArkImplementations = 'arkd';
+
+export interface ArkNode extends CommonNode {
+  type: 'ark';
+  backendName: string;
+  implementation: ArkImplementations;
+  ports: {
+    api: number;
+  };
+  paths: {
+    macaroon: string;
+    tlsCert: string;
+  };
+}
+
+export interface ArkdNode extends ArkNode {
+  implementation: 'arkd';
 }
 
 export interface LitdNode extends LightningNode {
@@ -128,11 +182,21 @@ export interface LitdNode extends LightningNode {
 }
 
 export type NodeImplementation =
-  | BitcoinNode['implementation']
-  | LightningNode['implementation']
-  | TapNode['implementation'];
+  | LightningImplementations
+  | BitcoinImplementations
+  | ArkImplementations
+  | TapImplementations;
 
-export type AnyNode = BitcoinNode | LightningNode | TapNode;
+export type AnyNode = BitcoinNode | LightningNode | TapNode | ArkNode;
+
+export type AnyImplementation =
+  | BitcoindNode
+  | LndNode
+  | EclairNode
+  | CLightningNode
+  | LitdNode
+  | TapdNode
+  | ArkdNode;
 
 export type TapSupportedNode = TapdNode | LitdNode;
 

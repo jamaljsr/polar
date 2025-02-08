@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePrefixedTranslation } from 'hooks';
-import { BitcoinNode, LightningNode, Status } from 'shared/types';
+import { ArkNode, BitcoinNode, LightningNode, Status } from 'shared/types';
 
 import { StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
@@ -9,10 +9,10 @@ import ChangeBackendButton from './ChangeBackendButton';
 
 interface Props {
   bitcoinNode: BitcoinNode;
-  lightningNode: LightningNode;
+  connectedNode: LightningNode | ArkNode;
 }
 
-const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
+const Backend: React.FC<Props> = ({ bitcoinNode, connectedNode }) => {
   const { l } = usePrefixedTranslation('cmps.designer.link.Backend');
 
   const backendDetails: DetailValues = [
@@ -27,14 +27,19 @@ const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
     },
   ];
 
-  const lightningDetails: DetailValues = [
-    { label: l('name'), value: lightningNode.name },
-    { label: l('implementation'), value: lightningNode.implementation },
-    { label: l('version'), value: `v${lightningNode.version}` },
+  const connectedNodeDetails: DetailValues = [
+    { label: l('name'), value: connectedNode.name },
+    { label: l('implementation'), value: connectedNode.implementation },
+    {
+      label: l('version'),
+      value: connectedNode.version.startsWith('v')
+        ? connectedNode.version
+        : `v${connectedNode.version}`,
+    },
     {
       label: l('status'),
       value: (
-        <StatusBadge status={lightningNode.status} text={Status[lightningNode.status]} />
+        <StatusBadge status={connectedNode.status} text={Status[connectedNode.status]} />
       ),
     },
   ];
@@ -42,9 +47,12 @@ const Backend: React.FC<Props> = ({ bitcoinNode, lightningNode }) => {
   return (
     <SidebarCard title={l('title')}>
       <p>{l('desc')}</p>
-      <DetailsList title={l('lightningTitle')} details={lightningDetails} />
+      <DetailsList
+        title={connectedNode.type === 'lightning' ? l('lightningTitle') : l('arkTitle')}
+        details={connectedNodeDetails}
+      />
       <DetailsList title={l('bitcoinTitle')} details={backendDetails} />
-      <ChangeBackendButton lnName={lightningNode.name} backendName={bitcoinNode.name} />
+      <ChangeBackendButton lnName={connectedNode.name} backendName={bitcoinNode.name} />
     </SidebarCard>
   );
 };

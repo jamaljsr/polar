@@ -1,10 +1,12 @@
+import { NETWORK_VIEW } from 'components/routing';
+import { push } from 'connected-react-router';
+import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
 import { join } from 'path';
-import { push } from 'connected-react-router';
-import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
+  ArkNode,
   BitcoinNode,
   CommonNode,
   LightningNode,
@@ -20,6 +22,7 @@ import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
+  createArkdChartNode,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
@@ -36,7 +39,6 @@ import {
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
-import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.network');
@@ -50,6 +52,7 @@ interface AddNetworkArgs {
   bitcoindNodes: number;
   tapdNodes: number;
   litdNodes: number;
+  arkdNodes: number;
   customNodes: Record<string, number>;
 }
 
@@ -96,7 +99,7 @@ export interface NetworkModel {
   >;
   getBackendNode: Thunk<
     NetworkModel,
-    LightningNode,
+    CommonNode,
     StoreInjections,
     RootModel,
     BitcoinNode | undefined
@@ -108,6 +111,7 @@ export interface NetworkModel {
     RootModel
   >;
   removeTapNode: Thunk<NetworkModel, { node: TapNode }, StoreInjections, RootModel>;
+  removeArkNode: Thunk<NetworkModel, { node: ArkNode }, StoreInjections, RootModel>;
   removeBitcoinNode: Thunk<
     NetworkModel,
     { node: BitcoinNode },
@@ -228,6 +232,9 @@ const networkModel: NetworkModel = {
     network.nodes.tap
       .filter(n => !!ports[n.name])
       .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
+    network.nodes.ark
+      .filter(n => !!ports[n.name])
+      .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
   }),
   load: thunk(async (actions, payload, { injections, getStoreActions }) => {
     const { networks, charts } = await injections.dockerService.loadNetworks();
@@ -282,6 +289,7 @@ const networkModel: NetworkModel = {
         bitcoindNodes: payload.bitcoindNodes,
         tapdNodes: payload.tapdNodes,
         litdNodes: payload.litdNodes,
+        arkdNodes: payload.arkdNodes,
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
@@ -304,6 +312,7 @@ const networkModel: NetworkModel = {
           bitcoind: payload.bitcoindNodes,
           tapd: payload.tapdNodes,
           litd: payload.litdNodes,
+          arkd: payload.arkdNodes,
           btcd: 0,
         },
       });
@@ -400,6 +409,18 @@ const networkModel: NetworkModel = {
           );
           network.nodes.tap.push(node);
           break;
+        case 'arkd':
+          node = createArkdChartNode(
+            network,
+            version,
+            dockerRepoState.images.tapd.compatibility,
+            docker,
+            undefined,
+            settings.basePorts.arkd,
+          );
+          if (!network.nodes.ark) network.nodes.ark = [];
+          network.nodes.ark.push(node);
+          break;
         default:
           throw new Error(`Cannot add unknown node type '${type}' to the network`);
       }
@@ -420,11 +441,13 @@ const networkModel: NetworkModel = {
       await injections.dockerService.saveComposeFile(network);
     },
   ),
-  getBackendNode: thunk((actions, lnNode, { getState }) => {
+  getBackendNode: thunk((actions, node, { getState }) => {
     const networks = getState().networks;
-    const network = networks.find(n => n.id === lnNode.networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId: lnNode.networkId }));
-    return network.nodes.bitcoin.find(n => n.name === lnNode.backendName);
+    const network = networks.find(n => n.id === node.networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+    return network.nodes.bitcoin.find(
+      n => 'backendName' in node && n.name === node.backendName,
+    );
   }),
   removeLightningNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
@@ -476,6 +499,34 @@ const networkModel: NetworkModel = {
       network.nodes.tap = network.nodes.tap.filter(n => n !== node);
       // remove the node's data from the lightning redux state
       getStoreActions().tap.removeNode(node.name);
+      // remove the node rom the running docker network
+      if (network.status === Status.Started) {
+        await injections.dockerService.removeNode(network, node);
+      }
+      await injections.dockerService.saveComposeFile(network);
+      // clear cached RPC data
+      getStoreActions().app.clearAppCache();
+      // remove the node from the chart's redux state
+      getStoreActions().designer.removeNode(node.name);
+      // update the network in the redux state and save to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      // delete the docker volume data from disk
+      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      rm(join(network.path, 'volumes', volumeDir, node.name));
+      // sync the chart
+      await getStoreActions().designer.syncChart(network);
+    },
+  ),
+  removeArkNode: thunk(
+    async (actions, { node }, { getState, injections, getStoreActions }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      // remove the node from the network
+      network.nodes.ark = network.nodes.ark.filter(n => n !== node);
+      // remove the node's data from the lightning redux state
+      getStoreActions().ark.removeNode(node.name);
       // remove the node rom the running docker network
       if (network.status === Status.Started) {
         await injections.dockerService.removeNode(network, node);
