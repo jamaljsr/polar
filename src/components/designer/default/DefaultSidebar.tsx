@@ -98,7 +98,9 @@ const DefaultSidebar: React.FC = () => {
     if (!entry.latest) return;
 
     nodes.push({
-      label: `${name} v${entry.latest}`,
+      label: `${name} ${
+        entry.latest.startsWith('v') ? entry.latest : `v${entry.latest}`
+      }`,
       logo,
       version: entry.latest,
       type,
@@ -108,7 +110,7 @@ const DefaultSidebar: React.FC = () => {
     entry.versions
       .filter(v => v != entry.latest)
       .forEach(version => {
-        const label = `${name} v${version}`;
+        const label = `${name} ${version.startsWith('v') ? version : `v${version}`}`;
         const collapsible = false;
         const visible = expanded.includes(type);
         nodes.push({ label, logo, version, collapsible, visible, type });

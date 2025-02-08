@@ -148,6 +148,27 @@ export const tapd = (
   ],
 });
 
+export const arkd = (
+  name: string,
+  container: string,
+  image: string,
+  apiPort: number,
+  command: string,
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [`./volumes/${dockerConfigs.arkd.volumeDirName}/${name}:/root/.arkd`],
+  expose: [
+    '7070', // REST & gRPC
+  ],
+  ports: [
+    `${apiPort}:7070`, // REST & gRPC
+  ],
+});
+
 export const litd = (
   name: string,
   container: string,

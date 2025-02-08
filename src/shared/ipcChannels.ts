@@ -45,4 +45,8 @@ export default {
     addSession: 'litd-add-session',
     revokeSession: 'litd-revoke-session',
   },
+
+  ark: {
+    getInfo: 'ark-getinfo',
+  },
 };
