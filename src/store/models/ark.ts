@@ -1,17 +1,16 @@
-import { Action, action, Thunk, thunk } from 'easy-peasy';
-import * as PLN from 'lib/ark/types';
-import { ArkNode } from 'shared/types';
+import { Action, action, Thunk, thunk, thunkOn, ThunkOn } from 'easy-peasy';
+import * as PLA from 'lib/ark/types';
+import { ArkNode, Status } from 'shared/types';
 import { StoreInjections } from 'types';
-import { delay } from 'utils/async';
-import { RootModel } from '.';
+import type { RootModel } from '.';
 
 export interface ArkNodeMapping {
   [key: string]: ArkNodeModel;
 }
 
 export interface ArkNodeModel {
-  info?: PLN.ArkNodeInfo;
-  walletBalance?: PLN.ArkNodeBalances;
+  info?: PLA.ArkGetInfo;
+  walletBalance?: PLA.ArkGetBalance;
 }
 
 export interface DepositFundsPayload {
@@ -43,9 +42,10 @@ export interface ArkModel {
   nodes: ArkNodeMapping;
   removeNode: Action<ArkModel, string>;
   clearNodes: Action<ArkModel, void>;
-  setInfo: Action<ArkModel, { node: ArkNode; info: PLN.ArkNodeInfo }>;
+  setInfo: Action<ArkModel, { node: ArkNode; info: PLA.ArkGetInfo }>;
   getInfo: Thunk<ArkModel, ArkNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<ArkModel, ArkNode, StoreInjections, RootModel>;
+  mineListener: ThunkOn<ArkModel, StoreInjections, RootModel>;
   waitForNodes: Thunk<ArkModel, ArkNode[], StoreInjections, RootModel>;
 }
 
@@ -73,19 +73,36 @@ const arkModel: ArkModel = {
   getAllInfo: thunk(async (actions, node) => {
     await actions.getInfo(node);
   }),
-  waitForNodes: thunk(async (actions, nodes) => {
-    // TODO: move this check into the delay() func
+  mineListener: thunkOn(
+    (actions, storeActions) => storeActions.bitcoin.mine,
+    async (actions, { payload }, { getStoreState, getStoreActions }) => {
+      const { notify } = getStoreActions().app;
+      // update all ark nodes info when a block in mined
+      const network = getStoreState().network.networkById(payload.node.networkId);
+
+      await actions.waitForNodes(network.nodes.ark);
+      await Promise.all(
+        network.nodes.ark
+          .filter(n => n.status === Status.Started)
+          .map(async n => {
+            try {
+              await actions.getAllInfo(n);
+            } catch (error: any) {
+              notify({ message: `Unable to retrieve node info from ${n.name}`, error });
+            }
+          }),
+      );
+    },
+  ),
+  waitForNodes: thunk(async (actions, nodes, { injections }) => {
     if (process.env.NODE_ENV === 'test') return;
-    // mapping of the number of seconds to wait for each implementation
-    const nodeDelays: Record<ArkNode['implementation'], number> = {
-      arkd: 1,
-    };
-    // determine the highest delay of all implementations
-    const longestDelay = nodes.reduce(
-      (d, node) => Math.max(d, nodeDelays[node.implementation]),
-      0,
+
+    await Promise.all(
+      nodes.map(n => {
+        const api = injections.arkFactory.getService(n);
+        return api.waitUntilOnline(n);
+      }),
     );
-    await delay(longestDelay * 1000);
   }),
 };
 
