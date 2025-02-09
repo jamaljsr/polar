@@ -1,5 +1,5 @@
 import { remote } from 'electron';
-import { debug, info } from 'electron-log';
+import { debug, info, warn } from 'electron-log';
 import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { v2 as compose } from 'docker-compose';
@@ -163,7 +163,11 @@ class DockerService implements DockerLibrary {
       }
     });
     ark.forEach(node => {
-      if (node.implementation !== 'arkd') return;
+      if (node.implementation !== 'arkd') {
+        warn('Unsupported ark implementation');
+        return;
+      }
+
       const arkd = node as ArkNode;
       const backend = bitcoin.find(n => n.name === arkd.backendName) || bitcoin[0];
       file.addArkd(arkd, backend as BitcoinNode);

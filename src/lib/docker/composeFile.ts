@@ -9,6 +9,7 @@ import {
   TapdNode,
 } from 'shared/types';
 import {
+  BasePorts,
   bitcoinCredentials,
   dockerConfigs,
   eclairCredentials,
@@ -205,6 +206,8 @@ class ComposeFile {
       containerName: container,
       bitcoinNode: getContainerName(bitcoinNode),
       bitcoinRpcPort: bitcoinNode.ports.rpc.toString(),
+      bitcoinZmqBlockPort: bitcoinNode.ports.zmqBlock.toString(),
+      bitcoinZmqTxPort: bitcoinNode.ports.zmqTx.toString(),
     };
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.arkd.imageName}:${version}`;
@@ -212,9 +215,18 @@ class ComposeFile {
     const nodeCommand = node.docker.command || getDefaultCommand('arkd', version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
+    const envVars = this.mergeEnvVars(dockerConfigs.arkd.envVars, node.docker.envVars, {
+      ARK_BITCOIND_RPC_HOST: `${variables.bitcoinNode}:${variables.bitcoinRpcPort}`,
+      ARK_BITCOIND_ZMQ_BLOCK: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqBlock}`,
+      ARK_BITCOIND_ZMQ_TX: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqTx}`,
+    });
     // add the docker service
-    const svc = arkd(name, container, image, api, command);
+    const svc = arkd(name, container, image, api, command, envVars);
     this.addService(svc);
+  }
+
+  private mergeEnvVars(...envVars: (Record<string, string> | undefined)[]) {
+    return envVars.reduce((acc, envVar) => ({ ...acc, ...(envVar || {}) }), {});
   }
 
   private mergeCommand(command: string, variables: Record<string, string>) {

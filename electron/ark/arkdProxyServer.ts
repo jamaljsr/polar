@@ -1,51 +1,75 @@
+import * as ARKD from '@lightningpolar/arkd-api';
 import { IpcMain } from 'electron';
 import { debug } from 'electron-log';
-import { readFile } from 'fs-extra';
-// import * as ARKD from '@lightningpolar/arkd-api';
+import { existsSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { convertUInt8ArraysToHex, ipcChannels } from '../../src/shared';
 import { ArkdNode } from '../../src/shared/types';
 import { toJSON } from '../../src/shared/utils';
-
-type ARKD = any;
+import { ValueOf } from '../utils/types';
 
 /**
  * mapping of node name and network <-> ArkRpcApis to cache these objects. The getRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
-let rpcCache: Record<string, ARKD.ArkdRpcApis> = {};
+let rpcCache: Record<string, ARKD.ArkdClient> = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: ArkdNode): Promise<ARKD.ArkdRpcApis> => {
+const getRpc = async (node: ArkdNode): Promise<ARKD.ArkdClient> => {
   const { name, networkId } = node;
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
     const { ports, paths } = node as ArkdNode;
     const options: ARKD.ArkdClientOptions = {
       socket: `127.0.0.1:${ports.api}`,
-      cert: (await readFile(paths.tlsCert)).toString('hex'),
-      macaroon: (await readFile(paths.macaroon)).toString('hex'),
+      cert: existsSync(paths.tlsCert)
+        ? (await readFile(paths.tlsCert)).toString('hex')
+        : undefined,
+      macaroon: existsSync(paths.macaroon)
+        ? (await readFile(paths.macaroon)).toString('hex')
+        : undefined,
     };
-    rpcCache[id] = ARKD.TapClient.create(options);
+    rpcCache[id] = ARKD.ArkdClient.create(options);
   }
   return rpcCache[id];
 };
 
-const getInfo = async (args: { node: ArkdNode }): Promise<ARKD.GetInfoResponse> => {
+const getInfo = async (args: { node: ArkdNode }) => {
   const rpc = await getRpc(args.node);
-  return await rpc.ark.getInfo();
+  return rpc.arkService.getInfo({});
 };
+
+const ping = async (args: { node: ArkdNode }) => {
+  const rpc = await getRpc(args.node);
+  return rpc.arkService.ping({
+    requestId: Math.random() * 1000 + '',
+  });
+};
+
+const getBalance = async (args: { node: ArkdNode }) => {
+  const rpc = await getRpc(args.node);
+  return rpc.wallet.getBalance({});
+};
+
+// const waitForReady = async (args: { node: ArkdNode }): Promise<void> => {
+//   const rpc = await getRpc(args.node);
+//   return rpc.arkService.waitForReady(30_000);
+// };
 
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
  */
-const listeners: {
-  [key: string]: (...args: any) => Promise<any>;
-} = {
+const listeners: Record<
+  ValueOf<typeof ipcChannels.ark>,
+  (...args: any) => Promise<any>
+> = {
   [ipcChannels.ark.getInfo]: getInfo,
+  [ipcChannels.ark.getBalance]: getBalance,
+  [ipcChannels.ark.waitForReady]: ping,
 };
 
 /**

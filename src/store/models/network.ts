@@ -217,8 +217,8 @@ const networkModel: NetworkModel = {
   }),
   updateNodeCommand: action((state, { id, name, command }) => {
     const network = state.networks.find(n => n.id === id) as Network;
-    const { lightning, bitcoin, tap } = network.nodes;
-    const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap];
+    const { lightning, bitcoin, tap, ark } = network.nodes;
+    const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap, ...ark];
     nodes.filter(n => n.name === name).forEach(n => (n.docker.command = command));
   }),
   updateNodePorts: action((state, { id, ports }) => {
@@ -413,12 +413,11 @@ const networkModel: NetworkModel = {
           node = createArkdChartNode(
             network,
             version,
-            dockerRepoState.images.tapd.compatibility,
+            dockerRepoState.images.arkd.compatibility,
             docker,
             undefined,
             settings.basePorts.arkd,
           );
-          if (!network.nodes.ark) network.nodes.ark = [];
           network.nodes.ark.push(node);
           break;
         default:
@@ -705,12 +704,14 @@ const networkModel: NetworkModel = {
       network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
       network.nodes.bitcoin.filter(n => n.name === only).forEach(setNodeStatus);
       network.nodes.tap.filter(n => n.name === only).forEach(setNodeStatus);
+      network.nodes.ark.filter(n => n.name === only).forEach(setNodeStatus);
     } else if (all) {
       // update all node statuses
       network.status = status;
       network.nodes.bitcoin.forEach(setNodeStatus);
       network.nodes.lightning.forEach(setNodeStatus);
       network.nodes.tap.forEach(setNodeStatus);
+      network.nodes.ark.forEach(setNodeStatus);
     } else {
       // if no specific node name provided, just update the network status
       network.status = status;
@@ -756,6 +757,7 @@ const networkModel: NetworkModel = {
           ...network.nodes.lightning,
           ...network.nodes.bitcoin,
           ...network.nodes.tap,
+          ...network.nodes.ark,
         ]);
       } catch (e: any) {
         actions.setStatus({ id, status: Status.Error });
@@ -909,6 +911,20 @@ const networkModel: NetworkModel = {
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: tap.name, error }),
             );
+        } else if (node.type === 'ark') {
+          const ark = node as ArkNode;
+          const { notify } = getStoreActions().app;
+
+          injections.arkFactory
+            .getService(ark)
+            .waitUntilOnline(ark)
+            .then(() => {
+              actions.setStatus({ id, status: Status.Started, only: ark.name });
+            })
+            .catch(error => {
+              notify({ message: `Ark node (${ark.name}) failed to come online`, error });
+              actions.setStatus({ id, status: Status.Error, only: ark.name, error });
+            });
         }
       }
       // after all bitcoin nodes are online, mine one block so that Eclair nodes will start
@@ -932,6 +948,8 @@ const networkModel: NetworkModel = {
           })
           .catch(e => info('Failed to connect all LN peers', e));
       }
+
+      // TODO: Unlock ark wallet
     },
   ),
   rename: thunk(async (actions, { id, name, description }, { getState }) => {
@@ -952,6 +970,7 @@ const networkModel: NetworkModel = {
       network.status,
       ...network.nodes.lightning.map(n => n.status),
       ...network.nodes.bitcoin.map(n => n.status),
+      ...network.nodes.ark.map(n => n.status),
     ];
     if (statuses.find(n => n !== Status.Stopped)) {
       await actions.stop(networkId);
@@ -966,6 +985,7 @@ const networkModel: NetworkModel = {
       .forEach(n => getStoreActions().lit.removeNode(n.name));
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoin.removeNode(n));
     network.nodes.tap.forEach(n => getStoreActions().tap.removeNode(n.name));
+    network.nodes.ark.forEach(n => getStoreActions().ark.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),
@@ -1109,6 +1129,8 @@ const networkModel: NetworkModel = {
         case 'tap':
           getStoreActions().tap.removeNode(oldNodeName);
           break;
+        case 'ark':
+          getStoreActions().ark.removeNode(oldNodeName);
       }
 
       // update the network in the store and save the changes to disk

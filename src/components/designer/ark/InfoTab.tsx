@@ -1,11 +1,12 @@
 import { Alert } from 'antd';
-import { StatusBadge } from 'components/common';
+import { CopyIcon, StatusBadge } from 'components/common';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { usePrefixedTranslation } from 'hooks';
 import React from 'react';
 import { ArkNode, Status } from 'shared/types';
 import { useStoreState } from 'store';
 import { dockerConfigs } from 'utils/constants';
+import { ellipseInner } from 'utils/strings';
 
 interface Props {
   node: ArkNode;
@@ -16,7 +17,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   const { nodes } = useStoreState(s => s.ark);
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
-    { label: l('implementation'), value: dockerConfigs[node.implementation]?.name },
+    { label: l('implementation'), value: dockerConfigs[node.implementation].name },
     {
       label: l('version'),
       value: node.docker.image
@@ -40,12 +41,22 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     details.splice(3, 0, { label: l('customImage'), value: node.docker.image });
   }
 
-  // let balances: ArkBalance[] | undefined = undefined;
   const nodeState = nodes[node.name];
-  if (node.status === Status.Started && nodeState) {
-    // if (nodeState.balances) {
-    //   balances = nodeState.balances;
-    // }
+  if (node.status === Status.Started && nodeState && nodeState.info) {
+    const { info } = nodeState;
+    details.push(
+      { label: l('forfeitAddress'), value: info.forfeitAddress },
+      {
+        label: l('pubkey'),
+        value: (
+          <CopyIcon
+            label={l('pubkey')}
+            value={info.pubkey}
+            text={ellipseInner(info.pubkey)}
+          />
+        ),
+      },
+    );
   }
 
   return (
@@ -60,7 +71,6 @@ const InfoTab: React.FC<Props> = ({ node }) => {
         />
       )}
       <DetailsList details={details} />
-      {/* {balances && <AssetsList balances={balances} nodeName={node.name} />} */}
     </>
   );
 };

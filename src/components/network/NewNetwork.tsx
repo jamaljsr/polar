@@ -85,6 +85,7 @@ const NewNetwork: React.FC = () => {
             bitcoindNodes: settings.newNodeCounts.bitcoind,
             tapdNodes: settings.newNodeCounts.tapd,
             litdNodes: settings.newNodeCounts.litd,
+            arkdNodes: settings.newNodeCounts.arkd || 0,
             customNodes: initialCustomValues,
           }}
           onFinish={createAsync.execute}
@@ -175,6 +176,15 @@ const NewNetwork: React.FC = () => {
               <Form.Item
                 name="litdNodes"
                 label={dockerConfigs.litd.name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="arkdNodes"
+                label={dockerConfigs.arkd.name}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
                 <InputNumber min={0} max={10} />

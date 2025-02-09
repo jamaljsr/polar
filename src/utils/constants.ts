@@ -55,7 +55,8 @@ export const BasePorts: NodeBasePorts = {
     rest: 18443,
     p2p: 19444,
     zmqBlock: 28334,
-    zmqTx: 29335,
+    zmqTx: 28335,
+    zmqHashBlock: 28336,
   },
   LND: {
     rest: 8081,
@@ -339,7 +340,36 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
     platforms: ['mac', 'linux', 'windows'],
     variables: ['name'],
     volumeDirName: 'arkd',
-    command: ['arkd', '--no-macaroons'].join('\n '),
+    command: ['arkd'].join('\n '),
+    envVars: {
+      ARK_NETWORK: 'regtest',
+
+      ARK_TX_BUILDER_TYPE: 'covenantless',
+      ARK_ROUND_INTERVAL: '5',
+      ARK_MIN_RELAY_FEE: '200',
+
+      ARK_LOG_LEVEL: '10',
+
+      ARK_ESPLORA_URL: '',
+      ARK_NEUTRINO_PEER: '',
+
+      ARK_BITCOIND_RPC_USER: 'polaruser',
+      ARK_BITCOIND_RPC_PASS: 'polarpass',
+
+      // sane defaults
+      ARK_DATADIR: '/root/.arkd/data',
+      ARK_WALLET_DATADIR: '/root/.arkd/wallet',
+      ARK_PORT: BasePorts.arkd.api.toString(),
+
+      ARK_NO_MACAROONS: 'true',
+      ARK_NO_TLS: 'true',
+
+      ARK_UNLOCKER_TYPE: 'env',
+      ARK_UNLOCKER_PASSWORD: 'arkpass',
+
+      ARK_NOTE_URI_PREFIX: 'Ark on Polar: ',
+      ARK_NOSTR_DEFAULT_RELAYS: 'wss://relay.example.com',
+    },
   },
 };
 

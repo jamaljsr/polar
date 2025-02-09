@@ -48,5 +48,7 @@ export default {
 
   ark: {
     getInfo: 'ark-getinfo',
+    getBalance: 'ark-getBalance',
+    waitForReady: 'ark-waitForReady',
   },
 };

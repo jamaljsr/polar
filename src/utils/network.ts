@@ -117,19 +117,17 @@ export const getLndFilePaths = (name: string, network: Network) => {
 };
 
 export const getArkdFilePaths = (name: string, network: Network): ArkNode['paths'] => {
-  // TODO: Fix
-  // returns /volumes/arkd/arkd-1
-  const arkdDataPath = nodePath(network, 'arkd', name);
-  const tlsCertPath = join(arkdDataPath, 'tls.cert');
+  // returns /volumes/arkd/alice/data
+  const arkdDataPath = join(nodePath(network, 'arkd', name), 'data');
 
-  // returns /data/chain/bitcoin/regtest
-  const macaroonPath = join('data', 'chain', 'bitcoin', 'regtest');
-  // returns /volumes/lnd/lnd-1/data/chain/bitcoin/regtest/admin.macaroon
-  const lndMacaroonPath = (macaroon: string) =>
-    join(arkdDataPath, macaroonPath, `${macaroon}.macaroon`);
+  // returns /volumes/arkd/alice/data/tls/cert.pem
+  const tlsCertPath = join(arkdDataPath, 'tls', 'cert.pem');
+
+  // returns /volumes/arkd/alice/data/macaroons/admin.macaroon
+  const arkMacaroonPath = join(arkdDataPath, 'macaroons', 'admin.macaroon');
 
   return {
-    macaroon: lndMacaroonPath('admin'),
+    macaroon: arkMacaroonPath,
     tlsCert: tlsCertPath,
   };
 };
