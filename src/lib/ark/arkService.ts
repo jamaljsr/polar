@@ -6,19 +6,10 @@ import { waitFor } from 'utils/async';
 import { arkProxyClient as proxy } from './arkProxyClient';
 
 class ArkService implements IArkService {
-  async getInfo(node: ArkNode): Promise<PLA.ArkNodeInfo> {
+  async getInfo(node: ArkNode): Promise<PLA.ArkGetInfo> {
     const info = await proxy.getInfo(node);
     debug('Ark info: ' + JSON.stringify(info));
-    return {
-      pubkey: info.identityPubkey,
-      alias: info.alias,
-      rpcUrl: (info.uris && info.uris[0]) || '',
-      syncedToChain: info.syncedToChain,
-      blockHeight: info.blockHeight,
-      numActiveChannels: info.numActiveChannels,
-      numPendingChannels: info.numPendingChannels,
-      numInactiveChannels: info.numInactiveChannels,
-    };
+    return info;
   }
 
   /**
@@ -28,11 +19,11 @@ class ArkService implements IArkService {
   async waitUntilOnline(
     node: ArkNode,
     interval = 3 * 1000, // check every 3 seconds
-    timeout = 120 * 1000, // timeout after 120 seconds
+    timeout = 30 * 1000, // timeout after 30 seconds
   ): Promise<void> {
     return waitFor(
       async () => {
-        await this.getInfo(node);
+        await proxy.waitForReady(node);
       },
       interval,
       timeout,
