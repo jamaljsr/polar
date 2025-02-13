@@ -48,7 +48,14 @@ export default {
 
   ark: {
     getInfo: 'ark-getinfo',
-    getBalance: 'ark-getBalance',
     waitForReady: 'ark-waitForReady',
+
+    // wallet related
+    getWalletBalance: 'ark-getWalletBalance',
+    getWalletStatus: 'ark-getWalletStatus',
+    genSeed: 'ark-genSeed',
+    createWallet: 'ark-createWallet',
+    lockWallet: 'ark-lockWallet',
+    unlockWallet: 'ark-unlockWallet',
   },
-};
+} as const;

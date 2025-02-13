@@ -6,13 +6,17 @@ import { readFile } from 'fs/promises';
 import { convertUInt8ArraysToHex, ipcChannels } from '../../src/shared';
 import { ArkdNode } from '../../src/shared/types';
 import { toJSON } from '../../src/shared/utils';
-import { ValueOf } from '../utils/types';
+import { IpcMappingFor } from '../utils/types';
 
 /**
  * mapping of node name and network <-> ArkRpcApis to cache these objects. The getRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
 let rpcCache: Record<string, ARKD.ArkdClient> = {};
+
+interface DefaultArgs {
+  node: ArkdNode;
+}
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
@@ -37,39 +41,62 @@ const getRpc = async (node: ArkdNode): Promise<ARKD.ArkdClient> => {
   return rpcCache[id];
 };
 
-const getInfo = async (args: { node: ArkdNode }) => {
-  const rpc = await getRpc(args.node);
-  return rpc.arkService.getInfo({});
-};
-
-const ping = async (args: { node: ArkdNode }) => {
-  const rpc = await getRpc(args.node);
-  return rpc.arkService.ping({
-    requestId: Math.random() * 1000 + '',
-  });
-};
-
-const getBalance = async (args: { node: ArkdNode }) => {
-  const rpc = await getRpc(args.node);
-  return rpc.wallet.getBalance({});
-};
-
-// const waitForReady = async (args: { node: ArkdNode }): Promise<void> => {
-//   const rpc = await getRpc(args.node);
-//   return rpc.arkService.waitForReady(30_000);
-// };
+type ArkChannels = typeof ipcChannels.ark;
 
 /**
  * A mapping of electron IPC channel names to the functions to execute when
  * messages are received
  */
-const listeners: Record<
-  ValueOf<typeof ipcChannels.ark>,
-  (...args: any) => Promise<any>
-> = {
-  [ipcChannels.ark.getInfo]: getInfo,
-  [ipcChannels.ark.getBalance]: getBalance,
-  [ipcChannels.ark.waitForReady]: ping,
+const listeners: IpcMappingFor<ArkChannels, [DefaultArgs]> = {
+  [ipcChannels.ark.getInfo]: async args => {
+    const rpc = await getRpc(args.node);
+    return rpc.arkService.getInfo();
+  },
+
+  [ipcChannels.ark.getWalletBalance]: async args => {
+    const rpc = await getRpc(args.node);
+    return rpc.wallet.getBalance();
+  },
+
+  [ipcChannels.ark.waitForReady]: async args => {
+    const rpc = await getRpc(args.node);
+    return rpc.arkService.waitForReady(30000);
+  },
+
+  [ipcChannels.ark.getWalletStatus]: async args => {
+    const rpc = await getRpc(args.node);
+    return rpc.wallet.getStatus();
+  },
+
+  [ipcChannels.ark.genSeed]: async args => {
+    const rpc = await getRpc(args.node);
+    return rpc.wallet.genSeed().then(({ seed }) => seed);
+  },
+
+  [ipcChannels.ark.createWallet]: async args => {
+    const rpc = await getRpc(args.node);
+    const { password, seed } = args as any;
+    return rpc.wallet.create({
+      password,
+      seed,
+    });
+  },
+
+  [ipcChannels.ark.unlockWallet]: async args => {
+    const rpc = await getRpc(args.node);
+    const { password } = args as any;
+    return rpc.wallet.unlock({
+      password,
+    });
+  },
+
+  [ipcChannels.ark.lockWallet]: async args => {
+    const rpc = await getRpc(args.node);
+    const { password } = args as any;
+    return rpc.wallet.lock({
+      password,
+    });
+  },
 };
 
 /**
@@ -94,7 +121,7 @@ export const initArkdProxy = (ipc: IpcMain) => {
       }
       try {
         // attempt to execute the associated function
-        let result = await func(...args);
+        let result = await func(...(args as [DefaultArgs]));
         // merge the result with default values since LND omits falsy values
         debug(`ArkdProxyServer: send response "${uniqueChan}"`, toJSON(result));
         // convert UInt8Arrays to hex

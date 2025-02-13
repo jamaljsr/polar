@@ -9,7 +9,6 @@ import {
   TapdNode,
 } from 'shared/types';
 import {
-  BasePorts,
   bitcoinCredentials,
   dockerConfigs,
   eclairCredentials,
@@ -217,8 +216,8 @@ class ComposeFile {
     const command = this.mergeCommand(nodeCommand, variables);
     const envVars = this.mergeEnvVars(dockerConfigs.arkd.envVars, node.docker.envVars, {
       ARK_BITCOIND_RPC_HOST: `${variables.bitcoinNode}:${variables.bitcoinRpcPort}`,
-      ARK_BITCOIND_ZMQ_BLOCK: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqBlock}`,
-      ARK_BITCOIND_ZMQ_TX: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqTx}`,
+      // ARK_BITCOIND_ZMQ_BLOCK: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqBlock}`,
+      // ARK_BITCOIND_ZMQ_TX: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqTx}`,
     });
     // add the docker service
     const svc = arkd(name, container, image, api, command, envVars);
