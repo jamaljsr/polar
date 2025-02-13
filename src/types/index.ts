@@ -251,8 +251,11 @@ export interface TapService {
 }
 
 export interface ArkService {
-  waitUntilOnline: (node: ArkNode) => Promise<void>;
-  getInfo: (node: ArkNode) => Promise<PLA.ArkGetInfo>;
+  getInfo: () => Promise<PLA.ArkGetInfo>;
+  getWalletBalance(): Promise<PLA.ArkGetBalance>;
+  getWalletStatus(): Promise<PLA.ArkGetWalletStatus>;
+  initWallet(): Promise<PLA.ArkGetWalletStatus>;
+  waitUntilOnline: () => Promise<void>;
 }
 
 export interface TapFactoryInjection {
