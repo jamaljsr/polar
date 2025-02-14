@@ -1,4 +1,4 @@
-FROM golang:1.23-bookworm as golangbuilder
+FROM golang:1.24-bookworm as golangbuilder
 
 # Force Go to use the cgo based DNS resolver. This is required to ensure DNS
 # queries required to connect to linked containers succeed.
