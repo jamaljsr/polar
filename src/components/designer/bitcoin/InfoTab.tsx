@@ -19,7 +19,14 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   const details: DetailValues = [
     { label: l('nodeType'), value: node.type },
     { label: l('implementation'), value: dockerConfigs[node.implementation].name },
-    { label: l('version'), value: node.docker.image ? 'custom' : `v${node.version}` },
+    {
+      label: l('version'),
+      value: node.docker.image
+        ? 'custom'
+        : node.version.startsWith('v')
+        ? node.version
+        : `v${node.version}`,
+    },
     {
       label: l('status'),
       value: (
