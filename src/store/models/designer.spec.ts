@@ -9,12 +9,12 @@ import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
 import * as files from 'utils/files';
 import { createBitcoindNetworkNode, createCLightningNetworkNode } from 'utils/network';
 import {
+  bitcoinServiceMock,
   getNetwork,
   injections,
   lightningServiceMock,
   testNodeDocker,
   testRepoState,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import appModel from './app';
 import bitcoinModel from './bitcoin';
@@ -626,7 +626,7 @@ describe('Designer model', () => {
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
-                'This network does not contain a LND v0.18.4-beta (or higher) ' +
+                'This network does not contain a LND v0.18.5-beta (or higher) ' +
                   `node which is required for tapd v${tapdLatest}`,
               ),
             }),
