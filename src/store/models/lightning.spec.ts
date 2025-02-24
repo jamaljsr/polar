@@ -308,13 +308,8 @@ describe('Lightning Model', () => {
   });
 
   it('should auto balance channels', () => {
-    // Test case when channelsInfo is undefined
-    // setChannelsInfo([!mockChannelInfo]);
-    // autoBalanceChannelsInfo();
     let { channelsInfo } = store.getState().lightning;
-    // expect(channelsInfo).toBeUndefined();
 
-    // Test case when channelsInfo is populated with mock data
     store.getActions().lightning.setChannelsInfo([mockChannelInfo]);
     const { autoBalanceChannelsInfo } = store.getActions().lightning;
     autoBalanceChannelsInfo();
@@ -322,46 +317,46 @@ describe('Lightning Model', () => {
     expect(channelsInfo[0].nextLocalBalance).toBe(1500);
   });
 
-  // describe('updateBalanceOfChannels', () => {
-  //   const mockChannelInfo = {
-  //     id: 'channel1',
-  //     to: 'node2',
-  //     from: 'node1',
-  //     localBalance: '40000',
-  //     remoteBalance: '60000',
-  //     nextLocalBalance: 50000,
-  //   };
-  //   beforeEach(() => {
-  //     const { setChannelsInfo } = store.getActions().lightning;
-  //     setChannelsInfo([mockChannelInfo]);
-  //     console.log('channelsInfo in state:', store.getState().lightning.channelsInfo);
-  //   });
+  describe('updateBalanceOfChannels', () => {
+    const mockChannelInfo = {
+      id: 'channel1',
+      to: 'node2',
+      from: 'node1',
+      localBalance: '40000',
+      remoteBalance: '60000',
+      nextLocalBalance: 50000,
+    };
+    beforeEach(() => {
+      const { setChannelsInfo } = store.getActions().lightning;
+      setChannelsInfo([mockChannelInfo]);
+      console.log('channelsInfo in state:', store.getState().lightning.channelsInfo);
+    });
 
-  //   it('should balance channels and show notification', async () => {
-  //     const { updateBalanceOfChannels } = store.getActions().lightning;
-  //     await updateBalanceOfChannels(network);
-  //     expect(lightningServiceMock.createInvoice).toHaveBeenCalled();
-  //     expect(lightningServiceMock.payInvoice).toHaveBeenCalled();
-  //     expect(store.getActions().lightning.balanceChannels).toBe(false);
-  //   });
+    // it('should balance channels and show notification', async () => {
+    //   const { updateBalanceOfChannels } = store.getActions().lightning;
+    //   await updateBalanceOfChannels(network);
+    //   expect(lightningServiceMock.createInvoice).toHaveBeenCalled();
+    //   expect(lightningServiceMock.payInvoice).toHaveBeenCalled();
+    //   expect(store.getActions().lightning.balanceChannels).toBe(false);
+    // });
 
-  // it('should skip balancing if difference is too small', async () => {
-  //   store.getActions().lightning.setChannelsInfo([
-  //     {
-  //       ...mockChannelInfo,
-  //       nextLocalBalance: 600020, // Small difference
-  //     },
-  //   ]);
-  //   const { updateBalanceOfChannels } = store.getActions().lightning;
-  //   await updateBalanceOfChannels(network);
-  //   expect(lightningServiceMock.createInvoice).not.toHaveBeenCalled();
-  // });
+    // it('should skip balancing if difference is too small', async () => {
+    //   store.getActions().lightning.setChannelsInfo([
+    //     {
+    //       ...mockChannelInfo,
+    //       nextLocalBalance: 600020, // Small difference
+    //     },
+    //   ]);
+    //   const { updateBalanceOfChannels } = store.getActions().lightning;
+    //   await updateBalanceOfChannels(network);
+    //   expect(lightningServiceMock.createInvoice).not.toHaveBeenCalled();
+    // });
 
-  // it('should throw error for invalid network', async () => {
-  //   const { balanceChannels } = store.getActions().lightning;
-  //   await expect(balanceChannels({ id: 999, toPay: [] })).rejects.toThrow(
-  //     'networkByIdErr',
-  //   );
-  // });
-  // });
+    it('should throw error for invalid network', async () => {
+      const { balanceChannels } = store.getActions().lightning;
+      await expect(balanceChannels({ id: 999, toPay: [] })).rejects.toThrow(
+        'networkByIdErr',
+      );
+    });
+  });
 });
