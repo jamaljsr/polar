@@ -368,7 +368,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       ARK_UNLOCKER_PASSWORD: 'arkpass',
 
       ARK_NOTE_URI_PREFIX: 'Ark on Polar: ',
-      ARK_NOSTR_DEFAULT_RELAYS: 'wss://relay.example.com',
+      ARK_NOSTR_DEFAULT_RELAYS: 'wss://relay.johnnyasantos.com',
     },
   },
 };

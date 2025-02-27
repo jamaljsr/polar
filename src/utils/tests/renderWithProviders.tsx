@@ -57,7 +57,11 @@ export const tapServiceMock: jest.Mocked<TapService> = {
   sendPayment: jest.fn(),
 };
 export const arkServiceMock: jest.Mocked<ArkService> = {
+  getBoardingAddress: jest.fn(),
   getInfo: jest.fn(),
+  getWalletBalance: jest.fn(),
+  getWalletStatus: jest.fn(),
+  initWallet: jest.fn(),
   waitUntilOnline: jest.fn(),
 };
 // injections allow you to mock the dependencies of redux store actions

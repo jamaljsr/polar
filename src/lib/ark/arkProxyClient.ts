@@ -44,6 +44,13 @@ class ArkProxyClient {
   async getWalletBalance(node: ArkNode): Promise<ARK.GetBalanceResponse> {
     return this.ipc(ipcChannels.ark.getWalletBalance, { node });
   }
+
+  async getBoardingAddress(
+    node: ArkNode,
+    pubkey: string,
+  ): Promise<ARK.GetBoardingAddressResponse> {
+    return this.ipc(ipcChannels.ark.getBoardingAddress, { node, pubkey });
+  }
 }
 
 export const arkProxyClient = new ArkProxyClient();

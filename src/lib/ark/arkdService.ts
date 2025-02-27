@@ -66,4 +66,8 @@ export class ArkdService implements IArkService {
   async getWalletBalance(): Promise<PLA.ArkGetBalance> {
     return proxy.getWalletBalance(this.node);
   }
+
+  async getBoardingAddress(pubkey: string): Promise<string> {
+    return proxy.getBoardingAddress(this.node, pubkey).then(r => r.address);
+  }
 }
