@@ -917,7 +917,7 @@ const networkModel: NetworkModel = {
 
           injections.arkFactory
             .getService(ark)
-            .waitUntilOnline(ark)
+            .waitUntilOnline()
             .then(() => {
               actions.setStatus({ id, status: Status.Started, only: ark.name });
             })

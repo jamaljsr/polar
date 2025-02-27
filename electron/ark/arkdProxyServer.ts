@@ -97,6 +97,12 @@ const listeners: IpcMappingFor<ArkChannels, [DefaultArgs]> = {
       password,
     });
   },
+
+  [ipcChannels.ark.getBoardingAddress]: async args => {
+    const rpc = await getRpc(args.node);
+    const { pubkey } = args as any;
+    return rpc.arkService.getBoardingAddress({ pubkey });
+  },
 };
 
 /**
