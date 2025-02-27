@@ -467,8 +467,9 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     arkd: {
-      latest: 'v0.4.2',
+      latest: 'v0.5.0',
       versions: [
+        'v0.5.0',
         'v0.4.2',
         'v0.4.1',
         'v0.4.0',
