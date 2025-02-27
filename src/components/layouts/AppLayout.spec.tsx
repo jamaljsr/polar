@@ -1,6 +1,6 @@
 import React from 'react';
 import { getI18n, useTranslation } from 'react-i18next';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, waitFor, RenderResult } from '@testing-library/react';
 import { defaultRepoState } from 'utils/constants';
 import { injections, renderWithProviders } from 'utils/tests';
 import AppLayout from './AppLayout';
@@ -84,25 +84,71 @@ describe('AppLayout component', () => {
   });
 
   describe('Theme Switcher', () => {
+    const BUTTON_TIMEOUT = 600;
+
+    const waitForButtonEnabled = async (button: HTMLElement) => {
+      await waitFor(
+        () => {
+          expect(button).not.toBeDisabled();
+        },
+        { timeout: BUTTON_TIMEOUT },
+      );
+    };
+
+    const getThemeButton = (container: RenderResult) => {
+      return container.getByRole('button', { name: /bulb.*dark/i });
+    };
+
+    const verifyButtonState = async (
+      button: HTMLElement,
+      expectedState: 'enabled' | 'disabled',
+    ) => {
+      if (expectedState === 'disabled') {
+        expect(button).toBeDisabled();
+      } else {
+        expect(button).not.toBeDisabled();
+      }
+    };
+
+    const verifyThemeText = async (
+      findByText: (text: string) => Promise<HTMLElement>,
+      expectedTheme: 'Dark' | 'Light',
+    ) => {
+      expect(await findByText(expectedTheme)).toBeInTheDocument();
+    };
+
+    const toggleTheme = async (button: HTMLElement) => {
+      fireEvent.click(button);
+      await verifyButtonState(button, 'disabled');
+      await waitForButtonEnabled(button);
+      await verifyButtonState(button, 'enabled');
+    };
+
     it('should display dark mode by default', async () => {
-      const { getByText } = renderComponent();
-      expect(getByText('Dark')).toBeInTheDocument();
+      const rendered = renderComponent();
+      await verifyThemeText(rendered.findByText, 'Dark');
     });
 
-    it('should switch to Light mode', async () => {
-      const { getByText, findByText } = renderComponent();
-      expect(getByText('Dark')).toBeInTheDocument();
-      fireEvent.click(getByText('Dark'));
-      expect(await findByText('Light')).toBeInTheDocument();
+    it('should switch to Dark mode and temporarily disable the button', async () => {
+      const rendered = renderComponent();
+      const button = getThemeButton(rendered);
+
+      await verifyThemeText(rendered.findByText, 'Dark');
+      await toggleTheme(button);
+      await verifyThemeText(rendered.findByText, 'Light');
     });
 
-    it('should switch to Dark mode', async () => {
-      const { getByText, findByText } = renderComponent();
-      expect(getByText('Dark')).toBeInTheDocument();
-      fireEvent.click(getByText('Dark'));
-      expect(await findByText('Light')).toBeInTheDocument();
-      fireEvent.click(getByText('Light'));
-      expect(await findByText('Dark')).toBeInTheDocument();
+    it('should switch between Dark and Light mode and temporarily disable the button', async () => {
+      const rendered = renderComponent();
+      const button = getThemeButton(rendered);
+
+      await verifyThemeText(rendered.findByText, 'Dark');
+
+      await toggleTheme(button);
+      await verifyThemeText(rendered.findByText, 'Light');
+
+      await toggleTheme(button);
+      await verifyThemeText(rendered.findByText, 'Dark');
     });
   });
 });
