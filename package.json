@@ -48,6 +48,7 @@
     "@lightningpolar/tapd-api": "0.6.0-alpha.rc2",
     "@types/lodash": "4.17.20",
     "archiver": "7.0.1",
+    "deepmerge": "^4.3.1",
     "docker-compose": "0.24.0",
     "dockerode": "4.0.2",
     "electron-debug": "3.2.0",
