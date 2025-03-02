@@ -126,4 +126,10 @@ describe('DefaultSidebar Component', () => {
       JSON.stringify({ type: 'LND', version: lndLatest }),
     );
   });
+
+  it('should display the Simulation Designer Tab', () => {
+    const { getByText } = renderComponent();
+    fireEvent.click(getByText('Simulation Designer'));
+    expect(getByText('Lightning Network Simulation')).toBeInTheDocument();
+  });
 });
