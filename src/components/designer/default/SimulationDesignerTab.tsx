@@ -4,6 +4,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { Button, Empty } from 'antd';
 import { Tooltip } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { useStoreActions } from 'store';
 
 const Styled = {
   Title: styled.div`
@@ -18,16 +19,26 @@ const Styled = {
 const SimulationDesignerTab: React.FC = () => {
   const { l } = usePrefixedTranslation('cmps.designer.default.SimulationDesignerTab');
 
+  const { showAddSimulation } = useStoreActions(s => s.modals);
+
   return (
     <div>
       <Styled.Title>
         <span>{l('title')}</span>
         <Tooltip overlay={l('createBtn')} placement="topLeft">
-          <Button type="text" icon={<PlusOutlined />} />
+          <Button
+            type="text"
+            icon={<PlusOutlined />}
+            onClick={() => showAddSimulation({})}
+          />
         </Tooltip>
       </Styled.Title>
       <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={l('emptyMsg')}>
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => showAddSimulation({})}
+        >
           {l('createBtn')}
         </Button>
       </Empty>
