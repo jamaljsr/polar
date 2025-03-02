@@ -26,6 +26,7 @@ import {
   NewAddressModal,
   SendAssetModal,
 } from './tap/actions';
+import AddSimulationModal from './default/AddSimulationModal';
 
 const Styled = {
   Designer: styled.div`
@@ -65,6 +66,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     changeTapBackend,
     renameNode,
     addLncSession,
+    addSimulation,
   } = useStoreState(s => s.modals);
 
   const { save } = useStoreActions(s => s.network);
@@ -114,6 +116,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {sendAsset.visible && <SendAssetModal network={network} />}
       {renameNode.visible && <RenameNodeModal network={network} />}
       {addLncSession.visible && <LncAddSessionModal network={network} />}
+      {addSimulation.visible && <AddSimulationModal network={network} />}
     </Styled.Designer>
   );
 };
