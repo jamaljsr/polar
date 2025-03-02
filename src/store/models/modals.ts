@@ -106,6 +106,15 @@ interface AddLncSessionModel {
   pairingPhrase?: string;
 }
 
+interface AddSimLnActivityModel {
+  visible: boolean;
+  // form values entered by the user
+  source?: string;
+  destination?: string;
+  interval?: number;
+  amount?: number;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -121,6 +130,7 @@ export interface ModalsModel {
   renameNode: RenameNodeModel;
   lncSessionInfo: LncSessionInfoModel;
   addLncSession: AddLncSessionModel;
+  addSimLnActivity: AddSimLnActivityModel;
   changeTapBackend: ChangeTapBackendModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
@@ -176,6 +186,13 @@ export interface ModalsModel {
   setAddLncSession: Action<ModalsModel, AddLncSessionModel>;
   showAddLncSession: Thunk<ModalsModel, Partial<AddLncSessionModel>, StoreInjections>;
   hideAddLncSession: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setAddSimLnActivity: Action<ModalsModel, AddSimLnActivityModel>;
+  showAddSimLnActivity: Thunk<
+    ModalsModel,
+    Partial<AddSimLnActivityModel>,
+    StoreInjections
+  >;
+  hideAddSimLnActivity: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -195,6 +212,7 @@ const modalsModel: ModalsModel = {
   renameNode: { visible: false },
   lncSessionInfo: { visible: false },
   addLncSession: { visible: false },
+  addSimLnActivity: { visible: false },
   // reducer actions (mutations allowed thx to immer)
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
@@ -468,6 +486,30 @@ const modalsModel: ModalsModel = {
     actions.setAddLncSession({
       visible: false,
       nodeName: undefined,
+    });
+  }),
+  setAddSimLnActivity: action((state, payload) => {
+    state.addSimLnActivity = {
+      ...state.addSimLnActivity,
+      ...payload,
+    };
+  }),
+  showAddSimLnActivity: thunk((actions, { source, destination, interval, amount }) => {
+    actions.setAddSimLnActivity({
+      visible: true,
+      source,
+      destination,
+      interval,
+      amount,
+    });
+  }),
+  hideAddSimLnActivity: thunk(actions => {
+    actions.setAddSimLnActivity({
+      visible: false,
+      source: undefined,
+      destination: undefined,
+      interval: undefined,
+      amount: undefined,
     });
   }),
 };
