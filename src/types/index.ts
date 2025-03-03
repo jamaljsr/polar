@@ -31,6 +31,7 @@ export interface Network {
     lightning: LightningNode[];
     tap: TapNode[];
   };
+  simulation?: Simulation;
 }
 
 /**
@@ -100,6 +101,7 @@ export interface DockerConfig {
   variables: string[];
   dataDir?: string;
   apiDir?: string;
+  env?: Record<string, string>;
 }
 
 export interface DockerRepoImage {
@@ -136,6 +138,9 @@ export interface DockerLibrary {
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
   renameNodeDir: (network: Network, node: AnyNode, newName: string) => Promise<void>;
+  startSimulation: (network: Network) => Promise<void>;
+  stopSimulation: (network: Network) => Promise<void>;
+  removeSimulation: (network: Network) => Promise<void>;
 }
 
 export interface RepoServiceInjection {
@@ -283,4 +288,28 @@ export enum AutoMineMode {
   Auto1m = 60,
   Auto5m = 300,
   Auto10m = 600,
+}
+
+export interface Simulation {
+  networkId: number;
+  source: LightningNode;
+  destination: LightningNode;
+  intervalSecs: number;
+  amountMsat: number;
+  status: Status;
+  errorMsg?: string;
+}
+
+export interface SimulationConfig {
+  source: string;
+  destination: string;
+  interval_secs: number;
+  amount_msat: number;
+}
+
+export interface SimulationNodeConfig {
+  id: string;
+  address: string;
+  macaroon: string;
+  cert?: string;
 }
