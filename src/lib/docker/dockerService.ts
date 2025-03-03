@@ -18,7 +18,14 @@ import {
   TapdNode,
 } from 'shared/types';
 import stripAnsi from 'strip-ansi';
-import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
+import {
+  DockerLibrary,
+  DockerVersions,
+  Network,
+  NetworksFile,
+  SimulationConfig,
+  SimulationNodeConfig,
+} from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs } from 'utils/constants';
 import { exists, read, renameFile, rm, write } from 'utils/files';
@@ -161,6 +168,10 @@ class DockerService implements DockerLibrary {
         file.addTapd(tapd, lndBackend as LndNode);
       }
     });
+
+    if (network.simulation) {
+      file.addSimln(network.id);
+    }
 
     const yml = yaml.dump(file.content);
     const path = join(network.path, 'docker-compose.yml');
@@ -386,6 +397,113 @@ class DockerService implements DockerLibrary {
         await ensureDir(join(nodeDir, 'tapd'));
       }
     }
+  }
+
+  /**
+   * Constructs the contents of sim.json file for the simulation
+   *
+   * @param network the network to start
+   */
+  constructSimJson(network: Network) {
+    const simJson: {
+      nodes: SimulationNodeConfig[];
+      simulation: SimulationConfig[];
+    } = {
+      nodes: [],
+      simulation: [],
+    };
+
+    const simulation = network.simulation;
+    if (!simulation) return { nodes: [], simulation: [] };
+
+    const { source, destination } = simulation;
+    const nodes = [source, destination];
+
+    for (const node of nodes) {
+      let simNode: SimulationNodeConfig;
+
+      // Split the macaroon and cert path at "volumes/" to get the relative path
+      // to the docker volume. This is necessary because the docker volumes are
+      // mounted as a different path in the container.
+      switch (node.implementation) {
+        case 'LND':
+          const lnd = node as LndNode;
+          simNode = {
+            id: lnd.name,
+            macaroon: `/home/simln/.${lnd.paths.adminMacaroon.split('volumes/').pop()}`,
+            address: `https://host.docker.internal:${lnd.ports.grpc}`,
+            cert: `/home/simln/.${lnd.paths.tlsCert.split('volumes/').pop()}`,
+          };
+          break;
+
+        default:
+          throw new Error(`unsupported node implementation: ${node.implementation}`);
+      }
+
+      // Add the node to the nodes Set.
+      simJson.nodes.push(simNode);
+    }
+
+    // Add the simulation
+    const sim: SimulationConfig = {
+      source: simulation.source.name,
+      destination: simulation.destination.name,
+      interval_secs: simulation.intervalSecs,
+      amount_msat: simulation.amountMsat,
+    };
+
+    // Add the simulation to the simulation Set.
+    simJson.simulation.push(sim);
+
+    // Remove duplicate nodes and simulations.
+    const uniqueNodes = [...new Map(simJson.nodes.map(node => [node.id, node])).values()];
+
+    const uniqueSimulations = [
+      ...new Map(
+        simJson.simulation.map(simulation => [
+          `${simulation.source}-${simulation.destination}`,
+          simulation,
+        ]),
+      ).values(),
+    ];
+
+    return {
+      nodes: uniqueNodes,
+      activity: uniqueSimulations,
+    };
+  }
+
+  /**
+   * Start a simulation in the network using docker compose
+   * @param network the network containing the simulation
+   */
+  async startSimulation(network: Network) {
+    const simJson = this.constructSimJson(network);
+    await this.ensureDirs(network, [
+      ...network.nodes.bitcoin,
+      ...network.nodes.lightning,
+      ...network.nodes.tap,
+    ]);
+    const simjsonPath = nodePath(network, 'simln', 'sim.json');
+    await write(simjsonPath, JSON.stringify(simJson));
+    const result = await this.execute(compose.upOne, 'simln', this.getArgs(network));
+    info(`Simulation started:\n ${result.out || result.err}`);
+  }
+
+  async stopSimulation(network: Network) {
+    info(`Stopping simulation for ${network.name}`);
+    const result = await this.execute(compose.stopOne, 'simln', this.getArgs(network));
+    info(`Simulation stopped:\n ${result.out || result.err}`);
+  }
+
+  async removeSimulation(network: Network) {
+    info(`Stopping docker container for simulation`);
+    let result = await this.execute(compose.stopOne, 'simln', this.getArgs(network));
+    info(`Simulation stopped:\n ${result.out || result.err}`);
+
+    info(`Removing stopped docker containers`);
+    result = await this.execute(compose.rm as any, this.getArgs(network), 'simln');
+    info(`Simulation removed:\n ${result.out || result.err}`);
   }
 }
 
