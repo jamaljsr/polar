@@ -32,6 +32,7 @@ export interface Network {
     tap: TapNode[];
   };
   manualMineCount: number;
+  simulation?: Simulation;
 }
 
 /**
@@ -101,6 +102,7 @@ export interface DockerConfig {
   variables: string[];
   dataDir?: string;
   apiDir?: string;
+  env?: Record<string, string>;
 }
 
 export interface DockerRepoImage {
@@ -137,6 +139,9 @@ export interface DockerLibrary {
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
   renameNodeDir: (network: Network, node: AnyNode, newName: string) => Promise<void>;
+  startSimulation: (network: Network) => Promise<void>;
+  stopSimulation: (network: Network) => Promise<void>;
+  removeSimulation: (network: Network) => Promise<void>;
 }
 
 export interface RepoServiceInjection {
@@ -298,4 +303,32 @@ export interface ChannelInfo {
 export interface PreInvoice {
   channelId: string;
   nextLocalBalance: number;
+}
+
+export interface Activity {
+  id: number;
+  source: string;
+  destination: string;
+  intervalSecs: number;
+  amountMsat: number;
+}
+
+export interface Simulation {
+  activity: Activity[];
+  status: Status;
+  errorMsg?: string;
+}
+
+export interface ActivityConfig {
+  source: string;
+  destination: string;
+  interval_secs: number;
+  amount_msat: number;
+}
+
+export interface SimulationNodeConfig {
+  id: string;
+  address: string;
+  macaroon: string;
+  cert?: string;
 }

@@ -132,6 +132,8 @@ export type NodeImplementation =
   | LightningNode['implementation']
   | TapNode['implementation'];
 
+export type NodeImplementationWithSimln = NodeImplementation | 'simln';
+
 export type AnyNode = BitcoinNode | LightningNode | TapNode;
 
 export type TapSupportedNode = TapdNode | LitdNode;
