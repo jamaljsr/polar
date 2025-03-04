@@ -204,6 +204,10 @@ export const testRepoState: DockerRepoState = {
         '0.14.0-alpha': '28.0',
       },
     },
+    arkd: {
+      latest: 'v0.4.2',
+      versions: ['v0.4.2'],
+    },
   },
 };
 
@@ -222,6 +226,7 @@ export const getNetwork = (
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    arkdNodes: 0,
     tapdNodes: 0,
     litdNodes: 0,
     status,
