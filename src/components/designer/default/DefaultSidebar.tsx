@@ -3,8 +3,13 @@ import { usePrefixedTranslation } from 'hooks';
 import SidebarCard from '../SidebarCard';
 import NetworkDesignerTab from './NetworkDesignerTab';
 import SimulationDesignerTab from './SimulationDesignerTab';
+import { Network } from 'types';
 
-const DefaultSidebar: React.FC = () => {
+interface Props {
+  network: Network;
+}
+
+const DefaultSidebar: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.DefaultSidebar');
   const [activeTab, setActiveTab] = useState('network');
 
@@ -14,7 +19,7 @@ const DefaultSidebar: React.FC = () => {
   ];
   const tabContents: Record<string, ReactNode> = {
     network: <NetworkDesignerTab />,
-    simulation: <SimulationDesignerTab />,
+    simulation: <SimulationDesignerTab network={network} />,
   };
 
   return (
