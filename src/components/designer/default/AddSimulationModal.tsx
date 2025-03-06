@@ -5,8 +5,9 @@ import { useStoreState } from 'store';
 import { usePrefixedTranslation } from 'hooks';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 import { Status } from 'shared/types';
-import { Network } from 'types';
 import styled from '@emotion/styled';
+import { Activity, Network } from 'types';
+import { useAsyncCallback } from 'react-async-hook';
 
 interface Props {
   network: Network;
@@ -20,6 +21,12 @@ const Styled = {
     width: 100%;
   `,
 };
+interface FormValues {
+  source: string;
+  destination: string;
+  intervalSecs: number;
+  amountSat: number;
+}
 
 const AddSimulationModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.default.AddSimulationModal');
@@ -29,10 +36,46 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
   const [form] = Form.useForm();
   const { visible } = useStoreState(s => s.modals.addSimulation);
   const { hideAddSimulation } = useStoreActions(s => s.modals);
+  const { addSimulation } = useStoreActions(s => s.network);
+
+  const { notify } = useStoreActions(s => s.app);
 
   const selectedSource = Form.useWatch<string>('source', form) || '';
   const selectedDestination = Form.useWatch<string>('destination', form) || '';
   const isSameNode = selectedSource === selectedDestination;
+
+  const addSimulationAsync = useAsyncCallback(async (values: FormValues) => {
+    const { lightning } = network.nodes;
+    const source = lightning.find(n => n.name === values.source);
+    const destination = lightning.find(n => n.name === values.destination);
+
+    if (!source || !destination) {
+      notify({ message: l('sourceOrDestinationNotFound') });
+      return;
+    }
+
+    const { intervalSecs, amountSat } = values;
+    const id = network.simulation?.activity.length
+      ? Math.max(...network.simulation.activity.map(a => a.id)) + 1
+      : 0;
+    const activity: Activity = {
+      id,
+      source: source.name,
+      destination: destination.name,
+      intervalSecs,
+      amountMsat: amountSat * 1000,
+    };
+
+    await addSimulation({
+      networkId: network.id,
+      simulation: {
+        activity: [activity],
+        status: Status.Stopped,
+      },
+    });
+
+    hideAddSimulation();
+  });
 
   return (
     <Modal
@@ -44,7 +87,9 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
       okText={l('createBtn')}
       okButtonProps={{
         disabled: isSameNode,
+        loading: addSimulationAsync.loading,
       }}
+      onOk={form.submit}
     >
       <Form
         form={form}
@@ -57,6 +102,8 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
           amountSat: 1000,
           intervalSecs: 10,
         }}
+        onFinish={addSimulationAsync.execute}
+        disabled={addSimulationAsync.loading}
       >
         {isSameNode && <Alert type="error" message={l('sameNodesWarnMsg')} />}
         <Row gutter={16}>
@@ -97,7 +144,7 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
           </Col>
           <Col span={12}>
             <Styled.FormItem
-              name="amountMsat"
+              name="amountSat"
               label={l('amount')}
               rules={[{ required: true, message: l('cmps.forms.required') }]}
             >

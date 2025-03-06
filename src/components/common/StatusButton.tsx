@@ -6,14 +6,16 @@ import { ButtonType } from 'antd/lib/button';
 import { PlayCircleOutlined, StopOutlined, WarningOutlined } from '@ant-design/icons';
 
 const Styled = {
-  Button: styled(Button)`
+  Button: styled(Button)<{ fullWidth?: boolean }>`
     margin-left: 0;
+    ${({ fullWidth }) => fullWidth && 'width: 100%;'}
   `,
 };
 
 interface StatusButtonProps {
   status: Status;
   onClick: () => void;
+  fullWidth?: boolean;
 }
 
 const config: {
@@ -53,7 +55,7 @@ const config: {
   },
 };
 
-const StatusButton: React.FC<StatusButtonProps> = ({ status, onClick }) => {
+const StatusButton: React.FC<StatusButtonProps> = ({ status, onClick, fullWidth }) => {
   const { type, danger, icon, label } = config[status];
   const ghost = status === Status.Started;
   const loading = status === Status.Starting || status === Status.Stopping;
@@ -66,6 +68,7 @@ const StatusButton: React.FC<StatusButtonProps> = ({ status, onClick }) => {
       loading={loading}
       ghost={ghost}
       onClick={onClick}
+      fullWidth={fullWidth}
     >
       {label}
     </Styled.Button>
