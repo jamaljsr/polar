@@ -4,12 +4,27 @@ import { useStoreActions } from 'store';
 import { useStoreState } from 'store';
 import { usePrefixedTranslation } from 'hooks';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
-import { Status } from 'shared/types';
+import { LightningNode, Status } from 'shared/types';
 import { Network } from 'types';
 import { hasChartLink } from 'utils/chart';
+import { useAsyncCallback } from 'react-async-hook';
 
 interface Props {
   network: Network;
+}
+
+interface FormValues {
+  source: string;
+  destination: string;
+  intervalSecs: number;
+  amountMsat: number;
+}
+
+interface SimulationArgs {
+  source: LightningNode;
+  destination: LightningNode;
+  intervalSecs: number;
+  amountMsat: number;
 }
 
 const AddSimulationModal: React.FC<Props> = ({ network }) => {
@@ -21,11 +36,41 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
   const [form] = Form.useForm();
   const { visible } = useStoreState(s => s.modals.addSimulation);
   const { hideAddSimulation } = useStoreActions(s => s.modals);
+  const { addSimulation } = useStoreActions(s => s.network);
+
+  const { notify } = useStoreActions(s => s.app);
 
   const selectedSource = Form.useWatch<string>('source', form) || '';
   const selectedDestination = Form.useWatch<string>('destination', form) || '';
   const isSameNode = selectedSource === selectedDestination;
   const chanExists = hasChartLink(activeChart, selectedSource, selectedDestination);
+
+  const addSimulationAsync = useAsyncCallback(async (values: FormValues) => {
+    const { lightning } = network.nodes;
+    const source = lightning.find(n => n.name === values.source);
+    const destination = lightning.find(n => n.name === values.destination);
+
+    if (!source || !destination) {
+      notify({ message: l('sourceOrDestinationNotFound') });
+      return;
+    }
+
+    const { intervalSecs, amountMsat } = values;
+    const sim: SimulationArgs = {
+      source,
+      destination,
+      intervalSecs,
+      amountMsat,
+    };
+
+    await addSimulation({
+      networkId: network.id,
+      ...sim,
+      status: Status.Stopped,
+    });
+
+    hideAddSimulation();
+  });
 
   return (
     <Modal
@@ -37,7 +82,9 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
       okText={l('createBtn')}
       okButtonProps={{
         disabled: isSameNode || !chanExists,
+        loading: addSimulationAsync.loading,
       }}
+      onOk={form.submit}
     >
       <Form
         form={form}
@@ -50,6 +97,8 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
           amountMsat: 1000,
           intervalSecs: 10,
         }}
+        onFinish={addSimulationAsync.execute}
+        disabled={addSimulationAsync.loading}
       >
         {isSameNode && <Alert type="error" message={l('sameNodesWarnMsg')} />}
         {!chanExists && <Alert type="error" message={l('chanDoesNotExist')} />}
