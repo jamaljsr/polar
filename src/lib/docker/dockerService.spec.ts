@@ -5,7 +5,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import { v2 as compose } from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
-import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import { CLightningNode, LitdNode, LndNode, Status, TapdNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -885,6 +885,123 @@ describe('DockerService', () => {
       const docker1 = await getDocker();
       const docker2 = await getDocker();
       expect(docker1).toBe(docker2);
+    });
+  });
+
+  describe('simulation commands', () => {
+    const network = createNetwork({
+      id: 1,
+      name: 'my network',
+      description: 'network description',
+      lndNodes: 2,
+      clightningNodes: 1,
+      eclairNodes: 0,
+      bitcoindNodes: 1,
+      tapdNodes: 0,
+      litdNodes: 0,
+      repoState: defaultRepoState,
+      managedImages: testManagedImages,
+      customImages: [],
+      manualMineCount: 6,
+    });
+    const mockResult = { err: '', out: '', exitCode: 0 };
+    const lndNodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
+
+    beforeEach(() => {
+      // Add simulation config to the test network
+      network.simulation = {
+        activity: [
+          {
+            id: 0,
+            source: lndNodes[0].name,
+            destination: lndNodes[1].name,
+            intervalSecs: 60,
+            amountMsat: 1000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+    });
+
+    it('should start a simulation', async () => {
+      composeMock.upOne.mockResolvedValue(mockResult);
+      await dockerService.startSimulation(network);
+
+      // Verify directories were created
+      expect(fsMock.ensureDir).toHaveBeenCalled();
+
+      // Verify sim.json was written with correct config
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('sim.json'),
+        expect.stringContaining(lndNodes[0].name),
+      );
+
+      // Verify docker compose command was called
+      expect(composeMock.upOne).toHaveBeenCalledWith(
+        'simln',
+        expect.objectContaining({ cwd: network.path }),
+      );
+    });
+
+    it('should stop a simulation', async () => {
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      await dockerService.stopSimulation(network);
+
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        'simln',
+        expect.objectContaining({ cwd: network.path }),
+      );
+    });
+
+    it('should remove a simulation', async () => {
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      composeMock.rm.mockResolvedValue(mockResult);
+      await dockerService.removeSimulation(network);
+
+      // Verify stop was called first
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        'simln',
+        expect.objectContaining({ cwd: network.path }),
+      );
+
+      // Verify remove was called after
+      expect(composeMock.rm).toHaveBeenCalledWith(
+        expect.objectContaining({ cwd: network.path }),
+        'simln',
+      );
+    });
+
+    it('should handle errors when using unsupported node types', async () => {
+      network.nodes.lightning[0].implementation = 'c-lightning';
+      await expect(dockerService.startSimulation(network)).rejects.toThrow(
+        'unsupported node implementation: c-lightning',
+      );
+    });
+
+    it('should handle errors when node is not found', async () => {
+      network.simulation!.activity[0].source = 'non-existent';
+      await expect(dockerService.startSimulation(network)).rejects.toThrow(
+        'Node non-existent not found in network',
+      );
+    });
+
+    it('should return empty arrays when network has no simulation config', async () => {
+      // Create network without simulation config
+      const networkWithoutSim = getNetwork();
+      networkWithoutSim.simulation = undefined;
+
+      // Call constructSimJson directly to test the early return
+      const simJson = dockerService.constructSimJson(networkWithoutSim);
+      expect(simJson).toEqual({ nodes: [], activity: [] });
+    });
+
+    it('should add simln to the docker-compose.yml file', async () => {
+      network.simulation = {} as any;
+      dockerService.saveComposeFile(network);
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`container_name: polar-n1-simln`),
+      );
     });
   });
 });

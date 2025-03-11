@@ -42,7 +42,8 @@ describe('ComposeFile', () => {
   it('should add multiple services', () => {
     composeFile.addBitcoind(btcNode);
     composeFile.addLnd(lndNode, btcNode);
-    expect(Object.keys(composeFile.content.services).length).toEqual(2);
+    composeFile.addSimln(1);
+    expect(Object.keys(composeFile.content.services).length).toEqual(3);
   });
 
   it('should add a bitcoind config', () => {
@@ -190,5 +191,18 @@ describe('ComposeFile', () => {
     const service = composeFile.content.services['dave'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
+  });
+
+  it('should add a simln config', () => {
+    composeFile.addSimln(1);
+    expect(composeFile.content.services['simln']).not.toBeUndefined();
+  });
+
+  it('should create the correct simln docker compose values', () => {
+    composeFile.addSimln(1);
+    const service = composeFile.content.services['simln'];
+    expect(service.image).toContain('simln');
+    expect(service.container_name).toEqual('polar-n1-simln');
+    expect(service.command).toBe('');
   });
 });
