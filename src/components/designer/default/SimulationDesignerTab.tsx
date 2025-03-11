@@ -134,7 +134,12 @@ const SimulationDesignerTab: React.FC<Props> = ({ network }) => {
   }, []);
 
   const items: MenuProps['items'] = [
-    { key: 'logs', label: 'View Logs', icon: <FileTextOutlined />, disabled: !started },
+    {
+      key: 'logs',
+      label: 'View Logs',
+      icon: <FileTextOutlined />,
+      disabled: !started,
+    },
     { key: 'delete', label: 'Delete', icon: <CloseOutlined /> },
   ];
 
