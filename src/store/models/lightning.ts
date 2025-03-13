@@ -375,7 +375,9 @@ const lightningModel: LightningModel = {
     await Promise.all(
       network.nodes.lightning.map(async node => {
         const nodeChannels = await getChannels(node);
-        channels.push(...nodeChannels);
+        if (nodeChannels) {
+          channels.push(...nodeChannels);
+        }
         id2Node[node.name] = node;
       }),
     );
