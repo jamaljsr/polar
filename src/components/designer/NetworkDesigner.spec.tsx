@@ -234,6 +234,16 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the Balance Channels modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showBalanceChannels();
+    });
+    expect(await findByText('Balance Channels')).toBeInTheDocument();
+    fireEvent.click(getByText('Close'));
+  });
+
   it('should display the LncAddSession modal', async () => {
     const { getByText, findByText, store } = renderComponent();
     store.getActions().designer.onCanvasDrop({

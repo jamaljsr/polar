@@ -94,11 +94,11 @@ describe('BalanceChannelsModal', () => {
     expect(store.getState().lightning.channelsInfo[0].nextLocalBalance).not.toBe(5000);
   });
 
-  // it('should call resetChannelsInfo when reset button is clicked', async () => {
-  //   const { getByText, store } = await renderComponent();
-  //   fireEvent.click(getByText('Reset'));
-  //   expect(store.getState().lightning.channelsInfo[0].nextLocalBalance).toBe(5000);
-  // });
+  it('should call resetChannelsInfo when reset button is clicked', async () => {
+    const { getByText, store } = await renderComponent();
+    fireEvent.click(getByText('Reset'));
+    expect(store.getState().lightning.channelsInfo[0].nextLocalBalance).toBe(5000);
+  });
 
   // it('should call updateBalanceOfChannels when update button is clicked', async () => {
   //   const { getByText, store } = await renderComponent();
@@ -106,5 +106,33 @@ describe('BalanceChannelsModal', () => {
   //   fireEvent.click(btn);
 
   //   expect(store.getActions().lightning.updateBalanceOfChannels).toHaveBeenCalled();
+  // });
+
+  // it('should update balance of channels and hide modal', async () => {
+  //   const { store, network } = await renderComponent();
+  //   const { updateBalanceOfChannels } = store.getActions().lightning;
+  //   const { hideBalanceChannels } = store.getActions().modals;
+  //   const { notify } = store.getActions().app;
+
+  //   // Set up channelsInfo in state
+  //   const channelsInfo = [
+  //     { id: '1', localBalance: '1000', nextLocalBalance: '2000' },
+  //     { id: '2', localBalance: '3000', nextLocalBalance: '3000' },
+  //   ];
+  //   store.getState().lightning.channelsInfo = channelsInfo;
+
+  //   // Call updateBalanceOfChannels
+  //   await updateBalanceOfChannels(network);
+
+  //   // Expect balanceChannels to be called with correct toPay array
+  //   expect(store.getActions().lightning.balanceChannels).toHaveBeenCalledTimes(1);
+  //   expect(store.getActions().lightning.balanceChannels).toHaveBeenCalledWith({
+  //     id: network.id,
+  //     toPay: [{ channelId: '1', nextLocalBalance: 2000 } // Expect deBalanceChannels to be called
+  //   expect(hideBalanceChannels).toHaveBeenCalledTimes(1);
+
+  //   // Expect tify to be called with success message
+  //   expect(notify).toHaveBeenCalledTimes(1);
+  //   expect(notify).toHaveBeenCalledWith({ message: 'Channels balanced!' });
   // });
 });
