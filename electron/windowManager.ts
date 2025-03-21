@@ -4,6 +4,7 @@ import windowState from 'electron-window-state';
 import { join } from 'path';
 import { initAppIpcListener } from './appIpcListener';
 import { appMenuTemplate } from './appMenu';
+import { initArkdProxy } from './ark/arkdProxyServer';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
 import { initLitdProxy } from './litd/litdProxyServer';
 import {
@@ -24,6 +25,7 @@ class WindowManager {
       initLndProxy(ipcMain);
       initTapdProxy(ipcMain);
       initLitdProxy(ipcMain);
+      initArkdProxy(ipcMain);
       initAppIpcListener(ipcMain);
       initLndSubscriptions(this.sendMessageToRenderer);
     });
