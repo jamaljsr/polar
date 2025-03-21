@@ -58,7 +58,7 @@ describe('DefaultSidebar Component', () => {
       },
     };
 
-    const result = renderWithProviders(<DefaultSidebar />, {
+    const result = renderWithProviders(<DefaultSidebar network={network} />, {
       initialState,
     });
     return {
