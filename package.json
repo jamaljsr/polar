@@ -84,7 +84,7 @@
     "@types/jest": "29.5.14",
     "@types/js-yaml": "4.0.9",
     "@types/node": "18.17.19",
-    "@types/react": "18.3.19",
+    "@types/react": "18.3.20",
     "@types/react-copy-to-clipboard": "5.0.7",
     "@types/react-dom": "18.3.5",
     "@types/react-redux": "7.1.34",
