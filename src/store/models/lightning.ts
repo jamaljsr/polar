@@ -410,9 +410,6 @@ const lightningModel: LightningModel = {
   }),
   autoBalanceChannelsInfo: action(state => {
     const { channelsInfo } = state;
-    if (!channelsInfo) {
-      return;
-    }
     for (let index = 0; index < channelsInfo.length; index += 1) {
       const { localBalance, remoteBalance } = channelsInfo[index];
       const halfAmount = Math.floor((Number(localBalance) + Number(remoteBalance)) / 2);
@@ -425,8 +422,6 @@ const lightningModel: LightningModel = {
       const { notify } = getStoreActions().app;
       const { hideBalanceChannels } = getStoreActions().modals;
       const { channelsInfo } = getState();
-
-      if (!channelsInfo) return;
 
       const toPay: PreInvoice[] = channelsInfo
         .filter(c => Number(c.localBalance) !== c.nextLocalBalance)
