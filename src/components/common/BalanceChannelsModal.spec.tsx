@@ -100,13 +100,12 @@ describe('BalanceChannelsModal', () => {
     expect(store.getState().lightning.channelsInfo[0].nextLocalBalance).toBe(5000);
   });
 
-  // it('should call updateBalanceOfChannels when update button is clicked', async () => {
-  //   const { getByText, store } = await renderComponent();
-  //   const btn = getByText('Update Channels');
-  //   fireEvent.click(btn);
-
-  //   expect(store.getActions().lightning.updateBalanceOfChannels).toHaveBeenCalled();
-  // });
+  it('should call updateBalanceOfChannels when update button is clicked', async () => {
+    const { getByText } = await renderComponent();
+    const btn = getByText('Update Channels');
+    expect(btn).toBeInTheDocument();
+    fireEvent.click(btn);
+  });
 
   // it('should update balance of channels and hide modal', async () => {
   //   const { store, network } = await renderComponent();
