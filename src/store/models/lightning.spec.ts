@@ -328,6 +328,11 @@ describe('Lightning Model', () => {
     manualBalanceChannelsInfo({ value: 500000, index: 0 });
     const { channelsInfo } = store.getState().lightning;
     expect(channelsInfo[0].nextLocalBalance).toBe(500000);
+
+    // Now update with non-existing index
+    manualBalanceChannelsInfo({ value: 500000, index: 999 });
+    expect(channelsInfo[0].nextLocalBalance).toBe(500000);
+    expect(channelsInfo).toHaveLength(1);
   });
 
   it('should auto balance channels', () => {
