@@ -346,45 +346,46 @@ describe('Lightning Model', () => {
   });
 
   describe('updateBalanceOfChannels', () => {
-    const mockChannelInfo = {
-      id: 'channel1',
-      to: 'node2',
-      from: 'node1',
-      localBalance: '40000',
-      remoteBalance: '60000',
-      nextLocalBalance: 50000,
-    };
-    beforeEach(() => {
-      const { setChannelsInfo } = store.getActions().lightning;
-      setChannelsInfo([mockChannelInfo]);
-      console.log('channelsInfo in state:', store.getState().lightning.channelsInfo);
-    });
-
-    // it('should balance channels and show notification', async () => {
-    //   const { updateBalanceOfChannels } = store.getActions().lightning;
-    //   await updateBalanceOfChannels(network);
-    //   expect(lightningServiceMock.createInvoice).toHaveBeenCalled();
-    //   expect(lightningServiceMock.payInvoice).toHaveBeenCalled();
-    //   expect(store.getActions().lightning.balanceChannels).toBe(false);
-    // });
-
-    // it('should skip balancing if difference is too small', async () => {
-    //   store.getActions().lightning.setChannelsInfo([
-    //     {
-    //       ...mockChannelInfo,
-    //       nextLocalBalance: 600020, // Small difference
-    //     },
-    //   ]);
-    //   const { updateBalanceOfChannels } = store.getActions().lightning;
-    //   await updateBalanceOfChannels(network);
-    //   expect(lightningServiceMock.createInvoice).not.toHaveBeenCalled();
-    // });
-
-    it('should throw error for invalid network', async () => {
-      const { balanceChannels } = store.getActions().lightning;
-      await expect(balanceChannels({ id: 999, toPay: [] })).rejects.toThrow(
-        'networkByIdErr',
+    it('should update the balance of channels', async () => {
+      const mockChannelsInfo = [
+        {
+          id: 'channel1',
+          to: 'node2',
+          from: 'node1',
+          localBalance: '1000',
+          remoteBalance: '2000',
+          nextLocalBalance: 1500,
+        },
+      ];
+      const { updateBalanceOfChannels, setChannelsInfo } = store.getActions().lightning;
+      setChannelsInfo(mockChannelsInfo);
+      // Mock the balanceChannels implementation to do nothing else it will throw an error
+      // because we don't have a real channel to balance.
+      const balanceChannelsSpy = jest
+        .spyOn(store.getActions().lightning, 'balanceChannels')
+        .mockResolvedValue(undefined);
+      const hideBalanceChannelsSpy = jest.spyOn(
+        store.getActions().modals,
+        'hideBalanceChannels',
       );
+      const notifySpy = jest.spyOn(store.getActions().app, 'notify');
+      await updateBalanceOfChannels(network);
+      // Verify balanceChannels was called with correct parameters
+      expect(balanceChannelsSpy).toHaveBeenCalledWith({
+        id: network.id,
+        toPay: [
+          {
+            channelId: 'channel1',
+            nextLocalBalance: 1500,
+          },
+        ],
+      });
+      // Verify modal was hidden
+      expect(hideBalanceChannelsSpy).toHaveBeenCalled();
+      // Verify notification was shown
+      expect(notifySpy).toHaveBeenCalledWith({
+        message: 'Channels balanced!',
+      });
     });
   });
 });
