@@ -297,6 +297,29 @@ describe('Lightning Model', () => {
         nextLocalBalance: 1000,
       },
     ]);
+
+    store.getState().designer.activeChart.links = {
+      channel10: {
+        id: 'channel100',
+        from: { nodeId: 'node1', portId: 'port1' },
+        to: { nodeId: 'node2', portId: 'port2' },
+      },
+    };
+
+    await resetChannelsInfo(network);
+    expect(channelsInfo).toHaveLength(4);
+
+    // Test with a link that has no valid nodeid,
+    // this should early return.
+    store.getState().designer.activeChart.links = {
+      channel1: {
+        id: 'channel1',
+        from: { nodeId: 'node1', portId: 'port1' },
+        to: { nodeId: '', portId: 'port2' },
+      },
+    };
+    await resetChannelsInfo(network);
+    expect(channelsInfo).toHaveLength(4);
   });
 
   it('should manually balance channel', () => {
