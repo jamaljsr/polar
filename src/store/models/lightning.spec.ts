@@ -8,6 +8,7 @@ import {
 } from 'lib/lightning/types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
+import * as networkUtils from 'utils/network';
 import {
   bitcoinServiceMock,
   defaultStateInfo,
@@ -386,6 +387,110 @@ describe('Lightning Model', () => {
       expect(notifySpy).toHaveBeenCalledWith({
         message: 'Channels balanced!',
       });
+    });
+  });
+
+  describe('balanceChannels', () => {
+    beforeEach(() => {
+      const network = getNetwork();
+      const lnNodes = network.nodes.lightning;
+      lightningServiceMock.getChannels.mockResolvedValue([
+        {
+          pending: false,
+          uniqueId: 'channel2',
+          channelPoint: 'point2',
+          pubkey: 'pubkey2',
+          capacity: '1000',
+          localBalance: '800',
+          remoteBalance: '1000',
+          status: 'Open' as const,
+          isPrivate: false,
+        },
+      ]);
+
+      const linksMock = {
+        channel1: {
+          id: 'channel1',
+          from: { nodeId: 'node1', portId: 'port1' },
+          to: { nodeId: 'node2', portId: 'port2' },
+        },
+      };
+
+      store.getState().designer.activeChart.links = linksMock;
+
+      // Mock getInvoicePayload
+      jest.spyOn(networkUtils, 'getInvoicePayload').mockReturnValue({
+        amount: 100,
+        source: lnNodes[0],
+        target: lnNodes[1],
+      });
+
+      jest
+        .spyOn(store.getActions().lightning, 'createInvoice')
+        .mockResolvedValue('invoice123');
+      jest.spyOn(store.getActions().lightning, 'payInvoice').mockResolvedValue({} as any);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should throw error if network not found', async () => {
+      const { balanceChannels } = store.getActions().lightning;
+      await expect(
+        balanceChannels({
+          id: 999,
+          toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+        }),
+      ).rejects.toThrow('networkByIdErr');
+    });
+
+    it('should process channels that need balancing', async () => {
+      const network = getNetwork();
+      const { balanceChannels } = store.getActions().lightning;
+      await balanceChannels({
+        id: network.id,
+        toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+      });
+
+      expect(store.getActions().lightning.createInvoice).toHaveBeenCalledTimes(1);
+      expect(store.getActions().lightning.payInvoice).toHaveBeenCalledTimes(1);
+
+      // Now we override the getInvoicePayload to return a different amount
+      // Amount that is less than `minimumSatsDiffence` and test for early return
+      const lnNodes = network.nodes.lightning;
+      jest.spyOn(networkUtils, 'getInvoicePayload').mockReturnValue({
+        amount: 40,
+        source: lnNodes[0],
+        target: lnNodes[1],
+      });
+
+      await balanceChannels({
+        id: network.id,
+        toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+      });
+
+      expect(store.getActions().lightning.createInvoice).toHaveBeenCalledTimes(1);
+      expect(store.getActions().lightning.payInvoice).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return early if to.nodeId is not defined', async () => {
+      store.getState().designer.activeChart.links = {
+        channel1: {
+          id: 'channel1',
+          from: { nodeId: 'node1', portId: 'port1' },
+          to: { nodeId: '', portId: 'port2' },
+        },
+      };
+
+      const { balanceChannels } = store.getActions().lightning;
+      await balanceChannels({
+        id: network.id,
+        toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+      });
+
+      expect(store.getActions().lightning.createInvoice).not.toHaveBeenCalled();
+      expect(store.getActions().lightning.payInvoice).not.toHaveBeenCalled();
     });
   });
 });
