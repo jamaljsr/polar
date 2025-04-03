@@ -146,7 +146,7 @@
     "socket.io-client": "4.8.1",
     "standard-version": "9.5.0",
     "strip-ansi": "6.0.1",
-    "styled-components": "6.1.16",
+    "styled-components": "6.1.17",
     "stylelint": "16.17.0",
     "stylelint-config-prettier": "9.0.5",
     "stylelint-config-standard": "37.0.0",
