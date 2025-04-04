@@ -2,21 +2,26 @@ import * as LITD from '@lightningpolar/litd-api';
 import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
+import * as PLA from 'lib/ark/types';
+import { IpcSender } from 'lib/ipc/ipcService';
+import * as PLN from 'lib/lightning/types';
+import * as PLIT from 'lib/litd/types';
+import * as PTAP from 'lib/tap/types';
 import {
   AnyNode,
+  ArkNode,
   BitcoinNode,
   CommonNode,
   LightningNode,
   LitdNode,
   NodeImplementation,
+  NodeImplementationToType,
+  NodeType,
+  NodeTypeToImplementation,
   OpenChannelOptions,
   Status,
   TapNode,
 } from 'shared/types';
-import { IpcSender } from 'lib/ipc/ipcService';
-import * as PLN from 'lib/lightning/types';
-import * as PLIT from 'lib/litd/types';
-import * as PTAP from 'lib/tap/types';
 import { PolarPlatform } from 'utils/system';
 
 export interface Network {
@@ -26,12 +31,12 @@ export interface Network {
   status: Status;
   path: string;
   autoMineMode: AutoMineMode;
-  nodes: {
-    bitcoin: BitcoinNode[];
-    lightning: LightningNode[];
-    tap: TapNode[];
-  };
+  nodes: NodesMap;
 }
+
+export type NodesMap = {
+  [key in NodeType]: NodeTypeToImplementation<key>[];
+};
 
 /**
  * Managed images are hard-coded with docker images pushed to the
@@ -58,13 +63,11 @@ export interface CustomImage {
 /**
  * The base ports for each implementation
  */
-export interface NodeBasePorts {
-  LND: { rest: number; grpc: number };
-  'c-lightning': { rest: number; grpc: number };
-  eclair: { rest: number };
-  bitcoind: { rest: number };
-  tapd: { rest: number; grpc: number };
-}
+export type NodeBasePorts = {
+  [key in NodeImplementation]: NodeImplementationToType<key> extends never
+    ? Record<string, unknown>
+    : NodeImplementationToType<key>['ports'];
+};
 
 export interface AppSettings {
   lang: string;
@@ -100,6 +103,7 @@ export interface DockerConfig {
   variables: string[];
   dataDir?: string;
   apiDir?: string;
+  envVars?: Record<string, string>;
 }
 
 export interface DockerRepoImage {
@@ -200,6 +204,10 @@ export interface LightningFactoryInjection {
   getService: (node: LightningNode) => LightningService;
 }
 
+export interface ArkFactoryInjection {
+  getService: (node: ArkNode) => ArkService;
+}
+
 export interface TapService {
   waitUntilOnline: (node: TapNode) => Promise<void>;
   listAssets: (node: TapNode) => Promise<PTAP.TapAsset[]>;
@@ -242,6 +250,15 @@ export interface TapService {
   ) => Promise<PLN.LightningNodePayReceipt>;
 }
 
+export interface ArkService {
+  getBoardingAddress(pubkey: string): Promise<string>;
+  getInfo: () => Promise<PLA.ArkGetInfo>;
+  getWalletBalance(): Promise<PLA.ArkGetBalance>;
+  getWalletStatus(): Promise<PLA.ArkGetWalletStatus>;
+  initWallet(): Promise<PLA.ArkGetWalletStatus>;
+  waitUntilOnline: () => Promise<void>;
+}
+
 export interface TapFactoryInjection {
   getService: (node: TapNode) => TapService;
 }
@@ -265,6 +282,7 @@ export interface StoreInjections {
   settingsService: SettingsInjection;
   dockerService: DockerLibrary;
   repoService: RepoServiceInjection;
+  arkFactory: ArkFactoryInjection;
   bitcoinFactory: BitcoinFactoryInjection;
   lightningFactory: LightningFactoryInjection;
   tapFactory: TapFactoryInjection;

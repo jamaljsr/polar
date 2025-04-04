@@ -55,6 +55,7 @@ const CustomImageModal: React.FC<Props> = ({ image, onClose }) => {
     Lightning: lnImpls.filter(i => dockerConfigs[i].platforms.includes(platform)),
     Bitcoin: ['bitcoind'],
     'Taproot Assets': ['tapd'],
+    Ark: ['arkd'],
   };
 
   return (
