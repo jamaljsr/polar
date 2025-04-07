@@ -23,6 +23,7 @@ import {
 } from 'utils/chart';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { exists } from 'utils/files';
+import { getTapdNodes } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
 import { RootModel } from './';
 
@@ -32,6 +33,7 @@ export interface DesignerModel {
   activeId: number;
   allCharts: Record<number, IChart>;
   redraw: boolean;
+  lastSync: number;
   activeChart: Computed<DesignerModel, IChart>;
   setActiveId: Action<DesignerModel, number>;
   clearActiveId: Action<DesignerModel>;
@@ -39,6 +41,7 @@ export interface DesignerModel {
   setChart: Action<DesignerModel, { id: number; chart: IChart }>;
   removeChart: Action<DesignerModel, number>;
   redrawChart: Action<DesignerModel>;
+  setLastSync: Action<DesignerModel, number>;
   syncChart: Thunk<DesignerModel, Network, StoreInjections, RootModel>;
   onNetworkSetStatus: ActionOn<DesignerModel, RootModel>;
   removeLink: Action<DesignerModel, string>;
@@ -46,6 +49,7 @@ export interface DesignerModel {
   updateTapBackendLink: Action<DesignerModel, { tapName: string; lndName: string }>;
   removeNode: Action<DesignerModel, string>;
   addNode: Action<DesignerModel, { newNode: AnyNode; position: IPosition }>;
+  renameNode: Action<DesignerModel, { nodeId: string; name: string }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   zoomIn: Action<DesignerModel, any>;
@@ -80,6 +84,7 @@ const designerModel: DesignerModel = {
   activeId: -1,
   allCharts: {},
   redraw: false,
+  lastSync: 0,
   // computed properties/functions
   activeChart: computed(state => state.allCharts[state.activeId]),
   // reducer actions (mutations allowed thx to immer)
@@ -117,9 +122,21 @@ const designerModel: DesignerModel = {
       }
     });
   }),
+  setLastSync: action((state, lastSync) => {
+    state.lastSync = lastSync;
+  }),
   syncChart: thunk(
     async (actions, network, { getState, getStoreState, getStoreActions }) => {
       if (network.status !== Status.Started) return;
+
+      // limit the syncing to every 5 seconds at most. Since this is called for every
+      // channel pending/open/close event, we want to avoid syncing too aggressively
+      // because this is an expensive operation
+      const nextSync = getState().lastSync + 5 * 1000; // 5 seconds from last sync
+      if (Date.now() < nextSync) return;
+      // update the last sync time to now
+      actions.setLastSync(Date.now());
+
       // fetch data from all of the nodes
       await Promise.all(
         network.nodes.lightning
@@ -127,7 +144,7 @@ const designerModel: DesignerModel = {
           .map(getStoreActions().lightning.getAllInfo),
       );
       await Promise.all(
-        network.nodes.tap
+        getTapdNodes(network)
           .filter(n => n.status === Status.Started)
           .map(getStoreActions().tap.getAllInfo),
       );
@@ -220,10 +237,55 @@ const designerModel: DesignerModel = {
         ? createLightningChartNode(newNode)
         : newNode.type === 'bitcoin'
         ? createBitcoinChartNode(newNode)
-        : createTapdChartNode(newNode as TapdNode);
+        : createTapdChartNode(newNode);
     node.position = position;
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
+  }),
+  renameNode: action((state, payload) => {
+    const { nodeId, name } = payload;
+    const chart = state.allCharts[state.activeId];
+
+    // Ensure the node exists
+    const node = chart.nodes[nodeId];
+    if (!node) {
+      throw new Error(`Node with id ${nodeId} not found.`);
+    }
+
+    const newLinks: Record<string, RFC.ILink> = {};
+    // Iterate over all links in the chart to change nodeId
+    Object.values(chart.links).forEach(link => {
+      if (link.from.nodeId === nodeId) {
+        link.from.nodeId = name;
+      }
+      if (link.to.nodeId === nodeId) {
+        link.to.nodeId = name;
+      }
+      // Update the link id if it's a backend or peer link
+      if (['backend', 'btcpeer', 'lndbackend'].includes(link.properties.type)) {
+        link.id = `${link.from.nodeId}-${link.to.nodeId}`;
+      }
+      newLinks[link.id] = link;
+    });
+
+    // Update the node chart
+    const updatedChart: RFC.IChart = {
+      ...chart,
+      nodes: {
+        ...chart.nodes,
+        // Add the new node
+        [name]: {
+          ...chart.nodes[nodeId],
+          id: name,
+        },
+      },
+      links: newLinks,
+    };
+    // Remove the old node
+    delete updatedChart.nodes[nodeId];
+
+    // Update the state with the modified chart
+    state.allCharts[state.activeId] = updatedChart;
   }),
   onLinkCompleteListener: thunkOn(
     actions => actions.onLinkComplete,
@@ -267,7 +329,7 @@ const designerModel: DesignerModel = {
         return showError(l('linkErrBitcoin'));
       } else if (fromNode.type === 'tap' || toNode.type === 'tap') {
         if (fromNode.type === 'tap' && toNode.type === 'tap') {
-          //connecting tap to tap isn't supported
+          // connecting tap to tap isn't supported
           return showError(l('linkErrTapd'));
         }
         const tapName = fromNode.type === 'tap' ? fromNodeId : toNodeId;
@@ -279,6 +341,7 @@ const designerModel: DesignerModel = {
           return showError(l('linkErrLNDImplementation', { nodeName: lndName }));
         }
         const tapNode = network.nodes.tap.find(n => n.name === tapName) as TapdNode;
+        // Cannot change the backend if the node was already started once
         const macaroonPresent = await exists(tapNode.paths.adminMacaroon);
         if (!macaroonPresent) {
           getStoreActions().modals.showChangeTapBackend({
@@ -315,7 +378,7 @@ const designerModel: DesignerModel = {
         // remove the loading node added in onCanvasDrop
         actions.removeNode(LOADING_NODE_ID);
       } else if (
-        ['LND', 'c-lightning', 'eclair', 'bitcoind', 'tapd'].includes(data.type)
+        ['LND', 'c-lightning', 'eclair', 'litd', 'bitcoind', 'tapd'].includes(data.type)
       ) {
         const { addNode, toggleNode } = getStoreActions().network;
         try {
@@ -397,6 +460,7 @@ const designerModel: DesignerModel = {
   onLinkMove: action((state, { linkId, toPosition }) => {
     const chart = state.allCharts[state.activeId];
     const link = chart.links[linkId];
+    if (!link) return;
     link.to.position = toPosition;
     chart.links[linkId] = { ...link };
   }),
@@ -406,7 +470,8 @@ const designerModel: DesignerModel = {
     if (
       (config.validateLink ? config.validateLink({ ...args, chart }) : true) &&
       fromNodeId !== toNodeId &&
-      [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join()
+      [fromNodeId, fromPortId].join() !== [toNodeId, toPortId].join() &&
+      chart.links[linkId]
     ) {
       chart.links[linkId].to = {
         nodeId: toNodeId,

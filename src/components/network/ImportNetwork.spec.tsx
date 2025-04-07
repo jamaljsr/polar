@@ -8,8 +8,10 @@ import { Status } from 'shared/types';
 import * as ipc from 'lib/ipc/ipcService';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
 import * as files from 'utils/files';
-import { getNetwork, renderWithProviders } from 'utils/tests';
+import { createNetwork } from 'utils/network';
+import { getNetwork, renderWithProviders, testManagedImages } from 'utils/tests';
 import ImportNetwork from './ImportNetwork';
 
 jest.mock('utils/files');
@@ -56,7 +58,21 @@ describe('ImportNetwork component', () => {
   };
 
   beforeEach(() => {
-    network = getNetwork();
+    network = createNetwork({
+      id: 1,
+      name: 'my-test',
+      description: 'network description',
+      lndNodes: 2,
+      clightningNodes: 1,
+      eclairNodes: 1,
+      bitcoindNodes: 1,
+      tapdNodes: 0,
+      litdNodes: 1,
+      status: Status.Started,
+      repoState: defaultRepoState,
+      managedImages: testManagedImages,
+      customImages: [],
+    });
     chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));
     filesMock.rm.mockResolvedValue();

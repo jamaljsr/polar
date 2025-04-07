@@ -1,10 +1,32 @@
 import { debug } from 'electron-log';
 import { CLightningNode, LightningNode, OpenChannelOptions } from 'shared/types';
+import { getDocker } from 'lib/docker/dockerService';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
-import { httpDelete, httpGet, httpPost } from './clightningApi';
+import { exists, write } from 'utils/files';
+import { getContainerName } from 'utils/network';
+import { getListener, httpPost, removeListener, setupListener } from './clightningApi';
 import * as CLN from './types';
+
+// exec command and options configuration
+const execCommand = {
+  AttachStdout: true,
+  AttachStderr: true,
+  AttachStdin: true,
+  Tty: true,
+  Cmd: ['/bin/bash'],
+};
+
+const execOptions = {
+  Tty: true,
+  stream: true,
+  stdin: true,
+  stdout: true,
+  stderr: true,
+  // fix vim
+  hijack: true,
+};
 
 const ChannelStateToStatus: Record<CLN.ChannelState, PLN.LightningNodeChannel['status']> =
   {
@@ -25,16 +47,8 @@ export interface CachedChannelStatus {
 }
 
 export class CLightningService implements LightningService {
-  // Cache of channel states for each node, in order to simulate channel event streaming
-  channelCaches: {
-    [nodePort: number]: {
-      intervalId: NodeJS.Timeout;
-      channels: CachedChannelStatus[];
-    };
-  } = {};
-
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
-    const info = await httpGet<CLN.GetInfoResponse>(node, 'getinfo');
+    const info = await httpPost<CLN.GetInfoResponse>(node, 'getinfo');
     return {
       pubkey: info.id,
       alias: info.alias,
@@ -50,53 +64,55 @@ export class CLightningService implements LightningService {
   }
 
   async getBalances(node: LightningNode): Promise<PLN.LightningNodeBalances> {
-    const balances = await httpGet<CLN.GetBalanceResponse>(node, 'getBalance');
+    const { outputs } = await httpPost<CLN.ListFundsResponse>(node, 'listfunds');
+    let [confirmed, unconfirmed] = [0, 0];
+    for (const output of outputs) {
+      if (output.status === 'confirmed') {
+        confirmed += output.amountMsat / 1000;
+      } else {
+        unconfirmed += output.amountMsat / 1000;
+      }
+    }
+    const total = confirmed + unconfirmed;
+
     return {
-      total: balances.totalBalance.toString(),
-      confirmed: balances.confBalance.toString(),
-      unconfirmed: balances.unconfBalance.toString(),
+      total: total.toString(),
+      confirmed: confirmed.toString(),
+      unconfirmed: unconfirmed.toString(),
     };
   }
 
   async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    return await httpGet<PLN.LightningNodeAddress>(node, 'newaddr');
+    const { bech32 } = await httpPost<CLN.NewAddrResponse>(node, 'newaddr');
+    return { address: bech32 };
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
-    const { pubkey } = await this.getInfo(node);
-    const channels = await httpGet<CLN.GetChannelsResponse[]>(
+    const { channels } = await httpPost<CLN.ListPeerChannelsResponse>(
       node,
-      'channel/listChannels',
+      'listpeerchannels',
     );
-    return (
-      channels
-        // only include the channels that were initiated by this node
-        .filter(
-          chan =>
-            chan.opener === 'local' ||
-            // the fields below were deprecated in v0.12.0
-            (chan.fundingAllocationMsat && chan.fundingAllocationMsat[pubkey] > 0),
-        )
-        .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
-        .map(c => {
-          const status = ChannelStateToStatus[c.state];
-          return {
-            pending: status !== 'Open',
-            uniqueId: c.fundingTxid ? c.fundingTxid.slice(-12) : '',
-            channelPoint: c.channelId,
-            pubkey: c.id,
-            capacity: this.toSats(c.msatoshiTotal),
-            localBalance: this.toSats(c.msatoshiToUs),
-            remoteBalance: this.toSats(c.msatoshiTotal - c.msatoshiToUs),
-            status,
-            isPrivate: c.private,
-          };
-        })
-    );
+    return channels
+      .filter(c => c.opener === 'local')
+      .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
+      .map(c => {
+        const status = ChannelStateToStatus[c.state];
+        return {
+          pending: status !== 'Open',
+          uniqueId: c.channelId.slice(-12),
+          channelPoint: c.channelId,
+          pubkey: c.peerId,
+          capacity: this.toSats(c.totalMsat),
+          localBalance: this.toSats(c.toUsMsat),
+          remoteBalance: this.toSats(c.totalMsat - c.toUsMsat),
+          status,
+          isPrivate: c.private,
+        };
+      });
   }
 
   async getPeers(node: LightningNode): Promise<PLN.LightningNodePeer[]> {
-    const peers = await httpGet<CLN.Peer[]>(node, 'peer/listPeers');
+    const { peers } = await httpPost<CLN.ListPeersResponse>(node, 'listpeers');
     return peers
       .filter(p => p.connected)
       .map(p => ({
@@ -112,7 +128,7 @@ export class CLightningService implements LightningService {
     for (const toRpcUrl of newUrls) {
       try {
         const body = { id: toRpcUrl };
-        await httpPost<{ id: string }>(node, 'peer/connect', body);
+        await httpPost<{ id: string }>(node, 'connect', body);
       } catch (error: any) {
         debug(
           `Failed to connect peer '${toRpcUrl}' to c-lightning node ${node.name}:`,
@@ -136,28 +152,23 @@ export class CLightningService implements LightningService {
     // open the channel
     const body: CLN.OpenChannelRequest = {
       id: toPubKey,
-      satoshis: amount,
-      feeRate: '253perkw', // min relay fee for bitcoind
-      announce: isPrivate ? 'false' : 'true',
+      amount: amount,
+      feerate: '253perkw', // min relay fee for bitcoind
+      announce: isPrivate ? false : true,
     };
-    const res = await httpPost<CLN.OpenChannelResponse>(
-      from,
-      'channel/openChannel',
-      body,
-    );
-
+    const res = await httpPost<CLN.OpenChannelResponse>(from, 'fundchannel', body);
     return {
       txid: res.txid,
-      // c-lightning doesn't return the output index. hard-code to 0
-      index: 0,
+      index: res.outnum,
     };
   }
 
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
-    return await httpDelete<CLN.CloseChannelResponse>(
-      node,
-      `channel/closeChannel/${channelPoint}`,
-    );
+    // The unilateraltimeout option is added to force close the channel because CLN v24.08 has a compatibility issue with Eclair v0.10.0.
+    // It should be removed after the issue is fixed in subsequent versions for CLN or Eclair nodes.
+    const body = { id: channelPoint, unilateraltimeout: 1 }; // close the channel unilaterally after 1 second
+    await httpPost<CLN.CloseChannelResponse>(node, `close`, body);
+    return true;
   }
 
   async createInvoice(
@@ -166,12 +177,12 @@ export class CLightningService implements LightningService {
     memo?: string,
   ): Promise<string> {
     const body: CLN.InvoiceRequest = {
-      amount: amount * 1000,
+      amount_msat: amount * 1000,
       label: new Date().getTime().toString(),
       description: memo || `Polar Invoice for ${node.name}`,
     };
 
-    const res = await httpPost<CLN.InvoiceResponse>(node, 'invoice/genInvoice', body);
+    const res = await httpPost<CLN.InvoiceResponse>(node, 'invoice', body);
 
     return res.bolt11;
   }
@@ -181,15 +192,22 @@ export class CLightningService implements LightningService {
     invoice: string,
     amount?: number,
   ): Promise<PLN.LightningNodePayReceipt> {
-    const body: CLN.PayRequest = { invoice, amount };
+    const body: CLN.PayRequest = {
+      bolt11: invoice,
+      amount_msat: amount ? amount * 1000 : undefined,
+    };
 
     const res = await httpPost<CLN.PayResponse>(node, 'pay', body);
 
     return {
       preimage: res.paymentPreimage,
-      amount: res.msatoshi / 1000,
+      amount: res.amountMsat / 1000,
       destination: res.destination,
     };
+  }
+
+  async decodeInvoice(node: LightningNode): Promise<PLN.LightningNodePaymentRequest> {
+    throw new Error(`decodeInvoice is not implemented for ${node.implementation} nodes`);
   }
 
   /**
@@ -203,107 +221,111 @@ export class CLightningService implements LightningService {
   ): Promise<void> {
     return waitFor(
       async () => {
+        await this.createRune(this.cast(node));
         await this.getInfo(node);
       },
       interval,
       timeout,
     );
   }
-  // this method doesn't have any implementation because Polling is used for CLN nodes
+
   async addListenerToNode(node: LightningNode): Promise<void> {
-    debug('addListenerToNode CLN on port: ', node.ports.rest);
+    await setupListener(this.cast(node));
   }
 
   async removeListener(node: LightningNode): Promise<void> {
-    const nodePort = this.getNodePort(node);
-    const cache = this.channelCaches[nodePort];
-    if (cache) {
-      clearInterval(cache.intervalId);
-      delete this.channelCaches[nodePort];
-    }
+    removeListener(this.cast(node));
   }
 
   async subscribeChannelEvents(
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
-    const nodePort = this.getNodePort(node);
-    if (!this.channelCaches[nodePort]) {
-      // check c-lightning channels every 30 seconds
-      this.channelCaches[nodePort] = {
-        intervalId: setInterval(() => {
-          this.checkChannels(node, callback);
-        }, 30 * 1000),
-        channels: [],
-      };
-    }
+    const listener = await getListener(this.cast(node));
+    debug(`c-lightning API: [stream] ${node.name}: Listening for channel events`);
+    // listen for incoming channel messages
+    listener.on('message', async (response: any) => {
+      if (!response.channel_state_changed) return;
+      const event: CLN.ChannelStateChangeEvent = response.channel_state_changed;
+
+      debug(`c-lightning API: [stream] ${node.name}`, response);
+      switch (event.new_state) {
+        case CLN.ChannelState.CHANNELD_NORMAL:
+          callback({ type: 'Open' });
+          break;
+        case CLN.ChannelState.ONCHAIN:
+        case CLN.ChannelState.CLOSED:
+          callback({ type: 'Closed' });
+          break;
+        default:
+          callback({ type: 'Pending' });
+          break;
+      }
+    });
   }
-
-  checkChannels = async (
-    node: LightningNode,
-    callback: (event: PLN.LightningNodeChannelEvent) => void,
-  ) => {
-    const response = await httpGet<CLN.GetChannelsResponse[]>(
-      node,
-      'channel/listChannels',
-    );
-    const apiChannels = response.map(channel => {
-      const status = ChannelStateToStatus[channel.state];
-      return {
-        channelId: channel.channelId,
-        status,
-      };
-    });
-
-    const cache = this.channelCaches[this.getNodePort(node)] || { channels: [] };
-    const uniqueChannels = this.getUniqueChannels(cache.channels, apiChannels);
-    uniqueChannels.forEach(channel => {
-      if (channel.status === 'Open') {
-        callback({ type: 'Open' });
-      } else if (channel.status === 'Closed') {
-        callback({ type: 'Closed' });
-      } else {
-        callback({ type: 'Pending' });
-      }
-    });
-    // edge case for empty apiChannels but cache channels is not empty
-    if (cache.channels.length && !apiChannels.length) {
-      callback({ type: 'Closed' });
-    }
-
-    cache.channels = apiChannels;
-  };
-
-  getUniqueChannels = (
-    cacheChannels: CachedChannelStatus[],
-    apiChannels: CachedChannelStatus[],
-  ): CachedChannelStatus[] => {
-    const uniqueChannels: CachedChannelStatus[] = [];
-    // Check channels in apiChannels that are not in cacheChannels
-    for (const channel of apiChannels) {
-      if (
-        !cacheChannels.some(
-          cacheCh =>
-            cacheCh.channelId === channel.channelId && cacheCh.status === channel.status,
-        )
-      ) {
-        uniqueChannels.push(channel);
-      }
-    }
-
-    return uniqueChannels;
-  };
 
   private toSats(msats: number): string {
     return (msats / 1000).toFixed(0).toString();
   }
 
-  private getNodePort(node: LightningNode): number {
+  private cast(node: LightningNode): CLightningNode {
     if (node.implementation !== 'c-lightning')
       throw new Error(
-        `ClightningService cannot be used for '${node.implementation}' nodes`,
+        `CLightningService cannot be used for '${node.implementation}' nodes`,
       );
-    return (node as CLightningNode).ports.rest;
+
+    return node as CLightningNode;
+  }
+
+  /**
+   * For the CLN REST API we need to provide a rune for authentication. CLN does not
+   * create a default rune on startup like LND does with the macaroons. This function
+   * will create a rune and save it to the node's data directory as admin.rune.
+   */
+  private async createRune(node: CLightningNode) {
+    if (await exists(node.paths.rune)) return;
+
+    const log = (...args: any[]) => debug(`CLightningService ${node.name}:`, ...args);
+
+    // lookup the docker container by name
+    const name = getContainerName(node);
+    log(`creating rune for CLN node ${name}`);
+    const docker = await getDocker();
+    log(`getting docker container with name '${name}'`);
+    const containers = await docker.listContainers();
+    const info = containers.find(c => c.Names.includes(`/${name}`));
+    log(`found container: ${info?.Id}`);
+    const container = info && docker.getContainer(info.Id);
+    if (!container) throw new Error(`Docker container not found: ${name}`);
+    // create an exec instance
+    const exec = await container.exec({ ...execCommand, User: 'clightning' });
+    // run exec to connect to the container
+    const stream = await exec.start(execOptions);
+
+    let result = '';
+    // capture the data from docker
+    stream.on('data', (data: Buffer) => {
+      result += data.toString();
+    });
+
+    // send the createrune command and exit immediately to end the stream
+    log(`sending createrune command`);
+    stream.write('lightning-cli --network regtest createrune\n');
+    stream.write('exit\n');
+
+    // wait for the command to finish
+    await new Promise(resolve => stream.on('close', resolve));
+    stream.destroy();
+
+    // parse the result for the rune
+    log(`createrune result:\n${result}`);
+    const rune = /^\s+"rune": "(?<rune>.*)",$/gm.exec(result)?.groups?.rune;
+    log(`captured rune: ${rune}`);
+    if (!rune) throw new Error('Failed to create CLN rune');
+
+    // save the rune to the node's data directory
+    await write(node.paths.rune, rune);
+    log(`saved rune to ${node.paths.rune}`);
   }
 }
 

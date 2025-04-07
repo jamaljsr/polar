@@ -4,35 +4,23 @@ on:
   push:
     branches:
       - 'master'
-      - 'renovate/*'
       - 'release/*'
       - 'ci/*'
   pull_request:
-    branches:
-      - '*'
-      - '!translations'
-      - '!renovate/*'
-      - '!release/*'
-      - '!ci/*'
-    types: [assigned, opened, synchronize, reopened]
 
 jobs:
   test:
     name: Run tests on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    if: contains(github.event.head_commit.message, 'ci skip') == false
+    # Run always on push, or on pull requests that are not from release or ci branches. This prevents duplicate runs.
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'ci/'))
 
     strategy:
       matrix:
         node_version: [20.x]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macos-13]
 
     steps:
-      - name: set git config
-        run: |
-          git config --global core.eol lf
-          git config --global core.autocrlf false
-
       - name: ubuntu file watcher tweak
         if: matrix.os == 'ubuntu-latest'
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
@@ -46,7 +34,7 @@ jobs:
           cache: yarn
 
       - name: install dependencies
-        run: yarn
+        run: yarn install --frozen-lockfile --network-timeout 1000000
 
       - name: lint code
         run: yarn lint
@@ -57,13 +45,17 @@ jobs:
       - name: unit tests
         run: yarn test:ci
 
+      - name: build check
+        if: startsWith(github.ref_name, 'release/') == false
+        run: yarn build
+
       - name: coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: electron build
         run: yarn package:ci
-        if: startsWith(github.ref, 'refs/heads/release/')
+        if: startsWith(github.ref_name, 'release/')
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}

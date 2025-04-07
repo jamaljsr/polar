@@ -15,6 +15,7 @@ import {
   renderWithProviders,
   suppressConsoleErrors,
   testCustomImages,
+  bitcoinServiceMock,
 } from 'utils/tests';
 import NetworkView from './NetworkView';
 
@@ -24,9 +25,6 @@ const fsMock = fsExtra as jest.Mocked<typeof fsExtra>;
 const logMock = log as jest.Mocked<typeof log>;
 const ipcMock = ipc as jest.Mocked<typeof ipc>;
 const dialogMock = electron.remote.dialog as jest.Mocked<typeof electron.remote.dialog>;
-const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<
-  typeof injections.bitcoindService
->;
 const dockerServiceMock = injections.dockerService as jest.Mocked<
   typeof injections.dockerService
 >;
@@ -38,7 +36,7 @@ describe('NetworkView Component', () => {
     images?: string[],
     withBitcoinData = true,
   ) => {
-    const network = getNetwork(1, 'test network', status);
+    const network = getNetwork(1, 'test network', status, 0, 'network description');
     const bitcoinData = {
       nodes: {
         '1-backend1': {
@@ -66,7 +64,7 @@ describe('NetworkView Component', () => {
           1: initChartFromNetwork(network),
         },
       },
-      bitcoind: withBitcoinData ? bitcoinData : undefined,
+      bitcoin: withBitcoinData ? bitcoinData : undefined,
     };
     const route = `/network/${id}`;
     const history = createMemoryHistory({ initialEntries: [route] });
@@ -82,7 +80,7 @@ describe('NetworkView Component', () => {
 
   beforeEach(() => {
     lightningServiceMock.waitUntilOnline.mockResolvedValue();
-    bitcoindServiceMock.waitUntilOnline.mockResolvedValue();
+    bitcoinServiceMock.waitUntilOnline.mockResolvedValue();
     dockerServiceMock.getImages.mockResolvedValue([]);
   });
 
@@ -96,9 +94,15 @@ describe('NetworkView Component', () => {
     expect(queryByText('test network')).toBeNull();
   });
 
-  it('should render the name', () => {
+  it('should render the network name', () => {
     const { getByText } = renderComponent('1');
     expect(getByText('test network')).toBeInTheDocument();
+  });
+
+  it('should render the tooltip for the network description', async () => {
+    const { getAllByLabelText, findByText } = renderComponent('1');
+    fireEvent.mouseOver(getAllByLabelText('info-circle')[0]);
+    expect(await findByText('network description')).toBeInTheDocument();
   });
 
   it('should navigate home when back button clicked', () => {
@@ -196,11 +200,11 @@ describe('NetworkView Component', () => {
 
   describe('node state', () => {
     beforeEach(() => {
-      bitcoindServiceMock.getBlockchainInfo.mockResolvedValue({
+      bitcoinServiceMock.getBlockchainInfo.mockResolvedValue({
         blocks: 321,
         bestblockhash: 'abcdef',
       } as any);
-      bitcoindServiceMock.getWalletInfo.mockResolvedValue({
+      bitcoinServiceMock.getWalletInfo.mockResolvedValue({
         balance: 10,
         immature_balance: 20,
       } as any);
@@ -213,7 +217,7 @@ describe('NetworkView Component', () => {
     });
 
     it('should handle an error when fetching bitcoin data on mount', async () => {
-      bitcoindServiceMock.getBlockchainInfo.mockRejectedValue(new Error('test-err'));
+      bitcoinServiceMock.getBlockchainInfo.mockRejectedValue(new Error('test-err'));
       const { findByText } = renderComponent('1', Status.Started, [], false);
       expect(
         await findByText('Failed to fetch the bitcoin block height'),
@@ -223,32 +227,43 @@ describe('NetworkView Component', () => {
 
     it('should not fetch bitcoin data if it is already in the store', async () => {
       renderComponent('1', Status.Started, [], true);
-      expect(bitcoindServiceMock.getBlockchainInfo).not.toHaveBeenCalled();
+      expect(bitcoinServiceMock.getBlockchainInfo).not.toHaveBeenCalled();
     });
   });
 
   describe('rename network', () => {
-    it('should show the rename input', async () => {
+    it('should show the rename inputs for the network name and description', async () => {
       const { getByLabelText, findByText, findByDisplayValue } = renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Rename'));
-      const input = (await findByDisplayValue('test network')) as HTMLInputElement;
-      expect(input).toBeInTheDocument();
-      expect(input.type).toBe('text');
+      const nameInput = (await findByDisplayValue('test network')) as HTMLInputElement;
+      expect(nameInput).toBeInTheDocument();
+      expect(nameInput.type).toBe('text');
+      const descriptionInput = (await findByText(
+        'network description',
+      )) as HTMLTextAreaElement;
+      expect(descriptionInput).toBeInTheDocument();
+      expect(descriptionInput.type).toBe('textarea');
       fireEvent.click(await findByText('Cancel'));
-      expect(input).not.toBeInTheDocument();
+      expect(nameInput).not.toBeInTheDocument();
+      expect(descriptionInput).not.toBeInTheDocument();
       expect(await findByText('Start')).toBeInTheDocument();
     });
 
-    it('should rename the network', async () => {
+    it('should rename the network name and description', async () => {
       const { getByLabelText, findByText, findByDisplayValue, store } =
         renderComponent('1');
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Rename'));
-      const input = await findByDisplayValue('test network');
-      fireEvent.change(input, { target: { value: 'new network name' } });
+      const nameInput = await findByDisplayValue('test network');
+      fireEvent.change(nameInput, { target: { value: 'new network name' } });
+      const descriptionInput = await findByText('network description');
+      fireEvent.change(descriptionInput, {
+        target: { value: 'new description' },
+      });
       fireEvent.click(await findByText('Save'));
       expect(store.getState().network.networkById(1).name).toBe('new network name');
+      expect(store.getState().network.networkById(1).description).toBe('new description');
       expect(await findByText('Start')).toBeInTheDocument();
     });
 
@@ -260,6 +275,21 @@ describe('NetworkView Component', () => {
       fireEvent.change(input, { target: { value: '' } });
       fireEvent.click(await findByText('Save'));
       expect(await findByText('Failed to rename the network')).toBeInTheDocument();
+    });
+
+    it('should not display tooltip for description field if renamed to empty string', async () => {
+      const { getAllByLabelText, getByLabelText, findByText } = renderComponent('1');
+      const infoIcon = getAllByLabelText('info-circle')[0];
+      expect(infoIcon).toBeInTheDocument();
+      fireEvent.mouseOver(infoIcon);
+      expect(await findByText('network description')).toBeInTheDocument();
+
+      fireEvent.mouseOver(getByLabelText('more'));
+      fireEvent.click(await findByText('Rename'));
+      const descriptionInput = await findByText('network description');
+      fireEvent.change(descriptionInput, { target: { value: '' } });
+      fireEvent.click(await findByText('Save'));
+      expect(infoIcon).not.toBeInTheDocument();
     });
   });
 
@@ -288,7 +318,7 @@ describe('NetworkView Component', () => {
       expect(
         getByText("The network 'test network' and its data has been deleted!"),
       ).toBeInTheDocument();
-      expect(fsMock.remove).toBeCalledWith(expect.stringContaining(network.path));
+      expect(fsMock.remove).toHaveBeenCalledWith(expect.stringContaining(network.path));
     });
 
     it('should display an error if the delete fails', async () => {
@@ -341,9 +371,9 @@ describe('NetworkView Component', () => {
       fireEvent.mouseOver(getByLabelText('more'));
       fireEvent.click(await findByText('Export'));
       await waitFor(() => {
-        expect(logMock.info).toBeCalledWith('User aborted network export');
+        expect(logMock.info).toHaveBeenCalledWith('User aborted network export');
       });
-      expect(dialogMock.showSaveDialog).toBeCalled();
+      expect(dialogMock.showSaveDialog).toHaveBeenCalled();
       expect(queryByText("Exported 'test network'", { exact: false })).toBeNull();
     });
   });

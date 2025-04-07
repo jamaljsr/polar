@@ -2,7 +2,12 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { Status, TapNode } from 'shared/types';
-import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import {
+  AdvancedOptionsButton,
+  RemoveNode,
+  RestartNode,
+  RenameNodeButton,
+} from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import { MintAssetButton, NewAddressButton, SendAssetButton } from './actions';
@@ -23,8 +28,8 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
       {node.status === Status.Started && (
         <>
           <SendAssetButton node={node} />
-          <MintAssetButton node={node} />
           <NewAddressButton node={node} />
+          <MintAssetButton node={node} />
           <Styled.Spacer />
 
           <OpenTerminalButton node={node} />
@@ -33,6 +38,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         </>
       )}
       <RestartNode node={node} />
+      <RenameNodeButton node={node} />
       <AdvancedOptionsButton node={node} />
       <RemoveNode node={node} />
     </Form>

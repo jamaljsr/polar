@@ -1,7 +1,12 @@
 import React, { useCallback } from 'react';
-import { DollarOutlined, LinkOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import {
+  DollarOutlined,
+  LinkOutlined,
+  ThunderboltOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Card, Col, Row, Statistic } from 'antd';
+import { Card, Col, Row, Statistic, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions } from 'store';
 import { Network } from 'types';
@@ -23,7 +28,16 @@ const NetworkCard: React.FC<{ network: Network }> = ({ network }) => {
 
   return (
     <Styled.Card
-      title={network.name}
+      title={
+        <>
+          {`${network.name} `}
+          {network.description && (
+            <Tooltip title={network.description}>
+              <InfoCircleOutlined />
+            </Tooltip>
+          )}
+        </>
+      }
       hoverable
       extra={<StatusBadge status={network.status} />}
       onClick={handleClick}

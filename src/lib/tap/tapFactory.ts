@@ -15,6 +15,7 @@ class TapFactory {
   constructor() {
     this._services = {
       tapd: tapdService,
+      litd: tapdService,
     };
   }
 

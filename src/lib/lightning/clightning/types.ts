@@ -1,3 +1,8 @@
+/**
+ * Core Lightning API Response Types
+ * https://docs.corelightning.org/reference/get_list_methods_resource
+ */
+
 export interface GetInfoResponse {
   id: string;
   alias: string;
@@ -21,11 +26,17 @@ export interface GetInfoResponse {
   warningLightningdSync: string;
 }
 
-export interface GetBalanceResponse {
-  totalBalance: number;
-  confBalance: number;
-  unconfBalance: number;
+export interface ListFundsResponse {
+  outputs: {
+    status: 'confirmed' | 'unconfirmed';
+    amountMsat: number;
+  }[];
 }
+
+export interface NewAddrResponse {
+  bech32: string;
+}
+
 /**
  * Source: https://github.com/ElementsProject/lightning/blob/master/lightningd/channel_state.h
  */
@@ -50,23 +61,23 @@ export enum ChannelState {
   CLOSED = 'CLOSED',
 }
 
-export interface GetChannelsResponse {
-  alias: string;
-  channelId: string;
-  connected: boolean;
-  fundingTxid: string;
-  id: string;
-  msatoshiToUs: number;
-  msatoshiTotal: number;
-  ourChannelReserveSatoshis: number;
-  private: boolean;
-  shortChannelId: string;
-  spendableMsatoshi: number;
-  state: ChannelState;
-  theirChannelReserveSatoshis: number;
-  fundingAllocationMsat: Record<string, number>;
-  initiator?: number;
-  opener: string;
+export interface ListPeerChannelsResponse {
+  channels: {
+    state: ChannelState;
+    opener: 'local' | 'remote';
+    shortChannelId: string;
+    channelId: string;
+    peerId: string;
+    toUsMsat: number;
+    totalMsat: number;
+    private: boolean;
+    fundingTxid: string;
+    fundingOutnum: number;
+  }[];
+}
+
+export interface ListPeersResponse {
+  peers: Peer[];
 }
 
 export interface Peer {
@@ -80,17 +91,16 @@ export interface Peer {
 
 export interface OpenChannelRequest {
   id: string;
-  satoshis: string;
-  feeRate?: number | string;
-  /** Whether to announce the channel: https://lightning.readthedocs.io/lightning-openchannel_init.7.html */
-  announce?: 'false' | 'true';
-  minConf?: number;
+  amount: string;
+  feerate?: number | string;
+  announce?: boolean;
 }
 
 export interface OpenChannelResponse {
   tx: string;
   txid: string;
   channelId: string;
+  outnum: number;
 }
 
 export interface CloseChannelResponse {
@@ -100,11 +110,10 @@ export interface CloseChannelResponse {
 }
 
 export interface InvoiceRequest {
-  amount: number;
+  amount_msat: number | 'any';
   label: string;
   description: string;
   expiry?: number | string;
-  private?: boolean;
 }
 
 export interface InvoiceResponse {
@@ -115,20 +124,26 @@ export interface InvoiceResponse {
 }
 
 export interface PayRequest {
-  invoice: string;
-  amount?: number;
+  bolt11: string;
+  amount_msat?: number;
 }
 
 export interface PayResponse {
-  id: string;
-  paymentHash: string;
-  destination: string;
-  msatoshi: number;
-  amountMsat: string;
-  msatoshiSent: number;
-  amountSentMsat: string;
-  createdAt: number;
-  status: string;
   paymentPreimage: string;
-  bolt11: string;
+  amountMsat: number;
+  destination: string;
+  status: string;
+  paymentHash: string;
+  parts: number;
+}
+
+export interface ChannelStateChangeEvent {
+  peer_id: string;
+  channel_id: string;
+  short_channel_id: string;
+  timestamp: string;
+  old_state: ChannelState;
+  new_state: ChannelState;
+  cause: string;
+  message: string;
 }

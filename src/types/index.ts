@@ -1,10 +1,13 @@
+import * as LITD from '@lightningpolar/litd-api';
 import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import {
+  AnyNode,
   BitcoinNode,
   CommonNode,
   LightningNode,
+  LitdNode,
   NodeImplementation,
   OpenChannelOptions,
   Status,
@@ -12,12 +15,14 @@ import {
 } from 'shared/types';
 import { IpcSender } from 'lib/ipc/ipcService';
 import * as PLN from 'lib/lightning/types';
+import * as PLIT from 'lib/litd/types';
 import * as PTAP from 'lib/tap/types';
 import { PolarPlatform } from 'utils/system';
 
 export interface Network {
   id: number;
   name: string;
+  description: string;
   status: Status;
   path: string;
   autoMineMode: AutoMineMode;
@@ -64,7 +69,6 @@ export interface NodeBasePorts {
 export interface AppSettings {
   lang: string;
   theme: 'light' | 'dark';
-  showAllNodeVersions: boolean;
   checkForUpdatesOnStartup: boolean;
   /** lists of docker image customizations */
   nodeImages: {
@@ -131,6 +135,7 @@ export interface DockerLibrary {
   removeNode: (network: Network, node: CommonNode) => Promise<void>;
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
+  renameNodeDir: (network: Network, node: AnyNode, newName: string) => Promise<void>;
 }
 
 export interface RepoServiceInjection {
@@ -139,7 +144,7 @@ export interface RepoServiceInjection {
   checkForUpdates: (currState: DockerRepoState) => Promise<DockerRepoUpdates>;
 }
 
-export interface BitcoindLibrary {
+export interface BitcoinService {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
   createDefaultWallet: (node: BitcoinNode) => Promise<void>;
   getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
@@ -163,18 +168,32 @@ export interface LightningService {
   connectPeers: (node: LightningNode, rpcUrls: string[]) => Promise<void>;
   openChannel: (options: OpenChannelOptions) => Promise<PLN.LightningNodeChannelPoint>;
   closeChannel: (node: LightningNode, channelPoint: string) => Promise<any>;
-  createInvoice: (node: LightningNode, amount: number, memo?: string) => Promise<string>;
+  createInvoice: (
+    node: LightningNode,
+    amount: number,
+    memo?: string,
+    assetInfo?: { nodeId: string; scid: string; msats: string },
+  ) => Promise<string>;
   payInvoice: (
     node: LightningNode,
     invoice: string,
     amount?: number,
+    customRecords?: PLN.CustomRecords,
   ) => Promise<PLN.LightningNodePayReceipt>;
+  decodeInvoice: (
+    node: LightningNode,
+    invoice: string,
+  ) => Promise<PLN.LightningNodePaymentRequest>;
   addListenerToNode: (node: LightningNode) => Promise<void>;
   removeListener: (node: LightningNode) => Promise<void>;
   subscribeChannelEvents: (
     node: LightningNode,
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ) => Promise<void>;
+}
+
+export interface BitcoinFactoryInjection {
+  getService: (node: BitcoinNode) => BitcoinService;
 }
 
 export interface LightningFactoryInjection {
@@ -201,10 +220,44 @@ export interface TapService {
   ) => Promise<PTAP.TapAddress>;
   assetRoots: (node: TapNode) => Promise<PTAP.TapAssetRoot[]>;
   syncUniverse: (node: TapNode, universeHost: string) => Promise<TAP.SyncResponse>;
+  fundChannel: (
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    amount: number,
+  ) => Promise<string>;
+  addInvoice: (
+    node: TapNode,
+    assetId: string,
+    amount: number,
+    memo: string,
+    expiry: number,
+  ) => Promise<string>;
+  sendPayment: (
+    node: TapNode,
+    assetId: string,
+    invoice: string,
+    feeLimitMsat: number,
+    peerPubkey?: string,
+  ) => Promise<PLN.LightningNodePayReceipt>;
 }
 
 export interface TapFactoryInjection {
   getService: (node: TapNode) => TapService;
+}
+
+export interface LitdLibrary {
+  waitUntilOnline: (node: LitdNode) => Promise<void>;
+  status: (node: LitdNode) => Promise<LITD.SubServerStatusResp>;
+  listSessions: (node: LitdNode) => Promise<PLIT.Session[]>;
+  addSession: (
+    node: LitdNode,
+    label: string,
+    type: PLIT.Session['type'],
+    expiresAt: number,
+    mailboxServerAddr?: string,
+  ) => Promise<PLIT.Session>;
+  revokeSession: (node: LitdNode, localPublicKey: string) => Promise<void>;
 }
 
 export interface StoreInjections {
@@ -212,9 +265,10 @@ export interface StoreInjections {
   settingsService: SettingsInjection;
   dockerService: DockerLibrary;
   repoService: RepoServiceInjection;
-  bitcoindService: BitcoindLibrary;
+  bitcoinFactory: BitcoinFactoryInjection;
   lightningFactory: LightningFactoryInjection;
   tapFactory: TapFactoryInjection;
+  litdService: LitdLibrary;
 }
 
 export interface NetworksFile {

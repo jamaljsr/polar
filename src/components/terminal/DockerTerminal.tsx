@@ -12,6 +12,7 @@ import { ITerminalOptions, Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { getDocker } from 'lib/docker/dockerService';
 import { useStoreActions } from 'store';
+import { delay } from 'utils/async';
 import { eclairCredentials } from 'utils/constants';
 import { nord } from './themes';
 
@@ -53,26 +54,34 @@ U |  _"\\ u  \\/"_ \\/  |"|   U  /"\\  uU |  _"\\ u
   .join('');
 
 // differing configs based on the type of node
-const nodeConfig: Record<string, { user: string; alias: string }> = {
+const nodeConfig: Record<string, { user: string; commands: string[] }> = {
   LND: {
     user: 'lnd',
-    alias: 'alias lncli="lncli --network regtest"',
+    commands: ['alias lncli="lncli --network regtest"'],
   },
   'c-lightning': {
     user: 'clightning',
-    alias: 'alias lightning-cli="lightning-cli --network regtest"',
+    commands: ['alias lightning-cli="lightning-cli --network regtest"'],
   },
   eclair: {
     user: 'eclair',
-    alias: `alias eclair-cli="eclair-cli -p ${eclairCredentials.pass}"`,
+    commands: [`alias eclair-cli="eclair-cli -p ${eclairCredentials.pass}"`],
   },
   bitcoind: {
     user: 'bitcoin',
-    alias: 'alias bitcoin-cli="bitcoin-cli -regtest"',
+    commands: ['alias bitcoin-cli="bitcoin-cli -regtest"'],
   },
   tapd: {
     user: 'tap',
-    alias: 'alias tapcli="tapcli --network regtest --tapddir=~/.tapd"',
+    commands: ['alias tapcli="tapcli --network regtest --tapddir=~/.tapd"'],
+  },
+  litd: {
+    user: 'litd',
+    commands: [
+      'alias litcli="litcli --network regtest"',
+      'alias lncli="lncli --network regtest --rpcserver localhost:8443 --tlscertpath ~/.lit/tls.cert"',
+      'alias tapcli="tapcli --network regtest --rpcserver localhost:8443 --tlscertpath ~/.lit/tls.cert"',
+    ],
   },
 };
 
@@ -111,10 +120,19 @@ const connectStreams = async (term: Terminal, name: string, type: string, l: any
   // close the window if the stream is closed (ex: 'exit' typed)
   stream.on('close', () => window.close());
 
-  // run alias command
-  const cli = /alias (.*)=/.exec(config.alias);
-  if (cli) term.writeln(green(l('cliUpdating', { cli: cli[1] })));
-  stream.write(`${config.alias}\n\n`);
+  // run alias commands
+  const clis = config.commands
+    .map(cmd => /alias (.*)=/.exec(cmd)?.[1])
+    .filter(Boolean)
+    .join(', ');
+  term.writeln(green(l('cliUpdating', { cli: clis })));
+  for (const cmd of config.commands) {
+    // add a small delay to allow the terminal to respond. Without this, the lines in the
+    // terminal are displayed out of order because the commands are sent to fast.
+    await delay(50);
+    stream.write(`${cmd}\n`);
+  }
+  stream.write('\n');
 
   // close window if the container goes down while the terminal is open
   container.wait(() => window.close());

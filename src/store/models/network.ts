@@ -8,6 +8,7 @@ import {
   BitcoinNode,
   CommonNode,
   LightningNode,
+  LitdNode,
   NodeImplementation,
   Status,
   TapdNode,
@@ -22,6 +23,7 @@ import {
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
+  createLitdNetworkNode,
   createLndNetworkNode,
   createNetwork,
   createTapdNetworkNode,
@@ -30,6 +32,7 @@ import {
   getOpenPorts,
   importNetworkFromZip,
   OpenPorts,
+  renameNode,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -40,10 +43,13 @@ const { l } = prefixTranslation('store.models.network');
 
 interface AddNetworkArgs {
   name: string;
+  description: string;
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  tapdNodes: number;
+  litdNodes: number;
   customNodes: Record<string, number>;
 }
 
@@ -138,12 +144,19 @@ export interface NetworkModel {
   >;
   rename: Thunk<
     NetworkModel,
-    { id: number; name: string },
+    { id: number; name: string; description: string },
     StoreInjections,
     RootModel,
     Promise<void>
   >;
   remove: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
+  renameNode: Thunk<
+    NetworkModel,
+    { node: AnyNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 
   /**
    * If user didn't cancel the process, returns the destination of the generated Zip
@@ -245,13 +258,13 @@ const networkModel: NetworkModel = {
   addNetwork: thunk(
     async (
       actions,
-      { name, lndNodes, clightningNodes, eclairNodes, bitcoindNodes, customNodes },
+      payload,
       { dispatch, getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
       // convert the customNodes object into an array of custom images with counts
       const customImages: { image: CustomImage; count: number }[] = [];
-      Object.entries(customNodes)
+      Object.entries(payload.customNodes)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .filter(([_, count]) => count > 0)
         .forEach(([id, count]) => {
@@ -261,11 +274,14 @@ const networkModel: NetworkModel = {
       const nextId = Math.max(0, ...getState().networks.map(n => n.id)) + 1;
       const network = createNetwork({
         id: nextId,
-        name,
-        lndNodes,
-        clightningNodes,
-        eclairNodes,
-        bitcoindNodes,
+        name: payload.name,
+        description: payload.description,
+        lndNodes: payload.lndNodes,
+        clightningNodes: payload.clightningNodes,
+        eclairNodes: payload.eclairNodes,
+        bitcoindNodes: payload.bitcoindNodes,
+        tapdNodes: payload.tapdNodes,
+        litdNodes: payload.litdNodes,
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
@@ -282,12 +298,13 @@ const networkModel: NetworkModel = {
 
       await getStoreActions().app.updateSettings({
         newNodeCounts: {
-          LND: lndNodes,
-          'c-lightning': clightningNodes,
-          eclair: eclairNodes,
-          bitcoind: bitcoindNodes,
+          LND: payload.lndNodes,
+          'c-lightning': payload.clightningNodes,
+          eclair: payload.eclairNodes,
+          bitcoind: payload.bitcoindNodes,
+          tapd: payload.tapdNodes,
+          litd: payload.litdNodes,
           btcd: 0,
-          tapd: 0,
         },
       });
 
@@ -350,6 +367,15 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts.eclair,
+          );
+          network.nodes.lightning.push(node);
+          break;
+        case 'litd':
+          node = createLitdNetworkNode(
+            network,
+            version,
+            dockerRepoState.images.litd.compatibility,
+            docker,
           );
           network.nodes.lightning.push(node);
           break;
@@ -427,6 +453,10 @@ const networkModel: NetworkModel = {
       if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
+      if (node.implementation === 'litd') {
+        // remove the litd node from the litd redux state
+        getStoreActions().lit.removeNode(node.name);
+      }
       // update the network in the redux state and save to disk
       actions.setNetworks([...networks]);
       await actions.save();
@@ -476,7 +506,7 @@ const networkModel: NetworkModel = {
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
       const { dockerRepoState } = getStoreState().app;
       const { dockerService, lightningFactory } = injections;
-      const { bitcoind, designer } = getStoreActions();
+      const { bitcoin: bitcoinActions, designer } = getStoreActions();
       const { bitcoin, lightning } = network.nodes;
 
       if (bitcoin.length === 1) throw new Error(l('removeLastErr'));
@@ -514,7 +544,7 @@ const networkModel: NetworkModel = {
       // remove the node from the network
       network.nodes.bitcoin = bitcoin.filter(n => n !== node);
       // remove the node's data from the bitcoind redux state
-      bitcoind.removeNode(node);
+      bitcoinActions.removeNode(node);
       if (network.status === Status.Started) {
         // restart the whole network if it is running
         await actions.stop(network.id);
@@ -774,30 +804,44 @@ const networkModel: NetworkModel = {
         // wait for lnd nodes to come online before updating their status
         if (node.type === 'lightning') {
           const ln = node as LightningNode;
-          // use .then() to continue execution while the promises are waiting to complete
-          const promise = injections.lightningFactory
-            .getService(ln)
-            .waitUntilOnline(ln)
-            .then(async () => {
-              actions.setStatus({ id, status: Status.Started, only: ln.name });
-            })
-            .catch(error =>
-              actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
-            );
+          let promise: Promise<void>;
+          if (ln.implementation !== 'litd') {
+            // use .then() to continue execution while the promises are waiting to complete
+            promise = injections.lightningFactory
+              .getService(ln)
+              .waitUntilOnline(ln)
+              .then(async () => {
+                actions.setStatus({ id, status: Status.Started, only: ln.name });
+              })
+              .catch(error =>
+                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
+              );
+          } else {
+            const litd = ln as LitdNode;
+            promise = injections.litdService
+              .waitUntilOnline(litd)
+              .then(async () => {
+                actions.setStatus({ id, status: Status.Started, only: ln.name });
+              })
+              .catch(error =>
+                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
+              );
+          }
           lnNodesOnline.push(promise);
         } else if (node.type === 'bitcoin') {
           const btc = node as BitcoinNode;
           // wait for bitcoind nodes to come online before updating their status
           // use .then() to continue execution while the promises are waiting to complete
-          const promise = injections.bitcoindService
+          const promise = injections.bitcoinFactory
+            .getService(btc)
             .waitUntilOnline(btc)
             .then(async () => {
               actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
-              await injections.bitcoindService.connectPeers(btc);
+              await injections.bitcoinFactory.getService(btc).connectPeers(btc);
               // create a default wallet since it's not automatic on v0.21.0 and up
-              await injections.bitcoindService.createDefaultWallet(btc);
-              await getStoreActions().bitcoind.getInfo(btc);
+              await injections.bitcoinFactory.getService(btc).createDefaultWallet(btc);
+              await getStoreActions().bitcoin.getInfo(btc);
             })
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
@@ -822,7 +866,7 @@ const networkModel: NetworkModel = {
         await Promise.all(btcNodesOnline)
           .then(async () => {
             await delay(2000);
-            await getStoreActions().bitcoind.mine({ node, blocks: 1 });
+            await getStoreActions().bitcoin.mine({ node, blocks: 1 });
           })
           .catch(e => info('Failed to mine a block after network startup', e));
       }
@@ -839,12 +883,13 @@ const networkModel: NetworkModel = {
       }
     },
   ),
-  rename: thunk(async (actions, { id, name }, { getState }) => {
-    if (!name) throw new Error(l('renameErr', { name }));
+  rename: thunk(async (actions, { id, name, description }, { getState }) => {
+    if (!name) throw new Error(l('missingNetworkName', { name }));
     const { networks } = getState();
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
     network.name = name;
+    network.description = description;
     actions.setNetworks(networks);
     await actions.save();
   }),
@@ -865,7 +910,10 @@ const networkModel: NetworkModel = {
     actions.setNetworks(newNetworks);
     getStoreActions().designer.removeChart(networkId);
     network.nodes.lightning.forEach(n => getStoreActions().lightning.removeNode(n.name));
-    network.nodes.bitcoin.forEach(n => getStoreActions().bitcoind.removeNode(n));
+    network.nodes.lightning
+      .filter(n => n.implementation === 'litd')
+      .forEach(n => getStoreActions().lit.removeNode(n.name));
+    network.nodes.bitcoin.forEach(n => getStoreActions().bitcoin.removeNode(n));
     network.nodes.tap.forEach(n => getStoreActions().tap.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
@@ -931,18 +979,18 @@ const networkModel: NetworkModel = {
     const network = networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { id }));
 
-    const { bitcoind } = getStoreActions();
+    const { bitcoin } = getStoreActions();
     const node = network.nodes.bitcoin[0];
 
     actions.setMiningState({ id, mining: true });
 
     try {
-      await bitcoind.mine({ node, blocks: 1 });
+      await bitcoin.mine({ node, blocks: 1 });
     } catch (e) {
       // No error displayed to the user since this is could be a background running task
     }
 
-    bitcoind.getInfo(node);
+    bitcoin.getInfo(node);
     actions.setMiningState({ id, mining: false });
   }),
   autoMine: thunk(async (actions, { id, mode, networkLoading }, { getState }) => {
@@ -976,6 +1024,56 @@ const networkModel: NetworkModel = {
 
     actions.setAutoMineMode({ id, mode });
   }),
+  renameNode: thunk(
+    async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
+      const wasStarted = node.status === Status.Started;
+
+      if (wasStarted) {
+        await actions.stop(node.networkId);
+      }
+      const oldNodeName = node.name;
+
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+
+      // rename the node's directory on disk
+      await injections.dockerService.renameNodeDir(network, node, newName);
+
+      // update the node's name in the network
+      await renameNode(network, node, newName);
+      // update the node's name in the chart
+      getStoreActions().designer.renameNode({
+        nodeId: oldNodeName,
+        name: newName,
+      });
+      // remove the stored node data from the appropriate store
+      switch (node.type) {
+        case 'lightning':
+          getStoreActions().lightning.removeNode(oldNodeName);
+          break;
+        case 'bitcoin':
+          getStoreActions().bitcoin.removeNode(node);
+          break;
+        case 'tap':
+          getStoreActions().tap.removeNode(oldNodeName);
+          break;
+      }
+
+      // update the network in the store and save the changes to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
+
+      // clear cached RPC data, specifically LND certs
+      getStoreActions().app.clearAppCache();
+
+      if (wasStarted) {
+        // do not await this so the modal will close while the network is starting
+        actions.start(node.networkId);
+      }
+    },
+  ),
 };
 
 export default networkModel;

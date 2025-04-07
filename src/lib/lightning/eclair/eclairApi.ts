@@ -68,8 +68,17 @@ export const getListener = (eclairNode: EclairNode): ELN.EclairWebSocket => {
 export const removeListener = (node: LightningNode): void => {
   const nodePort = getNodePort(node);
   if (listenerCache[nodePort]) {
+    listenerCache[nodePort].close();
     delete listenerCache[nodePort];
   }
+};
+
+export const clearListeners = () => {
+  Object.keys(listenerCache).forEach(key => {
+    const port = parseInt(key);
+    listenerCache[port].close();
+    delete listenerCache[port];
+  });
 };
 
 export const setupListener = (eclairNode: EclairNode): ELN.EclairWebSocket => {
@@ -81,10 +90,7 @@ export const setupListener = (eclairNode: EclairNode): ELN.EclairWebSocket => {
 
 const listen = (options: ELN.ConfigOptions): ELN.EclairWebSocket => {
   const { url, headers } = options;
-  const urlWithoutProtocol = stripProtocol(url);
-  const socket = new WebSocket(`ws://${urlWithoutProtocol}/ws`, {
-    headers,
-  });
+  const socket = new WebSocket(`ws://${url}/ws`, { headers });
   // ping every 50s to keep it alive
   setInterval(() => {
     if (socket.readyState === WebSocket.OPEN) {
@@ -92,10 +98,6 @@ const listen = (options: ELN.ConfigOptions): ELN.EclairWebSocket => {
     }
   }, 50e3);
   return socket;
-};
-
-const stripProtocol = (url: string): string => {
-  return url.replace('https://', '').replace('http://', '');
 };
 
 const getNodePort = (node: LightningNode): number => {

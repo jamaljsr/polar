@@ -19,6 +19,7 @@ This document describes the steps to follow to create a new release of Polar and
 1. Modify the `README.md` file
    - add any updates to features and/or newly supported node versions
    - update the download links to point to the new urls
+1. Update the [docker/nodes.json](./docker/nodes.json) file to mirror the `defaultRepoState` var in [src/utils/constants.ts](./src/utils/constants.ts)
 1. Commit your changes
    ```
    git add .

@@ -3,10 +3,15 @@ import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, MenuProps } from 'antd';
 import { BitcoinNode, LightningNode, Status, TapNode } from 'shared/types';
 import { useStoreState } from 'store';
-import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import {
+  AdvancedOptionsButton,
+  RemoveNode,
+  RestartNode,
+  RenameNodeButton,
+} from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
-import SendOnChainButton from './bitcoind/actions/SendOnChainButton';
+import SendOnChainButton from './bitcoin/actions/SendOnChainButton';
 import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
 import { MintAssetButton, NewAddressButton, SendAssetButton } from './tap/actions';
 
@@ -38,28 +43,13 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   // don't add a context menu if the node is not valid
   if (!node) return <>{children}</>;
 
-  const isTap = node.type === 'tap';
+  const isTap = node.type === 'tap' || node.implementation === 'litd';
   const isLN = node.type === 'lightning';
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
 
   let items: MenuProps['items'] = [];
   items = items.concat(
-    addItemIf(
-      'sendAsset',
-      <SendAssetButton type={'menu'} node={node as TapNode} />,
-      isStarted && isTap,
-    ),
-    addItemIf(
-      'newAddress',
-      <NewAddressButton type={'menu'} node={node as TapNode} />,
-      isStarted && isTap,
-    ),
-    addItemIf(
-      'mintAsset',
-      <MintAssetButton type={'menu'} node={node as TapNode} />,
-      isStarted && isTap,
-    ),
     addItemIf(
       'inv',
       <PaymentButtons menuType="create" node={node as LightningNode} />,
@@ -79,6 +69,21 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       'incoming',
       <OpenChannelButtons menuType="incoming" node={node as LightningNode} />,
       isStarted && isLN,
+    ),
+    addItemIf(
+      'sendAsset',
+      <SendAssetButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
+    ),
+    addItemIf(
+      'newAddress',
+      <NewAddressButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
+    ),
+    addItemIf(
+      'mintAsset',
+      <MintAssetButton type={'menu'} node={node as TapNode} />,
+      isStarted && isTap,
     ),
     addItemIf(
       'sendonchain',
@@ -102,6 +107,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       <ViewLogsButton type="menu" node={node} />,
       [Status.Starting, Status.Started, Status.Error].includes(node.status),
     ),
+    addItemIf('rename', <RenameNodeButton type="menu" node={node} />),
     addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
     addItemIf('remove', <RemoveNode type="menu" node={node} />),
   );

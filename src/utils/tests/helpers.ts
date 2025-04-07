@@ -27,6 +27,11 @@ export const testManagedImages: ManagedImage[] = [
     version: defaultRepoState.images.tapd.latest,
     command: '',
   },
+  {
+    implementation: 'litd',
+    version: defaultRepoState.images.litd.latest,
+    command: '',
+  },
 ];
 
 export const testCustomImages: CustomImage[] = [
@@ -54,11 +59,18 @@ export const testCustomImages: CustomImage[] = [
 ];
 
 export const testRepoState: DockerRepoState = {
-  version: 49,
+  version: 50,
   images: {
     LND: {
-      latest: '0.17.5-beta',
+      latest: '0.18.5-beta',
       versions: [
+        '0.18.5-beta',
+        '0.18.4-beta',
+        '0.18.3-beta',
+        '0.18.2-beta',
+        '0.18.1-beta',
+        '0.18.0-beta',
+        '0.17.5-beta',
         '0.17.5-beta',
         '0.17.4-beta',
         '0.17.3-beta',
@@ -95,6 +107,12 @@ export const testRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.18.5-beta': '28.0',
+        '0.18.4-beta': '28.0',
+        '0.18.3-beta': '27.0',
+        '0.18.2-beta': '27.0',
+        '0.18.1-beta': '27.0',
+        '0.18.0-beta': '27.0',
         '0.17.5-beta': '27.0',
         '0.17.4-beta': '27.0',
         '0.17.3-beta': '27.0',
@@ -132,8 +150,8 @@ export const testRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '23.05.2',
-      versions: ['23.05.2', '23.02.2', '22.11', '0.12.0', '0.11.2', '0.10.2'],
+      latest: '24.08',
+      versions: ['24.08', '24.05', '24.02.2', '23.11.2'],
     },
     eclair: {
       latest: '0.10.0',
@@ -159,23 +177,31 @@ export const testRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.3.3-alpha',
+      latest: '0.5.1-alpha',
       versions: [
+        '0.5.1-alpha',
+        '0.5.0-alpha',
+        '0.4.1-alpha',
+        '0.4.0-alpha',
         '0.3.3-alpha',
         '0.3.2-alpha',
-        '0.3.1-alpha',
-        '0.2.3-alpha',
-        '0.2.2-alpha',
-        '0.2.0-alpha',
       ],
+      // Not all tapd versions are compatible with all LND versions.
+      // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
+        '0.5.1-alpha': '0.18.5-beta',
+        '0.5.0-alpha': '0.18.4-beta',
+        '0.4.1-alpha': '0.18.0-beta',
+        '0.4.0-alpha': '0.18.0-beta',
         '0.3.3-alpha': '0.16.0-beta',
         '0.3.2-alpha': '0.16.0-beta',
-        '0.3.1-alpha': '0.16.0-beta',
-        '0.3.0-alpha': '0.16.0-beta',
-        '0.2.3-alpha': '0.16.0-beta',
-        '0.2.2-alpha': '0.16.0-beta',
-        '0.2.0-alpha': '0.16.0-beta',
+      },
+    },
+    litd: {
+      latest: '0.14.0-alpha',
+      versions: ['0.14.0-alpha'],
+      compatibility: {
+        '0.14.0-alpha': '28.0',
       },
     },
   },
@@ -186,14 +212,18 @@ export const getNetwork = (
   name?: string,
   status?: Status,
   tapNodeCount = 0,
+  description?: string,
 ): Network => {
   const config = {
     id: networkId,
     name: name || 'my-test',
+    description: description || 'my-test-description',
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    tapdNodes: 0,
+    litdNodes: 0,
     status,
     repoState: defaultRepoState,
     managedImages: testManagedImages,

@@ -2,7 +2,6 @@ import { createStore } from 'easy-peasy';
 import { defaultTapdMintAsset } from 'shared';
 import { Status, TapdNode } from 'shared/types';
 import * as PTAP from 'lib/tap/types';
-import { BitcoindLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   defaultTapAsset,
@@ -10,22 +9,21 @@ import {
   getNetwork,
   injections,
   tapServiceMock,
+  bitcoinServiceMock,
 } from 'utils/tests';
 import appModel from './app';
-import bitcoindModel from './bitcoind';
+import bitcoinModel from './bitcoin';
 import designerModel from './designer';
 import lightningModel from './lightning';
 import networkModel from './network';
 import tapModel, { MintAssetPayload } from './tap';
-
-const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('TAP Model', () => {
   const rootModel = {
     app: appModel,
     network: networkModel,
     lightning: lightningModel,
-    bitcoind: bitcoindModel,
+    bitcoin: bitcoinModel,
     designer: designerModel,
     tap: tapModel,
   };
@@ -50,16 +48,10 @@ describe('TAP Model', () => {
     store = createStore(rootModel, { injections, initialState });
 
     tapServiceMock.listAssets.mockResolvedValue([
-      defaultTapAsset({
-        name: 'my-asset',
-        amount: '100',
-      }),
+      defaultTapAsset({ id: 'abcd', name: 'my-asset', amount: '100' }),
     ]);
     tapServiceMock.listBalances.mockResolvedValue([
-      defaultTapBalance({
-        name: 'my-asset',
-        balance: '100',
-      }),
+      defaultTapBalance({ id: 'abcd', name: 'my-asset', balance: '100' }),
     ]);
   });
 
@@ -109,13 +101,14 @@ describe('TAP Model', () => {
       enableEmission: false,
       finalize: true,
       autoFund: false,
+      decimals: 0,
     };
     await store.getActions().tap.mintAsset(payload);
     expect(tapServiceMock.mintAsset).toHaveBeenCalledWith(
       tap[1],
       expect.objectContaining({ asset: expect.objectContaining({ name: 'my-asset' }) }),
     );
-    expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledWith(
       6,
       expect.objectContaining({ name: 'backend1' }),
     );
@@ -133,6 +126,7 @@ describe('TAP Model', () => {
       enableEmission: false,
       finalize: false,
       autoFund: false,
+      decimals: 0,
     };
     await store.getActions().tap.mintAsset(payload);
     expect(tapServiceMock.mintAsset).toHaveBeenCalledWith(
@@ -140,6 +134,58 @@ describe('TAP Model', () => {
       expect.objectContaining({ asset: expect.objectContaining({ name: 'my-asset' }) }),
     );
     expect(tapServiceMock.finalizeBatch).not.toHaveBeenCalled();
-    expect(bitcoindServiceMock.mine).not.toHaveBeenCalled();
+    expect(bitcoinServiceMock.mine).not.toHaveBeenCalled();
+  });
+
+  it('should format the asset amount', async () => {
+    const { formatAssetAmount } = store.getActions().tap;
+    const payload = {
+      assetId: 'abcd',
+      amount: '10000',
+      includeName: true,
+    };
+
+    tapServiceMock.listAssets.mockResolvedValue([
+      defaultTapAsset({ id: 'abcd', name: 'my-asset', amount: '100', decimals: 2 }),
+    ]);
+    await store.getActions().tap.getAssets(node);
+    expect(store.getState().tap.nodes[node.name].assets).toBeDefined();
+
+    let result = formatAssetAmount(payload);
+    expect(result).toEqual(`100.00 my-asset`);
+
+    result = formatAssetAmount({ ...payload, includeName: false });
+    expect(result).toEqual('100.00');
+
+    // induce a missing asset situation
+    tapServiceMock.listAssets.mockResolvedValue(undefined as any);
+    await store.getActions().tap.getAssets(node);
+    result = formatAssetAmount({ ...payload, assetId: 'efgh' });
+    expect(result).toEqual('10000');
+  });
+
+  it('should convert an amount to asset units', async () => {
+    const { toAssetUnits } = store.getActions().tap;
+    const payload = {
+      assetId: 'abcd',
+      amount: 100,
+    };
+
+    tapServiceMock.listAssets.mockResolvedValue([
+      defaultTapAsset({ id: 'abcd', name: 'my-asset', amount: '100', decimals: 2 }),
+    ]);
+    await store.getActions().tap.getAssets(node);
+
+    let result = toAssetUnits(payload);
+    expect(result).toEqual(10000);
+
+    result = toAssetUnits({ ...payload, assetId: 'efgh' });
+    expect(result).toEqual(100);
+
+    // induce a missing asset situation
+    tapServiceMock.listAssets.mockResolvedValue(undefined as any);
+    await store.getActions().tap.getAssets(node);
+    result = toAssetUnits(payload);
+    expect(result).toEqual(100);
   });
 });

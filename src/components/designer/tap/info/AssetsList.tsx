@@ -5,7 +5,7 @@ import { Button, Divider, Space } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { TapBalance } from 'lib/tap/types';
 import { useStoreActions } from 'store';
-import { format } from 'utils/units';
+import AssetAmount from 'components/common/AssetAmount';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import AssetInfoDrawer from './AssetInfoDrawer';
 
@@ -17,12 +17,11 @@ const Styled = {
 };
 
 interface Props {
-  title: string;
   balances: TapBalance[];
   nodeName: string;
 }
 
-const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
+const AssetsList: React.FC<Props> = ({ balances, nodeName }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.AssetsList');
   const { showAssetInfo } = useStoreActions(s => s.modals);
 
@@ -39,7 +38,7 @@ const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
         label: asset.name,
         value: (
           <Space>
-            {format(asset.balance)}
+            <AssetAmount assetId={asset.id} amount={asset.balance} />
             <Button
               type="text"
               icon={<UnorderedListOutlined />}
@@ -53,7 +52,7 @@ const AssetsList: React.FC<Props> = ({ title, balances, nodeName }) => {
   const { Wrapper } = Styled;
   return (
     <Wrapper>
-      <Divider>{title}</Divider>
+      <Divider>{l('title')}</Divider>
       {balances && balances.length > 0 ? (
         <DetailsList details={assetDetails} />
       ) : (

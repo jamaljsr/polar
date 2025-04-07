@@ -16,7 +16,6 @@ describe('SettingsService', () => {
   beforeEach(() => {
     settings = {
       lang: 'en-US',
-      showAllNodeVersions: true,
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
@@ -27,6 +26,7 @@ describe('SettingsService', () => {
         bitcoind: 1,
         btcd: 0,
         tapd: 0,
+        litd: 0,
       },
       basePorts: {
         LND: {

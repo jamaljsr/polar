@@ -4,17 +4,28 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { LightningNode, Status } from 'shared/types';
 import { Network } from 'types';
 import * as files from 'utils/files';
-import { createCLightningNetworkNode } from 'utils/network';
+import { createCLightningNetworkNode, createLitdNetworkNode } from 'utils/network';
 import {
+  defaultLitSession,
   defaultStateBalances,
   defaultStateInfo,
+  defaultTapAsset,
+  defaultTapBalance,
   getNetwork,
+  injections,
   lightningServiceMock,
   renderWithProviders,
+  tapServiceMock,
+  testNodeDocker,
+  testRepoState,
 } from 'utils/tests';
 import LightningDetails from './LightningDetails';
 
 jest.mock('utils/files');
+
+const litdServiceMock = injections.litdService as jest.Mocked<
+  typeof injections.litdService
+>;
 
 describe('LightningDetails', () => {
   let network: Network;
@@ -48,6 +59,12 @@ describe('LightningDetails', () => {
       ...result,
       node,
     };
+  };
+
+  const toggle = (container: Element, value: string) => {
+    fireEvent.click(
+      container.querySelector(`input[name=authType][value=${value}]`) as Element,
+    );
   };
 
   beforeEach(() => {
@@ -237,12 +254,14 @@ describe('LightningDetails', () => {
       fireEvent.click(await findByText('Connect'));
       fireEvent.click(getByText('GRPC'));
       await waitFor(() => {
-        expect(shell.openExternal).toBeCalledWith('https://api.lightning.community/');
+        expect(shell.openExternal).toHaveBeenCalledWith(
+          'https://lightning.engineering/api-docs/api/lnd/',
+        );
       });
       fireEvent.click(getByText('REST'));
       await waitFor(() => {
-        expect(shell.openExternal).toBeCalledWith(
-          'https://api.lightning.community/#lnd-rest-api-reference',
+        expect(shell.openExternal).toHaveBeenCalledWith(
+          'https://lightning.engineering/api-docs/api/lnd/',
         );
       });
     });
@@ -281,6 +300,15 @@ describe('LightningDetails', () => {
       const { visible, nodeName } = store.getState().modals.createInvoice;
       expect(visible).toEqual(true);
       expect(nodeName).toEqual(node.name);
+    });
+
+    it('should handle rename button click', async () => {
+      const { findByText, node, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Rename', { selector: 'span' }));
+      const { visible, oldNodeName } = store.getState().modals.renameNode;
+      expect(visible).toEqual(true);
+      expect(oldNodeName).toEqual(node.name);
     });
 
     it('should handle advanced options button click', async () => {
@@ -329,10 +357,16 @@ describe('LightningDetails', () => {
         shell.openExternal = jest.fn().mockResolvedValue(true);
         const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
+        fireEvent.click(getByText('GRPC'));
+        await waitFor(() => {
+          expect(shell.openExternal).toBeCalledWith(
+            'https://docs.corelightning.org/docs/grpc',
+          );
+        });
         fireEvent.click(getByText('REST'));
         await waitFor(() => {
           expect(shell.openExternal).toBeCalledWith(
-            'https://github.com/Ride-The-Lightning/c-lightning-REST',
+            'https://docs.corelightning.org/docs/rest',
           );
         });
       });
@@ -361,13 +395,159 @@ describe('LightningDetails', () => {
       });
     });
 
-    describe('connect options', () => {
-      const toggle = (container: Element, value: string) => {
-        fireEvent.click(
-          container.querySelector(`input[name=authType][value=${value}]`) as Element,
+    describe('litd', () => {
+      beforeEach(() => {
+        network = getNetwork(1, 'test network');
+        node = createLitdNetworkNode(
+          network,
+          testRepoState.images.litd.latest,
+          testRepoState.images.litd.compatibility,
+          testNodeDocker,
         );
-      };
+        network.nodes.lightning.push(node);
 
+        tapServiceMock.listAssets.mockResolvedValue([
+          defaultTapAsset({
+            id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001',
+            name: 'LUSD',
+            type: 'NORMAL',
+            amount: '100',
+            genesisPoint:
+              '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:1',
+            groupKey:
+              '03dd30e6695fdf314a02a3b733e8cc5a0101dd26112af0516da6b6b4f2f6462882',
+          }),
+          defaultTapAsset({
+            id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001',
+            name: 'LUSD',
+            type: 'NORMAL',
+            amount: '50',
+            genesisPoint:
+              '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:1',
+            groupKey:
+              '03dd30e6695fdf314a02a3b733e8cc5a0101dd26112af0516da6b6b4f2f6462882',
+          }),
+          defaultTapAsset({
+            id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2002',
+            name: 'PTOKEN',
+            type: 'NORMAL',
+            amount: '500',
+            genesisPoint:
+              '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:2',
+          }),
+        ]);
+        tapServiceMock.listBalances.mockResolvedValue([
+          defaultTapBalance({
+            id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001',
+            name: 'LUSD',
+            type: 'NORMAL',
+            balance: '150',
+            genesisPoint:
+              '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58',
+          }),
+          defaultTapBalance({
+            id: 'b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2002',
+            name: 'PTOKEN',
+            type: 'NORMAL',
+            balance: '500',
+            genesisPoint:
+              '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:2',
+          }),
+        ]);
+      });
+
+      it('should display Taproot Assets on the Info tab', async () => {
+        const { findByText, getByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Info'));
+        expect(getByText('Assets')).toBeInTheDocument();
+        expect(getByText('LUSD')).toBeInTheDocument();
+        expect(getByText('150')).toBeInTheDocument();
+        expect(getByText('PTOKEN')).toBeInTheDocument();
+        expect(getByText('500')).toBeInTheDocument();
+      });
+
+      it('should display the GRPC Host', async () => {
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(getByText('GRPC Host')).toBeInTheDocument();
+        expect(getByText('127.0.0.1:8447')).toBeInTheDocument();
+      });
+
+      it('should open API Doc links in the browser', async () => {
+        shell.openExternal = jest.fn().mockResolvedValue(true);
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        fireEvent.click(getByText('https://127.0.0.1:8447', { selector: 'a' }));
+        await waitFor(() => {
+          expect(shell.openExternal).toHaveBeenCalledWith('https://127.0.0.1:8447');
+        });
+      });
+
+      it('should display a loader when there is no session data in the store', async () => {
+        const { findByText, findByLabelText, store } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        store.getActions().lit.clearNodes();
+        expect(await findByLabelText('loading')).toBeInTheDocument();
+      });
+
+      it('should display Add Session button', async () => {
+        litdServiceMock.listSessions.mockResolvedValue([]);
+        const { findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(await findByText('Lightning Node Connect Sessions')).toBeInTheDocument();
+        expect(await findByText('Add a new Session')).toBeInTheDocument();
+      });
+
+      it('should show the Add Session modal', async () => {
+        litdServiceMock.listSessions.mockResolvedValue([]);
+        const { findByText, store } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        fireEvent.click(await findByText('Add a new Session'));
+        const { visible, nodeName } = store.getState().modals.addLncSession;
+        expect(visible).toEqual(true);
+        expect(nodeName).toEqual(node.name);
+      });
+
+      it('should display the session details drawer', async () => {
+        litdServiceMock.listSessions.mockResolvedValue([
+          defaultLitSession({ id: 'session-1', label: 'Session 1', state: 'Created' }),
+        ]);
+        const { findByText, findByLabelText, store } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(await findByText('Session 1')).toBeInTheDocument();
+        expect(await findByText('Created')).toBeInTheDocument();
+        fireEvent.click(await findByLabelText('unordered-list'));
+        const { visible, sessionId } = store.getState().modals.lncSessionInfo;
+        expect(visible).toEqual(true);
+        expect(sessionId).toEqual('session-1');
+        fireEvent.click(await findByLabelText('close'));
+        expect(store.getState().modals.lncSessionInfo.visible).toEqual(false);
+      });
+
+      it('should display hex values for paths', async () => {
+        mockFiles.read.mockResolvedValue('test-hex');
+        const { findByText, container, getAllByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        toggle(container, 'paths');
+        await waitFor(() => getAllByText('TLS Cert'));
+        toggle(container, 'hex');
+        await waitFor(() => {
+          expect(files.read).toHaveBeenCalledTimes(6);
+          expect(getAllByText('test-hex')).toHaveLength(6);
+        });
+      });
+
+      it('should handle advanced options button click', async () => {
+        const { findByText, node, store } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Actions'));
+        fireEvent.click(await findByText('Edit Options'));
+        const { visible, nodeName } = store.getState().modals.advancedOptions;
+        expect(visible).toEqual(true);
+        expect(nodeName).toEqual(node.name);
+      });
+    });
+
+    describe('connect options', () => {
       it('should not fail with undefined node state', async () => {
         lightningServiceMock.getInfo.mockResolvedValue(undefined as any);
         const { queryByText, findByText } = renderComponent(Status.Started);

@@ -32,7 +32,7 @@ describe('TapdProxyClient', () => {
       },
     };
     tapdProxyClient.mintAsset(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.mintAsset, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.mintAsset, {
       node,
       req,
     });
@@ -40,18 +40,22 @@ describe('TapdProxyClient', () => {
 
   it('should call the finalizeBatch ipc', () => {
     tapdProxyClient.finalizeBatch(node);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.finalizeBatch, { node });
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.finalizeBatch, {
+      node,
+    });
   });
 
   it('should call the listAssets ipc', () => {
     tapdProxyClient.listAssets(node);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.listAssets, { node });
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.listAssets, {
+      node,
+    });
   });
 
   it('should call the listBalances ipc', () => {
     const req = {};
     tapdProxyClient.listBalances(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.listBalances, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.listBalances, {
       node,
       req,
     });
@@ -63,7 +67,7 @@ describe('TapdProxyClient', () => {
       amt: '1000',
     };
     tapdProxyClient.newAddress(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.newAddress, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.newAddress, {
       node,
       req,
     });
@@ -74,7 +78,7 @@ describe('TapdProxyClient', () => {
       tapAddrs: ['tap1test'],
     };
     tapdProxyClient.sendAsset(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.sendAsset, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.sendAsset, {
       node,
       req,
     });
@@ -85,7 +89,7 @@ describe('TapdProxyClient', () => {
       addr: 'tap1test',
     };
     tapdProxyClient.decodeAddress(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.decodeAddress, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.decodeAddress, {
       node,
       req,
     });
@@ -93,7 +97,7 @@ describe('TapdProxyClient', () => {
 
   it('should call the assetRoots ipc', () => {
     tapdProxyClient.assetRoots(node);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.assetRoots, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.assetRoots, {
       node,
     });
   });
@@ -103,7 +107,7 @@ describe('TapdProxyClient', () => {
       assetId: 'test asset id',
     };
     tapdProxyClient.assetLeaves(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.assetLeaves, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.assetLeaves, {
       node,
       req,
     });
@@ -114,7 +118,50 @@ describe('TapdProxyClient', () => {
       universeHost: '1.2.3.4:10029',
     };
     tapdProxyClient.syncUniverse(node, req);
-    expect(tapdProxyClient.ipc).toBeCalledWith(ipcChannels.tapd.syncUniverse, {
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.syncUniverse, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the fundChannel ipc', async () => {
+    const req: TAP.FundChannelRequestPartial = {
+      assetId: 'test asset id',
+    };
+    tapdProxyClient.fundChannel(node, req);
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.fundChannel, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the addInvoice ipc', () => {
+    const req: TAP.tapchannelrpc.AddInvoiceRequestPartial = {
+      assetId: 'test asset id',
+      assetAmount: '1000',
+      peerPubkey: 'test peer pubkey',
+      invoiceRequest: {
+        paymentRequest: 'lnbc1test',
+      },
+    };
+    tapdProxyClient.addInvoice(node, req);
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.addInvoice, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the sendPayment ipc', () => {
+    const req: TAP.tapchannelrpc.SendPaymentRequestPartial = {
+      assetId: 'test asset id',
+      assetAmount: '1000',
+      peerPubkey: 'test peer pubkey',
+      paymentRequest: {
+        paymentRequest: 'lnbc1test',
+      },
+    };
+    tapdProxyClient.sendPayment(node, req);
+    expect(tapdProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.tapd.sendPayment, {
       node,
       req,
     });

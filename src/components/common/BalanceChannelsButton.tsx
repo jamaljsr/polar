@@ -30,7 +30,7 @@ const BalanceChannelsButton: React.FC<Props> = ({ network }) => {
   return (
     channelsInfo.length > 0 && (
       <Tooltip title={l('btn')}>
-        <Styled.Button onClick={showModal}>
+        <Styled.Button onClick={showModal} role="balance-channels">
           <SwapOutlined />
         </Styled.Button>
       </Tooltip>

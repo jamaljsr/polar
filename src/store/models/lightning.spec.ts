@@ -1,11 +1,11 @@
+import { waitFor } from '@testing-library/react';
 import { createStore } from 'easy-peasy';
-import { LndNode } from 'shared/types';
+import { LndNode, Status } from 'shared/types';
 import {
   LightningNodeBalances,
   LightningNodeChannel,
   LightningNodeInfo,
 } from 'lib/lightning/types';
-import { BitcoindLibrary } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import {
@@ -14,24 +14,27 @@ import {
   injections,
   lightningServiceMock,
   mockProperty,
+  bitcoinServiceMock,
 } from 'utils/tests';
 import appModel from './app';
-import bitcoindModel from './bitcoind';
+import bitcoinModel from './bitcoin';
 import designerModel from './designer';
 import lightningModel from './lightning';
 import networkModel from './network';
+import modalsModel from './modals';
+import * as networkUtils from 'utils/network';
 
 jest.mock('utils/async');
 const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
-const bitcoindServiceMock = injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
 
 describe('Lightning Model', () => {
   const rootModel = {
     app: appModel,
     network: networkModel,
     lightning: lightningModel,
-    bitcoind: bitcoindModel,
+    bitcoin: bitcoinModel,
     designer: designerModel,
+    modals: modalsModel,
   };
   const network = getNetwork();
   const initialState = {
@@ -48,13 +51,28 @@ describe('Lightning Model', () => {
   // initialize store for type inference
   let store = createStore(rootModel, { injections, initialState });
   const node = initialState.network.networks[0].nodes.lightning[0] as LndNode;
+  const mockChannelInfo = {
+    uniqueId: 'channel1',
+    id: 'channel1',
+    to: 'node2',
+    from: 'node1',
+    localBalance: '1000',
+    remoteBalance: '2000',
+    nextLocalBalance: 1000,
+    pending: false,
+    channelPoint: '',
+    pubkey: '',
+    capacity: '',
+    status: 'Open' as const,
+    isPrivate: false,
+  };
 
   beforeEach(() => {
     // reset the store before each test run
     store = createStore(rootModel, { injections, initialState });
 
     asyncUtilMock.delay.mockResolvedValue(Promise.resolve());
-    bitcoindServiceMock.sendFunds.mockResolvedValue('txid');
+    bitcoinServiceMock.sendFunds.mockResolvedValue('txid');
     lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
     lightningServiceMock.getInfo.mockResolvedValue(
       defaultStateInfo({
@@ -68,7 +86,7 @@ describe('Lightning Model', () => {
       unconfirmed: '200',
       total: '300',
     });
-    lightningServiceMock.getChannels.mockResolvedValueOnce([]);
+    lightningServiceMock.getChannels.mockResolvedValue([]);
   });
 
   it('should have a valid initial state', () => {
@@ -154,7 +172,7 @@ describe('Lightning Model', () => {
     await openChannel({ from, to, sats, autoFund: false, isPrivate: false });
     expect(lightningServiceMock.getInfo).toHaveBeenCalledTimes(1);
     expect(lightningServiceMock.openChannel).toHaveBeenCalledTimes(1);
-    expect(bitcoindServiceMock.mine).toHaveBeenCalledTimes(1);
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledTimes(1);
   });
 
   it('should open a channel and mine on the first bitcoin node', async () => {
@@ -173,7 +191,7 @@ describe('Lightning Model', () => {
     await getInfo(to);
     await openChannel({ from, to, sats, autoFund: false, isPrivate: false });
     const btcNode = store.getState().network.networks[0].nodes.bitcoin[0];
-    expect(bitcoindServiceMock.mine).toHaveBeenCalledWith(6, btcNode);
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledWith(6, btcNode);
   });
 
   it('should cause some delay waiting for nodes', async () => {
@@ -228,5 +246,251 @@ describe('Lightning Model', () => {
         expect.any(Function),
       ),
     );
+  });
+
+  it('should sync the chart when a channel event occurs', async () => {
+    const callbacks: Record<string, any> = {};
+    lightningServiceMock.subscribeChannelEvents.mockImplementation(async (_node, cb) => {
+      callbacks[_node.name] = cb;
+    });
+
+    const { addChannelListeners } = store.getActions().lightning;
+    await addChannelListeners(network);
+    expect(Object.keys(callbacks)).toHaveLength(4);
+
+    // spy on the syncChart action and prevent it from running because it requires
+    // mocking a bunch and API calls
+    const spy = jest
+      .spyOn(store.getActions().designer, 'syncChart')
+      .mockResolvedValue(false);
+    store.getActions().network.setStatus({ id: network.id, status: Status.Started });
+
+    // simulate a channel event
+    const callback = callbacks[network.nodes.lightning[0].name];
+    callback({ type: 'Pending' });
+    waitFor(() => expect(spy).toHaveBeenCalledTimes(1));
+  });
+
+  it('should reset channels info', async () => {
+    lightningServiceMock.getChannels.mockResolvedValue([mockChannelInfo]);
+
+    const linksMock = {
+      channel1: {
+        id: 'channel1',
+        from: { nodeId: 'node1', portId: 'port1' },
+        to: { nodeId: 'node2', portId: 'port2' },
+      },
+    };
+    store.getState().designer.activeChart.links = linksMock;
+
+    const { resetChannelsInfo } = store.getActions().lightning;
+    await resetChannelsInfo(network);
+    const { channelsInfo } = store.getState().lightning;
+
+    expect(channelsInfo).toHaveLength(4);
+    expect([channelsInfo[0]]).toEqual([
+      {
+        id: 'channel1',
+        to: 'node2',
+        from: 'node1',
+        localBalance: '1000',
+        remoteBalance: '2000',
+        nextLocalBalance: 1000,
+      },
+    ]);
+
+    store.getState().designer.activeChart.links = {
+      channel10: {
+        id: 'channel100',
+        from: { nodeId: 'node1', portId: 'port1' },
+        to: { nodeId: 'node2', portId: 'port2' },
+      },
+    };
+
+    await resetChannelsInfo(network);
+    expect(channelsInfo).toHaveLength(4);
+
+    // Test with a link that has no valid nodeid,
+    // this should early return.
+    store.getState().designer.activeChart.links = {
+      channel1: {
+        id: 'channel1',
+        from: { nodeId: 'node1', portId: 'port1' },
+        to: { nodeId: '', portId: 'port2' },
+      },
+    };
+    await resetChannelsInfo(network);
+    expect(channelsInfo).toHaveLength(4);
+  });
+
+  it('should manually balance channel', () => {
+    store.getActions().lightning.setChannelsInfo([mockChannelInfo]);
+    const { manualBalanceChannelsInfo } = store.getActions().lightning;
+    manualBalanceChannelsInfo({ value: 500000, index: 0 });
+    const { channelsInfo } = store.getState().lightning;
+    expect(channelsInfo[0].nextLocalBalance).toBe(500000);
+
+    // Now update with non-existing index
+    manualBalanceChannelsInfo({ value: 500000, index: 999 });
+    expect(channelsInfo[0].nextLocalBalance).toBe(500000);
+    expect(channelsInfo).toHaveLength(1);
+  });
+
+  it('should auto balance channels', () => {
+    let { channelsInfo } = store.getState().lightning;
+
+    store.getActions().lightning.setChannelsInfo([mockChannelInfo]);
+    const { autoBalanceChannelsInfo } = store.getActions().lightning;
+    autoBalanceChannelsInfo();
+    channelsInfo = store.getState().lightning.channelsInfo;
+    expect(channelsInfo[0].nextLocalBalance).toBe(1500);
+  });
+
+  describe('updateBalanceOfChannels', () => {
+    it('should update the balance of channels', async () => {
+      const mockChannelsInfo = [
+        {
+          id: 'channel1',
+          to: 'node2',
+          from: 'node1',
+          localBalance: '1000',
+          remoteBalance: '2000',
+          nextLocalBalance: 1500,
+        },
+      ];
+      const { updateBalanceOfChannels, setChannelsInfo } = store.getActions().lightning;
+      setChannelsInfo(mockChannelsInfo);
+      // Mock the balanceChannels implementation to do nothing else it will throw an error
+      // because we don't have a real channel to balance.
+      const balanceChannelsSpy = jest
+        .spyOn(store.getActions().lightning, 'balanceChannels')
+        .mockResolvedValue(undefined);
+      const hideBalanceChannelsSpy = jest.spyOn(
+        store.getActions().modals,
+        'hideBalanceChannels',
+      );
+      const notifySpy = jest.spyOn(store.getActions().app, 'notify');
+      await updateBalanceOfChannels(network);
+      // Verify balanceChannels was called with correct parameters
+      expect(balanceChannelsSpy).toHaveBeenCalledWith({
+        id: network.id,
+        toPay: [
+          {
+            channelId: 'channel1',
+            nextLocalBalance: 1500,
+          },
+        ],
+      });
+      // Verify modal was hidden
+      expect(hideBalanceChannelsSpy).toHaveBeenCalled();
+      // Verify notification was shown
+      expect(notifySpy).toHaveBeenCalledWith({
+        message: 'Channels balanced!',
+      });
+    });
+  });
+
+  describe('balanceChannels', () => {
+    beforeEach(() => {
+      const network = getNetwork();
+      const lnNodes = network.nodes.lightning;
+      lightningServiceMock.getChannels.mockResolvedValue([
+        {
+          pending: false,
+          uniqueId: 'channel2',
+          channelPoint: 'point2',
+          pubkey: 'pubkey2',
+          capacity: '1000',
+          localBalance: '800',
+          remoteBalance: '1000',
+          status: 'Open' as const,
+          isPrivate: false,
+        },
+      ]);
+
+      const linksMock = {
+        channel1: {
+          id: 'channel1',
+          from: { nodeId: 'node1', portId: 'port1' },
+          to: { nodeId: 'node2', portId: 'port2' },
+        },
+      };
+
+      store.getState().designer.activeChart.links = linksMock;
+
+      // Mock getInvoicePayload
+      jest.spyOn(networkUtils, 'getInvoicePayload').mockReturnValue({
+        amount: 100,
+        source: lnNodes[0],
+        target: lnNodes[1],
+      });
+
+      jest
+        .spyOn(store.getActions().lightning, 'createInvoice')
+        .mockResolvedValue('invoice123');
+      jest.spyOn(store.getActions().lightning, 'payInvoice').mockResolvedValue({} as any);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should throw error if network not found', async () => {
+      const { balanceChannels } = store.getActions().lightning;
+      await expect(
+        balanceChannels({
+          id: 999,
+          toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+        }),
+      ).rejects.toThrow('networkByIdErr');
+    });
+
+    it('should process channels that need balancing', async () => {
+      const network = getNetwork();
+      const { balanceChannels } = store.getActions().lightning;
+      await balanceChannels({
+        id: network.id,
+        toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+      });
+
+      expect(store.getActions().lightning.createInvoice).toHaveBeenCalledTimes(1);
+      expect(store.getActions().lightning.payInvoice).toHaveBeenCalledTimes(1);
+
+      // Now we override the getInvoicePayload to return a different amount
+      // Amount that is less than `minimumSatsDiffence` and test for early return
+      const lnNodes = network.nodes.lightning;
+      jest.spyOn(networkUtils, 'getInvoicePayload').mockReturnValue({
+        amount: 40,
+        source: lnNodes[0],
+        target: lnNodes[1],
+      });
+
+      await balanceChannels({
+        id: network.id,
+        toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+      });
+
+      expect(store.getActions().lightning.createInvoice).toHaveBeenCalledTimes(1);
+      expect(store.getActions().lightning.payInvoice).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return early if to.nodeId is not defined', async () => {
+      store.getState().designer.activeChart.links = {
+        channel1: {
+          id: 'channel1',
+          from: { nodeId: 'node1', portId: 'port1' },
+          to: { nodeId: '', portId: 'port2' },
+        },
+      };
+
+      const { balanceChannels } = store.getActions().lightning;
+      await balanceChannels({
+        id: network.id,
+        toPay: [{ channelId: 'channel1', nextLocalBalance: 1500 }],
+      });
+
+      expect(store.getActions().lightning.createInvoice).not.toHaveBeenCalled();
+      expect(store.getActions().lightning.payInvoice).not.toHaveBeenCalled();
+    });
   });
 });

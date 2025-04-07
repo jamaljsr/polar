@@ -1,5 +1,7 @@
+import * as LND from '@lightningpolar/lnd-api';
 import * as TAP from '@lightningpolar/tapd-api';
 import { TapdNode, TapNode } from 'shared/types';
+import * as PLN from 'lib/lightning/types';
 import * as PTAP from 'lib/tap/types';
 import { TapService } from 'types';
 import { waitFor } from 'utils/async';
@@ -40,7 +42,7 @@ class TapdService implements TapService {
     amt: string,
   ): Promise<PTAP.TapAddress> {
     const res = await proxy.newAddress(this.cast(node), {
-      assetId: Buffer.from(assetId, 'hex'),
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
       amt,
     });
     return {
@@ -81,6 +83,7 @@ class TapdService implements TapService {
         genesisPoint: genesis.genesisPoint,
         anchorOutpoint: anchor.anchorOutpoint,
         groupKey: asset.assetGroup?.tweakedGroupKey.toString('hex') || '',
+        decimals: asset.decimalDisplay?.decimalDisplay || 0,
       };
     });
   }
@@ -122,6 +125,73 @@ class TapdService implements TapService {
     return await proxy.syncUniverse(this.cast(node), { universeHost });
   }
 
+  async fundChannel(
+    node: TapNode,
+    peerPubkey: string,
+    assetId: string,
+    amount: number,
+  ): Promise<string> {
+    const req: TAP.FundChannelRequestPartial = {
+      peerPubkey: Buffer.from(peerPubkey, 'hex').toString('base64'),
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
+      assetAmount: amount,
+      feeRateSatPerVbyte: 50,
+      // push amount above channel reserve so the peer can send assets back
+      // immediately after receiving them. Without this, the peer would have to
+      // wait for the channel reserve to be satisfied before sending assets back
+      pushSat: 5_000,
+    };
+    const { txid } = await proxy.fundChannel(this.cast(node), req);
+    return txid;
+  }
+
+  async addInvoice(
+    node: TapNode,
+    assetId: string,
+    amount: number,
+    memo: string,
+    expiry: number,
+  ): Promise<string> {
+    const req: TAP.AddInvoiceRequestPartial = {
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
+      assetAmount: amount,
+      invoiceRequest: {
+        memo,
+        expiry,
+      },
+    };
+    const res = await proxy.addInvoice(this.cast(node), req);
+    return res.invoiceResult?.paymentRequest || '';
+  }
+
+  async sendPayment(
+    node: TapNode,
+    assetId: string,
+    invoice: string,
+    feeLimitMsat: number,
+    peerPubkey?: string,
+  ): Promise<PLN.LightningNodePayReceipt> {
+    const req: TAP.tapchannelrpc.SendPaymentRequestPartial = {
+      assetId: Buffer.from(assetId, 'hex').toString('base64'),
+      paymentRequest: {
+        paymentRequest: invoice,
+        timeoutSeconds: 60 * 60, // 1 hour
+        feeLimitMsat,
+      },
+    };
+    if (peerPubkey) {
+      req.peerPubkey = Buffer.from(peerPubkey, 'hex').toString('base64');
+    }
+    const res = await proxy.sendPayment(this.cast(node), req);
+    const pmt = res.paymentResult as LND.Payment;
+    return {
+      // convert from msat to asset units using the default oracle exchange rate
+      amount: parseInt(pmt.valueMsat) / 1000,
+      preimage: pmt.paymentPreimage.toString(),
+      destination: '',
+    };
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out
@@ -141,7 +211,7 @@ class TapdService implements TapService {
   }
 
   private cast(node: TapNode): TapdNode {
-    if (node.implementation !== 'tapd')
+    if (node.implementation !== 'tapd' && node.implementation !== 'litd')
       throw new Error(`TapdService cannot be used for '${node.implementation}' nodes`);
 
     return node as TapdNode;

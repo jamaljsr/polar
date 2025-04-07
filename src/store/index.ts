@@ -2,10 +2,11 @@ import { routerMiddleware } from 'connected-react-router';
 import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
 import { createLogger } from 'redux-logger';
-import { bitcoindService } from 'lib/bitcoin';
+import { BitcoinFactory } from 'lib/bitcoin';
 import { dockerService, repoService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
 import { LightningFactory } from 'lib/lightning';
+import { litdService } from 'lib/litd';
 import { settingsService } from 'lib/settings';
 import { TapFactory } from 'lib/tap';
 import { createModel, RootModel } from 'store/models';
@@ -60,9 +61,10 @@ const injections: StoreInjections = {
   settingsService,
   dockerService,
   repoService,
-  bitcoindService,
+  bitcoinFactory: new BitcoinFactory(),
   lightningFactory: new LightningFactory(),
   tapFactory: new TapFactory(),
+  litdService,
 };
 
 const store = createReduxStore({ injections });

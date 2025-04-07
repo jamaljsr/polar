@@ -2,7 +2,13 @@ import { EclairNode } from 'shared/types';
 import WebSocket from 'ws';
 import * as ipc from 'lib/ipc/ipcService';
 import { getNetwork } from 'utils/tests';
-import { getListener, httpPost, removeListener, setupListener } from './eclairApi';
+import {
+  clearListeners,
+  getListener,
+  httpPost,
+  removeListener,
+  setupListener,
+} from './eclairApi';
 
 jest.mock('ws');
 jest.mock('lib/ipc/ipcService');
@@ -12,6 +18,19 @@ const webSocketMock = WebSocket as unknown as jest.Mock<typeof WebSocket>;
 
 describe('EclairApi', () => {
   const node = getNetwork().nodes.lightning[2] as EclairNode;
+
+  beforeEach(() => {
+    webSocketMock.mockImplementation(
+      () =>
+        ({
+          ping: jest.fn(),
+          close: jest.fn(),
+          readyState: WebSocket.OPEN,
+        } as any),
+    );
+
+    clearListeners();
+  });
 
   it('should throw an error for an incorrect node implementation', async () => {
     const lnd = getNetwork().nodes.lightning[0];
@@ -50,15 +69,15 @@ describe('EclairApi', () => {
   });
 
   it('should get a listener for the provided EclairNode', () => {
-    const mockELN = { EclairWebSocket: jest.fn() };
-    const webSocketMock = new mockELN.EclairWebSocket();
-    jest.spyOn(window, 'WebSocket').mockReturnValue(webSocketMock);
-
     const listener = getListener(node);
     expect(listener).not.toBe(null);
     expect(listener.on).not.toBe(null);
 
-    expect(mockELN.EclairWebSocket).toHaveBeenCalled();
+    const listener2 = getListener(node);
+    expect(listener2).not.toBe(null);
+    expect(listener2).toBe(listener);
+
+    expect(webSocketMock).toHaveBeenCalled();
   });
 
   it('should setup a listener for the provided EclairNode', () => {
@@ -69,6 +88,7 @@ describe('EclairApi', () => {
       () =>
         ({
           ping: pingMock,
+          close: jest.fn(),
           readyState: WebSocket.OPEN,
         } as any),
     );
@@ -92,6 +112,7 @@ describe('EclairApi', () => {
       () =>
         ({
           ping: pingMock,
+          close: jest.fn(),
           readyState: WebSocket.CLOSED,
         } as any),
     );
@@ -103,11 +124,13 @@ describe('EclairApi', () => {
     // Fast-forward time to trigger the interval
     jest.advanceTimersByTime(50e3);
 
-    // Verify ping is called within the interval
+    // Verify ping is not called within the interval
     expect(pingMock).not.toHaveBeenCalled();
   });
 
   it('should remove a listener for the provided LightningNode', () => {
+    webSocketMock.mockImplementationOnce(() => ({ close: jest.fn() } as any));
+
     // make sure the listener is cached
     const listener = getListener(node);
     expect(listener).not.toBe(null);

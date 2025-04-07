@@ -15,6 +15,7 @@ export default {
   closeChannel: 'close-channel',
   listChannels: 'list-channels',
   pendingChannels: 'pending-channels',
+  getChanInfo: 'get-chan-info',
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',
@@ -33,5 +34,15 @@ export default {
     assetRoots: 'tapd-asset-roots',
     assetLeaves: 'tapd-asset-leaves',
     syncUniverse: 'tapd-sync-universe',
+    fundChannel: 'tapd-fund-channel',
+    addInvoice: 'tapd-add-invoice',
+    sendPayment: 'tapd-send-payment',
+  },
+  // litd proxy channels
+  litd: {
+    status: 'litd-status',
+    listSessions: 'litd-list-sessions',
+    addSession: 'litd-add-session',
+    revokeSession: 'litd-revoke-session',
   },
 };

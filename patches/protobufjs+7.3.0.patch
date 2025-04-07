@@ -1,0 +1,26 @@
+diff --git a/node_modules/protobufjs/dist/protobuf.js b/node_modules/protobufjs/dist/protobuf.js
+index 62727bd..b2dac3e 100644
+--- a/node_modules/protobufjs/dist/protobuf.js
++++ b/node_modules/protobufjs/dist/protobuf.js
+@@ -1887,7 +1887,7 @@ function decoder(mtype) {
+                 ("}");
+ 
+             if (types.long[field.keyType] !== undefined) gen
+-                ("%s[typeof k===\"object\"?util.longToHash(k):k]=value", ref);
++                ("%s[util.Long.isLong(k)?k.toString():typeof k===\"object\"?util.longToHash(k):k]=value", ref);
+             else gen
+                 ("%s[k]=value", ref);
+ 
+diff --git a/node_modules/protobufjs/src/decoder.js b/node_modules/protobufjs/src/decoder.js
+index f55451f..5edca14 100644
+--- a/node_modules/protobufjs/src/decoder.js
++++ b/node_modules/protobufjs/src/decoder.js
+@@ -72,7 +72,7 @@ function decoder(mtype) {
+                 ("}");
+ 
+             if (types.long[field.keyType] !== undefined) gen
+-                ("%s[typeof k===\"object\"?util.longToHash(k):k]=value", ref);
++                ("%s[util.Long.isLong(k)?k.toString():typeof k===\"object\"?util.longToHash(k):k]=value", ref);
+             else gen
+                 ("%s[k]=value", ref);
+ 

@@ -74,7 +74,6 @@ const appModel: AppModel = {
   settings: {
     lang: getI18n().language,
     theme: 'dark',
-    showAllNodeVersions: false,
     checkForUpdatesOnStartup: false,
     nodeImages: {
       managed: [],
@@ -87,6 +86,7 @@ const appModel: AppModel = {
       bitcoind: 1,
       btcd: 0,
       tapd: 0,
+      litd: 0,
     },
     basePorts: {
       LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },
@@ -284,7 +284,7 @@ const appModel: AppModel = {
     // reset the lightning nodes state
     getStoreActions().lightning.clearNodes();
     // reset the bitcoin nodes state
-    getStoreActions().bitcoind.clearNodes();
+    getStoreActions().bitcoin.clearNodes();
     // reset the tap nodes state
     getStoreActions().tap.clearNodes();
     // change the route

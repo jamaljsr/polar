@@ -1,15 +1,23 @@
 import React, { ReactNode, useMemo, useState } from 'react';
-import { BookOutlined } from '@ant-design/icons';
+import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { CLightningNode, EclairNode, LightningNode, LndNode, Status } from 'shared/types';
+import {
+  CLightningNode,
+  EclairNode,
+  LightningNode,
+  LitdNode,
+  LndNode,
+  Status,
+} from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { eclairCredentials } from 'utils/constants';
+import { eclairCredentials, litdCredentials } from 'utils/constants';
 import { ellipseInner } from 'utils/strings';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { BasicAuth, EncodedStrings, FilePaths, LndConnect } from './connect';
+import LncSessionsList from './connect/LncSessionsList';
 
 const Styled = {
   RadioGroup: styled(Radio.Group)`
@@ -29,6 +37,10 @@ const Styled = {
     margin-left: 5px;
     color: #aaa;
   `,
+  LinkIcon: styled(LinkOutlined)`
+    margin-left: 5px;
+    color: #aaa;
+  `,
 };
 
 export interface ConnectionInfo {
@@ -36,14 +48,22 @@ export interface ConnectionInfo {
   restDocsUrl: string;
   grpcUrl?: string;
   grpcDocsUrl?: string;
+  webUrl?: string;
   credentials: {
+    // LND
     admin?: string;
     readOnly?: string;
     invoice?: string;
     cert?: string;
+    // c-lightning
     clientCert?: string;
     clientKey?: string;
+    rune?: string;
+    // Eclair
     basicAuth?: string;
+    // litd macaroons
+    lit?: string;
+    tap?: string;
   };
   p2pUriExternal: string;
   authTypes: string[];
@@ -56,7 +76,11 @@ interface Props {
 const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.ConnectTab');
   const [authType, setAuthType] = useState<string>(
-    node.implementation === 'eclair' ? 'basic' : 'paths',
+    node.implementation === 'eclair'
+      ? 'basic'
+      : node.implementation === 'litd'
+      ? 'lnc'
+      : 'paths',
   );
   const { openInBrowser } = useStoreActions(s => s.app);
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
@@ -69,9 +93,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         const lnd = node as LndNode;
         return {
           restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
-          restDocsUrl: 'https://api.lightning.community/#lnd-rest-api-reference',
+          restDocsUrl: 'https://lightning.engineering/api-docs/api/lnd/',
           grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
-          grpcDocsUrl: 'https://api.lightning.community/',
+          grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lnd/',
           credentials: {
             admin: lnd.paths.adminMacaroon,
             readOnly: lnd.paths.readonlyMacaroon,
@@ -85,10 +109,11 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         const cln = node as CLightningNode;
         return {
           restUrl: `http://127.0.0.1:${cln.ports.rest}`,
-          restDocsUrl: 'https://github.com/Ride-The-Lightning/c-lightning-REST',
+          restDocsUrl: 'https://docs.corelightning.org/docs/rest',
           grpcUrl: cln.ports.grpc ? `127.0.0.1:${cln.ports.grpc}` : undefined,
+          grpcDocsUrl: 'https://docs.corelightning.org/docs/grpc',
           credentials: {
-            admin: cln.paths.macaroon,
+            rune: cln.paths.rune,
             cert: cln.paths.tlsCert,
             clientCert: cln.paths.tlsClientCert,
             clientKey: cln.paths.tlsClientKey,
@@ -106,6 +131,25 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${eln.ports.p2p}`,
           authTypes: ['basic'],
+        };
+      } else if (node.implementation === 'litd') {
+        const litd = node as LitdNode;
+        return {
+          restUrl: `https://127.0.0.1:${litd.ports.web}`,
+          restDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
+          grpcUrl: `127.0.0.1:${litd.ports.web}`,
+          grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
+          webUrl: `https://127.0.0.1:${litd.ports.web}`,
+          credentials: {
+            admin: litd.paths.adminMacaroon,
+            readOnly: litd.paths.readonlyMacaroon,
+            invoice: litd.paths.invoiceMacaroon,
+            cert: litd.paths.litTlsCert,
+            lit: litd.paths.litMacaroon,
+            tap: litd.paths.tapMacaroon,
+          },
+          p2pUriExternal: `${pubkey}@127.0.0.1:${litd.ports.p2p}`,
+          authTypes: ['paths', 'hex', 'base64', 'lnc'],
         };
       }
     }
@@ -131,7 +175,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     return <>{l('notStarted')}</>;
   }
 
-  const { restUrl, grpcUrl, credentials } = info;
+  const { webUrl, restUrl, grpcUrl, credentials } = info;
   const hosts: DetailValues = [
     [l('grpcHost'), grpcUrl, grpcUrl],
     [l('restHost'), restUrl, restUrl],
@@ -147,6 +191,34 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       label,
       value: <CopyIcon label={label} value={value as string} text={text} />,
     }));
+
+  if (node.implementation === 'litd') {
+    hosts.push(
+      {
+        label: l('webUrl'),
+        value: (
+          <>
+            <Tooltip title={l('webLabel')}>
+              <Styled.Link onClick={() => openInBrowser(webUrl as string)}>
+                {webUrl}
+              </Styled.Link>
+            </Tooltip>
+            <Styled.LinkIcon />
+          </>
+        ),
+      },
+      {
+        label: l('webPass'),
+        value: (
+          <CopyIcon
+            label={l('webPass')}
+            value={litdCredentials.pass}
+            text={litdCredentials.pass}
+          />
+        ),
+      },
+    );
+  }
   hosts.push({
     label: l('apiDocs'),
     value: (
@@ -167,6 +239,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   });
 
   const authCmps: Record<string, ReactNode> = {
+    lnc: node.implementation === 'litd' && <LncSessionsList node={node as LitdNode} />,
     paths: <FilePaths credentials={credentials} />,
     hex: <EncodedStrings credentials={credentials} encoding="hex" />,
     base64: <EncodedStrings credentials={credentials} encoding="base64" />,
@@ -183,7 +256,10 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
-        {credentials.admin && [
+        {node.implementation === 'litd' && (
+          <Radio.Button value="lnc">{l('lnc')}</Radio.Button>
+        )}
+        {(credentials.admin || credentials.rune) && [
           <Radio.Button key="paths" value="paths">
             {l('filePaths')}
           </Radio.Button>,

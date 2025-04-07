@@ -14,6 +14,8 @@ export const defaultTapdListAssets = (
   value: Partial<ListAssetResponse>,
 ): ListAssetResponse => ({
   assets: [],
+  unconfirmedTransfers: '0',
+  unconfirmedMints: '0',
   ...value,
 });
 
@@ -31,6 +33,9 @@ export const defaultTapdMintAsset = (): MintAssetResponse => ({
     batchKey: Buffer.from(''),
     assets: [],
     state: 'BATCH_STATE_PENDING',
+    createdAt: '',
+    heightHint: 0,
+    batchPsbt: Buffer.from(''),
   },
 });
 
@@ -42,6 +47,9 @@ export const defaultTapdFinalizeBatch = (
     batchKey: Buffer.from(''),
     assets: [],
     state: 'BATCH_STATE_FINALIZED',
+    createdAt: '',
+    heightHint: 0,
+    batchPsbt: Buffer.from(''),
   },
   ...value,
 });
@@ -58,6 +66,7 @@ export const defaultTapdNewAddress = (value: Partial<Addr>): Addr => ({
   tapscriptSibling: Buffer.from(''),
   proofCourierAddr: '',
   assetVersion: 'ASSET_VERSION_V0',
+  addressVersion: 'ADDR_VERSION_V0',
   ...value,
 });
 
@@ -65,6 +74,10 @@ export const defaultTapdSendAsset = (
   value: Partial<SendAssetResponse>,
 ): SendAssetResponse => ({
   transfer: {
+    anchorTxBlockHash: {
+      hash: Buffer.from(''),
+      hashStr: '',
+    },
     anchorTxChainFees: '',
     anchorTxHash: Buffer.from(''),
     anchorTxHeightHint: 0,

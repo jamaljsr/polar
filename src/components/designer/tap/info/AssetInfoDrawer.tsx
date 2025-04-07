@@ -6,6 +6,7 @@ import { TapAsset, TapBalance } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { ellipseInner } from 'utils/strings';
 import { CopyIcon } from 'components/common';
+import AssetAmount from 'components/common/AssetAmount';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 
 const Styled = {
@@ -42,8 +43,8 @@ const DetailValue: React.FC<{ value: string }> = ({ value }) => {
   );
 };
 
-const AssetInfoModal: React.FC = () => {
-  const { l } = usePrefixedTranslation('cmps.designer.tap.info.AssetInfoModal');
+const AssetInfoDrawer: React.FC = () => {
+  const { l } = usePrefixedTranslation('cmps.designer.tap.info.AssetInfoDrawer');
   const { visible, assetId, nodeName } = useStoreState(s => s.modals.assetInfo);
   const { hideAssetInfo } = useStoreActions(s => s.modals);
   const { assets, balance } = useAssetState(nodeName, assetId);
@@ -51,22 +52,29 @@ const AssetInfoModal: React.FC = () => {
   let cmp: ReactNode = undefined;
   if (balance) {
     const assetDetails: DetailValues = [
-      { label: l('balance'), value: balance.balance },
+      {
+        label: l('balance'),
+        value: <AssetAmount assetId={balance.id} amount={balance.balance} />,
+      },
       { label: l('type'), value: balance.type },
       { label: l('assetId'), value: <DetailValue value={balance.id} /> },
       { label: l('genesisPoint'), value: <DetailValue value={balance.genesisPoint} /> },
     ];
-    if (assets.length > 0 && assets[0].groupKey) {
-      assetDetails.push({ label: l('emission'), value: 'True' });
-      assetDetails.push({
-        label: l('groupKey'),
-        value: <DetailValue value={assets[0].groupKey} />,
-      });
-    } else {
-      assetDetails.push({ label: l('emission'), value: 'False' });
+    if (assets.length > 0) {
+      assetDetails.push({ label: l('decimals'), value: assets[0].decimals });
+
+      if (assets[0].groupKey) {
+        assetDetails.push({ label: l('emission'), value: 'True' });
+        assetDetails.push({
+          label: l('groupKey'),
+          value: <DetailValue value={assets[0].groupKey} />,
+        });
+      } else {
+        assetDetails.push({ label: l('emission'), value: 'False' });
+      }
     }
     const utxoDetails: DetailValues = assets.map(a => ({
-      label: `${a.amount} ${a.name}`,
+      label: <AssetAmount assetId={a.id} amount={a.amount} includeName />,
       value: <DetailValue value={a.anchorOutpoint} />,
     }));
     cmp = (
@@ -93,4 +101,4 @@ const AssetInfoModal: React.FC = () => {
   );
 };
 
-export default AssetInfoModal;
+export default AssetInfoDrawer;

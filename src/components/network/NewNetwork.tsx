@@ -50,6 +50,11 @@ const NewNetwork: React.FC = () => {
   const createAsync = useAsyncCallback(async (values: any) => {
     try {
       values.customNodes = values.customNodes || {};
+
+      if (values.tapdNodes > values.lndNodes) {
+        throw new Error(l('tapdCountError'));
+      }
+
       await addNetwork(values);
     } catch (error: any) {
       notify({ message: l('createError'), error });
@@ -72,11 +77,14 @@ const NewNetwork: React.FC = () => {
         <Form
           layout="vertical"
           colon={false}
+          requiredMark={false}
           initialValues={{
             lndNodes: settings.newNodeCounts.LND,
             clightningNodes: settings.newNodeCounts['c-lightning'],
             eclairNodes: settings.newNodeCounts.eclair,
             bitcoindNodes: settings.newNodeCounts.bitcoind,
+            tapdNodes: settings.newNodeCounts.tapd,
+            litdNodes: settings.newNodeCounts.litd,
             customNodes: initialCustomValues,
           }}
           onFinish={createAsync.execute}
@@ -87,6 +95,13 @@ const NewNetwork: React.FC = () => {
             rules={[{ required: true, message: l('cmps.forms.required') }]}
           >
             <Input placeholder={l('namePhldr')} />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label={l('descriptionLabel')}
+            rules={[{ max: 100, message: 'Maximum length is 100 characters' }]}
+          >
+            <Input placeholder={l('namePhlDescription')} />
           </Form.Item>
           {customNodes.length > 0 && (
             <>
@@ -143,6 +158,26 @@ const NewNetwork: React.FC = () => {
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
                 <InputNumber min={1} max={10} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={6}>
+              <Form.Item
+                name="tapdNodes"
+                label={dockerConfigs.tapd.name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="litdNodes"
+                label={dockerConfigs.litd.name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
           </Row>

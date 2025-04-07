@@ -38,12 +38,18 @@ describe('NewNetwork component', () => {
       ...result,
       createBtn: result.getAllByText('Create Network')[0].parentElement as Element,
       nameInput: result.getByLabelText('Network Name'),
+      descriptionInput: result.getByLabelText('Network Description'),
     };
   };
 
-  it('should contain a input field for name', () => {
+  it('should contain an input field for name', () => {
     const { nameInput } = renderComponent();
     expect(nameInput).toHaveValue('');
+  });
+
+  it('should contain an input field for description', () => {
+    const { descriptionInput } = renderComponent();
+    expect(descriptionInput).toHaveValue('');
   });
 
   it('should have a submit button', () => {
@@ -89,8 +95,9 @@ describe('NewNetwork component', () => {
 
   describe('with valid submission', () => {
     it('should navigate to home page', async () => {
-      const { createBtn, nameInput, history } = renderComponent();
+      const { createBtn, nameInput, descriptionInput, history } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(descriptionInput, { target: { value: 'description' } });
       fireEvent.click(createBtn);
       await waitFor(() => {
         expect(history.location.pathname).toEqual(NETWORK_VIEW(1));
@@ -98,21 +105,39 @@ describe('NewNetwork component', () => {
     });
 
     it('should call networkManager.create', async () => {
-      const { createBtn, nameInput, injections } = renderComponent();
+      const { createBtn, nameInput, descriptionInput, injections } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(descriptionInput, { target: { value: 'description' } });
       fireEvent.click(createBtn);
       await waitFor(() => {
-        expect(injections.dockerService.saveComposeFile).toBeCalled();
+        expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
       });
     });
 
     it('should display an error if the submission fails', async () => {
       mockDockerService.saveComposeFile.mockRejectedValue(new Error('asdf'));
-      const { createBtn, nameInput, findByText } = renderComponent();
+      const { createBtn, nameInput, descriptionInput, findByText } = renderComponent();
       fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(descriptionInput, { target: { value: 'description' } });
       fireEvent.click(createBtn);
       expect(await findByText('Unable to create the new network')).toBeInTheDocument();
       expect(await findByText('asdf')).toBeInTheDocument();
+    });
+
+    it('should show an error when there are move tapd than LND node chosen', async () => {
+      const { nameInput, descriptionInput, createBtn, getByLabelText, findByText } =
+        renderComponent();
+      fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(descriptionInput, { target: { value: 'description' } });
+      fireEvent.change(getByLabelText('LND'), { target: { value: 1 } });
+      fireEvent.change(getByLabelText('Taproot Assets'), { target: { value: 2 } });
+      fireEvent.click(createBtn);
+      expect(await findByText('Unable to create the new network')).toBeInTheDocument();
+      expect(
+        await findByText(
+          'The number of Taproot Assets nodes must be less than or equal to the number of LND nodes',
+        ),
+      ).toBeInTheDocument();
     });
   });
 });

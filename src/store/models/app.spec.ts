@@ -43,7 +43,6 @@ describe('App model', () => {
     });
     mockSettingsService.load.mockResolvedValue({
       lang: 'en-US',
-      showAllNodeVersions: true,
       checkForUpdatesOnStartup: false,
       theme: 'dark',
       nodeImages: { custom: [], managed: [] },
@@ -54,6 +53,7 @@ describe('App model', () => {
         bitcoind: 1,
         btcd: 0,
         tapd: 0,
+        litd: 0,
       },
       basePorts: {
         LND: {
@@ -108,6 +108,7 @@ describe('App model', () => {
       bitcoind: 1,
       btcd: 0,
       tapd: 0,
+      litd: 0,
     });
   });
 
@@ -125,8 +126,8 @@ describe('App model', () => {
   });
 
   it('should update settings', async () => {
-    store.getActions().app.updateSettings({ showAllNodeVersions: true });
-    expect(store.getState().app.settings.showAllNodeVersions).toBe(true);
+    store.getActions().app.updateSettings({ theme: 'dark' });
+    expect(store.getState().app.settings.theme).toBe('dark');
   });
 
   it('should truncate long error notifications', async () => {
@@ -146,7 +147,6 @@ describe('App model', () => {
     beforeEach(() => {
       mockSettingsService.load.mockResolvedValue({
         lang: 'en-US',
-        showAllNodeVersions: true,
         checkForUpdatesOnStartup: true,
         theme: 'dark',
         nodeImages: { custom: [], managed: [] },
@@ -157,6 +157,7 @@ describe('App model', () => {
           bitcoind: 1,
           btcd: 1,
           tapd: 1,
+          litd: 0,
         },
         basePorts: {
           LND: {
@@ -198,6 +199,7 @@ describe('App model', () => {
           LND: ['0.99.0-beta'], // a new version available for LND
           'c-lightning': [],
           eclair: [],
+          litd: [],
           bitcoind: [],
           btcd: [],
           tapd: [],

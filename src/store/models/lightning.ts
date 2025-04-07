@@ -184,8 +184,10 @@ const lightningModel: LightningModel = {
       const api = injections.lightningFactory.getService(node);
       const { address } = await api.getNewAddress(node);
       const coins = fromSatsNumeric(sats);
-      await injections.bitcoindService.sendFunds(btcNode, address, coins);
-      await getStoreActions().bitcoind.mine({
+      await injections.bitcoinFactory
+        .getService(btcNode)
+        .sendFunds(btcNode, address, coins);
+      await getStoreActions().bitcoin.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
@@ -221,7 +223,7 @@ const lightningModel: LightningModel = {
       const btcNode =
         network.nodes.bitcoin.find(n => n.name === from.backendName) ||
         network.nodes.bitcoin[0];
-      await getStoreActions().bitcoind.mine({
+      await getStoreActions().bitcoin.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
@@ -246,7 +248,7 @@ const lightningModel: LightningModel = {
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(node.networkId);
       const btcNode = network.nodes.bitcoin[0];
-      await getStoreActions().bitcoind.mine({
+      await getStoreActions().bitcoin.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
       });
@@ -273,6 +275,7 @@ const lightningModel: LightningModel = {
 
       const network = getStoreState().network.networkById(node.networkId);
       // synchronize the chart with the new channel
+      await getStoreActions().lightning.waitForNodes(network.nodes.lightning);
       await getStoreActions().designer.syncChart(network);
 
       return receipt;
@@ -286,6 +289,7 @@ const lightningModel: LightningModel = {
       LND: 1,
       'c-lightning': 2,
       eclair: 2,
+      litd: 1,
     };
     // determine the highest delay of all implementations
     const longestDelay = nodes.reduce(
@@ -295,7 +299,7 @@ const lightningModel: LightningModel = {
     await delay(longestDelay * 1000);
   }),
   mineListener: thunkOn(
-    (actions, storeActions) => storeActions.bitcoind.mine,
+    (actions, storeActions) => storeActions.bitcoin.mine,
     async (actions, { payload }, { getStoreState, getStoreActions }) => {
       const { notify } = getStoreActions().app;
       // update all lightning nodes info when a block in mined
@@ -333,22 +337,25 @@ const lightningModel: LightningModel = {
   addChannelListeners: thunk(
     async (actions, network, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(network.id);
+
+      // throttle the sync to avoid too many back to back requests
+      const syncThrottled = throttle(
+        () => {
+          const net = getStoreState().network.networks.find(n => n.id === network.id);
+          if (net?.status !== Status.Started) return;
+          getStoreActions().designer.syncChart(net);
+        },
+        5 * 1000,
+        { leading: true, trailing: false },
+      );
+
       for (const node of nodes.lightning) {
         await injections.lightningFactory
           .getService(node)
           .subscribeChannelEvents(node, async (event: PLN.LightningNodeChannelEvent) => {
-            if (
-              event.type === 'Pending' ||
-              event.type === 'Open' ||
-              event.type === 'Closed'
-            ) {
-              await actions.getAllInfo(node);
-              const network = getStoreState().network.networkById(node.networkId);
-              // throttleFunction makes sure multiple syncChart calls is done with a 10 seconds interval
-              const throttleFunction = throttle(() => {
-                getStoreActions().designer.syncChart(network);
-              }, 10 * 1000);
-              throttleFunction();
+            if (event.type !== 'Unknown') {
+              await actions.waitForNodes([node]);
+              syncThrottled();
             }
           });
       }
@@ -368,7 +375,9 @@ const lightningModel: LightningModel = {
     await Promise.all(
       network.nodes.lightning.map(async node => {
         const nodeChannels = await getChannels(node);
-        channels.push(...nodeChannels);
+        if (nodeChannels) {
+          channels.push(...nodeChannels);
+        }
         id2Node[node.name] = node;
       }),
     );
@@ -401,9 +410,6 @@ const lightningModel: LightningModel = {
   }),
   autoBalanceChannelsInfo: action(state => {
     const { channelsInfo } = state;
-    if (!channelsInfo) {
-      return;
-    }
     for (let index = 0; index < channelsInfo.length; index += 1) {
       const { localBalance, remoteBalance } = channelsInfo[index];
       const halfAmount = Math.floor((Number(localBalance) + Number(remoteBalance)) / 2);
@@ -416,8 +422,6 @@ const lightningModel: LightningModel = {
       const { notify } = getStoreActions().app;
       const { hideBalanceChannels } = getStoreActions().modals;
       const { channelsInfo } = getState();
-
-      if (!channelsInfo) return;
 
       const toPay: PreInvoice[] = channelsInfo
         .filter(c => Number(c.localBalance) !== c.nextLocalBalance)

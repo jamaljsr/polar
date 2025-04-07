@@ -2,9 +2,16 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Form } from 'antd';
 import { LightningNode, Status } from 'shared/types';
-import { AdvancedOptionsButton, RemoveNode, RestartNode } from 'components/common';
+import { mapToTapd } from 'utils/network';
+import {
+  AdvancedOptionsButton,
+  RemoveNode,
+  RenameNodeButton,
+  RestartNode,
+} from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
+import { MintAssetButton, NewAddressButton, SendAssetButton } from '../tap/actions';
 import { Deposit, OpenChannelButtons, PaymentButtons } from './actions';
 
 const Styled = {
@@ -25,12 +32,20 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
           <Deposit node={node} />
           <OpenChannelButtons node={node} />
           <PaymentButtons node={node} />
+          {node.implementation === 'litd' && (
+            <>
+              <SendAssetButton node={mapToTapd(node)} />
+              <NewAddressButton node={mapToTapd(node)} />
+              <MintAssetButton node={mapToTapd(node)} />
+            </>
+          )}
           <OpenTerminalButton node={node} />
           <ViewLogsButton node={node} />
           <Styled.Spacer />
         </>
       )}
       <RestartNode node={node} />
+      <RenameNodeButton node={node} />
       <AdvancedOptionsButton node={node} />
       <RemoveNode node={node} />
     </Form>

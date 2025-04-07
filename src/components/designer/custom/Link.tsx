@@ -47,42 +47,53 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
   const theme = useTheme();
 
   // memoize these calculations for a bit of perf
-  const { leftStop, rightStop, leftColor, rightColor, opacity } = useMemo(() => {
-    const [blue, green, orange] = ['#6495ED', '#52c41a', '#fa8c16'];
+  const { leftStop, rightStop, leftColor, rightColor, opacity, dashed } = useMemo(() => {
     // use two stops in the middle to keep a small gradient in between
     let [leftStop, rightStop] = [45, 55];
     // default colors to gray for backend nodes
     let leftColor = theme.link.default;
     let rightColor = theme.link.default;
+    let dashed = false;
     let opacity = 1;
     if (link.properties) {
-      const { type, direction, toBalance, capacity, isPrivate } =
+      const { type, direction, toBalance, capacity, isPrivate, assets } =
         link.properties as LinkProperties;
 
-      if (isPrivate) opacity = 0.5;
+      if (isPrivate && !assets) opacity = 0.5;
 
-      if (type === 'open-channel') {
-        // convert numeric strings to BigInts
-        const [to, total] = [toBalance, capacity].map(BigInt);
+      if (type === 'open-channel' || type === 'pending-channel') {
+        let primaryColor = theme.channel.bitcoin.local;
+        let secondaryColor = theme.channel.bitcoin.remote;
+        let to = BigInt(toBalance);
+        let total = BigInt(capacity);
+        // use the first asset if available
+        if (assets?.length) {
+          to = BigInt(assets[0].remoteBalance);
+          total = BigInt(assets[0].capacity);
+          primaryColor = theme.channel.asset.local;
+          secondaryColor = theme.channel.asset.remote;
+        }
         // calculate the pct of the channel on the remote side
         const split = Number((to * BigInt(100)) / total);
         // swap colors and stops if the visual direction of the chanel is right to left
         if (direction === 'rtl') {
-          // show green from the right initiator node to left
-          leftColor = blue;
-          rightColor = green;
-          leftStop = Math.max(split - 3, 0);
-          rightStop = Math.min(split + 3, 100);
+          // show primary color from the right initiator node to left
+          leftColor = secondaryColor;
+          rightColor = primaryColor;
+          leftStop = Math.max(split - 2, 0);
+          rightStop = Math.min(split + 2, 100);
         } else {
-          // show green from the left initiator node to right
-          leftColor = green;
-          rightColor = blue;
-          leftStop = Math.max(100 - split - 3, 0);
-          rightStop = Math.min(100 - split + 3, 100);
+          // show primary color from the left initiator node to right
+          leftColor = primaryColor;
+          rightColor = secondaryColor;
+          leftStop = Math.max(100 - split - 2, 0);
+          rightStop = Math.min(100 - split + 2, 100);
         }
-      } else if (type === 'pending-channel') {
-        leftColor = orange;
-        rightColor = orange;
+
+        if (type === 'pending-channel') {
+          dashed = true;
+          opacity = 0.5;
+        }
       }
     }
     return {
@@ -91,6 +102,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
       leftColor,
       rightColor,
       opacity,
+      dashed,
     };
   }, [link.properties, theme]);
 
@@ -123,6 +135,7 @@ const CustomLink: React.FC<ILinkDefaultProps> = ({
           opacity={opacity}
           stroke={`url(#${gradientId})`}
           strokeWidth="3"
+          strokeDasharray={dashed ? '15,10' : 'none'}
           fill="none"
         />
         {/* Thick line to make selection easier */}

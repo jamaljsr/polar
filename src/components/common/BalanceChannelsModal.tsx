@@ -6,6 +6,7 @@ import { useStoreActions, useStoreState } from 'store';
 import { ChannelInfo, Network } from 'types';
 import { format } from 'utils/units';
 import styled from '@emotion/styled';
+import { useAsyncCallback } from 'react-async-hook';
 
 interface Props {
   network: Network;
@@ -29,13 +30,23 @@ const BalanceChannelsModal: React.FC<Props> = ({ network }) => {
     updateBalanceOfChannels,
   } = useStoreActions(s => s.lightning);
 
+  const { notify } = useStoreActions(s => s.app);
+
+  const updateBalanceOfChannelsAsync = useAsyncCallback(async () => {
+    try {
+      await updateBalanceOfChannels(network);
+    } catch (error: any) {
+      notify({ message: 'Failed to update channel balance', error });
+    }
+  });
+
   return (
     <Modal
       title="Balance Channels"
       open={visible}
       okText={l('update')}
       cancelText={l('close')}
-      onOk={() => updateBalanceOfChannels(network)}
+      onOk={updateBalanceOfChannelsAsync.execute}
       onCancel={() => hideBalanceChannels()}
     >
       {/* sliders */}

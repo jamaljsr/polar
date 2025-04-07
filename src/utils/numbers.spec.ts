@@ -1,4 +1,4 @@
-import { abbreviate } from './numbers';
+import { abbreviate, formatDecimals } from './numbers';
 
 const baseNumbers = [9, 15, 248, 826, 999];
 
@@ -35,5 +35,21 @@ describe('Numbers Util', () => {
       const result = abbreviate(baseNumbers[i] * multiplier);
       expect(result).toBe(expected[i]);
     }
+  });
+
+  it('should format decimals', () => {
+    expect(formatDecimals(100000, 2)).toBe('1,000.00');
+    expect(formatDecimals(100000, 0)).toBe('100,000');
+    expect(formatDecimals(undefined, 2)).toBe('');
+
+    expect(formatDecimals(12345678, 0)).toBe('12,345,678');
+    expect(formatDecimals(12345678, 1)).toBe('1,234,567.8');
+    expect(formatDecimals(12345678, 2)).toBe('123,456.78');
+    expect(formatDecimals(12345678, 3)).toBe('12,345.678');
+    expect(formatDecimals(12345678, 4)).toBe('1,234.5678');
+    expect(formatDecimals(12345678, 5)).toBe('123.45678');
+    expect(formatDecimals(12345678, 6)).toBe('12.345678');
+    expect(formatDecimals(12345678, 7)).toBe('1.2345678');
+    expect(formatDecimals(12345678, 8)).toBe('0.12345678');
   });
 });

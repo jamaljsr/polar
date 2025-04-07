@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { DownOutlined } from '@ant-design/icons';
@@ -14,12 +14,12 @@ import {
   Select,
 } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { TapdNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { NewAddressPayload } from 'store/models/tap';
 import { Network } from 'types';
+import { getTapdNodes } from 'utils/network';
+import { formatDecimals } from 'utils/numbers';
 import { ellipseInner } from 'utils/strings';
-import { format } from 'utils/units';
 import CopyableInput from 'components/common/form/CopyableInput';
 import TapDataSelect from 'components/common/form/TapDataSelect';
 
@@ -44,6 +44,13 @@ const Styled = {
   `,
 };
 
+const getNode = (network: Network, nodeName?: string) => {
+  const tapNodes = getTapdNodes(network);
+  const node = tapNodes.find(node => node.name === nodeName);
+  const otherNodes = tapNodes.filter(node => node.name !== nodeName);
+  return { node, otherNodes };
+};
+
 interface Props {
   network: Network;
 }
@@ -52,66 +59,79 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.tap.actions.NewAddressModal');
 
   const { notify } = useStoreActions(s => s.app);
-  const { syncChart } = useStoreActions(s => s.designer);
   const { visible, nodeName } = useStoreState(s => s.modals.newAddress);
   const { hideNewAddress } = useStoreActions(s => s.modals);
   const { syncUniverse, getNewAddress } = useStoreActions(s => s.tap);
   const { nodes } = useStoreState(s => s.tap);
 
-  const [selectedAmount, setSelectedAmount] = useState(100);
-  const [selectedName, setSelectedName] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [tapAddress, setTapAddress] = useState('');
 
   const [form] = Form.useForm();
-  const thisTapNode = network.nodes.tap.find(node => node.name === nodeName) as TapdNode;
-  const otherTapNodes = network.nodes.tap.filter(node => node.name !== nodeName);
+  const selectedAssetId: string = Form.useWatch('assetId', form);
 
-  // When polar is first opened, we need to populate the state with the lightning node data
-  useEffect(() => syncChart(network), []);
+  const selectedAsset = useMemo(() => {
+    for (const node of Object.values(nodes)) {
+      const asset = node.assets?.find(a => a.id === selectedAssetId);
+      if (asset) return asset;
+    }
+  }, [nodes, selectedAssetId]);
 
   const handleSync = useAsyncCallback(async e => {
-    const node = otherTapNodes[e.key];
-    const hostname = node.name;
+    const { node, otherNodes } = getNode(network, nodeName);
+    const from = otherNodes[e.key];
+    const hostname = `${from.name}:${from.implementation === 'litd' ? '8443' : '10029'}`;
 
     try {
-      const numUpdated = await syncUniverse({ node: thisTapNode, hostname });
-      message.success(l('syncSuccess', { count: numUpdated, hostname }));
+      if (!node) throw new Error(`${nodeName} is not a TAP node`);
+
+      const numUpdated = await syncUniverse({ node, hostname });
+      message.success(l('syncSuccess', { count: numUpdated, hostname: from.name }));
     } catch (error: any) {
-      notify({ message: l('syncError', { hostname }), error });
+      notify({ message: l('syncError', { hostname: from.name }), error });
     }
   });
 
-  //submit
-  const newAddressAsync = useAsyncCallback(async (payload: NewAddressPayload) => {
-    try {
-      const res = await getNewAddress(payload);
-      setTapAddress(res.encoded);
-    } catch (error: any) {
-      notify({ message: l('submitError'), error });
-    }
-  });
+  const newAddressAsync = useAsyncCallback(
+    async (values: { assetId: string; amount: string }) => {
+      try {
+        const { node } = getNode(network, nodeName);
+        if (!node) throw new Error(`${nodeName} is not a TAP node`);
 
-  const handleSubmit = (values: { assetId: string; amount: string }) => {
-    const payload: NewAddressPayload = {
-      node: thisTapNode,
-      assetId: values.assetId,
-      amount: values.amount,
-    };
-    newAddressAsync.execute(payload);
-  };
+        const asset = Object.values(nodes)
+          .flatMap(n => n.assets)
+          .find(a => a?.id === selectedAssetId);
+        if (!asset) throw new Error('Invalid asset selected');
+
+        const amount = (Number(values.amount) * 10 ** asset.decimals).toFixed(0);
+
+        const payload: NewAddressPayload = {
+          node,
+          assetId: values.assetId,
+          amount,
+        };
+
+        const res = await getNewAddress(payload);
+        setTapAddress(res.encoded);
+        setSuccessMsg(
+          l('successDesc', {
+            assetName: asset.name,
+            amount: formatDecimals(Number(amount), asset.decimals),
+          }),
+        );
+      } catch (error: any) {
+        notify({ message: l('submitError'), error });
+      }
+    },
+  );
 
   const handleCopy = () => {
     message.success(l('copied', { address: ellipseInner(tapAddress, 10, 10) }), 2);
     hideNewAddress();
   };
 
-  const assetOptions = useMemo(() => {
-    const node = nodes[thisTapNode.name];
-    if (node && node.assetRoots) {
-      return node.assetRoots;
-    }
-    return [];
-  }, [nodes, thisTapNode.name]);
+  const { otherNodes } = getNode(network, nodeName);
+  const assetRoots = (nodeName && nodes[nodeName]?.assetRoots) || [];
 
   let cmp: ReactNode;
   if (!tapAddress) {
@@ -126,7 +146,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             assetId: '',
             amount: '100',
           }}
-          onFinish={handleSubmit}
+          onFinish={newAddressAsync.execute}
         >
           <Form.Item
             name="assetId"
@@ -135,7 +155,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             help={
               <Styled.Dropdown
                 menu={{
-                  items: otherTapNodes.map((n, i) => ({
+                  items: otherNodes.map((n, i) => ({
                     key: i,
                     label: n.name,
                   })),
@@ -148,11 +168,8 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
               </Styled.Dropdown>
             }
           >
-            <Select
-              disabled={handleSync.loading}
-              onChange={(_, option: any) => setSelectedName(option.label)}
-            >
-              {assetOptions.map(a => (
+            <Select disabled={handleSync.loading}>
+              {assetRoots.map(a => (
                 <Select.Option key={a.id} value={a.id}>
                   <Styled.AssetOption>
                     <span>{a.name}</span>
@@ -166,13 +183,11 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
             label={l('amount')}
             name="amount"
             rules={[{ required: true, message: l('cmps.forms.required') }]}
+            help={
+              selectedAsset ? l('amountInfo', { decimals: selectedAsset.decimals }) : ''
+            }
           >
-            <InputNumber<number>
-              onChange={v => setSelectedAmount(v as number)}
-              min={1}
-              formatter={v => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={v => parseInt(`${v}`.replace(/(undefined|,*)/g, ''))}
-            />
+            <InputNumber<number> min={1} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </>
@@ -182,10 +197,7 @@ const NewAddressModal: React.FC<Props> = ({ network }) => {
       <Result
         status="success"
         title={l('successTitle')}
-        subTitle={l('successDesc', {
-          assetName: selectedName,
-          amount: format(`${selectedAmount}`),
-        })}
+        subTitle={successMsg}
         extra={
           <Form>
             <Form.Item>

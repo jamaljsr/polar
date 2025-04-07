@@ -10,6 +10,7 @@ export interface TapAsset {
   genesisPoint: string;
   anchorOutpoint: string;
   groupKey: string;
+  decimals: number;
 }
 
 export interface TapBalance {
@@ -44,6 +45,17 @@ export interface TapAssetRoot {
   id: string;
   name: string;
   rootSum: number;
+}
+
+export interface BuyOrder {
+  askPrice: string;
+  scid: string;
+}
+
+export interface SellOrder {
+  bidPrice: string;
+  scid: string;
+  id: string;
 }
 
 export enum TAP_ASSET_TYPE {

@@ -1,5 +1,5 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
-import { BitcoinNode, LightningNode, TapdNode } from 'shared/types';
+import { BitcoinNode, LightningNode, TapdNode, TapNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
@@ -14,6 +14,7 @@ export interface LinkProperties {
   direction: 'ltr' | 'rtl';
   status: string;
   isPrivate: boolean;
+  assets?: LightningNodeChannel['assets'];
 }
 
 export const rotate = (
@@ -40,11 +41,22 @@ export const snap = (position: IPosition, config?: IConfig) => {
   return offset;
 };
 
-export const createLightningChartNode = (ln: LightningNode) => {
+// Adds a gap from the top & left edges of the canvas
+const baseline = { x: 100, y: 100 };
+// For nodes that are on the same row / column, stagger them by this amount
+const stagger = { x: 50, y: 100 };
+// The amount of space between each node
+const space = { x: 250, y: 200 };
+
+export const createLightningChartNode = (ln: LightningNode, yOffset = 0) => {
+  const position: IPosition = {
+    x: ln.id * space.x + stagger.x,
+    y: baseline.y + yOffset + (ln.id % 2 === 0 ? 0 : stagger.y),
+  };
   const node: INode = {
     id: ln.name,
     type: 'lightning',
-    position: { x: ln.id * 250 + 50, y: ln.id % 2 === 0 ? 100 : 200 },
+    position,
     ports: {
       'empty-left': { id: 'empty-left', type: 'left' },
       'empty-right': { id: 'empty-right', type: 'right' },
@@ -73,11 +85,15 @@ export const createLightningChartNode = (ln: LightningNode) => {
   return { node, link };
 };
 
-export const createTapdChartNode = (tap: TapdNode) => {
+export const createTapdChartNode = (tap: TapNode, chart?: IChart) => {
+  const position: IPosition = {
+    x: tap.id * space.x + baseline.x,
+    y: baseline.y + (tap.id % 2 === 0 ? 0 : stagger.y),
+  };
   const node: INode = {
     id: tap.name,
     type: 'tap',
-    position: { x: tap.id * 250 + 50, y: tap.id % 2 === 0 ? 100 : 200 },
+    position,
     ports: {
       lndbackend: { id: 'lndbackend', type: 'bottom' },
     },
@@ -88,23 +104,39 @@ export const createTapdChartNode = (tap: TapdNode) => {
     },
   };
 
-  const link: ILink = {
-    id: `${tap.name}-${tap.lndName}`,
-    from: { nodeId: tap.name, portId: 'lndbackend' },
-    to: { nodeId: tap.lndName, portId: 'lndbackend' },
-    properties: {
-      type: 'lndbackend',
-    },
-  };
+  let link: ILink | undefined = undefined;
+  if (tap.implementation === 'tapd') {
+    const tapd = tap as TapdNode;
+    link = {
+      id: `${tapd.name}-${tapd.lndName}`,
+      from: { nodeId: tapd.name, portId: 'lndbackend' },
+      to: { nodeId: tapd.lndName, portId: 'lndbackend' },
+      properties: {
+        type: 'lndbackend',
+      },
+    };
+
+    if (chart?.nodes[tapd.lndName]) {
+      const lndNode = chart.nodes[tapd.lndName];
+      node.position = {
+        x: lndNode.position.x + stagger.x,
+        y: lndNode.position.y - space.y,
+      };
+    }
+  }
 
   return { node, link };
 };
 
-export const createBitcoinChartNode = (btc: BitcoinNode) => {
+export const createBitcoinChartNode = (btc: BitcoinNode, yOffset = 0) => {
+  const position: IPosition = {
+    x: btc.id * 250 + space.x,
+    y: yOffset + space.y + space.y + (btc.id % 2 === 0 ? 0 : stagger.y),
+  };
   const node: INode = {
     id: btc.name,
     type: 'bitcoin',
-    position: { x: btc.id * 250 + 200, y: btc.id % 2 === 0 ? 400 : 500 },
+    position,
     ports: {
       backend: { id: 'backend', type: 'top' },
       'peer-left': { id: 'peer-left', type: 'left' },
@@ -146,22 +178,26 @@ export const initChartFromNetwork = (network: Network): IChart => {
     scale: 1,
   };
 
+  // determines if the LN and BTC nodes should start on the second or third row based on
+  // if there are TAP nodes present
+  const yOffset = network.nodes.tap.length > 0 ? space.y : 0;
+
   network.nodes.bitcoin.forEach(n => {
-    const { node, link } = createBitcoinChartNode(n);
+    const { node, link } = createBitcoinChartNode(n, yOffset);
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
   });
 
   network.nodes.lightning.forEach(n => {
-    const { node, link } = createLightningChartNode(n);
+    const { node, link } = createLightningChartNode(n, yOffset);
     chart.nodes[node.id] = node;
     chart.links[link.id] = link;
   });
 
   network.nodes.tap.forEach(n => {
-    const { node, link } = createTapdChartNode(n as TapdNode);
+    const { node, link } = createTapdChartNode(n, chart);
     chart.nodes[node.id] = node;
-    chart.links[link.id] = link;
+    if (link) chart.links[link.id] = link;
   });
 
   return chart;
@@ -197,7 +233,11 @@ const updateLinksAndPorts = (
     ...(fromNode.ports[chanId] || {}),
     id: chanId,
     type: fromOnLeftSide ? 'right' : 'left',
-    properties: { nodeId: fromNode.id, initiator: true },
+    properties: {
+      nodeId: fromNode.id,
+      initiator: true,
+      hasAssets: !!chan.assets?.length,
+    },
   };
 
   // create or update the port on the to node
@@ -205,7 +245,7 @@ const updateLinksAndPorts = (
     ...(toNode.ports[chanId] || {}),
     id: chanId,
     type: fromOnLeftSide ? 'left' : 'right',
-    properties: { nodeId: toNode.id },
+    properties: { nodeId: toNode.id, initiator: false, hasAssets: !!chan.assets?.length },
   };
 
   const properties: LinkProperties = {
@@ -217,6 +257,7 @@ const updateLinksAndPorts = (
     direction: fromOnLeftSide ? 'ltr' : 'rtl',
     status: chan.status,
     isPrivate: chan.isPrivate,
+    assets: chan.assets,
   };
 
   // create or update the link
@@ -249,7 +290,7 @@ export const updateChartFromNodes = (
   Object.entries(nodesData).forEach(([fromName, data]) => {
     const fromNode = nodes[fromName];
 
-    if (data.channels) {
+    if (fromNode && data.channels) {
       data.channels
         // ignore channels to nodes that no longer exist in the network
         .filter(c => !!pubkeys[c.pubkey])

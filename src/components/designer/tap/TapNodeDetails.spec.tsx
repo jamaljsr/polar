@@ -3,6 +3,7 @@ import { shell } from 'electron';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { Status, TapNode } from 'shared/types';
 import { Network } from 'types';
+import { initChartFromNetwork } from 'utils/chart';
 import { dockerConfigs } from 'utils/constants';
 import * as files from 'utils/files';
 import {
@@ -21,6 +22,9 @@ describe('TapDetails', () => {
   let node: TapNode;
 
   const renderComponent = (status?: Status, custom = false) => {
+    network = getNetwork(1, 'test network', Status.Stopped, 2);
+    node = network.nodes.tap[0];
+
     if (status !== undefined) {
       network.status = status;
       network.nodes.bitcoin.forEach(n => (n.status = status));
@@ -37,6 +41,12 @@ describe('TapDetails', () => {
       network: {
         networks: [network],
       },
+      designer: {
+        activeId: network.id,
+        allCharts: {
+          [network.id]: initChartFromNetwork(network),
+        },
+      },
     };
     const cmp = <TapDetails node={node} />;
     const result = renderWithProviders(cmp, { initialState });
@@ -45,11 +55,6 @@ describe('TapDetails', () => {
       node,
     };
   };
-
-  beforeEach(() => {
-    network = getNetwork(1, 'test network', Status.Stopped, 2);
-    node = network.nodes.tap[0];
-  });
 
   describe('with node Stopped', () => {
     it('should display Node Type', async () => {
@@ -211,6 +216,13 @@ describe('TapDetails', () => {
       expect(queryByText('150')).not.toBeInTheDocument();
     });
 
+    it('should not display node info for invalid implementation', async () => {
+      const { queryByText, findByText } = renderComponent(Status.Started);
+      node.implementation = 'invalid' as any;
+      fireEvent.click(await findByText('Connect'));
+      expect(queryByText('GRPC Host')).not.toBeInTheDocument();
+    });
+
     it('should open API Doc links in the browser', async () => {
       shell.openExternal = jest.fn().mockResolvedValue(true);
       const { getByText, findByText } = renderComponent(Status.Started);
@@ -235,7 +247,7 @@ describe('TapDetails', () => {
     it('should handle new address button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
-      fireEvent.click(await findByText('New Address'));
+      fireEvent.click(await findByText('Create Asset Address'));
       const { visible, nodeName } = store.getState().modals.newAddress;
       expect(visible).toEqual(true);
       expect(nodeName).toEqual(node.name);
@@ -244,7 +256,7 @@ describe('TapDetails', () => {
     it('should handle send address button click', async () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
-      fireEvent.click(await findByText('Send Asset'));
+      fireEvent.click(await findByText('Send Asset On-chain'));
       const { visible, nodeName } = store.getState().modals.sendAsset;
       expect(visible).toEqual(true);
       expect(nodeName).toEqual(node.name);
@@ -277,6 +289,27 @@ describe('TapDetails', () => {
         expect(await findByText('03dd30...462882')).toBeInTheDocument();
         expect(await findByText('100 LUSD')).toBeInTheDocument();
         expect(await findByText('50 LUSD')).toBeInTheDocument();
+      });
+
+      it('should display the asset drawer without emission', async () => {
+        const { findByText, findAllByLabelText, queryByText } = renderComponent(
+          Status.Started,
+        );
+        fireEvent.click(await findByText('Info'));
+        const buttons = await findAllByLabelText('unordered-list');
+        expect(buttons.length).toEqual(2);
+        fireEvent.click(buttons[1]);
+        expect(await findByText('TAP Asset Info')).toBeInTheDocument();
+        expect(await findByText('Type')).toBeInTheDocument();
+        expect(await findByText('NORMAL')).toBeInTheDocument();
+        expect(await findByText('Asset ID')).toBeInTheDocument();
+        expect(await findByText('b4b905...7b2002')).toBeInTheDocument();
+        expect(await findByText('Genesis Point')).toBeInTheDocument();
+        expect(await findByText('64e4cf...9c58:2')).toBeInTheDocument();
+        expect(queryByText('Group Key')).not.toBeInTheDocument();
+        expect(await findByText('Emission Allowed')).toBeInTheDocument();
+        expect(await findByText('False')).toBeInTheDocument();
+        expect(await findByText('500 PTOKEN')).toBeInTheDocument();
       });
 
       it('should handle a node with no assets', async () => {

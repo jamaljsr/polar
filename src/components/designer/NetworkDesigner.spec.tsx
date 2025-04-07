@@ -129,7 +129,7 @@ describe('NetworkDesigner Component', () => {
     act(() => {
       store.getActions().modals.showOpenChannel({});
     });
-    expect(await findByText('Capacity (sats)')).toBeInTheDocument();
+    expect(await findByText('Capacity')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
@@ -139,7 +139,7 @@ describe('NetworkDesigner Component', () => {
     act(() => {
       store.getActions().modals.showCreateInvoice({});
     });
-    expect(await findByText('Amount (sats)')).toBeInTheDocument();
+    expect(await findByText('Amount')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 
@@ -221,6 +221,41 @@ describe('NetworkDesigner Component', () => {
       store.getActions().modals.showAdvancedOptions({});
     });
     expect(await findByText('Docker Startup Command')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
+  it('should display the Rename Node modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showRenameNode({ oldNodeName: 'alice' });
+    });
+    expect(await findByText('Rename Node alice')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
+  it('should display the Balance Channels modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showBalanceChannels();
+    });
+    expect(await findByText('Balance Channels')).toBeInTheDocument();
+    fireEvent.click(getByText('Close'));
+  });
+
+  it('should display the LncAddSession modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    store.getActions().designer.onCanvasDrop({
+      data: { type: 'litd', version: testRepoState.images.litd.latest },
+      position: { x: 584, y: 343 },
+      id: 'test-id',
+    });
+    expect(await findByText('carol')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showAddLncSession({ nodeName: 'carol' });
+    });
+    expect(await findByText('Add new LNC Session')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 

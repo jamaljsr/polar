@@ -3,7 +3,8 @@ import { useAsyncCallback } from 'react-async-hook';
 import { Redirect, RouteComponentProps } from 'react-router';
 import { info } from 'electron-log';
 import styled from '@emotion/styled';
-import { Alert, Button, Empty, Input, Modal, PageHeader } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { Alert, Button, Empty, Input, Modal, PageHeader, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { Status } from 'shared/types';
@@ -34,7 +35,15 @@ const Styled = {
     margin-bottom: 10px;
     flex: 0;
   `,
-  RenameInput: styled(Input)`
+  NetworkInput: styled.div`
+    display: flex;
+    flex-direction: column;
+  `,
+  NameInput: styled(Input)`
+    width: 500px;
+    margin-bottom: 8px;
+  `,
+  DescriptionInput: styled(Input.TextArea)`
     width: 500px;
   `,
   NetworkDesigner: styled(NetworkDesigner)`
@@ -60,22 +69,25 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
 
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState('');
+  const [editingDescription, setEditingDescription] = useState('');
 
   const { dockerImages } = useStoreState(s => s.app);
-  const { nodes: bitcoinData } = useStoreState(s => s.bitcoind);
+  const { nodes: bitcoinData } = useStoreState(s => s.bitcoin);
   const { navigateTo, notify } = useStoreActions(s => s.app);
   const { clearActiveId } = useStoreActions(s => s.designer);
-  const { getInfo } = useStoreActions(s => s.bitcoind);
+  const { getInfo } = useStoreActions(s => s.bitcoin);
   const { toggle, rename, remove, exportNetwork } = useStoreActions(s => s.network);
   const toggleAsync = useAsyncCallback(toggle);
-  const renameAsync = useAsyncCallback(async (payload: { id: number; name: string }) => {
-    try {
-      await rename(payload);
-      setEditing(false);
-    } catch (error: any) {
-      notify({ message: l('renameError'), error });
-    }
-  });
+  const renameAsync = useAsyncCallback(
+    async (payload: { id: number; name: string; description: string }) => {
+      try {
+        await rename(payload);
+        setEditing(false);
+      } catch (error: any) {
+        notify({ message: l('renameError'), error });
+      }
+    },
+  );
   const exportAsync = useAsyncCallback(async (id: number, name: string) => {
     try {
       const destination = await exportNetwork({ id });
@@ -146,18 +158,36 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
       <Styled.PageHeader
         colors={theme.pageHeader}
         title={
-          <Styled.RenameInput
-            name="newNetworkName"
-            value={editingName}
-            onChange={e => setEditingName(e.target.value)}
-          />
+          <Styled.NetworkInput>
+            <Styled.NameInput
+              name="newNetworkName"
+              value={editingName}
+              onChange={e => setEditingName(e.target.value)}
+              placeholder={l('namePhl')}
+            />
+            <Styled.DescriptionInput
+              name="newNetworkDescription"
+              value={editingDescription}
+              onChange={e => setEditingDescription(e.target.value)}
+              placeholder={l('descriptionPhl')}
+              size="small"
+              maxLength={100}
+              autoSize
+            />
+          </Styled.NetworkInput>
         }
         extra={[
           <Button
             key="save"
             type="primary"
             loading={renameAsync.loading}
-            onClick={() => renameAsync.execute({ id: network.id, name: editingName })}
+            onClick={() =>
+              renameAsync.execute({
+                id: network.id,
+                name: editingName,
+                description: editingDescription,
+              })
+            }
           >
             {l('renameSave')}
           </Button>,
@@ -165,13 +195,22 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
             {l('renameCancel')}
           </Button>,
         ]}
-      ></Styled.PageHeader>
+      />
     );
   } else {
     header = (
       <Styled.PageHeader
         colors={theme.pageHeader}
-        title={network.name}
+        title={
+          <>
+            {`${network.name} `}
+            {network.description && (
+              <Tooltip title={network.description}>
+                <InfoCircleOutlined />
+              </Tooltip>
+            )}
+          </>
+        }
         onBack={handleBackClick}
         tags={<StatusTag status={network.status} />}
         extra={
@@ -181,6 +220,7 @@ const NetworkView: React.FC<RouteComponentProps<MatchParams>> = ({ match }) => {
             onRenameClick={() => {
               setEditing(true);
               setEditingName(network.name);
+              setEditingDescription(network.description);
             }}
             onDeleteClick={() => showRemoveModal(network.id, network.name)}
             onExportClick={() => exportAsync.execute(network.id, network.name)}

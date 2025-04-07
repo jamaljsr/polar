@@ -29,9 +29,13 @@ class RepoService implements RepoServiceInjection {
   async load(): Promise<DockerRepoState | undefined> {
     if (await exists(this.filePath)) {
       const json = await read(this.filePath);
-      const data = JSON.parse(json);
-      debug(`loaded repo state from '${this.filePath}'`, json);
-      return data;
+      try {
+        const data = JSON.parse(json);
+        debug(`loaded repo state from '${this.filePath}'`, json);
+        return data;
+      } catch (error) {
+        debug(`failed to parse repo state from '${this.filePath}'`, error);
+      }
     } else {
       debug(
         `skipped loading repo state because the file '${this.filePath}' doesn't exist`,
@@ -59,6 +63,7 @@ class RepoService implements RepoServiceInjection {
       LND: [],
       'c-lightning': [],
       eclair: [],
+      litd: [],
       bitcoind: [],
       btcd: [],
       tapd: [],

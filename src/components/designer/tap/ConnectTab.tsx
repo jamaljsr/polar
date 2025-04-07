@@ -51,14 +51,14 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const info = useMemo((): ConnectionInfo => {
     if (node.status === Status.Started) {
       if (node.implementation === 'tapd') {
-        const lnd = node as TapdNode;
+        const tapd = node as TapdNode;
         return {
-          restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
-          grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
+          restUrl: `https://127.0.0.1:${tapd.ports.rest}`,
+          grpcUrl: `127.0.0.1:${tapd.ports.grpc}`,
           apiDocsUrl: 'https://lightning.engineering/api-docs/api/tap/',
           credentials: {
-            admin: lnd.paths.adminMacaroon,
-            cert: lnd.paths.tlsCert,
+            admin: tapd.paths.adminMacaroon,
+            cert: tapd.paths.tlsCert,
           },
         };
       }

@@ -90,19 +90,19 @@ describe('NodeContextMenu', () => {
 
   it('should display the correct options for a started tap node', async () => {
     const { getByText } = renderComponent('alice-tap', Status.Started);
-    expect(getByText('New Address')).toBeInTheDocument();
+    expect(getByText('Create Asset Address')).toBeInTheDocument();
     expect(getByText('Mint Asset')).toBeInTheDocument();
     expect(getByText('Launch Terminal')).toBeInTheDocument();
     expect(getByText('Stop')).toBeInTheDocument();
     expect(getByText('View Logs')).toBeInTheDocument();
     expect(getByText('Advanced Options')).toBeInTheDocument();
     expect(getByText('Remove')).toBeInTheDocument();
-    expect(getByText('Send Asset')).toBeInTheDocument();
+    expect(getByText('Send Asset On-chain')).toBeInTheDocument();
   });
 
   it('should display the correct options for a stopped tap node', async () => {
     const { getByText, queryByText } = renderComponent('alice-tap', Status.Stopped);
-    expect(queryByText('New Address')).not.toBeInTheDocument();
+    expect(queryByText('Create Asset Address')).not.toBeInTheDocument();
     expect(queryByText('Mint')).not.toBeInTheDocument();
     expect(queryByText('Launch Terminal')).not.toBeInTheDocument();
     expect(queryByText('View Logs')).not.toBeInTheDocument();
@@ -174,7 +174,7 @@ describe('NodeContextMenu', () => {
   it('should show the new address modal', async () => {
     const { getByText, store } = renderComponent('alice-tap', Status.Started);
     expect(store.getState().modals.newAddress.visible).toBe(false);
-    fireEvent.click(getByText('New Address'));
+    fireEvent.click(getByText('Create Asset Address'));
     expect(store.getState().modals.newAddress.visible).toBe(true);
     expect(store.getState().modals.newAddress.nodeName).toBe('alice-tap');
   });
@@ -182,7 +182,7 @@ describe('NodeContextMenu', () => {
   it('should show the send asset modal', async () => {
     const { getByText, store } = renderComponent('alice-tap', Status.Started);
     expect(store.getState().modals.sendAsset.visible).toBe(false);
-    fireEvent.click(getByText('Send Asset'));
+    fireEvent.click(getByText('Send Asset On-chain'));
     expect(store.getState().modals.sendAsset.visible).toBe(true);
     expect(store.getState().modals.sendAsset.nodeName).toBe('alice-tap');
   });

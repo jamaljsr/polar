@@ -3,12 +3,13 @@ import { waitFor } from '@testing-library/react';
 import { notification } from 'antd';
 import { createStore } from 'easy-peasy';
 import { Status } from 'shared/types';
-import { BitcoindLibrary, DockerLibrary } from 'types';
+import { DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
 import * as files from 'utils/files';
 import { createBitcoindNetworkNode, createCLightningNetworkNode } from 'utils/network';
 import {
+  bitcoinServiceMock,
   getNetwork,
   injections,
   lightningServiceMock,
@@ -16,7 +17,7 @@ import {
   testRepoState,
 } from 'utils/tests';
 import appModel from './app';
-import bitcoindModel from './bitcoind';
+import bitcoinModel from './bitcoin';
 import designerModel from './designer';
 import lightningModel from './lightning';
 import modalsModel from './modals';
@@ -43,7 +44,7 @@ describe('Designer model', () => {
     app: appModel,
     network: networkModel,
     lightning: lightningModel,
-    bitcoind: bitcoindModel,
+    bitcoin: bitcoinModel,
     designer: designerModel,
     modals: modalsModel,
     tap: tapModel,
@@ -77,13 +78,13 @@ describe('Designer model', () => {
 
     beforeEach(async () => {
       const network = getNetwork(2, 'test network', Status.Stopped, 2);
-      const cligntningNode = createCLightningNetworkNode(
+      const clnNode = createCLightningNetworkNode(
         network,
         testRepoState.images['c-lightning'].latest,
         testRepoState.images['c-lightning'].compatibility,
         testNodeDocker,
       );
-      network.nodes.lightning.push(cligntningNode);
+      network.nodes.lightning.push(clnNode);
       const bitcoinNode = createBitcoindNetworkNode(
         network,
         testRepoState.images.bitcoind.latest,
@@ -124,10 +125,13 @@ describe('Designer model', () => {
       const { addNetwork } = store.getActions().network;
       await addNetwork({
         name: 'test 2',
+        description: 'network description',
         lndNodes: 2,
         clightningNodes: 0,
         eclairNodes: 0,
         bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
         customNodes: {},
       });
       store.getActions().designer.setActiveId(firstNetwork().id);
@@ -174,6 +178,111 @@ describe('Designer model', () => {
       expect((firstChart().nodes['alice'].size || {}).height).toBeUndefined();
     });
 
+    it('should not sync the chart multiple times consecutively', async () => {
+      const { syncChart } = store.getActions().designer;
+
+      const lnSpy = jest.spyOn(store.getActions().lightning, 'getAllInfo');
+      const tapSpy = jest.spyOn(store.getActions().tap, 'getAllInfo');
+
+      store
+        .getActions()
+        .network.setStatus({ id: firstNetwork().id, status: Status.Started });
+      await syncChart(firstNetwork());
+
+      expect(lnSpy).toHaveBeenCalledTimes(3);
+      expect(tapSpy).toHaveBeenCalledTimes(2);
+
+      await syncChart(firstNetwork());
+      // should not call the actions again
+      expect(lnSpy).toHaveBeenCalledTimes(3);
+      expect(tapSpy).toHaveBeenCalledTimes(2);
+    });
+
+    describe('renameNode', () => {
+      it('should update chart when renaming a lightning node', () => {
+        expect(firstChart().nodes['alice']).toBeDefined();
+        expect(firstChart().links['alice-backend1']).toBeDefined();
+
+        const { renameNode } = store.getActions().designer;
+        renameNode({ nodeId: 'alice', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['alice']).toBeUndefined();
+
+        expect(firstChart().links['test-backend1']).toBeDefined();
+        expect(firstChart().links['alice-backend1']).toBeUndefined();
+      });
+
+      it('should update chart when renaming a bitcoin node', () => {
+        expect(firstChart().nodes['backend1']).toBeDefined();
+        expect(firstChart().links['backend1-backend2']).toBeDefined();
+
+        const { renameNode } = store.getActions().designer;
+        renameNode({ nodeId: 'backend1', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['backend1']).toBeUndefined();
+
+        expect(firstChart().links['test-backend2']).toBeDefined();
+        expect(firstChart().links['backend1-backend2']).toBeUndefined();
+      });
+
+      it('should update chart when renaming a TAP node', () => {
+        expect(firstChart().nodes['alice-tap']).toBeDefined();
+        expect(firstChart().links['alice-tap-alice']).toBeDefined();
+
+        const { renameNode } = store.getActions().designer;
+        renameNode({ nodeId: 'alice-tap', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['alice-tap']).toBeUndefined();
+
+        expect(firstChart().links['test-alice']).toBeDefined();
+        expect(firstChart().links['alice-tap-alice']).toBeUndefined();
+      });
+
+      it('should update channel links when renaming a lightning node', () => {
+        const chart = firstChart();
+        const chartWithChannel = {
+          ...chart,
+          links: {
+            ...chart.links,
+            'test-chan-id': {
+              id: 'test-chan-id',
+              from: { nodeId: 'alice', portId: 'peer-right' },
+              to: { nodeId: 'bob', portId: 'peer-left' },
+              properties: {
+                type: 'open-channel',
+              },
+            },
+          },
+        };
+        const { renameNode, setChart } = store.getActions().designer;
+        setChart({ id: firstNetwork().id, chart: chartWithChannel });
+
+        expect(firstChart().nodes['alice']).toBeDefined();
+        expect(firstChart().links['test-chan-id']).toBeDefined();
+        expect(firstChart().links['test-chan-id'].from.nodeId).toBe('alice');
+        expect(firstChart().links['test-chan-id'].to.nodeId).toBe('bob');
+
+        renameNode({ nodeId: 'alice', name: 'test' });
+
+        expect(firstChart().nodes['test']).toBeDefined();
+        expect(firstChart().nodes['alice']).toBeUndefined();
+
+        expect(firstChart().links['test-chan-id']).toBeDefined();
+        expect(firstChart().links['test-chan-id'].from.nodeId).toBe('test');
+        expect(firstChart().links['test-chan-id'].to.nodeId).toBe('bob');
+      });
+
+      it('should throw an error for an invalid node to rename', () => {
+        const { renameNode } = store.getActions().designer;
+        expect(() => renameNode({ nodeId: 'unknown', name: 'test' })).toThrow(
+          'Node with id unknown not found.',
+        );
+      });
+    });
+
     describe('onLinkCompleteListener', () => {
       let payload: any;
 
@@ -197,7 +306,7 @@ describe('Designer model', () => {
         setStatus({ id: firstNetwork().id, status: Status.Started });
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).not.toBeUndefined();
-        expect(mockNotification.error).not.toBeCalled();
+        expect(mockNotification.error).not.toHaveBeenCalled();
         expect(store.getState().modals.openChannel.visible).toBe(true);
       });
 
@@ -207,7 +316,7 @@ describe('Designer model', () => {
         payload.toNodeId = 'alice';
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
-        expect(mockNotification.error).not.toBeCalled();
+        expect(mockNotification.error).not.toHaveBeenCalled();
       });
 
       it('should not add link if the two nodes are not lightning', async () => {
@@ -218,7 +327,7 @@ describe('Designer model', () => {
 
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
-        expect(mockNotification.error).toBeCalledWith(
+        expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
           }),
@@ -233,7 +342,7 @@ describe('Designer model', () => {
         expect(
           store.getState().designer.activeChart.links[payload.linkId],
         ).toBeUndefined();
-        expect(mockNotification.error).toBeCalledWith(
+        expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
           }),
@@ -244,7 +353,7 @@ describe('Designer model', () => {
         const { onLinkComplete } = store.getActions().designer;
         onLinkComplete(payload);
         expect(firstChart().links[payload.linkId]).toBeUndefined();
-        expect(mockNotification.error).toBeCalledWith(
+        expect(mockNotification.error).toHaveBeenCalledWith(
           expect.objectContaining({
             description: 'The nodes must be Started first',
           }),
@@ -263,7 +372,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error(
@@ -285,7 +394,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error(
@@ -387,7 +496,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error('tapd nodes cannot connect to each other.'),
@@ -406,7 +515,7 @@ describe('Designer model', () => {
         const spy = jest.spyOn(store.getActions().app, 'notify');
         onLinkStart(data);
         onLinkComplete(data);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Cannot connect nodes',
             error: new Error('carol is not an LND implementation'),
@@ -417,8 +526,6 @@ describe('Designer model', () => {
 
     describe('onCanvasDrop', () => {
       const mockDockerService = injections.dockerService as jest.Mocked<DockerLibrary>;
-      const mockBitcoindService =
-        injections.bitcoindService as jest.Mocked<BitcoindLibrary>;
       const lndLatest = defaultRepoState.images.LND.latest;
       const btcLatest = defaultRepoState.images.bitcoind.latest;
       const tapdLatest = defaultRepoState.images.tapd.latest;
@@ -466,10 +573,13 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'network description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
           bitcoindNodes: 1,
+          tapdNodes: 0,
+          litdNodes: 0,
           customNodes: {},
         });
         const newId = store.getState().network.networks[1].id;
@@ -492,10 +602,13 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'network description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
           bitcoindNodes: 1,
+          tapdNodes: 0,
+          litdNodes: 0,
           customNodes: {},
         });
         const newId = store.getState().network.networks[1].id;
@@ -509,11 +622,11 @@ describe('Designer model', () => {
         const tapdData = { type: 'tapd', version: tapdLatest };
         onCanvasDrop({ id, data: tapdData, position });
         await waitFor(() => {
-          expect(spy).toBeCalledWith(
+          expect(spy).toHaveBeenCalledWith(
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
-                'This network does not contain a LND v0.16.0-beta (or higher) ' +
+                'This network does not contain a LND v0.18.5-beta (or higher) ' +
                   `node which is required for tapd v${tapdLatest}`,
               ),
             }),
@@ -526,10 +639,13 @@ describe('Designer model', () => {
         const { onCanvasDrop, setActiveId } = store.getActions().designer;
         await addNetwork({
           name: 'test 3',
+          description: 'network description',
           lndNodes: 0,
           clightningNodes: 0,
           eclairNodes: 0,
           bitcoindNodes: 0,
+          tapdNodes: 0,
+          litdNodes: 0,
           customNodes: {},
         });
         const newId = store.getState().network.networks[1].id;
@@ -550,7 +666,7 @@ describe('Designer model', () => {
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(mockDockerService.saveComposeFile).toBeCalledTimes(1);
+          expect(mockDockerService.saveComposeFile).toHaveBeenCalledTimes(1);
           expect(firstNetwork().nodes.lightning).toHaveLength(4);
           expect(firstNetwork().nodes.lightning[3].name).toBe('dave');
         });
@@ -563,7 +679,7 @@ describe('Designer model', () => {
         const data = { type: 'LND', version: '0.7.1-beta' };
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(spy).toBeCalledWith(
+          expect(spy).toHaveBeenCalledWith(
             expect.objectContaining({
               message: 'Failed to add node',
               error: new Error(
@@ -581,7 +697,7 @@ describe('Designer model', () => {
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
           expect(firstNetwork().nodes.lightning).toHaveLength(3);
-          expect(mockNotification.error).toBeCalledWith(
+          expect(mockNotification.error).toHaveBeenCalledWith(
             expect.objectContaining({ message: 'Failed to add node' }),
           );
         });
@@ -606,15 +722,15 @@ describe('Designer model', () => {
       });
 
       it('should start the node if the network is running', async () => {
-        mockBitcoindService.waitUntilOnline.mockResolvedValue();
+        bitcoinServiceMock.waitUntilOnline.mockResolvedValue();
         lightningServiceMock.waitUntilOnline.mockResolvedValue();
         const { setStatus } = store.getActions().network;
         setStatus({ id: firstNetwork().id, status: Status.Started });
         const { onCanvasDrop } = store.getActions().designer;
         onCanvasDrop({ id, data, position });
         await waitFor(() => {
-          expect(mockDockerService.startNode).toBeCalledTimes(1);
-          expect(mockDockerService.startNode).toBeCalledWith(
+          expect(mockDockerService.startNode).toHaveBeenCalledTimes(1);
+          expect(mockDockerService.startNode).toHaveBeenCalledWith(
             expect.objectContaining({ name: firstNetwork().name }),
             expect.objectContaining({ name: firstNetwork().nodes.lightning[3].name }),
           );
@@ -685,6 +801,14 @@ describe('Designer model', () => {
         // move the link
         onLinkMove({ linkId: 'test-link', toPosition: position } as any);
         expect(firstChart().links['test-link'].to.position).toBeDefined();
+      });
+
+      it('onLinkMove with missing link should do nothing', () => {
+        const { onLinkMove } = store.getActions().designer;
+        const chart = firstChart();
+        // move the link
+        onLinkMove({ linkId: 'test-link', toPosition: position } as any);
+        expect(firstChart()).toEqual(chart);
       });
 
       it('onLinkComplete', () => {

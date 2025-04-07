@@ -7,11 +7,13 @@ import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
 import {
+  AnyNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
   EclairNode,
   LightningNode,
+  LitdNode,
   LndNode,
   TapdNode,
 } from 'shared/types';
@@ -19,7 +21,7 @@ import stripAnsi from 'strip-ansi';
 import { DockerLibrary, DockerVersions, Network, NetworksFile } from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs } from 'utils/constants';
-import { exists, read, write } from 'utils/files';
+import { exists, read, renameFile, rm, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
@@ -142,6 +144,11 @@ class DockerService implements DockerLibrary {
         const backend = bitcoin.find(n => n.name === eclair.backendName) || bitcoin[0];
         file.addEclair(eclair, backend);
       }
+      if (node.implementation === 'litd') {
+        const litd = node as LitdNode;
+        const backend = bitcoin.find(n => n.name === litd.backendName) || bitcoin[0];
+        file.addLitd(litd, backend);
+      }
     });
     tap.forEach(node => {
       if (node.implementation === 'tapd') {
@@ -232,6 +239,27 @@ class DockerService implements DockerLibrary {
   }
 
   /**
+   * Renames the docker volume directory on disk when a node is renamed
+   * @param network the network containing the node
+   * @param node the node that's to be renamed
+   * @param newName the new name for the node and directory
+   */
+  async renameNodeDir(network: Network, node: AnyNode, newName: string) {
+    const oldPath = nodePath(network, node.implementation, node.name);
+    const newPath = nodePath(network, node.implementation, newName);
+
+    if (node.implementation === 'LND') {
+      const certPath = (node as LndNode).paths.tlsCert;
+      const keyPath = certPath.replace('.cert', '.key');
+      // need to delete the tls cert so that it is recreated with the new hostname
+      if (await exists(certPath)) await rm(certPath);
+      if (await exists(keyPath)) await rm(keyPath);
+    }
+
+    if (await exists(oldPath)) renameFile(oldPath, newPath);
+  }
+
+  /**
    * Saves the given networks to disk
    * @param networks the list of networks to save
    */
@@ -254,19 +282,25 @@ class DockerService implements DockerLibrary {
       await this.copyLegacyData();
     }
 
+    const emptyFile = { version: APP_VERSION, networks: [], charts: {} };
     if (await exists(path)) {
-      const json = await read(path);
-      let data = JSON.parse(json);
-      info(`loaded ${data.networks.length} networks from '${path}'`);
-      // migrate data when the version differs or running locally
-      if (data.version !== APP_VERSION || process.env.NODE_ENV !== 'production') {
-        data = migrateNetworksFile(data);
-        await this.saveNetworks(data);
+      try {
+        const json = await read(path);
+        let data = JSON.parse(json);
+        info(`loaded ${data.networks.length} networks from '${path}'`);
+        // migrate data when the version differs or running locally
+        if (data.version !== APP_VERSION || process.env.NODE_ENV !== 'production') {
+          data = migrateNetworksFile(data);
+          await this.saveNetworks(data);
+        }
+        return data;
+      } catch (err: any) {
+        info(`failed to parse networks from '${path}'`, err);
+        return emptyFile;
       }
-      return data;
     } else {
       info(`skipped loading networks because the file '${path}' doesn't exist`);
-      return { version: APP_VERSION, networks: [], charts: {} };
+      return emptyFile;
     }
   }
 
@@ -344,6 +378,10 @@ class DockerService implements DockerLibrary {
         const { dataDir, apiDir } = dockerConfigs['c-lightning'];
         await ensureDir(join(nodeDir, dataDir as string));
         await ensureDir(join(nodeDir, apiDir as string));
+      } else if (node.implementation === 'litd') {
+        await ensureDir(join(nodeDir, 'lit'));
+        await ensureDir(join(nodeDir, 'lnd'));
+        await ensureDir(join(nodeDir, 'tapd'));
       }
     }
   }

@@ -1,6 +1,6 @@
 import { debug } from 'electron-log';
 import { BitcoinNode, EclairNode, LightningNode, OpenChannelOptions } from 'shared/types';
-import { bitcoindService } from 'lib/bitcoin';
+import { BitcoinFactory } from 'lib/bitcoin';
 import { LightningService } from 'types';
 import { waitFor } from 'utils/async';
 import { toSats } from 'utils/units';
@@ -53,7 +53,8 @@ class EclairService implements LightningService {
     backend?: BitcoinNode,
   ): Promise<PLN.LightningNodeBalances> {
     const btcNode = this.validateBackend('getBalances', backend);
-    const balances = await bitcoindService.getWalletInfo(btcNode);
+    const bitcoinFactory = new BitcoinFactory();
+    const balances = await bitcoinFactory.getService(btcNode).getWalletInfo(btcNode);
     const unconfirmed = balances.unconfirmed_balance + balances.immature_balance;
     return {
       total: toSats(balances.balance + unconfirmed),
@@ -73,7 +74,8 @@ class EclairService implements LightningService {
         c =>
           c.data.commitments?.localParams?.isFunder ||
           c.data.commitments?.localParams?.isInitiator ||
-          c.data.commitments?.params?.localParams?.isInitiator,
+          c.data.commitments?.params?.localParams?.isInitiator ||
+          c.data.commitments?.params?.localParams?.isChannelOpener,
       )
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
@@ -204,7 +206,7 @@ class EclairService implements LightningService {
     const payReq = paymentRequest || resInvoice;
     return {
       preimage: status.paymentPreimage,
-      amount: payReq.amount,
+      amount: payReq.amount / 1000,
       destination: payReq.nodeId,
     };
   }
@@ -230,6 +232,10 @@ class EclairService implements LightningService {
     }
 
     return sent;
+  }
+
+  async decodeInvoice(node: LightningNode): Promise<PLN.LightningNodePaymentRequest> {
+    throw new Error(`decodeInvoice is not implemented for ${node.implementation} nodes`);
   }
 
   /**
@@ -263,10 +269,11 @@ class EclairService implements LightningService {
     callback: (event: PLN.LightningNodeChannelEvent) => void,
   ): Promise<void> {
     const listener = getListener(this.cast(node));
+    debug(`Eclair API: [stream] ${node.name}: Listening for channel events`);
     // listen for incoming channel messages
     listener?.on('message', async (data: any) => {
       const response = JSON.parse(data.toString());
-      debug('Received Eclair WebSocket message:', response);
+      debug(`Eclair API: [stream] ${node.name}`, response);
       switch (response.type) {
         case 'channel-created':
           callback({ type: 'Pending' });

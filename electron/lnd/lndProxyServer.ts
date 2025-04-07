@@ -1,69 +1,76 @@
 import { IpcMain } from 'electron';
-import { debug } from 'electron-log';
-import createLndRpc, * as LND from '@radar/lnrpc';
+import { debug, error } from 'electron-log';
+import { readFile } from 'fs-extra';
+import * as LND from '@lightningpolar/lnd-api';
 import { ipcChannels, LndDefaultsKey, withLndDefaults } from '../../src/shared';
+// import { RpcStreamResponse } from '../../src/shared/ipcChannels';
 import { LndNode } from '../../src/shared/types';
+import { toJSON } from '../../src/shared/utils';
 
 /**
  * callback function responsible for sending messages from ipcMain to ipcRenderer.
  * @param responseChan The response channel identifier / IPC channel name.
  * @param message The message to be sent.
  */
-let handleEventCallback: (responseChan: string, message: any) => void;
+let sendStreamEvent: (channel: string, data: any) => void;
 
 export const initLndSubscriptions = (
-  callback: (responseChan: string, message: any) => void,
+  callback: (responseChan: string, data: any) => void,
 ) => {
-  handleEventCallback = callback;
+  // sendStreamEvent = (channel: string, data: any) => {
+  //   debug(`LndProxyServer: send stream event "${data.channel}"`, toJSON(data));
+  //   callback(`lnd-${ipcChannels.rpcStream}`, data);
+  // };
+  sendStreamEvent = callback;
 };
 
 /**
- * mapping of node name <-> LnRpc to cache these objects. The createLndRpc function
+ * mapping of node name <-> LndRpcApis to cache these objects. The getRpc function
  * reads from disk, so this gives us a small bit of performance improvement
  */
 let rpcCache: {
-  [key: string]: LND.LnRpc;
+  [key: string]: LND.LndRpcApis;
 } = {};
 
 /**
  * Helper function to lookup a node by name in the cache or create it if
  * it doesn't exist
  */
-const getRpc = async (node: LndNode): Promise<LND.LnRpc> => {
+const getRpc = async (node: LndNode): Promise<LND.LndRpcApis> => {
   const { name, ports, paths, networkId } = node;
   // TODO: use node unique id for caching since is an application level global variable
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
-    const config = {
-      server: `127.0.0.1:${ports.grpc}`,
-      tls: paths.tlsCert,
-      macaroonPath: paths.adminMacaroon,
+    const config: LND.LndClientOptions = {
+      socket: `127.0.0.1:${ports.grpc}`,
+      cert: (await readFile(paths.tlsCert)).toString('hex'),
+      macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
     };
-    rpcCache[id] = await createLndRpc(config);
+    rpcCache[id] = LND.LndClient.create(config);
   }
   return rpcCache[id];
 };
 
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.getInfo();
+  return await rpc.lightning.getInfo();
 };
 
 const walletBalance = async (args: {
   node: LndNode;
 }): Promise<LND.WalletBalanceResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.walletBalance();
+  return await rpc.lightning.walletBalance();
 };
 
 const newAddress = async (args: { node: LndNode }): Promise<LND.NewAddressResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.newAddress();
+  return await rpc.lightning.newAddress();
 };
 
 const listPeers = async (args: { node: LndNode }): Promise<LND.ListPeersResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.listPeers();
+  return await rpc.lightning.listPeers();
 };
 
 const connectPeer = async (args: {
@@ -71,7 +78,7 @@ const connectPeer = async (args: {
   req: LND.ConnectPeerRequest;
 }): Promise<void> => {
   const rpc = await getRpc(args.node);
-  await rpc.connectPeer(args.req);
+  await rpc.lightning.connectPeer(args.req);
 };
 
 const openChannel = async (args: {
@@ -79,7 +86,8 @@ const openChannel = async (args: {
   req: LND.OpenChannelRequest;
 }): Promise<LND.ChannelPoint> => {
   const rpc = await getRpc(args.node);
-  return await rpc.openChannelSync(args.req);
+  args.req.satPerByte = args.req.satPerByte || '1';
+  return await rpc.lightning.openChannelSync(args.req);
 };
 
 const closeChannel = async (args: {
@@ -88,7 +96,13 @@ const closeChannel = async (args: {
 }): Promise<any> => {
   const rpc = await getRpc(args.node);
   // TODO: capture the stream events and push them to the UI
-  rpc.closeChannel(args.req);
+  const stream = rpc.lightning.closeChannel(args.req);
+  stream.on('error', err => error('LndProxyServer: closeChannel error', err));
+  stream.on('end', () => debug('LndProxyServer: closeChannel stream ended'));
+  stream.on('data', data =>
+    debug('LndProxyServer: closeChannel stream data', toJSON(data)),
+  );
+  return {};
 };
 
 const listChannels = async (args: {
@@ -96,14 +110,22 @@ const listChannels = async (args: {
   req: LND.ListChannelsRequest;
 }): Promise<LND.ListChannelsResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.listChannels(args.req);
+  return await rpc.lightning.listChannels(args.req);
 };
 
 const pendingChannels = async (args: {
   node: LndNode;
 }): Promise<LND.PendingChannelsResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.pendingChannels();
+  return await rpc.lightning.pendingChannels();
+};
+
+const getChanInfo = async (args: {
+  node: LndNode;
+  req: LND.ChanInfoRequestPartial;
+}): Promise<LND.ChannelEdge> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.lightning.getChanInfo(args.req);
 };
 
 const createInvoice = async (args: {
@@ -111,15 +133,39 @@ const createInvoice = async (args: {
   req: LND.Invoice;
 }): Promise<LND.AddInvoiceResponse> => {
   const rpc = await getRpc(args.node);
-  return await rpc.addInvoice(args.req);
+  return await rpc.lightning.addInvoice(args.req);
 };
 
 const payInvoice = async (args: {
   node: LndNode;
-  req: LND.SendRequest;
-}): Promise<LND.SendResponse> => {
+  req: LND.SendPaymentRequestPartial;
+}): Promise<LND.Payment> => {
   const rpc = await getRpc(args.node);
-  return await rpc.sendPaymentSync(args.req);
+  args.req.timeoutSeconds = args.req.timeoutSeconds || 60;
+  const stream = rpc.router.sendPaymentV2(args.req);
+  // return a promise that resolves when the payment is completed
+  return new Promise((resolve, reject) => {
+    stream.on('data', (payment: LND.Payment) => {
+      switch (payment.status) {
+        case 'IN_FLIGHT':
+          debug('LndProxyServer: payInvoice payment in-flight', toJSON(payment));
+          break;
+        case 'SUCCEEDED':
+          resolve(payment);
+          break;
+        case 'FAILED':
+        case 'UNKNOWN':
+          debug(
+            `LndProxyServer: payInvoice payment failed: ${payment.failureReason}`,
+            toJSON(payment),
+          );
+          reject(new Error(`Payment failed: ${payment.failureReason}`));
+          break;
+      }
+    });
+    stream.on('error', err => reject(err));
+    stream.on('end', () => reject(new Error('Payment stream ended')));
+  });
 };
 
 const decodeInvoice = async (args: {
@@ -127,23 +173,23 @@ const decodeInvoice = async (args: {
   req: LND.PayReqString;
 }): Promise<LND.PayReq> => {
   const rpc = await getRpc(args.node);
-  return await rpc.decodePayReq(args.req);
+  return await rpc.lightning.decodePayReq(args.req);
 };
 
-const subscribeChannelEvents = async (args: { node: LndNode }): Promise<any> => {
-  try {
-    const rpc = await getRpc(args.node);
-    const responseChan = `lnd-${ipcChannels.subscribeChannelEvents}-response-${args.node.ports.rest}`;
-    const stream = rpc.subscribeChannelEvents();
-    if (stream) {
-      stream.on('data', (data: LND.ChannelEventUpdate) => {
-        handleEventCallback(responseChan, data);
-      });
-    }
-    return {};
-  } catch (err) {
-    return { err };
-  }
+const subscribeChannelEvents = async (args: {
+  node: LndNode;
+  replyTo: string;
+}): Promise<any> => {
+  debug('LndProxyServer: subscribeChannelEvents', toJSON(args));
+  const rpc = await getRpc(args.node);
+  const stream = rpc.lightning.subscribeChannelEvents();
+  stream.on('data', (data: LND.ChannelEventUpdate) => {
+    debug('LndProxyServer: stream event', args.node.name, args.replyTo, toJSON(data));
+    sendStreamEvent(args.replyTo, data);
+  });
+  stream.on('error', err => debug('LndProxyServer: stream error', args.replyTo, err));
+  stream.on('end', () => debug('LndProxyServer: stream ended', args.replyTo));
+  return {};
 };
 
 /**
@@ -162,6 +208,7 @@ const listeners: {
   [ipcChannels.closeChannel]: closeChannel,
   [ipcChannels.listChannels]: listChannels,
   [ipcChannels.pendingChannels]: pendingChannels,
+  [ipcChannels.getChanInfo]: getChanInfo,
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,
@@ -182,10 +229,7 @@ export const initLndProxy = (ipc: IpcMain) => {
     debug(`LndProxyServer: listening for ipc command "${channel}"`);
     ipc.on(requestChan, async (event, ...args) => {
       // the a message is received by the main process...
-      debug(
-        `LndProxyServer: received request "${requestChan}"`,
-        JSON.stringify(args, null, 2),
-      );
+      debug(`LndProxyServer: received request "${requestChan}"`, toJSON(args));
       // inspect the first arg to see if it has a specific channel to reply to
       let uniqueChan = responseChan;
       if (args && args[0] && args[0].replyTo) {
@@ -195,16 +239,13 @@ export const initLndProxy = (ipc: IpcMain) => {
         // attempt to execute the associated function
         let result = await func(...args);
         // merge the result with default values since LND omits falsy values
-        debug(
-          `LndProxyServer: send response "${uniqueChan}"`,
-          JSON.stringify(result, null, 2),
-        );
+        debug(`LndProxyServer: send response "${uniqueChan}"`, toJSON(result));
         result = withLndDefaults(result, channel as LndDefaultsKey);
         // response to the calling process with a reply
         event.reply(uniqueChan, result);
       } catch (err: any) {
         // reply with an error message if the execution fails
-        debug(`LndProxyServer: send error "${uniqueChan}"`, JSON.stringify(err, null, 2));
+        debug(`LndProxyServer: send error "${uniqueChan}"`, err);
         event.reply(uniqueChan, { err: err.message });
       }
     });
