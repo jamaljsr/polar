@@ -29,6 +29,7 @@ import {
   Network,
   NetworksFile,
   NodeBasePorts,
+  Simulation,
 } from 'types';
 import { dataPath, networksPath, nodePath } from './config';
 import { BasePorts, DOCKER_REPO, dockerConfigs } from './constants';
@@ -442,6 +443,7 @@ export const createNetwork = (config: {
   customImages: { image: CustomImage; count: number }[];
   status?: Status;
   basePorts?: NodeBasePorts;
+  simulation?: Simulation;
 }): Network => {
   const {
     id,
@@ -457,6 +459,7 @@ export const createNetwork = (config: {
     managedImages,
     customImages,
     basePorts,
+    simulation,
   } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
@@ -473,6 +476,7 @@ export const createNetwork = (config: {
       tap: [],
     },
     autoMineMode: AutoMineMode.AutoOff,
+    simulation,
   };
 
   const { bitcoin, lightning } = network.nodes;
