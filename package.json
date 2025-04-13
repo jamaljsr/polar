@@ -38,8 +38,8 @@
     "test:e2e": "yarn build && yarn test:cafe",
     "test:e2e:live": "yarn test:e2e -L",
     "theme": "yarn theme:light && yarn theme:dark",
-    "theme:light": "lessc --include-path=node_modules --js ./src/theme/light.less ./public/themes/light.css",
-    "theme:dark": "lessc --include-path=node_modules --js ./src/theme/dark.less ./public/themes/dark.css",
+    "theme:light": "lessc --quiet --include-path=node_modules --js ./src/theme/light.less ./public/themes/light.css",
+    "theme:dark": "lessc --quiet --include-path=node_modules --js ./src/theme/dark.less ./public/themes/dark.css",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
