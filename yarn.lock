@@ -32,17 +32,12 @@
   dependencies:
     "@ctrl/tinycolor" "^3.4.0"
 
-"@ant-design/colors@^8.0.0":
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/@ant-design/colors/-/colors-8.0.0.tgz#92b5aa1cd44896b62c7b67133b4d5a6a00266162"
-  integrity sha512-6YzkKCw30EI/E9kHOIXsQDHmMvTllT8STzjMb4K2qzit33RW2pqCJP0sk+hidBntXxE+Vz4n1+RvCTfBw6OErw==
+"@ant-design/colors@^7.0.0":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@ant-design/colors/-/colors-7.0.2.tgz#c5c753a467ce8d86ba7ca4736d2c01f599bb5492"
+  integrity sha512-7KJkhTiPiLHSu+LmMJnehfJ6242OCxSlR3xHVBecYxnMW8MS/878NXct1GqYARyL59fyeFdKRxXTfvR9SnDgJg==
   dependencies:
-    "@ant-design/fast-color" "^3.0.0"
-
-"@ant-design/fast-color@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@ant-design/fast-color/-/fast-color-3.0.0.tgz#fb5178203de825f284809538f5142203d0ef3d80"
-  integrity sha512-eqvpP7xEDm2S7dUzl5srEQCBTXZMmY3ekf97zI+M2DHOYyKdJGH0qua0JACHTqbkRnD/KHFQP9J1uMJ/XWVzzA==
+    "@ctrl/tinycolor" "^3.6.1"
 
 "@ant-design/icons-svg@^4.3.0":
   version "4.3.1"
@@ -54,15 +49,16 @@
   resolved "https://registry.yarnpkg.com/@ant-design/icons-svg/-/icons-svg-4.4.0.tgz#435b544291fdabe992b3fd17829ff88c04c628b4"
   integrity sha512-71rcNssTaRL1ytvPLebKuc/8Bjqxs5V1YkTbqlSCvNa0Se+HmYJwWHhRTpsSHBh+sWFtc7xpGCTRW2Ta04XyHw==
 
-"@ant-design/icons@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@ant-design/icons/-/icons-6.0.0.tgz#302c935b8b0b429e4444cbc45809247276186d94"
-  integrity sha512-o0aCCAlHc1o4CQcapAwWzHeaW2x9F49g7P3IDtvtNXgHowtRWYb7kiubt8sQPFvfVIVU/jLw2hzeSlNt0FU+Uw==
+"@ant-design/icons@5.6.1":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@ant-design/icons/-/icons-5.6.1.tgz#7290fcdc3d96ff3fca793ed399053cd29ad5dbd3"
+  integrity sha512-0/xS39c91WjPAZOWsvi1//zjx6kAp4kxWwctR6kuU6p133w8RU0D2dSCvZC19uQyharg/sAvYxGYWl01BbZZfg==
   dependencies:
-    "@ant-design/colors" "^8.0.0"
+    "@ant-design/colors" "^7.0.0"
     "@ant-design/icons-svg" "^4.4.0"
-    "@rc-component/util" "^1.2.1"
+    "@babel/runtime" "^7.24.8"
     classnames "^2.2.6"
+    rc-util "^5.31.1"
 
 "@ant-design/icons@^4.7.0":
   version "4.8.1"
@@ -1427,6 +1423,13 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
+"@babel/runtime@^7.24.8":
+  version "7.24.8"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.24.8.tgz#5d958c3827b13cc6d05e038c07fb2e5e3420d82e"
+  integrity sha512-5F7SDGs1T72ZczbRwbGO9lQi0NLjQxzl6i4lJxLxfW9U5UluCSyEJeniWvnhl3/euNiqQVbo8zruhsDfid0esA==
+  dependencies:
+    regenerator-runtime "^0.14.0"
+
 "@babel/template@^7.10.4", "@babel/template@^7.22.15", "@babel/template@^7.3.3":
   version "7.22.15"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.22.15.tgz#09576efc3830f0430f4548ef971dde1350ef2f38"
@@ -1750,7 +1753,7 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-5.0.0.tgz#037817b574262134cabd68fc4ec1a454f168407b"
   integrity sha512-PCqQV3c4CoVm3kdPhyeZ07VmBRdH2EpMFA/pd9OASpOEC3aXNGoqPDAZ80D0cLpMBxnmk0+yNhGsEx31hq7Gtw==
 
-"@ctrl/tinycolor@^3.4.0":
+"@ctrl/tinycolor@^3.4.0", "@ctrl/tinycolor@^3.6.1":
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/@ctrl/tinycolor/-/tinycolor-3.6.1.tgz#b6c75a56a1947cc916ea058772d666a2c8932f31"
   integrity sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==
@@ -2637,13 +2640,6 @@
     "@babel/runtime" "^7.18.0"
     classnames "^2.3.2"
     rc-util "^5.24.4"
-
-"@rc-component/util@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@rc-component/util/-/util-1.2.1.tgz#2c3158f11a4193478cec44ca42915da31f67d8a0"
-  integrity sha512-AUVu6jO+lWjQnUOOECwu8iR0EdElQgWW5NBv5vP/Uf9dWbAX3udhMutRlkVXjuac2E40ghkFy+ve00mc/3Fymg==
-  dependencies:
-    react-is "^18.2.0"
 
 "@rescripts/cli@0.0.16":
   version "0.0.16"
@@ -16453,7 +16449,7 @@ rc-upload@~4.3.0:
     classnames "^2.2.5"
     rc-util "^5.2.0"
 
-rc-util@^5.0.1, rc-util@^5.0.6, rc-util@^5.16.0, rc-util@^5.16.1, rc-util@^5.17.0, rc-util@^5.18.1, rc-util@^5.19.2, rc-util@^5.2.0, rc-util@^5.2.1, rc-util@^5.20.1, rc-util@^5.21.0, rc-util@^5.21.2, rc-util@^5.22.5, rc-util@^5.23.0, rc-util@^5.24.4, rc-util@^5.25.2, rc-util@^5.26.0, rc-util@^5.27.0, rc-util@^5.32.2, rc-util@^5.36.0, rc-util@^5.37.0, rc-util@^5.38.0, rc-util@^5.6.1, rc-util@^5.9.4:
+rc-util@^5.0.1, rc-util@^5.0.6, rc-util@^5.16.0, rc-util@^5.16.1, rc-util@^5.17.0, rc-util@^5.18.1, rc-util@^5.19.2, rc-util@^5.2.0, rc-util@^5.2.1, rc-util@^5.20.1, rc-util@^5.21.0, rc-util@^5.21.2, rc-util@^5.22.5, rc-util@^5.23.0, rc-util@^5.24.4, rc-util@^5.25.2, rc-util@^5.26.0, rc-util@^5.27.0, rc-util@^5.31.1, rc-util@^5.32.2, rc-util@^5.36.0, rc-util@^5.37.0, rc-util@^5.38.0, rc-util@^5.6.1, rc-util@^5.9.4:
   version "5.38.1"
   resolved "https://registry.yarnpkg.com/rc-util/-/rc-util-5.38.1.tgz#4915503b89855f5c5cd9afd4c72a7a17568777bb"
   integrity sha512-e4ZMs7q9XqwTuhIK7zBIVFltUtMSjphuPPQXHoHlzRzNdOwUxDejo0Zls5HYaJfRKNURcsS/ceKVULlhjBrxng==
