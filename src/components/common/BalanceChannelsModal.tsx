@@ -1,12 +1,12 @@
 import React from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { PercentageOutlined, ReloadOutlined } from '@ant-design/icons';
+import styled from '@emotion/styled';
 import { Button, Col, Modal, Row, Slider } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useStoreActions, useStoreState } from 'store';
 import { ChannelInfo, Network } from 'types';
 import { format } from 'utils/units';
-import styled from '@emotion/styled';
-import { useAsyncCallback } from 'react-async-hook';
 
 interface Props {
   network: Network;
@@ -48,6 +48,9 @@ const BalanceChannelsModal: React.FC<Props> = ({ network }) => {
       cancelText={l('close')}
       onOk={updateBalanceOfChannelsAsync.execute}
       onCancel={() => hideBalanceChannels()}
+      okButtonProps={{
+        loading: updateBalanceOfChannelsAsync.loading,
+      }}
     >
       {/* sliders */}
       {channelsInfo.map((channel: ChannelInfo, index: number) => {
