@@ -17,6 +17,7 @@
     "electron",
     "electron-is-dev",
     "docker-compose",
-    "react-error-overlay"
+    "react-error-overlay",
+    "@ant-design/icons"
   ]
 }
