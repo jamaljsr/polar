@@ -116,7 +116,7 @@
     "eslint-plugin-react": "7.37.5",
     "history": "4.10.1",
     "husky": "9.1.7",
-    "i18next": "22.5.1",
+    "i18next": "25.0.2",
     "i18next-browser-languagedetector": "8.1.0",
     "i18next-scanner": "4.6.0",
     "jest-canvas-mock": "2.5.2",
