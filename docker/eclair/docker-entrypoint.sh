@@ -12,8 +12,8 @@ if ! id eclair > /dev/null 2>&1; then
   GROUPID=${GROUPID:-1000}
 
   echo "adding user eclair ($USERID:$GROUPID)"
-  groupadd -f -g $GROUPID eclair
-  useradd -r -u $USERID -g $GROUPID eclair
+  addgroup -g $GROUPID eclair
+  adduser -D -u $USERID -G eclair eclair
   # ensure correct ownership of user home dir
   mkdir -p /home/eclair
   chown -R $USERID:$GROUPID /home/eclair
@@ -38,7 +38,7 @@ if [ "$1" = "polar-eclair" ]; then
 
   echo "Running as eclair user:"
   echo "bash eclair-node/bin/eclair-node.sh $JAVA_OPTS"
-  exec gosu eclair bash eclair-node/bin/eclair-node.sh $JAVA_OPTS
+  exec su-exec eclair bash eclair-node/bin/eclair-node.sh $JAVA_OPTS
 fi
 
 echo "Running: $@"
