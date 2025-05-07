@@ -1,0 +1,19 @@
+services:
+  backend1:
+    environment:
+      USERID: ${USERID:-1000}
+      GROUPID: ${GROUPID:-1000}
+    stop_grace_period: 5m
+    image: polarlightning/btcd:0.24.2
+    container_name: polar-n1-backend1
+    hostname: backend1
+    command: >-
+      btcd --regtest --rpcuser=polaruser --rpcpass=polarpass --txindex --nodnsseed
+    volumes:
+      - ./volumes/btcd/backend1:/home/btcd/.btcd
+    expose:
+      - '18334'
+      - '18444'
+    ports:
+      - '18334:18334'
+      - '18444:18444'
