@@ -2,6 +2,7 @@ import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
 import { NETWORK_VIEW } from 'components/routing';
 import { push } from 'connected-react-router';
+import deepmerge from 'deepmerge';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { shell } from 'electron';
 import { warn } from 'electron-log';
@@ -251,9 +252,18 @@ const appModel: AppModel = {
       actions.setRepoState(fileState);
     }
   }),
-  saveRepoState: thunk(async (actions, repoState, { injections }) => {
-    await injections.repoService.save(repoState);
-    actions.setRepoState(repoState);
+  saveRepoState: thunk(async (actions, proposalState, { injections, getState }) => {
+    const { dockerRepoState: currentState } = getState();
+    const nextState: DockerRepoState = {
+      version: Math.max(currentState.version, proposalState.version),
+      images: deepmerge(currentState.images, proposalState.images, {
+        // merge array avoiding duplicates
+        arrayMerge: (dst, src) =>
+          dst.concat(src).filter((x, i, arr) => !arr.includes(x, i + 1)),
+      }),
+    };
+    await injections.repoService.save(nextState);
+    actions.setRepoState(nextState);
   }),
   queryRepoUpdates: thunk(async (actions, payload, { getStoreActions }) => {
     try {
