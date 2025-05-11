@@ -49,7 +49,7 @@ export const denominationNames: { [key in Denomination]: string } = {
  * be sufficiently spaced apart to allow a dozen or so numbers higher and
  * not cause conflicts
  */
-export const BasePorts: NodeBasePorts = {
+export const BasePorts: Readonly<Required<NodeBasePorts>> = {
   bitcoind: {
     rpc: 18832,
     rest: 18443,
@@ -101,6 +101,10 @@ export const eclairCredentials = {
 
 export const litdCredentials = {
   pass: 'polarpass',
+};
+
+export const arkCredentials = {
+  pass: 'arkpass',
 };
 
 export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
@@ -345,7 +349,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       ARK_NETWORK: 'regtest',
 
       ARK_TX_BUILDER_TYPE: 'covenantless',
-      ARK_ROUND_INTERVAL: '5',
+      ARK_ROUND_INTERVAL: '10',
       ARK_MIN_RELAY_FEE: '200',
 
       ARK_LOG_LEVEL: '10',
@@ -353,8 +357,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       ARK_ESPLORA_URL: '',
       ARK_NEUTRINO_PEER: '',
 
-      ARK_BITCOIND_RPC_USER: 'polaruser',
-      ARK_BITCOIND_RPC_PASS: 'polarpass',
+      ARK_BITCOIND_RPC_USER: bitcoinCredentials.user,
+      ARK_BITCOIND_RPC_PASS: bitcoinCredentials.pass,
 
       // sane defaults
       ARK_DATADIR: '/root/.arkd/data',
@@ -365,7 +369,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       ARK_NO_TLS: 'true',
 
       ARK_UNLOCKER_TYPE: 'env',
-      ARK_UNLOCKER_PASSWORD: 'arkpass',
+      ARK_UNLOCKER_PASSWORD: arkCredentials.pass,
 
       ARK_NOTE_URI_PREFIX: 'Ark on Polar: ',
       ARK_NOSTR_DEFAULT_RELAYS: 'wss://relay.johnnyasantos.com',

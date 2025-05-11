@@ -5,6 +5,8 @@ import { StoreInjections } from 'types';
 import type { RootModel } from '.';
 import { error } from 'electron-log';
 import deepmerge from 'deepmerge';
+import { debug } from 'electron-log';
+import { delay } from 'utils/async';
 
 export interface ArkNodeMapping {
   [key: string]: ArkNodeModel;
@@ -49,6 +51,7 @@ export interface ArkModel {
   setNodeInfo: Action<ArkModel, { node: ArkNode; nodeInfo: Partial<ArkNodeModel> }>;
   getInfo: Thunk<ArkModel, ArkNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<ArkModel, ArkNode, StoreInjections, RootModel>;
+  initializeWallet: Thunk<ArkModel, ArkNode, StoreInjections, RootModel>;
   mineListener: ThunkOn<ArkModel, StoreInjections, RootModel>;
   waitForNodes: Thunk<ArkModel, ArkNode[], StoreInjections, RootModel>;
 }
@@ -68,11 +71,57 @@ const arkModel: ArkModel = {
   setNodeInfo: action((state, { node, nodeInfo }) => {
     state.nodes[node.name] = deepmerge(state.nodes[node.name] || {}, nodeInfo);
   }),
+  initializeWallet: thunk(
+    async (actions, node, { injections, getState, getStoreActions, getStoreState }) => {
+      const api = injections.arkFactory.getService(node),
+        currentState = getState(),
+        { notify } = getStoreActions().app;
+
+      try {
+        const currentNodeState = currentState.nodes[node.name] || {};
+
+        if (currentNodeState.walletStatus?.initialized || currentNodeState.info?.pubkey) {
+          return;
+        }
+
+        debug(`Initializing wallet for ${node.name}`);
+
+        let [walletStatus, info] = await Promise.all([
+          await api.getWalletStatus(),
+          await api.getInfo().catch(() => currentNodeState.info),
+        ]);
+        if (walletStatus.initialized && info?.pubkey) {
+          actions.setNodeInfo({ node, nodeInfo: { walletStatus, info } });
+          return;
+        }
+
+        const { bitcoin } = getStoreActions(),
+          bitcoinNodes = getStoreState().network.networkById(node.networkId).nodes
+            .bitcoin;
+        // HACK: Mine a block after creating the wallet to help sync
+        delay(500).then(() => bitcoin.mine({ blocks: 1, node: bitcoinNodes[0] }));
+
+        walletStatus = await api.initWallet();
+        info = await api.getInfo();
+        actions.setNodeInfo({ node, nodeInfo: { walletStatus, info } });
+      } catch (err: any) {
+        notify({
+          message: `Failed to initialize wallet for ${node.name}: ${
+            err?.message || 'Unknown error'
+          }`,
+          error: err,
+        });
+      }
+    },
+  ),
   getInfo: thunk(async (actions, node, { injections, getState }) => {
     const api = injections.arkFactory.getService(node),
       currentState = getState();
     try {
-      const currentNode = currentState.nodes[node.name];
+      const currentNode = currentState.nodes[node.name] || {};
+      if (!currentNode.walletStatus?.initialized) {
+        await actions.initializeWallet(node);
+      }
       const [info, walletStatus, walletBalance] = await Promise.all([
         api.getInfo().catch(() => currentNode.info),
         api.getWalletStatus().catch(() => currentNode.walletStatus),
@@ -126,16 +175,9 @@ const arkModel: ArkModel = {
         const state = getState(),
           nodeState = state.nodes[node.name];
 
-        if (nodeState.walletStatus && nodeState.walletStatus.initialized) return;
-
-        let walletStatus = await api.getWalletStatus();
-        if (walletStatus.initialized) {
-          actions.setNodeInfo({ node, nodeInfo: { walletStatus } });
-          return;
+        if (!nodeState.walletStatus?.initialized) {
+          await actions.initializeWallet(node);
         }
-
-        walletStatus = await api.initWallet();
-        actions.setNodeInfo({ node, nodeInfo: { walletStatus } });
       }),
     );
   }),
