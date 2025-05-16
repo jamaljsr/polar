@@ -1,7 +1,7 @@
 import { BitcoinNode } from 'shared/types';
 import { bitcoindService } from 'lib/bitcoin/bitcoind';
 import { BitcoinService } from 'types';
-import notImplementedService from './notImplementedService';
+import { btcdService } from 'lib/bitcoin/btcd';
 
 /**
  * A factory class used to obtain a Bitcoin service based on
@@ -16,7 +16,7 @@ class BitcoinFactory {
   constructor() {
     this._services = {
       bitcoind: bitcoindService,
-      btcd: notImplementedService, // TODO: To be replaced with btcd service
+      btcd: btcdService, // TODO: To be replaced with btcd service
     };
   }
 
