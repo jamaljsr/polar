@@ -37,7 +37,9 @@ describe('DetectDockerModal component', () => {
 
   it('should display UI elements', () => {
     const { getByText, getAllByText } = renderComponent();
-    expect(getByText('Docker Not Detected')).toBeInTheDocument();
+    expect(
+      getByText('Docker not detected. Make sure Docker is both installed and running.'),
+    ).toBeInTheDocument();
     expect(getByText('Installed Docker Versions')).toBeInTheDocument();
     expect(getByText('Check Again')).toBeInTheDocument();
     expect(getAllByText('Not Found')).toHaveLength(2);
@@ -45,18 +47,24 @@ describe('DetectDockerModal component', () => {
 
   it('should not display modal if docker versions are set', () => {
     const { queryByText } = renderComponent('1.2.3', '4.5.6');
-    expect(queryByText('Docker Not Detected')).toBeNull();
+    expect(
+      queryByText('Docker not detected. Make sure Docker is both installed and running.'),
+    ).toBeNull();
   });
 
   it('should display modal if docker version is not set', () => {
     const { getByText } = renderComponent('', '1.2.3');
-    expect(getByText('Docker Not Detected')).toBeInTheDocument();
+    expect(
+      getByText('Docker not detected. Make sure Docker is both installed and running.'),
+    ).toBeInTheDocument();
     expect(getByText('1.2.3')).toBeInTheDocument();
   });
 
   it('should display modal if compose version is not set', () => {
     const { getByText } = renderComponent('1.2.3');
-    expect(getByText('Docker Not Detected')).toBeInTheDocument();
+    expect(
+      getByText('Docker not detected. Make sure Docker is both installed and running.'),
+    ).toBeInTheDocument();
     expect(getByText('1.2.3')).toBeInTheDocument();
   });
 
