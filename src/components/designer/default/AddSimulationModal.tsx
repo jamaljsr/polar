@@ -102,7 +102,7 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
               name="source"
               label={l('source')}
               nodeStatus={Status.Started}
-              implementation={'LND'}
+              implementation={['LND', 'eclair']}
               nodes={nodes}
             />
           </Col>
@@ -112,7 +112,7 @@ const AddSimulationModal: React.FC<Props> = ({ network }) => {
               name="destination"
               label={l('destination')}
               nodeStatus={Status.Started}
-              implementation={'LND'}
+              implementation={['LND', 'eclair']}
               nodes={nodes}
             />
           </Col>
