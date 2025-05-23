@@ -191,6 +191,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       '--on-chain-fees.feerate-tolerance.ratio-high=10000.0',
       '--channel.max-htlc-value-in-flight-percent=100',
       '--channel.max-htlc-value-in-flight-msat=5000000000000', // 50 BTC in msats
+      '--features.keysend=optional',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'eclairPass', 'backendName', 'rpcUser', 'rpcPass'],
@@ -322,7 +323,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
   },
   simln: {
     name: 'simln',
-    imageName: 'bitcoindevproject/simln:0.2.0',
+    imageName: 'bitcoindevproject/simln:0.2.4',
     logo: '',
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'simln',
