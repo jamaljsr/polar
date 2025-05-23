@@ -884,9 +884,9 @@ describe('DockerService', () => {
       id: 1,
       name: 'my network',
       description: 'network description',
-      lndNodes: 2,
-      clightningNodes: 1,
-      eclairNodes: 0,
+      lndNodes: 1,
+      clightningNodes: 0,
+      eclairNodes: 1,
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
@@ -896,13 +896,15 @@ describe('DockerService', () => {
     });
     const mockResult = { err: '', out: '', exitCode: 0 };
     const lndNodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
-
+    const eclairNodes = network.nodes.lightning.filter(
+      n => n.implementation === 'eclair',
+    );
     beforeEach(() => {
       // Add simulation config to the test network
       network.simulation = {
         networkId: 1,
         source: lndNodes[0],
-        destination: lndNodes[1],
+        destination: eclairNodes[0],
         intervalSecs: 60,
         amountMsat: 1000,
         status: Status.Stopped,
