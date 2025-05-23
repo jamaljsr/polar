@@ -27,7 +27,7 @@ import {
   SimulationNodeConfig,
 } from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
-import { APP_VERSION, dockerConfigs } from 'utils/constants';
+import { APP_VERSION, dockerConfigs, eclairCredentials } from 'utils/constants';
 import { exists, read, renameFile, rm, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
 import { isLinux, isMac } from 'utils/system';
@@ -442,6 +442,16 @@ class DockerService implements DockerLibrary {
               macaroon: `/home/simln/.${lnd.paths.adminMacaroon.split('volumes/').pop()}`,
               address: `https://host.docker.internal:${lnd.ports.grpc}`,
               cert: `/home/simln/.${lnd.paths.tlsCert.split('volumes/').pop()}`,
+            };
+            break;
+
+          case 'eclair':
+            const eclair = node as EclairNode;
+            simNode = {
+              id: eclair.name,
+              base_url: `http://host.docker.internal:${eclair.ports.rest}`,
+              api_username: '',
+              api_password: eclairCredentials.pass,
             };
             break;
 

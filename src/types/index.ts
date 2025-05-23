@@ -328,7 +328,13 @@ export interface ActivityConfig {
 
 export interface SimulationNodeConfig {
   id: string;
-  address: string;
-  macaroon: string;
+  address?: string;
+  base_url?: string;
+  macaroon?: string;
   cert?: string;
+  ca_cert?: string;
+  client_cert?: string;
+  client_key?: string;
+  api_username?: string;
+  api_password?: string;
 }
