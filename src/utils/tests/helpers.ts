@@ -244,6 +244,7 @@ export const getNetwork = (
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 0,
     tapdNodes: 0,
     litdNodes: 0,
     status,

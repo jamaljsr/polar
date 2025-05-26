@@ -39,6 +39,7 @@ interface NetworkPlan {
     clightningNodes: number;
     eclairNodes: number;
     bitcoindNodes: number;
+    btcdNodes: number;
     tapdNodes: number;
     litdNodes: number;
   };
@@ -179,6 +180,7 @@ const buildPlanContext = (
     clightningNodes: 0,
     eclairNodes: 0,
     bitcoindNodes: 0,
+    btcdNodes: 0,
     tapdNodes: 0,
     litdNodes: 0,
   };
@@ -463,6 +465,7 @@ export const createNetworkTool = thunk<
     clightningNodes: baseCounts.clightningNodes,
     eclairNodes: baseCounts.eclairNodes,
     bitcoindNodes: baseCounts.bitcoindNodes,
+    btcdNodes: baseCounts.btcdNodes,
     tapdNodes: baseCounts.tapdNodes,
     litdNodes: baseCounts.litdNodes,
     customNodes: {},

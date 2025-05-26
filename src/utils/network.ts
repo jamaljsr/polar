@@ -176,8 +176,8 @@ export const filterCompatibleBackends = (
   // if compatibility is not defined, then allow all backend versions
   if (!compatibility || !compatibility[version]) return backends;
   const requiredVersion = compatibility[version];
-  const compatibleBackends = backends.filter(n =>
-    isVersionCompatible(n.version, requiredVersion),
+  const compatibleBackends = backends.filter(
+    n => isVersionCompatible(n.version, requiredVersion) || n.implementation === 'btcd', // TODO: remove this once btcd is compatible with all versions
   );
   if (compatibleBackends.length === 0) {
     throw new Error(
@@ -379,6 +379,44 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
+export const createBtcdNetworkNode = (
+  network: Network,
+  version: string,
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts.btcd,
+): BitcoinNode => {
+  const { bitcoin } = network.nodes;
+  const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
+
+  const name = `backend${id + 1}`;
+  const node: BitcoinNode = {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'bitcoin',
+    implementation: 'btcd',
+    version,
+    peers: [],
+    status,
+    ports: {
+      grpc: basePort.grpc + id,
+      p2p: BasePorts.btcd.p2p + id,
+      btcdWallet: basePort.btcdWallet + id,
+    },
+    docker,
+  };
+
+  // peer up with the previous node on both sides
+  if (bitcoin.length > 0) {
+    const prev = bitcoin[bitcoin.length - 1];
+    node.peers.push(prev.name);
+    prev.peers.push(node.name);
+  }
+
+  return node;
+};
+
 const filterLndBackends = (
   implementation: TapNode['implementation'],
   version: string,
@@ -450,6 +488,7 @@ export const createNetwork = (config: {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  btcdNodes: number;
   tapdNodes: number;
   litdNodes: number;
   repoState: DockerRepoState;
@@ -468,6 +507,7 @@ export const createNetwork = (config: {
     clightningNodes,
     eclairNodes,
     bitcoindNodes,
+    btcdNodes,
     tapdNodes,
     litdNodes,
     repoState,
@@ -499,7 +539,7 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
   const dockerWrap = (command: string) => ({ image: '', command });
 
-  // add custom bitcoin nodes
+  // add custom bitcoind nodes
   customImages
     .filter(i => i.image.implementation === 'bitcoind')
     .forEach(i => {
@@ -518,7 +558,20 @@ export const createNetwork = (config: {
       });
     });
 
-  // add managed bitcoin nodes
+  // add custom btcd nodes
+  customImages
+    .filter(i => i.image.implementation === 'btcd')
+    .forEach(i => {
+      const version = repoState.images.btcd.latest;
+      const docker = { image: i.image.dockerImage, command: i.image.command };
+      range(i.count).forEach(() => {
+        bitcoin.push(
+          createBtcdNetworkNode(network, version, docker, status, basePorts?.btcd),
+        );
+      });
+    });
+
+  // add managed bitcoind nodes
   range(bitcoindNodes).forEach(() => {
     let version = repoState.images.bitcoind.latest;
     if (lndNodes > 0) {
@@ -536,6 +589,19 @@ export const createNetwork = (config: {
         status,
         basePorts?.bitcoind,
       ),
+    );
+  });
+
+  // add managed btcd nodes
+  range(btcdNodes).forEach(() => {
+    const version = repoState.images.btcd.latest;
+    // if (lndNodes > 0) {
+    //   const compat = repoState.images.LND.compatibility as Record<string, string>;
+    //   version = compat[repoState.images.LND.latest];
+    // }
+    const cmd = getImageCommand(managedImages, 'btcd', version);
+    bitcoin.push(
+      createBtcdNetworkNode(network, version, dockerWrap(cmd), status, basePorts?.btcd),
     );
   });
 
