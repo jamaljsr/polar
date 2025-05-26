@@ -14,7 +14,17 @@ import {
   litdCredentials,
 } from 'utils/constants';
 import { getContainerName, getDefaultCommand } from 'utils/network';
-import { bitcoind, clightning, eclair, litd, lnd, tapd, simln } from './nodeTemplates';
+import {
+  bitcoind,
+  btcd,
+  btcwallet,
+  clightning,
+  eclair,
+  litd,
+  lnd,
+  tapd,
+  simln,
+} from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -199,6 +209,64 @@ class ComposeFile {
     const { name, imageName, command, env } = dockerConfigs.simln;
     const containerName = `polar-n${networkId}-simln`;
     const svc = simln(name, containerName, imageName, command, { ...env });
+    this.addService(svc);
+  }
+
+  addBtcd(node: BitcoinNode) {
+    const { name, version, ports } = node;
+    const { grpc, p2p } = ports;
+    const container = getContainerName(node);
+
+    // define the variable substitutions
+    const variables = {
+      name,
+      rpcUser: bitcoinCredentials.user,
+      rpcPass: bitcoinCredentials.pass,
+    };
+
+    // use the node's custom image or the default for the implementation
+    const image = node.docker.image || `${dockerConfigs.btcd.imageName}:${version}`;
+
+    // use the node's custom command or the default for the implementation
+    const nodeCommand = node.docker.command || getDefaultCommand('btcd', version);
+
+    // replace the variables in the command
+    const command = this.mergeCommand(nodeCommand, variables);
+
+    // add the docker service
+    const svc = btcd(name, container, image, grpc, p2p, command);
+    this.addService(svc);
+    this.addBtcwallet(node);
+  }
+
+  addBtcwallet(backend: BitcoinNode) {
+    const name = `btcwallet-${backend.name}`;
+    const rpcPort = backend.ports.btcdWallet;
+    const container = getContainerName(backend) + '-btcwallet';
+
+    // // define the variable substitutions
+    const variables = {
+      rpcUser: bitcoinCredentials.user,
+      rpcPass: bitcoinCredentials.pass,
+      nodeName: backend.name,
+    };
+
+    // use the node's image
+    const image = `polarlightning/btcwallet:0.16.13`;
+    // use the node's command
+    const nodeCommand = [
+      'btcwallet',
+      '--regtest',
+      '--username={{rpcUser}}',
+      '--password={{rpcPass}}',
+      '--rpclisten=0.0.0.0:18332',
+      '--rpcconnect={{nodeName}}',
+      '--cafile=/home/btcwallet/.btcd/rpc.cert',
+    ].join('\n ');
+    // replace the variables in the command
+    const command = this.mergeCommand(nodeCommand, variables);
+    // add the docker service
+    const svc = btcwallet(name, container, image, rpcPort, command, backend.name);
     this.addService(svc);
   }
 

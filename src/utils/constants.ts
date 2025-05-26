@@ -6,6 +6,7 @@ import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
+import btcdLogo from 'resources/btcd.svg';
 import packageJson from '../../package.json';
 
 // App
@@ -69,7 +70,11 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     rest: 8281,
     p2p: 9935,
   },
-  btcd: {},
+  btcd: {
+    grpc: 18334,
+    p2p: 18444,
+    btcdWallet: 18332,
+  },
   tapd: {
     grpc: 12029,
     rest: 8289,
@@ -236,13 +241,24 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     variables: ['rpcUser', 'rpcAuth'],
   },
   btcd: {
-    name: 'btcd',
-    imageName: '',
-    logo: '',
+    name: 'BTCD',
+    imageName: 'polarlightning/btcd',
+    logo: btcdLogo,
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'btcd',
-    command: '',
-    variables: [],
+    command: [
+      'btcd',
+      '--regtest',
+      '--rpcuser={{rpcUser}}',
+      '--rpcpass={{rpcPass}}',
+      '--txindex',
+      '--nodnsseed',
+      '--rpclisten=0.0.0.0:18334',
+      '--listen=0.0.0.0:18444',
+      '--externalip={{name}}',
+      '--debuglevel=info',
+    ].join('\n '),
+    variables: ['rpcUser', 'rpcPass', 'name'],
   },
   tapd: {
     name: 'Taproot Assets',
@@ -417,8 +433,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['30.0', '29.0', '28.0', '27.0', '26.0'],
     },
     btcd: {
-      latest: '',
-      versions: [],
+      latest: '0.25.0',
+      versions: ['0.25.0', '0.24.2'],
     },
     tapd: {
       latest: '0.7.0-alpha',

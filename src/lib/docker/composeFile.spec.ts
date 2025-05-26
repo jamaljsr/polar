@@ -14,6 +14,7 @@ describe('ComposeFile', () => {
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 1,
     tapdNodes: 1,
     litdNodes: 1,
     repoState: defaultRepoState,

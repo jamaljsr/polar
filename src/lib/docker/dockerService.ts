@@ -135,7 +135,14 @@ class DockerService implements DockerLibrary {
     const file = new ComposeFile(network.id);
     const { bitcoin, lightning, tap } = network.nodes;
 
-    bitcoin.forEach(node => file.addBitcoind(node));
+    bitcoin.forEach(node => {
+      if (node.implementation === 'bitcoind') {
+        file.addBitcoind(node);
+      }
+      if (node.implementation === 'btcd') {
+        file.addBtcd(node);
+      }
+    });
     lightning.forEach(node => {
       if (node.implementation === 'LND') {
         const lnd = node as LndNode;

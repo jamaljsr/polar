@@ -204,3 +204,54 @@ export const simln = (
   expose: [],
   ports: [],
 });
+
+export const btcd = (
+  name: string,
+  container: string,
+  image: string,
+  rpcPort: number,
+  p2pPort: number,
+  command: string,
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [
+    `./volumes/${dockerConfigs.btcd.volumeDirName}/${name}/btcd:/home/btcd/.btcd`,
+  ],
+  expose: [
+    '18334', // RPC
+    '18444', // p2p
+  ],
+  ports: [
+    `${rpcPort}:18334`, // RPC
+    `${p2pPort}:18444`, // p2p
+  ],
+});
+
+export const btcwallet = (
+  name: string,
+  container: string,
+  image: string,
+  rpcPort: number,
+  command: string,
+  btcdName: string,
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [
+    `./volumes/btcwallet/${name}/btcwallet:/home/btcwallet/.btcwallet`,
+    `./volumes/btcd/${btcdName}/btcd:/home/btcwallet/.btcd`,
+  ],
+  expose: [
+    '18332', // RPC
+  ],
+  ports: [
+    `${rpcPort}:18332`, // RPC
+  ],
+});
