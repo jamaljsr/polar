@@ -28,7 +28,7 @@ const mapUpdatesToDetails = (updates: Record<NodeImplementation, string[]>) => {
     details.push(
       ...versions.map(version => ({
         label: config.name,
-        value: `v${version}`,
+        value: version.startsWith('v') ? version : `v${version}`,
       })),
     );
   });
