@@ -2453,26 +2453,26 @@
   dependencies:
     buffer "^6.0.3"
 
-"@lightningpolar/litd-api@0.14.0-alpha.rc1":
-  version "0.14.0-alpha.rc1"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/litd-api/-/litd-api-0.14.0-alpha.rc1.tgz#64aab2e4349521cb6115cd4a048f72c8ac1a8373"
-  integrity sha512-4p759KmevDCBdhi8ZV0MolXn6u1n9ehwYuuc2VebadClMRuHWe0ciALNkq4KsyNdEwni2qEfaIxLKfvKy7conw==
+"@lightningpolar/litd-api@0.15.0-alpha.rc1":
+  version "0.15.0-alpha.rc1"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/litd-api/-/litd-api-0.15.0-alpha.rc1.tgz#ca4d77499703f520e561862326294e8e5cf87eea"
+  integrity sha512-6g7Bpf1c9yA/KnDwij+VjR+yOEvivmu4VtizrLpujkZ+NE5MTPVm1pNANhzkDg7Uc59VAJ/tTaQXZmNEizIs2w==
   dependencies:
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
 
-"@lightningpolar/lnd-api@0.18.4-beta.rc1":
-  version "0.18.4-beta.rc1"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/lnd-api/-/lnd-api-0.18.4-beta.rc1.tgz#60f18fec73947ea1fe5725ae654b56eab7ee129c"
-  integrity sha512-3gkmPAzgtwJnAuqZuWXO6JYMIGqTZE2Fn0Mo79NIcaReLuoMH8TD6Z2bBxy3lL6qiZKOFtVs6lmkiaGKg2INCA==
+"@lightningpolar/lnd-api@0.19.0-beta":
+  version "0.19.0-beta"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/lnd-api/-/lnd-api-0.19.0-beta.tgz#153a5bc70a1e9000f7ec5c7624b92dacbb203edf"
+  integrity sha512-5cwpPmVeqR1f1pBETO5aWKedAm7lq4JrlTTVLIHCWaLTdzswX7mD2hq0nXS24AtvEYltfMpG88vL+YeND+KcDQ==
   dependencies:
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
 
-"@lightningpolar/tapd-api@0.5.0-alpha.rc1":
-  version "0.5.0-alpha.rc1"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.5.0-alpha.rc1.tgz#76147e62bbcc4dfa163dc2d12a476d8865efb204"
-  integrity sha512-XtNr7LyaYI8t6tB9xlqu1ZQXCTe+Eh0UZUK4OyX5YaFkWXfIdd3QA3E1kRlVp2nCVCrO1fvYNmOuiiIHDj7DaA==
+"@lightningpolar/tapd-api@0.6.0-alpha.rc2":
+  version "0.6.0-alpha.rc2"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.6.0-alpha.rc2.tgz#462f993e20e463dd50bcf06f865dcfc5a872c62d"
+  integrity sha512-fr04IYMI6H1v8uS7Gl2CxV+oDvPE/iIRP1ncuP6RdMn0is2TWEWW6gxpqlMhNJA7nkw9t5eCRJQGgrpK+5RlSw==
   dependencies:
     "@grpc/grpc-js" "^1.12.2"
     "@grpc/proto-loader" "0.7.13"

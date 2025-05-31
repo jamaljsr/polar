@@ -3,7 +3,7 @@ export interface Session {
   label: string;
   pairingPhrase: string;
   mailboxServerAddr: string;
-  state: 'Created' | 'In Use' | 'Revoked' | 'Expired';
+  state: 'Created' | 'In Use' | 'Revoked' | 'Expired' | 'Reserved';
   type: 'Read Only' | 'Admin' | 'Custom' | 'UI Password' | 'Autopilot' | 'Account';
   accountId: string;
   localPublicKey: string;
