@@ -58,6 +58,9 @@ describe('TapdService', () => {
         },
         anchorTxHash: Buffer.from(txid, 'hex'),
         anchorTxHeightHint: 0,
+        anchorTxBlockHeight: 0,
+        label: '',
+        anchorTx: Buffer.from(txid, 'hex'),
         transferTimestamp: '',
         inputs: [],
         outputs: [],
@@ -306,6 +309,7 @@ describe('TapdService', () => {
 
 const sampleAsset: TAP.Asset = {
   version: 'ASSET_VERSION_V0',
+  scriptKeyType: TAP.ScriptKeyType.SCRIPT_KEY_CHANNEL,
   assetGenesis: {
     genesisPoint: '64e4cf735588364a5770712fa8836d6d1464f60227817697664f2c2937619c58:0',
     name: 'LUSD',
@@ -354,6 +358,7 @@ const sampleAsset: TAP.Asset = {
     ),
     tapscriptSibling: Buffer.from(''),
     blockHeight: 0,
+    blockTimestamp: '0',
   },
   prevWitnesses: [],
   isSpent: false,
