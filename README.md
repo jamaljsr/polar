@@ -38,7 +38,7 @@ With Polar you can:
 
 Supported Network Node Versions:
 
-- [LND](https://github.com/lightningnetwork/lnd) - v0.18.5, v0.18.4, v0.18.3, v0.17.5, v0.16.4
+- [LND](https://github.com/lightningnetwork/lnd) - v0.19.0, v0.18.5, v0.18.4, v0.18.3, v0.17.5, v0.16.4
 - [Core Lightning](https://github.com/ElementsProject/lightning) - v25.02, v24.11, v24.08, v24.05
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.12.0, v0.11.0, v0.10.0, v0.9.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v29.0, v28.0, v27.0, v26.0
