@@ -2,6 +2,7 @@ import { debug } from 'electron-log';
 import * as LND from '@lightningpolar/lnd-api';
 import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNodeChannel } from 'lib/lightning/types';
+import { snakeKeysToCamel } from 'utils/objects';
 
 const txid = (channelPoint: string) => channelPoint.split(':')[0];
 
@@ -36,25 +37,47 @@ export const mapPendingChannel =
   });
 
 /** The structure of the custom channel data JSON */
+
+interface ChannelCustomDataUtxo {
+  version: number;
+  assetGenesis: {
+    genesisPoint: string;
+    name: string;
+    metaHash: string;
+    assetId: string;
+  };
+  amount: number;
+  scriptKey: string;
+  decimalDisplay: number;
+}
+
+export interface ChannelCustomDataAsset {
+  assetId: string;
+  amount: string;
+}
+
 interface ChannelCustomData {
+  // This field is only present for tapd v0.5.x
   assets: [
     {
-      asset_utxo: {
-        version: 1;
-        asset_genesis: {
-          genesis_point: string;
-          name: string;
-          meta_hash: string;
-          asset_id: string;
-        };
-        amount: number;
-        script_key: string;
-      };
+      assetUtxo: ChannelCustomDataUtxo;
       capacity: number;
-      local_balance: number;
-      remote_balance: number;
+      localBalance: number;
+      remoteBalance: number;
     },
   ];
+  // These fields are present for tapd v0.6.x and above
+  fundingAssets: ChannelCustomDataUtxo[];
+  localAssets: ChannelCustomDataAsset[];
+  remoteAssets: ChannelCustomDataAsset[];
+  outgoingHtlcs: ChannelCustomDataAsset[];
+  incomingHtlcs: ChannelCustomDataAsset[];
+  capacity: string;
+  groupKey?: string;
+  localBalance: string;
+  remoteBalance: string;
+  outgoingHtlcBalance: string;
+  incomingHtlcBalance: string;
 }
 
 /**
@@ -66,23 +89,48 @@ const parseCustomData = (
   customChannelData: Buffer,
 ): LightningNodeChannel['assets'] => {
   if (!customChannelData || customChannelData.length === 0) return [];
-  const data = Buffer.from(customChannelData).toString('utf8');
+  // customChannelData is actually a Uint8Array so we have to cast it
+  const data = Buffer.from(customChannelData as unknown as Uint8Array).toString('utf8');
   try {
-    const chanData = JSON.parse(data) as ChannelCustomData;
-    if (!chanData.assets) {
-      debug(`No assets found in customChannelData for channel ${id}`);
-      return [];
+    const chanData = snakeKeysToCamel(JSON.parse(data)) as ChannelCustomData;
+    if (chanData.assets) {
+      debug(
+        `Parsed customChannelData for channel ${id}:`,
+        JSON.stringify(chanData, null, 2),
+      );
+      const assets = chanData.assets.map(asset => ({
+        id: asset.assetUtxo?.assetGenesis?.assetId,
+        name: asset.assetUtxo?.assetGenesis?.name,
+        groupKey: chanData.groupKey,
+        capacity: asset.capacity?.toString(),
+        localBalance: asset.localBalance?.toString(),
+        remoteBalance: asset.remoteBalance?.toString(),
+      }));
+      debug(`Parsed assets for channel ${id}:`, assets);
+      return assets;
     }
-    debug(`Parsed customChannelData for channel ${id}:`, chanData);
-    const assets = chanData.assets.map(asset => ({
-      id: asset.asset_utxo?.asset_genesis?.asset_id,
-      name: asset.asset_utxo?.asset_genesis?.name,
-      capacity: asset.capacity?.toString(),
-      localBalance: asset.local_balance?.toString(),
-      remoteBalance: asset.remote_balance?.toString(),
-    }));
-    debug(`Parsed customChannelData for channel ${id}:`, assets);
-    return assets;
+    if (chanData.fundingAssets) {
+      debug(
+        `Parsed customChannelData for channel ${id}:`,
+        JSON.stringify(chanData, null, 2),
+      );
+      const assets = chanData.fundingAssets.map(asset => ({
+        id: asset.assetGenesis?.assetId,
+        name: asset.assetGenesis?.name,
+        groupKey: chanData.groupKey,
+        capacity: asset.amount.toString(),
+        localBalance: chanData.localAssets
+          .reduce((acc, asset) => acc + Number(asset.amount), 0)
+          .toString(),
+        remoteBalance: chanData.remoteAssets
+          .reduce((acc, asset) => acc + Number(asset.amount), 0)
+          .toString(),
+      }));
+      debug(`Parsed assets for channel ${id}:`, assets);
+      return assets;
+    }
+    debug(`No assets found in customChannelData for channel ${id}`);
+    return [];
   } catch (e) {
     debug(`Failed to parse customChannelData for channel ${id}:`, data, e);
     return [];
