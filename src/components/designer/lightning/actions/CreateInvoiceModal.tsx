@@ -2,27 +2,17 @@ import React, { ReactNode, useCallback, useMemo } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
-import {
-  Button,
-  Col,
-  Form,
-  InputNumber,
-  message,
-  Modal,
-  Result,
-  Row,
-  Select,
-} from 'antd';
+import { Button, Form, InputNumber, message, Modal, Result, Select } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
+import { formatDecimals } from 'utils/numbers';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
 import { Loader } from 'components/common';
-import AssetAmount from 'components/common/AssetAmount';
 import CopyableInput from 'components/common/form/CopyableInput';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
@@ -59,7 +49,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
   const { showCreateInvoice, hideCreateInvoice } = useStoreActions(s => s.modals);
   const { createInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
   const { createAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
-  const { getAssetRoots, formatAssetAmount, toAssetUnits } = useStoreActions(s => s.tap);
+  const { getAssetRoots, toAssetUnits } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
   const [form] = Form.useForm();
@@ -121,7 +111,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
       const amount = Math.floor(parseInt(asset.remoteBalance) / 2).toString();
 
-      return formatAssetAmount({ assetId, amount });
+      return formatDecimals(Number(amount), asset.decimals);
     },
     [assets, isLitd],
   );
@@ -144,10 +134,6 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
         initialValues={{ node: nodeName, amount: 1_000_000, assetId: 'sats' }}
         onFinish={createAsync.execute}
       >
-        <Row gutter={16}>
-          <Col span={12}></Col>
-          <Col span={12}></Col>
-        </Row>
         <LightningNodeSelect
           network={network}
           name="node"
@@ -172,9 +158,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
                       <span>
                         {a.name} <code>({ellipseInner(a.id, 4)})</code>
                       </span>
-                      <code>
-                        <AssetAmount assetId={a.id} amount={a.remoteBalance} />
-                      </code>
+                      <code>{formatDecimals(Number(a.remoteBalance), a.decimals)}</code>
                     </Styled.AssetOption>
                   </Select.Option>
                 ))}

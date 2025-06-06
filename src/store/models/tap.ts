@@ -75,6 +75,7 @@ export interface FundChannelPayload {
 export interface TapModel {
   nodes: TapNodeMapping;
   allAssetRoots: Computed<TapModel, PTAP.TapAssetRoot[], RootModel>;
+  allAssets: Computed<TapModel, Map<string, PTAP.TapAsset>, RootModel>;
   removeNode: Action<TapModel, string>;
   clearNodes: Action<TapModel, void>;
   setAssets: Action<TapModel, { node: TapNode; assets: PTAP.TapAsset[] }>;
@@ -140,6 +141,38 @@ const tapModel: TapModel = {
     });
     return Object.values(assets);
   }),
+  allAssets: computed(
+    [state => state.nodes, (_, storeState) => storeState.lightning.nodes],
+    (tapNodes, lnNodes) => {
+      const assets = new Map<string, PTAP.TapAsset>();
+      // Find all on-chain assets
+      Object.values(tapNodes).forEach(node => {
+        node.assets?.forEach(a => {
+          assets.set(a.id, a);
+        });
+      });
+      // Find all off-chain assets in channels
+      Object.values(lnNodes).forEach(node => {
+        node.channels?.forEach(c => {
+          c.assets?.forEach(a => {
+            assets.set(a.id, {
+              id: a.id,
+              name: a.name,
+              decimals: a.decimals,
+              amount: a.capacity,
+              groupKey: a.groupKey || '',
+              // only normal assets can be in channels
+              type: PTAP.TAP_ASSET_TYPE.NORMAL,
+              // use empty strings for these since the values aren't exposed in the API
+              genesisPoint: '',
+              anchorOutpoint: '',
+            });
+          });
+        });
+      });
+      return assets;
+    },
+  ),
   // reducer actions (mutations allowed thx to immer)
   removeNode: action((state, name) => {
     if (state.nodes[name]) {
@@ -184,26 +217,19 @@ const tapModel: TapModel = {
   formatAssetAmount: thunk(
     (actions, { assetId, amount, includeName }, { getStoreState }) => {
       // convert asset units to the amount with decimals
-      for (const node of Object.values(getStoreState().tap.nodes)) {
-        const asset = node.assets?.find(a => a.id === assetId);
-        if (asset) {
-          const amt = formatDecimals(Number(amount), asset.decimals);
-          if (includeName) {
-            return `${amt} ${asset.name}`;
-          }
-          return amt;
-        }
+      const asset = getStoreState().tap.allAssets.get(assetId);
+      if (asset) {
+        const amt = formatDecimals(Number(amount), asset.decimals);
+        return includeName ? `${amt} ${asset.name}` : amt;
       }
       return amount.toString();
     },
   ),
   toAssetUnits: thunk((actions, { assetId, amount }, { getStoreState }) => {
     // convert amount which may include decimals to integer asset units
-    for (const node of Object.values(getStoreState().tap.nodes)) {
-      const asset = node.assets?.find(a => a.id === assetId);
-      if (asset) {
-        return amount * 10 ** asset.decimals;
-      }
+    const asset = getStoreState().tap.allAssets.get(assetId);
+    if (asset) {
+      return amount * 10 ** asset.decimals;
     }
     return amount;
   }),
