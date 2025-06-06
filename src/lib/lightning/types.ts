@@ -27,6 +27,7 @@ export interface LightningNodeAddress {
 export interface LightningNodeChannelAsset {
   id: string;
   name: string;
+  groupKey?: string;
   capacity: string;
   localBalance: string;
   remoteBalance: string;
