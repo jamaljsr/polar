@@ -148,7 +148,7 @@ class ComposeFile {
     this.addService(svc);
   }
 
-  addLitd(node: LitdNode, backend: CommonNode) {
+  addLitd(node: LitdNode, backend: CommonNode, proofCourier: CommonNode) {
     const { name, version, ports } = node;
     const { rest, grpc, p2p, web } = ports;
     const container = getContainerName(node);
@@ -160,6 +160,7 @@ class ComposeFile {
       rpcUser: bitcoinCredentials.user,
       rpcPass: bitcoinCredentials.pass,
       litdPass: litdCredentials.pass,
+      proofCourier: getContainerName(proofCourier),
     };
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.litd.imageName}:${version}`;
