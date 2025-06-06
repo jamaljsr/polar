@@ -295,6 +295,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--taproot-assets.universe.public-access=rw',
       '--taproot-assets.universe.sync-all-assets',
       '--taproot-assets.allow-public-stats',
+      '--taproot-assets.proofcourieraddr=universerpc://{{proofCourier}}:8443',
       '--taproot-assets.universerpccourier.skipinitdelay',
       '--taproot-assets.universerpccourier.backoffresetwait=1s',
       '--taproot-assets.universerpccourier.numtries=5',
@@ -316,7 +317,14 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--lnd.protocol.custom-message=17',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
-    variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
+    variables: [
+      'name',
+      'containerName',
+      'backendName',
+      'rpcUser',
+      'rpcPass',
+      'proofCourier',
+    ],
   },
 };
 

@@ -530,6 +530,7 @@
   "cmps.nodeImages.CommandVariables.var-rpcPass": "The RPC password used to authenticate to the backend Bitcoin node",
   "cmps.nodeImages.CommandVariables.var-rpcAuth": "The encoded RPC authentication string used to specify the password for the backend Bitcoin node",
   "cmps.nodeImages.CommandVariables.var-eclairPass": "The API password used to authenticate to the Eclair node",
+  "cmps.nodeImages.CommandVariables.var-proofCourier": "The name of the node to use as the TAP proof courier. This will be the first Terminal node in the network.",
   "cmps.nodeImages.CustomImageModal.title": "Custom Node Details",
   "cmps.nodeImages.CustomImageModal.name": "Name",
   "cmps.nodeImages.CustomImageModal.implementation": "Implementation",
