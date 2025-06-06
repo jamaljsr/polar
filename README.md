@@ -43,7 +43,7 @@ Supported Network Node Versions:
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.12.0, v0.11.0, v0.10.0, v0.9.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v29.0, v28.0, v27.0, v26.0
 - [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
-- [Terminal](https://github.com/lightninglabs/lightning-terminal) - v0.14.1, v0.14.0
+- [Terminal](https://github.com/lightninglabs/lightning-terminal) - v0.15.0, v0.14.1, v0.14.0
 
 ## Dependencies
 
