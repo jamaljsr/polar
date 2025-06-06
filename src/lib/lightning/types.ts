@@ -31,6 +31,7 @@ export interface LightningNodeChannelAsset {
   capacity: string;
   localBalance: string;
   remoteBalance: string;
+  decimals: number;
 }
 
 export interface LightningNodeChannel {

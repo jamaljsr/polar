@@ -99,12 +99,13 @@ const parseCustomData = (
         JSON.stringify(chanData, null, 2),
       );
       const assets = chanData.assets.map(asset => ({
-        id: asset.assetUtxo?.assetGenesis?.assetId,
-        name: asset.assetUtxo?.assetGenesis?.name,
+        id: asset.assetUtxo.assetGenesis.assetId,
+        name: asset.assetUtxo.assetGenesis.name,
         groupKey: chanData.groupKey,
-        capacity: asset.capacity?.toString(),
-        localBalance: asset.localBalance?.toString(),
-        remoteBalance: asset.remoteBalance?.toString(),
+        capacity: asset.capacity.toString(),
+        localBalance: asset.localBalance.toString(),
+        remoteBalance: asset.remoteBalance.toString(),
+        decimals: asset.assetUtxo.decimalDisplay,
       }));
       debug(`Parsed assets for channel ${id}:`, assets);
       return assets;
@@ -115,8 +116,8 @@ const parseCustomData = (
         JSON.stringify(chanData, null, 2),
       );
       const assets = chanData.fundingAssets.map(asset => ({
-        id: asset.assetGenesis?.assetId,
-        name: asset.assetGenesis?.name,
+        id: asset.assetGenesis.assetId,
+        name: asset.assetGenesis.name,
         groupKey: chanData.groupKey,
         capacity: asset.amount.toString(),
         localBalance: chanData.localAssets
@@ -125,6 +126,7 @@ const parseCustomData = (
         remoteBalance: chanData.remoteAssets
           .reduce((acc, asset) => acc + Number(asset.amount), 0)
           .toString(),
+        decimals: asset.decimalDisplay,
       }));
       debug(`Parsed assets for channel ${id}:`, assets);
       return assets;
