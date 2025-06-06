@@ -168,12 +168,12 @@ describe('ComposeFile', () => {
   });
 
   it('should add an litd config', () => {
-    composeFile.addLitd(litdNode, btcNode);
+    composeFile.addLitd(litdNode, btcNode, litdNode);
     expect(composeFile.content.services['dave']).not.toBeUndefined();
   });
 
   it('should create the correct litd docker compose values', () => {
-    composeFile.addLitd(litdNode, btcNode);
+    composeFile.addLitd(litdNode, btcNode, litdNode);
     const service = composeFile.content.services['dave'];
     expect(service.image).toContain('litd');
     expect(service.container_name).toEqual('polar-n1-dave');
@@ -185,7 +185,7 @@ describe('ComposeFile', () => {
 
   it('should use the tapd nodes custom docker data', () => {
     litdNode.docker = { image: 'my-image', command: 'my-command' };
-    composeFile.addLitd(litdNode, btcNode);
+    composeFile.addLitd(litdNode, btcNode, litdNode);
     const service = composeFile.content.services['dave'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');

@@ -131,6 +131,7 @@ describe('LIT Model', () => {
         capacity: '1000',
         localBalance: '600',
         remoteBalance: '400',
+        decimals: 0,
       };
       lightningServiceMock.getChannels.mockResolvedValue([
         defaultStateChannel({ assets: [asset] }),
@@ -226,6 +227,7 @@ describe('LIT Model', () => {
       capacity: '1000',
       localBalance: '600',
       remoteBalance: '400',
+      decimals: 0,
     };
     const node2 = initialState.network.networks[0].nodes.lightning[1] as LitdNode;
     const node3 = initialState.network.networks[0].nodes.lightning[2] as LitdNode;
