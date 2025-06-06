@@ -55,6 +55,7 @@ describe('LitdService', () => {
     [LITD.SessionState.STATE_IN_USE, 'In Use'],
     [LITD.SessionState.STATE_REVOKED, 'Revoked'],
     [LITD.SessionState.STATE_EXPIRED, 'Expired'],
+    [LITD.SessionState.STATE_RESERVED, 'Reserved'],
   ])('should map session state %s', async (litdState, state) => {
     const apiResponse = defaultLitdListSessions({
       sessions: [defaultLitdSession({ label: 'test', sessionState: litdState })],

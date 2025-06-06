@@ -26,7 +26,6 @@ const ThemeSwitch: React.FC = () => {
   const [isDisabled, setIsDisabled] = useState(false);
 
   const toggleTheme = () => {
-    if (isDisabled) return;
     setIsDisabled(true);
     updateSettings({ theme: isLight ? 'dark' : 'light' });
     setTimeout(() => setIsDisabled(false), 500);

@@ -157,6 +157,7 @@ describe('CreateInvoiceModal', () => {
         capacity: '1000',
         localBalance: '600',
         remoteBalance: '400',
+        decimals: 0,
       };
       lightningServiceMock.getChannels.mockResolvedValue([
         defaultStateChannel({ assets: [asset] }),
@@ -205,7 +206,7 @@ describe('CreateInvoiceModal', () => {
       expect(tapServiceMock.addInvoice).toHaveBeenCalledWith(
         tapNode,
         'abcd',
-        '200',
+        200,
         '',
         3600,
       );
