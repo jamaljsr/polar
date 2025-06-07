@@ -97,7 +97,7 @@ first build the headless image, then run:
 
 ```sh
 cd .devcontainer/
-docker_gid_host=$(getent group docker | awk --field-separator : '{print $3}')
+docker_gid_host=$(getent group docker | awk -F: '{print $3}')
 docker image build --build-arg="DOCKER_GID=${docker_gid_host}" --tag polardev:ui .
 ```
 
