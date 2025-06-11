@@ -456,7 +456,7 @@
   "cmps.dockerLogs.ViewLogsButton.openMsg": "正在打开日志...",
   "cmps.home.DetectDockerModal.dockerError": "Docker错误",
   "cmps.home.DetectDockerModal.notFound": "未找到",
-  "cmps.home.DetectDockerModal.notDetected": "未检测到Docker",
+  "cmps.home.DetectDockerModal.notDetected": "Docker not detected. Make sure Docker is both installed and running.",
   "cmps.home.DetectDockerModal.description": "要启动闪电网络，您必须在此计算机上安装并运行Docker和Docker Compose。",
   "cmps.home.DetectDockerModal.download": "下载",
   "cmps.home.DetectDockerModal.versionsTitle": "已安装的Docker版本",
