@@ -456,7 +456,7 @@
   "cmps.dockerLogs.ViewLogsButton.openMsg": "ログを開いています...",
   "cmps.home.DetectDockerModal.dockerError": "Dockerエラー",
   "cmps.home.DetectDockerModal.notFound": "見つかりません",
-  "cmps.home.DetectDockerModal.notDetected": "Dockerが検出されない",
+  "cmps.home.DetectDockerModal.notDetected": "Docker not detected. Make sure Docker is both installed and running.",
   "cmps.home.DetectDockerModal.description": "Lightningネットワークを開始するには、このコンピューターにDockerおよびDocker Composeをインストールして実行する必要があります。",
   "cmps.home.DetectDockerModal.download": "ダウンロード",
   "cmps.home.DetectDockerModal.versionsTitle": "インストール済みのDockerバージョン",
