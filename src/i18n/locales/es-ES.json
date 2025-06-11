@@ -456,7 +456,7 @@
   "cmps.dockerLogs.ViewLogsButton.openMsg": "Abrir registros...",
   "cmps.home.DetectDockerModal.dockerError": "Error de Docker",
   "cmps.home.DetectDockerModal.notFound": "No encontrado",
-  "cmps.home.DetectDockerModal.notDetected": "Docker no detectado",
+  "cmps.home.DetectDockerModal.notDetected": "Docker not detected. Make sure Docker is both installed and running.",
   "cmps.home.DetectDockerModal.description": "Para iniciar una Red Lightning, debe tener Docker y Docker Compose instalados y ejecutándose en esta computadora.",
   "cmps.home.DetectDockerModal.download": "Descargar",
   "cmps.home.DetectDockerModal.versionsTitle": "Versiones de Docker instaladas",
