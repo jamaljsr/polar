@@ -456,7 +456,7 @@
   "cmps.dockerLogs.ViewLogsButton.openMsg": "Ouverture des journaux ...",
   "cmps.home.DetectDockerModal.dockerError": "Erreur Docker",
   "cmps.home.DetectDockerModal.notFound": "Pas trouvé",
-  "cmps.home.DetectDockerModal.notDetected": "Docker non détecté",
+  "cmps.home.DetectDockerModal.notDetected": "Docker not detected. Make sure Docker is both installed and running.",
   "cmps.home.DetectDockerModal.description": "Pour démarrer un réseau Lightning, vous devez installer et exécuter Docker et Docker Compose sur cet ordinateur.",
   "cmps.home.DetectDockerModal.download": "Télécharger",
   "cmps.home.DetectDockerModal.versionsTitle": "Versions Docker installées",
