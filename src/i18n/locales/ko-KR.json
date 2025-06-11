@@ -456,7 +456,7 @@
   "cmps.dockerLogs.ViewLogsButton.openMsg": "로그를 여는 중...",
   "cmps.home.DetectDockerModal.dockerError": "도커 오류",
   "cmps.home.DetectDockerModal.notFound": "찾을 수 없음",
-  "cmps.home.DetectDockerModal.notDetected": "도 커가 감지되지 않습니다",
+  "cmps.home.DetectDockerModal.notDetected": "Docker not detected. Make sure Docker is both installed and running.",
   "cmps.home.DetectDockerModal.description": "Lightning Network를 시작하려면이 컴퓨터에 Docker 및 Docker Compose가 설치되어 실행 중이어야합니다.",
   "cmps.home.DetectDockerModal.download": "다운로드",
   "cmps.home.DetectDockerModal.versionsTitle": "설치된 도커 버전",
