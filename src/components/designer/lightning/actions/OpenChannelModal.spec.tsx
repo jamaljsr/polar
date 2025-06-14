@@ -9,6 +9,7 @@ import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork, mapToTapd } from 'utils/network';
 import {
+  bitcoinServiceMock,
   defaultStateChannel,
   defaultStateInfo,
   defaultTapAsset,
@@ -19,7 +20,6 @@ import {
   suppressConsoleErrors,
   tapServiceMock,
   testManagedImages,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import OpenChannelModal from './OpenChannelModal';
 
@@ -295,6 +295,7 @@ describe('OpenChannelModal', () => {
         capacity: '1000',
         localBalance: '600',
         remoteBalance: '400',
+        decimals: 0,
       };
       lightningServiceMock.getChannels.mockResolvedValue([
         defaultStateChannel({ assets: [asset] }),

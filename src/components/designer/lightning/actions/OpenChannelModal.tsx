@@ -7,7 +7,6 @@ import { TapBalance } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
-import { formatDecimals } from 'utils/numbers';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 import TapAssetSelect from 'components/common/form/TapAssetSelect';
@@ -122,7 +121,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
       ) as TapBalance;
       const decimals =
         tapNodes[selectedFrom]?.assets?.find(a => a.id === assetId)?.decimals || 0;
-      return formatDecimals(parseInt(asset.balance), decimals);
+      return Number(asset.balance) / 10 ** decimals;
     },
     [showAssets, selectedFrom, assetId, tapNodes],
   );

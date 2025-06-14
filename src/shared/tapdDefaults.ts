@@ -74,6 +74,9 @@ export const defaultTapdSendAsset = (
   value: Partial<SendAssetResponse>,
 ): SendAssetResponse => ({
   transfer: {
+    anchorTxBlockHeight: 0,
+    label: '',
+    anchorTx: Buffer.from(''),
     anchorTxBlockHash: {
       hash: Buffer.from(''),
       hashStr: '',

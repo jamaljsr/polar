@@ -226,6 +226,7 @@ const litModel: LitModel = {
                 // channel from the other node's perspective
                 localBalance: asset.remoteBalance,
                 remoteBalance: asset.localBalance,
+                decimals: asset.decimals,
               };
               addAsset(swapped, remotePubkey);
             });
