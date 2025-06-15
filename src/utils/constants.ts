@@ -295,6 +295,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--taproot-assets.universe.public-access=rw',
       '--taproot-assets.universe.sync-all-assets',
       '--taproot-assets.allow-public-stats',
+      '--taproot-assets.proofcourieraddr=universerpc://{{proofCourier}}:8443',
       '--taproot-assets.universerpccourier.skipinitdelay',
       '--taproot-assets.universerpccourier.backoffresetwait=1s',
       '--taproot-assets.universerpccourier.numtries=5',
@@ -316,7 +317,14 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--lnd.protocol.custom-message=17',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
-    variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
+    variables: [
+      'name',
+      'containerName',
+      'backendName',
+      'rpcUser',
+      'rpcPass',
+      'proofCourier',
+    ],
   },
 };
 
@@ -333,7 +341,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 72,
+  version: 73,
   images: {
     LND: {
       latest: '0.19.0-beta',
@@ -393,8 +401,9 @@ export const defaultRepoState: DockerRepoState = {
     },
     litd: {
       latest: '0.14.1-alpha',
-      versions: ['0.14.1-alpha', '0.14.0-alpha'],
+      versions: ['0.15.0-alpha.rc2', '0.14.1-alpha', '0.14.0-alpha'],
       compatibility: {
+        '0.15.0-alpha.rc2': '29.0',
         '0.14.1-alpha': '29.0',
         '0.14.0-alpha': '29.0',
       },

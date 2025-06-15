@@ -156,6 +156,7 @@ describe('PayInvoiceModal', () => {
         capacity: '1000',
         localBalance: '600',
         remoteBalance: '400',
+        decimals: 0,
       };
       lightningServiceMock.getChannels.mockResolvedValue([
         defaultStateChannel({ assets: [asset] }),

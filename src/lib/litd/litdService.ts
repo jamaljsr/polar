@@ -92,6 +92,8 @@ class LitdService implements LitdLibrary {
         return 'Revoked';
       case LITD.SessionState.STATE_EXPIRED:
         return 'Expired';
+      case LITD.SessionState.STATE_RESERVED:
+        return 'Reserved';
     }
   }
 

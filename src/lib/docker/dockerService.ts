@@ -147,7 +147,9 @@ class DockerService implements DockerLibrary {
       if (node.implementation === 'litd') {
         const litd = node as LitdNode;
         const backend = bitcoin.find(n => n.name === litd.backendName) || bitcoin[0];
-        file.addLitd(litd, backend);
+        // Always set the first litd node as the proof courier, even if it's the same node
+        const proofCourier = lightning.find(n => n.implementation === 'litd') as LitdNode;
+        file.addLitd(litd, backend, proofCourier);
       }
     });
     tap.forEach(node => {

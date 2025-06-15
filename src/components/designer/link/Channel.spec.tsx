@@ -5,11 +5,11 @@ import { Status } from 'shared/types';
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
+  bitcoinServiceMock,
   getNetwork,
   lightningServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import Channel from './Channel';
 
@@ -223,6 +223,7 @@ describe('Channel component', () => {
         capacity: '2,345',
         localBalance: '1,647',
         remoteBalance: '853',
+        decimals: 0,
       };
       const { getByText } = renderComponent(Status.Stopped, 'alice', 'bob', [asset]);
       expect(getByText('test asset')).toBeInTheDocument();
