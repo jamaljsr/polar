@@ -259,6 +259,15 @@ describe('NetworkDesigner Component', () => {
     fireEvent.click(getByText('Cancel'));
   });
 
+  it('should display the Add Simulation modal', async () => {
+    const { getByText, findByText, store } = renderComponent();
+    act(() => {
+      store.getActions().modals.showAddSimulation({});
+    });
+    expect(await findByText('Add Simulation')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
   it('should remove a node from the network', async () => {
     const { getByText, findByText, queryByText, store } = renderComponent();
     // add a new LN node that doesn't have a tap node connected
