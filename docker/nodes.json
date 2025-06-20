@@ -1,9 +1,10 @@
 {
-  "version": 72,
+  "version": 74,
   "images": {
     "LND": {
-      "latest": "0.19.0-beta",
+      "latest": "0.19.1-beta",
       "versions": [
+        "0.19.1-beta",
         "0.19.0-beta",
         "0.18.5-beta",
         "0.18.4-beta",
@@ -15,6 +16,7 @@
         "0.16.4-beta"
       ],
       "compatibility": {
+        "0.19.1-beta": "29.0",
         "0.19.0-beta": "29.0",
         "0.18.5-beta": "29.0",
         "0.18.4-beta": "29.0",
@@ -27,8 +29,8 @@
       }
     },
     "c-lightning": {
-      "latest": "25.02.2",
-      "versions": ["25.02.2", "25.02", "24.11.1", "24.11", "24.08.1", "24.05"]
+      "latest": "25.05",
+      "versions": ["25.05", "25.02.2", "25.02", "24.11.1", "24.11", "24.08.1", "24.05"]
     },
     "eclair": {
       "latest": "0.12.0",
@@ -43,16 +45,16 @@
       "versions": []
     },
     "tapd": {
-      "latest": "0.5.1-alpha",
+      "latest": "0.6.0-alpha",
       "versions": [
-        "0.6.0-rc2",
+        "0.6.0-alpha",
         "0.5.1-alpha",
         "0.5.0-alpha",
         "0.4.1-alpha",
         "0.3.3-alpha"
       ],
       "compatibility": {
-        "0.6.0-rc2": "0.18.5-beta",
+        "0.6.0-alpha": "0.19.0-beta",
         "0.5.1-alpha": "0.18.5-beta",
         "0.5.0-alpha": "0.18.4-beta",
         "0.4.1-alpha": "0.18.0-beta",
@@ -60,9 +62,10 @@
       }
     },
     "litd": {
-      "latest": "0.14.1-alpha",
-      "versions": ["0.14.1-alpha", "0.14.0-alpha"],
+      "latest": "0.15.0-alpha",
+      "versions": ["0.15.0-alpha", "0.14.1-alpha", "0.14.0-alpha"],
       "compatibility": {
+        "0.15.0-alpha": "29.0",
         "0.14.1-alpha": "29.0",
         "0.14.0-alpha": "29.0"
       }

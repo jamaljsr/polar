@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/jamaljsr/polar/compare/v3.2.0...v3.3.0)
+
+This release adds support for the final v0.15.0 version of Terminal (`litd`) which improves support for making asset payments over Lightning.
+
+All of the node implementations have also been updated to their latests versions:
+
+- LND v0.19.1-beta
+- Taproot Assets (tapd) v0.6.0-alpha
+- Terminal (litd) v0.15.0-alpha
+- Core Lightning v24.11.1
+
+### Features
+
+- Add UI to balance LN channels by @uwla in https://github.com/jamaljsr/polar/pull/859
+- Fix incorrect sats value displayed for paid invoices by @AdamuAbba in https://github.com/jamaljsr/polar/pull/1110
+- Solve crashing issue when toggling light/dark mode by @IgnacioPorte in https://github.com/jamaljsr/polar/pull/1144
+- Update the Docker detection error message by @Mshehu5 in https://github.com/jamaljsr/polar/pull/1213
+
+### Docs
+
+- Fix RPM link in README by @jamaljsr in https://github.com/jamaljsr/polar/pull/1203
+- Fix awk compatibility in setup instructions by @Fideltodayy in https://github.com/jamaljsr/polar/pull/1222
+
+### Chore
+
+- Make bitcoin implementation flexible by @Abdulkbk in https://github.com/jamaljsr/polar/pull/1092
+- Fix japanese by @Hakkadaikon in https://github.com/jamaljsr/polar/pull/1226
+
 ## [3.2.0](https://github.com/jamaljsr/polar/compare/v3.1.0...v3.2.0)
 
 This release adds support for the final v0.14.0 version of Terminal (`litd`) which officially adds support for making asset payments over Lightning.
