@@ -116,6 +116,19 @@ describe('ComposeFile', () => {
     expect(service.command).not.toContain('--grpc-port');
   });
 
+  it('should not have the grpc host for some c-lightning versions', () => {
+    // For versions: v24.05 and v24.08.1, the grpc host is not supported.
+    clnNode.version = '24.05';
+    composeFile.addClightning(clnNode, btcNode);
+    let service = composeFile.content.services['bob'];
+    expect(service.command).not.toContain('--grpc-host');
+
+    clnNode.version = '24.08.1';
+    composeFile.addClightning(clnNode, btcNode);
+    service = composeFile.content.services['bob'];
+    expect(service.command).not.toContain('--grpc-host');
+  });
+
   it('should use the c-lightning nodes docker data', () => {
     clnNode.docker = { image: 'my-image', command: 'my-command' };
     composeFile.addClightning(clnNode, btcNode);
