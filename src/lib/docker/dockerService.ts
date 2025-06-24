@@ -455,6 +455,21 @@ class DockerService implements DockerLibrary {
             };
             break;
 
+          case 'c-lightning':
+            const cln = node as CLightningNode;
+            simNode = {
+              id: cln.name,
+              address: `host.docker.internal:${cln.ports.grpc}`,
+              ca_cert: `/home/simln/.${cln.paths.tlsCert?.split('volumes/').pop()}`,
+              client_cert: `/home/simln/.${cln.paths.tlsClientCert
+                ?.split('volumes/')
+                .pop()}`,
+              client_key: `/home/simln/.${cln.paths.tlsClientKey
+                ?.split('volumes/')
+                .pop()}`,
+            };
+            break;
+
           default:
             throw new Error(`unsupported node implementation: ${node.implementation}`);
         }
