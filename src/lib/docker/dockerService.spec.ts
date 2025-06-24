@@ -894,7 +894,7 @@ describe('DockerService', () => {
       name: 'my network',
       description: 'network description',
       lndNodes: 1,
-      clightningNodes: 0,
+      clightningNodes: 1,
       eclairNodes: 1,
       bitcoindNodes: 1,
       tapdNodes: 0,
@@ -908,6 +908,9 @@ describe('DockerService', () => {
     const lndNodes = network.nodes.lightning.filter(n => n.implementation === 'LND');
     const eclairNodes = network.nodes.lightning.filter(
       n => n.implementation === 'eclair',
+    );
+    const clightningNodes = network.nodes.lightning.filter(
+      n => n.implementation === 'c-lightning',
     );
     beforeEach(() => {
       // Add simulation config to the test network
@@ -974,9 +977,9 @@ describe('DockerService', () => {
     });
 
     it('should handle errors when using unsupported node types', async () => {
-      network.nodes.lightning[0].implementation = 'c-lightning';
+      network.nodes.lightning[0].implementation = 'litd';
       await expect(dockerService.startSimulation(network)).rejects.toThrow(
-        'unsupported node implementation: c-lightning',
+        'unsupported node implementation: litd',
       );
     });
 
@@ -1003,6 +1006,45 @@ describe('DockerService', () => {
       expect(filesMock.write).toHaveBeenCalledWith(
         expect.stringContaining('docker-compose.yml'),
         expect.stringContaining(`container_name: polar-n1-simln`),
+      );
+    });
+
+    // Now we should be able to use c-lightning in the simulation
+    it('should add c-lightning to the docker-compose.yml file', async () => {
+      network.simulation = {
+        activity: [
+          {
+            id: 0,
+            source: clightningNodes[0].name,
+            destination: eclairNodes[0].name,
+            intervalSecs: 60,
+            amountMsat: 1000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+      dockerService.saveComposeFile(network);
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`container_name: polar-n1-simln`),
+      );
+
+      composeMock.upOne.mockResolvedValue(mockResult);
+      await dockerService.startSimulation(network);
+
+      // Verify directories were created
+      expect(fsMock.ensureDir).toHaveBeenCalled();
+
+      // Verify sim.json was written with correct config
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('sim.json'),
+        expect.stringContaining(clightningNodes[0].name),
+      );
+
+      // Verify docker compose command was called
+      expect(composeMock.upOne).toHaveBeenCalledWith(
+        'simln',
+        expect.objectContaining({ cwd: network.path }),
       );
     });
   });
