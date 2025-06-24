@@ -193,6 +193,8 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       '--channel.max-htlc-value-in-flight-percent=100',
       '--channel.max-htlc-value-in-flight-msat=5000000000000', // 50 BTC in msats
       '--features.keysend=optional',
+      '--channel.min-final-expiry-delta-blocks=22', // Default is 30 for eclair, however it is 22 for CLN (the lowest).
+      '--channel.fulfill-safety-before-timeout-blocks=20', // When `channel.min-final-expiry-delta-blocks` is set, this is required and most be less than it. Default is 24.
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'eclairPass', 'backendName', 'rpcUser', 'rpcPass'],
