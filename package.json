@@ -158,7 +158,7 @@
     "utf-8-validate": "6.0.5",
     "wait-on": "8.0.3",
     "webpack": "4.44.2",
-    "ws": "8.18.2"
+    "ws": "8.18.3"
   },
   "resolutions": {
     "react-error-overlay": "6.0.9"
