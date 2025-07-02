@@ -456,6 +456,7 @@ export const createNetwork = (config: {
   customImages: { image: CustomImage; count: number }[];
   status?: Status;
   basePorts?: NodeBasePorts;
+  monitoringEnabled: boolean;
 }): Network => {
   const {
     id,
@@ -471,6 +472,7 @@ export const createNetwork = (config: {
     managedImages,
     customImages,
     basePorts,
+    monitoringEnabled,
   } = config;
   // need explicit undefined check because Status.Starting is 0
   const status = config.status !== undefined ? config.status : Status.Stopped;
@@ -487,6 +489,7 @@ export const createNetwork = (config: {
       tap: [],
     },
     autoMineMode: AutoMineMode.AutoOff,
+    monitoringEnabled,
   };
 
   const { bitcoin, lightning } = network.nodes;

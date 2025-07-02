@@ -41,6 +41,7 @@ describe('RenameNodeModal', () => {
       repoState: defaultRepoState,
       managedImages: testManagedImages,
       customImages: [],
+      monitoringEnabled: false,
     });
     const initialState = {
       network: {
