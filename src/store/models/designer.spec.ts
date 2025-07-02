@@ -133,6 +133,7 @@ describe('Designer model', () => {
         tapdNodes: 0,
         litdNodes: 0,
         customNodes: {},
+        monitoringEnabled: false,
       });
       store.getActions().designer.setActiveId(firstNetwork().id);
       const { removeChart } = store.getActions().designer;
@@ -581,6 +582,7 @@ describe('Designer model', () => {
           tapdNodes: 0,
           litdNodes: 0,
           customNodes: {},
+          monitoringEnabled: false,
         });
         const newId = store.getState().network.networks[1].id;
         setActiveId(newId);
@@ -610,6 +612,7 @@ describe('Designer model', () => {
           tapdNodes: 0,
           litdNodes: 0,
           customNodes: {},
+          monitoringEnabled: false,
         });
         const newId = store.getState().network.networks[1].id;
         setActiveId(newId);
@@ -647,6 +650,7 @@ describe('Designer model', () => {
           tapdNodes: 0,
           litdNodes: 0,
           customNodes: {},
+          monitoringEnabled: false,
         });
         const newId = store.getState().network.networks[1].id;
         setActiveId(newId);

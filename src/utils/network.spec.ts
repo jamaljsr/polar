@@ -163,6 +163,7 @@ describe('Network Utils', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
     });
 
@@ -507,6 +508,7 @@ describe('Network Utils', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
     });
 
