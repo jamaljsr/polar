@@ -225,6 +225,21 @@ const extractTsharkError = (msg: string): string => {
   return error;
 };
 
+// Helper function to check monitoring status from backend
+const checkMonitoringStatus = async (networkId: number): Promise<boolean> => {
+  try {
+    const port = `39${networkId.toString().padStart(3, '0')}`;
+    const response = await fetch(`http://localhost:${port}/status`, { method: 'GET' });
+    if (response.ok) {
+      const data = await response.json();
+      return data.isMonitoringActive || false;
+    }
+  } catch (error) {
+    console.error('Error checking monitoring status:', error);
+  }
+  return false;
+};
+
 const NetworkMonitoringModal: React.FC<NetworkMonitoringModalProps> = ({
   networkId,
   testLoading,
@@ -297,6 +312,10 @@ const NetworkMonitoringModal: React.FC<NetworkMonitoringModalProps> = ({
       fetchJsonData(setJsonData, setLoading, networkId, configNowExists, isMountedRef);
       const pcapInfo = getPcapFileInfo(networkId, configNowExists);
       setPcapFileName(pcapInfo ? pcapInfo.name : null);
+      // Check the current monitoring status from backend
+      checkMonitoringStatus(networkId).then(actualStatus => {
+        setIsRunning(actualStatus);
+      });
     }
     // Optionally, clear data when modal closes
     if (!visible) {
