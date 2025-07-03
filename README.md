@@ -38,8 +38,8 @@ With Polar you can:
 
 Supported Network Node Versions:
 
-- [LND](https://github.com/lightningnetwork/lnd) - v0.19.0, v0.18.5, v0.18.4, v0.18.3, v0.17.5, v0.16.4
-- [Core Lightning](https://github.com/ElementsProject/lightning) - v25.02, v24.11, v24.08, v24.05
+- [LND](https://github.com/lightningnetwork/lnd) - v0.19.1, v0.18.5, v0.18.4, v0.18.3, v0.17.5, v0.16.4
+- [Core Lightning](https://github.com/ElementsProject/lightning) - v25.05, v25.02, v24.11, v24.08, v24.05
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.12.0, v0.11.0, v0.10.0, v0.9.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v29.0, v28.0, v27.0, v26.0
 - [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
@@ -60,11 +60,11 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v3.2.0 for your OS
+Download Polar v3.3.0 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v3.2.0/polar-mac-x64-v3.2.0.dmg))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v3.2.0/polar-linux-amd64-v3.2.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v3.2.0/polar-linux-x86_64-v3.2.0.AppImage), [RPM](https://github.com/jamaljsr/polar/releases/download/v3.2.0/polar-linux-x86_64-v3.2.0.rpm))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v3.2.0/polar-win-x64-v3.2.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-mac-x64-v3.3.0.dmg))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-linux-amd64-v3.3.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-linux-x86_64-v3.3.0.AppImage), [RPM](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-linux-x86_64-v3.3.0.rpm))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-win-x64-v3.3.0.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 

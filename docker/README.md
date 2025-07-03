@@ -50,6 +50,7 @@ Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
 ### Tags
 
+- `0.19.1-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.19.0-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.18.5-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
 - `0.18.4-beta` ([lnd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/lnd/Dockerfile))
@@ -105,6 +106,7 @@ Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
 
 ### Tags
 
+- `25.05` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `25.02.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `25.02` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `24.11.1` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
@@ -169,7 +171,7 @@ Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
 
 ### Tags
 
-- `0.6.0-rc2` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+- `0.6.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.5.1-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.5.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.4.1-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))

@@ -341,11 +341,12 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 73,
+  version: 74,
   images: {
     LND: {
-      latest: '0.19.0-beta',
+      latest: '0.19.1-beta',
       versions: [
+        '0.19.1-beta',
         '0.19.0-beta',
         '0.18.5-beta',
         '0.18.4-beta',
@@ -359,6 +360,7 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.19.1-beta': '29.0',
         '0.19.0-beta': '29.0',
         '0.18.5-beta': '29.0',
         '0.18.4-beta': '29.0',
@@ -371,8 +373,8 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '25.02.2',
-      versions: ['25.02.2', '25.02', '24.11.1', '24.11', '24.08.1', '24.05'],
+      latest: '25.05',
+      versions: ['25.05', '25.02.2', '25.02', '24.11.1', '24.11', '24.08.1', '24.05'],
     },
     eclair: {
       latest: '0.12.0',
@@ -387,12 +389,18 @@ export const defaultRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.5.1-alpha',
-      versions: ['0.6.0-rc2', '0.5.1-alpha', '0.5.0-alpha', '0.4.1-alpha', '0.3.3-alpha'],
+      latest: '0.6.0-alpha',
+      versions: [
+        '0.6.0-alpha',
+        '0.5.1-alpha',
+        '0.5.0-alpha',
+        '0.4.1-alpha',
+        '0.3.3-alpha',
+      ],
       // Not all tapd versions are compatible with all LND versions.
       // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
-        '0.6.0-rc2': '0.18.5-beta',
+        '0.6.0-alpha': '0.19.0-beta',
         '0.5.1-alpha': '0.18.5-beta',
         '0.5.0-alpha': '0.18.4-beta',
         '0.4.1-alpha': '0.18.0-beta',
