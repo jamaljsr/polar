@@ -44,6 +44,7 @@ describe('LIT Model', () => {
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
+    monitoringEnabled: false,
   });
   const initialState = {
     network: {
