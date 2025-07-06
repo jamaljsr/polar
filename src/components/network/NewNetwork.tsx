@@ -12,6 +12,7 @@ import {
   InputNumber,
   PageHeader,
   Row,
+  Switch,
 } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
@@ -50,7 +51,8 @@ const NewNetwork: React.FC = () => {
   const createAsync = useAsyncCallback(async (values: any) => {
     try {
       values.customNodes = values.customNodes || {};
-
+      // Pass monitoringEnabled to addNetwork
+      values.monitoringEnabled = values.monitoringEnabled || false;
       if (values.tapdNodes > values.lndNodes) {
         throw new Error(l('tapdCountError'));
       }
@@ -86,6 +88,7 @@ const NewNetwork: React.FC = () => {
             tapdNodes: settings.newNodeCounts.tapd,
             litdNodes: settings.newNodeCounts.litd,
             customNodes: initialCustomValues,
+            monitoringEnabled: false,
           }}
           onFinish={createAsync.execute}
         >
@@ -181,6 +184,13 @@ const NewNetwork: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+          <Form.Item
+            name="monitoringEnabled"
+            valuePropName="checked"
+            label={l('cmps.forms.monitorCheck')}
+          >
+            <Switch />
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={createAsync.loading}>
               {l('btnCreate')}
