@@ -110,6 +110,15 @@ interface AddLncSessionModel {
   pairingPhrase?: string;
 }
 
+interface AddSimulationModel {
+  visible: boolean;
+  // form values entered by the user
+  source?: string;
+  destination?: string;
+  interval?: number;
+  amount?: number;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -127,6 +136,7 @@ export interface ModalsModel {
   lncSessionInfo: LncSessionInfoModel;
   addLncSession: AddLncSessionModel;
   changeTapBackend: ChangeTapBackendModel;
+  addSimulation: AddSimulationModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -184,6 +194,9 @@ export interface ModalsModel {
   setAddLncSession: Action<ModalsModel, AddLncSessionModel>;
   showAddLncSession: Thunk<ModalsModel, Partial<AddLncSessionModel>, StoreInjections>;
   hideAddLncSession: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setAddSimulation: Action<ModalsModel, AddSimulationModel>;
+  showAddSimulation: Thunk<ModalsModel, Partial<AddSimulationModel>, StoreInjections>;
+  hideAddSimulation: Thunk<ModalsModel, void, StoreInjections, RootModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -204,6 +217,7 @@ const modalsModel: ModalsModel = {
   renameNode: { visible: false },
   lncSessionInfo: { visible: false },
   addLncSession: { visible: false },
+  addSimulation: { visible: false },
   // reducer actions (mutations allowed thx to immer)
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
@@ -490,6 +504,24 @@ const modalsModel: ModalsModel = {
     actions.setAddLncSession({
       visible: false,
       nodeName: undefined,
+    });
+  }),
+  setAddSimulation: action((state, payload) => {
+    state.addSimulation = {
+      ...state.addSimulation,
+      ...payload,
+    };
+  }),
+  showAddSimulation: thunk(actions => {
+    actions.setAddSimulation({ visible: true });
+  }),
+  hideAddSimulation: thunk(actions => {
+    actions.setAddSimulation({
+      visible: false,
+      source: undefined,
+      destination: undefined,
+      interval: undefined,
+      amount: undefined,
     });
   }),
 };

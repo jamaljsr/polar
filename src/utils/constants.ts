@@ -1,4 +1,4 @@
-import { NodeImplementation } from 'shared/types';
+import { NodeImplementation, NodeImplementationWithSimln } from 'shared/types';
 import { DockerConfig, DockerRepoState } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
@@ -97,7 +97,7 @@ export const litdCredentials = {
   pass: 'polarpass',
 };
 
-export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
+export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = {
   LND: {
     name: 'LND',
     imageName: 'polarlightning/lnd',
@@ -125,6 +125,8 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--bitcoind.rpcpass={{rpcPass}}',
       '--bitcoind.zmqpubrawblock=tcp://{{backendName}}:28334',
       '--bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335',
+      '--accept-keysend',
+      '--accept-amp',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
@@ -148,6 +150,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--log-level=debug',
       '--dev-bitcoind-poll=2',
       '--dev-fast-gossip',
+      '--grpc-host=0.0.0.0',
       '--grpc-port=11001',
       '--log-file=-', // log to stdout
       '--log-file=/home/clightning/.lightning/debug.log',
@@ -189,6 +192,9 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--on-chain-fees.feerate-tolerance.ratio-high=10000.0',
       '--channel.max-htlc-value-in-flight-percent=100',
       '--channel.max-htlc-value-in-flight-msat=5000000000000', // 50 BTC in msats
+      '--features.keysend=optional',
+      '--channel.min-final-expiry-delta-blocks=22', // Default is 30 for eclair, however it is 22 for CLN (the lowest).
+      '--channel.fulfill-safety-before-timeout-blocks=20', // When `channel.min-final-expiry-delta-blocks` is set, this is required and most be less than it. Default is 24.
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'eclairPass', 'backendName', 'rpcUser', 'rpcPass'],
@@ -325,6 +331,20 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       'rpcPass',
       'proofCourier',
     ],
+  },
+  simln: {
+    name: 'simln',
+    imageName: 'bitcoindevproject/simln:0.2.5',
+    logo: '',
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'simln',
+    env: {
+      SIMFILE_PATH: '/home/simln/.simln/sim.json',
+      DATA_DIR: '/home/simln/.simln',
+      LOG_LEVEL: 'info',
+    },
+    command: '',
+    variables: [],
   },
 };
 
