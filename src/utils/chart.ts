@@ -401,3 +401,16 @@ export const updateChartFromNodes = (
     selected,
   };
 };
+
+// This is a helper function to check if there is a link between two nodes in the chart.
+// It is used to determine if a channel exists between two nodes.
+export const hasChartLink = (chart: IChart, node1Name: string, node2Name: string) => {
+  return Object.values(chart.links).some(link => {
+    const properties = link.properties as LinkProperties;
+    return (
+      (properties.type === 'open-channel' || properties.type === 'pending-channel') &&
+      ((link.from.nodeId === node1Name && link.to.nodeId === node2Name) ||
+        (link.from.nodeId === node2Name && link.to.nodeId === node1Name))
+    );
+  });
+};
