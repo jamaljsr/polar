@@ -62,8 +62,9 @@ export const testRepoState: DockerRepoState = {
   version: 50,
   images: {
     LND: {
-      latest: '0.19.1-beta',
+      latest: '0.19.2-beta',
       versions: [
+        '0.19.2-beta',
         '0.19.1-beta',
         '0.19.0-beta',
         '0.18.5-beta',
@@ -109,6 +110,7 @@ export const testRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.19.2-beta': '29.0',
         '0.19.1-beta': '29.0',
         '0.19.0-beta': '29.0',
         '0.18.5-beta': '29.0',
@@ -183,8 +185,9 @@ export const testRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.6.0-alpha',
+      latest: '0.6.1-alpha',
       versions: [
+        '0.6.1-alpha',
         '0.6.0-alpha',
         '0.5.1-alpha',
         '0.5.0-alpha',
@@ -196,6 +199,7 @@ export const testRepoState: DockerRepoState = {
       // Not all tapd versions are compatible with all LND versions.
       // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
+        '0.6.1-alpha': '0.19.0-beta',
         '0.6.0-alpha': '0.19.0-beta',
         '0.5.1-alpha': '0.18.5-beta',
         '0.5.0-alpha': '0.18.4-beta',
