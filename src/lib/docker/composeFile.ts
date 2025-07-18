@@ -118,6 +118,11 @@ class ComposeFile {
     let nodeCommand = node.docker.command || getDefaultCommand('c-lightning', version);
     // do not include the GRPC port arg in the command for unsupported versions
     if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
+    // do not include GRPC host arg in the command for unsupported versions
+    // only versions: v24.05 and v24.08.1 do not support the arg.
+    if (version === '24.05' || version === '24.08.1')
+      nodeCommand = nodeCommand.replace('--grpc-host=0.0.0.0', '');
+
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
