@@ -722,6 +722,11 @@ export const getDefaultCommand = (
       .replace('--universe.sync-all-assets', '');
   }
 
+  // Remove the `grpc-host` flag that is not supported in older CLN versions.
+  if (implementation === 'c-lightning' && isVersionBelow(version, '24.11')) {
+    command = command.replace('--grpc-host=0.0.0.0', '');
+  }
+
   return command;
 };
 
