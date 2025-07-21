@@ -148,6 +148,7 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '--log-level=debug',
       '--dev-bitcoind-poll=2',
       '--dev-fast-gossip',
+      '--grpc-host=0.0.0.0',
       '--grpc-port=11001',
       '--log-file=-', // log to stdout
       '--log-file=/home/clightning/.lightning/debug.log',
