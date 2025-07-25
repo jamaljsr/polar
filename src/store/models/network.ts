@@ -51,6 +51,7 @@ interface AddNetworkArgs {
   tapdNodes: number;
   litdNodes: number;
   customNodes: Record<string, number>;
+  monitoringEnabled: boolean;
 }
 
 export interface AutoMinerModel {
@@ -286,6 +287,7 @@ const networkModel: NetworkModel = {
         managedImages: computedManagedImages,
         customImages,
         basePorts: settings.basePorts,
+        monitoringEnabled: payload.monitoringEnabled,
       });
       actions.add(network);
       const { networks } = getState();
@@ -717,6 +719,15 @@ const networkModel: NetworkModel = {
     const network = getState().networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     actions.autoMine({ id: network.id, mode: AutoMineMode.AutoOff });
+
+    // Stop monitoring if enabled
+    if (network.monitoringEnabled) {
+      const port = `39${network.id.toString().padStart(3, '0')}`;
+      try {
+        await fetch(`http://localhost:${port}/stop`, { method: 'GET', mode: 'no-cors' });
+      } catch {}
+    }
+
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
       await injections.dockerService.stop(network);
