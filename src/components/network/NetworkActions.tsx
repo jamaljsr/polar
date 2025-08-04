@@ -1,17 +1,13 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
   CloseOutlined,
   ExportOutlined,
   FormOutlined,
   MoreOutlined,
-  PlayCircleOutlined,
-  StopOutlined,
   ToolOutlined,
-  WarningOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
-import { ButtonType } from 'antd/lib/button';
 import { usePrefixedTranslation } from 'hooks';
 import { useMiningAsync } from 'hooks/useMiningAsync';
 import { Status } from 'shared/types';
@@ -21,6 +17,7 @@ import { getNetworkBackendId } from 'utils/network';
 import BalanceChannelsButton from 'components/common/BalanceChannelsButton';
 import AutoMineButton from 'components/designer/AutoMineButton';
 import SyncButton from 'components/designer/SyncButton';
+import StatusButton from 'components/common/StatusButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -39,43 +36,6 @@ interface Props {
   onExportClick: () => void;
 }
 
-const config: {
-  [key: number]: {
-    label: string;
-    type: ButtonType;
-    danger?: boolean;
-    icon: ReactNode;
-  };
-} = {
-  [Status.Starting]: {
-    label: 'Starting',
-    type: 'primary',
-    icon: '',
-  },
-  [Status.Started]: {
-    label: 'Stop',
-    type: 'primary',
-    danger: true,
-    icon: <StopOutlined />,
-  },
-  [Status.Stopping]: {
-    label: 'Stopping',
-    type: 'default',
-    icon: '',
-  },
-  [Status.Stopped]: {
-    label: 'Start',
-    type: 'primary',
-    icon: <PlayCircleOutlined />,
-  },
-  [Status.Error]: {
-    label: 'Restart',
-    type: 'primary',
-    danger: true,
-    icon: <WarningOutlined />,
-  },
-};
-
 const NetworkActions: React.FC<Props> = ({
   network,
   onClick,
@@ -87,9 +47,6 @@ const NetworkActions: React.FC<Props> = ({
 
   const { status, nodes } = network;
   const bitcoinNode = nodes.bitcoin[0];
-  const loading = status === Status.Starting || status === Status.Stopping;
-  const started = status === Status.Started;
-  const { label, type, danger, icon } = config[status];
 
   const nodeState = useStoreState(s => s.bitcoin.nodes[getNetworkBackendId(bitcoinNode)]);
 
@@ -133,17 +90,7 @@ const NetworkActions: React.FC<Props> = ({
           <Divider type="vertical" />
         </>
       )}
-      <Styled.Button
-        key="start"
-        type={type}
-        danger={danger}
-        icon={icon}
-        loading={loading}
-        ghost={started}
-        onClick={onClick}
-      >
-        {l(`primaryBtn${label}`)}
-      </Styled.Button>
+      <StatusButton status={status} onClick={onClick} />
       <Styled.Dropdown
         key="options"
         menu={{ theme: 'dark', items, onClick: handleClick }}
