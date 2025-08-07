@@ -980,7 +980,7 @@ describe('DockerService', () => {
 
       // Call constructSimJson directly to test the early return
       const simJson = dockerService.constructSimJson(networkWithoutSim);
-      expect(simJson).toEqual({ nodes: [], simulation: [] });
+      expect(simJson).toEqual({ nodes: [], activity: [] });
     });
 
     it('should add simln to the docker-compose.yml file', async () => {

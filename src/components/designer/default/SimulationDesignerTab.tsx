@@ -8,6 +8,8 @@ import {
   PlusOutlined,
   CloseOutlined,
   MoreOutlined,
+  UpOutlined,
+  DownOutlined,
 } from '@ant-design/icons';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
@@ -27,12 +29,13 @@ const Styled = {
     margin-bottom: 10px;
     font-weight: bold;
   `,
-  SimContainer: styled.div`
-    display: flex;
-    align-items: center;
+  SimContainer: styled.div<{ visible?: boolean }>`
+    display: ${props => (props.visible ? 'flex' : 'none')};
+    align-items: start;
+    max-height: 100px;
+    overflow-y: auto;
     justify-content: space-between;
     width: 100%;
-    height: 46px;
     padding: 10px 15px;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -50,12 +53,34 @@ const Styled = {
   Dropdown: styled(Dropdown)`
     margin-left: 12px;
   `,
+  Arrow: styled.span<{ visible?: boolean }>`
+    width: 25px;
+    text-align: right;
+    margin-left: 12px;
+
+    > .anticon {
+      opacity: 0.4;
+      display: ${props => (props.visible ? 'inline' : 'none')};
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  `,
+  MoreOutlinedButton: styled(MoreOutlined)<{ visible?: boolean }>`
+    display: ${props => (props.visible ? 'inline' : 'none')};
+  `,
 };
 
 const SimulationDesignerTab: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation(
     'cmps.designer.default.DefaultSidebar.SimulationDesignerTab',
   );
+
+  const [expanded, setExpanded] = React.useState<boolean>(false);
+
+  const toggleExpanded = () => setExpanded(!expanded);
 
   // Getting the network from the store makes this component to
   // re-render when the network is updated (i.e when we add a simulation).
@@ -150,22 +175,32 @@ const SimulationDesignerTab: React.FC<Props> = ({ network }) => {
 
   if (network.simulation) {
     const { activity } = network.simulation;
-    const { source, destination } = activity[0];
     cmp = (
       <>
-        <Styled.SimContainer>
-          <Styled.NodeWrapper>
-            <span>{source.name}</span>
-            <ArrowRightOutlined />
-            <span>{destination.name}</span>
-          </Styled.NodeWrapper>
-          <Styled.Dropdown
-            key="options"
-            menu={{ theme: 'dark', items, onClick: handleClick }}
-          >
-            <MoreOutlined />
-          </Styled.Dropdown>
-        </Styled.SimContainer>
+        {activity.map((a, index) => (
+          <Styled.SimContainer key={index} visible={index === 0 || expanded}>
+            <Styled.NodeWrapper>
+              <span>{a.source.name}</span>
+              <ArrowRightOutlined />
+              <span>{a.destination.name}</span>
+            </Styled.NodeWrapper>
+            <Styled.Dropdown
+              key="options"
+              menu={{ theme: 'dark', items, onClick: handleClick }}
+            >
+              <Styled.MoreOutlinedButton visible={index === 0} />
+            </Styled.Dropdown>
+            <Styled.Arrow
+              role="toggle"
+              tabIndex={0}
+              visible={index === 0}
+              onClick={toggleExpanded}
+            >
+              {expanded ? <UpOutlined /> : <DownOutlined />}
+            </Styled.Arrow>
+          </Styled.SimContainer>
+        ))}
+
         <StatusButton
           status={status}
           onClick={started ? stopSimulationAsync.execute : startSimulationAsync.execute}

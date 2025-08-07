@@ -145,6 +145,8 @@
   "cmps.designer.default.AddSimulationModal.sameNodesWarnMsg": "Cannot create a simulation with the same node for both source and destination",
   "cmps.designer.default.AddSimulationModal.sourceOrDestinationNotFound": "Source or destination node not found",
   "cmps.designer.default.AddSimulationModal.submitError": "Unable to add the Simulation",
+  "cmps.designer.default.AddSimulationModal.emptyMsg": "No activities added yet",
+  "cmps.designer.default.AddSimulationModal.addActivityBtn": "Add Activity",
   "cmps.designer.default.ImageUpdatesModal.title": "Check for new Node Versions",
   "cmps.designer.default.ImageUpdatesModal.updatesTitle": "There are new node versions available",
   "cmps.designer.default.ImageUpdatesModal.updatesDesc": "Add the new versions to begin using them in your Lightning networks.",

@@ -112,6 +112,7 @@ describe('AddSimulationModal', () => {
       fireEvent.change(getByLabelText('Destination'), { target: { value: 'bob' } });
       fireEvent.change(getByLabelText('Interval (secs)'), { target: { value: '1000' } });
       fireEvent.change(getByLabelText('Amount (msat)'), { target: { value: '1000000' } });
+      fireEvent.click(getByText('Add Activity'));
       fireEvent.click(getByText('Create'));
       await waitFor(() => {
         expect(store.getState().modals.addSimulation.visible).toBe(false);
@@ -128,10 +129,25 @@ describe('AddSimulationModal', () => {
       fireEvent.change(getByLabelText('Interval (secs)'), { target: { value: '10' } });
       fireEvent.change(getByLabelText('Amount (msat)'), { target: { value: '1000000' } });
       network.nodes.lightning = [];
-      fireEvent.click(getByText('Create'));
+      fireEvent.click(getByText('Add Activity'));
       expect(
         await findByText('Source or destination node not found'),
       ).toBeInTheDocument();
+    });
+
+    it('should be able to add and remove activities', async () => {
+      const { getByText, getByLabelText, getByRole } = await renderComponent(
+        Status.Started,
+      );
+      fireEvent.change(getByLabelText('Source'), { target: { value: 'alice' } });
+      fireEvent.change(getByLabelText('Destination'), { target: { value: 'bob' } });
+      fireEvent.change(getByLabelText('Interval (secs)'), { target: { value: '10' } });
+      fireEvent.change(getByLabelText('Amount (msat)'), { target: { value: '1000000' } });
+      fireEvent.click(getByText('Add Activity'));
+      const deleteActivity = getByRole('deleteActivity');
+      expect(deleteActivity).toBeInTheDocument();
+      fireEvent.click(deleteActivity);
+      expect(deleteActivity).not.toBeInTheDocument();
     });
   });
 });

@@ -239,5 +239,21 @@ describe('SimulationDesignerTab', () => {
         expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
       });
     });
+
+    it('should toggle the list of simulation activity', async () => {
+      const { network, store, getByRole } = renderComponent();
+      const sim = {
+        networkId: 1,
+        source: network.nodes.lightning[0],
+        destination: network.nodes.lightning[1],
+        intervalSecs: 10,
+        amountMsat: 1000000,
+        status: Status.Started,
+      };
+
+      network.simulation = { ...sim, activity: [sim, sim] };
+      store.getActions().network.setNetworks([network]);
+      fireEvent.click(getByRole('toggle'));
+    });
   });
 });
