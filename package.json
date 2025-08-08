@@ -102,7 +102,7 @@
     "commitizen": "4.3.1",
     "concurrently": "9.2.0",
     "connected-react-router": "6.9.3",
-    "cross-env": "7.0.3",
+    "cross-env": "10.0.0",
     "detect-port": "1.6.1",
     "docker-compose": "0.24.0",
     "dockerode": "4.0.2",
