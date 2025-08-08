@@ -1,7 +1,7 @@
 #########################
 # Original Source: https://github.com/ACINQ/eclair/blob/v0.12.0/Dockerfile
 #########################
-FROM eclipse-temurin:21.0.7_6-jdk-alpine as BUILD
+FROM eclipse-temurin:21.0.8_9-jdk-alpine as BUILD
 
 # Let's fetch eclair dependencies, so that Docker can cache them
 # This way we won't have to fetch dependencies again if only the source code changes
@@ -55,7 +55,7 @@ RUN cp -R -f /usr/repo/* .
 RUN ./mvnw package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.commit.id.abbrev=notag -o
 # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
 
-FROM eclipse-temurin:21.0.7_6-jre-alpine
+FROM eclipse-temurin:21.0.8_9-jre-alpine
 WORKDIR /app
 
 # install jq for eclair-cli
