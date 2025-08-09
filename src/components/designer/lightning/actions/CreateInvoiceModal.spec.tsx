@@ -150,6 +150,7 @@ describe('CreateInvoiceModal', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       const asset: LightningNodeChannelAsset = {
         id: 'abcd',
