@@ -14,7 +14,7 @@ import {
   TapdNode,
   TapNode,
 } from 'shared/types';
-import { AutoMineMode, CustomImage, Network, StoreInjections } from 'types';
+import { AutoMineMode, CustomImage, Network, StoreInjections, Simulation } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -128,7 +128,14 @@ export interface NetworkModel {
   >;
   setStatus: Action<
     NetworkModel,
-    { id: number; status: Status; only?: string; all?: boolean; error?: Error }
+    {
+      id: number;
+      status: Status;
+      only?: string;
+      all?: boolean;
+      error?: Error;
+      sim?: boolean;
+    }
   >;
   start: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
   stop: Thunk<NetworkModel, number, StoreInjections, RootModel, Promise<void>>;
@@ -192,6 +199,34 @@ export interface NetworkModel {
   setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
   setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
   mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
+  startSimulation: Thunk<
+    NetworkModel,
+    { id: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  stopSimulation: Thunk<
+    NetworkModel,
+    { id: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  addSimulation: Thunk<
+    NetworkModel,
+    Simulation,
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  removeSimulation: Thunk<
+    NetworkModel,
+    Simulation,
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -642,13 +677,21 @@ const networkModel: NetworkModel = {
       getStoreActions().designer.updateTapBackendLink({ tapName, lndName: lndName });
     },
   ),
-  setStatus: action((state, { id, status, only, all = true, error }) => {
+  setStatus: action((state, { id, status, only, all = true, error, sim = false }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+
+    if (sim && network.simulation) {
+      network.simulation.status = status;
+      network.simulation.errorMsg = error && error.message;
+      return;
+    }
+
     const setNodeStatus = (n: CommonNode) => {
       n.status = status;
       n.errorMsg = error && error.message;
     };
+
     if (only) {
       // only update a specific node's status
       network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
@@ -719,6 +762,9 @@ const networkModel: NetworkModel = {
     actions.autoMine({ id: network.id, mode: AutoMineMode.AutoOff });
     actions.setStatus({ id: network.id, status: Status.Stopping });
     try {
+      if (network.simulation) {
+        await actions.removeSimulation(network.simulation);
+      }
       await injections.dockerService.stop(network);
       actions.setStatus({ id: network.id, status: Status.Stopped });
       // Remove listeners from lightning nodes
@@ -1071,6 +1117,108 @@ const networkModel: NetworkModel = {
       if (wasStarted) {
         // do not await this so the modal will close while the network is starting
         actions.start(node.networkId);
+      }
+    },
+  ),
+  addSimulation: thunk(async (actions, simulation, { getState, injections }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === simulation.networkId);
+    if (!network)
+      throw new Error(l('networkByIdErr', { networkId: simulation.networkId }));
+
+    // add the activity to the network
+    network.simulation = simulation;
+
+    actions.setNetworks([...networks]);
+    await actions.save();
+    await injections.dockerService.saveComposeFile(network);
+    info(`Added new simulation '${JSON.stringify(simulation)}' to the network`);
+  }),
+  removeSimulation: thunk(async (actions, simulation, { getState, injections }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === simulation.networkId);
+    if (!network) {
+      throw new Error(l('networkByIdErr', { networkId: simulation.networkId }));
+    }
+
+    if (network.simulation?.status === Status.Started) {
+      actions.setStatus({
+        id: simulation.networkId,
+        status: Status.Stopping,
+        sim: true,
+        all: false,
+      });
+    }
+    await injections.dockerService.removeSimulation(network);
+    // remove the activity from the network.
+    network.simulation = undefined;
+    actions.setNetworks([...networks]);
+    await actions.save();
+    await injections.dockerService.saveComposeFile(network);
+    info(
+      `Removed simulation '${JSON.stringify(
+        simulation,
+      )}' from redux state \n ${JSON.stringify(network.simulation)}`,
+    );
+  }),
+  startSimulation: thunk(
+    async (actions, { id }, { getState, injections, getStoreActions }) => {
+      const network = getState().networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+
+      const simulation = network.simulation;
+      if (!simulation) {
+        throw new Error('No simulation found');
+      }
+      const { activity } = simulation;
+      const { source, destination } = activity[0];
+
+      await actions.save();
+      await injections.dockerService.saveComposeFile(network);
+      info(`Simulation started for network '${JSON.stringify(network.simulation)}'`);
+      actions.setStatus({ id, status: Status.Starting, sim: true, all: false });
+      try {
+        const lightningNodes = network.nodes.lightning;
+        const sourceNode = lightningNodes.find(node => node.name === source.name);
+        const destinationNode = lightningNodes.find(
+          node => node.name === destination.name,
+        );
+        if (!sourceNode || !destinationNode) {
+          throw new Error('Source or destination node not found');
+        }
+        if (sourceNode.status != Status.Started)
+          throw new Error(l('nodeNotStarted', { nodeName: source.name }));
+        if (destinationNode.status != Status.Started)
+          throw new Error(l('nodeNotStarted', { nodeName: destination.name }));
+
+        await injections.dockerService.saveComposeFile(network);
+        await injections.dockerService.startSimulation(network);
+        actions.setStatus({ id, status: Status.Started, sim: true, all: false });
+        info(`Simulation started for network '${network.name}'`);
+        await getStoreActions().app.getDockerImages();
+      } catch (e: any) {
+        info(`unable to start simulation for network '${network.name}'`, e.message);
+        actions.setStatus({ id, status: Status.Error, sim: true, error: e, all: false });
+        throw e;
+      }
+    },
+  ),
+  stopSimulation: thunk(
+    async (actions, { id }, { getState, injections, getStoreActions }) => {
+      const network = getState().networks.find(n => n.id === id);
+      if (!network) {
+        throw new Error(l('networkByIdErr', { networkId: id }));
+      }
+      actions.setStatus({ id, status: Status.Stopping, sim: true, all: false });
+      try {
+        await injections.dockerService.stopSimulation(network);
+        info(`Simulation stopped for network '${network.name}'`);
+        await getStoreActions().app.getDockerImages();
+        actions.setStatus({ id, status: Status.Stopped, sim: true, all: false });
+      } catch (e: any) {
+        info(`unable to stop simulation for network '${network.name}'`, e.message);
+        actions.setStatus({ id, status: Status.Error, sim: true, error: e, all: false });
+        throw e;
       }
     },
   ),

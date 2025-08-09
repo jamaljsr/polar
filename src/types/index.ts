@@ -31,6 +31,7 @@ export interface Network {
     lightning: LightningNode[];
     tap: TapNode[];
   };
+  simulation?: Simulation;
 }
 
 /**
@@ -100,6 +101,7 @@ export interface DockerConfig {
   variables: string[];
   dataDir?: string;
   apiDir?: string;
+  env?: Record<string, string>;
 }
 
 export interface DockerRepoImage {
@@ -136,6 +138,9 @@ export interface DockerLibrary {
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
   renameNodeDir: (network: Network, node: AnyNode, newName: string) => Promise<void>;
+  startSimulation: (network: Network) => Promise<void>;
+  stopSimulation: (network: Network) => Promise<void>;
+  removeSimulation: (network: Network) => Promise<void>;
 }
 
 export interface RepoServiceInjection {
@@ -297,4 +302,38 @@ export interface ChannelInfo {
 export interface PreInvoice {
   channelId: string;
   nextLocalBalance: number;
+}
+
+export interface Activity {
+  source: LightningNode;
+  destination: LightningNode;
+  intervalSecs: number;
+  amountMsat: number;
+}
+
+export interface Simulation {
+  networkId: number;
+  activity: Activity[];
+  status: Status;
+  errorMsg?: string;
+}
+
+export interface ActivityConfig {
+  source: string;
+  destination: string;
+  interval_secs: number;
+  amount_msat: number;
+}
+
+export interface SimulationNodeConfig {
+  id: string;
+  address?: string;
+  base_url?: string;
+  macaroon?: string;
+  cert?: string;
+  ca_cert?: string;
+  client_cert?: string;
+  client_key?: string;
+  api_username?: string;
+  api_password?: string;
 }
