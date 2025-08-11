@@ -25,7 +25,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: setup nodejs
         uses: actions/setup-node@v4
