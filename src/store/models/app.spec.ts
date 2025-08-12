@@ -54,6 +54,7 @@ describe('App model', () => {
         btcd: 0,
         tapd: 0,
         litd: 0,
+        arkd: 0,
       },
       basePorts: {
         LND: {
@@ -64,6 +65,7 @@ describe('App model', () => {
           rest: 18443,
         },
         'c-lightning': {
+          p2p: 9835,
           rest: 8181,
           grpc: 11001,
         },
@@ -73,6 +75,9 @@ describe('App model', () => {
         tapd: {
           rest: 8289,
           grpc: 12029,
+        },
+        arkd: {
+          api: 7070,
         },
       },
     });
@@ -158,6 +163,7 @@ describe('App model', () => {
           btcd: 1,
           tapd: 1,
           litd: 0,
+          arkd: 0,
         },
         basePorts: {
           LND: {
@@ -177,6 +183,9 @@ describe('App model', () => {
           tapd: {
             rest: 8289,
             grpc: 12029,
+          },
+          arkd: {
+            api: 7070,
           },
         },
       });
@@ -203,6 +212,7 @@ describe('App model', () => {
           bitcoind: [],
           btcd: [],
           tapd: [],
+          arkd: [],
         },
       });
 
