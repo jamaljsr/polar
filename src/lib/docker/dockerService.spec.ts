@@ -192,6 +192,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -217,6 +218,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -242,6 +244,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -308,6 +311,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       dockerService.saveComposeFile(net);
       const { backendName } = net.nodes.lightning[0] as LitdNode;
@@ -331,6 +335,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       const litdNode = net.nodes.lightning[0] as LitdNode;
       litdNode.backendName = 'invalid';
@@ -357,6 +362,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       net.nodes.lightning[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(net);
@@ -392,6 +398,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       const chart = initChartFromNetwork(net);
       // return 'any' to suppress "The operand of a 'delete' operator must be optional.ts(2790)" error
@@ -522,6 +529,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       const chart = initChartFromNetwork(net);
       const fileData: NetworksFile = {
@@ -716,6 +724,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        monitoringEnabled: false,
       });
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(net);
@@ -876,6 +885,172 @@ describe('DockerService', () => {
       const docker1 = await getDocker();
       const docker2 = await getDocker();
       expect(docker1).toBe(docker2);
+    });
+  });
+
+  describe('monitoring feature in compose file and Docker commands', () => {
+    it('should include controller and monitor services when monitoringEnabled is true', async () => {
+      const net = createNetwork({
+        id: 99,
+        name: 'monitor-enabled',
+        description: 'desc',
+        lndNodes: 1,
+        clightningNodes: 1,
+        eclairNodes: 1,
+        bitcoindNodes: 1,
+        tapdNodes: 1,
+        litdNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        monitoringEnabled: true,
+      });
+      await dockerService.saveComposeFile(net);
+      const composeContent = filesMock.write.mock.calls.find(([path]) =>
+        path.includes('docker-compose.yml'),
+      )?.[1];
+      expect(composeContent).toMatch(/^ {2}control:/m);
+      expect(composeContent).toContain('polar-n99-control');
+      expect(composeContent).toContain('-monitor');
+    });
+
+    it('should NOT include controller and monitor services when monitoringEnabled is false', async () => {
+      const net = createNetwork({
+        id: 100,
+        name: 'monitor-disabled',
+        description: 'desc',
+        lndNodes: 1,
+        clightningNodes: 1,
+        eclairNodes: 1,
+        bitcoindNodes: 1,
+        tapdNodes: 1,
+        litdNodes: 1,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        monitoringEnabled: false,
+      });
+      await dockerService.saveComposeFile(net);
+      const composeContent = filesMock.write.mock.calls.find(([path]) =>
+        path.includes('docker-compose.yml'),
+      )?.[1];
+      expect(composeContent).not.toContain('controller-100');
+      // Should not contain any monitor service
+      expect(composeContent).not.toMatch(/-monitor/);
+    });
+
+    it('should attempt to start monitor service in startNode (monitoringEnabled true)', async () => {
+      const net = createNetwork({
+        id: 101,
+        name: 'monitor-enabled',
+        description: 'desc',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        monitoringEnabled: true,
+      });
+      composeMock.upOne.mockResolvedValue(mockResult);
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      const node = net.nodes.lightning[0];
+      await dockerService.startNode(net, node);
+      expect(composeMock.upOne).toHaveBeenCalledWith(
+        expect.stringContaining(`${node.name}-monitor`),
+        expect.objectContaining({ cwd: net.path }),
+      );
+    });
+
+    it('should handle missing monitor service gracefully in startNode (monitoringEnabled false)', async () => {
+      const net = createNetwork({
+        id: 102,
+        name: 'monitor-disabled',
+        description: 'desc',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        monitoringEnabled: false,
+      });
+      composeMock.upOne.mockResolvedValue(mockResult);
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      const node = net.nodes.lightning[0];
+      // Simulate error for monitor service (as it doesn't exist)
+      composeMock.upOne.mockImplementationOnce(name => {
+        if (typeof name === 'string' && name.includes('-monitor')) {
+          return Promise.reject(new Error('No such service'));
+        }
+        return Promise.resolve(mockResult);
+      });
+      await expect(dockerService.startNode(net, node)).resolves.not.toThrow();
+    });
+
+    it('should attempt to remove monitor service in removeNode (monitoringEnabled true)', async () => {
+      const net = createNetwork({
+        id: 103,
+        name: 'monitor-enabled',
+        description: 'desc',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        monitoringEnabled: true,
+      });
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      composeMock.rm.mockResolvedValue(mockResult);
+      const node = net.nodes.lightning[0];
+      await dockerService.removeNode(net, node);
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        expect.stringContaining(`${node.name}-monitor`),
+        expect.objectContaining({ cwd: net.path }),
+      );
+      expect(composeMock.rm).toHaveBeenCalledWith(
+        expect.objectContaining({ cwd: net.path }),
+        expect.stringContaining(`${node.name}-monitor`),
+      );
+    });
+
+    it('should handle missing monitor service gracefully in removeNode (monitoringEnabled false)', async () => {
+      const net = createNetwork({
+        id: 104,
+        name: 'monitor-disabled',
+        description: 'desc',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        monitoringEnabled: false,
+      });
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      composeMock.rm.mockResolvedValue(mockResult);
+      const node = net.nodes.lightning[0];
+      // Simulate error for monitor service (as it doesn't exist)
+      composeMock.stopOne.mockImplementationOnce(name => {
+        if (typeof name === 'string' && name.includes('-monitor')) {
+          return Promise.reject(new Error('No such service'));
+        }
+        return Promise.resolve(mockResult);
+      });
+      await expect(dockerService.removeNode(net, node)).resolves.not.toThrow();
     });
   });
 });

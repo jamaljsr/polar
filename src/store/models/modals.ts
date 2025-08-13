@@ -110,6 +110,11 @@ interface AddLncSessionModel {
   pairingPhrase?: string;
 }
 
+interface NetworkMonitoringModel {
+  visible: boolean;
+  networkId?: number;
+}
+
 export interface ModalsModel {
   openChannel: OpenChannelModel;
   changeBackend: ChangeBackendModel;
@@ -127,6 +132,7 @@ export interface ModalsModel {
   lncSessionInfo: LncSessionInfoModel;
   addLncSession: AddLncSessionModel;
   changeTapBackend: ChangeTapBackendModel;
+  networkMonitoring: NetworkMonitoringModel;
   setOpenChannel: Action<ModalsModel, OpenChannelModel>;
   showOpenChannel: Thunk<ModalsModel, Partial<OpenChannelModel>, StoreInjections>;
   hideOpenChannel: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -184,6 +190,13 @@ export interface ModalsModel {
   setAddLncSession: Action<ModalsModel, AddLncSessionModel>;
   showAddLncSession: Thunk<ModalsModel, Partial<AddLncSessionModel>, StoreInjections>;
   hideAddLncSession: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setNetworkMonitoring: Action<ModalsModel, NetworkMonitoringModel>;
+  showNetworkMonitoring: Thunk<
+    ModalsModel,
+    Partial<NetworkMonitoringModel>,
+    StoreInjections
+  >;
+  hideNetworkMonitoring: Thunk<ModalsModel>;
 }
 
 const modalsModel: ModalsModel = {
@@ -204,6 +217,7 @@ const modalsModel: ModalsModel = {
   renameNode: { visible: false },
   lncSessionInfo: { visible: false },
   addLncSession: { visible: false },
+  networkMonitoring: { visible: false },
   // reducer actions (mutations allowed thx to immer)
   setOpenChannel: action((state, payload) => {
     state.openChannel = {
@@ -491,6 +505,21 @@ const modalsModel: ModalsModel = {
       visible: false,
       nodeName: undefined,
     });
+  }),
+  setNetworkMonitoring: action((state, payload) => {
+    console.log('setNetworkMonitoring called with:', payload);
+    state.networkMonitoring = {
+      ...state.networkMonitoring,
+      ...payload,
+    };
+  }),
+  showNetworkMonitoring: thunk((actions, { networkId }) => {
+    actions.setNetworkMonitoring({ visible: true, networkId });
+    console.log('Network show');
+  }),
+  hideNetworkMonitoring: thunk(actions => {
+    actions.setNetworkMonitoring({ visible: false, networkId: undefined });
+    console.log('Network hide');
   }),
 };
 
