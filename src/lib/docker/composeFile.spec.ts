@@ -1,4 +1,4 @@
-import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import { CLightningNode, LitdNode, LndNode, TapdNode, EclairNode } from 'shared/types';
 import { bitcoinCredentials, defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import { testManagedImages } from 'utils/tests';
@@ -19,6 +19,7 @@ describe('ComposeFile', () => {
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
+    monitoringEnabled: false,
   });
   const btcNode = network.nodes.bitcoin[0];
   const lndNode = network.nodes.lightning[0] as LndNode;
@@ -189,5 +190,105 @@ describe('ComposeFile', () => {
     const service = composeFile.content.services['dave'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
+  });
+
+  it('should not add controller or monitor if monitoringEnabled is false', () => {
+    composeFile = new ComposeFile(1, false);
+    composeFile.addController(1);
+    composeFile.addMonitor('container', 'host');
+    expect(Object.keys(composeFile.content.services)).toEqual([]);
+  });
+
+  it('should add controller and monitor if monitoringEnabled is true', () => {
+    composeFile = new ComposeFile(1, true);
+    composeFile.addController(1);
+    composeFile.addMonitor('container', 'host');
+    const keys = Object.keys(composeFile.content.services);
+    expect(keys).toContain('control');
+    expect(keys).toContain('container-monitor');
+  });
+
+  it('should use hostname as key for legacy nodes and container_name for monitor nodes', () => {
+    // ComposeService (legacy node)
+    const legacyService = {
+      image: 'img',
+      container_name: 'container1',
+      hostname: 'host1',
+      command: 'cmd',
+      volumes: [],
+      expose: [],
+      ports: [],
+    };
+    composeFile.addService(legacyService);
+    expect(composeFile.content.services['host1']).toBeDefined();
+
+    // MonitorComposeService (monitor node, no hostname)
+    const monitorService = {
+      image: 'img',
+      container_name: 'monitor1',
+      command: 'cmd',
+      volumes: [],
+      expose: [],
+    };
+    composeFile.addService(monitorService);
+    expect(composeFile.content.services['monitor1']).toBeDefined();
+  });
+
+  it('should always set environment and stop_grace_period in addService', () => {
+    const service = {
+      image: 'img',
+      container_name: 'container2',
+      command: 'cmd',
+      volumes: [],
+      expose: [],
+    };
+    composeFile.addService(service);
+    const result = composeFile.content.services['container2'];
+    expect(result.environment).toEqual({
+      USERID: '${USERID:-1000}',
+      GROUPID: '${GROUPID:-1000}',
+    });
+    expect(result.stop_grace_period).toBe('30s');
+  });
+
+  it('should add both LND and its monitor service when monitoringEnabled is true', () => {
+    composeFile = new ComposeFile(1, true);
+    composeFile.addLnd(lndNode, btcNode);
+    const keys = Object.keys(composeFile.content.services);
+    expect(keys).toContain('alice'); // LND node
+    expect(keys.some(k => k.includes('monitor'))).toBe(true);
+  });
+
+  it('should add both c-lightning and its monitor service when monitoringEnabled is true', () => {
+    composeFile = new ComposeFile(1, true);
+    composeFile.addClightning(clnNode, btcNode);
+    const keys = Object.keys(composeFile.content.services);
+    expect(keys).toContain('bob'); // c-lightning node
+    expect(keys.some(k => k.includes('monitor'))).toBe(true);
+  });
+
+  it('should add both Eclair and its monitor service when monitoringEnabled is true', () => {
+    composeFile = new ComposeFile(1, true);
+    const eclairNode = network.nodes.lightning[2] as EclairNode;
+    composeFile.addEclair(eclairNode, btcNode);
+    const keys = Object.keys(composeFile.content.services);
+    expect(keys).toContain('carol'); // Eclair node
+    expect(keys.some(k => k.includes('monitor'))).toBe(true);
+  });
+
+  it('should add both Litd and its monitor service when monitoringEnabled is true', () => {
+    composeFile = new ComposeFile(1, true);
+    composeFile.addLitd(litdNode, btcNode, litdNode);
+    const keys = Object.keys(composeFile.content.services);
+    expect(keys).toContain('dave'); // Litd node
+    expect(keys.some(k => k.includes('monitor'))).toBe(true);
+  });
+
+  it('should add both Tapd and its monitor service when monitoringEnabled is true', () => {
+    composeFile = new ComposeFile(1, true);
+    composeFile.addTapd(tapNode, lndNode);
+    const keys = Object.keys(composeFile.content.services);
+    expect(keys).toContain('alice-tap'); // Tapd node
+    expect(keys.some(k => k.includes('monitor'))).toBe(true);
   });
 });
