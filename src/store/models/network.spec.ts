@@ -452,6 +452,36 @@ describe('Network model', () => {
       );
     });
 
+    it('should throw if the simulation is connected to a node', async () => {
+      const { addSimulation, removeLightningNode } = store.getActions().network;
+      const network = firstNetwork();
+      const simulation = {
+        networkId: network.id,
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Started,
+      };
+      await addSimulation(simulation);
+      await expect(
+        removeLightningNode({ node: network.nodes.lightning[0] }),
+      ).rejects.toThrow('Cannot remove alice because it is connected to a simulation.');
+
+      await expect(
+        removeLightningNode({ node: network.nodes.lightning[1] }),
+      ).rejects.toThrow('Cannot remove bob because it is connected to a simulation.');
+
+      await removeLightningNode({ node: network.nodes.lightning[2] });
+
+      expect(network.nodes.lightning).toHaveLength(4);
+    });
+
     it('should update peers of surrounding bitcoin nodes', async () => {
       const { removeBitcoinNode, addNode } = store.getActions().network;
       const { id } = firstNetwork();
@@ -730,6 +760,26 @@ describe('Network model', () => {
       const { stop } = store.getActions().network;
       await stop(firstNetwork().id);
       expect(lightningServiceMock.removeListener).toHaveBeenCalled();
+    });
+
+    it('should remove the simulation when stopping a network', async () => {
+      const { stop } = store.getActions().network;
+      const network = firstNetwork();
+      network.simulation = {
+        networkId: network.id,
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+      await stop(firstNetwork().id);
+      expect(injections.dockerService.removeSimulation).toHaveBeenCalled();
     });
   });
 
@@ -1020,6 +1070,176 @@ describe('Network model', () => {
       bitcoin[0].type = 'asdf' as any;
       await monitorStartup(bitcoin);
       expect(bitcoinServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Simulation', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
+    it('should add simulation', async () => {
+      const { addSimulation } = store.getActions().network;
+      const network = firstNetwork();
+      const simulation = {
+        networkId: 10, // Set to a non-existent network id
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+      await expect(addSimulation(simulation)).rejects.toThrow();
+
+      simulation.networkId = network.id; // Set to the correct network id
+      await addSimulation(simulation);
+      expect(network.simulation).toEqual(simulation);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should remove simulation', async () => {
+      const { removeSimulation, addSimulation } = store.getActions().network;
+      const network = firstNetwork();
+      const simulation = {
+        networkId: network.id,
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Started,
+      };
+      await addSimulation(simulation);
+      expect(network.simulation).toEqual(simulation);
+      simulation.networkId = 10; // Set to a non-existent network id
+      await expect(
+        removeSimulation({ id: 0, networkId: simulation.networkId }),
+      ).rejects.toThrow();
+      simulation.networkId = network.id; // Set to the correct network id
+      await removeSimulation({ id: 0, networkId: simulation.networkId });
+      expect(network.simulation?.activity.length).toBe(0);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should remove simulation when the network is stopped', async () => {
+      const { addSimulation, stop } = store.getActions().network;
+      const network = firstNetwork();
+      const simulation = {
+        networkId: network.id,
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Started,
+      };
+      await addSimulation(simulation);
+      expect(network.simulation).toEqual(simulation);
+
+      // Stop the network
+      await stop(network.id);
+      expect(network.status).toBe(Status.Stopped);
+    });
+
+    it('should error if the simulation is not found', async () => {
+      const { removeSimulation } = store.getActions().network;
+      const network = firstNetwork();
+      await expect(removeSimulation({ id: 0, networkId: network.id })).rejects.toThrow();
+    });
+
+    it('should start and stop simulation', async () => {
+      const { startSimulation, stopSimulation, addSimulation, start, setStatus } =
+        store.getActions().network;
+      const network = firstNetwork();
+      const simulation = {
+        networkId: network.id,
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+      await expect(startSimulation({ id: network.id + 10 })).rejects.toThrow(); // Throws if the network id is not valid
+      // Throws if the simulation is not added to the network yet.
+      await expect(startSimulation({ id: network.id })).rejects.toThrow();
+
+      await addSimulation(simulation);
+      expect(network.simulation).toEqual(simulation);
+
+      // Start the network.
+      await start(network.id);
+
+      // Set the destination node to stopped. This throws if one of the nodes is not started.
+      setStatus({
+        id: network.id,
+        status: Status.Stopped,
+        only: network.nodes.lightning[1].name,
+      });
+      await expect(startSimulation({ id: network.id })).rejects.toThrow();
+
+      // Set the destination node to started.
+      setStatus({ id: network.id, status: Status.Started });
+      await startSimulation({ id: network.id });
+      expect(injections.dockerService.startSimulation).toHaveBeenCalled();
+
+      // Throws if the network id is not valid.
+      await expect(stopSimulation({ id: network.id + 10 })).rejects.toThrow();
+
+      // Stop the simulation.
+      await stopSimulation({ id: network.id });
+      expect(injections.dockerService.stopSimulation).toHaveBeenCalled();
+    });
+
+    it('should fail for non-existent nodes', async () => {
+      const { startSimulation, addSimulation, start } = store.getActions().network;
+      const network = firstNetwork();
+      const simulation = {
+        networkId: network.id,
+        activity: [
+          {
+            id: 0,
+            source: network.nodes.lightning[0],
+            destination: network.nodes.lightning[1],
+            intervalSecs: 10,
+            amountMsat: 1000000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+
+      const nonExistentNode = {
+        ...network.nodes.lightning[0],
+        name: 'non-existent', // Set to a non-existent node name
+      };
+
+      simulation.activity[0].source = nonExistentNode;
+      await addSimulation(simulation);
+      await start(network.id);
+      await expect(startSimulation({ id: network.id })).rejects.toThrow();
+
+      simulation.activity[0].source = network.nodes.lightning[0];
+      simulation.activity[0].destination = nonExistentNode;
+      await addSimulation(simulation);
+      await expect(startSimulation({ id: network.id })).rejects.toThrow();
     });
   });
 

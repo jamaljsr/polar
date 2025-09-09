@@ -7,7 +7,7 @@ import {
   getNetwork,
   testNodeDocker,
 } from 'utils/tests';
-import { initChartFromNetwork, snap, updateChartFromNodes } from './chart';
+import { hasChartLink, initChartFromNetwork, snap, updateChartFromNodes } from './chart';
 import { createBitcoindNetworkNode, createTapdNetworkNode } from './network';
 
 describe('Chart Util', () => {
@@ -177,6 +177,13 @@ describe('Chart Util', () => {
       const result = updateChartFromNodes(chart, network, nodesData);
       expect(result.selected.id).toEqual('alice');
       expect(result.selected.type).toEqual('node');
+    });
+
+    it('should check if a link (channel) exists between two nodes', () => {
+      addChannel('alice', 'ln2pubkey', true);
+      const result = updateChartFromNodes(chart, network, nodesData);
+      expect(hasChartLink(result, 'alice', 'bob')).toBe(true);
+      expect(hasChartLink(result, 'bob', 'alice')).toBe(true);
     });
   });
 });
