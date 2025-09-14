@@ -1,5 +1,5 @@
 import { remote } from 'electron';
-import { debug, info } from 'electron-log';
+import { debug, info, warn } from 'electron-log';
 import { copy, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { v2 as compose } from 'docker-compose';
@@ -8,6 +8,7 @@ import yaml from 'js-yaml';
 import os from 'os';
 import {
   AnyNode,
+  ArkNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
@@ -125,7 +126,7 @@ class DockerService implements DockerLibrary {
    */
   async saveComposeFile(network: Network) {
     const file = new ComposeFile(network.id);
-    const { bitcoin, lightning, tap } = network.nodes;
+    const { bitcoin, lightning, tap, ark } = network.nodes;
 
     bitcoin.forEach(node => file.addBitcoind(node));
     lightning.forEach(node => {
@@ -160,6 +161,16 @@ class DockerService implements DockerLibrary {
           lightning.filter(n => n.implementation === 'LND')[0];
         file.addTapd(tapd, lndBackend as LndNode);
       }
+    });
+    ark.forEach(node => {
+      if (node.implementation !== 'arkd') {
+        warn('Unsupported ark implementation');
+        return;
+      }
+
+      const arkd = node as ArkNode;
+      const backend = bitcoin.find(n => n.name === arkd.backendName) || bitcoin[0];
+      file.addArkd(arkd, backend as BitcoinNode);
     });
 
     const yml = yaml.dump(file.content);
