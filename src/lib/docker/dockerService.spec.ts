@@ -898,7 +898,7 @@ describe('DockerService', () => {
       eclairNodes: 1,
       bitcoindNodes: 1,
       tapdNodes: 0,
-      litdNodes: 0,
+      litdNodes: 1,
       repoState: defaultRepoState,
       managedImages: testManagedImages,
       customImages: [],
@@ -912,6 +912,7 @@ describe('DockerService', () => {
     const clightningNodes = network.nodes.lightning.filter(
       n => n.implementation === 'c-lightning',
     );
+    const litdNodes = network.nodes.lightning.filter(n => n.implementation === 'litd');
     beforeEach(() => {
       // Add simulation config to the test network
       network.simulation = {
@@ -976,13 +977,6 @@ describe('DockerService', () => {
       );
     });
 
-    it('should handle errors when using unsupported node types', async () => {
-      network.nodes.lightning[0].implementation = 'litd';
-      await expect(dockerService.startSimulation(network)).rejects.toThrow(
-        'unsupported node implementation: litd',
-      );
-    });
-
     it('should handle errors when node is not found', async () => {
       network.simulation!.activity[0].source = 'non-existent';
       await expect(dockerService.startSimulation(network)).rejects.toThrow(
@@ -1009,14 +1003,14 @@ describe('DockerService', () => {
       );
     });
 
-    // Now we should be able to use c-lightning in the simulation
+    // Now we should be able to use c-lightning and litd in the simulation
     it('should add c-lightning to the docker-compose.yml file', async () => {
       network.simulation = {
         activity: [
           {
             id: 0,
             source: clightningNodes[0].name,
-            destination: eclairNodes[0].name,
+            destination: litdNodes[0].name,
             intervalSecs: 60,
             amountMsat: 1000,
           },

@@ -199,6 +199,7 @@ export const simln = (
     `./volumes/${name}:/home/simln/.simln`,
     `./volumes/${dockerConfigs.LND.volumeDirName}:/home/simln/.lnd`,
     `./volumes/${dockerConfigs['c-lightning'].volumeDirName}:/home/simln/.c-lightning`,
+    `./volumes/${dockerConfigs.litd.volumeDirName}:/home/simln/.litd`,
   ],
   expose: [],
   ports: [],
