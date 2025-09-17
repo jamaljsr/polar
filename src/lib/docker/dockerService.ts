@@ -470,8 +470,17 @@ class DockerService implements DockerLibrary {
             };
             break;
 
-          default:
-            throw new Error(`unsupported node implementation: ${node.implementation}`);
+          case 'litd':
+            const litd = node as LitdNode;
+            simNode = {
+              id: litd.name,
+              address: `host.docker.internal:${litd.ports.grpc}`,
+              cert: `/home/simln/.${litd.paths.tlsCert.split('volumes/').pop()}`,
+              macaroon: `/home/simln/.${litd.paths.adminMacaroon
+                .split('volumes/')
+                .pop()}`,
+            };
+            break;
         }
 
         // Add the node to the nodes Set.
