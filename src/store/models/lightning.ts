@@ -8,7 +8,6 @@ import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { getInvoicePayload } from 'utils/network';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
-import { LightningNodeChannel } from 'lib/lightning/types';
 
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
@@ -43,6 +42,7 @@ export interface PayInvoicePayload {
   node: LightningNode;
   invoice: string;
   amount?: number;
+  allowSelfPayment?: boolean;
 }
 
 export interface LightningModel {
@@ -267,11 +267,19 @@ const lightningModel: LightningModel = {
   payInvoice: thunk(
     async (
       actions,
-      { node, invoice, amount },
+      { node, invoice, amount, allowSelfPayment },
       { injections, getStoreState, getStoreActions },
     ) => {
       const api = injections.lightningFactory.getService(node);
-      const receipt = await api.payInvoice(node, invoice, amount);
+
+      let receipt;
+      if (api instanceof PLN.LndService) {
+        receipt = await api.payInvoice(node, invoice, amount, undefined, {
+          allowSelfPayment,
+        });
+      } else {
+        receipt = await api.payInvoice(node, invoice, amount);
+      }
 
       const network = getStoreState().network.networkById(node.networkId);
       // synchronize the chart with the new channel
@@ -365,7 +373,7 @@ const lightningModel: LightningModel = {
     state.channelsInfo = payload;
   }),
   resetChannelsInfo: thunk(async (actions, network, { getStoreState }) => {
-    const channels = [] as LightningNodeChannel[];
+    const channels = [] as PLN.LightningNodeChannel[];
     const { getChannels } = actions;
     const { links } = getStoreState().designer.activeChart;
 
@@ -438,9 +446,9 @@ const lightningModel: LightningModel = {
     if (!network) throw new Error('networkByIdErr');
     const { createInvoice, payInvoice, getChannels } = actions;
     const lnNodes = network.nodes.lightning;
-    const channels = [] as LightningNodeChannel[];
+    const channels = [] as PLN.LightningNodeChannel[];
     const id2Node = {} as Record<string, LightningNode>;
-    const id2channel = {} as Record<string, LightningNodeChannel>;
+    const id2channel = {} as Record<string, PLN.LightningNodeChannel>;
 
     await Promise.all(
       lnNodes.map(async node => {

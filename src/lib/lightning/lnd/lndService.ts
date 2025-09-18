@@ -8,7 +8,7 @@ import { waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
-class LndService implements LightningService {
+export class LndService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await proxy.getInfo(this.cast(node));
     return {
@@ -170,6 +170,7 @@ class LndService implements LightningService {
     invoice: string,
     amount?: number,
     customRecords?: PLN.CustomRecords,
+    advancedOptions?: PLN.SendPaymentRequestAdvancedOptions,
   ): Promise<PLN.LightningNodePayReceipt> {
     let feeLimitSat = 1000;
     if (amount && amount > 1000) {
@@ -182,6 +183,7 @@ class LndService implements LightningService {
       firstHopCustomRecords: customRecords,
       timeoutSeconds: 60,
       maxParts: 16,
+      ...advancedOptions,
     };
 
     // don't set an amount if the invoice has one set already

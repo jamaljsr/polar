@@ -3,6 +3,8 @@
  * lightning implementations
  */
 
+export { LndService } from './lnd/lndService';
+
 export interface LightningNodeInfo {
   pubkey: string;
   alias: string;
@@ -74,6 +76,10 @@ export interface LightningNodePaymentRequest {
   paymentHash: string;
   amountMsat: string;
   expiry: string;
+}
+
+export interface SendPaymentRequestAdvancedOptions {
+  allowSelfPayment?: boolean;
 }
 
 export interface LightningNodeChannelEvent {

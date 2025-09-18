@@ -201,6 +201,31 @@ describe('PayInvoiceModal', () => {
         'lnbc1',
         400000,
         '',
+        undefined,
+      );
+    });
+
+    it('should pay invoice with allowSelfPayment option', async () => {
+      const { findByText, getByText, getByLabelText, store, changeSelect } =
+        await renderComponent('bob');
+      expect(await findByText('From Node')).toBeInTheDocument();
+      fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
+      changeSelect('Asset to Send', 'test asset');
+      fireEvent.click(getByText('Advanced Options'));
+      fireEvent.click(getByLabelText('Allow self-payment'));
+      fireEvent.click(getByText('Pay Invoice'));
+      await waitFor(() => {
+        expect(store.getState().modals.payInvoice.visible).toBe(false);
+      });
+      const node = network.nodes.lightning[1];
+      const tapdNode = mapToTapd(node);
+      expect(tapServiceMock.sendPayment).toHaveBeenCalledWith(
+        tapdNode,
+        'abcd',
+        'lnbc1',
+        400000,
+        '',
+        true,
       );
     });
   });

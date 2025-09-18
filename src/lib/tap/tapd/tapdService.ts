@@ -170,6 +170,7 @@ class TapdService implements TapService {
     invoice: string,
     feeLimitMsat: number,
     peerPubkey?: string,
+    allowSelfPayment?: boolean,
   ): Promise<PLN.LightningNodePayReceipt> {
     const req: TAP.tapchannelrpc.SendPaymentRequestPartial = {
       assetId: Buffer.from(assetId, 'hex').toString('base64'),
@@ -177,6 +178,7 @@ class TapdService implements TapService {
         paymentRequest: invoice,
         timeoutSeconds: 60 * 60, // 1 hour
         feeLimitMsat,
+        allowSelfPayment,
       },
     };
     if (peerPubkey) {
