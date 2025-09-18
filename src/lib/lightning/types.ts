@@ -80,4 +80,4 @@ export interface LightningNodeChannelEvent {
   type: 'Open' | 'Pending' | 'Closed' | 'Unknown';
 }
 
-export interface CustomRecords extends Record<number, string> {}
+export type CustomRecords = Record<number, string>;
