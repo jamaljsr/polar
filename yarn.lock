@@ -20716,10 +20716,10 @@ w3c-xmlserializer@^2.0.0:
   dependencies:
     xml-name-validator "^3.0.0"
 
-wait-on@8.0.5:
-  version "8.0.5"
-  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-8.0.5.tgz#63169c6979aea15cbfc813d91e4cf2513958632b"
-  integrity sha512-J3WlS0txVHkhLRb2FsmRg3dkMTCV1+M6Xra3Ho7HzZDHpE7DCOnoSoCJsZotrmW3uRMhvIJGSKUKrh/MeF4iag==
+wait-on@9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/wait-on/-/wait-on-9.0.0.tgz#583e2ab560b71ce6247f422a9857122b34cfd893"
+  integrity sha512-bKOl7CJ4zGhKW4qvoasLM5t2NtLUcc1Ar2N6XeYCQpW0w+DMdLC0YH1JUH3bTWDCsHblapHMzhtFmmPc+ITNJw==
   dependencies:
     axios "^1.12.1"
     joi "^18.0.1"
