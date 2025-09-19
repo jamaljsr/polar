@@ -86,6 +86,7 @@ const NewNetwork: React.FC = () => {
             tapdNodes: settings.newNodeCounts.tapd,
             litdNodes: settings.newNodeCounts.litd,
             customNodes: initialCustomValues,
+            btcdNodes: settings.newNodeCounts.btcd,
           }}
           onFinish={createAsync.execute}
         >
@@ -162,6 +163,15 @@ const NewNetwork: React.FC = () => {
             </Col>
           </Row>
           <Row gutter={16}>
+            <Col span={6}>
+              <Form.Item
+                name="btcdNodes"
+                label={dockerConfigs.btcd.name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
             <Col span={6}>
               <Form.Item
                 name="tapdNodes"
