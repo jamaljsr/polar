@@ -124,7 +124,7 @@ class DockerService implements DockerLibrary {
    * @param network the network to save a compose file for
    */
   async saveComposeFile(network: Network) {
-    const file = new ComposeFile(network.id);
+    const file = new ComposeFile(network.id, !!network.monitoringEnabled);
     const { bitcoin, lightning, tap } = network.nodes;
 
     bitcoin.forEach(node => file.addBitcoind(node));
@@ -161,6 +161,7 @@ class DockerService implements DockerLibrary {
         file.addTapd(tapd, lndBackend as LndNode);
       }
     });
+    file.addController(network.id);
 
     const yml = yaml.dump(file.content);
     const path = join(network.path, 'docker-compose.yml');
@@ -208,6 +209,20 @@ class DockerService implements DockerLibrary {
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.upOne, node.name, this.getArgs(network));
     info(`Container started:\n ${result.out || result.err}`);
+
+    // Use the correct monitoring container name
+    const monitorServiceName = `polar-n${network.id}-${node.name}-monitor`;
+    info(`Starting monitoring container for ${node.name}`);
+    try {
+      const monitorResult = await this.execute(
+        compose.upOne,
+        monitorServiceName,
+        this.getArgs(network),
+      );
+      info(`Monitoring container started:\n ${monitorResult.out || monitorResult.err}`);
+    } catch (e) {
+      info(`Failed to start monitoring container for ${node.name}: ${e}`);
+    }
   }
 
   /**
@@ -238,6 +253,25 @@ class DockerService implements DockerLibrary {
     // IDockerComposeOptions as the first param and a spread for the remaining
     result = await this.execute(compose.rm as any, this.getArgs(network), node.name);
     info(`Removed:\n ${result.out || result.err}`);
+
+    // Remove associated monitor service if it exists
+    const monitorServiceName = `${node.name}-monitor`;
+    try {
+      result = await this.execute(
+        compose.stopOne,
+        monitorServiceName,
+        this.getArgs(network),
+      );
+      info(`Monitor container stopped:\n ${result.out || result.err}`);
+      result = await this.execute(
+        compose.rm as any,
+        this.getArgs(network),
+        monitorServiceName,
+      );
+      info(`Monitor removed:\n ${result.out || result.err}`);
+    } catch (e) {
+      // Ignore errors if monitor service does not exist
+    }
   }
 
   /**
