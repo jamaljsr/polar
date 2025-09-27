@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 import { join } from 'path';
-import { NodeImplementation } from 'shared/types';
+import { NodeImplementationWithSimln } from 'shared/types';
 import { Network } from 'types';
 import { dockerConfigs } from './constants';
 import { existsSync } from 'fs';
@@ -32,7 +32,7 @@ export const networksPath = join(dataPath, 'networks');
  */
 export const nodePath = (
   network: Network,
-  implementation: NodeImplementation,
+  implementation: NodeImplementationWithSimln,
   name: string,
 ): string =>
   join(network.path, 'volumes', dockerConfigs[implementation].volumeDirName, name);

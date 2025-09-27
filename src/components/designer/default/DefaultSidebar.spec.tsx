@@ -58,7 +58,7 @@ describe('DefaultSidebar Component', () => {
       },
     };
 
-    const result = renderWithProviders(<DefaultSidebar />, {
+    const result = renderWithProviders(<DefaultSidebar network={network} />, {
       initialState,
     });
     return {
@@ -125,5 +125,11 @@ describe('DefaultSidebar Component', () => {
       REACT_FLOW_CHART,
       JSON.stringify({ type: 'LND', version: lndLatest }),
     );
+  });
+
+  it('should display the Simulation Designer Tab', () => {
+    const { getByText } = renderComponent();
+    fireEvent.click(getByText('Simulation Designer'));
+    expect(getByText('Lightning Network Simulation')).toBeInTheDocument();
   });
 });
