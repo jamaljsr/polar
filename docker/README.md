@@ -221,6 +221,21 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg LITD_VERSIO
 
 Replace `<version>` with the desired Tap version (ex: `0.13.3-alpha`).
 
+## SimLN
+
+### Tags
+
+- `0.2.5` ([simln/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/simln/Dockerfile))
+
+**Building the image**
+
+```sh
+$ cd simln
+$ docker buildx build --platform linux/amd64, linux/arm64 --build-arg SIMLN_VERSION=<version> -t polarlightning/simln:<version> --push .
+```
+
+Replace `<version>` with the desired SimLN version (ex: `0.2.5`).
+
 # Out-of-Band Image Updates
 
 > Note: These steps can only be performed by developers with commit access to this GitHub repo and push access to the Docker Hub repo
