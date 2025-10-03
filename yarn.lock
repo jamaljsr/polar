@@ -1526,14 +1526,14 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@commitlint/cli@20.0.0":
-  version "20.0.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-20.0.0.tgz#9459cbf4c0cbabca19bc7219ad295f7f39791e4f"
-  integrity sha512-I3D7Yldq8ZhOB3qEaTvXWIgib6tSZhbCpRObfFQ/aYI0J9AH8NMwT07Ak+bpE3n6Yn7EtbqEhQUkJZ/jZ5kCeQ==
+"@commitlint/cli@20.1.0":
+  version "20.1.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-20.1.0.tgz#07365e2849d86f771e76ea0ceb96cd88bb945e03"
+  integrity sha512-pW5ujjrOovhq5RcYv5xCpb4GkZxkO2+GtOdBW2/qrr0Ll9tl3PX0aBBobGQl3mdZUbOBgwAexEQLeH6uxL0VYg==
   dependencies:
     "@commitlint/format" "^20.0.0"
     "@commitlint/lint" "^20.0.0"
-    "@commitlint/load" "^20.0.0"
+    "@commitlint/load" "^20.1.0"
     "@commitlint/read" "^20.0.0"
     "@commitlint/types" "^20.0.0"
     tinyexec "^1.0.0"
@@ -1628,14 +1628,14 @@
     lodash.uniq "^4.5.0"
     resolve-from "^5.0.0"
 
-"@commitlint/load@^20.0.0":
-  version "20.0.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-20.0.0.tgz#13fc910cc5f6d2325d499886d95fca797791de7c"
-  integrity sha512-WiNKO9fDPlLY90Rruw2HqHKcghrmj5+kMDJ4GcTlX1weL8K07Q6b27C179DxnsrjGCRAKVwFKyzxV4x+xDY28Q==
+"@commitlint/load@^20.1.0":
+  version "20.1.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-20.1.0.tgz#8eb7aefbfb066db903d1a89c4727093a57fcffbc"
+  integrity sha512-qo9ER0XiAimATQR5QhvvzePfeDfApi/AFlC1G+YN+ZAY8/Ua6IRrDrxRvQAr+YXUKAxUsTDSp9KXeXLBPsNRWg==
   dependencies:
     "@commitlint/config-validator" "^20.0.0"
     "@commitlint/execute-rule" "^20.0.0"
-    "@commitlint/resolve-extends" "^20.0.0"
+    "@commitlint/resolve-extends" "^20.1.0"
     "@commitlint/types" "^20.0.0"
     chalk "^5.3.0"
     cosmiconfig "^9.0.0"
@@ -1681,10 +1681,10 @@
     resolve-from "^5.0.0"
     resolve-global "^1.0.0"
 
-"@commitlint/resolve-extends@^20.0.0":
-  version "20.0.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-20.0.0.tgz#a92e370b67b9a99aec84904fbb4e5fcaa495ee73"
-  integrity sha512-BA4vva1hY8y0/Hl80YDhe9TJZpRFMsUYzVxvwTLPTEBotbGx/gS49JlVvtF1tOCKODQp7pS7CbxCpiceBgp3Dg==
+"@commitlint/resolve-extends@^20.1.0":
+  version "20.1.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-20.1.0.tgz#bfccbd7772ffa49f99f3e0f828cf8612667b2e8e"
+  integrity sha512-cxKXQrqHjZT3o+XPdqDCwOWVFQiae++uwd9dUBC7f2MdV58ons3uUvASdW7m55eat5sRiQ6xUHyMWMRm6atZWw==
   dependencies:
     "@commitlint/config-validator" "^20.0.0"
     "@commitlint/types" "^20.0.0"
