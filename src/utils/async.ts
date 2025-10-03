@@ -13,11 +13,11 @@ export const delay = (timeout: number) => {
  * @param interval the number of ms between each execution of the conditionFunc
  * @param timeout the absolute timeout to abort checking the condition and return false
  */
-export const waitFor = async (
-  conditionFunc: () => Promise<any>,
+export const waitFor = async <T = any>(
+  conditionFunc: () => Promise<T>,
   interval = 500,
   timeout = 5000,
-): Promise<any> => {
+): Promise<T> => {
   try {
     const result = await conditionFunc();
     // if the condition succeeds, then return immediately
@@ -27,7 +27,7 @@ export const waitFor = async (
   }
 
   // return a promise that will resolve when the condition is true
-  return new Promise((resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     // keep a countdown of the number of times to check
     // so it can abort after a the timeout expires
     let timesToCheck = timeout / interval;
