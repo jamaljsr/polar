@@ -1041,5 +1041,39 @@ describe('DockerService', () => {
         expect.objectContaining({ cwd: network.path }),
       );
     });
+
+    it('should map windows paths to posix paths', () => {
+      // Mock Windows-style absolute paths.
+      const lnd = lndNodes[0] as LndNode;
+      const windowsPath = `C:\\Users\\username\\.polar\\networks\\${network.id}\\volumes\\lnd\\${lnd.name}`;
+
+      const tlsCertPath = `${windowsPath}\\tls.cert`;
+      const macaroonPath = `${windowsPath}\\data\\chain\\bitcoin\\regtest\\admin.macaroon`;
+
+      lnd.paths.tlsCert = tlsCertPath;
+      lnd.paths.adminMacaroon = macaroonPath;
+
+      network.simulation = {
+        activity: [
+          {
+            id: 0,
+            source: lndNodes[0].name,
+            destination: eclairNodes[0].name,
+            intervalSecs: 60,
+            amountMsat: 1000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+
+      const simJson = dockerService.constructSimJson(network);
+
+      const lndNode = simJson.nodes.find(n => n.id === lnd.name);
+      expect(lndNode).toBeDefined();
+      expect(lndNode?.cert).toBe(`/home/simln/.lnd/${lnd.name}/tls.cert`);
+      expect(lndNode?.macaroon).toBe(
+        `/home/simln/.lnd/${lnd.name}/data/chain/bitcoin/regtest/admin.macaroon`,
+      );
+    });
   });
 });
