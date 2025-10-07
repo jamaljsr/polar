@@ -405,6 +405,15 @@ class DockerService implements DockerLibrary {
    * @param network the network to start
    */
   constructSimJson(network: Network) {
+    // Helper function to convert Windows paths to POSIX path format.
+    const getPosixPath = (path: string) => {
+      // Normalize to POSIX separators for Windows paths.
+      const norm = path.replace(/\\/g, '/');
+
+      const parts = norm.split('volumes/');
+
+      return parts[parts.length - 1];
+    };
     const simJson: {
       nodes: SimulationNodeConfig[];
       activity: ActivityConfig[];
@@ -439,9 +448,9 @@ class DockerService implements DockerLibrary {
             const lnd = node as LndNode;
             simNode = {
               id: lnd.name,
-              macaroon: `/home/simln/.${lnd.paths.adminMacaroon.split('volumes/').pop()}`,
+              macaroon: `/home/simln/.${getPosixPath(lnd.paths.adminMacaroon)}`,
               address: `https://host.docker.internal:${lnd.ports.grpc}`,
-              cert: `/home/simln/.${lnd.paths.tlsCert.split('volumes/').pop()}`,
+              cert: `/home/simln/.${getPosixPath(lnd.paths.tlsCert)}`,
             };
             break;
 
@@ -460,13 +469,9 @@ class DockerService implements DockerLibrary {
             simNode = {
               id: cln.name,
               address: `host.docker.internal:${cln.ports.grpc}`,
-              ca_cert: `/home/simln/.${cln.paths.tlsCert?.split('volumes/').pop()}`,
-              client_cert: `/home/simln/.${cln.paths.tlsClientCert
-                ?.split('volumes/')
-                .pop()}`,
-              client_key: `/home/simln/.${cln.paths.tlsClientKey
-                ?.split('volumes/')
-                .pop()}`,
+              ca_cert: `/home/simln/.${getPosixPath(cln.paths.tlsCert!)}`,
+              client_cert: `/home/simln/.${getPosixPath(cln.paths.tlsClientCert!)}`,
+              client_key: `/home/simln/.${getPosixPath(cln.paths.tlsClientKey!)}`,
             };
             break;
 
@@ -475,10 +480,8 @@ class DockerService implements DockerLibrary {
             simNode = {
               id: litd.name,
               address: `host.docker.internal:${litd.ports.grpc}`,
-              cert: `/home/simln/.${litd.paths.tlsCert.split('volumes/').pop()}`,
-              macaroon: `/home/simln/.${litd.paths.adminMacaroon
-                .split('volumes/')
-                .pop()}`,
+              cert: `/home/simln/.${getPosixPath(litd.paths.tlsCert)}`,
+              macaroon: `/home/simln/.${getPosixPath(litd.paths.adminMacaroon)}`,
             };
             break;
         }
