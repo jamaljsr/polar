@@ -27,6 +27,8 @@ import {
   NewAddressModal,
   SendAssetModal,
 } from './tap/actions';
+//probably "NetworkMonitoringModal" goes to another folder
+import NetworkMonitoringModal from 'components/common/NetworkMonitoringModal';
 
 const Styled = {
   Designer: styled.div`
@@ -68,6 +70,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     renameNode,
     addLncSession,
   } = useStoreState(s => s.modals);
+  const networkMonitoring = useStoreState(s => s.modals.networkMonitoring);
 
   const { save } = useStoreActions(s => s.network);
   const chart = useStoreState(s => s.designer.activeChart);
@@ -117,6 +120,9 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {sendAsset.visible && <SendAssetModal network={network} />}
       {renameNode.visible && <RenameNodeModal network={network} />}
       {addLncSession.visible && <LncAddSessionModal network={network} />}
+      {networkMonitoring.visible && (
+        <NetworkMonitoringModal networkId={networkMonitoring.networkId ?? 0} />
+      )}
     </Styled.Designer>
   );
 };

@@ -65,6 +65,7 @@ describe('Network model', () => {
     tapdNodes: 0,
     litdNodes: 1,
     customNodes: {},
+    monitoringEnabled: false,
   };
 
   beforeEach(() => {
@@ -161,6 +162,7 @@ describe('Network model', () => {
         ...addNetworkArgs,
         name: 'test2',
         description: 'test2 description',
+        monitoringEnabled: false,
       });
       const { networks } = store.getState().network;
       expect(networks.length).toBe(2);
@@ -632,6 +634,7 @@ describe('Network model', () => {
         ...addNetworkArgs,
         name: 'test2',
         description: 'test2 description',
+        monitoringEnabled: false,
       });
       (injections.dockerService.saveComposeFile as jest.Mock).mockReset();
       (injections.dockerService.saveNetworks as jest.Mock).mockReset();

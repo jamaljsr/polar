@@ -21,6 +21,7 @@ import { getNetworkBackendId } from 'utils/network';
 import BalanceChannelsButton from 'components/common/BalanceChannelsButton';
 import AutoMineButton from 'components/designer/AutoMineButton';
 import SyncButton from 'components/designer/SyncButton';
+import NetworkMonitoringButton from 'components/common/NetworkMonitoringButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -91,8 +92,12 @@ const NetworkActions: React.FC<Props> = ({
   const started = status === Status.Started;
   const { label, type, danger, icon } = config[status];
 
-  const nodeState = useStoreState(s => s.bitcoin.nodes[getNetworkBackendId(bitcoinNode)]);
-
+  // Use bitcoin.nodes for compatibility with monitoring logic
+  const nodeState = useStoreState(
+    s =>
+      s.bitcoin?.nodes?.[getNetworkBackendId(bitcoinNode)] ||
+      s.bitcoin.nodes[getNetworkBackendId(bitcoinNode)],
+  );
   const mineAsync = useMiningAsync(network);
 
   const handleClick: MenuProps['onClick'] = useCallback((info: { key: string }) => {
@@ -130,6 +135,9 @@ const NetworkActions: React.FC<Props> = ({
           <AutoMineButton network={network} />
           <BalanceChannelsButton network={network} />
           <SyncButton network={network} />
+          {network.monitoringEnabled && (
+            <NetworkMonitoringButton networkId={network.id} />
+          )}
           <Divider type="vertical" />
         </>
       )}

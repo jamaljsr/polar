@@ -139,5 +139,22 @@ describe('NewNetwork component', () => {
         ),
       ).toBeInTheDocument();
     });
+
+    it('should include monitoringEnabled in the form submission', async () => {
+      const { createBtn, nameInput, descriptionInput, getByLabelText, injections } =
+        renderComponent();
+      fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(descriptionInput, { target: { value: 'description' } });
+      // Check the checkbox
+      const monitoringCheckbox = getByLabelText('Enable Network Monitoring');
+      fireEvent.click(monitoringCheckbox);
+      fireEvent.click(createBtn);
+      await waitFor(() => {
+        // Check that the network creation logic received monitoringEnabled: true
+        expect(injections.dockerService.saveComposeFile).toHaveBeenCalledWith(
+          expect.objectContaining({ monitoringEnabled: true }),
+        );
+      });
+    });
   });
 });
