@@ -51,6 +51,7 @@ interface AddNetworkArgs {
   tapdNodes: number;
   litdNodes: number;
   customNodes: Record<string, number>;
+  manualMineCount: number;
 }
 
 export interface AutoMinerModel {
@@ -192,6 +193,14 @@ export interface NetworkModel {
   setAutoMineMode: Action<NetworkModel, { id: number; mode: AutoMineMode }>;
   setMiningState: Action<NetworkModel, { id: number; mining: boolean }>;
   mineBlock: Thunk<NetworkModel, { id: number }, StoreInjections, RootModel>;
+  setManualMineCount: Action<NetworkModel, { id: number; count: number }>;
+  updateManualMineCount: Thunk<
+    NetworkModel,
+    { id: number; count: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -286,6 +295,7 @@ const networkModel: NetworkModel = {
         managedImages: computedManagedImages,
         customImages,
         basePorts: settings.basePorts,
+        manualMineCount: 6,
       });
       actions.add(network);
       const { networks } = getState();
@@ -1074,6 +1084,19 @@ const networkModel: NetworkModel = {
       }
     },
   ),
+  setManualMineCount: action((state, { id, count }) => {
+    const network = state.networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+    network.manualMineCount = count;
+  }),
+  updateManualMineCount: thunk(async (actions, { id, count }, { getState }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === id);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+
+    actions.setManualMineCount({ id, count });
+    await actions.save();
+  }),
 };
 
 export default networkModel;
