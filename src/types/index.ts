@@ -31,6 +31,7 @@ export interface Network {
     lightning: LightningNode[];
     tap: TapNode[];
   };
+  manualMineCount: number;
 }
 
 /**

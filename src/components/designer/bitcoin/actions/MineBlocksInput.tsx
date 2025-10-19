@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode } from 'shared/types';
-import { useStoreActions } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 
 const InputGroup = Input.Group;
 
@@ -20,12 +20,17 @@ const Styled = {
 
 const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.MineBlocksInput');
-  const [value, setValue] = useState(6);
+  const network = useStoreState(s => s.network.networkById(node.networkId));
   const { notify } = useStoreActions(s => s.app);
   const { mine } = useStoreActions(s => s.bitcoin);
+  const { updateManualMineCount } = useStoreActions(actions => actions.network);
+
+  const [count, setCount] = useState(network.manualMineCount);
+
   const mineAsync = useAsyncCallback(async () => {
     try {
-      await mine({ blocks: value, node });
+      await mine({ blocks: count, node });
+      await updateManualMineCount({ id: node.networkId, count });
     } catch (error: any) {
       notify({ message: l('error'), error });
     }
@@ -35,9 +40,9 @@ const MineBlocksInput: React.FC<{ node: BitcoinNode }> = ({ node }) => {
     <Form.Item label={l('label')}>
       <InputGroup compact>
         <Styled.InputNumber
-          value={value}
+          value={count}
           max={1000}
-          onChange={v => setValue(parseInt(v as any))}
+          onChange={v => setCount(parseInt(v as any))}
           disabled={mineAsync.loading}
         />
         <Styled.Button
