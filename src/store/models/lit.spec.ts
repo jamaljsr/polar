@@ -44,6 +44,7 @@ describe('LIT Model', () => {
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
+    manualMineCount: 6,
   });
   const initialState = {
     network: {

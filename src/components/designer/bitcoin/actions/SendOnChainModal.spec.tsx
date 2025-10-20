@@ -6,10 +6,10 @@ import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import {
+  bitcoinServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
   testManagedImages,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import SendOnChainModal from './SendOnChainModal';
 
@@ -31,6 +31,7 @@ describe('SendOnChainModal', () => {
       repoState: defaultRepoState,
       managedImages: testManagedImages,
       customImages: [],
+      manualMineCount: 6,
     });
 
     const initialState = {
