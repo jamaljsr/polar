@@ -19,6 +19,7 @@ describe('ComposeFile', () => {
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
+    manualMineCount: 6,
   });
   const btcNode = network.nodes.bitcoin[0];
   const lndNode = network.nodes.lightning[0] as LndNode;
