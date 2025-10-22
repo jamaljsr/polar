@@ -190,6 +190,10 @@ export const testRepoState: DockerRepoState = {
         '0.18.1',
       ],
     },
+    'bitcoind-knots': {
+      latest: '29.0',
+      versions: ['29.0', '28.0', '27.0', '26.0'],
+    },
     btcd: {
       latest: '',
       versions: [],
@@ -244,6 +248,7 @@ export const getNetwork = (
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    bitcoindKnotsNodes: 0,
     tapdNodes: 0,
     litdNodes: 0,
     status,
