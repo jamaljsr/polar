@@ -42,6 +42,10 @@
       "latest": "29.0",
       "versions": ["29.0", "28.0", "27.0", "26.0"]
     },
+    "bitcoind-knots": {
+      "latest": "29.0",
+      "versions": ["29.0", "28.0", "27.0", "26.0"]
+    },
     "btcd": {
       "latest": "",
       "versions": []
