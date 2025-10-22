@@ -24,6 +24,7 @@ describe('SettingsService', () => {
         'c-lightning': 1,
         eclair: 1,
         bitcoind: 1,
+        'bitcoind-knots': 0,
         btcd: 0,
         tapd: 0,
         litd: 0,
@@ -35,6 +36,9 @@ describe('SettingsService', () => {
         },
         bitcoind: {
           rest: 18443,
+        },
+        'bitcoind-knots': {
+          rest: 18543,
         },
         'c-lightning': {
           rest: 8181,
