@@ -24,6 +24,7 @@ describe('LitdService', () => {
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
+    manualMineCount: 6,
   });
   const node = network.nodes.lightning[0] as LitdNode;
 

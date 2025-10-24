@@ -6,9 +6,9 @@ import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import {
+  bitcoinServiceMock,
   injections,
   lightningServiceMock,
-  bitcoinServiceMock,
   litdServiceMock,
   renderWithProviders,
   tapServiceMock,
@@ -41,6 +41,7 @@ describe('RenameNodeModal', () => {
       repoState: defaultRepoState,
       managedImages: testManagedImages,
       customImages: [],
+      manualMineCount: 6,
     });
     const initialState = {
       network: {
