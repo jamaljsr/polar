@@ -1,11 +1,12 @@
 import { NodeImplementation } from 'shared/types';
-import { DockerConfig, DockerRepoState } from 'types';
+import { DockerConfig, DockerRepoState, NodeBasePorts } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
+import arkLogo from 'resources/ark.png';
 import packageJson from '../../package.json';
 
 // App
@@ -48,12 +49,14 @@ export const denominationNames: { [key in Denomination]: string } = {
  * be sufficiently spaced apart to allow a dozen or so numbers higher and
  * not cause conflicts
  */
-export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
+export const BasePorts: Readonly<Required<NodeBasePorts>> = {
   bitcoind: {
+    rpc: 18832,
     rest: 18443,
     p2p: 19444,
     zmqBlock: 28334,
-    zmqTx: 29335,
+    zmqTx: 28335,
+    zmqHashBlock: 28336,
   },
   LND: {
     rest: 8081,
@@ -80,6 +83,9 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     p2p: 9635,
     web: 8443,
   },
+  arkd: {
+    api: 7070,
+  },
 };
 
 export const bitcoinCredentials = {
@@ -95,6 +101,10 @@ export const eclairCredentials = {
 
 export const litdCredentials = {
   pass: 'polarpass',
+};
+
+export const arkCredentials = {
+  pass: 'arkpass',
 };
 
 export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
@@ -327,6 +337,44 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       'proofCourier',
     ],
   },
+  arkd: {
+    name: 'Ark Server',
+    imageName: 'ghcr.io/ark-network/ark',
+    logo: arkLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    variables: ['name'],
+    volumeDirName: 'arkd',
+    command: ['arkd'].join('\n '),
+    envVars: {
+      ARK_NETWORK: 'regtest',
+
+      ARK_TX_BUILDER_TYPE: 'covenantless',
+      ARK_ROUND_INTERVAL: '10',
+      ARK_MIN_RELAY_FEE: '200',
+
+      ARK_LOG_LEVEL: '10',
+
+      ARK_ESPLORA_URL: '',
+      ARK_NEUTRINO_PEER: '',
+
+      ARK_BITCOIND_RPC_USER: bitcoinCredentials.user,
+      ARK_BITCOIND_RPC_PASS: bitcoinCredentials.pass,
+
+      // sane defaults
+      ARK_DATADIR: '/root/.arkd/data',
+      ARK_WALLET_DATADIR: '/root/.arkd/wallet',
+      ARK_PORT: BasePorts.arkd.api.toString(),
+
+      ARK_NO_MACAROONS: 'true',
+      ARK_NO_TLS: 'true',
+
+      ARK_UNLOCKER_TYPE: 'env',
+      ARK_UNLOCKER_PASSWORD: arkCredentials.pass,
+
+      ARK_NOTE_URI_PREFIX: 'Ark on Polar: ',
+      ARK_NOSTR_DEFAULT_RELAYS: 'wss://relay.johnnyasantos.com',
+    },
+  },
 };
 
 /**
@@ -420,6 +468,23 @@ export const defaultRepoState: DockerRepoState = {
         '0.15.0-alpha': '29.0',
         '0.14.1-alpha': '29.0',
         '0.14.0-alpha': '29.0',
+      },
+    },
+    arkd: {
+      latest: 'v0.5.0',
+      versions: [
+        'v0.5.0',
+        'v0.4.2',
+        'v0.4.1',
+        'v0.4.0',
+        'v0.3.0',
+        'v0.2.0',
+        'v0.1.1',
+        'v0.1.0',
+        'v0.0.1',
+      ],
+      compatibility: {
+        'v0.4.2': '28.0',
       },
     },
   },
