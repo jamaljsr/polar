@@ -72,6 +72,7 @@ describe('ImportNetwork component', () => {
       repoState: defaultRepoState,
       managedImages: testManagedImages,
       customImages: [],
+      manualMineCount: 6,
     });
     chart = initChartFromNetwork(network);
     filesMock.read.mockResolvedValue(JSON.stringify({ network, chart }));

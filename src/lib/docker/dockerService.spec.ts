@@ -192,6 +192,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -217,6 +218,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -242,6 +244,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       net.nodes.lightning[0].backendName = 'invalid';
       dockerService.saveComposeFile(net);
@@ -308,6 +311,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       dockerService.saveComposeFile(net);
       const { backendName } = net.nodes.lightning[0] as LitdNode;
@@ -331,6 +335,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       const litdNode = net.nodes.lightning[0] as LitdNode;
       litdNode.backendName = 'invalid';
@@ -357,6 +362,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       net.nodes.lightning[0].implementation = 'unknown' as any;
       dockerService.saveComposeFile(net);
@@ -392,6 +398,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       const chart = initChartFromNetwork(net);
       // return 'any' to suppress "The operand of a 'delete' operator must be optional.ts(2790)" error
@@ -522,6 +529,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       const chart = initChartFromNetwork(net);
       const fileData: NetworksFile = {
@@ -716,6 +724,7 @@ describe('DockerService', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       composeMock.upAll.mockResolvedValue(mockResult);
       await dockerService.start(net);

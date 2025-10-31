@@ -288,6 +288,7 @@ describe('OpenChannelModal', () => {
         repoState: defaultRepoState,
         managedImages: testManagedImages,
         customImages: [],
+        manualMineCount: 6,
       });
       const asset: LightningNodeChannelAsset = {
         id: 'abcd',
