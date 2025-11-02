@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useAsyncCallback } from 'react-async-hook';
 import { SwapOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Alert, Col, Form, Modal, Row, Select } from 'antd';
+import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 import { usePrefixedTranslation } from 'hooks';
+import React, { useEffect, useState } from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { isVersionCompatible } from 'utils/strings';
-import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 const Styled = {
   IconCol: styled(Col)`
@@ -32,8 +32,12 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
   );
   const [form] = Form.useForm();
   const [compatWarning, setCompatWarning] = useState<string>();
-  const { visible, lnName, backendName } = useStoreState(s => s.modals.changeBackend);
-  const [selectedLn, setSelectedLn] = useState(lnName);
+  const {
+    visible,
+    lnName: connectedNodeName,
+    backendName,
+  } = useStoreState(s => s.modals.changeBackend);
+  const [selectedConnectedNode, setSelectedConnectedNode] = useState(connectedNodeName);
   const [selectedBackend, setSelectedBackend] = useState(backendName);
   const { dockerRepoState } = useStoreState(s => s.app);
   const { hideChangeBackend } = useStoreActions(s => s.modals);
@@ -59,7 +63,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
 
   useEffect(() => {
     const { lightning, bitcoin } = network.nodes;
-    const ln = lightning.find(n => n.name === selectedLn);
+    const ln = lightning.find(n => n.name === selectedConnectedNode);
     const backend = bitcoin.find(n => n.name === selectedBackend);
     if (ln && backend) {
       const { compatibility } = dockerRepoState.images[ln.implementation];
@@ -72,7 +76,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
         }
       }
     }
-  }, [dockerRepoState, l, network.nodes, selectedLn, selectedBackend]);
+  }, [dockerRepoState, l, network.nodes, selectedConnectedNode, selectedBackend]);
 
   const handleSubmit = () => {
     const { lightning, bitcoin } = network.nodes;
@@ -104,7 +108,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
           layout="vertical"
           hideRequiredMark
           colon={false}
-          initialValues={{ lnNode: lnName, backendNode: backendName }}
+          initialValues={{ lnNode: connectedNodeName, backendNode: backendName }}
           onFinish={handleSubmit}
         >
           <Row gutter={16}>
@@ -114,7 +118,7 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
                 name="lnNode"
                 label={l('lnNodeLabel')}
                 disabled={changeAsync.loading}
-                onChange={v => setSelectedLn(v?.toString())}
+                onChange={v => setSelectedConnectedNode(v?.toString())}
               />
             </Col>
             <Styled.IconCol span={4}>
@@ -140,7 +144,9 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
             </Col>
           </Row>
           {network.status === Status.Started && (
-            <Styled.Restart>{l('restartNotice', { name: selectedLn })}</Styled.Restart>
+            <Styled.Restart>
+              {l('restartNotice', { name: selectedConnectedNode })}
+            </Styled.Restart>
           )}
           {compatWarning && (
             <Alert type="warning" message={compatWarning} closable={false} showIcon />

@@ -19,6 +19,15 @@
       "internalConsoleOptions": "neverOpen",
       "env": { "CI": "true" },
       "disableOptimisticBPs": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Polar",
+      "runtimeExecutable": "/usr/bin/env",
+      "args": ["-S", "yarn", "run", "dev"],
+      "smartStep": true,
+      "sourceMaps": true
     }
   ]
 }

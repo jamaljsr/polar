@@ -6,7 +6,13 @@ import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
 import { createReduxStore } from 'store';
-import { BitcoinService, LightningService, StoreInjections, TapService } from 'types';
+import {
+  ArkService,
+  BitcoinService,
+  LightningService,
+  StoreInjections,
+  TapService,
+} from 'types';
 
 export const bitcoinServiceMock: jest.Mocked<BitcoinService> = {
   waitUntilOnline: jest.fn(),
@@ -50,6 +56,14 @@ export const tapServiceMock: jest.Mocked<TapService> = {
   addInvoice: jest.fn(),
   sendPayment: jest.fn(),
 };
+export const arkServiceMock: jest.Mocked<ArkService> = {
+  getBoardingAddress: jest.fn(),
+  getInfo: jest.fn(),
+  getWalletBalance: jest.fn(),
+  getWalletStatus: jest.fn(),
+  initWallet: jest.fn(),
+  waitUntilOnline: jest.fn(),
+};
 // injections allow you to mock the dependencies of redux store actions
 export const injections: StoreInjections = {
   ipc: jest.fn(),
@@ -91,6 +105,7 @@ export const injections: StoreInjections = {
     revokeSession: jest.fn(),
     waitUntilOnline: jest.fn(),
   },
+  arkFactory: { getService: () => arkServiceMock },
 };
 export const litdServiceMock = injections.litdService as jest.Mocked<
   typeof injections.litdService

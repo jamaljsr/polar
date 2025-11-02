@@ -1,10 +1,12 @@
-import { getI18n } from 'react-i18next';
-import { shell } from 'electron';
-import { warn } from 'electron-log';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
+import { NETWORK_VIEW } from 'components/routing';
 import { push } from 'connected-react-router';
+import deepmerge from 'deepmerge';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
+import { shell } from 'electron';
+import { warn } from 'electron-log';
+import { getI18n } from 'react-i18next';
 import { ipcChannels } from 'shared';
 import { NodeImplementation } from 'shared/types';
 import {
@@ -19,7 +21,6 @@ import {
 import { BasePorts, defaultRepoState } from 'utils/constants';
 import { isWindows } from 'utils/system';
 import { changeTheme } from 'utils/theme';
-import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
 export interface NotifyOptions {
@@ -38,8 +39,10 @@ export interface AppModel {
   dockerRepoState: DockerRepoState;
   computedManagedImages: Computed<AppModel, ManagedImage[]>;
   setInitialized: Action<AppModel, boolean>;
+  // TODO: Deep partial
   setSettings: Action<AppModel, Partial<AppSettings>>;
   loadSettings: Thunk<AppModel, void, StoreInjections, RootModel>;
+  // TODO: Deep partial
   updateSettings: Thunk<AppModel, Partial<AppSettings>, StoreInjections, RootModel>;
   updateManagedImage: Thunk<AppModel, ManagedImage, StoreInjections, RootModel>;
   saveCustomImage: Thunk<AppModel, CustomImage, StoreInjections, RootModel>;
@@ -87,16 +90,33 @@ const appModel: AppModel = {
       btcd: 0,
       tapd: 0,
       litd: 0,
+      arkd: 0,
     },
     basePorts: {
-      LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },
-      bitcoind: { rest: BasePorts.bitcoind.rest },
+      LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest, p2p: BasePorts.LND.p2p },
+      bitcoind: {
+        rest: BasePorts.bitcoind.rest,
+        p2p: BasePorts.bitcoind.p2p,
+        rpc: BasePorts.bitcoind.rpc,
+        zmqBlock: BasePorts.bitcoind.zmqBlock,
+        zmqTx: BasePorts.bitcoind.zmqTx,
+        zmqHashBlock: BasePorts.bitcoind.zmqHashBlock,
+      },
       'c-lightning': {
         grpc: BasePorts['c-lightning'].grpc,
         rest: BasePorts['c-lightning'].rest,
+        p2p: BasePorts['c-lightning'].p2p,
       },
-      eclair: { rest: BasePorts.eclair.rest },
+      eclair: { rest: BasePorts.eclair.rest, p2p: BasePorts.eclair.p2p },
       tapd: { grpc: BasePorts.tapd.grpc, rest: BasePorts.tapd.rest },
+      arkd: { api: BasePorts.arkd.api },
+      btcd: {},
+      litd: {
+        rest: BasePorts.litd.rest,
+        grpc: BasePorts.litd.grpc,
+        p2p: BasePorts.litd.p2p,
+        web: BasePorts.litd.web,
+      },
     },
   },
   dockerVersions: { docker: '', compose: '' },
@@ -137,6 +157,7 @@ const appModel: AppModel = {
     actions.setInitialized(true);
   }),
   setSettings: action((state, settings) => {
+    // TODO: Deep extend
     state.settings = {
       ...state.settings,
       ...settings,
@@ -231,9 +252,18 @@ const appModel: AppModel = {
       actions.setRepoState(fileState);
     }
   }),
-  saveRepoState: thunk(async (actions, repoState, { injections }) => {
-    await injections.repoService.save(repoState);
-    actions.setRepoState(repoState);
+  saveRepoState: thunk(async (actions, proposalState, { injections, getState }) => {
+    const { dockerRepoState: currentState } = getState();
+    const nextState: DockerRepoState = {
+      version: Math.max(currentState.version, proposalState.version),
+      images: deepmerge(currentState.images, proposalState.images, {
+        // merge array avoiding duplicates
+        arrayMerge: (dst, src) =>
+          dst.concat(src).filter((x, i, arr) => !arr.includes(x, i + 1)),
+      }),
+    };
+    await injections.repoService.save(nextState);
+    actions.setRepoState(nextState);
   }),
   queryRepoUpdates: thunk(async (actions, payload, { getStoreActions }) => {
     try {
@@ -287,6 +317,7 @@ const appModel: AppModel = {
     getStoreActions().bitcoin.clearNodes();
     // reset the tap nodes state
     getStoreActions().tap.clearNodes();
+    getStoreActions().ark.clearNodes();
     // change the route
     dispatch(push(NETWORK_VIEW(id)));
   }),

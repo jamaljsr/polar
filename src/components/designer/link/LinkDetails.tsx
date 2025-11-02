@@ -25,14 +25,14 @@ const LinkDetails: React.FC<Props> = ({ link, network }) => {
     </SidebarCard>
   );
 
-  const { bitcoin, lightning, tap } = network.nodes;
+  const { bitcoin, lightning, tap, ark } = network.nodes;
   const { type } = (link.properties as LinkProperties) || {};
   switch (type) {
     case 'backend':
       const bitcoinNode = bitcoin.find(n => n.name === link.to.nodeId);
-      const lightningNode = lightning.find(n => n.name === link.from.nodeId);
+      const lightningNode = [...lightning, ...ark].find(n => n.name === link.from.nodeId);
       if (bitcoinNode && lightningNode) {
-        cmp = <Backend bitcoinNode={bitcoinNode} lightningNode={lightningNode} />;
+        cmp = <Backend bitcoinNode={bitcoinNode} connectedNode={lightningNode} />;
       }
       break;
     case 'open-channel':

@@ -1,5 +1,5 @@
 import { IChart, IConfig, ILink, INode, IPosition } from '@mrblenny/react-flow-chart';
-import { BitcoinNode, LightningNode, TapdNode, TapNode } from 'shared/types';
+import { ArkNode, BitcoinNode, LightningNode, TapdNode, TapNode } from 'shared/types';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { LightningNodeMapping } from 'store/models/lightning';
 import { Network } from 'types';
@@ -77,6 +77,40 @@ export const createLightningChartNode = (ln: LightningNode, yOffset = 0) => {
     id: `${ln.name}-${ln.backendName}`,
     from: { nodeId: ln.name, portId: 'backend' },
     to: { nodeId: ln.backendName, portId: 'backend' },
+    properties: {
+      type: 'backend',
+    },
+  };
+
+  return { node, link };
+};
+
+export const createArkChartNode = (ark: ArkNode) => {
+  const position: IPosition = {
+    x: ark.id * space.x + stagger.x,
+    y: baseline.y + (ark.id % 2 === 0 ? 0 : stagger.y),
+  };
+
+  const node: INode = {
+    id: ark.name,
+    type: 'ark',
+    position,
+    ports: {
+      // 'empty-left': { id: 'empty-left', type: 'left' },
+      // 'empty-right': { id: 'empty-right', type: 'right' },
+      backend: { id: 'backend', type: 'bottom' },
+    },
+    size: { width: 200, height: 36 },
+    properties: {
+      status: ark.status,
+      icon: dockerConfigs[ark.implementation].logo,
+    },
+  };
+
+  const link: ILink = {
+    id: `${ark.name}-${ark.backendName}`,
+    from: { nodeId: ark.name, portId: 'backend' },
+    to: { nodeId: ark.backendName, portId: 'backend' },
     properties: {
       type: 'backend',
     },
@@ -198,6 +232,14 @@ export const initChartFromNetwork = (network: Network): IChart => {
     const { node, link } = createTapdChartNode(n, chart);
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
+  });
+
+  network.nodes.ark.forEach(n => {
+    const { node, link } = createArkChartNode(n);
+    chart.nodes[node.id] = node;
+    if (link) {
+      chart.links[link.id] = link;
+    }
   });
 
   return chart;
@@ -356,6 +398,23 @@ export const updateChartFromNodes = (
         to: { nodeId: tapd.lndName, portId: 'lndbackend' },
         properties: {
           type: 'lndbackend',
+        },
+      };
+    }
+    linksToKeep.push(id);
+  });
+
+  // ensure all ark -> bitcoin backend links exist. one may have
+  // been deleted if a bitcoin node was removed
+  network.nodes.ark.forEach(ark => {
+    const id = `${ark.name}-${ark.backendName}`;
+    if (!links[id]) {
+      links[id] = {
+        id,
+        from: { nodeId: ark.name, portId: 'backend' },
+        to: { nodeId: ark.backendName, portId: 'backend' },
+        properties: {
+          type: 'backend',
         },
       };
     }

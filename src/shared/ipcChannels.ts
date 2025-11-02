@@ -45,4 +45,18 @@ export default {
     addSession: 'litd-add-session',
     revokeSession: 'litd-revoke-session',
   },
-};
+
+  ark: {
+    getInfo: 'ark-getinfo',
+    waitForReady: 'ark-waitForReady',
+    getBoardingAddress: 'ark-getBoardingAddress',
+
+    // wallet related
+    getWalletBalance: 'ark-getWalletBalance',
+    getWalletStatus: 'ark-getWalletStatus',
+    genSeed: 'ark-genSeed',
+    createWallet: 'ark-createWallet',
+    lockWallet: 'ark-lockWallet',
+    unlockWallet: 'ark-unlockWallet',
+  },
+} as const;

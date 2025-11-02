@@ -7,14 +7,18 @@ import { tmpdir } from 'os';
 import { ipcChannels } from 'shared';
 import {
   AnyNode,
+  ArkImplementations,
+  ArkNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
   EclairNode,
+  LightningImplementations,
   LightningNode,
   LitdNode,
   LndNode,
   NodeImplementation,
+  NodeImplementationToType,
   Status,
   TapdNode,
   TapNode,
@@ -112,6 +116,22 @@ export const getLndFilePaths = (name: string, network: Network) => {
   };
 };
 
+export const getArkdFilePaths = (name: string, network: Network): ArkNode['paths'] => {
+  // returns /volumes/arkd/alice/data
+  const arkdDataPath = join(nodePath(network, 'arkd', name), 'data');
+
+  // returns /volumes/arkd/alice/data/tls/cert.pem
+  const tlsCertPath = join(arkdDataPath, 'tls', 'cert.pem');
+
+  // returns /volumes/arkd/alice/data/macaroons/admin.macaroon
+  const arkMacaroonPath = join(arkdDataPath, 'macaroons', 'admin.macaroon');
+
+  return {
+    macaroon: arkMacaroonPath,
+    tlsCert: tlsCertPath,
+  };
+};
+
 // long path games
 export const getLitdFilePaths = (name: string, network: Network) => {
   // /volumes/litd/<name>
@@ -167,7 +187,7 @@ export const getTapdFilePaths = (name: string, network: Network) => {
 };
 
 export const filterCompatibleBackends = (
-  implementation: LightningNode['implementation'],
+  implementation: LightningImplementations | ArkImplementations,
   version: string,
   compatibility: DockerRepoImage['compatibility'],
   backends: BitcoinNode[],
@@ -407,6 +427,42 @@ const filterLndBackends = (
   return lndBackends[0];
 };
 
+export const createArkdChartNode = (
+  network: Network,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts.arkd,
+): ArkNode => {
+  const { bitcoin, ark = [] } = network.nodes;
+  const implementation: ArkImplementations = 'arkd';
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
+  const id = ark.length ? Math.max(...ark.map(n => n.id)) + 1 : 0;
+  const name = getName(id);
+  return {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'ark',
+    implementation,
+    version,
+    status,
+    // alternate between backend nodes
+    backendName: backends[id % backends.length].name,
+    paths: getArkdFilePaths(name, network),
+    ports: {
+      api: basePort.api + id,
+    },
+    docker,
+  };
+};
+
 export const createTapdNetworkNode = (
   network: Network,
   version: string,
@@ -451,6 +507,7 @@ export const createNetwork = (config: {
   bitcoindNodes: number;
   tapdNodes: number;
   litdNodes: number;
+  arkdNodes: number;
   repoState: DockerRepoState;
   managedImages: ManagedImage[];
   customImages: { image: CustomImage; count: number }[];
@@ -467,6 +524,7 @@ export const createNetwork = (config: {
     bitcoindNodes,
     tapdNodes,
     litdNodes,
+    arkdNodes,
     repoState,
     managedImages,
     customImages,
@@ -485,6 +543,7 @@ export const createNetwork = (config: {
       bitcoin: [],
       lightning: [],
       tap: [],
+      ark: [],
     },
     autoMineMode: AutoMineMode.AutoOff,
   };
@@ -542,7 +601,9 @@ export const createNetwork = (config: {
           : image.implementation === 'c-lightning'
           ? createCLightningNetworkNode
           : createEclairNetworkNode;
-      const basePort =
+      const basePort:
+        | NodeImplementationToType<LightningImplementations>['ports']
+        | undefined =
         image.implementation === 'LND'
           ? basePorts?.LND
           : image.implementation === 'c-lightning'
@@ -550,7 +611,7 @@ export const createNetwork = (config: {
           : basePorts?.eclair;
       range(count).forEach(() => {
         lightning.push(
-          createFunc(network, latest, compatibility, docker, status, basePort),
+          createFunc(network, latest, compatibility, docker, status, basePort as any),
         );
       });
     });
@@ -616,6 +677,14 @@ export const createNetwork = (config: {
     );
   });
 
+  range(arkdNodes).forEach(() => {
+    const { latest, compatibility } = repoState.images.arkd;
+    const cmd = getImageCommand(managedImages, 'arkd', latest);
+    network.nodes.ark.push(
+      createArkdChartNode(network, latest, compatibility, dockerWrap(cmd), status),
+    );
+  });
+
   return network;
 };
 
@@ -676,6 +745,11 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
       tapdNode.name = newName;
       tapdNode.paths = getTapdFilePaths(newName, network);
       return tapdNode;
+    case 'ark':
+      const arkdNode = network.nodes.ark.find(n => n.id === node.id) as ArkNode;
+      arkdNode.name = newName;
+      arkdNode.paths = getArkdFilePaths(newName, network);
+      return arkdNode;
     default:
       throw new Error('Invalid node type');
   }

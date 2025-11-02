@@ -28,6 +28,7 @@ export const bitcoind = (
     '18444', // p2p
     '28334', // ZMQ blocks
     '28335', // ZMQ txns
+    '28336', // ZMQ hashblock
   ],
   ports: [
     `${rpcPort}:18443`, // RPC
@@ -145,6 +146,29 @@ export const tapd = (
   ports: [
     `${restPort}:8089`, // REST
     `${grpcPort}:10029`, // gRPC
+  ],
+});
+
+export const arkd = (
+  name: string,
+  container: string,
+  image: string,
+  apiPort: number,
+  command: string,
+  envVars: Record<string, string> = {},
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [`./volumes/${dockerConfigs.arkd.volumeDirName}/${name}:/root/.arkd`],
+  environment: envVars,
+  expose: [
+    '7070', // REST & gRPC
+  ],
+  ports: [
+    `${apiPort}:7070`, // REST & gRPC
   ],
 });
 
