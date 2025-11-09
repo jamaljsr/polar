@@ -51,7 +51,7 @@ Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
 ### Tags
 
-- `29.0` ([bitcoind-knots/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind-knots/Dockerfile))
+- `29.2` ([bitcoind-knots/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind-knots/Dockerfile))
 - `28.0` ([bitcoind-knots/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind-knots/Dockerfile))
 - `27.0` ([bitcoind-knots/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind-knots/Dockerfile))
 - `26.0` ([bitcoind-knots/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind-knots/Dockerfile))
@@ -63,7 +63,7 @@ $ cd bitcoind-knots
 $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg BITCOIN_VERSION=<version> --build-arg KNOTS_DATE=<date> -t polarlightning/bitcoind-knots:<version> --push .
 ```
 
-Replace `<version>` with the desired Bitcoin Knots version (ex: `29.0`) and `<date>` with the Knots release date suffix (ex: `20250116`)
+Replace `<version>` with the desired Bitcoin Knots version (ex: `29.2`) and `<date>` with the Knots release date suffix (ex: `20251010`)
 
 ## LND
 

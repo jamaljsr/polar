@@ -585,7 +585,12 @@ export const createNetwork = (config: {
     let version = repoState.images['bitcoind-knots'].latest;
     if (lndNodes > 0) {
       const compat = repoState.images.LND.compatibility as Record<string, string>;
-      version = compat[repoState.images.LND.latest];
+      const targetVersion = compat[repoState.images.LND.latest];
+      // Bitcoin Knots may have different minor versions than Core (e.g., 29.2 vs 29.0)
+      // Use the target version if available, otherwise use latest
+      if (repoState.images['bitcoind-knots'].versions.includes(targetVersion)) {
+        version = targetVersion;
+      }
     }
     const cmd = getImageCommand(managedImages, 'bitcoind-knots', version);
     bitcoin.push(
