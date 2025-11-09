@@ -74,6 +74,7 @@ describe('Lightning Model', () => {
     asyncUtilMock.delay.mockResolvedValue(Promise.resolve());
     bitcoinServiceMock.sendFunds.mockResolvedValue('txid');
     lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+    lightningServiceMock.openChannel.mockResolvedValue({ txid: 'abc123', index: 0 });
     lightningServiceMock.getInfo.mockResolvedValue(
       defaultStateInfo({
         alias: 'my-node',
