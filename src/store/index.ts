@@ -69,6 +69,11 @@ const injections: StoreInjections = {
 
 const store = createReduxStore({ injections });
 
+// Set up MCP IPC listener after store is created
+if (process.env.NODE_ENV !== 'test') {
+  store.getActions().mcp.setupIpcListener();
+}
+
 // export hooks directly from the store to get proper type inference
 const typedHooks = createTypedHooks<RootModel>();
 export const { useStoreActions, useStoreDispatch, useStoreState } = typedHooks;
