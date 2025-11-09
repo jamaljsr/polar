@@ -116,10 +116,15 @@ class LndService implements LightningService {
       private: isPrivate,
     };
     const res = await proxy.openChannel(lndFrom, req);
-    return {
-      txid: res.fundingTxidStr as string,
-      index: res.outputIndex,
-    };
+    const txid =
+      res.fundingTxidStr?.toString() ||
+      (res.fundingTxidBytes
+        ? Buffer.from(res.fundingTxidBytes as unknown as Uint8Array)
+            .reverse()
+            .toString('hex')
+        : '');
+    const index = res.outputIndex;
+    return { txid, index };
   }
 
   async closeChannel(node: LightningNode, channelPoint: string): Promise<any> {
