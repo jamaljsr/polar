@@ -1,4 +1,13 @@
 import { CommonNode, Status } from 'shared/types';
+import appModel from 'store/models/app';
+import bitcoinModel from 'store/models/bitcoin';
+import designerModel from 'store/models/designer';
+import lightningModel from 'store/models/lightning';
+import litModel from 'store/models/lit';
+import mcpModel from 'store/models/mcp';
+import modalsModel from 'store/models/modals';
+import networkModel from 'store/models/network';
+import tapModel from 'store/models/tap';
 import { CustomImage, DockerRepoState, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { createLndNetworkNode, createNetwork, createTapdNetworkNode } from '../network';
@@ -303,3 +312,19 @@ export const suppressConsoleErrors = async (func: () => any | Promise<any>) => {
   }
   console.error = oldConsoleErr;
 };
+
+/**
+ * Creates a mock root model for MCP tests.
+ * This provides all the necessary models that MCP tools depend on.
+ */
+export const createMockRootModel = () => ({
+  app: appModel,
+  network: networkModel,
+  lightning: lightningModel,
+  bitcoin: bitcoinModel,
+  designer: designerModel,
+  modals: modalsModel,
+  tap: tapModel,
+  lit: litModel,
+  mcp: mcpModel,
+});
