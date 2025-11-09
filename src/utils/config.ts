@@ -1,9 +1,9 @@
 import { remote } from 'electron';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { NodeImplementationWithSimln } from 'shared/types';
 import { Network } from 'types';
 import { dockerConfigs } from './constants';
-import { existsSync } from 'fs';
 
 /**
  * XDG-compliant path where application data is stored

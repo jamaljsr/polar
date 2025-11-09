@@ -8,7 +8,6 @@ import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
 import { getInvoicePayload } from 'utils/network';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
-import { LightningNodeChannel } from 'lib/lightning/types';
 
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
@@ -65,7 +64,13 @@ export interface LightningModel {
   getAllInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   connectAllPeers: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   depositFunds: Thunk<LightningModel, DepositFundsPayload, StoreInjections, RootModel>;
-  openChannel: Thunk<LightningModel, OpenChannelPayload, StoreInjections, RootModel>;
+  openChannel: Thunk<
+    LightningModel,
+    OpenChannelPayload,
+    StoreInjections,
+    RootModel,
+    Promise<string>
+  >;
   closeChannel: Thunk<
     LightningModel,
     { node: LightningNode; channelPoint: string },
@@ -215,7 +220,12 @@ const lightningModel: LightningModel = {
         .info as PLN.LightningNodeInfo;
       // open the channel via lightning node
       const api = injections.lightningFactory.getService(from);
-      await api.openChannel({ from, toRpcUrl: rpcUrl, amount: sats, isPrivate });
+      const channelPoint = await api.openChannel({
+        from,
+        toRpcUrl: rpcUrl,
+        amount: sats,
+        isPrivate,
+      });
       // wait for the unconfirmed tx to be processed by the bitcoin node
       await delay(500);
       // mine some blocks to confirm the txn
@@ -233,6 +243,8 @@ const lightningModel: LightningModel = {
       await getStoreActions().designer.syncChart(network);
       // synchronize channels info
       await actions.resetChannelsInfo(network);
+      // return the channel point
+      return `${channelPoint.txid}:${channelPoint.index}`;
     },
   ),
   closeChannel: thunk(
@@ -365,7 +377,7 @@ const lightningModel: LightningModel = {
     state.channelsInfo = payload;
   }),
   resetChannelsInfo: thunk(async (actions, network, { getStoreState }) => {
-    const channels = [] as LightningNodeChannel[];
+    const channels = [] as PLN.LightningNodeChannel[];
     const { getChannels } = actions;
     const { links } = getStoreState().designer.activeChart;
 
@@ -438,9 +450,9 @@ const lightningModel: LightningModel = {
     if (!network) throw new Error('networkByIdErr');
     const { createInvoice, payInvoice, getChannels } = actions;
     const lnNodes = network.nodes.lightning;
-    const channels = [] as LightningNodeChannel[];
+    const channels = [] as PLN.LightningNodeChannel[];
     const id2Node = {} as Record<string, LightningNode>;
-    const id2channel = {} as Record<string, LightningNodeChannel>;
+    const id2channel = {} as Record<string, PLN.LightningNodeChannel>;
 
     await Promise.all(
       lnNodes.map(async node => {
