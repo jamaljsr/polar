@@ -45,6 +45,14 @@ Supported Network Node Versions:
 - [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.6.1, v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
 - [Terminal](https://github.com/lightninglabs/lightning-terminal) - v0.15.1, v0.15.0, v0.14.1, v0.14.0
 
+### MCP (Model Context Protocol)
+
+Polar includes an MCP server that enables AI agents like Claude & Cursor to programmatically control Lightning Network simulations.
+
+See the [polar-mcp](https://github.com/jamaljsr/polar-mcp) repo for installation instructions.
+
+See the [MCP Architecture Documentation](docs/mcp-architecture.md) for detailed information on the architecture, API, and how to add new tools.
+
 ## Dependencies
 
 Polar requires that you have Docker installed to create the local networks
