@@ -58,11 +58,22 @@ interface ChannelData {
         announceChannel: boolean;
       };
     };
+    // params was renamed to channelParams in v0.13.0
+    channelParams: {
+      localParams: {
+        isChannelOpener: boolean;
+      };
+      channelFlags: {
+        announceChannel: boolean;
+      };
+    };
     active: [
       {
         fundingTx: {
           amountSatoshis: number;
         };
+        // fundingAmount was added in v0.13.0
+        fundingAmount: number;
         localCommit: {
           spec: {
             toLocal: number;

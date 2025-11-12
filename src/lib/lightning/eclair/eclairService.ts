@@ -74,8 +74,12 @@ class EclairService implements LightningService {
         c =>
           c.data.commitments?.localParams?.isFunder ||
           c.data.commitments?.localParams?.isInitiator ||
+          // v0.9.0+
           c.data.commitments?.params?.localParams?.isInitiator ||
-          c.data.commitments?.params?.localParams?.isChannelOpener,
+          // v0.11.0+
+          c.data.commitments?.params?.localParams?.isChannelOpener ||
+          // v0.13.0+
+          c.data.commitments?.channelParams?.localParams?.isChannelOpener,
       )
       .filter(c => ChannelStateToStatus[c.state] !== 'Closed')
       .map(c => {
@@ -92,11 +96,15 @@ class EclairService implements LightningService {
           isPrivate = c.data.commitments.channelFlags.announceChannel === false;
         } else {
           // v0.9.0+
-          const { fundingTx, localCommit } = c.data.commitments.active[0];
-          capacity = fundingTx.amountSatoshis.toString(10);
+          const { fundingTx, localCommit, fundingAmount } = c.data.commitments.active[0];
+          capacity =
+            fundingTx?.amountSatoshis?.toString(10) || fundingAmount?.toString(10);
           localBalance = localCommit.spec.toLocal;
           remoteBalance = localCommit.spec.toRemote;
-          isPrivate = c.data.commitments.params.channelFlags.announceChannel === false;
+          isPrivate =
+            c.data.commitments.params?.channelFlags?.announceChannel === false ||
+            // v0.13.0+
+            c.data.commitments.channelParams?.channelFlags?.announceChannel === false;
         }
         const status = ChannelStateToStatus[c.state];
         return {
