@@ -345,8 +345,9 @@ export const defaultRepoState: DockerRepoState = {
   version: 76,
   images: {
     LND: {
-      latest: '0.19.3-beta',
+      latest: '0.20.0-beta',
       versions: [
+        '0.20.0-beta',
         '0.19.3-beta',
         '0.19.2-beta',
         '0.19.1-beta',
@@ -363,6 +364,7 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.20.0-beta': '29.0',
         '0.19.3-beta': '29.0',
         '0.19.2-beta': '29.0',
         '0.19.1-beta': '29.0',
