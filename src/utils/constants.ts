@@ -211,7 +211,6 @@ export const dockerConfigs: Record<NodeImplementation, DockerConfig> = {
       '-zmqpubhashblock=tcp://0.0.0.0:28336',
       '-txindex=1',
       '-dnsseed=0',
-      '-upnp=0',
       '-rpcbind=0.0.0.0',
       '-rpcallowip=0.0.0.0/0',
       '-rpcport=18443',
@@ -364,13 +363,13 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.20.0-beta': '29.0',
-        '0.19.3-beta': '29.0',
-        '0.19.2-beta': '29.0',
-        '0.19.1-beta': '29.0',
-        '0.19.0-beta': '29.0',
-        '0.18.5-beta': '29.0',
-        '0.18.4-beta': '29.0',
+        '0.20.0-beta': '30.0',
+        '0.19.3-beta': '30.0',
+        '0.19.2-beta': '30.0',
+        '0.19.1-beta': '30.0',
+        '0.19.0-beta': '30.0',
+        '0.18.5-beta': '30.0',
+        '0.18.4-beta': '30.0',
         '0.18.3-beta': '27.0',
         '0.18.2-beta': '27.0',
         '0.18.1-beta': '27.0',
@@ -388,8 +387,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.12.0', '0.11.0', '0.10.0', '0.9.0'],
     },
     bitcoind: {
-      latest: '29.0',
-      versions: ['29.0', '28.0', '27.0', '26.0'],
+      latest: '30.0',
+      versions: ['30.0', '29.0', '28.0', '27.0', '26.0'],
     },
     btcd: {
       latest: '',
@@ -430,11 +429,11 @@ export const defaultRepoState: DockerRepoState = {
       // not all litd versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each litd version
       compatibility: {
-        '0.16.0-alpha.rc1': '29.0',
-        '0.15.3-alpha': '29.0',
-        '0.15.1-alpha': '29.0',
-        '0.15.0-alpha': '29.0',
-        '0.14.1-alpha': '29.0',
+        '0.16.0-alpha.rc1': '30.0',
+        '0.15.3-alpha': '30.0',
+        '0.15.1-alpha': '30.0',
+        '0.15.0-alpha': '30.0',
+        '0.14.1-alpha': '30.0',
       },
     },
   },

@@ -2,6 +2,7 @@ import logger from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
 import { BitcoinNode } from 'shared/types';
 import { BitcoinService } from 'types';
+import { BitcoinCoreClient, WalletInfoCompat } from 'types/bitcoin-core';
 import { delay, waitFor } from 'utils/async';
 import {
   bitcoinCredentials,
@@ -11,9 +12,7 @@ import {
 } from 'utils/constants';
 
 class BitcoindService implements BitcoinService {
-  // the types in the v5 release are missing many functions so we have to cast as `any`
-  // to prevent TS errors.
-  createClient(node: BitcoinNode): any {
+  createClient(node: BitcoinNode): BitcoinCoreClient {
     return new BitcoinCore({
       host: `http://127.0.0.1:${node.ports.rpc}`,
       username: bitcoinCredentials.user,
@@ -21,7 +20,7 @@ class BitcoindService implements BitcoinService {
       logger: this.log(),
       // use a long timeout due to the time it takes to mine a lot of blocks
       timeout: 5 * 60 * 1000,
-    });
+    }) as unknown as BitcoinCoreClient;
   }
 
   async createDefaultWallet(node: BitcoinNode) {
@@ -36,8 +35,17 @@ class BitcoindService implements BitcoinService {
     return await this.createClient(node).getBlockchainInfo();
   }
 
-  async getWalletInfo(node: BitcoinNode) {
-    return await this.createClient(node).getWalletInfo();
+  async getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
+    const client = this.createClient(node);
+    const walletInfo = await client.getWalletInfo();
+    // In v30, the balance fields were deprecated in favor of the getBalances method
+    const balances = await client.getBalances();
+    return {
+      ...walletInfo,
+      balance: balances.mine.trusted,
+      unconfirmed_balance: balances.mine.untrusted_pending,
+      immature_balance: balances.mine.immature,
+    };
   }
 
   async getNewAddress(node: BitcoinNode) {
@@ -64,8 +72,9 @@ class BitcoindService implements BitcoinService {
   async sendFunds(node: BitcoinNode, toAddress: string, amount: number) {
     const client = this.createClient(node);
 
-    const { blocks } = await this.getBlockchainInfo(node);
-    const { balance } = await client.getWalletInfo();
+    const { blocks } = await client.getBlockchainInfo();
+    const balances = await client.getBalances();
+    const balance = balances.mine.trusted;
     // if the bitcoin node doesn't have enough coins then mine more
     if (balance <= amount) {
       await this.mineUntilMaturity(node);

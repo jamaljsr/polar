@@ -1,5 +1,5 @@
-import { WalletInfo } from 'bitcoin-core';
 import bitcoindService from 'lib/bitcoin/bitcoind/bitcoindService';
+import { WalletInfoCompat } from 'types/bitcoin-core';
 import { defaultRepoState } from 'utils/constants';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
 import { eclairService } from './';
@@ -43,7 +43,7 @@ describe('EclairService', () => {
   });
 
   it('should get wallet balance', async () => {
-    const ballanceResponse: Partial<WalletInfo> = {
+    const ballanceResponse: Partial<WalletInfoCompat> = {
       balance: 0.00001,
       unconfirmed_balance: 0,
       immature_balance: 0,
