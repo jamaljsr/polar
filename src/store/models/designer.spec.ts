@@ -622,7 +622,7 @@ describe('Designer model', () => {
         onCanvasDrop({ id, data: lndData, position });
 
         const spy = jest.spyOn(store.getActions().app, 'notify');
-        const tapdData = { type: 'tapd', version: tapdLatest };
+        const tapdData = { type: 'tapd', version: '0.6.1-alpha' };
         onCanvasDrop({ id, data: tapdData, position });
         await waitFor(() => {
           expect(spy).toHaveBeenCalledWith(
@@ -630,7 +630,7 @@ describe('Designer model', () => {
               message: 'Failed to add node',
               error: new Error(
                 'This network does not contain a LND v0.19.0-beta (or higher) ' +
-                  `node which is required for tapd v${tapdLatest}`,
+                  `node which is required for tapd v0.6.1-alpha`,
               ),
             }),
           );
