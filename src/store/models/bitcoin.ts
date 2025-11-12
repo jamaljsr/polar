@@ -1,7 +1,7 @@
-import { ChainInfo, WalletInfo } from 'bitcoin-core';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, Status } from 'shared/types';
 import { StoreInjections } from 'types';
+import { ChainInfo, WalletInfoCompat } from 'types/bitcoin-core';
 import { delay } from 'utils/async';
 import { getNetworkBackendId } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -16,7 +16,7 @@ export interface BitcoinNodeMapping {
 
 export interface BitcoinNodeModel {
   chainInfo?: ChainInfo;
-  walletInfo?: WalletInfo;
+  walletInfo?: WalletInfoCompat;
 }
 
 export interface BitcoinModel {
@@ -25,7 +25,7 @@ export interface BitcoinModel {
   clearNodes: Action<BitcoinModel, void>;
   setInfo: Action<
     BitcoinModel,
-    { node: BitcoinNode; chainInfo: ChainInfo; walletInfo: WalletInfo }
+    { node: BitcoinNode; chainInfo: ChainInfo; walletInfo: WalletInfoCompat }
   >;
   getInfo: Thunk<BitcoinModel, BitcoinNode, StoreInjections>;
   mine: Thunk<

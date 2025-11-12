@@ -1,11 +1,12 @@
 import log from 'electron-log';
 import BitcoinCore from 'bitcoin-core';
+import { BitcoinCoreClient } from 'types/bitcoin-core';
 import { createBitcoindNetworkNode } from 'utils/network';
 import { getNetwork, testNodeDocker } from 'utils/tests';
 import bitcoindService from './bitcoindService';
 
 jest.mock('bitcoin-core');
-const mockBitcoin = BitcoinCore as unknown as jest.Mock<BitcoinCore>;
+const mockBitcoin = BitcoinCore as unknown as jest.Mock<BitcoinCoreClient>;
 
 describe('BitcoindService', () => {
   const network = getNetwork();
@@ -13,7 +14,7 @@ describe('BitcoindService', () => {
     createBitcoindNetworkNode(network, '0.18.1', testNodeDocker),
   );
   const node = network.nodes.bitcoin[0];
-  const mockProto = BitcoinCore.prototype;
+  const mockProto = BitcoinCore.prototype as unknown as BitcoinCoreClient;
   // helper func to get the first instance created during the test
   const getInst = () => mockBitcoin.mock.instances[0];
 
@@ -23,6 +24,9 @@ describe('BitcoindService', () => {
     mockProto.createWallet = jest.fn().mockResolvedValue({ name: '' });
     mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 10 });
     mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 5 });
+    mockProto.getBalances = jest
+      .fn()
+      .mockResolvedValue({ mine: { trusted: 5, untrusted_pending: 0, immature: 0 } });
     mockProto.getNewAddress = jest.fn().mockResolvedValue('abcdef');
     mockProto.sendToAddress = jest.fn().mockResolvedValue('txid');
     mockProto.generateToAddress = jest.fn().mockResolvedValue(['blockhash1']);
@@ -129,36 +133,42 @@ describe('BitcoindService', () => {
   describe('sendFunds', () => {
     it('should send funds with sufficient balance', async () => {
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 1);
-      expect(getInst().getWalletInfo).toBeCalledTimes(1);
+      expect(getInst().getBalances).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 1);
       expect(txid).toEqual('txid');
     });
 
     it('should send funds with insufficient balance', async () => {
-      mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
+      mockProto.getBalances = jest
+        .fn()
+        .mockResolvedValue({ mine: { trusted: 0, untrusted_pending: 0, immature: 0 } });
       mockProto.listTransactions = jest.fn().mockResolvedValue([]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
-      expect(getInst().getWalletInfo).toBeCalledTimes(1);
+      expect(getInst().getBalances).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);
       expect(txid).toEqual('txid');
     });
 
     it('should send funds with sufficient balance above maturity height', async () => {
       mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 110 });
-      mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
+      mockProto.getBalances = jest
+        .fn()
+        .mockResolvedValue({ mine: { trusted: 0, untrusted_pending: 0, immature: 0 } });
       mockProto.listTransactions = jest.fn().mockResolvedValue([{ confirmations: 101 }]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 100);
-      expect(getInst().getWalletInfo).toBeCalledTimes(1);
+      expect(getInst().getBalances).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 100);
       expect(txid).toEqual('txid');
     });
 
     it('should send funds with insufficient balance above maturity height', async () => {
       mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 110 });
-      mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 0 });
+      mockProto.getBalances = jest
+        .fn()
+        .mockResolvedValue({ mine: { trusted: 0, untrusted_pending: 0, immature: 0 } });
       mockProto.listTransactions = jest.fn().mockResolvedValue([{ confirmations: 10 }]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
-      expect(getInst().getWalletInfo).toBeCalledTimes(1);
+      expect(getInst().getBalances).toBeCalledTimes(1);
       expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);
       expect(txid).toEqual('txid');
     });
