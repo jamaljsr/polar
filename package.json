@@ -121,7 +121,7 @@
     "i18next-scanner": "4.6.0",
     "jest-canvas-mock": "2.5.2",
     "jest-environment-jsdom-sixteen": "2.0.0",
-    "js-yaml": "4.1.0",
+    "js-yaml": "4.1.1",
     "less": "4.4.2",
     "less-loader": "12.3.0",
     "lint-staged": "16.2.6",
