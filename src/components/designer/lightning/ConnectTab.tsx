@@ -135,9 +135,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       } else if (node.implementation === 'litd') {
         const litd = node as LitdNode;
         return {
-          restUrl: `https://127.0.0.1:${litd.ports.web}`,
+          restUrl: `https://127.0.0.1:${litd.ports.rest}`,
           restDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
-          grpcUrl: `127.0.0.1:${litd.ports.web}`,
+          grpcUrl: `127.0.0.1:${litd.ports.web}`, // external grpc is on web port
           grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
           webUrl: `https://127.0.0.1:${litd.ports.web}`,
           credentials: {

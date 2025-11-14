@@ -466,6 +466,13 @@ describe('LightningDetails', () => {
         expect(getByText('500')).toBeInTheDocument();
       });
 
+      it('should display the REST Host', async () => {
+        const { getByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(getByText('REST Host')).toBeInTheDocument();
+        expect(getByText('https://127.0.0.1:8385')).toBeInTheDocument();
+      });
+
       it('should display the GRPC Host', async () => {
         const { getByText, findByText } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Connect'));
