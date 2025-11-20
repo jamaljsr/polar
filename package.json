@@ -79,7 +79,7 @@
     "@testing-library/user-event": "14.6.1",
     "@types/archiver": "7.0.0",
     "@types/detect-port": "1.3.5",
-    "@types/dockerode": "3.3.46",
+    "@types/dockerode": "3.3.47",
     "@types/fs-extra": "9.0.13",
     "@types/jest": "30.0.0",
     "@types/js-yaml": "4.0.9",
