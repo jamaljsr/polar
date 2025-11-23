@@ -691,6 +691,58 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
 };
 
 /**
+ * Adds or removes Tor flags from an LND command
+ */
+export const applyTorFlags = (command: string, enableTor: boolean): string => {
+  const torFlags = [
+    '--tor.active',
+    '--tor.socks=127.0.0.1:9050',
+    '--tor.control=127.0.0.1:9051',
+    '--tor.v3',
+  ];
+
+  // Remove existing Tor flags to avoid duplicates
+  const lines = command
+    .split('\n')
+    .filter(line => !torFlags.some(flag => line.trim().startsWith(flag)));
+
+  let cleanCommand = lines.join('\n').trim();
+
+  // Add Tor flags if enabled
+  if (enableTor) {
+    const torFlagsStr = torFlags.join('\n  ');
+    cleanCommand = `${cleanCommand}\n  ${torFlagsStr}`;
+  }
+
+  return cleanCommand;
+};
+
+export const getEffectiveCommand = (node: CommonNode): string => {
+  let implementation: NodeImplementation;
+  if (node.type === 'lightning') {
+    implementation = (node as LightningNode).implementation;
+  } else if (node.type === 'bitcoin') {
+    implementation = (node as BitcoinNode).implementation;
+  } else if (node.type === 'tap') {
+    implementation = (node as TapNode).implementation;
+  } else {
+    return node.docker.command;
+  }
+
+  let command = node.docker.command || getDefaultCommand(implementation, node.version);
+
+  // Add Tor flags for LND nodes if enabled
+  if (node.type === 'lightning') {
+    const lnNode = node as LightningNode;
+    if (lnNode.implementation === 'LND' && lnNode.enableTor) {
+      command = applyTorFlags(command, !!lnNode.enableTor);
+    }
+  }
+
+  return command;
+};
+
+/**
  * Returns the images needed to start a network that are not included in the list
  * of images already pulled
  * @param network the network to check
