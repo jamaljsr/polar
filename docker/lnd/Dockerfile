@@ -4,7 +4,7 @@ ARG LND_VERSION
 ENV PATH=/opt/lnd:$PATH
 
 RUN apt-get update -y \
-  && apt-get install -y curl gosu wait-for-it \
+  && apt-get install -y curl gosu wait-for-it tor \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -16,7 +16,7 @@ RUN SYS_ARCH="$(dpkg --print-architecture)" \
   && rm *.tar.gz
 
 RUN curl -SLO https://raw.githubusercontent.com/lightningnetwork/lnd/master/contrib/lncli.bash-completion \
-  && mkdir /etc/bash_completion.d \
+  && mkdir -p /etc/bash_completion.d \
   && mv lncli.bash-completion /etc/bash_completion.d/ \
   && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
   && mv bash_completion /usr/share/bash-completion/
@@ -28,7 +28,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/lnd/.lnd"]
 
-EXPOSE 9735 8080 10000
+EXPOSE 9735 8080 10000 9050 9051
 
 ENTRYPOINT ["/entrypoint.sh"]
 
