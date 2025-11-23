@@ -4,7 +4,7 @@ import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { AnyNode } from 'shared/types';
 import { useStoreActions } from 'store';
-import { getDefaultCommand } from 'utils/network';
+import { getDefaultCommand, getEffectiveCommand } from 'utils/network';
 
 interface Props {
   node: AnyNode;
@@ -17,7 +17,7 @@ const AdvancedOptionsButton: React.FC<Props> = ({ node, type }) => {
   const handleClick = () => {
     showAdvancedOptions({
       nodeName: node.name,
-      command: node.docker.command,
+      command: getEffectiveCommand(node),
       defaultCommand: getDefaultCommand(node.implementation, node.version),
     });
   };
