@@ -68,7 +68,8 @@ class ComposeFile {
       rpcAuth: bitcoinCredentials.rpcauth,
     };
     // use the node's custom image or the default for the implementation
-    const image = node.docker.image || `${dockerConfigs[implementation].imageName}:${version}`;
+    const image =
+      node.docker.image || `${dockerConfigs[implementation].imageName}:${version}`;
     // use the node's custom command or the default for the implementation
     const nodeCommand = node.docker.command || getDefaultCommand(implementation, version);
     // replace the variables in the command

@@ -17,7 +17,7 @@ RUN SYS_ARCH="$(uname -m)" \
   && rm *.tar.gz
 
 RUN curl -SLO https://raw.githubusercontent.com/bitcoin/bitcoin/master/contrib/completions/bash/bitcoin-cli.bash \
-  && mkdir /etc/bash_completion.d \
+  && mkdir -p /etc/bash_completion.d \
   && mv bitcoin-cli.bash /etc/bash_completion.d/bitcoin-cli.bash-completion \
   && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
   && mv bash_completion /usr/share/bash-completion/
