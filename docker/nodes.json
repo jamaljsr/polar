@@ -72,16 +72,16 @@
       }
     },
     "litd": {
-      "latest": "0.15.3-alpha",
+      "latest": "0.16.0-alpha",
       "versions": [
-        "0.16.0-alpha.rc1",
+        "0.16.0-alpha",
         "0.15.3-alpha",
         "0.15.1-alpha",
         "0.15.0-alpha",
         "0.14.1-alpha"
       ],
       "compatibility": {
-        "0.16.0-alpha.rc1": "29.0",
+        "0.16.0-alpha": "29.0",
         "0.15.3-alpha": "29.0",
         "0.15.1-alpha": "29.0",
         "0.15.0-alpha": "29.0",
