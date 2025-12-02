@@ -384,4 +384,5 @@ const sampleBalance: TAP.AssetBalance = {
     assetType: 'NORMAL',
   },
   balance: '100',
+  groupKey: Buffer.from(''),
 };

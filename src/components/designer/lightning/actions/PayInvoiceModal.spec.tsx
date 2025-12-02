@@ -118,6 +118,9 @@ describe('PayInvoiceModal', () => {
         node,
         'lnbc1',
         undefined,
+        undefined,
+        undefined,
+        undefined,
       );
       const element = await findByText('Sent 1,000 sats from alice');
       expect(element).toBeInTheDocument();
@@ -130,6 +133,27 @@ describe('PayInvoiceModal', () => {
       fireEvent.click(getByText('Pay Invoice'));
       expect(await findByText('Unable to pay the Invoice')).toBeInTheDocument();
       expect(await findByText('error-msg')).toBeInTheDocument();
+    });
+
+    it('should not show metadata field for Bitcoin payments', async () => {
+      const { getByText, getByLabelText, queryByLabelText, store } =
+        await renderComponent();
+      fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
+      fireEvent.click(getByText('Advanced Options'));
+      expect(queryByLabelText('Metadata')).not.toBeInTheDocument();
+      fireEvent.click(getByText('Pay Invoice'));
+      await waitFor(() => {
+        expect(store.getState().modals.payInvoice.visible).toBe(false);
+      });
+      const node = network.nodes.lightning[0];
+      expect(lightningServiceMock.payInvoice).toHaveBeenCalledWith(
+        node,
+        'lnbc1',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
     });
   });
 
@@ -202,6 +226,7 @@ describe('PayInvoiceModal', () => {
         400000,
         '',
         undefined,
+        undefined,
       );
     });
 
@@ -226,7 +251,38 @@ describe('PayInvoiceModal', () => {
         400000,
         '',
         true,
+        undefined,
       );
+    });
+
+    it('should pay invoice with metadata for Taproot Assets', async () => {
+      const { findByText, getByText, getByLabelText, store, changeSelect } =
+        await renderComponent('bob');
+      expect(await findByText('From Node')).toBeInTheDocument();
+      fireEvent.change(getByLabelText('BOLT 11 Invoice'), { target: { value: 'lnbc1' } });
+      changeSelect('Asset to Send', 'test asset');
+      fireEvent.click(getByText('Advanced Options'));
+      const metadataInput = getByLabelText('Metadata');
+      expect(metadataInput).toBeInTheDocument();
+      fireEvent.change(metadataInput, {
+        target: { value: 'test metadata' },
+      });
+      fireEvent.click(getByText('Pay Invoice'));
+      await waitFor(() => {
+        expect(store.getState().modals.payInvoice.visible).toBe(false);
+      });
+      const node = network.nodes.lightning[1]; // Changed from 0 to 1
+      expect(tapServiceMock.sendPayment).toHaveBeenCalledWith(
+        mapToTapd(node),
+        'abcd',
+        'lnbc1',
+        400000,
+        '',
+        false,
+        'test metadata',
+      );
+      const element = await findByText('Sent 1,000 test asset from bob');
+      expect(element).toBeInTheDocument();
     });
   });
 });

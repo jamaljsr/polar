@@ -210,7 +210,38 @@ describe('CreateInvoiceModal', () => {
         200,
         '',
         3600,
+        undefined,
       );
+    });
+
+    it('should create invoice with metadata for asset invoice', async () => {
+      const { getByText, getByLabelText, findByText, changeSelect } =
+        await renderComponent();
+      expect(await findByText('Node')).toBeInTheDocument();
+      changeSelect('Asset to Receive', 'test asset');
+      fireEvent.change(getByLabelText('Amount'), { target: { value: '10' } });
+      fireEvent.click(getByText('Advanced Options'));
+      const metadataInput = getByLabelText('Metadata');
+      expect(metadataInput).toBeInTheDocument();
+      fireEvent.change(metadataInput, { target: { value: 'test metadata' } });
+      fireEvent.click(getByText('Create Invoice'));
+      expect(await findByText('Successfully Created the Invoice')).toBeInTheDocument();
+      const node = network.nodes.lightning[0];
+      const tapNode = mapToTapd(node);
+      expect(tapServiceMock.addInvoice).toHaveBeenCalledWith(
+        tapNode,
+        'abcd',
+        10,
+        '',
+        3600,
+        'test metadata',
+      );
+    });
+
+    it('should not show metadata field for Bitcoin payments', async () => {
+      const { queryByLabelText, findByText } = await renderComponent();
+      expect(await findByText('Node')).toBeInTheDocument();
+      expect(queryByLabelText('Advanced Options')).not.toBeInTheDocument();
     });
 
     it('should display an error when creating an asset invoice with a high balance', async () => {

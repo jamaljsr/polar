@@ -2576,18 +2576,18 @@
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
 
-"@lightningpolar/lnd-api@0.19.0-beta":
-  version "0.19.0-beta"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/lnd-api/-/lnd-api-0.19.0-beta.tgz#153a5bc70a1e9000f7ec5c7624b92dacbb203edf"
-  integrity sha512-5cwpPmVeqR1f1pBETO5aWKedAm7lq4JrlTTVLIHCWaLTdzswX7mD2hq0nXS24AtvEYltfMpG88vL+YeND+KcDQ==
+"@lightningpolar/lnd-api@0.20.0-beta":
+  version "0.20.0-beta"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/lnd-api/-/lnd-api-0.20.0-beta.tgz#2402b5c274d336d21bfaa131d631868cf5fefc15"
+  integrity sha512-AXz6ph/rfFgF/rRhB3AM38vZ8DaDkMsuOtYnzP1JyQ02c0zIioxbYiDGrQTuzM/oUfPxQhTJDunT4O6lqoMouQ==
   dependencies:
     "@grpc/grpc-js" "1.10.8"
     "@grpc/proto-loader" "0.7.13"
 
-"@lightningpolar/tapd-api@0.6.0-alpha.rc2":
-  version "0.6.0-alpha.rc2"
-  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.6.0-alpha.rc2.tgz#462f993e20e463dd50bcf06f865dcfc5a872c62d"
-  integrity sha512-fr04IYMI6H1v8uS7Gl2CxV+oDvPE/iIRP1ncuP6RdMn0is2TWEWW6gxpqlMhNJA7nkw9t5eCRJQGgrpK+5RlSw==
+"@lightningpolar/tapd-api@0.7.0":
+  version "0.7.0-alpha"
+  resolved "https://registry.yarnpkg.com/@lightningpolar/tapd-api/-/tapd-api-0.7.0-alpha.tgz#b1720aa70347385d19f7541912ca106bdb5f7014"
+  integrity sha512-aK8pX7MLyv0I8YYEJriPll79feCsoGiAHYOF5ktJHOE6R+0b9JlG6SGNzrxcS8ea6CJo+deQa3j/pfFIfA+vRQ==
   dependencies:
     "@grpc/grpc-js" "^1.12.2"
     "@grpc/proto-loader" "0.7.13"

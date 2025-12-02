@@ -2,7 +2,17 @@ import React, { ReactNode, useCallback, useMemo } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from '@emotion/styled';
-import { Button, Form, InputNumber, message, Modal, Result, Select } from 'antd';
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Result,
+  Select,
+  Collapse,
+} from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
@@ -32,6 +42,7 @@ interface FormValues {
   node: string;
   assetId: string;
   amount: number;
+  metadata?: string;
 }
 
 interface Props {
@@ -88,7 +99,12 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
       } else {
         const litdNode = node as LitdNode;
         const amount = toAssetUnits({ assetId, amount: values.amount });
-        const res = await createAssetInvoice({ node: litdNode, assetId, amount });
+        const res = await createAssetInvoice({
+          node: litdNode,
+          assetId,
+          amount,
+          metadata: values.metadata,
+        });
         invoice = res.invoice;
         const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
         assetName = `${asset.name} (${format(res.sats)} sats)`;
@@ -131,7 +147,12 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
         layout="vertical"
         requiredMark={false}
         colon={false}
-        initialValues={{ node: nodeName, amount: 1_000_000, assetId: 'sats' }}
+        initialValues={{
+          node: nodeName,
+          amount: 1_000_000,
+          assetId: 'sats',
+          metadata: '',
+        }}
         onFinish={createAsync.execute}
       >
         <LightningNodeSelect
@@ -179,6 +200,23 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
             style={{ width: '100%' }}
           />
         </Form.Item>
+
+        {isLitd && assetId && assetId !== 'sats' && (
+          <Collapse defaultActiveKey={[]} ghost>
+            <Collapse.Panel
+              header={l('cmps.forms.advancedOptions')}
+              key="advanced-options"
+            >
+              <Form.Item name="metadata" label={l('metadataLabel')}>
+                <Input.TextArea
+                  disabled={createAsync.loading}
+                  placeholder={l('metadataPlaceholder')}
+                  rows={3}
+                />
+              </Form.Item>
+            </Collapse.Panel>
+          </Collapse>
+        )}
       </Form>
     );
   } else {

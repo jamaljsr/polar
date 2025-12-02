@@ -43,6 +43,7 @@ export interface PayInvoicePayload {
   invoice: string;
   amount?: number;
   allowSelfPayment?: boolean;
+  metadata?: string;
 }
 
 export interface LightningModel {
@@ -267,7 +268,7 @@ const lightningModel: LightningModel = {
   payInvoice: thunk(
     async (
       actions,
-      { node, invoice, amount, allowSelfPayment },
+      { node, invoice, amount, allowSelfPayment, metadata },
       { injections, getStoreState, getStoreActions },
     ) => {
       const api = injections.lightningFactory.getService(node);
@@ -278,7 +279,14 @@ const lightningModel: LightningModel = {
           allowSelfPayment,
         });
       } else {
-        receipt = await api.payInvoice(node, invoice, amount);
+        receipt = await api.payInvoice(
+          node,
+          invoice,
+          amount,
+          undefined,
+          undefined,
+          metadata,
+        );
       }
 
       const network = getStoreState().network.networkById(node.networkId);
