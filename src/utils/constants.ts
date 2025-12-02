@@ -418,9 +418,9 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.15.3-alpha',
+      latest: '0.16.0-alpha',
       versions: [
-        '0.16.0-alpha.rc1',
+        '0.16.0-alpha',
         '0.15.3-alpha',
         '0.15.1-alpha',
         '0.15.0-alpha',
@@ -429,7 +429,7 @@ export const defaultRepoState: DockerRepoState = {
       // not all litd versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each litd version
       compatibility: {
-        '0.16.0-alpha.rc1': '30.0',
+        '0.16.0-alpha': '30.0',
         '0.15.3-alpha': '30.0',
         '0.15.1-alpha': '30.0',
         '0.15.0-alpha': '30.0',
