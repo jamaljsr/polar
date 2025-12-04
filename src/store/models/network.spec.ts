@@ -211,6 +211,19 @@ describe('Network model', () => {
       expect(node.docker.image).toBe(custom[0].dockerImage);
       expect(node.docker.command).toBe(custom[0].command);
     });
+
+    it('should add a network with bitcoind-knots nodes', async () => {
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 0,
+        bitcoindKnotsNodes: 2,
+      });
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin).toHaveLength(2);
+      bitcoin.forEach(node => {
+        expect(node.implementation).toBe('bitcoind-knots');
+      });
+    });
   });
 
   describe('Adding a Node', () => {
@@ -375,6 +388,21 @@ describe('Network model', () => {
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[5].docker.command).toBe('test-command');
+    });
+
+    it('should add a bitcoind-knots node to an existing network', async () => {
+      const knotsLatest = defaultRepoState.images['bitcoind-knots'].latest;
+      const payload = {
+        id: firstNetwork().id,
+        type: 'bitcoind-knots',
+        version: knotsLatest,
+      };
+      await store.getActions().network.addNode(payload);
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin).toHaveLength(2);
+      expect(bitcoin[1].name).toBe('backend2');
+      expect(bitcoin[1].implementation).toBe('bitcoind-knots');
+      expect(bitcoin[1].version).toBe(knotsLatest);
     });
   });
 

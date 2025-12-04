@@ -55,6 +55,13 @@ const NewNetwork: React.FC = () => {
         throw new Error(l('tapdCountError'));
       }
 
+      const hasLightningNodes =
+        values.lndNodes + values.clightningNodes + values.eclairNodes + values.litdNodes > 0;
+      const hasBitcoinBackend = values.bitcoindNodes + values.bitcoindKnotsNodes > 0;
+      if (hasLightningNodes && !hasBitcoinBackend) {
+        throw new Error(l('bitcoinBackendError'));
+      }
+
       await addNetwork(values);
     } catch (error: any) {
       notify({ message: l('createError'), error });
