@@ -1,17 +1,18 @@
 import React, { ReactNode, useCallback, useEffect } from 'react';
-import styled from '@emotion/styled';
-import { usePrefixedTranslation } from 'hooks';
-import { Button, Empty, Modal, Tooltip, MenuProps, Dropdown, Alert } from 'antd';
+import { useAsyncCallback } from 'react-async-hook';
 import {
   ArrowRightOutlined,
-  PlusOutlined,
   CloseOutlined,
   MoreOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
+import styled from '@emotion/styled';
+import { Alert, Button, Dropdown, Empty, MenuProps, Modal, Tooltip } from 'antd';
+import { usePrefixedTranslation } from 'hooks';
+import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { useAsyncCallback } from 'react-async-hook';
-import { Status } from 'shared/types';
+import { abbreviate } from 'utils/numbers';
 import StatusButton from 'components/common/StatusButton';
 
 interface Props {
@@ -43,8 +44,12 @@ const Styled = {
     display: flex;
     align-items: center;
     justify-content: start;
-    column-gap: 15px;
+    column-gap: 10px;
     width: 100%;
+  `,
+  ActivityDetails: styled.span`
+    opacity: 0.5;
+    font-size: 12px;
   `,
   Dropdown: styled(Dropdown)`
     margin-left: 12px;
@@ -164,6 +169,9 @@ const SimulationDesignerTab: React.FC<Props> = ({ network }) => {
               <span>{a.source}</span>
               <ArrowRightOutlined />
               <span>{a.destination}</span>
+              <Styled.ActivityDetails>
+                {abbreviate(a.amountMsat / 1000)} sats / {a.intervalSecs}s
+              </Styled.ActivityDetails>
             </Styled.NodeWrapper>
             <Styled.Dropdown
               key="options"
@@ -211,6 +219,7 @@ const SimulationDesignerTab: React.FC<Props> = ({ network }) => {
 
   return (
     <div>
+      <p>{l('mainDesc')}</p>
       <Styled.Title>
         <span>{l('title')}</span>
         <Tooltip overlay={l('createBtn')} placement="topLeft">
