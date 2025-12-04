@@ -129,7 +129,11 @@ describe('DefaultSidebar Component', () => {
 
   it('should display the Simulation Designer Tab', () => {
     const { getByText } = renderComponent();
-    fireEvent.click(getByText('Simulation Designer'));
-    expect(getByText('Lightning Network Simulation')).toBeInTheDocument();
+    fireEvent.click(getByText('Simulations'));
+    expect(
+      getByText(
+        'Automate Lightning payments between nodes by adding simulation activities below.',
+      ),
+    ).toBeInTheDocument();
   });
 });
