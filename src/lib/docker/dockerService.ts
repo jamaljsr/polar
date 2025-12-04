@@ -19,17 +19,18 @@ import {
 } from 'shared/types';
 import stripAnsi from 'strip-ansi';
 import {
+  ActivityConfig,
   DockerLibrary,
   DockerVersions,
   Network,
   NetworksFile,
-  ActivityConfig,
   SimulationNodeConfig,
 } from 'types';
 import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs, eclairCredentials } from 'utils/constants';
 import { exists, read, renameFile, rm, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
+import { getContainerName } from 'utils/network';
 import { isLinux, isMac } from 'utils/system';
 import ComposeFile from './composeFile';
 
@@ -406,7 +407,7 @@ class DockerService implements DockerLibrary {
    */
   constructSimJson(network: Network) {
     // Helper function to convert Windows paths to POSIX path format.
-    const getPosixPath = (path: string) => {
+    const getPosixPath = (path = '') => {
       // Normalize to POSIX separators for Windows paths.
       const norm = path.replace(/\\/g, '/');
 
@@ -449,7 +450,7 @@ class DockerService implements DockerLibrary {
             simNode = {
               id: lnd.name,
               macaroon: `/home/simln/.${getPosixPath(lnd.paths.adminMacaroon)}`,
-              address: `https://host.docker.internal:${lnd.ports.grpc}`,
+              address: `https://${getContainerName(node)}:10009`,
               cert: `/home/simln/.${getPosixPath(lnd.paths.tlsCert)}`,
             };
             break;
@@ -458,7 +459,7 @@ class DockerService implements DockerLibrary {
             const eclair = node as EclairNode;
             simNode = {
               id: eclair.name,
-              base_url: `http://host.docker.internal:${eclair.ports.rest}`,
+              base_url: `http://${getContainerName(node)}:8080`,
               api_username: '',
               api_password: eclairCredentials.pass,
             };
@@ -468,10 +469,10 @@ class DockerService implements DockerLibrary {
             const cln = node as CLightningNode;
             simNode = {
               id: cln.name,
-              address: `host.docker.internal:${cln.ports.grpc}`,
-              ca_cert: `/home/simln/.${getPosixPath(cln.paths.tlsCert!)}`,
-              client_cert: `/home/simln/.${getPosixPath(cln.paths.tlsClientCert!)}`,
-              client_key: `/home/simln/.${getPosixPath(cln.paths.tlsClientKey!)}`,
+              address: `${getContainerName(node)}:11001`,
+              ca_cert: `/home/simln/.${getPosixPath(cln.paths.tlsCert)}`,
+              client_cert: `/home/simln/.${getPosixPath(cln.paths.tlsClientCert)}`,
+              client_key: `/home/simln/.${getPosixPath(cln.paths.tlsClientKey)}`,
             };
             break;
 
@@ -479,7 +480,7 @@ class DockerService implements DockerLibrary {
             const litd = node as LitdNode;
             simNode = {
               id: litd.name,
-              address: `host.docker.internal:${litd.ports.grpc}`,
+              address: `${getContainerName(node)}:10009`,
               cert: `/home/simln/.${getPosixPath(litd.paths.tlsCert)}`,
               macaroon: `/home/simln/.${getPosixPath(litd.paths.adminMacaroon)}`,
             };
@@ -516,14 +517,22 @@ class DockerService implements DockerLibrary {
    * @param network the network containing the simulation
    */
   async startSimulation(network: Network) {
-    const simJson = this.constructSimJson(network);
     await this.ensureDirs(network, [
       ...network.nodes.bitcoin,
       ...network.nodes.lightning,
       ...network.nodes.tap,
     ]);
-    const simjsonPath = nodePath(network, 'simln', 'sim.json');
-    await write(simjsonPath, JSON.stringify(simJson));
+    // we need to create this dir as the current host user, otherwise it will be created
+    // by the simln container and the owner will be set to root on linux. This prevents
+    // deleting the network due to file permission errors.
+    await ensureDir(nodePath(network, 'simln', 'results'));
+
+    // save the sim.json file for the simulation
+    const simJson = this.constructSimJson(network);
+    const simJsonPath = nodePath(network, 'simln', 'sim.json');
+    await write(simJsonPath, JSON.stringify(simJson));
+
+    // start the simln container
     const result = await this.execute(compose.upOne, 'simln', this.getArgs(network));
     info(`Simulation started:\n ${result.out || result.err}`);
   }

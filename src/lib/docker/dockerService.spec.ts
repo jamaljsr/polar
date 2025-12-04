@@ -1075,5 +1075,32 @@ describe('DockerService', () => {
         `/home/simln/.lnd/${lnd.name}/data/chain/bitcoin/regtest/admin.macaroon`,
       );
     });
+
+    it('should handle missing c-lightning paths', () => {
+      const net = getNetwork();
+      const cln = net.nodes.lightning.filter(
+        n => n.implementation === 'c-lightning',
+      )[0] as CLightningNode;
+      cln.paths.tlsCert = undefined;
+      cln.paths.tlsClientCert = undefined;
+      cln.paths.tlsClientKey = undefined;
+      net.simulation = {
+        activity: [
+          {
+            id: 0,
+            source: cln.name,
+            destination: net.nodes.lightning[0].name,
+            intervalSecs: 60,
+            amountMsat: 1000,
+          },
+        ],
+        status: Status.Stopped,
+      };
+      const simJson = dockerService.constructSimJson(net);
+      const clnSimNode = simJson.nodes.find(n => n.id === cln.name);
+      expect(clnSimNode?.ca_cert).toBeDefined();
+      expect(clnSimNode?.client_cert).toBeDefined();
+      expect(clnSimNode?.client_key).toBeDefined();
+    });
   });
 });
