@@ -20,6 +20,7 @@ import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
+  createBitcoindKnotsNetworkNode,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
@@ -48,6 +49,7 @@ interface AddNetworkArgs {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  bitcoindKnotsNodes: number;
   tapdNodes: number;
   litdNodes: number;
   customNodes: Record<string, number>;
@@ -324,6 +326,7 @@ const networkModel: NetworkModel = {
         clightningNodes: payload.clightningNodes,
         eclairNodes: payload.eclairNodes,
         bitcoindNodes: payload.bitcoindNodes,
+        bitcoindKnotsNodes: payload.bitcoindKnotsNodes || 0,
         tapdNodes: payload.tapdNodes,
         litdNodes: payload.litdNodes,
         repoState: dockerRepoState,
@@ -347,6 +350,7 @@ const networkModel: NetworkModel = {
           'c-lightning': payload.clightningNodes,
           eclair: payload.eclairNodes,
           bitcoind: payload.bitcoindNodes,
+          'bitcoind-knots': payload.bitcoindKnotsNodes || 0,
           tapd: payload.tapdNodes,
           litd: payload.litdNodes,
           btcd: 0,
@@ -431,6 +435,16 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts.bitcoind,
+          );
+          network.nodes.bitcoin.push(node);
+          break;
+        case 'bitcoind-knots':
+          node = createBitcoindKnotsNetworkNode(
+            network,
+            version,
+            docker,
+            undefined,
+            settings.basePorts['bitcoind-knots'],
           );
           network.nodes.bitcoin.push(node);
           break;
