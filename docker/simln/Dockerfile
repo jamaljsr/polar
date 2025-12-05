@@ -2,7 +2,7 @@
 # Original Source: https://github.com/bitcoin-dev-project/sim-ln/blob/main/docker/Dockerfile
 
 # Use the rust image as the base image for the build stage
-FROM rust:1.85.0 AS base
+FROM rust:1.91.1 AS base
 
 # buildkit will provide this automatically, no need to pass it in
 ARG TARGETARCH
