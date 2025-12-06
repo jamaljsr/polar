@@ -11,6 +11,7 @@ import {
   initLndProxy,
   initLndSubscriptions,
 } from './lnd/lndProxyServer';
+import { startMcpBridge } from './mcpBridge';
 import { initTapdProxy } from './tapd/tapdProxyServer';
 import TrayManager from './trayManager';
 
@@ -26,6 +27,10 @@ class WindowManager {
       initLitdProxy(ipcMain);
       initAppIpcListener(ipcMain);
       initLndSubscriptions(this.sendMessageToRenderer);
+      // Start MCP bridge after main window is created
+      if (this.mainWindow) {
+        startMcpBridge(this.mainWindow);
+      }
     });
     app.on('window-all-closed', this.onAllClosed);
     app.on('activate', this.onActivate);

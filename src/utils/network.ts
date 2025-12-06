@@ -523,7 +523,9 @@ export const createNetwork = (config: {
     let version = repoState.images.bitcoind.latest;
     if (lndNodes > 0) {
       const compat = repoState.images.LND.compatibility as Record<string, string>;
-      version = compat[repoState.images.LND.latest];
+      const compatibleVersion = compat[repoState.images.LND.latest];
+      // If no compatibility entry exists, fall back to latest bitcoind
+      version = compatibleVersion || version;
     }
     const cmd = getImageCommand(managedImages, 'bitcoind', version);
     bitcoin.push(

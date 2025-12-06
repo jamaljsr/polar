@@ -229,6 +229,47 @@ describe('LndService', () => {
       expect(lndProxyClient.listPeers).toHaveBeenCalledTimes(1);
       expect(lndProxyClient.connectPeer).toHaveBeenCalledTimes(1);
     });
+
+    it('should open channel with fundingTxidBytes', async () => {
+      lndProxyClient.getInfo = jest
+        .fn()
+        .mockResolvedValue(defaultLndInfo({ identityPubkey: 'asdf' }));
+      lndProxyClient.listPeers = jest.fn().mockResolvedValue({
+        peers: [{ pubKey: 'asdf' }],
+      });
+      // Create a mock txid bytes (little-endian representation - LND returns them this way)
+      const txidBytes = Buffer.from('cdab3412', 'hex'); // little-endian
+      const expectedTxid = '1234abcd'; // big-endian (after reverse)
+      const expected = { txid: expectedTxid, index: 0 };
+      const mocked = { fundingTxidBytes: txidBytes, outputIndex: 0 };
+      lndProxyClient.openChannel = jest.fn().mockResolvedValue(mocked);
+      const actual = await lndService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: false,
+      });
+      expect(actual).toEqual(expected);
+    });
+
+    it('should open channel with no txid', async () => {
+      lndProxyClient.getInfo = jest
+        .fn()
+        .mockResolvedValue(defaultLndInfo({ identityPubkey: 'asdf' }));
+      lndProxyClient.listPeers = jest.fn().mockResolvedValue({
+        peers: [{ pubKey: 'asdf' }],
+      });
+      const expected = { txid: '', index: 0 };
+      const mocked = { outputIndex: 0 };
+      lndProxyClient.openChannel = jest.fn().mockResolvedValue(mocked);
+      const actual = await lndService.openChannel({
+        from: node,
+        toRpcUrl: 'asdf@1.1.1.1:9735',
+        amount: '1000',
+        isPrivate: false,
+      });
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe('waitUntilOnline', () => {
