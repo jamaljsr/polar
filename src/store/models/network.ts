@@ -14,7 +14,7 @@ import {
   TapdNode,
   TapNode,
 } from 'shared/types';
-import { AutoMineMode, CustomImage, Network, StoreInjections, Simulation } from 'types';
+import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -232,6 +232,13 @@ export interface NetworkModel {
   removeSimulation: Thunk<
     NetworkModel,
     { id: number; networkId: number },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  toggleTorForNetwork: Thunk<
+    NetworkModel,
+    { networkId: number; enabled: boolean },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -1269,6 +1276,29 @@ const networkModel: NetworkModel = {
       actions.setStatus({ id, status: Status.Error, sim: true, error: e, all: false });
       throw e;
     }
+  }),
+  toggleTorForNetwork: thunk(async (actions, { networkId, enabled }, { getState }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+
+    if (network.status !== Status.Stopped) {
+      throw new Error(l('networkMustBeStopped'));
+    }
+
+    console.log('TorStatus, ', enabled);
+    console.log('networkId, ', networkId);
+    // Toggle Tor for all supported nodes
+    // const { bitcoin, lightning } = network.nodes;
+    // const allNodes = [...bitcoin, ...lightning];
+
+    // allNodes.forEach(node => {
+    //   if (nodeSupportsTor(node.implementation)) {
+    //     node.torEnabled = enabled;
+    //   }
+    // });
+
+    await actions.save();
   }),
 };
 

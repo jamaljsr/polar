@@ -3,21 +3,23 @@ import {
   CloseOutlined,
   ExportOutlined,
   FormOutlined,
+  LockOutlined,
   MoreOutlined,
   ToolOutlined,
+  UnlockOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
+import { Button, Divider, Dropdown, MenuProps, Switch, Tag, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useMiningAsync } from 'hooks/useMiningAsync';
 import { Status } from 'shared/types';
-import { useStoreState } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { getNetworkBackendId } from 'utils/network';
 import BalanceChannelsButton from 'components/common/BalanceChannelsButton';
+import StatusButton from 'components/common/StatusButton';
 import AutoMineButton from 'components/designer/AutoMineButton';
 import SyncButton from 'components/designer/SyncButton';
-import StatusButton from 'components/common/StatusButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -72,8 +74,45 @@ const NetworkActions: React.FC<Props> = ({
     { key: 'delete', label: l('menuDelete'), icon: <CloseOutlined /> },
   ];
 
+  const { notify } = useStoreActions(s => s.app);
+  const { toggleTorForNetwork } = useStoreActions(s => s.network);
+  const handleTorToggle = useCallback(
+    async (checked: boolean) => {
+      try {
+        await toggleTorForNetwork({ networkId: network.id, enabled: checked });
+        notify({
+          message: l(checked ? 'torEnabledAll' : 'torDisabledAll'),
+        });
+      } catch (error: any) {
+        notify({ message: l('torToggleError'), error });
+      }
+    },
+    [network.id],
+  );
+
   return (
     <>
+      {bitcoinNode.status === Status.Stopped && (
+        <>
+          <Tooltip title={l('torToggleTooltip')}>
+            <Switch
+              onChange={handleTorToggle}
+              checkedChildren={
+                <>
+                  <UnlockOutlined /> {l('torTitle')}
+                </>
+              }
+              unCheckedChildren={
+                <>
+                  <LockOutlined /> {l('torTitle')}
+                </>
+              }
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+        </>
+      )}
+
       {bitcoinNode.status === Status.Started && nodeState?.chainInfo && (
         <>
           <Tag>height: {nodeState.chainInfo.blocks}</Tag>
