@@ -201,6 +201,13 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  toggleTorForNetwork: Thunk<
+    NetworkModel,
+    { networkId: number; enabled: boolean },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -1095,6 +1102,29 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
 
     actions.setManualMineCount({ id, count });
+    await actions.save();
+  }),
+  toggleTorForNetwork: thunk(async (actions, { networkId, enabled }, { getState }) => {
+    const networks = getState().networks;
+    const network = networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+
+    if (network.status !== Status.Stopped) {
+      throw new Error(l('networkMustBeStopped'));
+    }
+
+    console.log('TorStatus, ', enabled);
+    console.log('networkId, ', networkId);
+    // Toggle Tor for all supported nodes
+    // const { bitcoin, lightning } = network.nodes;
+    // const allNodes = [...bitcoin, ...lightning];
+
+    // allNodes.forEach(node => {
+    //   if (nodeSupportsTor(node.implementation)) {
+    //     node.torEnabled = enabled;
+    //   }
+    // });
+
     await actions.save();
   }),
 };
