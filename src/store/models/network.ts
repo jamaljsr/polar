@@ -20,6 +20,7 @@ import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
+  applyTorFlags,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
@@ -236,6 +237,7 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  setLightningNodesTor: Action<NetworkModel, { networkId: number; enabled: boolean }>;
   toggleTorForNetwork: Thunk<
     NetworkModel,
     { networkId: number; enabled: boolean },
@@ -466,7 +468,20 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       let network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
-      actions.updateNodeCommand({ id: node.networkId, name: node.name, command });
+
+      let cleanCommand = command;
+      if (node.type === 'lightning') {
+        const lnNode = node as LightningNode;
+        if (lnNode.implementation === 'LND') {
+          cleanCommand = applyTorFlags(command, false);
+        }
+      }
+
+      actions.updateNodeCommand({
+        id: node.networkId,
+        name: node.name,
+        command: cleanCommand,
+      });
       await actions.save();
       network = getState().networks.find(n => n.id === node.networkId) as Network;
       await injections.dockerService.saveComposeFile(network);
@@ -1277,29 +1292,29 @@ const networkModel: NetworkModel = {
       throw e;
     }
   }),
-  toggleTorForNetwork: thunk(async (actions, { networkId, enabled }, { getState }) => {
-    const networks = getState().networks;
-    const network = networks.find(n => n.id === networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId }));
-
-    if (network.status !== Status.Stopped) {
-      throw new Error(l('networkMustBeStopped'));
+  setLightningNodesTor: action((state, { networkId, enabled }) => {
+    const network = state.networks.find(n => n.id === networkId);
+    if (network) {
+      network.nodes.lightning.forEach(node => {
+        node.enableTor = enabled;
+      });
     }
-
-    console.log('TorStatus, ', enabled);
-    console.log('networkId, ', networkId);
-    // Toggle Tor for all supported nodes
-    // const { bitcoin, lightning } = network.nodes;
-    // const allNodes = [...bitcoin, ...lightning];
-
-    // allNodes.forEach(node => {
-    //   if (nodeSupportsTor(node.implementation)) {
-    //     node.torEnabled = enabled;
-    //   }
-    // });
-
-    await actions.save();
   }),
+  toggleTorForNetwork: thunk(
+    async (actions, { networkId, enabled }, { getState, injections }) => {
+      const networks = getState().networks;
+      let network = networks.find(n => n.id === networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId }));
+
+      actions.setLightningNodesTor({ networkId, enabled });
+
+      await actions.save();
+      console.log('About to save compose file...');
+      network = getState().networks.find(n => n.id === networkId) as Network;
+      await injections.dockerService.saveComposeFile(network);
+      console.log('Compose file saved');
+    },
+  ),
 };
 
 export default networkModel;
