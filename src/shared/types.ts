@@ -25,6 +25,7 @@ export interface LightningNode extends CommonNode {
   implementation: 'LND' | 'c-lightning' | 'eclair' | 'litd';
   backendName: string;
   ports: Record<string, number | undefined>;
+  enableTor?: boolean;
 }
 
 export interface LndNode extends LightningNode {
