@@ -11,10 +11,20 @@ import { mapOpenChannel, mapPendingChannel } from './mappers';
 class LndService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await proxy.getInfo(this.cast(node));
+
+    let rpcUrl = '';
+    if (info.uris && info.uris.length > 0) {
+      const lndNode = node as LndNode;
+      if (lndNode.enableTor) {
+        const onionUri = info.uris.find(uri => uri.includes('.onion'));
+        rpcUrl = onionUri || info.uris[0];
+      }
+    } else rpcUrl = info.uris[0];
+
     return {
       pubkey: info.identityPubkey,
       alias: info.alias,
-      rpcUrl: (info.uris && info.uris[0]) || '',
+      rpcUrl,
       syncedToChain: info.syncedToChain,
       blockHeight: info.blockHeight,
       numActiveChannels: info.numActiveChannels,
