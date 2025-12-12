@@ -90,12 +90,15 @@ const NetworkActions: React.FC<Props> = ({
     [network.id],
   );
 
+  const isTorEnabled = network.nodes.lightning.every(node => node.enableTor);
+
   return (
     <>
       {bitcoinNode.status === Status.Stopped && (
         <>
           <Tooltip title={l('torToggleTooltip')}>
             <Switch
+              checked={isTorEnabled}
               onChange={handleTorToggle}
               checkedChildren={
                 <>
