@@ -1309,10 +1309,8 @@ const networkModel: NetworkModel = {
       actions.setLightningNodesTor({ networkId, enabled });
 
       await actions.save();
-      console.log('About to save compose file...');
       network = getState().networks.find(n => n.id === networkId) as Network;
       await injections.dockerService.saveComposeFile(network);
-      console.log('Compose file saved');
     },
   ),
 };

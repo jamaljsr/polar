@@ -66,6 +66,7 @@ export const createLightningChartNode = (ln: LightningNode, yOffset = 0) => {
     properties: {
       status: ln.status,
       icon: dockerConfigs[ln.implementation].logo,
+      tor: ln.enableTor,
     },
   };
 

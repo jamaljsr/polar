@@ -52,6 +52,7 @@ export interface DesignerModel {
   renameNode: Action<DesignerModel, { nodeId: string; name: string }>;
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
+  onNetworkToggleTor: ActionOn<DesignerModel, RootModel>;
   zoomIn: Action<DesignerModel, any>;
   zoomOut: Action<DesignerModel, any>;
   zoomReset: Action<DesignerModel, any>;
@@ -604,6 +605,27 @@ const designerModel: DesignerModel = {
     chart.offset = snap({ x: data.positionX, y: data.positionY }, config);
     chart.scale = data.scale;
   }),
+  onNetworkToggleTor: actionOn(
+    (actions, storeActions) => storeActions.network.toggleTorForNetwork,
+    (state, { payload }) => {
+      const { networkId, enabled } = payload;
+      const chart = state.allCharts[networkId];
+
+      if (chart) {
+        // Update all lightning nodes' tor property in the chart
+        Object.keys(chart.nodes).forEach(nodeName => {
+          const node = chart.nodes[nodeName];
+          // Only update lightning nodes
+          if (node.type === 'lightning') {
+            node.properties = {
+              ...node.properties,
+              tor: enabled,
+            };
+          }
+        });
+      }
+    },
+  ),
 };
 
 export default designerModel;
