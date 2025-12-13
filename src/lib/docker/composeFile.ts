@@ -70,16 +70,25 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.bitcoind.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('bitcoind', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('bitcoind', version);
+
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = applyTorFlags(nodeCommand, !!node.enableTor, 'bitcoind');
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
+
     // add the docker service
     const svc = bitcoind(name, container, image, rpc, p2p, zmqBlock, zmqTx, command);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
+
     this.addService(svc);
   }
 
   addLnd(node: LndNode, backend: CommonNode) {
-    console.log('called addLnd..');
     const { name, version, ports } = node;
     const { rest, grpc, p2p } = ports;
     const container = getContainerName(node);
@@ -97,7 +106,7 @@ class ComposeFile {
     let nodeCommand = node.docker.command || getDefaultCommand('LND', version);
 
     // Add Tor flags if Tor is enabled
-    nodeCommand = applyTorFlags(nodeCommand, !!node.enableTor);
+    nodeCommand = applyTorFlags(nodeCommand, !!node.enableTor, 'LND');
 
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);

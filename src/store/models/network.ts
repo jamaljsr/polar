@@ -237,7 +237,7 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
-  setLightningNodesTor: Action<NetworkModel, { networkId: number; enabled: boolean }>;
+  setAllNodesTor: Action<NetworkModel, { networkId: number; enabled: boolean }>;
   toggleTorForNetwork: Thunk<
     NetworkModel,
     { networkId: number; enabled: boolean },
@@ -473,7 +473,12 @@ const networkModel: NetworkModel = {
       if (node.type === 'lightning') {
         const lnNode = node as LightningNode;
         if (lnNode.implementation === 'LND') {
-          cleanCommand = applyTorFlags(command, false);
+          cleanCommand = applyTorFlags(command, false, 'LND');
+        }
+      } else if (node.type === 'bitcoin') {
+        const btcNode = node as BitcoinNode;
+        if (btcNode.implementation === 'bitcoind') {
+          cleanCommand = applyTorFlags(command, false, 'bitcoind');
         }
       }
 
@@ -1292,10 +1297,13 @@ const networkModel: NetworkModel = {
       throw e;
     }
   }),
-  setLightningNodesTor: action((state, { networkId, enabled }) => {
+  setAllNodesTor: action((state, { networkId, enabled }) => {
     const network = state.networks.find(n => n.id === networkId);
     if (network) {
       network.nodes.lightning.forEach(node => {
+        node.enableTor = enabled;
+      });
+      network.nodes.bitcoin.forEach(node => {
         node.enableTor = enabled;
       });
     }
@@ -1306,7 +1314,7 @@ const networkModel: NetworkModel = {
       let network = networks.find(n => n.id === networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId }));
 
-      actions.setLightningNodesTor({ networkId, enabled });
+      actions.setAllNodesTor({ networkId, enabled });
 
       await actions.save();
       network = getState().networks.find(n => n.id === networkId) as Network;
