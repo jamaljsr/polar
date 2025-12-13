@@ -4,7 +4,7 @@ ARG BITCOIN_VERSION
 ENV PATH=/opt/bitcoin-${BITCOIN_VERSION}/bin:$PATH
 
 RUN apt-get update -y \
-  && apt-get install -y curl gosu \
+  && apt-get install -y curl gosu tor\
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -26,7 +26,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/bitcoin/.bitcoin"]
 
-EXPOSE 18443 18444 28334 28335
+EXPOSE 18443 18444 28334 28335 9050 9051
 
 ENTRYPOINT ["/entrypoint.sh"]
 

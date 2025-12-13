@@ -621,6 +621,11 @@ const designerModel: DesignerModel = {
               ...node.properties,
               tor: enabled,
             };
+          } else if (node.type === 'bitcoin') {
+            node.properties = {
+              ...node.properties,
+              tor: enabled,
+            };
           }
         });
       }
