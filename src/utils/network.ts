@@ -691,15 +691,38 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
 };
 
 /**
- * Adds or removes Tor flags from an LND command
+ * Get Tor flags for a specific implementation
  */
-export const applyTorFlags = (command: string, enableTor: boolean): string => {
-  const torFlags = [
-    '--tor.active',
-    '--tor.socks=127.0.0.1:9050',
-    '--tor.control=127.0.0.1:9051',
-    '--tor.v3',
-  ];
+
+const getTorFlags = (implementation: NodeImplementation): string[] => {
+  switch (implementation) {
+    case 'LND':
+      return [
+        '--tor.active',
+        '--tor.socks=127.0.0.1:9050',
+        '--tor.control=127.0.0.1:9051',
+        '--tor.v3',
+      ];
+    case 'bitcoind':
+      return ['-proxy=127.0.0.1:9050', '-torcontrol=127.0.0.1:9051', '-bind=127.0.0.1'];
+    default:
+      return [];
+  }
+};
+
+/**
+ * Adds or removes Tor flags from a node command
+ */
+export const applyTorFlags = (
+  command: string,
+  enableTor: boolean,
+  implementation: NodeImplementation,
+): string => {
+  const torFlags = getTorFlags(implementation);
+
+  if (torFlags.length === 0) {
+    return command;
+  }
 
   // Remove existing Tor flags to avoid duplicates
   const lines = command
@@ -707,6 +730,13 @@ export const applyTorFlags = (command: string, enableTor: boolean): string => {
     .filter(line => !torFlags.some(flag => line.trim().startsWith(flag)));
 
   let cleanCommand = lines.join('\n').trim();
+
+  if (implementation === 'bitcoind') {
+    cleanCommand = cleanCommand.replace(
+      '-listenonion=0',
+      `-listenonion=${enableTor ? '1' : '0'}`,
+    );
+  }
 
   // Add Tor flags if enabled
   if (enableTor) {
@@ -735,7 +765,12 @@ export const getEffectiveCommand = (node: CommonNode): string => {
   if (node.type === 'lightning') {
     const lnNode = node as LightningNode;
     if (lnNode.implementation === 'LND' && lnNode.enableTor) {
-      command = applyTorFlags(command, !!lnNode.enableTor);
+      command = applyTorFlags(command, !!lnNode.enableTor, lnNode.implementation);
+    }
+  } else if (node.type === 'bitcoin') {
+    const btcNode = node as BitcoinNode;
+    if (btcNode.implementation === 'bitcoind' && btcNode.enableTor) {
+      command = applyTorFlags(command, !!btcNode.enableTor, btcNode.implementation);
     }
   }
 
