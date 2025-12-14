@@ -19,6 +19,42 @@ if ! id clightning > /dev/null 2>&1; then
   chown -R $USERID:$GROUPID /home/clightning
 fi
 
+usermod -a -G debian-tor clightning
+mkdir -p /var/lib/tor/clightning-service
+chown -R debian-tor:debian-tor /var/lib/tor
+chmod 700 /var/lib/tor
+chmod 700 /var/lib/tor/clightning-service
+
+if [ "${ENABLE_TOR}" = "true" ]; then
+  echo "Starting Tor service for Clightning..."
+
+  # Set default ports if not provided
+  TOR_SOCKS_PORT=${TOR_SOCKS_PORT:-9050}
+  TOR_CONTROL_PORT=${TOR_CONTROL_PORT:-9051}
+
+  # Generate torrc file with dynamic ports and Clightning hidden service
+  cat > /etc/tor/torrc <<EOF
+# Tor configuration for Clightning
+SocksPort 127.0.0.1:${TOR_SOCKS_PORT}
+ControlPort 127.0.0.1:${TOR_CONTROL_PORT}
+CookieAuthentication 0
+
+DataDirectory /var/lib/tor
+Log notice stdout
+
+HiddenServiceDir /var/lib/tor/clightning-service
+HiddenServiceVersion 3
+HiddenServicePort 1234 127.0.0.1:9735
+
+EOF
+
+  gosu debian-tor tor &
+  TOR_PID=$!
+
+else
+  echo "Tor service disabled (ENABLE_TOR != 'true')"
+fi
+
 if [ $(echo "$1" | cut -c1) = "-" ]; then
   echo "$0: assuming arguments for lightningd"
 

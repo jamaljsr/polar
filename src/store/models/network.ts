@@ -474,6 +474,8 @@ const networkModel: NetworkModel = {
         const lnNode = node as LightningNode;
         if (lnNode.implementation === 'LND') {
           cleanCommand = applyTorFlags(command, false, 'LND');
+        } else if (lnNode.implementation === 'c-lightning') {
+          cleanCommand = applyTorFlags(command, false, 'c-lightning');
         }
       } else if (node.type === 'bitcoin') {
         const btcNode = node as BitcoinNode;
