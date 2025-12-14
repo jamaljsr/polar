@@ -144,7 +144,7 @@ class ComposeFile {
     // do not include the GRPC port arg in the command for unsupported versions
     if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
     // On Windows, use a named Docker volume for CLN's data directory instead of a bind mount.
     let namedVolumeName: string | undefined;
     if (isWindows()) {
@@ -155,6 +155,9 @@ class ComposeFile {
       }
       this.content.volumes[namedVolumeName] = null;
     }
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = updateTorFlags(nodeCommand, !!node.enableTor, 'c-lightning');
+
     // add the docker service
     const svc = clightning(
       name,
@@ -163,9 +166,14 @@ class ComposeFile {
       rest,
       grpc,
       p2p,
-      command,
+      nodeCommand,
       namedVolumeName,
     );
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
     this.addService(svc);
   }
 
