@@ -140,9 +140,17 @@ class ComposeFile {
     // do not include the GRPC port arg in the command for unsupported versions
     if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = applyTorFlags(nodeCommand, !!node.enableTor, 'c-lightning');
     // add the docker service
-    const svc = clightning(name, container, image, rest, grpc, p2p, command);
+
+    const svc = clightning(name, container, image, rest, grpc, p2p, nodeCommand);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
     this.addService(svc);
   }
 
