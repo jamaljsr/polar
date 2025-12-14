@@ -11,7 +11,11 @@ export interface GetInfoResponse {
   numPendingChannels: number;
   numActiveChannels: number;
   numInactiveChannels: number;
-  address: string[];
+  address: {
+    type: string;
+    address: string;
+    port: number;
+  }[];
   binding: {
     type: string;
     address: string;

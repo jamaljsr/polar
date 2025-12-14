@@ -7,7 +7,7 @@ ARG CLN_VERSION
 
 # install gosu
 RUN apt-get update -y \
-  && apt-get install -y curl gosu git \
+  && apt-get install -y curl gosu git tor\
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -26,7 +26,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/clightning"]
 
-EXPOSE 9735 9835 8080 10000
+EXPOSE 9735 9835 8080 10000 9050 9051
 
 ENTRYPOINT ["/entrypoint.sh"]
 
