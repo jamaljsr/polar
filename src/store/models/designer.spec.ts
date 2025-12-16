@@ -983,5 +983,44 @@ describe('Designer model', () => {
         expect(firstChart().scale).toEqual(2);
       });
     });
+
+    describe('Network Tor', () => {
+      const getChart = () => store.getState().designer.allCharts[firstNetwork().id];
+      const getLightningNodes = () =>
+        Object.values(getChart().nodes).filter(n => n.type === 'lightning');
+      const getBitcoinNodes = () =>
+        Object.values(getChart().nodes).filter(n => n.type === 'bitcoin');
+
+      it('should set tor=true on all lightning and bitcoin nodes when enabled', async () => {
+        const { toggleTorForNetwork } = store.getActions().network;
+        await toggleTorForNetwork({
+          networkId: firstNetwork().id,
+          enabled: true,
+        });
+        getLightningNodes().forEach(node => expect(node.properties.tor).toBe(true));
+        getBitcoinNodes().forEach(node => expect(node.properties.tor).toBe(true));
+      });
+
+      it('should set tor=false on all lightning and bitcoin nodes when disabled', async () => {
+        const { toggleTorForNetwork } = store.getActions().network;
+        await toggleTorForNetwork({
+          networkId: firstNetwork().id,
+          enabled: false,
+        });
+        getLightningNodes().forEach(node => expect(node.properties.tor).toBe(false));
+        getBitcoinNodes().forEach(node => expect(node.properties.tor).toBe(false));
+      });
+
+      it('should do nothing if the chart does not exist', async () => {
+        const { toggleTorForNetwork } = store.getActions().network;
+        store.getActions().designer.setAllCharts({});
+        await expect(
+          toggleTorForNetwork({
+            networkId: firstNetwork().id,
+            enabled: true,
+          }),
+        ).resolves.not.toThrow();
+      });
+    });
   });
 });

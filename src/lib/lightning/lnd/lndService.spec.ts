@@ -38,6 +38,39 @@ describe('LndService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should prefer onion rpcUrl when tor is enabled', async () => {
+    const torNode = { ...node, enableTor: true };
+    lndProxyClient.getInfo = jest.fn().mockResolvedValue(
+      defaultLndInfo({
+        uris: ['asdf@1.1.1.1:9735', 'asdf@xyz.onion:9735'],
+      }),
+    );
+    const info = await lndService.getInfo(torNode);
+    expect(info.rpcUrl).toBe('asdf@xyz.onion:9735');
+  });
+
+  it('uses clearnet address when tor is disabled', async () => {
+    const clearnetNode = { ...node, enableTor: false };
+    lndProxyClient.getInfo = jest.fn().mockResolvedValue(
+      defaultLndInfo({
+        uris: ['asdf@1.1.1.1:9735'],
+      }),
+    );
+    const info = await lndService.getInfo(clearnetNode);
+    expect(info.rpcUrl).toBe('asdf@1.1.1.1:9735');
+  });
+
+  it('falls back to clearnet when no onion address exists', async () => {
+    const torNode = { ...node, enableTor: true };
+    lndProxyClient.getInfo = jest.fn().mockResolvedValue(
+      defaultLndInfo({
+        uris: ['asdf@1.1.1.1:9735'],
+      }),
+    );
+    const info = await lndService.getInfo(torNode);
+    expect(info.rpcUrl).toBe('asdf@1.1.1.1:9735');
+  });
+
   it('should get wallet balance', async () => {
     const apiResponse = defaultLndWalletBalance({ confirmedBalance: '1000' });
     const expected = defaultStateBalances({ confirmed: '1000' });
