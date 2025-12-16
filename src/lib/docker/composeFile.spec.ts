@@ -231,5 +231,48 @@ describe('ComposeFile', () => {
     composeFile.addClightning(secondClnNode as CLightningNode, btcNode);
     expect(composeFile.content.volumes).toHaveProperty('polar-n1-bob');
     expect(composeFile.content.volumes).toHaveProperty('polar-n1-carol');
+  })
+  
+  it('should set ENABLE_TOR to true when tor is enabled on lnd node', () => {
+    lndNode.enableTor = true;
+    composeFile.addLnd(lndNode, btcNode);
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['alice'];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on lnd node', () => {
+    lndNode.enableTor = false;
+    composeFile.addLnd(lndNode, btcNode);
+    const service = composeFile.content.services['alice'];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on bitcoind node', () => {
+    btcNode.enableTor = true;
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['backend1'];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on bitcoind node', () => {
+    btcNode.enableTor = false;
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['backend1'];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on c-lightning node', () => {
+    clnNode.enableTor = true;
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on c-lightning node', () => {
+    clnNode.enableTor = false;
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
   });
 });
