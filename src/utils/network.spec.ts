@@ -13,6 +13,7 @@ import {
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
+  applyTorFlags,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createLitdNetworkNode,
@@ -20,6 +21,7 @@ import {
   createNetwork,
   createTapdNetworkNode,
   getCLightningFilePaths,
+  getEffectiveCommand,
   getImageCommand,
   getInvoicePayload,
   getLndFilePaths,
@@ -647,6 +649,174 @@ describe('Network Utils', () => {
         testNodeDocker,
       );
       expect(() => mapToTapd(lnd)).toThrow(`Node "${lnd.name}" is not a litd node`);
+    });
+  });
+
+  describe('applyTorFlags', () => {
+    describe('LND', () => {
+      const baseCommand = ['--foo=bar', '--baz=qux'].join('\n');
+
+      it('should add tor flags when enabled', () => {
+        const result = applyTorFlags(baseCommand, true, 'LND');
+
+        expect(result).toContain('--foo=bar');
+        expect(result).toContain('--tor.active');
+        expect(result).toContain('--tor.socks=127.0.0.1:9050');
+      });
+
+      it('should remove tor flags when disabled', () => {
+        const commandWithTor = [
+          '--tor.active',
+          '--tor.socks=127.0.0.1:9050',
+          '--foo=bar',
+        ].join('\n');
+
+        const result = applyTorFlags(commandWithTor, false, 'LND');
+
+        expect(result).not.toContain('tor');
+        expect(result).toContain('--foo=bar');
+      });
+    });
+
+    describe('c-lightning', () => {
+      it('should add tor flags when enabled', () => {
+        const command = [
+          '--addr=1.2.3.4:9735',
+          '--addr=statictor:127.0.0.1:9051',
+          '--foo=bar',
+        ].join('\n');
+
+        const result = applyTorFlags(command, true, 'c-lightning');
+
+        expect(result).not.toContain('--addr=1.2.3.4');
+        expect(result).toContain('--addr=statictor');
+        expect(result).toContain('--foo=bar');
+        expect(result).toContain('--proxy=127.0.0.1:9050');
+      });
+
+      it('should remove tor flags when disabled', () => {
+        const command = [
+          '--proxy=127.0.0.1:9050',
+          '--always-use-proxy=true',
+          '--foo=bar',
+        ].join('\n');
+
+        const result = applyTorFlags(command, false, 'c-lightning');
+
+        expect(result).not.toContain('proxy');
+        expect(result).toContain('--foo=bar');
+      });
+    });
+
+    describe('bitcoind', () => {
+      it('should enable listenonion when tor is enabled', () => {
+        const command = '-listenonion=0\n-foo=bar';
+        const result = applyTorFlags(command, true, 'bitcoind');
+
+        expect(result).toContain('-listenonion=1');
+        expect(result).toContain('-proxy=127.0.0.1:9050');
+      });
+    });
+
+    it('should return original command if implementation has no tor flags', () => {
+      const command = '--foo=bar';
+      expect(applyTorFlags(command, true, 'eclair' as NodeImplementation)).toBe(command);
+    });
+  });
+
+  describe('getEffectiveCommand', () => {
+    it('should apply tor flags for LND when enabled', () => {
+      const node = {
+        type: 'lightning',
+        implementation: 'LND',
+        enableTor: true,
+        version: '0.18.0',
+        docker: {
+          command: '--foo=bar',
+        },
+      } as LightningNode;
+
+      const result = getEffectiveCommand(node);
+
+      expect(result).toContain('--foo=bar');
+      expect(result).toContain('--tor.active');
+    });
+
+    it('should not modify command for LND when tor is disabled', () => {
+      const node = {
+        type: 'lightning',
+        implementation: 'LND',
+        enableTor: false,
+        version: '0.18.0',
+        docker: {
+          command: '--foo=bar',
+        },
+      } as LightningNode;
+
+      const result = getEffectiveCommand(node);
+
+      expect(result).toBe('--foo=bar');
+    });
+
+    it('should apply tor flags for c-lightning when enabled', () => {
+      const node = {
+        type: 'lightning',
+        implementation: 'c-lightning',
+        enableTor: true,
+        version: '25.05',
+        docker: {
+          command: '--foo=bar',
+        },
+      } as LightningNode;
+
+      const result = getEffectiveCommand(node);
+
+      expect(result).toContain('--foo=bar');
+      expect(result).toContain('--addr=statictor');
+    });
+
+    it('should apply tor flags for bitcoind when enabled', () => {
+      const node = {
+        type: 'bitcoin',
+        implementation: 'bitcoind',
+        enableTor: true,
+        version: '29.0',
+        docker: {
+          command: '-listenonion=0',
+        },
+      } as any;
+      const result = getEffectiveCommand(node);
+      expect(result).toContain('-listenonion=1');
+      expect(result).toContain('-proxy=127.0.0.1:9050');
+    });
+
+    it('should not modify command for bitcoin when tor is disabled', () => {
+      const node = {
+        type: 'bitcoin',
+        implementation: 'bitcoind',
+        enableTor: false,
+        version: '29.0',
+        docker: {
+          command: '-listenonion=0',
+        },
+      } as any;
+
+      const result = getEffectiveCommand(node);
+
+      expect(result).toBe('-listenonion=0');
+    });
+
+    it('should return command as-is for custom node types', () => {
+      const node = {
+        type: 'unknown',
+        docker: {
+          command: '--custom-command',
+        },
+      } as any;
+
+      const result = getEffectiveCommand(node);
+
+      expect(result).toBe('--custom-command');
     });
   });
 });

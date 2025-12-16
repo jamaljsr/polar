@@ -3,14 +3,19 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
+  bitcoinServiceMock,
   defaultStateBalances,
   defaultStateInfo,
   getNetwork,
+  injections,
   lightningServiceMock,
   renderWithProviders,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import NetworkActions from './NetworkActions';
+
+const dockerServiceMock = injections.dockerService as jest.Mocked<
+  typeof injections.dockerService
+>;
 
 describe('NetworkActions Component', () => {
   const handleClick = jest.fn();
@@ -18,10 +23,12 @@ describe('NetworkActions Component', () => {
   const handleDeleteClick = jest.fn();
   const handleExportClick = jest.fn();
 
-  const renderComponent = (status: Status) => {
+  const renderComponent = (status: Status, enableTor = false) => {
     const network = getNetwork(1, 'test network', status);
     network.nodes.bitcoin.forEach(n => (n.status = status));
     const chart = initChartFromNetwork(network);
+    network.nodes.lightning.forEach(n => (n.enableTor = enableTor));
+
     const initialState = {
       network: {
         networks: [network],
@@ -162,6 +169,31 @@ describe('NetworkActions Component', () => {
       expect(lightningServiceMock.getInfo).toBeCalledTimes(4);
       expect(lightningServiceMock.getBalances).toBeCalledTimes(4);
       expect(lightningServiceMock.getChannels).toBeCalledTimes(4);
+    });
+  });
+
+  describe('Tor Toggle', () => {
+    it('should call toggleTorForNetwork when tor switch is toggled on', async () => {
+      const { getByRole, findByText } = renderComponent(Status.Stopped, false);
+      const torSwitch = getByRole('switch');
+      fireEvent.click(torSwitch);
+      expect(await findByText('Tor enabled for all supported nodes')).toBeInTheDocument();
+    });
+
+    it('should call toggleTorForNetwork when tor switch is toggled off', async () => {
+      const { getByRole, findByText } = renderComponent(Status.Stopped, true);
+      const torSwitch = getByRole('switch');
+      fireEvent.click(torSwitch);
+      expect(await findByText('Tor disabled for all nodes')).toBeInTheDocument();
+    });
+
+    it('should display an error if toggling tor fails', async () => {
+      dockerServiceMock.saveComposeFile.mockRejectedValue(new Error('tor-failed'));
+      const { getByRole, findByText } = renderComponent(Status.Stopped);
+
+      fireEvent.click(getByRole('switch'));
+      expect(await findByText('Failed to toggle Tor settings')).toBeInTheDocument();
+      expect(await findByText('tor-failed')).toBeInTheDocument();
     });
   });
 });

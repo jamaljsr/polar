@@ -18,8 +18,8 @@ class LndService implements LightningService {
       if (lndNode.enableTor) {
         const onionUri = info.uris.find(uri => uri.includes('.onion'));
         rpcUrl = onionUri || info.uris[0];
-      }
-    } else rpcUrl = info.uris[0];
+      } else rpcUrl = info.uris[0];
+    }
 
     return {
       pubkey: info.identityPubkey,
