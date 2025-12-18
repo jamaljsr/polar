@@ -155,7 +155,7 @@
     "testcafe-react-selectors": "5.0.3",
     "ts-node": "10.9.2",
     "typescript": "5.5.4",
-    "utf-8-validate": "6.0.5",
+    "utf-8-validate": "6.0.6",
     "wait-on": "9.0.3",
     "webpack": "4.44.2",
     "ws": "8.18.3"
