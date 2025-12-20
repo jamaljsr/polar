@@ -1,5 +1,5 @@
 # Start with a NodeJS base image that also contains yarn.
-FROM node:22.21.1-alpine@sha256:9632533eda8061fc1e9960cfb3f8762781c07a00ee7317f5dc0e13c05e15166f as nodejsbuilder
+FROM node:22.21.1-alpine@sha256:0340fa682d72068edf603c305bfbc10e23219fb0e40df58d9ea4d6f33a9798bf as nodejsbuilder
 
 ARG LITD_VERSION
 
