@@ -6,8 +6,9 @@ import { useStoreState } from 'store';
 import {
   AdvancedOptionsButton,
   RemoveNode,
-  RestartNode,
   RenameNodeButton,
+  RestartNode,
+  TorButton,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
@@ -47,6 +48,7 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   const isLN = node.type === 'lightning';
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
+  const isTorEnabled = (node as LightningNode | BitcoinNode).enableTor;
 
   let items: MenuProps['items'] = [];
   items = items.concat(
@@ -109,6 +111,8 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     ),
     addItemIf('rename', <RenameNodeButton type="menu" node={node} />),
     addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
+    addItemIf('enable', <TorButton menuType="enable" node={node} />, !isTorEnabled),
+    addItemIf('disable', <TorButton menuType="disable" node={node} />, isTorEnabled),
     addItemIf('remove', <RemoveNode type="menu" node={node} />),
   );
 

@@ -102,12 +102,12 @@ const NetworkActions: React.FC<Props> = ({
               onChange={handleTorToggle}
               checkedChildren={
                 <>
-                  <UnlockOutlined /> {l('torTitle')}
+                  <LockOutlined /> {l('torTitle')}
                 </>
               }
               unCheckedChildren={
                 <>
-                  <LockOutlined /> {l('torTitle')}
+                  <UnlockOutlined /> {l('torTitle')}
                 </>
               }
             />
