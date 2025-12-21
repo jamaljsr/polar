@@ -245,6 +245,17 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  setNodeTor: Action<
+    NetworkModel,
+    { networkId: number; nodeName: string; enabled: boolean }
+  >;
+  toggleTorForNode: Thunk<
+    NetworkModel,
+    { node: CommonNode; enabled: boolean },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -1321,6 +1332,53 @@ const networkModel: NetworkModel = {
       await actions.save();
       network = getState().networks.find(n => n.id === networkId) as Network;
       await injections.dockerService.saveComposeFile(network);
+    },
+  ),
+  setNodeTor: action((state, { networkId, nodeName, enabled }) => {
+    const network = state.networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    const lnNode = network.nodes.lightning.find(n => n.name === nodeName);
+    if (lnNode) {
+      lnNode.enableTor = enabled;
+      return;
+    }
+
+    const btcNode = network.nodes.bitcoin.find(n => n.name === nodeName);
+    if (btcNode) {
+      btcNode.enableTor = enabled;
+      return;
+    }
+    throw new Error(l('nodeByNameErr', { name: nodeName }));
+  }),
+  toggleTorForNode: thunk(
+    async (actions, { node, enabled }, { getState, injections }) => {
+      const { networkId, name, status } = node;
+      const networks = getState().networks;
+      let network = networks.find(n => n.id === networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId }));
+
+      const wasStarted = status === Status.Started;
+      if (wasStarted) {
+        await actions.toggleNode(node);
+      }
+      actions.setNodeTor({ networkId, nodeName: name, enabled });
+      actions.save();
+
+      network = getState().networks.find(n => n.id === networkId) as Network;
+      await injections.dockerService.saveComposeFile(network);
+
+      if (wasStarted) {
+        const updatedNetwork = getState().networks.find(n => n.id === networkId);
+        if (updatedNetwork) {
+          const updatedNode = [
+            ...updatedNetwork.nodes.lightning,
+            ...updatedNetwork.nodes.bitcoin,
+          ].find(n => n.name === name);
+          if (updatedNode) {
+            await actions.toggleNode(updatedNode);
+          }
+        }
+      }
     },
   ),
 };

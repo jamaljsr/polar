@@ -8,6 +8,7 @@ import {
   RemoveNode,
   RenameNodeButton,
   RestartNode,
+  TorButton,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
@@ -45,6 +46,7 @@ const ActionsTab: React.FC<Props> = ({ node }) => {
         </>
       )}
       <RestartNode node={node} />
+      <TorButton node={node} />
       <RenameNodeButton node={node} />
       <AdvancedOptionsButton node={node} />
       <RemoveNode node={node} />

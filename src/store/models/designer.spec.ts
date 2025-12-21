@@ -984,7 +984,7 @@ describe('Designer model', () => {
       });
     });
 
-    describe('Network Tor', () => {
+    describe('Enable Tor', () => {
       const getChart = () => store.getState().designer.allCharts[firstNetwork().id];
       const getLightningNodes = () =>
         Object.values(getChart().nodes).filter(n => n.type === 'lightning');
@@ -1001,25 +1001,45 @@ describe('Designer model', () => {
         getBitcoinNodes().forEach(node => expect(node.properties.tor).toBe(true));
       });
 
-      it('should set tor=false on all lightning and bitcoin nodes when disabled', async () => {
-        const { toggleTorForNetwork } = store.getActions().network;
-        await toggleTorForNetwork({
-          networkId: firstNetwork().id,
-          enabled: false,
-        });
-        getLightningNodes().forEach(node => expect(node.properties.tor).toBe(false));
-        getBitcoinNodes().forEach(node => expect(node.properties.tor).toBe(false));
-      });
-
       it('should do nothing if the chart does not exist', async () => {
-        const { toggleTorForNetwork } = store.getActions().network;
+        const { toggleTorForNetwork, toggleTorForNode } = store.getActions().network;
         store.getActions().designer.setAllCharts({});
+        const node = firstNetwork().nodes.lightning[0];
+
         await expect(
           toggleTorForNetwork({
             networkId: firstNetwork().id,
             enabled: true,
           }),
         ).resolves.not.toThrow();
+        await expect(
+          toggleTorForNode({
+            node,
+            enabled: true,
+          }),
+        ).resolves.not.toThrow();
+      });
+
+      it('should set tor=true on a lightning node when enabled', async () => {
+        const { toggleTorForNode } = store.getActions().network;
+        const node = firstNetwork().nodes.lightning[0];
+        await toggleTorForNode({
+          node,
+          enabled: true,
+        });
+
+        const chartNode = getChart().nodes[node.name];
+        expect(chartNode.properties.tor).toBe(true);
+      });
+
+      it('should set tor=true on a bitcoin node when enabled', async () => {
+        const { toggleTorForNode } = store.getActions().network;
+        const node = firstNetwork().nodes.bitcoin[0];
+
+        await toggleTorForNode({ node, enabled: true });
+
+        const chartNode = getChart().nodes[node.name];
+        expect(chartNode.properties.tor).toBe(true);
       });
     });
   });
