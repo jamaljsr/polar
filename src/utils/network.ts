@@ -1139,7 +1139,8 @@ export const getTapBackendNode = (nodeName: string, network: Network) => {
   const { lightning, tap } = network.nodes;
   const node = [...tap, ...lightning].find(n => n.name === nodeName);
 
-  let tapNode: TapdNode | LitdNode | undefined = undefined;
+  // Initializing tapNode from undefined to empty Tapdnode / LitdNode object
+  let tapNode: TapdNode | LitdNode = {} as TapdNode | LitdNode;
   if (node?.type === 'tap' && (node as TapNode).implementation === 'tapd') {
     tapNode = node as TapdNode;
   } else if (
