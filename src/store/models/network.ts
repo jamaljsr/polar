@@ -34,6 +34,7 @@ import {
   importNetworkFromZip,
   OpenPorts,
   renameNode,
+  supportsTor,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -481,18 +482,15 @@ const networkModel: NetworkModel = {
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
 
       let cleanCommand = command;
-      if (node.type === 'lightning') {
-        const lnNode = node as LightningNode;
-        if (lnNode.implementation === 'LND') {
-          cleanCommand = applyTorFlags(command, false, 'LND');
-        } else if (lnNode.implementation === 'c-lightning') {
-          cleanCommand = applyTorFlags(command, false, 'c-lightning');
+
+      if (supportsTor(node)) {
+        let implementation: NodeImplementation;
+        if (node.type === 'lightning') {
+          implementation = (node as LightningNode).implementation;
+        } else {
+          implementation = (node as BitcoinNode).implementation;
         }
-      } else if (node.type === 'bitcoin') {
-        const btcNode = node as BitcoinNode;
-        if (btcNode.implementation === 'bitcoind') {
-          cleanCommand = applyTorFlags(command, false, 'bitcoind');
-        }
+        cleanCommand = applyTorFlags(command, false, implementation);
       }
 
       actions.updateNodeCommand({
