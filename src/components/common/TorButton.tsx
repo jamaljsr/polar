@@ -5,6 +5,7 @@ import { Alert, Button, Form, Modal } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, CommonNode, LightningNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
+import { supportsTor } from 'utils/network';
 
 interface Props {
   node: CommonNode;
@@ -21,10 +22,6 @@ const TorButton: React.FC<Props> = ({ node, menuType }) => {
   const { l } = usePrefixedTranslation('cmps.common.TorButton');
   const { notify } = useStoreActions(s => s.app);
   const { toggleTorForNode } = useStoreActions(s => s.network);
-
-  if (node.type === 'tap') {
-    return null;
-  }
 
   const disabled = [Status.Starting, Status.Stopping].includes(node.status);
   const isStarted = node.status === Status.Started;
@@ -65,6 +62,14 @@ const TorButton: React.FC<Props> = ({ node, menuType }) => {
         {icon}
         <span>{l(`${menuType}Btn`)}</span>
       </div>
+    );
+  }
+
+  if (!supportsTor(node)) {
+    return (
+      <Form.Item label={l('title')} colon={false}>
+        <Alert message={l('notSupported')} type="info" showIcon />
+      </Form.Item>
     );
   }
 
