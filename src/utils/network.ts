@@ -789,21 +789,21 @@ export const getEffectiveCommand = (node: CommonNode): string => {
 
   let command = node.docker.command || getDefaultCommand(implementation, node.version);
 
-  if (node.type === 'lightning') {
-    const lnNode = node as LightningNode;
-    if (lnNode.implementation === 'LND' && lnNode.enableTor) {
-      command = updateTorFlags(command, !!lnNode.enableTor, lnNode.implementation);
-    } else if (lnNode.implementation === 'c-lightning' && lnNode.enableTor) {
-      command = updateTorFlags(command, !!lnNode.enableTor, lnNode.implementation);
-    }
-  } else if (node.type === 'bitcoin') {
-    const btcNode = node as BitcoinNode;
-    if (btcNode.implementation === 'bitcoind' && btcNode.enableTor) {
-      command = updateTorFlags(command, !!btcNode.enableTor, btcNode.implementation);
+  if (supportsTor(node)) {
+    const enableTor = node.enableTor;
+    if (enableTor) {
+      command = updateTorFlags(command, true, implementation);
     }
   }
 
   return command;
+};
+
+/**
+ * Check if a node implementation supports Tor
+ */
+export const supportsTor = (node: CommonNode): boolean => {
+  return node.type !== 'tap';
 };
 
 /**

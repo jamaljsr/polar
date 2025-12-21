@@ -13,7 +13,6 @@ import {
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
-  applyTorFlags,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createLitdNetworkNode,
@@ -31,6 +30,7 @@ import {
   mapToTapd,
   OpenPorts,
   renameNode,
+  updateTorFlags,
 } from './network';
 import { getNetwork, testManagedImages, testNodeDocker } from './tests';
 
@@ -652,12 +652,12 @@ describe('Network Utils', () => {
     });
   });
 
-  describe('applyTorFlags', () => {
+  describe('updateTorFlags', () => {
     describe('LND', () => {
       const baseCommand = ['--foo=bar', '--baz=qux'].join('\n');
 
       it('should add tor flags when enabled', () => {
-        const result = applyTorFlags(baseCommand, true, 'LND');
+        const result = updateTorFlags(baseCommand, true, 'LND');
 
         expect(result).toContain('--foo=bar');
         expect(result).toContain('--tor.active');
@@ -671,7 +671,7 @@ describe('Network Utils', () => {
           '--foo=bar',
         ].join('\n');
 
-        const result = applyTorFlags(commandWithTor, false, 'LND');
+        const result = updateTorFlags(commandWithTor, false, 'LND');
 
         expect(result).not.toContain('tor');
         expect(result).toContain('--foo=bar');
@@ -686,7 +686,7 @@ describe('Network Utils', () => {
           '--foo=bar',
         ].join('\n');
 
-        const result = applyTorFlags(command, true, 'c-lightning');
+        const result = updateTorFlags(command, true, 'c-lightning');
 
         expect(result).not.toContain('--addr=1.2.3.4');
         expect(result).toContain('--foo=bar');
@@ -700,7 +700,7 @@ describe('Network Utils', () => {
           '--foo=bar',
         ].join('\n');
 
-        const result = applyTorFlags(command, false, 'c-lightning');
+        const result = updateTorFlags(command, false, 'c-lightning');
 
         expect(result).not.toContain('proxy');
         expect(result).toContain('--foo=bar');
@@ -710,14 +710,14 @@ describe('Network Utils', () => {
     describe('bitcoind', () => {
       it('should enable listenonion when tor is enabled', () => {
         const command = '-listenonion=0\n-foo=bar';
-        const result = applyTorFlags(command, true, 'bitcoind');
+        const result = updateTorFlags(command, true, 'bitcoind');
         expect(result).toContain('-proxy=127.0.0.1:9050');
       });
     });
 
     it('should return original command if implementation has no tor flags', () => {
       const command = '--foo=bar';
-      expect(applyTorFlags(command, true, 'eclair' as NodeImplementation)).toBe(command);
+      expect(updateTorFlags(command, true, 'eclair' as NodeImplementation)).toBe(command);
     });
   });
 

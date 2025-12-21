@@ -15,7 +15,7 @@ import { useMiningAsync } from 'hooks/useMiningAsync';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { getNetworkBackendId } from 'utils/network';
+import { getNetworkBackendId, supportsTor } from 'utils/network';
 import BalanceChannelsButton from 'components/common/BalanceChannelsButton';
 import StatusButton from 'components/common/StatusButton';
 import AutoMineButton from 'components/designer/AutoMineButton';
@@ -39,34 +39,43 @@ interface Props {
 }
 
 interface TorMenuSwitchProps {
+  hasTorSupportedNodes: boolean;
+  isTorEnabled: boolean;
   isNetworkStarted: boolean;
   onToggle: (checked: boolean) => void;
   l: (key: string) => string;
 }
 
 const TorMenuSwitch: React.FC<TorMenuSwitchProps> = ({
+  hasTorSupportedNodes,
+  isTorEnabled,
   isNetworkStarted,
   onToggle,
   l,
 }) => (
-  <Tooltip
-    title={isNetworkStarted ? l('torToggleDisabledStarted') : l('torToggleTooltip')}
-  >
-    <Switch
-      onChange={onToggle}
-      disabled={isNetworkStarted}
-      checkedChildren={
-        <>
-          <UnlockOutlined /> {l('torTitle')}
-        </>
-      }
-      unCheckedChildren={
-        <>
-          <LockOutlined /> {l('torTitle')}
-        </>
-      }
-    />
-  </Tooltip>
+  <>
+    {hasTorSupportedNodes && (
+      <Tooltip
+        title={isNetworkStarted ? l('torToggleDisabledStarted') : l('torToggleTooltip')}
+      >
+        <Switch
+          checked={isTorEnabled}
+          onChange={onToggle}
+          disabled={isNetworkStarted}
+          checkedChildren={
+            <>
+              <UnlockOutlined /> {l('torTitle')}
+            </>
+          }
+          unCheckedChildren={
+            <>
+              <LockOutlined /> {l('torTitle')}
+            </>
+          }
+        />
+      </Tooltip>
+    )}
+  </>
 );
 
 const NetworkActions: React.FC<Props> = ({
@@ -87,6 +96,16 @@ const NetworkActions: React.FC<Props> = ({
 
   const { notify } = useStoreActions(s => s.app);
   const { toggleTorForNetwork } = useStoreActions(s => s.network);
+
+  const torSupportedNodes = [
+    ...network.nodes.bitcoin.filter(supportsTor),
+    ...network.nodes.lightning.filter(supportsTor),
+  ];
+
+  const hasTorSupportedNodes = torSupportedNodes.length > 0;
+
+  const isTorEnabled =
+    hasTorSupportedNodes && torSupportedNodes.every(node => node.enableTor);
 
   const handleTorToggle = useCallback(
     async (checked: boolean) => {
@@ -125,6 +144,8 @@ const NetworkActions: React.FC<Props> = ({
       key: 'tor',
       label: (
         <TorMenuSwitch
+          hasTorSupportedNodes={hasTorSupportedNodes}
+          isTorEnabled={isTorEnabled}
           isNetworkStarted={network.status === Status.Started}
           onToggle={handleTorToggle}
           l={l}
