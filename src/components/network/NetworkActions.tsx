@@ -12,10 +12,10 @@ import styled from '@emotion/styled';
 import { Button, Divider, Dropdown, MenuProps, Switch, Tag, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useMiningAsync } from 'hooks/useMiningAsync';
-import { Status } from 'shared/types';
+import { BitcoinNode, LightningNode, Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { getNetworkBackendId } from 'utils/network';
+import { getNetworkBackendId, supportsTor } from 'utils/network';
 import BalanceChannelsButton from 'components/common/BalanceChannelsButton';
 import StatusButton from 'components/common/StatusButton';
 import AutoMineButton from 'components/designer/AutoMineButton';
@@ -76,6 +76,20 @@ const NetworkActions: React.FC<Props> = ({
 
   const { notify } = useStoreActions(s => s.app);
   const { toggleTorForNetwork } = useStoreActions(s => s.network);
+
+  // Check if network has any Tor-supported nodes
+  const torSupportedNodes = [
+    ...network.nodes.bitcoin.filter(supportsTor),
+    ...network.nodes.lightning.filter(supportsTor),
+  ];
+
+  const hasTorSupportedNodes = torSupportedNodes.length > 0;
+
+  // Only check enabled state for supported nodes
+  const isTorEnabled =
+    hasTorSupportedNodes &&
+    torSupportedNodes.every(node => (node as LightningNode | BitcoinNode).enableTor);
+
   const handleTorToggle = useCallback(
     async (checked: boolean) => {
       try {
@@ -90,11 +104,9 @@ const NetworkActions: React.FC<Props> = ({
     [network.id],
   );
 
-  const isTorEnabled = network.nodes.lightning.every(node => node.enableTor);
-
   return (
     <>
-      {bitcoinNode.status === Status.Stopped && (
+      {bitcoinNode.status === Status.Stopped && hasTorSupportedNodes && (
         <>
           <Tooltip title={l('torToggleTooltip')}>
             <Switch
@@ -110,6 +122,19 @@ const NetworkActions: React.FC<Props> = ({
                   <UnlockOutlined /> {l('torTitle')}
                 </>
               }
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+        </>
+      )}
+
+      {bitcoinNode.status === Status.Stopped && !hasTorSupportedNodes && (
+        <>
+          <Tooltip title={l('torNotSupported')}>
+            <Switch
+              disabled
+              checkedChildren={<LockOutlined />}
+              unCheckedChildren={<UnlockOutlined />}
             />
           </Tooltip>
           <Divider type="vertical" />

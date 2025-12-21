@@ -25,7 +25,10 @@ describe('NetworkActions Component', () => {
 
   const renderComponent = (status: Status, enableTor = false) => {
     const network = getNetwork(1, 'test network', status);
-    network.nodes.bitcoin.forEach(n => (n.status = status));
+    network.nodes.bitcoin.forEach(n => {
+      n.status = status;
+      n.enableTor = enableTor;
+    });
     const chart = initChartFromNetwork(network);
     network.nodes.lightning.forEach(n => (n.enableTor = enableTor));
 
@@ -194,6 +197,37 @@ describe('NetworkActions Component', () => {
       fireEvent.click(getByRole('switch'));
       expect(await findByText('Failed to toggle Tor settings')).toBeInTheDocument();
       expect(await findByText('tor-failed')).toBeInTheDocument();
+    });
+
+    it('should display disabled switch when no nodes support Tor', () => {
+      const network = getNetwork(1, 'test network', Status.Stopped);
+      network.nodes.bitcoin = [
+        { ...network.nodes.bitcoin[0], implementation: 'btcd' } as any,
+      ];
+      network.nodes.lightning = [];
+
+      const initialState = {
+        network: { networks: [network] },
+        designer: {
+          activeId: network.id,
+          allCharts: { [network.id]: initChartFromNetwork(network) },
+        },
+      };
+
+      const { getByRole, getByLabelText } = renderWithProviders(
+        <NetworkActions
+          network={network}
+          onClick={jest.fn()}
+          onRenameClick={jest.fn()}
+          onDeleteClick={jest.fn()}
+          onExportClick={jest.fn()}
+        />,
+        { initialState },
+      );
+
+      const torSwitch = getByRole('switch');
+      expect(torSwitch).toBeDisabled();
+      expect(getByLabelText('unlock')).toBeInTheDocument();
     });
   });
 });

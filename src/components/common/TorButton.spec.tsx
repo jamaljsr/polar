@@ -177,4 +177,28 @@ describe('TorButton', () => {
       await findByText('Are you sure you want to disable Tor for the alice node?'),
     ).toBeInTheDocument();
   });
+
+  it('should show not supported message for non-lightning/bitcoin node types', () => {
+    const network = getNetwork(1, 'test network');
+    const tapNode = {
+      ...network.nodes.lightning[0],
+      type: 'tap',
+      enableTor: true,
+    } as any;
+
+    const initialState = {
+      network: { networks: [network] },
+      designer: {
+        allCharts: { 1: initChartFromNetwork(network) },
+        activeId: 1,
+      },
+    };
+
+    const { getByText } = renderWithProviders(<TorButton node={tapNode} />, {
+      initialState,
+      wrapForm: true,
+    });
+
+    expect(getByText('Tor Not Currently Supported')).toBeInTheDocument();
+  });
 });
