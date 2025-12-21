@@ -1041,6 +1041,32 @@ describe('Designer model', () => {
         const chartNode = getChart().nodes[node.name];
         expect(chartNode.properties.tor).toBe(true);
       });
+
+      it('should not set tor property if the node type is not lightning or bitcoin', async () => {
+        const { toggleTorForNode } = store.getActions().network;
+        const network = firstNetwork();
+        const chart = getChart();
+
+        const node = {
+          ...network.nodes.lightning[0],
+          type: 'tap',
+        };
+
+        chart.nodes[node.name] = {
+          ...chart.nodes[network.nodes.lightning[0].name],
+          id: node.name,
+          type: 'tap',
+          properties: { tor: false },
+        };
+
+        await toggleTorForNode({
+          node: node as any,
+          enabled: true,
+        });
+
+        const chartNode = getChart().nodes[node.name];
+        expect(chartNode.properties.tor).toBe(false);
+      });
     });
   });
 });

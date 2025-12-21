@@ -25,7 +25,10 @@ describe('NetworkActions Component', () => {
 
   const renderComponent = (status: Status, enableTor = false) => {
     const network = getNetwork(1, 'test network', status);
-    network.nodes.bitcoin.forEach(n => (n.status = status));
+    network.nodes.bitcoin.forEach(n => {
+      n.status = status;
+      n.enableTor = enableTor;
+    });
     const chart = initChartFromNetwork(network);
     network.nodes.lightning.forEach(n => (n.enableTor = enableTor));
 
