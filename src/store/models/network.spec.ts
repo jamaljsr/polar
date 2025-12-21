@@ -1413,6 +1413,108 @@ describe('Network model', () => {
       expect(updatedNode.docker.command).toBe(command);
       expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
     });
+
+    it('should enable Tor for a node', async () => {
+      const { addNetwork, setNodeTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+
+      const network = firstNetwork();
+      const btcNode = network.nodes.bitcoin[0];
+
+      expect(btcNode.enableTor).toBe(false);
+      setNodeTor({ networkId: 1, nodeName: btcNode.name, enabled: true });
+      const updatedNetwork = firstNetwork();
+      const updatedBtcNode = updatedNetwork.nodes.bitcoin[0];
+      expect(updatedBtcNode.enableTor).toBe(true);
+    });
+
+    it('should fail to set node Tor with invalid network id', () => {
+      const { setNodeTor } = store.getActions().network;
+      expect(() =>
+        setNodeTor({ networkId: 999, nodeName: 'alice', enabled: true }),
+      ).toThrow("Network with the id '999' was not found.");
+    });
+
+    it('should fail to set node Tor with invalid node name', async () => {
+      const { addNetwork, setNodeTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+      expect(() =>
+        setNodeTor({
+          networkId: network.id,
+          nodeName: 'invalid-node',
+          enabled: true,
+        }),
+      ).toThrow("The node 'invalid-node' was not found.");
+    });
+
+    it('should fail to call toggleTorForNode with invalid network id', async () => {
+      const { addNetwork, toggleTorForNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 999,
+      };
+
+      await expect(toggleTorForNode({ node, enabled: true })).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+
+    it('should enable Tor on a started lightning node and restart it', async () => {
+      const { addNetwork, toggleTorForNode, setStatus } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+
+      // Start the node first
+      setStatus({ id: firstNetwork().id, status: Status.Started });
+
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 1,
+      };
+      expect(node.status).toBe(Status.Started);
+
+      await toggleTorForNode({ node, enabled: true });
+
+      const updatedNode = firstNetwork().nodes.lightning[0];
+      expect(updatedNode.enableTor).toBe(true);
+      // Node should be restarted (Started status maintained)
+      expect(updatedNode.status).toBe(Status.Started);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should enable Tor on a stopped lightning node', async () => {
+      const { addNetwork, toggleTorForNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 1,
+      };
+
+      await toggleTorForNode({ node, enabled: true });
+
+      const updatedNode = firstNetwork().nodes.lightning[0];
+      expect(updatedNode.enableTor).toBe(true);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should preserve other node properties when toggling Tor', async () => {
+      const { addNetwork, toggleTorForNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 1,
+      };
+      const originalPorts = { ...node.ports };
+      const originalName = node.name;
+
+      await toggleTorForNode({ node, enabled: true });
+
+      const updatedNode = firstNetwork().nodes.lightning[0];
+      expect(updatedNode.name).toBe(originalName);
+      expect(updatedNode.ports).toEqual(originalPorts);
+      expect(updatedNode.enableTor).toBe(true);
+    });
   });
 
   describe('Other actions', () => {

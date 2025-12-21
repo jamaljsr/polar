@@ -53,6 +53,7 @@ export interface DesignerModel {
   onLinkCompleteListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onCanvasDropListener: ThunkOn<DesignerModel, StoreInjections, RootModel>;
   onNetworkToggleTor: ActionOn<DesignerModel, RootModel>;
+  onNodeToggleTor: ActionOn<DesignerModel, RootModel>;
   zoomIn: Action<DesignerModel, any>;
   zoomOut: Action<DesignerModel, any>;
   zoomReset: Action<DesignerModel, any>;
@@ -612,22 +613,33 @@ const designerModel: DesignerModel = {
       const chart = state.allCharts[networkId];
 
       if (chart) {
-        // Update all lightning nodes' tor property in the chart
+        // Update tor property in the chart
         Object.keys(chart.nodes).forEach(nodeName => {
           const node = chart.nodes[nodeName];
-          // Only update lightning nodes
-          if (node.type === 'lightning') {
-            node.properties = {
-              ...node.properties,
-              tor: enabled,
-            };
-          } else if (node.type === 'bitcoin') {
+          if (node.type === 'lightning' || node.type === 'bitcoin') {
             node.properties = {
               ...node.properties,
               tor: enabled,
             };
           }
         });
+      }
+    },
+  ),
+  onNodeToggleTor: actionOn(
+    (actions, storeActions) => storeActions.network.setNodeTor,
+    (state, { payload }) => {
+      const { networkId, nodeName, enabled } = payload;
+      const chart = state.allCharts[networkId];
+
+      if (chart) {
+        const node = chart.nodes[nodeName];
+        if (node.type === 'lightning' || node.type === 'bitcoin') {
+          node.properties = {
+            ...node.properties,
+            tor: enabled,
+          };
+        }
       }
     },
   ),
