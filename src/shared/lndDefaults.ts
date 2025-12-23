@@ -140,6 +140,8 @@ export const defaultLndPendingOpenChannel = (
     commitFee: '0',
     commitWeight: '0',
     feePerKw: '0',
+    confirmationsUntilActive: 6,
+    confirmationHeight: 1234,
     ...rest,
   };
 };

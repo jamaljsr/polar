@@ -273,6 +273,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     command: [
       'litd',
       '--httpslisten=0.0.0.0:8443',
+      '--enablerest',
       '--uipassword={{litdPass}}',
       '--network=regtest',
       '--lnd-mode=integrated',
