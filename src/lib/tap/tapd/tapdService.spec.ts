@@ -383,5 +383,9 @@ const sampleBalance: TAP.AssetBalance = {
     outputIndex: 0,
     assetType: 'NORMAL',
   },
+  groupKey: Buffer.from(
+    '031f593aec22e3afd98c133b2520e1a41795d2bfed51d0470e69b55aebc7e5bb78',
+    'hex',
+  ),
   balance: '100',
 };

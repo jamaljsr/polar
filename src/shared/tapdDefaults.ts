@@ -24,6 +24,7 @@ export const defaultTapdListBalances = (
 ): ListBalancesResponse => ({
   assetBalances: {},
   assetGroupBalances: {},
+  unconfirmedTransfers: '0',
   ...value,
 });
 
