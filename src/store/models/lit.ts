@@ -31,12 +31,15 @@ export interface CreateInvoicePayload {
   node: LitdNode;
   assetId: string;
   amount: number;
+  metadata?: string;
 }
 
 export interface PayInvoicePayload {
   node: LitdNode;
   assetId: string;
   invoice: string;
+  allowSelfPayment?: boolean;
+  metadata?: string;
 }
 
 export interface LitModel {
@@ -113,7 +116,7 @@ const litModel: LitModel = {
     await actions.getSessions(node);
   }),
   createAssetInvoice: thunk(
-    async (actions, { node, assetId, amount }, { injections }) => {
+    async (actions, { node, assetId, amount, metadata }, { injections }) => {
       const assetsInChannels = actions
         .getAssetsInChannels({ nodeName: node.name })
         .filter(a => a.asset.id === assetId)
@@ -127,7 +130,7 @@ const litModel: LitModel = {
       const tapdNode = mapToTapd(node);
       const invoice = await injections.tapFactory
         .getService(tapdNode)
-        .addInvoice(tapdNode, assetId, amount, '', 3600);
+        .addInvoice(tapdNode, assetId, amount, '', 3600, metadata);
 
       // decode the invoice to get the amount in sats
       const decoded = await injections.lightningFactory
@@ -141,7 +144,7 @@ const litModel: LitModel = {
   payAssetInvoice: thunk(
     async (
       actions,
-      { node, assetId, invoice },
+      { node, assetId, invoice, allowSelfPayment, metadata },
       { injections, getStoreState, getStoreActions },
     ) => {
       const assetsInChannels = actions
@@ -170,6 +173,8 @@ const litModel: LitModel = {
         invoice,
         feeLimit,
         peerPubkey,
+        allowSelfPayment,
+        metadata,
       );
 
       // synchronize the chart with the new channel

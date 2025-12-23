@@ -136,6 +136,8 @@ export const defaultLndPendingOpenChannel = (
   const { channel, ...rest } = value;
   return {
     channel: defaultLndPendingChannel(channel as PendingChannel),
+    confirmationHeight: 0,
+    confirmationsUntilActive: 6,
     fundingExpiryBlocks: 0,
     commitFee: '0',
     commitWeight: '0',

@@ -202,6 +202,8 @@ describe('LIT Model', () => {
         'lnbc1invoice',
         500000,
         '',
+        undefined,
+        undefined,
       );
       expect(receipt).toEqual({
         preimage: 'preimage',

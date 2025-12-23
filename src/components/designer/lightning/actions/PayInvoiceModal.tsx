@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Form, Input, Modal, Select } from 'antd';
+import { Form, Input, Modal, Select, Collapse, Checkbox } from 'antd';
+import TextArea from 'antd/lib/input/TextArea';
 import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
@@ -29,6 +30,8 @@ const Styled = {
 interface FormValues {
   node: string;
   invoice: string;
+  allowSelfPayment?: boolean;
+  metadata?: string;
 }
 
 interface Props {
@@ -73,11 +76,21 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       let amount = '0';
       let assetName = 'sats';
       if (assetId === 'sats') {
-        const res = await payInvoice({ node, invoice });
+        const res = await payInvoice({
+          node,
+          invoice,
+          allowSelfPayment: values.allowSelfPayment,
+        });
         amount = format(res.amount);
       } else {
         const litdNode = node as LitdNode;
-        const res = await payAssetInvoice({ node: litdNode, assetId, invoice });
+        const res = await payAssetInvoice({
+          node: litdNode,
+          assetId,
+          invoice,
+          allowSelfPayment: values.allowSelfPayment,
+          metadata: values.metadata,
+        });
         amount = formatAssetAmount({ assetId, amount: res.amount });
         const asset = assets.find(a => a.id === assetId) as LightningNodeChannelAsset;
         assetName = asset.name;
@@ -114,7 +127,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
           layout="vertical"
           requiredMark={false}
           colon={false}
-          initialValues={{ node: nodeName, assetId: 'sats' }}
+          initialValues={{ node: nodeName, assetId: 'sats', allowSelfPayment: false }}
           onFinish={payAsync.execute}
           disabled={payAsync.loading}
         >
@@ -156,6 +169,25 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
           >
             <Input.TextArea rows={6} disabled={payAsync.loading} />
           </Form.Item>
+          <Collapse ghost>
+            <Collapse.Panel
+              header={l('cmps.forms.advancedOptions')}
+              key="advanced-options"
+            >
+              <Form.Item name="allowSelfPayment" valuePropName="checked">
+                <Checkbox>{l('allowSelfPayment')}</Checkbox>
+              </Form.Item>
+              {assetId !== 'sats' && (
+                <Form.Item name="metadata" label={l('metadataLabel')}>
+                  <TextArea
+                    rows={3}
+                    placeholder={l('metadataPlaceholder')}
+                    disabled={payAsync.loading}
+                  />
+                </Form.Item>
+              )}
+            </Collapse.Panel>
+          </Collapse>
         </Form>
       )}
     </Modal>

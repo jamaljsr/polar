@@ -22,6 +22,7 @@ export const defaultTapdListAssets = (
 export const defaultTapdListBalances = (
   value: Partial<ListBalancesResponse>,
 ): ListBalancesResponse => ({
+  unconfirmedTransfers: '0',
   assetBalances: {},
   assetGroupBalances: {},
   ...value,

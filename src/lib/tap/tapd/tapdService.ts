@@ -151,6 +151,7 @@ class TapdService implements TapService {
     amount: number,
     memo: string,
     expiry: number,
+    metadata?: string,
   ): Promise<string> {
     const req: TAP.AddInvoiceRequestPartial = {
       assetId: Buffer.from(assetId, 'hex').toString('base64'),
@@ -159,7 +160,9 @@ class TapdService implements TapService {
         memo,
         expiry,
       },
+      priceOracleMetadata: metadata,
     };
+
     const res = await proxy.addInvoice(this.cast(node), req);
     return res.invoiceResult?.paymentRequest || '';
   }
@@ -170,6 +173,8 @@ class TapdService implements TapService {
     invoice: string,
     feeLimitMsat: number,
     peerPubkey?: string,
+    allowSelfPayment?: boolean,
+    metadata?: string,
   ): Promise<PLN.LightningNodePayReceipt> {
     const req: TAP.tapchannelrpc.SendPaymentRequestPartial = {
       assetId: Buffer.from(assetId, 'hex').toString('base64'),
@@ -177,7 +182,9 @@ class TapdService implements TapService {
         paymentRequest: invoice,
         timeoutSeconds: 60 * 60, // 1 hour
         feeLimitMsat,
+        allowSelfPayment,
       },
+      priceOracleMetadata: metadata,
     };
     if (peerPubkey) {
       req.peerPubkey = Buffer.from(peerPubkey, 'hex').toString('base64');
