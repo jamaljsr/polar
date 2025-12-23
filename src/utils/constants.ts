@@ -157,6 +157,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       '--clnrest-port=8080',
       '--clnrest-protocol=http',
       '--clnrest-host=0.0.0.0',
+      '--clnrest-cors-origins=*',
       '--developer',
     ].join('\n  '),
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
@@ -398,8 +399,8 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '25.09.3',
-      versions: ['25.09.3', '25.05', '25.02.2', '25.02', '24.11.1', '24.11', '24.08.1'],
+      latest: '25.12',
+      versions: ['25.12', '25.09.3', '25.05', '25.02.2', '25.02', '24.11.1', '24.08.1'],
     },
     eclair: {
       latest: '0.13.1',
