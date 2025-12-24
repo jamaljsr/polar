@@ -143,7 +143,7 @@
     "react-scripts": "4.0.3",
     "redux": "4.2.1",
     "redux-logger": "3.0.6",
-    "socket.io-client": "4.8.1",
+    "socket.io-client": "4.8.3",
     "standard-version": "9.5.0",
     "strip-ansi": "6.0.1",
     "styled-components": "6.1.19",
