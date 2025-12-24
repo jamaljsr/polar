@@ -83,8 +83,12 @@ export class CLightningService implements LightningService {
   }
 
   async getNewAddress(node: LightningNode): Promise<PLN.LightningNodeAddress> {
-    const { bech32 } = await httpPost<CLN.NewAddrResponse>(node, 'newaddr');
-    return { address: bech32 };
+    const res = await httpPost<CLN.NewAddrResponse>(node, 'newaddr');
+    const address = res.bech32 || res.p2tr;
+    if (!address) {
+      throw new Error(`Failed to create new address: ${JSON.stringify(res)}`);
+    }
+    return { address };
   }
 
   async getChannels(node: LightningNode): Promise<PLN.LightningNodeChannel[]> {
