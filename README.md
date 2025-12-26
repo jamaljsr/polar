@@ -38,12 +38,12 @@ With Polar you can:
 
 Supported Network Node Versions:
 
-- [LND](https://github.com/lightningnetwork/lnd) - v0.19.2, v0.19.1, v0.18.5, v0.18.4, v0.18.3, v0.17.5, v0.16.4
-- [Core Lightning](https://github.com/ElementsProject/lightning) - v25.05, v25.02, v24.11, v24.08, v24.05
-- [Eclair](https://github.com/ACINQ/eclair/) - v0.12.0, v0.11.0, v0.10.0, v0.9.0
-- [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v29.0, v28.0, v27.0, v26.0
-- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.6.1, v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
-- [Terminal](https://github.com/lightninglabs/lightning-terminal) - v0.15.1, v0.15.0, v0.14.1, v0.14.0
+- [LND](https://github.com/lightningnetwork/lnd) - v0.20.0, v0.19.3, v0.19.2, v0.19.1, v0.18.5, v0.18.4, v0.18.3, v0.17.5, v0.16.4
+- [Core Lightning](https://github.com/ElementsProject/lightning) - v25.12, v25.09.3, v25.05, v25.02, v24.11.1, v24.08.1
+- [Eclair](https://github.com/ACINQ/eclair/) - v0.13.1, v0.12.0, v0.11.0, v0.10.0, v0.9.0
+- [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v30.0, v29.0, v28.0, v27.0, v26.0
+- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.7.0, v0.6.1, v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
+- [Terminal](https://github.com/lightninglabs/lightning-terminal) - v0.16.0, v0.15.3, v0.15.1, v0.15.0, v0.14.1,
 
 ### MCP (Model Context Protocol)
 
@@ -51,7 +51,7 @@ Polar includes an MCP server that enables AI agents like Claude & Cursor to prog
 
 See the [polar-mcp](https://github.com/jamaljsr/polar-mcp) repo for installation instructions.
 
-See the [MCP Architecture Documentation](docs/mcp-architecture.md) for detailed information on the architecture, API, and how to add new tools.
+See the [MCP Architecture Documentation](docs/mcp-architecture.md) for technical information on the architecture, API, and how to add new tools to Polar.
 
 ## Dependencies
 
@@ -68,11 +68,11 @@ You will be prompted to install Docker if Polar cannot detect it automatically
 
 ## Download
 
-Download Polar v3.3.0 for your OS
+Download Polar v4.0.0 for your OS
 
-- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-mac-x64-v3.3.0.dmg))
-- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-linux-amd64-v3.3.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-linux-x86_64-v3.3.0.AppImage), [RPM](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-linux-x86_64-v3.3.0.rpm))
-- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v3.3.0/polar-win-x64-v3.3.0.exe))
+- Mac ([dmg](https://github.com/jamaljsr/polar/releases/download/v4.0.0/polar-mac-x64-v4.0.0.dmg))
+- Linux ([deb](https://github.com/jamaljsr/polar/releases/download/v4.0.0/polar-linux-amd64-v4.0.0.deb), [AppImage](https://github.com/jamaljsr/polar/releases/download/v4.0.0/polar-linux-x86_64-v4.0.0.AppImage), [RPM](https://github.com/jamaljsr/polar/releases/download/v4.0.0/polar-linux-x86_64-v4.0.0.rpm))
+- Windows ([exe](https://github.com/jamaljsr/polar/releases/download/v4.0.0/polar-win-x64-v4.0.0.exe))
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
