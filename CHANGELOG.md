@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/jamaljsr/polar/compare/v3.3.0...v4.0.0)
+
+This release introduces two new major features into Polar.
+
+1. Adds the ability to simulate realistic Lightning payments between the nodes. You can create activity rules by specifying a source, destination, amount, and time interval. Each activity will automate sending payments across the network while the simulation is running. This feature was made possible by integrating [sim-ln](https://github.com/bitcoin-dev-project/sim-ln) into Polar.
+
+2. Adds a new Model Context Protocol (MCP) server into Polar which allows AI assistants (Claude Code, Codex, Cursor, etc) to perform automated actions within Polar. They now have the ability to create networks, open channels, make payments, mint assets, and many more via 48 MCP tools. You can describe complex network scenarios in plain English and and let the AI set them up. Learn more about the MCP capabilities and how to configure it in the [README](https://github.com/jamaljsr/polar-mcp) for [@lightningpolar/mcp](https://www.npmjs.com/package/@lightningpolar/mcp) NPM package.
+
+### Features
+
+- Add [sim-ln](https://github.com/bitcoin-dev-project/sim-ln) integration to simulate realistic Lightning payments by @Abdulkbk in https://github.com/jamaljsr/polar/pull/1159
+- Retain custom block count input for "Manually Mine Blocks" by @Jem256 in https://github.com/jamaljsr/polar/pull/1300
+- Add Model Context Protocol (MCP) server for AI assistant integration by @jamaljsr in https://github.com/jamaljsr/polar/pull/1328
+
+### Bug Fixes
+
+- Fixed Core Lightning gRPC API not being accessible to host by @Abdulkbk in https://github.com/jamaljsr/polar/pull/1238
+- Use correct ports for `litd` gRPC and REST endpoints by @jcbrand in https://github.com/jamaljsr/polar/pull/1315
+- Add arm64 release builds for all platforms by @jamaljsr in https://github.com/jamaljsr/polar/pull/1349
+
+### Node Updates
+
+- Add support for LND v0.19.2-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/1248
+- Add support for Taproot Assets v0.6.1-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/1248
+- Add support for Terminal (litd) v0.15.1-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/1248
+- Add support for LND v0.19.3-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/1325
+- Add support for LND v0.20.0-beta by @jamaljsr in https://github.com/jamaljsr/polar/pull/1325
+- Add support for Core Lightning v25.09.3 by @jamaljsr in https://github.com/jamaljsr/polar/pull/1325
+- Add support for Terminal (litd) v0.15.3-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/1325
+- Add support for Eclair v0.13.1 by @jamaljsr in https://github.com/jamaljsr/polar/pull/1326
+- Add support for Bitcoin Core v30.0 by @jamaljsr in https://github.com/jamaljsr/polar/pull/1326
+- Add support for Terminal (litd) v0.16.0-alpha by @jamaljsr in https://github.com/jamaljsr/polar/pull/1330
+- Add support for Core Lightning v25.12 by @jamaljsr in https://github.com/jamaljsr/polar/pull/1345
+
 ## [3.3.0](https://github.com/jamaljsr/polar/compare/v3.2.0...v3.3.0)
 
 This release adds support for the final v0.15.0 version of Terminal (`litd`) which improves support for making asset payments over Lightning.
