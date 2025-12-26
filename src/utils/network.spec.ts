@@ -13,6 +13,7 @@ import {
 import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
+  createBitcoindKnotsNetworkNode,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createLitdNetworkNode,
@@ -157,6 +158,7 @@ describe('Network Utils', () => {
         clightningNodes: 1,
         eclairNodes: 1,
         bitcoindNodes: 1,
+        bitcoindKnotsNodes: 0,
         tapdNodes: 0,
         litdNodes: 1,
         status: Status.Stopped,
@@ -378,6 +380,141 @@ describe('Network Utils', () => {
     });
   });
 
+  describe('createBitcoindKnotsNetworkNode', () => {
+    let network: Network;
+
+    beforeEach(() => {
+      network = createNetwork({
+        id: 1,
+        name: 'my-test',
+        description: 'my-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        bitcoindKnotsNodes: 0,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+    });
+
+    it('should create a bitcoind-knots node with correct properties', () => {
+      const node = createBitcoindKnotsNetworkNode(
+        network,
+        defaultRepoState.images['bitcoind-knots'].latest,
+        testNodeDocker,
+      );
+      expect(node.name).toBe('backend2');
+      expect(node.type).toBe('bitcoin');
+      expect(node.implementation).toBe('bitcoind-knots');
+      expect(node.version).toBe(defaultRepoState.images['bitcoind-knots'].latest);
+      expect(node.status).toBe(Status.Stopped);
+      expect(node.ports.rpc).toBeDefined();
+      expect(node.ports.p2p).toBeDefined();
+      expect(node.ports.zmqBlock).toBeDefined();
+      expect(node.ports.zmqTx).toBeDefined();
+    });
+
+    it('should peer with existing bitcoin nodes', () => {
+      const node = createBitcoindKnotsNetworkNode(
+        network,
+        defaultRepoState.images['bitcoind-knots'].latest,
+        testNodeDocker,
+      );
+      network.nodes.bitcoin.push(node);
+      expect(node.peers).toContain('backend1');
+      expect(network.nodes.bitcoin[0].peers).toContain('backend2');
+    });
+
+    it('should have no peers when it is the first bitcoin node', () => {
+      network.nodes.bitcoin = [];
+      const node = createBitcoindKnotsNetworkNode(
+        network,
+        defaultRepoState.images['bitcoind-knots'].latest,
+        testNodeDocker,
+      );
+      expect(node.peers).toHaveLength(0);
+    });
+  });
+
+  describe('createNetwork with bitcoind-knots', () => {
+    it('should create a network with bitcoind-knots nodes', () => {
+      const network = createNetwork({
+        id: 1,
+        name: 'knots-test',
+        description: 'test with knots',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        bitcoindKnotsNodes: 2,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      expect(network.nodes.bitcoin).toHaveLength(2);
+      expect(network.nodes.bitcoin[0].implementation).toBe('bitcoind-knots');
+      expect(network.nodes.bitcoin[1].implementation).toBe('bitcoind-knots');
+    });
+
+    it('should create a network with mixed bitcoind and bitcoind-knots nodes', () => {
+      const network = createNetwork({
+        id: 1,
+        name: 'mixed-test',
+        description: 'test with mixed backends',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        bitcoindKnotsNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      expect(network.nodes.bitcoin).toHaveLength(2);
+      expect(network.nodes.bitcoin[0].implementation).toBe('bitcoind');
+      expect(network.nodes.bitcoin[1].implementation).toBe('bitcoind-knots');
+      expect(network.nodes.bitcoin[1].peers).toContain('backend1');
+      expect(network.nodes.bitcoin[0].peers).toContain('backend2');
+    });
+
+    it('should adjust bitcoind-knots version for LND compatibility when target version is available', () => {
+      const network = createNetwork({
+        id: 1,
+        name: 'knots-lnd-test',
+        description: 'test knots with lnd',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        bitcoindKnotsNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      expect(network.nodes.bitcoin).toHaveLength(1);
+      expect(network.nodes.bitcoin[0].implementation).toBe('bitcoind-knots');
+      expect(network.nodes.bitcoin[0].version).toBeDefined();
+    });
+  });
+
   describe('createNetworkNodes', () => {
     let network: Network;
 
@@ -502,6 +639,7 @@ describe('Network Utils', () => {
         clightningNodes: 1,
         eclairNodes: 1,
         bitcoindNodes: 1,
+        bitcoindKnotsNodes: 0,
         tapdNodes: 0,
         litdNodes: 1,
         status: Status.Stopped,
