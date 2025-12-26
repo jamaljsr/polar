@@ -3,6 +3,8 @@
  * lightning implementations
  */
 
+export { LndService } from './lnd/lndService';
+
 export interface LightningNodeInfo {
   pubkey: string;
   alias: string;
@@ -76,8 +78,12 @@ export interface LightningNodePaymentRequest {
   expiry: string;
 }
 
+export interface SendPaymentRequestAdvancedOptions {
+  allowSelfPayment?: boolean;
+}
+
 export interface LightningNodeChannelEvent {
   type: 'Open' | 'Pending' | 'Closed' | 'Unknown';
 }
 
-export interface CustomRecords extends Record<number, string> {}
+export type CustomRecords = Record<number, string>;

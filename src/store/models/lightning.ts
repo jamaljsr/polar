@@ -42,6 +42,7 @@ export interface PayInvoicePayload {
   node: LightningNode;
   invoice: string;
   amount?: number;
+  allowSelfPayment?: boolean;
 }
 
 export interface LightningModel {
@@ -279,11 +280,19 @@ const lightningModel: LightningModel = {
   payInvoice: thunk(
     async (
       actions,
-      { node, invoice, amount },
+      { node, invoice, amount, allowSelfPayment },
       { injections, getStoreState, getStoreActions },
     ) => {
       const api = injections.lightningFactory.getService(node);
-      const receipt = await api.payInvoice(node, invoice, amount);
+
+      let receipt;
+      if (api instanceof PLN.LndService) {
+        receipt = await api.payInvoice(node, invoice, amount, undefined, {
+          allowSelfPayment,
+        });
+      } else {
+        receipt = await api.payInvoice(node, invoice, amount);
+      }
 
       const network = getStoreState().network.networkById(node.networkId);
       // synchronize the chart with the new channel
