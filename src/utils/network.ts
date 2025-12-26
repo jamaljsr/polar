@@ -222,6 +222,7 @@ export const createLndNetworkNode = (
       p2p: BasePorts.LND.p2p + id,
     },
     docker,
+    enableTor: false,
   };
 };
 
@@ -367,6 +368,7 @@ export const createBitcoindNetworkNode = (
       zmqTx: BasePorts.bitcoind.zmqTx + id,
     },
     docker,
+    enableTor: false,
   };
 
   // peer up with the previous node on both sides
@@ -688,6 +690,117 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
     default:
       throw new Error('Invalid node type');
   }
+};
+
+/**
+ * Get Tor flags for a specific implementation
+ */
+
+const getTorFlags = (implementation: NodeImplementation): string[] => {
+  switch (implementation) {
+    case 'LND':
+      return [
+        '--tor.active',
+        '--tor.socks=127.0.0.1:9050',
+        '--tor.control=127.0.0.1:9051',
+        '--tor.v3',
+      ];
+    case 'c-lightning':
+      return [
+        '--proxy=127.0.0.1:9050',
+        '--bind-addr=127.0.0.1:9735',
+        '--addr=statictor:127.0.0.1:9051',
+        '--always-use-proxy=true',
+      ];
+    case 'bitcoind':
+      return ['-proxy=127.0.0.1:9050', '-torcontrol=127.0.0.1:9051'];
+    default:
+      return [];
+  }
+};
+
+/**
+ * Adds or removes Tor flags from a node command
+ */
+export const applyTorFlags = (
+  command: string,
+  enableTor: boolean,
+  implementation: NodeImplementation,
+): string => {
+  const torFlags = getTorFlags(implementation);
+
+  if (torFlags.length === 0) {
+    return command;
+  }
+
+  // Remove existing Tor flags to avoid duplicates
+  let lines = command
+    .split('\n')
+    .filter(line => !torFlags.some(flag => line.trim().startsWith(flag)));
+
+  if (implementation === 'c-lightning' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      // Remove clearnet addr bindings, but keep internal Docker addr
+      return !(trimmed.startsWith('--addr=') && !trimmed.includes('statictor'));
+    });
+  }
+  let cleanCommand = lines.join('\n').trim();
+
+  if (implementation === 'bitcoind') {
+    cleanCommand = cleanCommand.replace(
+      '-listenonion=0',
+      `-listenonion=${enableTor ? '1' : '0'}`,
+    );
+  }
+
+  // Add Tor flags if enabled
+  if (enableTor) {
+    const torFlagsStr = torFlags.join('\n  ');
+    cleanCommand = `${cleanCommand}\n  ${torFlagsStr}`;
+  }
+
+  return cleanCommand;
+};
+
+export const getEffectiveCommand = (node: CommonNode): string => {
+  let implementation: NodeImplementation;
+  if (node.type === 'lightning') {
+    implementation = (node as LightningNode).implementation;
+  } else if (node.type === 'bitcoin') {
+    implementation = (node as BitcoinNode).implementation;
+  } else if (node.type === 'tap') {
+    implementation = (node as TapNode).implementation;
+  } else {
+    return node.docker.command;
+  }
+
+  let command = node.docker.command || getDefaultCommand(implementation, node.version);
+
+  // Add Tor flags for LND nodes if enabled
+  if (supportsTor(node)) {
+    const enableTor = (node as LightningNode | BitcoinNode).enableTor;
+    if (enableTor) {
+      command = applyTorFlags(command, true, implementation);
+    }
+  }
+
+  return command;
+};
+
+/**
+ * Check if a node implementation supports Tor
+ */
+export const supportsTor = (node: CommonNode): boolean => {
+  if (node.type === 'lightning') {
+    const lnNode = node as LightningNode;
+    return lnNode.implementation === 'LND' || lnNode.implementation === 'c-lightning';
+  }
+  if (node.type === 'bitcoin') {
+    const btcNode = node as BitcoinNode;
+    return btcNode.implementation === 'bitcoind';
+  }
+  return false;
 };
 
 /**

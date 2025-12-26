@@ -3,21 +3,23 @@ import {
   CloseOutlined,
   ExportOutlined,
   FormOutlined,
+  LockOutlined,
   MoreOutlined,
   ToolOutlined,
+  UnlockOutlined,
 } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Button, Divider, Dropdown, MenuProps, Tag } from 'antd';
+import { Button, Divider, Dropdown, MenuProps, Switch, Tag, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { useMiningAsync } from 'hooks/useMiningAsync';
-import { Status } from 'shared/types';
-import { useStoreState } from 'store';
+import { BitcoinNode, LightningNode, Status } from 'shared/types';
+import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { getNetworkBackendId } from 'utils/network';
+import { getNetworkBackendId, supportsTor } from 'utils/network';
 import BalanceChannelsButton from 'components/common/BalanceChannelsButton';
+import StatusButton from 'components/common/StatusButton';
 import AutoMineButton from 'components/designer/AutoMineButton';
 import SyncButton from 'components/designer/SyncButton';
-import StatusButton from 'components/common/StatusButton';
 
 const Styled = {
   Button: styled(Button)`
@@ -72,8 +74,73 @@ const NetworkActions: React.FC<Props> = ({
     { key: 'delete', label: l('menuDelete'), icon: <CloseOutlined /> },
   ];
 
+  const { notify } = useStoreActions(s => s.app);
+  const { toggleTorForNetwork } = useStoreActions(s => s.network);
+
+  // Check if network has any Tor-supported nodes
+  const torSupportedNodes = [
+    ...network.nodes.bitcoin.filter(supportsTor),
+    ...network.nodes.lightning.filter(supportsTor),
+  ];
+
+  const hasTorSupportedNodes = torSupportedNodes.length > 0;
+
+  // Only check enabled state for supported nodes
+  const isTorEnabled =
+    hasTorSupportedNodes &&
+    torSupportedNodes.every(node => (node as LightningNode | BitcoinNode).enableTor);
+
+  const handleTorToggle = useCallback(
+    async (checked: boolean) => {
+      try {
+        await toggleTorForNetwork({ networkId: network.id, enabled: checked });
+        notify({
+          message: l(checked ? 'torEnabledAll' : 'torDisabledAll'),
+        });
+      } catch (error: any) {
+        notify({ message: l('torToggleError'), error });
+      }
+    },
+    [network.id],
+  );
+
   return (
     <>
+      {bitcoinNode.status === Status.Stopped && hasTorSupportedNodes && (
+        <>
+          <Tooltip title={l('torToggleTooltip')}>
+            <Switch
+              checked={isTorEnabled}
+              onChange={handleTorToggle}
+              checkedChildren={
+                <>
+                  <LockOutlined /> {l('torTitle')}
+                </>
+              }
+              unCheckedChildren={
+                <>
+                  <UnlockOutlined /> {l('torTitle')}
+                </>
+              }
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+        </>
+      )}
+
+      {bitcoinNode.status === Status.Stopped && !hasTorSupportedNodes && (
+        <>
+          <Tooltip title={l('torNotSupported')}>
+            <Switch
+              disabled
+              checkedChildren={<LockOutlined />}
+              unCheckedChildren={<UnlockOutlined />}
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+        </>
+      )}
+
       {bitcoinNode.status === Status.Started && nodeState?.chainInfo && (
         <>
           <Tag>height: {nodeState.chainInfo.blocks}</Tag>
