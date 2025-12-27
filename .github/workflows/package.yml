@@ -1,0 +1,58 @@
+name: Package
+
+on:
+  push:
+    branches:
+      - 'release/*'
+
+jobs:
+  package:
+    name: Build package on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: startsWith(github.ref_name, 'release/')
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            # x64 runner can cross-compile to arm64
+            # electron-builder config specifies both architectures for AppImage
+            linux_targets: deb rpm AppImage
+          - os: windows-latest
+            # x64 runner can cross-compile to arm64
+            # electron-builder config specifies both architectures
+          - os: macos-15
+            # Apple Silicon runner can build both x64 and arm64
+            # electron-builder config specifies both architectures
+
+    steps:
+      - name: ubuntu file watcher tweak
+        if: startsWith(matrix.os, 'ubuntu')
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - uses: actions/checkout@v6
+
+      - name: setup nodejs
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20.x
+          cache: yarn
+
+      - name: install dependencies
+        run: yarn install --frozen-lockfile --network-timeout 1000000
+
+      - name: electron build
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            # Build all architectures specified in electron-builder config
+            # For Linux: x64 for deb/rpm, both x64 and arm64 for AppImage
+            yarn package:ci -- --linux ${{ matrix.linux_targets }}
+          else
+            # For Mac and Windows, electron-builder will build all architectures
+            # specified in the config (both x64 and arm64)
+            yarn package:ci
+          fi
+

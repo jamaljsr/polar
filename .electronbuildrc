@@ -9,7 +9,12 @@
   },
   "mac": {
     "category": "public.app-category.utilities",
-    "target": ["dmg"]
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ]
   },
   "dmg": {
     "contents": [
@@ -29,7 +34,7 @@
     "target": [
       {
         "target": "nsis",
-        "arch": ["x64"]
+        "arch": ["x64", "arm64"]
       }
     ]
   },
