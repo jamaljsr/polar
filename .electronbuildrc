@@ -38,6 +38,9 @@
       }
     ]
   },
+  "nsis": {
+    "differentialPackage": false
+  },
   "linux": {
     "target": [
       {
@@ -54,12 +57,6 @@
       }
     ],
     "category": "Development"
-  },
-  "publish": {
-    "provider": "github",
-    "owner": "jamaljsr",
-    "repo": "polar",
-    "private": false
   },
   "extends": null
 }

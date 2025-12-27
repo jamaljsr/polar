@@ -26,7 +26,7 @@
     "lint:fix": "yarn lint --fix",
     "package": "yarn build && yarn package:electron",
     "package:ci": "yarn package --publish onTagOrDraft",
-    "package:electron": "electron-builder build -c.extraMetadata.main=build/main/electron/index.js --config .electronbuildrc",
+    "package:electron": "electron-builder build -c.extraMetadata.main=build/main/electron/index.js --config electron-builder.config.js",
     "postinstall": "electron-builder install-app-deps && patch-package && husky",
     "prebuild": "tsc -p electron/tsconfig.json && yarn theme",
     "release": "standard-version --no-verify --skip.commit --skip.tag",
