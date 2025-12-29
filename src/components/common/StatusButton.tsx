@@ -6,7 +6,9 @@ import { ButtonType } from 'antd/lib/button';
 import { PlayCircleOutlined, StopOutlined, WarningOutlined } from '@ant-design/icons';
 
 const Styled = {
-  Button: styled(Button)<{ fullWidth?: boolean }>`
+  Button: styled(Button, {
+    shouldForwardProp: prop => prop !== 'fullWidth',
+  })<{ fullWidth?: boolean }>`
     margin-left: 0;
     ${({ fullWidth }) => fullWidth && 'width: 100%;'}
   `,
