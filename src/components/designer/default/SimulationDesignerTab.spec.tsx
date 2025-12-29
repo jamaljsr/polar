@@ -1,12 +1,17 @@
 import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
-import SimulationDesignerTab from './SimulationDesignerTab';
-import { Status } from 'shared/types';
-import { injections, renderWithProviders, testManagedImages } from 'utils/tests';
-import { createNetwork } from 'utils/network';
-import { defaultRepoState } from 'utils/constants';
-import { initChartFromNetwork } from 'utils/chart';
 import { ipcChannels } from 'shared';
+import { Status } from 'shared/types';
+import { initChartFromNetwork } from 'utils/chart';
+import { defaultRepoState } from 'utils/constants';
+import { createNetwork } from 'utils/network';
+import {
+  injections,
+  renderWithProviders,
+  suppressConsoleErrors,
+  testManagedImages,
+} from 'utils/tests';
+import SimulationDesignerTab from './SimulationDesignerTab';
 
 const mockDockerService = injections.dockerService as jest.Mocked<
   typeof injections.dockerService
@@ -156,50 +161,52 @@ describe('SimulationDesignerTab', () => {
     });
 
     it('should return early if no simulation is defined', async () => {
-      const { getByText, network, findByText, getByLabelText } = renderComponent(
-        Status.Started,
-        Status.Stopped,
-      );
-      const activity = {
-        id: 0,
-        source: network.nodes.lightning[0].name,
-        destination: network.nodes.lightning[1].name,
-        intervalSecs: 10,
-        amountMsat: 1000000,
-      };
-      const sim = {
-        networkId: 1,
-        status: Status.Stopped,
-        activity: [activity],
-      };
+      await suppressConsoleErrors(async () => {
+        const { getByText, network, findByText, getByLabelText } = renderComponent(
+          Status.Started,
+          Status.Stopped,
+        );
+        const activity = {
+          id: 0,
+          source: network.nodes.lightning[0].name,
+          destination: network.nodes.lightning[1].name,
+          intervalSecs: 10,
+          amountMsat: 1000000,
+        };
+        const sim = {
+          networkId: 1,
+          status: Status.Stopped,
+          activity: [activity],
+        };
 
-      // This is an unlikely scenario, as the start button is not
-      // visible if no simulation is defined.
-      network.simulation = undefined;
-      expect(getByText('Start')).toBeInTheDocument();
-      fireEvent.click(getByText('Start'));
-      expect(getByText('No simulations created yet')).toBeInTheDocument();
-
-      network.simulation = { ...sim, status: Status.Started };
-      await waitFor(() => {
-        expect(getByText('Stop')).toBeInTheDocument();
-      });
-      network.simulation = undefined;
-      expect(getByText('Stop')).toBeInTheDocument();
-      fireEvent.click(getByText('Stop'));
-      expect(getByText('No simulations created yet')).toBeInTheDocument();
-
-      network.simulation = { ...sim, status: Status.Stopped };
-      await waitFor(() => {
+        // This is an unlikely scenario, as the start button is not
+        // visible if no simulation is defined.
+        network.simulation = undefined;
         expect(getByText('Start')).toBeInTheDocument();
-      });
+        fireEvent.click(getByText('Start'));
+        expect(getByText('No simulations created yet')).toBeInTheDocument();
 
-      network.simulation = undefined;
-      fireEvent.mouseOver(getByLabelText('more'));
-      fireEvent.click(await findByText('Delete'));
-      fireEvent.click(await findByText('Remove'));
-      await waitFor(() => {
-        expect(mockDockerService.removeSimulation).not.toHaveBeenCalled();
+        network.simulation = { ...sim, status: Status.Started };
+        await waitFor(() => {
+          expect(getByText('Stop')).toBeInTheDocument();
+        });
+        network.simulation = undefined;
+        expect(getByText('Stop')).toBeInTheDocument();
+        fireEvent.click(getByText('Stop'));
+        expect(getByText('No simulations created yet')).toBeInTheDocument();
+
+        network.simulation = { ...sim, status: Status.Stopped };
+        await waitFor(() => {
+          expect(getByText('Start')).toBeInTheDocument();
+        });
+
+        network.simulation = undefined;
+        fireEvent.mouseOver(getByLabelText('more'));
+        fireEvent.click(await findByText('Delete'));
+        fireEvent.click(await findByText('Remove'));
+        await waitFor(() => {
+          expect(mockDockerService.removeSimulation).not.toHaveBeenCalled();
+        });
       });
     });
 

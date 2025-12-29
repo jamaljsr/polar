@@ -29,11 +29,15 @@ console.warn = (...args) => {
 // Prevent displaying from un-fixable errors in tests
 const originalConsoleError = console.error;
 console.error = (...args) => {
+  // Join all args to check patterns (React warnings may use format strings)
+  const msg = args.map(String).join(' ');
   if (
     // antd components not unmounting properly in tests
-    /Warning.*not wrapped in act\(...\)/.test(args[0]) ||
+    /Warning.*not wrapped in act\(...\)/.test(msg) ||
     // antd components not unmounting properly in tests
-    /Warning: Can't perform a React state update on an unmounted component./.test(args[0])
+    /Warning: Can't perform a React state update on an unmounted component./.test(msg) ||
+    // isSelected prop from @mrblenny/react-flow-chart passed to DOM
+    (/Warning: React does not recognize/.test(msg) && /isSelected/.test(msg))
   ) {
     return;
   }
