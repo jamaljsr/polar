@@ -85,6 +85,7 @@ typings/
 .env.test.local
 .env.production.local
 docker/docker-compose.yml
+.playwright-mcp/
 
 npm-debug.log*
 yarn-debug.log*
