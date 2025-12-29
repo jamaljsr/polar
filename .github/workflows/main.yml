@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'master'
-      - 'release/*'
       - 'ci/*'
   pull_request:
 
@@ -53,9 +52,3 @@ jobs:
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: electron build
-        run: yarn package:ci
-        if: startsWith(github.ref_name, 'release/')
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
