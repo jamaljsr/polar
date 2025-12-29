@@ -1,8 +1,22 @@
 {
   "extends": ["config:js-app"],
   "rangeStrategy": "bump",
+  "schedule": ["on the first day of the month"],
+  "prConcurrentLimit": 3,
+  "dependencyDashboard": true,
   "automerge": true,
   "automergeType": "branch",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ],
   "ignoreDeps": [
     "babel-eslint",
     "babel-jest",
