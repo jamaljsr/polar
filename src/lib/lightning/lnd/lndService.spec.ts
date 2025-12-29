@@ -139,6 +139,34 @@ describe('LndService', () => {
     expect(actual.destination).toEqual('asdf');
   });
 
+  it('should pay an invoice with allowSelfPayment option', async () => {
+    const payResponse = { paymentPreimage: 'preimage' };
+    const decodeResponse = {
+      paymentPreimage: 'preimage',
+      numSatoshis: '10000',
+      destination: 'asdf',
+    };
+    lndProxyClient.payInvoice = jest.fn().mockResolvedValue(payResponse);
+    lndProxyClient.decodeInvoice = jest.fn().mockResolvedValue(decodeResponse);
+    const actual = await lndService.payInvoice(
+      node,
+      'lnbc1invoice',
+      undefined,
+      undefined,
+      { allowSelfPayment: true },
+    );
+    expect(actual.preimage).toEqual('preimage');
+    expect(actual.amount).toEqual(10000);
+    expect(actual.destination).toEqual('asdf');
+    expect(lndProxyClient.payInvoice).toHaveBeenCalledWith(
+      node,
+      expect.objectContaining({
+        paymentRequest: 'lnbc1invoice',
+        allowSelfPayment: true,
+      }),
+    );
+  });
+
   it('should pay invoice with amount for a payreq without one', async () => {
     const payResponse = { paymentPreimage: 'preimage' };
     const decodeResponse = {
