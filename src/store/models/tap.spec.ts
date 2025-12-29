@@ -4,12 +4,12 @@ import { Status, TapdNode } from 'shared/types';
 import * as PTAP from 'lib/tap/types';
 import { initChartFromNetwork } from 'utils/chart';
 import {
+  bitcoinServiceMock,
   defaultTapAsset,
   defaultTapBalance,
   getNetwork,
   injections,
   tapServiceMock,
-  bitcoinServiceMock,
 } from 'utils/tests';
 import appModel from './app';
 import bitcoinModel from './bitcoin';
@@ -138,7 +138,6 @@ describe('TAP Model', () => {
   });
 
   it('should format the asset amount', async () => {
-    const { formatAssetAmount } = store.getActions().tap;
     const payload = {
       assetId: 'abcd',
       amount: '10000',
@@ -151,16 +150,17 @@ describe('TAP Model', () => {
     await store.getActions().tap.getAssets(node);
     expect(store.getState().tap.nodes[node.name].assets).toBeDefined();
 
-    let result = formatAssetAmount(payload);
+    let result = store.getState().tap.formatAssetAmount(payload);
     expect(result).toEqual(`100.00 my-asset`);
 
-    result = formatAssetAmount({ ...payload, includeName: false });
+    result = store.getState().tap.formatAssetAmount({ ...payload, includeName: false });
     expect(result).toEqual('100.00');
 
     // induce a missing asset situation
     tapServiceMock.listAssets.mockResolvedValue(undefined as any);
     await store.getActions().tap.getAssets(node);
-    result = formatAssetAmount({ ...payload, assetId: 'efgh' });
+    // Get fresh reference after state change
+    result = store.getState().tap.formatAssetAmount({ ...payload, assetId: 'efgh' });
     expect(result).toEqual('10000');
   });
 

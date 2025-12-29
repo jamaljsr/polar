@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useStoreActions } from 'store';
+import { useStoreState } from 'store';
 
 interface Props {
   assetId: string;
@@ -8,11 +8,11 @@ interface Props {
 }
 
 const AssetAmount: React.FC<Props> = ({ assetId, amount, includeName }) => {
-  const { formatAssetAmount } = useStoreActions(s => s.tap);
+  const formatAssetAmount = useStoreState(s => s.tap.formatAssetAmount);
 
   const formattedAmount = useMemo(() => {
     return formatAssetAmount({ assetId, amount, includeName });
-  }, [assetId, amount, includeName]);
+  }, [formatAssetAmount, assetId, amount, includeName]);
 
   return <span>{formattedAmount}</span>;
 };

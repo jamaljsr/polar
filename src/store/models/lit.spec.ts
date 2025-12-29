@@ -245,7 +245,7 @@ describe('LIT Model', () => {
         defaultStateChannel({ uniqueId: 'chan3', assets: [asset3] }),
       ];
       store.getActions().lightning.setChannels({ node, channels });
-      const assets = store.getActions().lit.getAssetsInChannels({ nodeName: node.name });
+      const assets = store.getState().lit.getAssetsInChannels({ nodeName: node.name });
       expect(assets).toHaveLength(1);
       expect(assets[0].asset.localBalance).toEqual('700');
     });
@@ -261,14 +261,12 @@ describe('LIT Model', () => {
       ];
       store.getActions().lightning.setChannels({ node: node2, channels: bobChannels });
 
-      // store.getActions().lightning.setInfo({ node: node3, info: {} as any });
       const carolChannels = [
         defaultStateChannel({ pubkey: 'alicePubkey', assets: [asset] }),
       ];
       store.getActions().lightning.setChannels({ node: node3, channels: carolChannels });
-      // console.log(store.getState().lightning.nodes);
 
-      const assets = store.getActions().lit.getAssetsInChannels({ nodeName: node.name });
+      const assets = store.getState().lit.getAssetsInChannels({ nodeName: node.name });
       expect(assets).toHaveLength(1);
       expect(assets[0].peerPubkey).toEqual('bobPubkey');
       expect(assets[0].asset.localBalance).toEqual('400');

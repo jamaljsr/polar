@@ -1601,25 +1601,37 @@ describe('MCP model > IPC', () => {
         });
 
         const network = store.getState().network.networks[0];
-        const nodeName = network.nodes.lightning[0].name;
+        const node = network.nodes.lightning[0];
+        const nodeName = node.name;
 
-        // Mock the lit store actions
-        const mockAssetsInChannels = [
-          {
-            asset: {
-              id: 'asset123',
-              name: 'Test Asset',
-              capacity: '1000',
-              localBalance: '500',
-              remoteBalance: '500',
-              decimals: 0,
+        // Set up lightning state with channels containing assets
+        // getAssetsInChannels is now a computed that reads from lightning.nodes
+        store.getActions().lightning.setChannels({
+          node,
+          channels: [
+            {
+              pending: false,
+              uniqueId: 'chan1',
+              channelPoint: 'txid:0',
+              pubkey: 'peer123',
+              capacity: '1000000',
+              localBalance: '500000',
+              remoteBalance: '500000',
+              status: 'Open',
+              isPrivate: false,
+              assets: [
+                {
+                  id: 'asset123',
+                  name: 'Test Asset',
+                  capacity: '1000',
+                  localBalance: '500',
+                  remoteBalance: '500',
+                  decimals: 0,
+                },
+              ],
             },
-            peerPubkey: 'peer123',
-          },
-        ];
-        (
-          jest.spyOn(store.getActions().lit, 'getAssetsInChannels') as any
-        ).mockResolvedValue(mockAssetsInChannels);
+          ],
+        });
 
         const responseChannel = 'test-response-get-assets-in-channels';
         await store.getActions().mcp.handleToolExecution({
@@ -1637,7 +1649,19 @@ describe('MCP model > IPC', () => {
             message: `Retrieved 1 assets in channels for node "${nodeName}"`,
             networkId: network.id,
             nodeName,
-            assetsInChannels: mockAssetsInChannels,
+            assetsInChannels: [
+              {
+                asset: {
+                  id: 'asset123',
+                  name: 'Test Asset',
+                  capacity: '1000',
+                  localBalance: '500',
+                  remoteBalance: '500',
+                  decimals: 0,
+                },
+                peerPubkey: 'peer123',
+              },
+            ],
           },
         });
       });

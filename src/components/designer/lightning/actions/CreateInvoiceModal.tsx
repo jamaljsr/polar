@@ -45,10 +45,10 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
   const { visible, nodeName, invoice, amount, assetName } = useStoreState(
     s => s.modals.createInvoice,
   );
-  const { nodes } = useStoreState(s => s.lightning);
   const { showCreateInvoice, hideCreateInvoice } = useStoreActions(s => s.modals);
   const { createInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
-  const { createAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
+  const { createAssetInvoice } = useStoreActions(s => s.lit);
+  const { getAssetsInChannels } = useStoreState(s => s.lit);
   const { getAssetRoots, toAssetUnits } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
@@ -72,7 +72,7 @@ const CreateInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const assets = useMemo(() => {
     return getAssetsInChannels({ nodeName: selectedNode }).map(a => a.asset);
-  }, [nodes, selectedNode]);
+  }, [getAssetsInChannels, selectedNode]);
 
   const createAsync = useAsyncCallback(async (values: FormValues) => {
     try {

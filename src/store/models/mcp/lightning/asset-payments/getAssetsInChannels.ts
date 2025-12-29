@@ -64,35 +64,29 @@ export const getAssetsInChannelsTool = thunk<
   StoreInjections,
   RootModel,
   Promise<GetAssetsInChannelsResult>
->(
-  async (
-    actions,
-    args,
-    { getStoreState, getStoreActions },
-  ): Promise<GetAssetsInChannelsResult> => {
-    // Validate required parameters
-    validateNetworkId(args.networkId);
-    validateRequired(args.nodeName, 'Node name');
+>(async (_, args, { getStoreState }): Promise<GetAssetsInChannelsResult> => {
+  // Validate required parameters
+  validateNetworkId(args.networkId);
+  validateRequired(args.nodeName, 'Node name');
 
-    info('MCP: Getting assets in channels:', args);
+  info('MCP: Getting assets in channels:', args);
 
-    // Find the network (networkById throws if not found)
-    const network = getStoreState().network.networkById(args.networkId);
+  // Find the network (networkById throws if not found)
+  const network = getStoreState().network.networkById(args.networkId);
 
-    // Find the litd node
-    const node = findNode(network, args.nodeName, 'litd');
+  // Find the litd node
+  const node = findNode(network, args.nodeName, 'litd');
 
-    // Get assets in channels
-    const assetsInChannels = await getStoreActions().lit.getAssetsInChannels({
-      nodeName: node.name,
-    });
+  // Get assets in channels (getAssetsInChannels is a computed that returns a function)
+  const assetsInChannels = getStoreState().lit.getAssetsInChannels({
+    nodeName: node.name,
+  });
 
-    return {
-      success: true,
-      message: `Retrieved ${assetsInChannels.length} assets in channels for node "${args.nodeName}"`,
-      networkId: args.networkId,
-      nodeName: args.nodeName,
-      assetsInChannels,
-    };
-  },
-);
+  return {
+    success: true,
+    message: `Retrieved ${assetsInChannels.length} assets in channels for node "${args.nodeName}"`,
+    networkId: args.networkId,
+    nodeName: args.nodeName,
+    assetsInChannels,
+  };
+});

@@ -66,22 +66,34 @@ describe('getAssetsInChannels Tool', () => {
       network.nodes.lightning.push(litdNode);
       store.getActions().network.setNetworks([network]);
 
-      const mockAssetsInChannels = [
-        {
-          asset: {
-            id: 'asset123',
-            name: 'Test Asset',
-            capacity: '1000',
-            localBalance: '500',
-            remoteBalance: '500',
-            decimals: 0,
+      // Set up lightning state with channels containing assets
+      // getAssetsInChannels is a computed that reads from lightning.nodes
+      store.getActions().lightning.setChannels({
+        node: litdNode,
+        channels: [
+          {
+            pending: false,
+            uniqueId: 'chan1',
+            channelPoint: 'txid:0',
+            pubkey: 'peer123',
+            capacity: '1000000',
+            localBalance: '500000',
+            remoteBalance: '500000',
+            status: 'Open',
+            isPrivate: false,
+            assets: [
+              {
+                id: 'asset123',
+                name: 'Test Asset',
+                capacity: '1000',
+                localBalance: '500',
+                remoteBalance: '500',
+                decimals: 0,
+              },
+            ],
           },
-          peerPubkey: 'peer123',
-        },
-      ];
-      const spy = (
-        jest.spyOn(store.getActions().lit, 'getAssetsInChannels') as any
-      ).mockResolvedValue(mockAssetsInChannels);
+        ],
+      });
 
       const args: GetAssetsInChannelsArgs = {
         networkId: network.id,
@@ -96,10 +108,9 @@ describe('getAssetsInChannels Tool', () => {
       );
       expect(result.networkId).toBe(network.id);
       expect(result.nodeName).toBe(litdNode.name);
-      expect(result.assetsInChannels).toEqual(mockAssetsInChannels);
-      expect(spy).toHaveBeenCalledWith({
-        nodeName: litdNode.name,
-      });
+      expect(result.assetsInChannels).toHaveLength(1);
+      expect(result.assetsInChannels[0].asset.id).toBe('asset123');
+      expect(result.assetsInChannels[0].peerPubkey).toBe('peer123');
     });
 
     it('should return empty array when no assets in channels', async () => {
@@ -113,9 +124,8 @@ describe('getAssetsInChannels Tool', () => {
       network.nodes.lightning.push(litdNode);
       store.getActions().network.setNetworks([network]);
 
-      (
-        jest.spyOn(store.getActions().lit, 'getAssetsInChannels') as any
-      ).mockResolvedValue([]);
+      // No channels set up means no assets in channels
+      // getAssetsInChannels is now a computed that reads from lightning.nodes
 
       const args: GetAssetsInChannelsArgs = {
         networkId: network.id,
@@ -217,31 +227,6 @@ describe('getAssetsInChannels Tool', () => {
 
       await expect(store.getActions().mcp.getAssetsInChannels(args)).rejects.toThrow(
         `Node "${network.nodes.lightning[0].name}" is not a litd node`,
-      );
-    });
-
-    it('should handle getAssetsInChannels failure', async () => {
-      const network = getNetwork(1, 'test', Status.Started, 0);
-      const litdNode = createLitdNetworkNode(
-        network,
-        testRepoState.images.litd.latest,
-        testRepoState.images.litd.compatibility,
-        testNodeDocker,
-      );
-      network.nodes.lightning.push(litdNode);
-      store.getActions().network.setNetworks([network]);
-
-      (
-        jest.spyOn(store.getActions().lit, 'getAssetsInChannels') as any
-      ).mockRejectedValue(new Error('Database error'));
-
-      const args: GetAssetsInChannelsArgs = {
-        networkId: network.id,
-        nodeName: litdNode.name,
-      };
-
-      await expect(store.getActions().mcp.getAssetsInChannels(args)).rejects.toThrow(
-        'Database error',
       );
     });
   });

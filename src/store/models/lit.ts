@@ -1,4 +1,4 @@
-import { Action, action, Thunk, thunk } from 'easy-peasy';
+import { Action, action, computed, Computed, Thunk, thunk } from 'easy-peasy';
 import { LitdNode } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import * as PLIT from 'lib/litd/types';
@@ -67,12 +67,12 @@ export interface LitModel {
     RootModel,
     Promise<PLN.LightningNodePayReceipt>
   >;
-  getAssetsInChannels: Thunk<
+  getAssetsInChannels: Computed<
     LitModel,
-    { nodeName: string },
-    StoreInjections,
-    RootModel,
-    { asset: PLN.LightningNodeChannelAsset; peerPubkey: string }[]
+    (params: {
+      nodeName: string;
+    }) => { asset: PLN.LightningNodeChannelAsset; peerPubkey: string }[],
+    RootModel
   >;
 }
 
@@ -113,9 +113,9 @@ const litModel: LitModel = {
     await actions.getSessions(node);
   }),
   createAssetInvoice: thunk(
-    async (actions, { node, assetId, amount }, { injections }) => {
-      const assetsInChannels = actions
-        .getAssetsInChannels({ nodeName: node.name })
+    async (_, { node, assetId, amount }, { injections, getStoreState }) => {
+      const assetsInChannels = getStoreState()
+        .lit.getAssetsInChannels({ nodeName: node.name })
         .filter(a => a.asset.id === assetId)
         .filter(a => BigInt(a.asset.remoteBalance) >= BigInt(amount));
 
@@ -140,12 +140,12 @@ const litModel: LitModel = {
   ),
   payAssetInvoice: thunk(
     async (
-      actions,
+      _,
       { node, assetId, invoice },
       { injections, getStoreState, getStoreActions },
     ) => {
-      const assetsInChannels = actions
-        .getAssetsInChannels({ nodeName: node.name })
+      const assetsInChannels = getStoreState()
+        .lit.getAssetsInChannels({ nodeName: node.name })
         .filter(a => a.asset.id === assetId);
 
       if (assetsInChannels.length === 0) {
@@ -180,62 +180,65 @@ const litModel: LitModel = {
       return receipt;
     },
   ),
-  getAssetsInChannels: thunk((actions, { nodeName }, { getStoreState }) => {
-    const assets: {
-      asset: PLN.LightningNodeChannelAsset;
-      peerPubkey: string;
-    }[] = [];
+  getAssetsInChannels: computed(
+    [(_, storeState) => storeState.lightning.nodes],
+    lnNodes =>
+      ({ nodeName }) => {
+        const assets: {
+          asset: PLN.LightningNodeChannelAsset;
+          peerPubkey: string;
+        }[] = [];
 
-    // helper function to add an asset to the list
-    const addAsset = (asset: PLN.LightningNodeChannelAsset, peerPubkey: string) => {
-      const existing = assets.find(a => a.asset.id === asset.id);
-      if (existing) {
-        // if the existing asset has a lower balance, replace it
-        if (BigInt(asset.localBalance) > BigInt(existing.asset.localBalance)) {
-          existing.asset = asset;
-          existing.peerPubkey = peerPubkey;
-        }
-      } else {
-        assets.push({ asset, peerPubkey });
-      }
-    };
+        // helper function to add an asset to the list
+        const addAsset = (asset: PLN.LightningNodeChannelAsset, peerPubkey: string) => {
+          const existing = assets.find(a => a.asset.id === asset.id);
+          if (existing) {
+            // if the existing asset has a lower balance, replace it
+            if (BigInt(asset.localBalance) > BigInt(existing.asset.localBalance)) {
+              existing.asset = asset;
+              existing.peerPubkey = peerPubkey;
+            }
+          } else {
+            assets.push({ asset, peerPubkey });
+          }
+        };
 
-    const { nodes } = getStoreState().lightning;
-    Object.entries(nodes).forEach(([name, data]) => {
-      if (!data.channels) return;
-      if (name === nodeName) {
-        // loop over channels for the provided node
-        data.channels.forEach(c => {
-          c.assets?.forEach(asset => addAsset(asset, c.pubkey));
-        });
-      } else {
-        // loop over channels from other nodes
-        const nodePubkey = nodes[nodeName]?.info?.pubkey;
-        data.channels
-          // exclude channels that are not with the provided node
-          .filter(c => c.pubkey === nodePubkey)
-          .forEach(c => {
-            const remotePubkey = data.info?.pubkey;
-            if (!remotePubkey) return;
-            c.assets?.forEach(asset => {
-              const swapped = {
-                id: asset.id,
-                name: asset.name,
-                capacity: asset.capacity,
-                // swap the local and remote balances because we are looking at the
-                // channel from the other node's perspective
-                localBalance: asset.remoteBalance,
-                remoteBalance: asset.localBalance,
-                decimals: asset.decimals,
-              };
-              addAsset(swapped, remotePubkey);
+        Object.entries(lnNodes).forEach(([name, data]) => {
+          if (!data.channels) return;
+          if (name === nodeName) {
+            // loop over channels for the provided node
+            data.channels.forEach(c => {
+              c.assets?.forEach(asset => addAsset(asset, c.pubkey));
             });
-          });
-      }
-    });
+          } else {
+            // loop over channels from other nodes
+            const nodePubkey = lnNodes[nodeName]?.info?.pubkey;
+            data.channels
+              // exclude channels that are not with the provided node
+              .filter(c => c.pubkey === nodePubkey)
+              .forEach(c => {
+                const remotePubkey = data.info?.pubkey;
+                if (!remotePubkey) return;
+                c.assets?.forEach(asset => {
+                  const swapped = {
+                    id: asset.id,
+                    name: asset.name,
+                    capacity: asset.capacity,
+                    // swap the local and remote balances because we are looking at the
+                    // channel from the other node's perspective
+                    localBalance: asset.remoteBalance,
+                    remoteBalance: asset.localBalance,
+                    decimals: asset.decimals,
+                  };
+                  addAsset(swapped, remotePubkey);
+                });
+              });
+          }
+        });
 
-    return assets;
-  }),
+        return assets;
+      },
+  ),
 };
 
 export default litModel;

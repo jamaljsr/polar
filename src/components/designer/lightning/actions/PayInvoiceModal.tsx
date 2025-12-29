@@ -38,11 +38,12 @@ interface Props {
 const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.PayInvoiceModal');
   const { visible, nodeName } = useStoreState(s => s.modals.payInvoice);
-  const { nodes } = useStoreState(s => s.lightning);
+  const { getAssetsInChannels } = useStoreState(s => s.lit);
+  const { formatAssetAmount } = useStoreState(s => s.tap);
   const { hidePayInvoice } = useStoreActions(s => s.modals);
   const { payInvoice, getChannels, getInfo } = useStoreActions(s => s.lightning);
-  const { payAssetInvoice, getAssetsInChannels } = useStoreActions(s => s.lit);
-  const { getAssetRoots, formatAssetAmount } = useStoreActions(s => s.tap);
+  const { payAssetInvoice } = useStoreActions(s => s.lit);
+  const { getAssetRoots } = useStoreActions(s => s.tap);
   const { notify } = useStoreActions(s => s.app);
 
   const [form] = Form.useForm();
@@ -61,7 +62,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const assets = useMemo(() => {
     return getAssetsInChannels({ nodeName: selectedName }).map(a => a.asset);
-  }, [nodes, selectedName]);
+  }, [getAssetsInChannels, selectedName]);
 
   const payAsync = useAsyncCallback(async (values: FormValues) => {
     try {
