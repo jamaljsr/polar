@@ -61,6 +61,9 @@ const NetworkSetting: React.FC = () => {
         bitcoind: {
           rest: values.bitcoind,
         },
+        'bitcoind-knots': {
+          rest: values['bitcoind-knots'],
+        },
         tapd: {
           rest: values.tapd,
           grpc: values.grpcTapd,
