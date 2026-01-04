@@ -710,6 +710,13 @@ const getTorFlags = (implementation: NodeImplementation): string[] => {
         '--proxy=127.0.0.1:9050',
         '--always-use-proxy=true',
       ];
+    case 'eclair':
+      return [
+        '--tor.enabled=true',
+        '--tor.auth=safecookie',
+        '--socks5.enabled=true',
+        '--socks5.proxy=127.0.0.1:9050',
+      ];
     case 'bitcoind':
       return ['-proxy=127.0.0.1:9050', '-torcontrol=127.0.0.1:9051', '-bind=127.0.0.1'];
     default:
@@ -802,7 +809,11 @@ export const getEffectiveCommand = (node: CommonNode): string => {
 export const supportsTor = (node: CommonNode): boolean => {
   if (node.type === 'lightning') {
     const lnNode = node as LightningNode;
-    return lnNode.implementation === 'LND' || lnNode.implementation === 'c-lightning';
+    return (
+      lnNode.implementation === 'LND' ||
+      lnNode.implementation === 'c-lightning' ||
+      lnNode.implementation === 'eclair'
+    );
   }
   if (node.type === 'bitcoin') {
     const btcNode = node as BitcoinNode;

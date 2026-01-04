@@ -719,7 +719,7 @@ describe('Network Utils', () => {
 
     it('should return original command if implementation has no tor flags', () => {
       const command = '--foo=bar';
-      expect(applyTorFlags(command, true, 'eclair' as NodeImplementation)).toBe(command);
+      expect(applyTorFlags(command, true, 'tapd' as NodeImplementation)).toBe(command);
     });
   });
 

@@ -169,11 +169,18 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.eclair.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('eclair', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('eclair', version);
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = applyTorFlags(nodeCommand, !!node.enableTor, 'eclair');
     // add the docker service
-    const svc = eclair(name, container, image, rest, p2p, command);
+    const svc = eclair(name, container, image, rest, p2p, nodeCommand);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
     this.addService(svc);
   }
 
