@@ -59,7 +59,7 @@ FROM eclipse-temurin:25.0.1_8-jre-alpine
 WORKDIR /app
 
 # install jq for eclair-cli
-RUN apk add bash jq curl unzip su-exec
+RUN apk add bash jq curl unzip su-exec tor
 
 # copy and install eclair-cli executable
 COPY --from=BUILD /usr/src/eclair-core/eclair-cli .
@@ -81,7 +81,7 @@ RUN chmod -R a+x eclair-node/*
 RUN ls -al eclair-node/bin
 
 RUN curl -SLO https://raw.githubusercontent.com/ACINQ/eclair/master/contrib/eclair-cli.bash-completion \
-  && mkdir /etc/bash_completion.d \
+  && mkdir -p /etc/bash_completion.d \
   && mv eclair-cli.bash-completion /etc/bash_completion.d/ \
   && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
   && mkdir /usr/share/bash-completion/ \
@@ -94,7 +94,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/eclair"]
 
-EXPOSE 9735 8080
+EXPOSE 9735 8080 9050 9051
 
 ENTRYPOINT ["/entrypoint.sh"]
 

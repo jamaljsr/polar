@@ -710,6 +710,13 @@ const getTorFlags = (implementation: NodeImplementation): string[] => {
         '--proxy=127.0.0.1:9050',
         '--always-use-proxy=true',
       ];
+    case 'eclair':
+      return [
+        '--tor.enabled=true',
+        '--tor.auth=safecookie',
+        '--socks5.enabled=true',
+        '--socks5.proxy=127.0.0.1:9050',
+      ];
     case 'bitcoind':
       return [
         '-proxy=127.0.0.1:9050',
