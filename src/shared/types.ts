@@ -67,13 +67,23 @@ export interface EclairNode extends LightningNode {
 
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
-  implementation: 'bitcoind' | 'btcd';
+  implementation: 'bitcoind' | 'btcd' | 'bitcoind-knots';
   peers: string[];
   ports: Record<string, number>;
 }
 
 export interface BitcoindNode extends BitcoinNode {
   implementation: 'bitcoind';
+  ports: {
+    rpc: number;
+    p2p: number;
+    zmqBlock: number;
+    zmqTx: number;
+  };
+}
+
+export interface BitcoindKnotsNode extends BitcoinNode {
+  implementation: 'bitcoind-knots';
   ports: {
     rpc: number;
     p2p: number;

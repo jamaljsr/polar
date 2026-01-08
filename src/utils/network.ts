@@ -379,6 +379,45 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
+export const createBitcoindKnotsNetworkNode = (
+  network: Network,
+  version: string,
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts['bitcoind-knots'],
+): BitcoinNode => {
+  const { bitcoin } = network.nodes;
+  const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
+
+  const name = `backend${id + 1}`;
+  const node: BitcoinNode = {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'bitcoin',
+    implementation: 'bitcoind-knots',
+    version,
+    peers: [],
+    status,
+    ports: {
+      rpc: basePort.rest + id,
+      p2p: BasePorts['bitcoind-knots'].p2p + id,
+      zmqBlock: BasePorts['bitcoind-knots'].zmqBlock + id,
+      zmqTx: BasePorts['bitcoind-knots'].zmqTx + id,
+    },
+    docker,
+  };
+
+  // peer up with the previous node on both sides
+  if (bitcoin.length > 0) {
+    const prev = bitcoin[bitcoin.length - 1];
+    node.peers.push(prev.name);
+    prev.peers.push(node.name);
+  }
+
+  return node;
+};
+
 const filterLndBackends = (
   implementation: TapNode['implementation'],
   version: string,
@@ -450,6 +489,7 @@ export const createNetwork = (config: {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  bitcoindKnotsNodes: number;
   tapdNodes: number;
   litdNodes: number;
   repoState: DockerRepoState;
@@ -468,6 +508,7 @@ export const createNetwork = (config: {
     clightningNodes,
     eclairNodes,
     bitcoindNodes,
+    bitcoindKnotsNodes,
     tapdNodes,
     litdNodes,
     repoState,
@@ -535,6 +576,30 @@ export const createNetwork = (config: {
         dockerWrap(cmd),
         status,
         basePorts?.bitcoind,
+      ),
+    );
+  });
+
+  // add managed bitcoin knots nodes
+  range(bitcoindKnotsNodes).forEach(() => {
+    let version = repoState.images['bitcoind-knots'].latest;
+    if (lndNodes > 0) {
+      const compat = repoState.images.LND.compatibility as Record<string, string>;
+      const targetVersion = compat[repoState.images.LND.latest];
+      // Bitcoin Knots may have different minor versions than Core (e.g., 29.2 vs 29.0)
+      // Use the target version if available, otherwise use latest
+      if (repoState.images['bitcoind-knots'].versions.includes(targetVersion)) {
+        version = targetVersion;
+      }
+    }
+    const cmd = getImageCommand(managedImages, 'bitcoind-knots', version);
+    bitcoin.push(
+      createBitcoindKnotsNetworkNode(
+        network,
+        version,
+        dockerWrap(cmd),
+        status,
+        basePorts?.['bitcoind-knots'],
       ),
     );
   });

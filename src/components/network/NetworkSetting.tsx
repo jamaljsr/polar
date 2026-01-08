@@ -61,6 +61,9 @@ const NetworkSetting: React.FC = () => {
         bitcoind: {
           rest: values.bitcoind,
         },
+        'bitcoind-knots': {
+          rest: values['bitcoind-knots'],
+        },
         tapd: {
           rest: values.tapd,
           grpc: values.grpcTapd,
@@ -91,6 +94,7 @@ const NetworkSetting: React.FC = () => {
             'c-lightning': settings.basePorts['c-lightning'].rest,
             eclair: settings.basePorts.eclair.rest,
             bitcoind: settings.basePorts.bitcoind.rest,
+            'bitcoind-knots': settings.basePorts['bitcoind-knots'].rest,
             tapd: settings.basePorts.tapd.rest,
             grpcLND: settings.basePorts.LND.grpc,
             'grpcC-lightning': settings.basePorts['c-lightning'].grpc,
@@ -118,6 +122,11 @@ const NetworkSetting: React.FC = () => {
             </Col>
             <Col span={6}>
               <Form.Item name="bitcoind" label={dockerConfigs.bitcoind.name}>
+                <InputNumber />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="bitcoind-knots" label={dockerConfigs['bitcoind-knots'].name}>
                 <InputNumber />
               </Form.Item>
             </Col>
