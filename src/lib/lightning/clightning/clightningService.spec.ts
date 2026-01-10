@@ -463,4 +463,33 @@ describe('CLightningService', () => {
       expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('should get node info using torv3 address for rpcUrl', async () => {
+    const infoResponse: Partial<CLN.GetInfoResponse> = {
+      id: 'asdf',
+      alias: '',
+      address: [
+        {
+          type: 'torv3',
+          address: 'toraddress1234567890.onion',
+          port: 9735,
+        },
+      ],
+      binding: [{ type: 'ipv4', address: '0.0.0.0', port: 9735 }],
+      blockheight: 0,
+      numActiveChannels: 0,
+      numPendingChannels: 0,
+      numInactiveChannels: 0,
+      warningLightningdSync: 'blah',
+    };
+
+    clightningApiMock.httpPost.mockResolvedValue(infoResponse);
+    const expected = defaultStateInfo({
+      pubkey: 'asdf',
+      rpcUrl: 'asdf@toraddress1234567890.onion:9735',
+    });
+
+    const actual = await clightningService.getInfo(node);
+    expect(actual).toEqual(expected);
+  });
 });

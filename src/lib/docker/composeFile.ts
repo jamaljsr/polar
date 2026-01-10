@@ -201,11 +201,18 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.litd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('litd', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('litd', version);
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = applyTorFlags(nodeCommand, !!node.enableTor, 'litd');
     // add the docker service
-    const svc = litd(name, container, image, rest, grpc, p2p, web, command);
+    const svc = litd(name, container, image, rest, grpc, p2p, web, nodeCommand);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
     this.addService(svc);
   }
 

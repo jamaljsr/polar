@@ -263,4 +263,18 @@ describe('ComposeFile', () => {
     const service = composeFile.content.services[eclairNode.name];
     expect(service.environment?.ENABLE_TOR).toBe('false');
   });
+
+  it('should set ENABLE_TOR to true when tor is enabled on litd node', () => {
+    litdNode.enableTor = true;
+    composeFile.addLitd(litdNode, btcNode, litdNode);
+    const service = composeFile.content.services[litdNode.name];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on litd node', () => {
+    litdNode.enableTor = false;
+    composeFile.addLitd(litdNode, btcNode, litdNode);
+    const service = composeFile.content.services[litdNode.name];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
 });
