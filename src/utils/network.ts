@@ -717,6 +717,13 @@ const getTorFlags = (implementation: NodeImplementation): string[] => {
         '--socks5.enabled=true',
         '--socks5.proxy=127.0.0.1:9050',
       ];
+    case 'litd':
+      return [
+        '--lnd.tor.active',
+        '--lnd.tor.socks=127.0.0.1:9050',
+        '--lnd.tor.control=127.0.0.1:9051',
+        '--lnd.tor.v3',
+      ];
     case 'bitcoind':
       return ['-proxy=127.0.0.1:9050', '-torcontrol=127.0.0.1:9051', '-bind=127.0.0.1'];
     default:
@@ -749,6 +756,16 @@ export const applyTorFlags = (
       // Remove clearnet listen and externalip when Tor is active
       return !(
         trimmed.startsWith('--listen=0.0.0.0') || trimmed.startsWith('--externalip=')
+      );
+    });
+  }
+
+  if (implementation === 'litd' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      return !(
+        trimmed.startsWith('--lnd.listen=0.0.0.0') ||
+        trimmed.startsWith('--lnd.externalip=')
       );
     });
   }
@@ -812,7 +829,8 @@ export const supportsTor = (node: CommonNode): boolean => {
     return (
       lnNode.implementation === 'LND' ||
       lnNode.implementation === 'c-lightning' ||
-      lnNode.implementation === 'eclair'
+      lnNode.implementation === 'eclair' ||
+      lnNode.implementation === 'litd'
     );
   }
   if (node.type === 'bitcoin') {

@@ -208,7 +208,7 @@ describe('NetworkActions Component', () => {
       expect(await findByText('tor-failed')).toBeInTheDocument();
     });
 
-    it('should display disabled switch when no nodes support Tor', () => {
+    it('should display disabled switch when no nodes support Tor', async () => {
       const network = getNetwork(1, 'test network', Status.Stopped);
       network.nodes.bitcoin = [
         { ...network.nodes.bitcoin[0], implementation: 'btcd' } as any,
@@ -223,7 +223,7 @@ describe('NetworkActions Component', () => {
         },
       };
 
-      const { getByRole, getByLabelText } = renderWithProviders(
+      const { getByRole, getByLabelText, findByText } = renderWithProviders(
         <NetworkActions
           network={network}
           onClick={jest.fn()}
@@ -233,7 +233,8 @@ describe('NetworkActions Component', () => {
         />,
         { initialState },
       );
-
+      fireEvent.mouseOver(getByLabelText('more'));
+      await findByText('Rename');
       const torSwitch = getByRole('switch');
       expect(torSwitch).toBeDisabled();
       expect(getByLabelText('unlock')).toBeInTheDocument();
