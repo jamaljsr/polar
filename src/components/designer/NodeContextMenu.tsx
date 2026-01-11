@@ -3,11 +3,13 @@ import { INode } from '@mrblenny/react-flow-chart';
 import { Dropdown, MenuProps } from 'antd';
 import { BitcoinNode, LightningNode, Status, TapNode } from 'shared/types';
 import { useStoreState } from 'store';
+import { supportsTor } from 'utils/network';
 import {
   AdvancedOptionsButton,
   RemoveNode,
-  RestartNode,
   RenameNodeButton,
+  RestartNode,
+  TorButton,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
@@ -47,6 +49,8 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
   const isLN = node.type === 'lightning';
   const isBackend = node.type === 'bitcoin';
   const isStarted = node.status === Status.Started;
+  const isTorEnabled = (node as LightningNode | BitcoinNode).enableTor ?? false;
+  const isTorSupported = supportsTor(node);
 
   let items: MenuProps['items'] = [];
   items = items.concat(
@@ -109,6 +113,16 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     ),
     addItemIf('rename', <RenameNodeButton type="menu" node={node} />),
     addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
+    addItemIf(
+      'enable',
+      <TorButton menuType="enable" node={node} />,
+      isTorSupported && !isTorEnabled,
+    ),
+    addItemIf(
+      'disable',
+      <TorButton menuType="disable" node={node} />,
+      isTorSupported && isTorEnabled,
+    ),
     addItemIf('remove', <RemoveNode type="menu" node={node} />),
   );
 

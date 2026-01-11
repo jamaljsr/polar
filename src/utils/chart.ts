@@ -66,6 +66,7 @@ export const createLightningChartNode = (ln: LightningNode, yOffset = 0) => {
     properties: {
       status: ln.status,
       icon: dockerConfigs[ln.implementation].logo,
+      tor: ln.enableTor,
     },
   };
 
@@ -146,6 +147,7 @@ export const createBitcoinChartNode = (btc: BitcoinNode, yOffset = 0) => {
     properties: {
       status: btc.status,
       icon: dockerConfigs[btc.implementation].logo,
+      tor: btc.enableTor,
     },
   };
 

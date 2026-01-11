@@ -1,4 +1,4 @@
-import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import { CLightningNode, EclairNode, LitdNode, LndNode, TapdNode } from 'shared/types';
 import { bitcoinCredentials, defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import { testManagedImages } from 'utils/tests';
@@ -26,6 +26,7 @@ describe('ComposeFile', () => {
   const clnNode = network.nodes.lightning[1] as CLightningNode;
   const litdNode = network.nodes.lightning[3] as LitdNode;
   const tapNode = network.nodes.tap[0] as TapdNode;
+  const eclairNode = network.nodes.lightning[2] as EclairNode;
 
   beforeEach(() => {
     composeFile = new ComposeFile(1);
@@ -204,5 +205,76 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('simln');
     expect(service.container_name).toEqual('polar-n1-simln');
     expect(service.command).toBe('');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on lnd node', () => {
+    lndNode.enableTor = true;
+    composeFile.addLnd(lndNode, btcNode);
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['alice'];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on lnd node', () => {
+    lndNode.enableTor = false;
+    composeFile.addLnd(lndNode, btcNode);
+    const service = composeFile.content.services['alice'];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on bitcoind node', () => {
+    btcNode.enableTor = true;
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['backend1'];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on bitcoind node', () => {
+    btcNode.enableTor = false;
+    composeFile.addBitcoind(btcNode);
+    const service = composeFile.content.services['backend1'];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on c-lightning node', () => {
+    clnNode.enableTor = true;
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on c-lightning node', () => {
+    clnNode.enableTor = false;
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on eclair node', () => {
+    eclairNode.enableTor = true;
+    composeFile.addEclair(eclairNode, btcNode);
+    const service = composeFile.content.services[eclairNode.name];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on eclair node', () => {
+    eclairNode.enableTor = false;
+    composeFile.addEclair(eclairNode, btcNode);
+    const service = composeFile.content.services[eclairNode.name];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
+  });
+
+  it('should set ENABLE_TOR to true when tor is enabled on litd node', () => {
+    litdNode.enableTor = true;
+    composeFile.addLitd(litdNode, btcNode, litdNode);
+    const service = composeFile.content.services[litdNode.name];
+    expect(service.environment?.ENABLE_TOR).toBe('true');
+  });
+
+  it('should set ENABLE_TOR to false when tor is disabled on litd node', () => {
+    litdNode.enableTor = false;
+    composeFile.addLitd(litdNode, btcNode, litdNode);
+    const service = composeFile.content.services[litdNode.name];
+    expect(service.environment?.ENABLE_TOR).toBe('false');
   });
 });
