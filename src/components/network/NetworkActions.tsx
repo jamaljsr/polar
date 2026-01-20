@@ -83,13 +83,20 @@ const NetworkActions: React.FC<Props> = ({
   );
 
   const TorMenuSwitch = () => {
+    const isNetworkStarted = network.status === Status.Started;
+
     return (
       <>
         {hasTorSupportedNodes && (
-          <Tooltip title={l('torToggleTooltip')}>
+          <Tooltip
+            title={
+              isNetworkStarted ? l('torToggleDisabledStarted') : l('torToggleTooltip')
+            }
+          >
             <Switch
               checked={isTorEnabled}
               onChange={handleTorToggle}
+              disabled={isNetworkStarted}
               checkedChildren={
                 <>
                   <UnlockOutlined /> {l('torTitle')}

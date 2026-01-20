@@ -526,6 +526,7 @@
   "cmps.network.NetworkActions.mineError": "Unable to mine blocks",
   "cmps.network.NetworkActions.torTitle": "Tor",
   "cmps.network.NetworkActions.torToggleTooltip": "Enable/Disable Tor for all supported nodes",
+  "cmps.network.NetworkActions.torToggleDisabledStarted": "Stop the network to change network-wide Tor settings",
   "cmps.network.NetworkActions.torNotSupported": "No nodes in this network support Tor (only Bitcoin, LND, and Core Lightning nodes support Tor)",
   "cmps.network.NetworkActions.torEnabledAll": "Tor enabled for all supported nodes",
   "cmps.network.NetworkActions.torDisabledAll": "Tor disabled for all nodes",

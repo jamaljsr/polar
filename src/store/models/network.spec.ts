@@ -3,7 +3,7 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TapdNode } from 'shared/types';
+import { LightningNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
@@ -374,6 +374,15 @@ describe('Network model', () => {
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[5].docker.command).toBe('test-command');
+    });
+
+    it('should inherit Tor setting when adding an LND node to a Tor-enabled network', async () => {
+      store.getActions().network.setAllNodesTor({ networkId: 1, enabled: true });
+      const payload = { id: firstNetwork().id, type: 'LND', version: lndLatest };
+      const newNode = await store.getActions().network.addNode(payload);
+      expect((newNode as LightningNode).enableTor).toBe(true);
+      const { lightning } = firstNetwork().nodes;
+      expect((lightning[lightning.length - 1] as LightningNode).enableTor).toBe(true);
     });
   });
 

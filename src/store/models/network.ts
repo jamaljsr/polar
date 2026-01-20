@@ -387,6 +387,10 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+
+      const networkHasTor = [...network.nodes.lightning, ...network.nodes.bitcoin].some(
+        n => supportsTor(n) && (n as LightningNode | BitcoinNode).enableTor,
+      );
       let node: AnyNode;
       // lookup custom image and startup command
       const docker = { image: '', command: '' };
@@ -468,6 +472,10 @@ const networkModel: NetworkModel = {
           break;
         default:
           throw new Error(`Cannot add unknown node type '${type}' to the network`);
+      }
+
+      if (supportsTor(node) && networkHasTor) {
+        (node as LightningNode | BitcoinNode).enableTor = true;
       }
       actions.setNetworks([...networks]);
       await actions.save();
