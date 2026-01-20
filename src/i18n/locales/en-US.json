@@ -533,6 +533,7 @@
   "cmps.network.NetworkActions.mineError": "Unable to mine blocks",
   "cmps.network.NetworkActions.torTitle": "Tor",
   "cmps.network.NetworkActions.torToggleTooltip": "Enable/Disable Tor for all supported nodes",
+  "cmps.network.NetworkActions.torToggleDisabledStarted": "Stop the network to change network-wide Tor settings",
   "cmps.network.NetworkActions.torEnabledAll": "Tor enabled for all supported nodes",
   "cmps.network.NetworkActions.torDisabledAll": "Tor disabled for all nodes",
   "cmps.network.NetworkActions.torToggleError": "Failed to toggle Tor settings",
