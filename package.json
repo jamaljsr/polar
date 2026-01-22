@@ -55,7 +55,7 @@
     "electron-log": "4.4.8",
     "electron-window-state": "5.0.3",
     "fs-extra": "11.1.0",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "semver": "7.7.3",
     "shell-env": "3.0.1",
     "unzipper": "0.12.3",
