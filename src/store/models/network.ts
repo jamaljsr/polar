@@ -1045,11 +1045,8 @@ const networkModel: NetworkModel = {
             .waitUntilOnline(btc)
             .then(async () => {
               actions.setStatus({ id, status: Status.Started, only: btc.name });
-              // connect each bitcoin node to it's peers so tx & block propagation is fast
-              await injections.bitcoinFactory.getService(btc).connectPeers(btc);
               // create a default wallet since it's not automatic on v0.21.0 and up
               await injections.bitcoinFactory.getService(btc).createDefaultWallet(btc);
-              await getStoreActions().bitcoin.getInfo(btc);
             })
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
@@ -1073,7 +1070,10 @@ const networkModel: NetworkModel = {
         const node = network.nodes.bitcoin[0];
         await Promise.all(btcNodesOnline)
           .then(async () => {
-            await delay(2000);
+            await getStoreActions().bitcoin.connectAllPeers(network);
+            const hasTor = network.nodes.bitcoin.some(n => n.enableTor);
+            // add a longer delay to allow nodes to connect to peers because tor connection is slower
+            await delay(hasTor ? 4000 : 2000);
             await getStoreActions().bitcoin.mine({ node, blocks: 1 });
           })
           .catch(e => info('Failed to mine a block after network startup', e));
@@ -1084,6 +1084,8 @@ const networkModel: NetworkModel = {
         await Promise.all(lnNodesOnline)
           .then(async () => {
             await getStoreActions().lightning.connectAllPeers(network);
+            const hasTor = network.nodes.lightning.some(n => n.enableTor);
+            await delay(hasTor ? 4000 : 2000);
             // Add listeners to lightning nodes
             await getStoreActions().lightning.addListeners(network);
           })
