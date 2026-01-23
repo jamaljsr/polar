@@ -1,4 +1,4 @@
-import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import { BtcdNode, CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
 import { bitcoinCredentials, defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import { testManagedImages } from 'utils/tests';
@@ -22,7 +22,8 @@ describe('ComposeFile', () => {
     customImages: [],
     manualMineCount: 6,
   });
-  const btcNode = network.nodes.bitcoin[0];
+  const btcNode = network.nodes.bitcoin[0]; // bitcoind node
+  const btcdNode = network.nodes.bitcoin[1] as BtcdNode; // btcd node
   const lndNode = network.nodes.lightning[0] as LndNode;
   const clnNode = network.nodes.lightning[1] as CLightningNode;
   const litdNode = network.nodes.lightning[3] as LitdNode;
@@ -205,5 +206,77 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('simln');
     expect(service.container_name).toEqual('polar-n1-simln');
     expect(service.command).toBe('');
+  });
+
+  it('should add a btcd config', () => {
+    composeFile.addBtcd(btcdNode);
+    expect(composeFile.content.services['backend2']).not.toBeUndefined();
+  });
+
+  it('should create the correct btcd docker compose values', () => {
+    composeFile.addBtcd(btcdNode);
+    const service = composeFile.content.services['backend2'];
+    expect(service.image).toContain('btcd');
+    expect(service.container_name).toEqual('polar-n1-backend2');
+    expect(service.command).toContain(bitcoinCredentials.user);
+    expect(service.volumes[0]).toContain('/backend2/btcd:');
+  });
+
+  it('should use the btcd nodes docker data', () => {
+    const customBtcd = {
+      ...btcdNode,
+      docker: { image: 'my-btcd-image', command: 'my-btcd-command' },
+    };
+    composeFile.addBtcd(customBtcd);
+    const service = composeFile.content.services['backend2'];
+    expect(service.image).toBe('my-btcd-image');
+    expect(service.command).toBe('my-btcd-command');
+  });
+
+  it('should expose btcd ports correctly', () => {
+    composeFile.addBtcd(btcdNode);
+    const service = composeFile.content.services['backend2'];
+    expect(service.expose).toContain('18334'); // RPC
+    expect(service.expose).toContain('18444'); // P2P
+    expect(service.ports[0]).toContain(':18334'); // RPC port mapping
+    expect(service.ports[1]).toContain(':18444'); // P2P port mapping
+  });
+
+  it('should add btcwallet automatically when adding btcd', () => {
+    composeFile.addBtcd(btcdNode);
+    // btcwallet service should be created with name btcwallet-{btcdName}
+    expect(composeFile.content.services['btcwallet-backend2']).not.toBeUndefined();
+  });
+
+  it('should create the correct btcwallet docker compose values', () => {
+    composeFile.addBtcd(btcdNode);
+    const service = composeFile.content.services['btcwallet-backend2'];
+    expect(service.image).toContain('btcwallet');
+    expect(service.container_name).toEqual('polar-n1-backend2-btcwallet');
+    expect(service.command).toContain(bitcoinCredentials.user);
+    expect(service.command).toContain('--rpcconnect=backend2');
+  });
+
+  it('should mount btcd volume in btcwallet for RPC cert access', () => {
+    composeFile.addBtcd(btcdNode);
+    const service = composeFile.content.services['btcwallet-backend2'];
+    // btcwallet needs access to btcd's RPC cert
+    expect(service.volumes[1]).toContain('/btcd/backend2/btcd:');
+    expect(service.volumes[1]).toContain('.btcd');
+  });
+
+  it('should expose btcwallet RPC port correctly', () => {
+    composeFile.addBtcd(btcdNode);
+    const service = composeFile.content.services['btcwallet-backend2'];
+    expect(service.expose).toContain('18332'); // Wallet RPC
+    expect(service.ports[0]).toContain(':18332'); // Wallet RPC port mapping
+  });
+
+  it('should add environment variables for btcd', () => {
+    composeFile.addBtcd(btcdNode);
+    const service = composeFile.content.services['backend2'];
+    expect(service.environment).toBeDefined();
+    expect(service.environment?.USERID).toBe('${USERID:-1000}');
+    expect(service.environment?.GROUPID).toBe('${GROUPID:-1000}');
   });
 });

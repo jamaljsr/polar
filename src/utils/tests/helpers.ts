@@ -32,6 +32,11 @@ export const testManagedImages: ManagedImage[] = [
     command: '',
   },
   {
+    implementation: 'btcd',
+    version: defaultRepoState.images.btcd.latest,
+    command: '',
+  },
+  {
     implementation: 'tapd',
     version: defaultRepoState.images.tapd.latest,
     command: '',
@@ -191,8 +196,8 @@ export const testRepoState: DockerRepoState = {
       ],
     },
     btcd: {
-      latest: '',
-      versions: [],
+      latest: '0.25.0',
+      versions: ['0.25.0', '0.24.2'],
     },
     tapd: {
       latest: '0.6.1-alpha',
