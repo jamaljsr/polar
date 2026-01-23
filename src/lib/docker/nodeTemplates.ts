@@ -45,24 +45,35 @@ export const lnd = (
   grpcPort: number,
   p2pPort: number,
   command: string,
-): ComposeService => ({
-  image,
-  container_name: container,
-  hostname: name,
-  command: trimInside(command),
-  restart: 'always',
-  volumes: [`./volumes/${dockerConfigs.LND.volumeDirName}/${name}:/home/lnd/.lnd`],
-  expose: [
-    '8080', // REST
-    '10009', // gRPC
-    '9735', // p2p
-  ],
-  ports: [
-    `${restPort}:8080`, // REST
-    `${grpcPort}:10009`, // gRPC
-    `${p2pPort}:9735`, // p2p
-  ],
-});
+  isBtcdBackend = false,
+  btcdBackendName?: string,
+): ComposeService => {
+  const volumes = [`./volumes/${dockerConfigs.LND.volumeDirName}/${name}:/home/lnd/.lnd`];
+  // Mount btcd RPC cert for LND to authenticate with btcd
+  if (isBtcdBackend && btcdBackendName) {
+    volumes.push(
+      `./volumes/${dockerConfigs.btcd.volumeDirName}/${btcdBackendName}/btcd:/rpc:ro`,
+    );
+  }
+  return {
+    image,
+    container_name: container,
+    hostname: name,
+    command: trimInside(command),
+    restart: 'always',
+    volumes,
+    expose: [
+      '8080', // REST
+      '10009', // gRPC
+      '9735', // p2p
+    ],
+    ports: [
+      `${restPort}:8080`, // REST
+      `${grpcPort}:10009`, // gRPC
+      `${p2pPort}:9735`, // p2p
+    ],
+  };
+};
 
 export const clightning = (
   name: string,
@@ -157,30 +168,41 @@ export const litd = (
   p2pPort: number,
   webPort: number,
   command: string,
-): ComposeService => ({
-  image,
-  container_name: container,
-  hostname: name,
-  command: trimInside(command),
-  restart: 'always',
-  volumes: [
+  isBtcdBackend = false,
+  btcdBackendName?: string,
+): ComposeService => {
+  const volumes = [
     `./volumes/${dockerConfigs.litd.volumeDirName}/${name}/lit:/home/litd/.lit`,
     `./volumes/${dockerConfigs.litd.volumeDirName}/${name}/lnd:/home/litd/.lnd`,
     `./volumes/${dockerConfigs.litd.volumeDirName}/${name}/tapd:/home/litd/.tapd`,
-  ],
-  expose: [
-    '8080', // REST
-    '10009', // gRPC
-    '9735', // p2p
-    '8443', // web
-  ],
-  ports: [
-    `${restPort}:8080`, // REST
-    `${grpcPort}:10009`, // gRPC
-    `${p2pPort}:9735`, // p2p
-    `${webPort}:8443`, // web
-  ],
-});
+  ];
+  // Mount btcd RPC cert for litd's embedded LND to authenticate with btcd
+  if (isBtcdBackend && btcdBackendName) {
+    volumes.push(
+      `./volumes/${dockerConfigs.btcd.volumeDirName}/${btcdBackendName}/btcd:/rpc:ro`,
+    );
+  }
+  return {
+    image,
+    container_name: container,
+    hostname: name,
+    command: trimInside(command),
+    restart: 'always',
+    volumes,
+    expose: [
+      '8080', // REST
+      '10009', // gRPC
+      '9735', // p2p
+      '8443', // web
+    ],
+    ports: [
+      `${restPort}:8080`, // REST
+      `${grpcPort}:10009`, // gRPC
+      `${p2pPort}:9735`, // p2p
+      `${webPort}:8443`, // web
+    ],
+  };
+};
 
 export const simln = (
   name: string,

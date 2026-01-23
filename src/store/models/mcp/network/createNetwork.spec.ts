@@ -128,9 +128,9 @@ describe('MCP model > createNetwork', () => {
     await expect(
       store.getActions().mcp.createNetwork({
         name: 'unsupported-impl',
-        nodes: [{ implementation: 'btcd' as any }],
+        nodes: [{ implementation: 'invalid-impl' as any }],
       }),
-    ).rejects.toThrow('Unsupported implementation "btcd"');
+    ).rejects.toThrow('Unsupported implementation "invalid-impl"');
   });
 
   it('should reject implementations missing from the repo state', async () => {
@@ -157,13 +157,15 @@ describe('MCP model > createNetwork', () => {
     ).rejects.toThrow('Version "9.9.9" is not supported for LND');
   });
 
-  it('should throw when lightning nodes are requested without a bitcoind backend', async () => {
+  it('should throw when lightning nodes are requested without a bitcoin backend', async () => {
     await expect(
       store.getActions().mcp.createNetwork({
         name: 'invalid',
         nodes: [{ implementation: 'LND' }],
       }),
-    ).rejects.toThrow('Lightning nodes require at least one bitcoind backend');
+    ).rejects.toThrow(
+      'LND and litd nodes require at least one bitcoin backend (bitcoind or btcd)',
+    );
   });
 
   it('should throw when tapd nodes do not have an LND backend', async () => {
@@ -684,5 +686,102 @@ describe('MCP model > createNetwork', () => {
       true,
     );
     expect(result.network.nodes.tap).toHaveLength(1);
+  });
+
+  // btcd support tests
+  it('should create a network with btcd nodes', async () => {
+    const result = await store.getActions().mcp.createNetwork({
+      name: 'btcd-network',
+      nodes: [{ implementation: 'btcd', count: 2 }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.network.nodes.bitcoin).toHaveLength(2);
+    expect(result.network.nodes.bitcoin.every(n => n.implementation === 'btcd')).toBe(
+      true,
+    );
+  });
+
+  it('should create a network with LND and btcd backend only', async () => {
+    // LND supports btcd as a backend, so this should work without bitcoind
+    const result = await store.getActions().mcp.createNetwork({
+      name: 'lnd-btcd-only',
+      nodes: [{ implementation: 'btcd' }, { implementation: 'LND', count: 2 }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.network.nodes.bitcoin).toHaveLength(1);
+    expect(result.network.nodes.bitcoin[0].implementation).toBe('btcd');
+    expect(result.network.nodes.lightning).toHaveLength(2);
+    expect(result.network.nodes.lightning.every(n => n.implementation === 'LND')).toBe(
+      true,
+    );
+  });
+
+  it('should create a network with litd and btcd backend only', async () => {
+    // litd supports btcd as a backend, so this should work without bitcoind
+    const result = await store.getActions().mcp.createNetwork({
+      name: 'litd-btcd-only',
+      nodes: [{ implementation: 'btcd' }, { implementation: 'litd' }],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.network.nodes.bitcoin).toHaveLength(1);
+    expect(result.network.nodes.bitcoin[0].implementation).toBe('btcd');
+    expect(result.network.nodes.lightning.some(n => n.implementation === 'litd')).toBe(
+      true,
+    );
+  });
+
+  it('should throw when c-lightning is used with btcd only (no bitcoind)', async () => {
+    // CLN does NOT support btcd, so btcd-only should fail
+    await expect(
+      store.getActions().mcp.createNetwork({
+        name: 'cln-btcd-fail',
+        nodes: [{ implementation: 'btcd' }, { implementation: 'c-lightning' }],
+      }),
+    ).rejects.toThrow(
+      'Core Lightning and Eclair nodes require at least one bitcoind backend',
+    );
+  });
+
+  it('should throw when eclair is used with btcd only (no bitcoind)', async () => {
+    // Eclair does NOT support btcd, so btcd-only should fail
+    await expect(
+      store.getActions().mcp.createNetwork({
+        name: 'eclair-btcd-fail',
+        nodes: [{ implementation: 'btcd' }, { implementation: 'eclair' }],
+      }),
+    ).rejects.toThrow(
+      'Core Lightning and Eclair nodes require at least one bitcoind backend',
+    );
+  });
+
+  it('should create a mixed network with bitcoind, btcd, LND, and c-lightning', async () => {
+    // Mixed network: bitcoind for CLN, btcd also available for LND
+    const result = await store.getActions().mcp.createNetwork({
+      name: 'mixed-bitcoin-backends',
+      nodes: [
+        { implementation: 'bitcoind' },
+        { implementation: 'btcd' },
+        { implementation: 'LND' },
+        { implementation: 'c-lightning' },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.network.nodes.bitcoin).toHaveLength(2);
+    expect(result.network.nodes.bitcoin.some(n => n.implementation === 'bitcoind')).toBe(
+      true,
+    );
+    expect(result.network.nodes.bitcoin.some(n => n.implementation === 'btcd')).toBe(
+      true,
+    );
+    expect(result.network.nodes.lightning.some(n => n.implementation === 'LND')).toBe(
+      true,
+    );
+    expect(
+      result.network.nodes.lightning.some(n => n.implementation === 'c-lightning'),
+    ).toBe(true);
   });
 });

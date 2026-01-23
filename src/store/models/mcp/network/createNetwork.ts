@@ -50,10 +50,12 @@ interface PlanContext {
   baseCounts: NetworkPlan['baseCounts'];
   additionalNodes: NormalizedNodeRequest[];
   bitcoindVersions: Set<string>;
+  btcdVersions: Set<string>;
 }
 
 const SUPPORTED_IMPLEMENTATIONS: NodeImplementation[] = [
   'bitcoind',
+  'btcd',
   'LND',
   'c-lightning',
   'eclair',
@@ -63,19 +65,13 @@ const SUPPORTED_IMPLEMENTATIONS: NodeImplementation[] = [
 
 const ADDITION_PRIORITY: readonly NodeImplementation[] = [
   'bitcoind',
+  'btcd',
   'LND',
   'c-lightning',
   'eclair',
   'litd',
   'tapd',
 ];
-
-const LIGHTNING_IMPLEMENTATIONS = new Set<NodeImplementation>([
-  'LND',
-  'c-lightning',
-  'eclair',
-  'litd',
-]);
 
 const DEFAULT_NODE_REQUESTS: CreateNetworkNodeRequest[] = [
   { implementation: 'LND', count: 2 },
@@ -187,11 +183,18 @@ const buildPlanContext = (
 
   const additionalNodes: NormalizedNodeRequest[] = [];
   const bitcoindCandidates: NormalizedNodeRequest[] = [];
+  const btcdCandidates: NormalizedNodeRequest[] = [];
 
   normalized.forEach(node => {
     // Bitcoind is processed separately so we can align versions with LND compatibility
     if (node.implementation === 'bitcoind') {
       bitcoindCandidates.push(node);
+      return;
+    }
+
+    // btcd is also processed separately
+    if (node.implementation === 'btcd') {
+      btcdCandidates.push(node);
       return;
     }
 
@@ -243,6 +246,17 @@ const buildPlanContext = (
     additionalNodes.push(node);
   });
 
+  // btcd nodes using the latest version can be batched; the rest are deferred to addNode()
+  const latestBtcd = repoState.images.btcd?.latest;
+  btcdCandidates.forEach(node => {
+    if (latestBtcd && node.version === latestBtcd) {
+      baseCounts.btcdNodes += 1;
+      return;
+    }
+
+    additionalNodes.push(node);
+  });
+
   // Track every bitcoind version we will end up with; this drives later compatibility checks
   const bitcoindVersions = new Set<string>();
   if (baseCounts.bitcoindNodes > 0) {
@@ -252,6 +266,15 @@ const buildPlanContext = (
     .filter(node => node.implementation === 'bitcoind')
     .forEach(node => bitcoindVersions.add(node.version));
 
+  // Track every btcd version we will end up with
+  const btcdVersions = new Set<string>();
+  if (baseCounts.btcdNodes > 0 && latestBtcd) {
+    btcdVersions.add(latestBtcd);
+  }
+  additionalNodes
+    .filter(node => node.implementation === 'btcd')
+    .forEach(node => btcdVersions.add(node.version));
+
   // Queue nodes so that dependencies are added before consumers (bitcoin → LND → tapd)
   additionalNodes.sort(
     (a, b) =>
@@ -259,41 +282,56 @@ const buildPlanContext = (
       ADDITION_PRIORITY.indexOf(b.implementation),
   );
 
-  return { baseCounts, additionalNodes, bitcoindVersions };
+  return { baseCounts, additionalNodes, bitcoindVersions, btcdVersions };
 };
 
 const validateNetworkDependencies = ({
   baseCounts,
   additionalNodes,
   bitcoindVersions,
+  btcdVersions,
 }: PlanContext) => {
-  // Lightning nodes (LND, CLN, eclair, litd) cannot run without at least one bitcoind backend
-  const additionalLightningCount = additionalNodes.filter(node =>
-    LIGHTNING_IMPLEMENTATIONS.has(node.implementation),
+  // Count lightning nodes by type
+  const additionalLndCount = additionalNodes.filter(
+    node => node.implementation === 'LND',
   ).length;
-  const totalLightningNodes =
-    baseCounts.lndNodes +
-    baseCounts.clightningNodes +
-    baseCounts.eclairNodes +
-    baseCounts.litdNodes +
-    additionalLightningCount;
+  const additionalLitdCount = additionalNodes.filter(
+    node => node.implementation === 'litd',
+  ).length;
+  const additionalClnCount = additionalNodes.filter(
+    node => node.implementation === 'c-lightning',
+  ).length;
+  const additionalEclairCount = additionalNodes.filter(
+    node => node.implementation === 'eclair',
+  ).length;
+
+  const totalLndNodes = baseCounts.lndNodes + additionalLndCount;
+  const totalLitdNodes = baseCounts.litdNodes + additionalLitdCount;
+  const totalClnNodes = baseCounts.clightningNodes + additionalClnCount;
+  const totalEclairNodes = baseCounts.eclairNodes + additionalEclairCount;
+
+  const hasBitcoinBackend = bitcoindVersions.size > 0 || btcdVersions.size > 0;
+  const hasBitcoindBackend = bitcoindVersions.size > 0;
+
+  // LND and litd can use either bitcoind or btcd
+  if ((totalLndNodes > 0 || totalLitdNodes > 0) && !hasBitcoinBackend) {
+    throw new Error(
+      'LND and litd nodes require at least one bitcoin backend (bitcoind or btcd). Add a bitcoind or btcd entry to the nodes list.',
+    );
+  }
+
+  // CLN and eclair ONLY support bitcoind (not btcd)
+  if ((totalClnNodes > 0 || totalEclairNodes > 0) && !hasBitcoindBackend) {
+    throw new Error(
+      'Core Lightning and Eclair nodes require at least one bitcoind backend (btcd is not supported). Add a bitcoind entry to the nodes list.',
+    );
+  }
 
   // tapd requires LND; track both totals to enforce the one-to-one requirement
   const additionalTapdCount = additionalNodes.filter(
     node => node.implementation === 'tapd',
   ).length;
   const totalTapdNodes = baseCounts.tapdNodes + additionalTapdCount;
-
-  const additionalLndCount = additionalNodes.filter(
-    node => node.implementation === 'LND',
-  ).length;
-  const totalLndNodes = baseCounts.lndNodes + additionalLndCount;
-
-  if (totalLightningNodes > 0 && bitcoindVersions.size === 0) {
-    throw new Error(
-      'Lightning nodes require at least one bitcoind backend. Add a bitcoind entry to the nodes list.',
-    );
-  }
 
   if (totalTapdNodes > 0 && totalLndNodes === 0) {
     throw new Error('Tapd nodes require at least one LND node to act as a backend.');
@@ -309,6 +347,9 @@ const validateNetworkDependencies = ({
 const validateCompatibility = (context: PlanContext, repoState: DockerRepoState) => {
   const { baseCounts, additionalNodes, bitcoindVersions } = context;
 
+  // Skip bitcoind compatibility checks if using btcd only (btcd has different compatibility rules)
+  const hasBitcoindBackend = bitcoindVersions.size > 0;
+
   // Collate every LND version the network will contain so we can enforce bitcoind compatibility bounds
   const lndVersions = new Set<string>();
   if (baseCounts.lndNodes > 0) {
@@ -318,15 +359,19 @@ const validateCompatibility = (context: PlanContext, repoState: DockerRepoState)
     .filter(node => node.implementation === 'LND')
     .forEach(node => lndVersions.add(node.version));
 
-  const lndCompatibility = repoState.images.LND.compatibility || {};
-  for (const version of lndVersions) {
-    const requiredBitcoind = lndCompatibility[version];
-    const isCompatible = hasBitcoindUpTo(requiredBitcoind, bitcoindVersions);
-    if (!isCompatible) {
-      throw new Error(
-        `LND version ${version} requires a bitcoind node at version ${requiredBitcoind} ` +
-          `or lower. Add a compatible bitcoind node.`,
-      );
+  // Only check bitcoind compatibility if there's a bitcoind backend
+  // LND/litd with btcd-only setup doesn't need bitcoind version checks
+  if (hasBitcoindBackend) {
+    const lndCompatibility = repoState.images.LND.compatibility || {};
+    for (const version of lndVersions) {
+      const requiredBitcoind = lndCompatibility[version];
+      const isCompatible = hasBitcoindUpTo(requiredBitcoind, bitcoindVersions);
+      if (!isCompatible) {
+        throw new Error(
+          `LND version ${version} requires a bitcoind node at version ${requiredBitcoind} ` +
+            `or lower. Add a compatible bitcoind node.`,
+        );
+      }
     }
   }
 
@@ -339,15 +384,18 @@ const validateCompatibility = (context: PlanContext, repoState: DockerRepoState)
     .filter(node => node.implementation === 'litd')
     .forEach(node => litdVersions.add(node.version));
 
-  const litdCompatibility = repoState.images.litd.compatibility || {};
-  for (const version of litdVersions) {
-    const requiredBitcoind = litdCompatibility[version];
-    const isCompatible = hasBitcoindUpTo(requiredBitcoind, bitcoindVersions);
-    if (!isCompatible) {
-      throw new Error(
-        `litd version ${version} requires a bitcoind node at version ${requiredBitcoind} ` +
-          `or lower. Add a compatible bitcoind node.`,
-      );
+  // Only check bitcoind compatibility if there's a bitcoind backend
+  if (hasBitcoindBackend) {
+    const litdCompatibility = repoState.images.litd.compatibility || {};
+    for (const version of litdVersions) {
+      const requiredBitcoind = litdCompatibility[version];
+      const isCompatible = hasBitcoindUpTo(requiredBitcoind, bitcoindVersions);
+      if (!isCompatible) {
+        throw new Error(
+          `litd version ${version} requires a bitcoind node at version ${requiredBitcoind} ` +
+            `or lower. Add a compatible bitcoind node.`,
+        );
+      }
     }
   }
 
@@ -417,7 +465,7 @@ export const createNetworkDefinition: McpToolDefinition = {
           properties: {
             implementation: {
               type: 'string',
-              enum: ['bitcoind', 'LND', 'c-lightning', 'eclair', 'litd', 'tapd'],
+              enum: ['bitcoind', 'btcd', 'LND', 'c-lightning', 'eclair', 'litd', 'tapd'],
               description: 'Node implementation to add to the network',
             },
             version: {

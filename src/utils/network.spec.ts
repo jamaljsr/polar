@@ -20,6 +20,7 @@ import {
   createLndNetworkNode,
   createNetwork,
   createTapdNetworkNode,
+  filterCompatibleBackends,
   getCLightningFilePaths,
   getImageCommand,
   getInvoicePayload,
@@ -848,6 +849,105 @@ describe('Network Utils', () => {
     it('should throw an error if node is not found', async () => {
       const nonExistentNode: any = { type: 'bitcoin', id: 'non-existent' };
       await expect(renameNode(network, nonExistentNode, 'new-name')).rejects.toThrow();
+    });
+  });
+
+  describe('filterCompatibleBackends', () => {
+    let network: Network;
+    let bitcoindNode: BitcoinNode;
+    let btcdNode: BitcoinNode;
+
+    beforeEach(() => {
+      network = getNetwork();
+      // Clear existing bitcoin nodes so we have full control
+      network.nodes.bitcoin = [];
+      // Create one bitcoind and one btcd node
+      bitcoindNode = createBitcoindNetworkNode(
+        network,
+        '27.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(bitcoindNode);
+      btcdNode = createBtcdNetworkNode(
+        network,
+        '0.25.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(btcdNode);
+    });
+
+    it('should allow btcd backend for LND', () => {
+      const backends = filterCompatibleBackends(
+        'LND',
+        '0.18.0-beta',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should include both bitcoind and btcd
+      expect(backends.length).toBe(2);
+      expect(backends.map(b => b.implementation)).toContain('bitcoind');
+      expect(backends.map(b => b.implementation)).toContain('btcd');
+    });
+
+    it('should allow btcd backend for litd', () => {
+      const backends = filterCompatibleBackends(
+        'litd',
+        '0.14.0-alpha',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should include both bitcoind and btcd
+      expect(backends.length).toBe(2);
+      expect(backends.map(b => b.implementation)).toContain('bitcoind');
+      expect(backends.map(b => b.implementation)).toContain('btcd');
+    });
+
+    it('should NOT allow btcd backend for c-lightning', () => {
+      const backends = filterCompatibleBackends(
+        'c-lightning',
+        '24.05',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should only include bitcoind
+      expect(backends.length).toBe(1);
+      expect(backends[0].implementation).toBe('bitcoind');
+      expect(backends.map(b => b.implementation)).not.toContain('btcd');
+    });
+
+    it('should NOT allow btcd backend for eclair', () => {
+      const backends = filterCompatibleBackends(
+        'eclair',
+        '0.10.0',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should only include bitcoind
+      expect(backends.length).toBe(1);
+      expect(backends[0].implementation).toBe('bitcoind');
+      expect(backends.map(b => b.implementation)).not.toContain('btcd');
+    });
+
+    it('should return only bitcoind for CLN even with compatibility undefined', () => {
+      const backends = filterCompatibleBackends(
+        'c-lightning',
+        '24.05',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      expect(backends.every(b => b.implementation === 'bitcoind')).toBe(true);
+    });
+
+    it('should return only bitcoind for eclair even with compatibility undefined', () => {
+      const backends = filterCompatibleBackends(
+        'eclair',
+        '0.10.0',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      expect(backends.every(b => b.implementation === 'bitcoind')).toBe(true);
     });
   });
 

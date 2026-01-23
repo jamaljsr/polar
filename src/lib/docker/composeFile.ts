@@ -9,6 +9,7 @@ import {
 } from 'shared/types';
 import {
   bitcoinCredentials,
+  btcdCredentials,
   dockerConfigs,
   eclairCredentials,
   litdCredentials,
@@ -88,26 +89,74 @@ class ComposeFile {
     this.addService(svc);
   }
 
-  addLnd(node: LndNode, backend: CommonNode) {
+  addLnd(node: LndNode, backend: BitcoinNode) {
     const { name, version, ports } = node;
     const { rest, grpc, p2p } = ports;
     const container = getContainerName(node);
+    const isBtcdBackend = backend.implementation === 'btcd';
+
+    // use appropriate credentials based on backend type
+    const credentials = isBtcdBackend ? btcdCredentials : bitcoinCredentials;
+
     // define the variable substitutions
     const variables = {
       name: node.name,
       containerName: container,
       backendName: getContainerName(backend),
-      rpcUser: bitcoinCredentials.user,
-      rpcPass: bitcoinCredentials.pass,
+      rpcUser: credentials.user,
+      rpcPass: credentials.pass,
     };
+
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.LND.imageName}:${version}`;
-    // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('LND', version);
+
+    // use the node's custom command or generate btcd-specific command
+    let nodeCommand: string;
+    if (node.docker.command) {
+      nodeCommand = node.docker.command;
+    } else if (isBtcdBackend) {
+      // LND command for btcd backend (no ZMQ, uses btcd RPC)
+      nodeCommand = [
+        'lnd',
+        '--noseedbackup',
+        '--trickledelay=5000',
+        '--alias={{name}}',
+        '--externalip={{containerName}}',
+        '--tlsextradomain={{containerName}}',
+        '--tlsextradomain={{name}}',
+        '--tlsextradomain=host.docker.internal',
+        '--listen=0.0.0.0:9735',
+        '--rpclisten=0.0.0.0:10009',
+        '--restlisten=0.0.0.0:8080',
+        '--bitcoin.active',
+        '--bitcoin.regtest',
+        '--bitcoin.node=btcd',
+        '--btcd.rpchost={{backendName}}',
+        '--btcd.rpcuser={{rpcUser}}',
+        '--btcd.rpcpass={{rpcPass}}',
+        '--btcd.rawrpccert=/rpc/rpc.cert',
+        '--accept-keysend',
+        '--accept-amp',
+      ].join('\n  ');
+    } else {
+      nodeCommand = getDefaultCommand('LND', version);
+    }
+
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    const svc = lnd(name, container, image, rest, grpc, p2p, command);
+    const btcdBackendName = isBtcdBackend ? backend.name : undefined;
+    const svc = lnd(
+      name,
+      container,
+      image,
+      rest,
+      grpc,
+      p2p,
+      command,
+      isBtcdBackend,
+      btcdBackendName,
+    );
     this.addService(svc);
   }
 
@@ -159,28 +208,84 @@ class ComposeFile {
     this.addService(svc);
   }
 
-  addLitd(node: LitdNode, backend: CommonNode, proofCourier: CommonNode) {
+  addLitd(node: LitdNode, backend: BitcoinNode, proofCourier: CommonNode) {
     const { name, version, ports } = node;
     const { rest, grpc, p2p, web } = ports;
     const container = getContainerName(node);
+    const isBtcdBackend = backend.implementation === 'btcd';
+
+    // use appropriate credentials based on backend type
+    const credentials = isBtcdBackend ? btcdCredentials : bitcoinCredentials;
+
     // define the variable substitutions
     const variables = {
       name: node.name,
       containerName: container,
       backendName: getContainerName(backend),
-      rpcUser: bitcoinCredentials.user,
-      rpcPass: bitcoinCredentials.pass,
+      rpcUser: credentials.user,
+      rpcPass: credentials.pass,
       litdPass: litdCredentials.pass,
       proofCourier: getContainerName(proofCourier),
     };
+
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.litd.imageName}:${version}`;
-    // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('litd', version);
+
+    // use the node's custom command or generate btcd-specific command
+    let nodeCommand: string;
+    if (node.docker.command) {
+      nodeCommand = node.docker.command;
+    } else if (isBtcdBackend) {
+      // litd command for btcd backend (no ZMQ, uses btcd RPC)
+      nodeCommand = [
+        'litd',
+        '--httpslisten=0.0.0.0:8443',
+        '--uipassword={{litdPass}}',
+        '--lnd-mode=integrated',
+        '--network=regtest',
+        '--lnd.noseedbackup',
+        '--lnd.trickledelay=5000',
+        '--lnd.alias={{name}}',
+        '--lnd.externalip={{containerName}}',
+        '--lnd.tlsextradomain={{containerName}}',
+        '--lnd.tlsextradomain={{name}}',
+        '--lnd.tlsextradomain=host.docker.internal',
+        '--lnd.listen=0.0.0.0:9735',
+        '--lnd.rpclisten=0.0.0.0:10009',
+        '--lnd.restlisten=0.0.0.0:8080',
+        '--lnd.bitcoin.active',
+        '--lnd.bitcoin.regtest',
+        '--lnd.bitcoin.node=btcd',
+        '--lnd.btcd.rpchost={{backendName}}',
+        '--lnd.btcd.rpcuser={{rpcUser}}',
+        '--lnd.btcd.rpcpass={{rpcPass}}',
+        '--lnd.btcd.rawrpccert=/rpc/rpc.cert',
+        '--taproot-assets.allow-public-uni-proof-courier',
+        '--taproot-assets.universe.public-access=rw',
+        '--taproot-assets.universe.sync-all-assets',
+        '--taproot-assets.allow-public-stats',
+        '--taproot-assets.proofcourieraddr=universerpc://{{proofCourier}}:8443',
+      ].join('\n  ');
+    } else {
+      nodeCommand = getDefaultCommand('litd', version);
+    }
+
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    const svc = litd(name, container, image, rest, grpc, p2p, web, command);
+    const btcdBackendName = isBtcdBackend ? backend.name : undefined;
+    const svc = litd(
+      name,
+      container,
+      image,
+      rest,
+      grpc,
+      p2p,
+      web,
+      command,
+      isBtcdBackend,
+      btcdBackendName,
+    );
     this.addService(svc);
   }
 

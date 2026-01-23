@@ -173,11 +173,17 @@ export const filterCompatibleBackends = (
   compatibility: DockerRepoImage['compatibility'],
   backends: BitcoinNode[],
 ): BitcoinNode[] => {
+  // Only LND supports btcd backend - filter out btcd for other implementations
+  const supportsBtcd = implementation === 'LND' || implementation === 'litd';
+  const filteredBackends = supportsBtcd
+    ? backends
+    : backends.filter(n => n.implementation !== 'btcd');
+
   // if compatibility is not defined, then allow all backend versions
-  if (!compatibility || !compatibility[version]) return backends;
+  if (!compatibility || !compatibility[version]) return filteredBackends;
   const requiredVersion = compatibility[version];
-  const compatibleBackends = backends.filter(
-    n => isVersionCompatible(n.version, requiredVersion) || n.implementation === 'btcd', // TODO: remove this once btcd is compatible with all versions
+  const compatibleBackends = filteredBackends.filter(
+    n => isVersionCompatible(n.version, requiredVersion) || n.implementation === 'btcd',
   );
   if (compatibleBackends.length === 0) {
     throw new Error(
