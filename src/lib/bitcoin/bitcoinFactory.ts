@@ -16,7 +16,7 @@ class BitcoinFactory {
   constructor() {
     this._services = {
       bitcoind: bitcoindService,
-      btcd: btcdService, // TODO: To be replaced with btcd service
+      btcd: btcdService,
     };
   }
 
