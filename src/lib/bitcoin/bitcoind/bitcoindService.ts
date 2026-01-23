@@ -35,6 +35,22 @@ class BitcoindService implements BitcoinService {
     return await this.createClient(node).getBlockchainInfo();
   }
 
+  async getNetworkInfo(node: BitcoinNode) {
+    const info = await this.createClient(node).getNetworkInfo();
+
+    let p2pHost = '';
+    const onionAddr = info.localaddresses?.find((addr: any) =>
+      addr.address.endsWith('.onion'),
+    );
+    if (onionAddr) {
+      p2pHost = `${onionAddr.address}:${onionAddr.port}`;
+    } else {
+      p2pHost = `tcp://127.0.0.1:${node.ports.p2p}`;
+    }
+
+    return { ...info, p2pHost };
+  }
+
   async getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
     const client = this.createClient(node);
     const walletInfo = await client.getWalletInfo();
@@ -52,13 +68,16 @@ class BitcoindService implements BitcoinService {
     return await this.createClient(node).getNewAddress();
   }
 
-  async connectPeers(node: BitcoinNode) {
+  async connectPeers(node: BitcoinNode, peerAddresses: string[]) {
     const client = this.createClient(node);
-    for (const peer of node.peers) {
+    for (const peerAddr of peerAddresses) {
       try {
-        await client.addNode(peer, 'add');
+        await client.addNode(peerAddr, 'add');
       } catch (error: any) {
-        logger.debug(`Failed to add peer '${peer}' to bitcoind node ${node.name}`, error);
+        logger.debug(
+          `Failed to add peer '${peerAddr}' to bitcoind node ${node.name}`,
+          error,
+        );
       }
     }
   }

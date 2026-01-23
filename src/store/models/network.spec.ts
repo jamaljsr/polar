@@ -1090,6 +1090,42 @@ describe('Network model', () => {
       await monitorStartup(bitcoin);
       expect(bitcoinServiceMock.waitUntilOnline).not.toHaveBeenCalled();
     });
+
+    it('should use longer delay when bitcoin nodes have Tor enabled', async () => {
+      asyncUtilMock.delay.mockResolvedValue(0);
+      const { addNetwork, monitorStartup, setNodeTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+      setNodeTor({
+        networkId: network.id,
+        nodeName: network.nodes.bitcoin[0].name,
+        enabled: true,
+      });
+
+      await monitorStartup(firstNetwork().nodes.bitcoin);
+      await waitFor(() => {
+        expect(bitcoinServiceMock.waitUntilOnline).toHaveBeenCalled();
+      });
+      expect(asyncUtilMock.delay).toHaveBeenCalledWith(4000);
+    });
+
+    it('should use longer delay when lightning nodes have Tor enabled', async () => {
+      asyncUtilMock.delay.mockResolvedValue(0);
+      const { addNetwork, monitorStartup, setNodeTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+      setNodeTor({
+        networkId: network.id,
+        nodeName: network.nodes.lightning[0].name,
+        enabled: true,
+      });
+
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await waitFor(() => {
+        expect(lightningServiceMock.waitUntilOnline).toHaveBeenCalled();
+      });
+      expect(asyncUtilMock.delay).toHaveBeenCalledWith(4000);
+    });
   });
 
   describe('ManualMineCount', () => {

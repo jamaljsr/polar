@@ -18,7 +18,7 @@ import * as PLN from 'lib/lightning/types';
 import * as PLIT from 'lib/litd/types';
 import * as PTAP from 'lib/tap/types';
 import { PolarPlatform } from 'utils/system';
-import { ChainInfo, WalletInfoCompat } from './bitcoin-core';
+import { ChainInfo, NetworkInfo, WalletInfoCompat } from './bitcoin-core';
 
 export interface Network {
   id: number;
@@ -158,9 +158,10 @@ export interface BitcoinService {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
   createDefaultWallet: (node: BitcoinNode) => Promise<void>;
   getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
+  getNetworkInfo: (node: BitcoinNode) => Promise<NetworkInfo>;
   getWalletInfo: (node: BitcoinNode) => Promise<WalletInfoCompat>;
   getNewAddress: (node: BitcoinNode) => Promise<string>;
-  connectPeers: (node: BitcoinNode) => Promise<void>;
+  connectPeers: (node: BitcoinNode, peerAddresses: string[]) => Promise<void>;
   mine: (numBlocks: number, node: BitcoinNode) => Promise<string[]>;
   sendFunds: (node: BitcoinNode, addr: string, amount: number) => Promise<string>;
 }
