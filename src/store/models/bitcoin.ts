@@ -1,7 +1,7 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, Status } from 'shared/types';
 import { StoreInjections } from 'types';
-import { ChainInfo, WalletInfoCompat } from 'types/bitcoin-core';
+import { ChainInfo, NetworkInfo, WalletInfoCompat } from 'types/bitcoin-core';
 import { delay } from 'utils/async';
 import { getNetworkBackendId } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -17,6 +17,7 @@ export interface BitcoinNodeMapping {
 export interface BitcoinNodeModel {
   chainInfo?: ChainInfo;
   walletInfo?: WalletInfoCompat;
+  info?: NetworkInfo;
 }
 
 export interface BitcoinModel {
@@ -25,7 +26,12 @@ export interface BitcoinModel {
   clearNodes: Action<BitcoinModel, void>;
   setInfo: Action<
     BitcoinModel,
-    { node: BitcoinNode; chainInfo: ChainInfo; walletInfo: WalletInfoCompat }
+    {
+      node: BitcoinNode;
+      chainInfo: ChainInfo;
+      walletInfo: WalletInfoCompat;
+      networkInfo: NetworkInfo;
+    }
   >;
   getInfo: Thunk<BitcoinModel, BitcoinNode, StoreInjections>;
   mine: Thunk<
@@ -52,11 +58,12 @@ const bitcoinModel: BitcoinModel = {
   clearNodes: action(state => {
     state.nodes = {};
   }),
-  setInfo: action((state, { node, chainInfo, walletInfo }) => {
+  setInfo: action((state, { node, chainInfo, walletInfo, networkInfo }) => {
     const id = getNetworkBackendId(node);
     if (!state.nodes[id]) state.nodes[id] = {};
     state.nodes[id].chainInfo = chainInfo;
     state.nodes[id].walletInfo = walletInfo;
+    state.nodes[id].info = networkInfo;
   }),
   getInfo: thunk(async (actions, node, { injections }) => {
     const chainInfo = await injections.bitcoinFactory
@@ -65,7 +72,10 @@ const bitcoinModel: BitcoinModel = {
     const walletInfo = await injections.bitcoinFactory
       .getService(node)
       .getWalletInfo(node);
-    actions.setInfo({ node, chainInfo, walletInfo });
+    const networkInfo = await injections.bitcoinFactory
+      .getService(node)
+      .getNetworkInfo(node);
+    actions.setInfo({ node, chainInfo, walletInfo, networkInfo });
   }),
   mine: thunk(async (actions, { blocks, node }, { injections, getStoreState }) => {
     if (blocks < 0) throw new Error(l('mineError'));

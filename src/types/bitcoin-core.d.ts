@@ -92,6 +92,7 @@ type NetworkInfo = {
     score: number;
   }[];
   warnings?: string;
+  p2pHost?: string;
 };
 
 type PeerInfo = {

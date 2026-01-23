@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BitcoinNode } from 'shared/types';
 import { BitcoinService } from 'types';
-import { ChainInfo, WalletInfoCompat } from 'types/bitcoin-core';
+import { ChainInfo, NetworkInfo, WalletInfoCompat } from 'types/bitcoin-core';
 
 /**
  * A Bitcoin Service class whose functions are not yet implemented
@@ -21,6 +21,9 @@ class NotImplementedService implements BitcoinService {
     throw new Error(
       `getBlockchainInfo is not implemented for ${node.implementation} nodes`,
     );
+  }
+  getNetworkInfo(node: BitcoinNode): Promise<NetworkInfo> {
+    throw new Error(`getNetworkInfo is not implemented for ${node.implementation} nodes`);
   }
   getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
     throw new Error(`getWalletInfo is not implemented for ${node.implementation} nodes`);

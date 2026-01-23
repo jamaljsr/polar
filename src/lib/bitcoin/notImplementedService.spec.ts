@@ -10,6 +10,7 @@ describe('NotImplementedService', () => {
     expect(() => service.waitUntilOnline(node)).toThrow(msg('waitUntilOnline'));
     expect(() => service.createDefaultWallet(node)).toThrow(msg('createDefaultWallet'));
     expect(() => service.getBlockchainInfo(node)).toThrow(msg('getBlockchainInfo'));
+    expect(() => service.getNetworkInfo(node)).toThrow(msg('getNetworkInfo'));
     expect(() => service.getWalletInfo(node)).toThrow(msg('getWalletInfo'));
     expect(() => service.getNewAddress(node)).toThrow(msg('getNewAddress'));
     expect(() => service.connectPeers(node)).toThrow(msg('connectPeers'));

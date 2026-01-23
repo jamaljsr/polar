@@ -950,12 +950,12 @@ const networkModel: NetworkModel = {
             .getService(btc)
             .waitUntilOnline(btc)
             .then(async () => {
-              actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
               await injections.bitcoinFactory.getService(btc).connectPeers(btc);
               // create a default wallet since it's not automatic on v0.21.0 and up
               await injections.bitcoinFactory.getService(btc).createDefaultWallet(btc);
               await getStoreActions().bitcoin.getInfo(btc);
+              actions.setStatus({ id, status: Status.Started, only: btc.name });
             })
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),

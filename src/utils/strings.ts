@@ -26,6 +26,31 @@ export const ellipseInner = (
 };
 
 /**
+ * Formats a Bitcoin P2P host string for UI display.
+ * - Clearnet addresses are returned unchanged
+ * - Tor (.onion) addresses are shortened using inner ellipsis
+ * This ensures long Tor v3 onion addresses do not break layouts
+ * or hide copy controls while keeping UX consistent with LN hosts.
+ * @param host the p2p host string (clearnet or onion)
+ * @param leftChars number of characters to keep on the left side
+ * @param rightChars number of characters to keep on the right side
+ *
+ * @example
+ * formatP2PHost('tcp://127.0.0.1:19444');
+ * // 'tcp://127.0.0.1:19444'
+ *
+ * formatP2PHost('3ulrxzdgwvib2m3ald6acuviisda6br6uj2i7ekendv3wgpdwsixatad.onion:18444');
+ * // '	3ul...xatad.onion:18444'
+ */
+export const formatP2PHost = (host?: string) => {
+  if (!host) return host;
+  if (host.endsWith('.onion') || host.includes('.onion:')) {
+    return ellipseInner(host, 3, 17);
+  }
+  return host;
+};
+
+/**
  * Checks if the version provided is equal or lower than the maximum version provided.
  * @param version the version to compare
  * @param maxVersion the maximum version allowed
