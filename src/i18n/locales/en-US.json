@@ -77,6 +77,8 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "Waiting for bitcoind to come online",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "Unable to connect to node",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPC Host",
+  "cmps.designer.bitcoind.ConnectTab.grpcHost": "GRPC Host",
+  "cmps.designer.bitcoind.ConnectTab.walletRpcHost": "Wallet RPC Host",
   "cmps.designer.bitcoind.ConnectTab.p2pHost": "P2P Host",
   "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQ Block Host",
   "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQ Transaction Host",
