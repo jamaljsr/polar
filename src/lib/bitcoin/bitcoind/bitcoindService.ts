@@ -35,6 +35,38 @@ class BitcoindService implements BitcoinService {
     return await this.createClient(node).getBlockchainInfo();
   }
 
+  async getNetworkInfo(node: BitcoinNode) {
+    const info = await this.createClient(node).getNetworkInfo();
+
+    let p2pHost = '';
+    const onionAddr = info.localaddresses?.find((addr: any) =>
+      addr.address.endsWith('.onion'),
+    );
+    if (onionAddr) {
+      p2pHost = `${onionAddr.address}:${onionAddr.port}`;
+    }
+    if (!p2pHost) {
+      p2pHost = `tcp://127.0.0.1:${node.ports.p2p}`;
+    }
+
+    return {
+      version: info.version,
+      subversion: info.subversion,
+      protocolversion: info.protocolversion,
+      localservices: info.localservices,
+      localrelay: info.localrelay,
+      timeoffset: info.timeoffset,
+      connections: info.connections,
+      networkactive: info.networkactive,
+      networks: info.networks,
+      relayfee: info.relayfee,
+      incrementalfee: info.incrementalfee,
+      localaddresses: info.localaddresses,
+      warnings: info.warnings,
+      p2pHost,
+    };
+  }
+
   async getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
     const client = this.createClient(node);
     const walletInfo = await client.getWalletInfo();

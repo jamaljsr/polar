@@ -4,8 +4,10 @@ import styled from '@emotion/styled';
 import { Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
-import { useStoreActions } from 'store';
+import { useStoreActions, useStoreState } from 'store';
 import { bitcoinCredentials } from 'utils/constants';
+import { getNetworkBackendId } from 'utils/network';
+import { formatP2PHost } from 'utils/strings';
 import { CopyIcon, DetailsList } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 
@@ -30,21 +32,23 @@ interface Props {
 const ConnectTab: React.FC<Props> = ({ node }) => {
   const { l } = usePrefixedTranslation('cmps.designer.bitcoind.ConnectTab');
   const { openInBrowser } = useStoreActions(s => s.app);
+  const nodeState = useStoreState(s => s.bitcoin.nodes[getNetworkBackendId(node)]);
 
   if (node.status !== Status.Started) {
     return <>{l('notStarted')}</>;
   }
 
+  const p2pHost = nodeState?.info?.p2pHost;
   const details: DetailValues = [
     { label: l('rpcHost'), value: `http://127.0.0.1:${node.ports.rpc}` },
-    { label: l('p2pHost'), value: `tcp://127.0.0.1:${node.ports.p2p}` },
+    { label: l('p2pHost'), value: p2pHost },
     { label: l('zmqBlockHost'), value: `tcp://127.0.0.1:${node.ports.zmqBlock}` },
     { label: l('zmqTxHost'), value: `tcp://127.0.0.1:${node.ports.zmqTx}` },
     { label: l('rpcUser'), value: bitcoinCredentials.user },
     { label: l('rpcPass'), value: bitcoinCredentials.pass },
   ].map(({ label, value }) => ({
     label,
-    value: <CopyIcon label={label} value={value} text={value} />,
+    value: <CopyIcon label={label} value={value as string} text={formatP2PHost(value)} />,
   }));
 
   const restDocsUrl =

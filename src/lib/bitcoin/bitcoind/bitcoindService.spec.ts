@@ -30,6 +30,27 @@ describe('BitcoindService', () => {
     mockProto.getNewAddress = jest.fn().mockResolvedValue('abcdef');
     mockProto.sendToAddress = jest.fn().mockResolvedValue('txid');
     mockProto.generateToAddress = jest.fn().mockResolvedValue(['blockhash1']);
+    mockProto.getNetworkInfo = jest.fn().mockResolvedValue({
+      version: 290000,
+      subversion: '/Satoshi:29.0.0/',
+      protocolversion: 70016,
+      localservices: '0000000000000c49',
+      localrelay: true,
+      timeoffset: 0,
+      connections: 0,
+      networkactive: true,
+      networks: [],
+      relayfee: 0.00001,
+      incrementalfee: 0.00001,
+      localaddresses: [
+        {
+          address: 'test123.onion',
+          port: 18444,
+          score: 4,
+        },
+      ],
+      warnings: [],
+    });
   });
 
   it('should create a default wallet', async () => {
@@ -51,10 +72,10 @@ describe('BitcoindService', () => {
     expect(info.blocks).toEqual(10);
   });
 
-  it('should get wallet info', async () => {
-    const info = await bitcoindService.getWalletInfo(node);
-    expect(mockBitcoin.mock.instances[0].getWalletInfo).toBeCalledTimes(1);
-    expect(info.balance).toEqual(5);
+  it('should get network info', async () => {
+    const info = await bitcoindService.getNetworkInfo(node);
+    expect(getInst().getNetworkInfo).toBeCalledTimes(1);
+    expect(info.incrementalfee).toEqual(0.00001);
   });
 
   it('should get new address', async () => {
@@ -128,6 +149,28 @@ describe('BitcoindService', () => {
     expect(spy).toBeCalledWith('BitcoindService: [response]', {
       request: { unknownProp: 'some value' },
     });
+  });
+
+  it('should get wallet info', async () => {
+    const info = await bitcoindService.getWalletInfo(node);
+    expect(mockBitcoin.mock.instances[0].getWalletInfo).toBeCalledTimes(1);
+    expect(info.balance).toEqual(5);
+  });
+
+  it('should get network info with onion address', async () => {
+    const info = await bitcoindService.getNetworkInfo(node);
+    expect(getInst().getNetworkInfo).toBeCalledTimes(1);
+    expect(info.p2pHost).toEqual('test123.onion:18444');
+  });
+
+  it('should get network info without onion address', async () => {
+    mockProto.getNetworkInfo = jest.fn().mockResolvedValue({
+      version: 290000,
+      incrementalfee: 0.00001,
+      localaddresses: [],
+    });
+    const info = await bitcoindService.getNetworkInfo(node);
+    expect(info.p2pHost).toEqual(`tcp://127.0.0.1:${node.ports.p2p}`);
   });
 
   describe('sendFunds', () => {

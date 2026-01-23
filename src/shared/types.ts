@@ -25,6 +25,7 @@ export interface LightningNode extends CommonNode {
   implementation: 'LND' | 'c-lightning' | 'eclair' | 'litd';
   backendName: string;
   ports: Record<string, number | undefined>;
+  enableTor?: boolean;
 }
 
 export interface LndNode extends LightningNode {
@@ -70,6 +71,7 @@ export interface BitcoinNode extends CommonNode {
   implementation: 'bitcoind' | 'btcd';
   peers: string[];
   ports: Record<string, number>;
+  enableTor?: boolean;
 }
 
 export interface BitcoindNode extends BitcoinNode {

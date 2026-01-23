@@ -691,6 +691,156 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
 };
 
 /**
+ * Get Tor flags for a specific implementation
+ */
+
+const getTorFlags = (implementation: NodeImplementation): string[] => {
+  switch (implementation) {
+    case 'LND':
+      return [
+        '--tor.active',
+        '--tor.socks=127.0.0.1:9050',
+        '--tor.control=127.0.0.1:9051',
+        '--tor.v3',
+      ];
+    case 'c-lightning':
+      return [
+        '--bind-addr=127.0.0.1:9735',
+        '--announce-addr=statictor:127.0.0.1:9051',
+        '--proxy=127.0.0.1:9050',
+        '--always-use-proxy=true',
+      ];
+    case 'eclair':
+      return [
+        '--tor.enabled=true',
+        '--tor.auth=safecookie',
+        '--socks5.enabled=true',
+        '--socks5.proxy=127.0.0.1:9050',
+      ];
+    case 'litd':
+      return [
+        '--lnd.tor.active',
+        '--lnd.tor.socks=127.0.0.1:9050',
+        '--lnd.tor.control=127.0.0.1:9051',
+        '--lnd.tor.v3',
+      ];
+    case 'bitcoind':
+      return ['-proxy=127.0.0.1:9050', '-torcontrol=127.0.0.1:9051', '-bind=127.0.0.1'];
+    default:
+      return [];
+  }
+};
+
+/**
+ * Adds or removes Tor flags from a node command
+ */
+export const applyTorFlags = (
+  command: string,
+  enableTor: boolean,
+  implementation: NodeImplementation,
+): string => {
+  const torFlags = getTorFlags(implementation);
+
+  if (torFlags.length === 0) {
+    return command;
+  }
+
+  // Remove existing Tor flags to avoid duplicates
+  let lines = command
+    .split('\n')
+    .filter(line => !torFlags.some(flag => line.trim().startsWith(flag)));
+
+  if (implementation === 'LND' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      // Remove clearnet listen and externalip when Tor is active
+      return !(
+        trimmed.startsWith('--listen=0.0.0.0') || trimmed.startsWith('--externalip=')
+      );
+    });
+  }
+
+  if (implementation === 'litd' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      return !(
+        trimmed.startsWith('--lnd.listen=0.0.0.0') ||
+        trimmed.startsWith('--lnd.externalip=')
+      );
+    });
+  }
+
+  if (implementation === 'c-lightning' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      // Remove clearnet addr bindings, but keep internal Docker addr
+      return !(trimmed.startsWith('--addr=') && !trimmed.includes('statictor'));
+    });
+  }
+  let cleanCommand = lines.join('\n').trim();
+
+  if (implementation === 'bitcoind') {
+    cleanCommand = cleanCommand.replace(
+      '-listenonion=0',
+      `-listenonion=${enableTor ? '1' : '0'}`,
+    );
+  }
+
+  // Add Tor flags if enabled
+  if (enableTor) {
+    const torFlagsStr = torFlags.join('\n  ');
+    cleanCommand = `${cleanCommand}\n  ${torFlagsStr}`;
+  }
+
+  return cleanCommand;
+};
+
+export const getEffectiveCommand = (node: CommonNode): string => {
+  let implementation: NodeImplementation;
+  if (node.type === 'lightning') {
+    implementation = (node as LightningNode).implementation;
+  } else if (node.type === 'bitcoin') {
+    implementation = (node as BitcoinNode).implementation;
+  } else if (node.type === 'tap') {
+    implementation = (node as TapNode).implementation;
+  } else {
+    return node.docker.command;
+  }
+
+  let command = node.docker.command || getDefaultCommand(implementation, node.version);
+
+  // Add Tor flags for LND nodes if enabled
+  if (supportsTor(node)) {
+    const enableTor = (node as LightningNode | BitcoinNode).enableTor;
+    if (enableTor) {
+      command = applyTorFlags(command, true, implementation);
+    }
+  }
+
+  return command;
+};
+
+/**
+ * Check if a node implementation supports Tor
+ */
+export const supportsTor = (node: CommonNode): boolean => {
+  if (node.type === 'lightning') {
+    const lnNode = node as LightningNode;
+    return (
+      lnNode.implementation === 'LND' ||
+      lnNode.implementation === 'c-lightning' ||
+      lnNode.implementation === 'eclair' ||
+      lnNode.implementation === 'litd'
+    );
+  }
+  if (node.type === 'bitcoin') {
+    const btcNode = node as BitcoinNode;
+    return btcNode.implementation === 'bitcoind';
+  }
+  return false;
+};
+
+/**
  * Returns the images needed to start a network that are not included in the list
  * of images already pulled
  * @param network the network to check

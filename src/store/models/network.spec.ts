@@ -3,7 +3,7 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TapdNode } from 'shared/types';
+import { LightningNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
@@ -374,6 +374,15 @@ describe('Network model', () => {
       store.getActions().network.addNode(payload);
       const { lightning } = firstNetwork().nodes;
       expect(lightning[5].docker.command).toBe('test-command');
+    });
+
+    it('should inherit Tor setting when adding an LND node to a Tor-enabled network', async () => {
+      store.getActions().network.setAllNodesTor({ networkId: 1, enabled: true });
+      const payload = { id: firstNetwork().id, type: 'LND', version: lndLatest };
+      const newNode = await store.getActions().network.addNode(payload);
+      expect((newNode as LightningNode).enableTor).toBe(true);
+      const { lightning } = firstNetwork().nodes;
+      expect((lightning[lightning.length - 1] as LightningNode).enableTor).toBe(true);
     });
   });
 
@@ -1288,6 +1297,231 @@ describe('Network model', () => {
       config.simulation.activity[0].destination = nonExistentNode.name;
       await addSimulation(config);
       await expect(startSimulation({ id: network.id })).rejects.toThrow();
+    });
+  });
+
+  describe('Tor for all Network', () => {
+    it('should enable Tor for all nodes', async () => {
+      const { addNetwork, setAllNodesTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+
+      setAllNodesTor({ networkId: 1, enabled: true });
+
+      const network = firstNetwork();
+      network.nodes.lightning.forEach(node => {
+        expect(node.enableTor).toBe(true);
+      });
+      network.nodes.bitcoin.forEach(node => {
+        expect(node.enableTor).toBe(true);
+      });
+    });
+
+    it('should disable Tor for all nodes', async () => {
+      const { addNetwork, setAllNodesTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+
+      setAllNodesTor({ networkId: 1, enabled: false });
+
+      const network = firstNetwork();
+      network.nodes.lightning.forEach(node => {
+        expect(node.enableTor).toBe(false);
+      });
+      network.nodes.bitcoin.forEach(node => {
+        expect(node.enableTor).toBe(false);
+      });
+    });
+
+    it('setAllNodesTor should do nothing if network is not found', () => {
+      const { setAllNodesTor } = store.getActions().network;
+      expect(() => {
+        setAllNodesTor({ networkId: 999, enabled: true });
+      }).not.toThrow();
+    });
+
+    it('toggleTorForNetwork should throw error when network is not found', async () => {
+      const { toggleTorForNetwork } = store.getActions().network;
+      await expect(
+        toggleTorForNetwork({ networkId: 999, enabled: true }),
+      ).rejects.toThrow();
+    });
+
+    it('should update advanced options for a c-lightning node', async () => {
+      const { addNetwork, updateAdvancedOptions } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = firstNetwork().nodes.lightning[1];
+      const command = ['--network=testnet', '--log-level=debug'].join('\n');
+
+      await updateAdvancedOptions({ node, command });
+
+      const updatedNode = store.getState().network.networks[0].nodes.lightning[1];
+      expect(updatedNode.docker.command).toBe(command);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should update advanced options for an Eclair node', async () => {
+      const { addNetwork, updateAdvancedOptions } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = firstNetwork().nodes.lightning[2]; // Eclair node (carol)
+      const command = '-Declair.chain=testnet';
+
+      await updateAdvancedOptions({ node, command });
+
+      const updatedNode = store.getState().network.networks[0].nodes.lightning[2];
+      expect(updatedNode.docker.command).toBe(command);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should update advanced options for a bitcoind node', async () => {
+      const { addNetwork, updateAdvancedOptions } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = firstNetwork().nodes.bitcoin[0];
+      const command = ['-testnet', '-server'].join('\n');
+
+      await updateAdvancedOptions({ node, command });
+
+      const updatedNode = store.getState().network.networks[0].nodes.bitcoin[0];
+      expect(updatedNode.docker.command).toBe(command);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should not modify command for tap nodes', async () => {
+      const { addNetwork, updateAdvancedOptions, addNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+
+      const tapNode = await addNode({
+        id: network.id,
+        type: 'tapd',
+        version: '0.3.0',
+      });
+
+      const command = '--some-flag=value';
+
+      await updateAdvancedOptions({
+        node: tapNode,
+        command,
+      });
+
+      const updatedNetwork = firstNetwork();
+      const updatedNode = updatedNetwork.nodes.tap.find(n => n.name === tapNode.name);
+
+      expect(updatedNode!.docker.command).toBe(command);
+    });
+
+    it('should not apply Tor flags for bitcoin nodes with non-bitcoind implementation', async () => {
+      const { addNetwork, updateAdvancedOptions } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const btcNode = firstNetwork().nodes.bitcoin[0];
+
+      btcNode.implementation = 'btcd';
+      const command = ['-testnet', '-server', '-rpcuser=test'].join('\n');
+
+      await updateAdvancedOptions({ node: btcNode, command });
+
+      const updatedNode = store.getState().network.networks[0].nodes.bitcoin[0];
+      expect(updatedNode.docker.command).toBe(command);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should enable Tor for a node', async () => {
+      const { addNetwork, setNodeTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+
+      const network = firstNetwork();
+      const btcNode = network.nodes.bitcoin[0];
+
+      setNodeTor({ networkId: 1, nodeName: btcNode.name, enabled: true });
+      const updatedNetwork = firstNetwork();
+      const updatedBtcNode = updatedNetwork.nodes.bitcoin[0];
+      expect(updatedBtcNode.enableTor).toBe(true);
+    });
+
+    it('should fail to set node Tor with invalid network id', () => {
+      const { setNodeTor } = store.getActions().network;
+      expect(() =>
+        setNodeTor({ networkId: 999, nodeName: 'alice', enabled: true }),
+      ).toThrow("Network with the id '999' was not found.");
+    });
+
+    it('should fail to set node Tor with invalid node name', async () => {
+      const { addNetwork, setNodeTor } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const network = firstNetwork();
+      expect(() =>
+        setNodeTor({
+          networkId: network.id,
+          nodeName: 'invalid-node',
+          enabled: true,
+        }),
+      ).toThrow("The node 'invalid-node' was not found.");
+    });
+
+    it('should fail to call toggleTorForNode with invalid network id', async () => {
+      const { addNetwork, toggleTorForNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 999,
+      };
+
+      await expect(toggleTorForNode({ node, enabled: true })).rejects.toThrow(
+        "Network with the id '999' was not found.",
+      );
+    });
+
+    it('should enable Tor on a started lightning node and restart it', async () => {
+      const { addNetwork, toggleTorForNode, setStatus } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+
+      // Start the node first
+      setStatus({ id: firstNetwork().id, status: Status.Started });
+
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 1,
+      };
+      expect(node.status).toBe(Status.Started);
+
+      await toggleTorForNode({ node, enabled: true });
+
+      const updatedNode = firstNetwork().nodes.lightning[0];
+      expect(updatedNode.enableTor).toBe(true);
+      // Node should be restarted (Started status maintained)
+      expect(updatedNode.status).toBe(Status.Started);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should enable Tor on a stopped lightning node', async () => {
+      const { addNetwork, toggleTorForNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 1,
+      };
+
+      await toggleTorForNode({ node, enabled: true });
+
+      const updatedNode = firstNetwork().nodes.lightning[0];
+      expect(updatedNode.enableTor).toBe(true);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalled();
+    });
+
+    it('should preserve other node properties when toggling Tor', async () => {
+      const { addNetwork, toggleTorForNode } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const node = {
+        ...firstNetwork().nodes.lightning[0],
+        networkId: 1,
+      };
+      const originalPorts = { ...node.ports };
+      const originalName = node.name;
+
+      await toggleTorForNode({ node, enabled: true });
+
+      const updatedNode = firstNetwork().nodes.lightning[0];
+      expect(updatedNode.name).toBe(originalName);
+      expect(updatedNode.ports).toEqual(originalPorts);
+      expect(updatedNode.enableTor).toBe(true);
     });
   });
 

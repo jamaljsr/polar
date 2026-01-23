@@ -14,12 +14,13 @@ import {
   TapdNode,
   TapNode,
 } from 'shared/types';
-import { AutoMineMode, CustomImage, Network, StoreInjections, Simulation } from 'types';
+import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
+  applyTorFlags,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
@@ -33,6 +34,7 @@ import {
   importNetworkFromZip,
   OpenPorts,
   renameNode,
+  supportsTor,
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
@@ -236,6 +238,25 @@ export interface NetworkModel {
     RootModel,
     Promise<void>
   >;
+  setAllNodesTor: Action<NetworkModel, { networkId: number; enabled: boolean }>;
+  toggleTorForNetwork: Thunk<
+    NetworkModel,
+    { networkId: number; enabled: boolean },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  setNodeTor: Action<
+    NetworkModel,
+    { networkId: number; nodeName: string; enabled: boolean }
+  >;
+  toggleTorForNode: Thunk<
+    NetworkModel,
+    { node: CommonNode; enabled: boolean },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 }
 
 const networkModel: NetworkModel = {
@@ -366,6 +387,10 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+
+      const networkHasTor = [...network.nodes.lightning, ...network.nodes.bitcoin].some(
+        n => supportsTor(n) && (n as LightningNode | BitcoinNode).enableTor,
+      );
       let node: AnyNode;
       // lookup custom image and startup command
       const docker = { image: '', command: '' };
@@ -448,6 +473,10 @@ const networkModel: NetworkModel = {
         default:
           throw new Error(`Cannot add unknown node type '${type}' to the network`);
       }
+
+      if (supportsTor(node) && networkHasTor) {
+        (node as LightningNode | BitcoinNode).enableTor = true;
+      }
       actions.setNetworks([...networks]);
       await actions.save();
       await injections.dockerService.saveComposeFile(network);
@@ -459,7 +488,24 @@ const networkModel: NetworkModel = {
       const networks = getState().networks;
       let network = networks.find(n => n.id === node.networkId);
       if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
-      actions.updateNodeCommand({ id: node.networkId, name: node.name, command });
+
+      let cleanCommand = command;
+
+      if (supportsTor(node)) {
+        let implementation: NodeImplementation;
+        if (node.type === 'lightning') {
+          implementation = (node as LightningNode).implementation;
+        } else {
+          implementation = (node as BitcoinNode).implementation;
+        }
+        cleanCommand = applyTorFlags(command, false, implementation);
+      }
+
+      actions.updateNodeCommand({
+        id: node.networkId,
+        name: node.name,
+        command: cleanCommand,
+      });
       await actions.save();
       network = getState().networks.find(n => n.id === node.networkId) as Network;
       await injections.dockerService.saveComposeFile(network);
@@ -904,12 +950,12 @@ const networkModel: NetworkModel = {
             .getService(btc)
             .waitUntilOnline(btc)
             .then(async () => {
-              actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
               await injections.bitcoinFactory.getService(btc).connectPeers(btc);
               // create a default wallet since it's not automatic on v0.21.0 and up
               await injections.bitcoinFactory.getService(btc).createDefaultWallet(btc);
               await getStoreActions().bitcoin.getInfo(btc);
+              actions.setStatus({ id, status: Status.Started, only: btc.name });
             })
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
@@ -1270,6 +1316,77 @@ const networkModel: NetworkModel = {
       throw e;
     }
   }),
+  setAllNodesTor: action((state, { networkId, enabled }) => {
+    const network = state.networks.find(n => n.id === networkId);
+    if (network) {
+      network.nodes.lightning.forEach(node => {
+        node.enableTor = enabled;
+      });
+      network.nodes.bitcoin.forEach(node => {
+        node.enableTor = enabled;
+      });
+    }
+  }),
+  toggleTorForNetwork: thunk(
+    async (actions, { networkId, enabled }, { getState, injections }) => {
+      const networks = getState().networks;
+      let network = networks.find(n => n.id === networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId }));
+
+      actions.setAllNodesTor({ networkId, enabled });
+
+      await actions.save();
+      network = getState().networks.find(n => n.id === networkId) as Network;
+      await injections.dockerService.saveComposeFile(network);
+    },
+  ),
+  setNodeTor: action((state, { networkId, nodeName, enabled }) => {
+    const network = state.networks.find(n => n.id === networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId }));
+    const lnNode = network.nodes.lightning.find(n => n.name === nodeName);
+    if (lnNode) {
+      lnNode.enableTor = enabled;
+      return;
+    }
+
+    const btcNode = network.nodes.bitcoin.find(n => n.name === nodeName);
+    if (btcNode) {
+      btcNode.enableTor = enabled;
+      return;
+    }
+    throw new Error(l('nodeByNameErr', { name: nodeName }));
+  }),
+  toggleTorForNode: thunk(
+    async (actions, { node, enabled }, { getState, injections }) => {
+      const { networkId, name, status } = node;
+      const networks = getState().networks;
+      let network = networks.find(n => n.id === networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId }));
+
+      const wasStarted = status === Status.Started;
+      if (wasStarted) {
+        await actions.toggleNode(node);
+      }
+      actions.setNodeTor({ networkId, nodeName: name, enabled });
+      actions.save();
+
+      network = getState().networks.find(n => n.id === networkId) as Network;
+      await injections.dockerService.saveComposeFile(network);
+
+      if (wasStarted) {
+        const updatedNetwork = getState().networks.find(n => n.id === networkId);
+        if (updatedNetwork) {
+          const updatedNode = [
+            ...updatedNetwork.nodes.lightning,
+            ...updatedNetwork.nodes.bitcoin,
+          ].find(n => n.name === name);
+          if (updatedNode) {
+            await actions.toggleNode(updatedNode);
+          }
+        }
+      }
+    },
+  ),
 };
 
 export default networkModel;

@@ -2,11 +2,12 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { INodeInnerDefaultProps, ISize } from '@mrblenny/react-flow-chart';
 import { useTheme } from 'hooks/useTheme';
+import { useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
 import { LOADING_NODE_ID } from 'utils/constants';
 import { Loader, StatusBadge } from 'components/common';
+import torIcon from '../../../resources/onion.png';
 import NodeContextMenu from '../NodeContextMenu';
-import { useStoreState } from 'store';
 
 const Styled = {
   Node: styled.div<{ size?: ISize; colors: ThemeColors['node']; isSelected: boolean }>`
@@ -45,6 +46,19 @@ const CustomNodeInner: React.FC<INodeInnerDefaultProps> = ({ node }) => {
           <StatusBadge text={node.id} status={node.properties.status} />
         </span>
         <img src={node.properties.icon} style={{ width: 24, height: 24 }} alt="" />
+        {node.properties.tor && (
+          <img
+            src={torIcon}
+            style={{
+              position: 'absolute',
+              width: 20,
+              height: 20,
+              bottom: -8,
+              right: 0,
+            }}
+            alt="Tor"
+          />
+        )}
       </Styled.Node>
     </NodeContextMenu>
   );

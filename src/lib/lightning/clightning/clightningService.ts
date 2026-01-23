@@ -49,12 +49,22 @@ export interface CachedChannelStatus {
 export class CLightningService implements LightningService {
   async getInfo(node: LightningNode): Promise<PLN.LightningNodeInfo> {
     const info = await httpPost<CLN.GetInfoResponse>(node, 'getinfo');
+
+    let rpcUrl = '';
+    const torAddr = info.address?.find(a => a.type === 'torv3');
+    if (torAddr) {
+      rpcUrl = `${info.id}@${torAddr.address}:${torAddr.port}`;
+    }
+
+    if (!rpcUrl) {
+      rpcUrl = info.binding
+        .filter(b => b.type === 'ipv4')
+        .reduce((v, b) => `${info.id}@${node.name}:${b.port}`, '');
+    }
     return {
       pubkey: info.id,
       alias: info.alias,
-      rpcUrl: info.binding
-        .filter(b => b.type === 'ipv4')
-        .reduce((v, b) => `${info.id}@${node.name}:${b.port}`, ''),
+      rpcUrl,
       syncedToChain: !info.warningBitcoindSync && !info.warningLightningdSync,
       blockHeight: info.blockheight,
       numActiveChannels: info.numActiveChannels,
