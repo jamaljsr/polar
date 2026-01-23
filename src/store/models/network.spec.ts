@@ -62,6 +62,7 @@ describe('Network model', () => {
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 0,
     tapdNodes: 0,
     litdNodes: 1,
     customNodes: {},
@@ -145,6 +146,34 @@ describe('Network model', () => {
       bitcoin.forEach(node => {
         expect(node.type).toBe('bitcoin');
       });
+    });
+
+    it('should add a network with btcd nodes', async () => {
+      await store
+        .getActions()
+        .network.addNetwork({ ...addNetworkArgs, bitcoindNodes: 0, btcdNodes: 2 });
+      const { networks } = store.getState().network;
+      const { bitcoin } = networks[0].nodes;
+      expect(bitcoin.length).toBe(2);
+      bitcoin.forEach(node => {
+        expect(node.type).toBe('bitcoin');
+        expect(node.implementation).toBe('btcd');
+      });
+    });
+
+    it('should add a network with mixed bitcoind and btcd nodes', async () => {
+      await store
+        .getActions()
+        .network.addNetwork({ ...addNetworkArgs, bitcoindNodes: 1, btcdNodes: 1 });
+      const { networks } = store.getState().network;
+      const { bitcoin } = networks[0].nodes;
+      expect(bitcoin.length).toBe(2);
+      // bitcoind is added first
+      expect(bitcoin[0].implementation).toBe('bitcoind');
+      expect(bitcoin[1].implementation).toBe('btcd');
+      // They should be peered
+      expect(bitcoin[0].peers).toContain('backend2');
+      expect(bitcoin[1].peers).toContain('backend1');
     });
 
     it('should set all nodes to Stopped by default', async () => {
@@ -333,6 +362,43 @@ describe('Network model', () => {
       const { bitcoin } = firstNetwork().nodes;
       expect(bitcoin[1].docker.image).toBe(customBitcoind.dockerImage);
       expect(bitcoin[1].docker.command).toBe(customBitcoind.command);
+    });
+
+    it('should add a btcd node to an existing network', async () => {
+      const btcdLatest = defaultRepoState.images.btcd.latest;
+      const payload = { id: firstNetwork().id, type: 'btcd', version: btcdLatest };
+      store.getActions().network.addNode(payload);
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin).toHaveLength(2);
+      expect(bitcoin[1].implementation).toBe('btcd');
+      expect(bitcoin[1].version).toBe(btcdLatest);
+    });
+
+    it('should add a btcd custom node', async () => {
+      const customBtcd = {
+        id: 'btcd-custom',
+        name: 'Custom BTCD',
+        implementation: 'btcd',
+        dockerImage: 'my-btcd:latest',
+        command: 'btcd-custom-cmd',
+      };
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom: [customBtcd] as CustomImage[],
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = {
+        id: firstNetwork().id,
+        type: 'btcd',
+        version: defaultRepoState.images.btcd.latest,
+        customId: 'btcd-custom',
+      };
+      store.getActions().network.addNode(payload);
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin[1].docker.image).toBe(customBtcd.dockerImage);
+      expect(bitcoin[1].docker.command).toBe(customBtcd.command);
     });
 
     it('should ignore an invalid custom node', async () => {
