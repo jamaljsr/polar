@@ -549,6 +549,7 @@
   "cmps.network.NetworkSetting.saveSuccess": "Saved settings",
   "cmps.network.NetworkSetting.description": "Base Ports determine the starting port numbers that will be used for each node. When a network is started, Polar will use these values to detect the next open port on your machine to assign to the nodes. You usually do not need to change these unless you are running into port conflicts with other apps installed on your computer. If you change these values, try to maintain at decent size gap (roughly 100) between them to prevent them from overlapping as more nodes of each implementation are added to your networks.",
   "cmps.network.NewNetwork.tapdCountError": "The number of Taproot Assets nodes must be less than or equal to the number of LND nodes",
+  "cmps.network.NewNetwork.bitcoinBackendError": "Lightning nodes require at least one Bitcoin backend (Bitcoin Core or Bitcoin Knots)",
   "cmps.nodeImages.CommandVariables.header": "Command Variable Substitutions",
   "cmps.nodeImages.CommandVariables.tableTitle": "Wrap the variables below in double braces to use them in the command",
   "cmps.nodeImages.CommandVariables.variable": "Variable",
