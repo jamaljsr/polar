@@ -50,6 +50,7 @@ describe('App model', () => {
         LND: 1,
         'c-lightning': 1,
         eclair: 1,
+        rgbldk: 0,
         bitcoind: 1,
         btcd: 0,
         tapd: 0,
@@ -69,6 +70,9 @@ describe('App model', () => {
         },
         eclair: {
           rest: 8281,
+        },
+        rgbldk: {
+          rest: 8500,
         },
         tapd: {
           rest: 8289,
@@ -154,6 +158,7 @@ describe('App model', () => {
           LND: 1,
           'c-lightning': 1,
           eclair: 1,
+          rgbldk: 0,
           bitcoind: 1,
           btcd: 1,
           tapd: 1,
@@ -173,6 +178,9 @@ describe('App model', () => {
           },
           eclair: {
             rest: 8281,
+          },
+          rgbldk: {
+            rest: 8500,
           },
           tapd: {
             rest: 8289,
@@ -199,6 +207,7 @@ describe('App model', () => {
           LND: ['0.99.0-beta'], // a new version available for LND
           'c-lightning': [],
           eclair: [],
+          rgbldk: [],
           litd: [],
           bitcoind: [],
           btcd: [],

@@ -15,6 +15,7 @@ import {
   LitdNode,
   LndNode,
   NodeImplementation,
+  RgbLdkNode,
   Status,
   TapdNode,
   TapNode,
@@ -59,6 +60,7 @@ const groupNodes = (network: Network) => {
       n => n.implementation === 'c-lightning',
     ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair') as EclairNode[],
+    rgbldk: lightning.filter(n => n.implementation === 'rgbldk') as RgbLdkNode[],
     litd: lightning.filter(n => n.implementation === 'litd') as LitdNode[],
     tapd: tap.filter(n => n.implementation === 'tapd') as TapdNode[],
   };
@@ -340,6 +342,41 @@ export const createLitdNetworkNode = (
   };
 };
 
+export const createRgbLdkNetworkNode = (
+  network: Network,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts.rgbldk,
+): RgbLdkNode => {
+  const { bitcoin, lightning } = network.nodes;
+  const implementation: RgbLdkNode['implementation'] = 'rgbldk';
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
+  const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
+  const name = getName(id);
+  return {
+    id,
+    networkId: network.id,
+    name,
+    type: 'lightning',
+    implementation,
+    version,
+    status,
+    backendName: backends[id % backends.length].name,
+    ports: {
+      rest: basePort.rest + id,
+      p2p: BasePorts.rgbldk.p2p + id,
+    },
+    docker,
+  };
+};
+
 export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
@@ -449,6 +486,7 @@ export const createNetwork = (config: {
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
+  rgbldkNodes?: number;
   bitcoindNodes: number;
   tapdNodes: number;
   litdNodes: number;
@@ -467,6 +505,7 @@ export const createNetwork = (config: {
     lndNodes,
     clightningNodes,
     eclairNodes,
+    rgbldkNodes = 0,
     bitcoindNodes,
     tapdNodes,
     litdNodes,
@@ -541,21 +580,29 @@ export const createNetwork = (config: {
 
   // add custom lightning nodes
   customImages
-    .filter(i => ['LND', 'c-lightning', 'eclair'].includes(i.image.implementation))
+    .filter(i =>
+      ['LND', 'c-lightning', 'eclair', 'rgbldk'].includes(i.image.implementation),
+    )
     .forEach(({ image, count }) => {
-      const { latest, compatibility } = repoState.images.LND;
+      const { latest, compatibility } = repoState.images[
+        image.implementation
+      ] as DockerRepoImage;
       const docker = { image: image.dockerImage, command: image.command };
       const createFunc =
         image.implementation === 'LND'
           ? createLndNetworkNode
           : image.implementation === 'c-lightning'
           ? createCLightningNetworkNode
+          : image.implementation === 'rgbldk'
+          ? createRgbLdkNetworkNode
           : createEclairNetworkNode;
       const basePort =
         image.implementation === 'LND'
           ? basePorts?.LND
           : image.implementation === 'c-lightning'
           ? basePorts?.['c-lightning']
+          : image.implementation === 'rgbldk'
+          ? basePorts?.rgbldk
           : basePorts?.eclair;
       range(count).forEach(() => {
         lightning.push(
@@ -565,57 +612,73 @@ export const createNetwork = (config: {
     });
 
   // add lightning nodes in an alternating pattern
-  range(Math.max(lndNodes, clightningNodes, eclairNodes, litdNodes)).forEach(i => {
-    if (i < lndNodes) {
-      const { latest, compatibility } = repoState.images.LND;
-      const cmd = getImageCommand(managedImages, 'LND', latest);
-      lightning.push(
-        createLndNetworkNode(
-          network,
-          latest,
-          compatibility,
-          dockerWrap(cmd),
-          status,
-          basePorts?.LND,
-        ),
-      );
-    }
-    if (i < clightningNodes) {
-      const { latest, compatibility } = repoState.images['c-lightning'];
-      const cmd = getImageCommand(managedImages, 'c-lightning', latest);
-      lightning.push(
-        createCLightningNetworkNode(
-          network,
-          latest,
-          compatibility,
-          dockerWrap(cmd),
-          status,
-          basePorts?.['c-lightning'],
-        ),
-      );
-    }
-    if (i < eclairNodes) {
-      const { latest, compatibility } = repoState.images.eclair;
-      const cmd = getImageCommand(managedImages, 'eclair', latest);
-      lightning.push(
-        createEclairNetworkNode(
-          network,
-          latest,
-          compatibility,
-          dockerWrap(cmd),
-          status,
-          basePorts?.eclair,
-        ),
-      );
-    }
-    if (i < litdNodes) {
-      const { latest, compatibility } = repoState.images.litd;
-      const cmd = getImageCommand(managedImages, 'litd', latest);
-      lightning.push(
-        createLitdNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
-      );
-    }
-  });
+  range(Math.max(lndNodes, clightningNodes, eclairNodes, rgbldkNodes, litdNodes)).forEach(
+    i => {
+      if (i < lndNodes) {
+        const { latest, compatibility } = repoState.images.LND;
+        const cmd = getImageCommand(managedImages, 'LND', latest);
+        lightning.push(
+          createLndNetworkNode(
+            network,
+            latest,
+            compatibility,
+            dockerWrap(cmd),
+            status,
+            basePorts?.LND,
+          ),
+        );
+      }
+      if (i < clightningNodes) {
+        const { latest, compatibility } = repoState.images['c-lightning'];
+        const cmd = getImageCommand(managedImages, 'c-lightning', latest);
+        lightning.push(
+          createCLightningNetworkNode(
+            network,
+            latest,
+            compatibility,
+            dockerWrap(cmd),
+            status,
+            basePorts?.['c-lightning'],
+          ),
+        );
+      }
+      if (i < eclairNodes) {
+        const { latest, compatibility } = repoState.images.eclair;
+        const cmd = getImageCommand(managedImages, 'eclair', latest);
+        lightning.push(
+          createEclairNetworkNode(
+            network,
+            latest,
+            compatibility,
+            dockerWrap(cmd),
+            status,
+            basePorts?.eclair,
+          ),
+        );
+      }
+      if (i < rgbldkNodes) {
+        const { latest, compatibility } = repoState.images.rgbldk;
+        const cmd = getImageCommand(managedImages, 'rgbldk', latest);
+        lightning.push(
+          createRgbLdkNetworkNode(
+            network,
+            latest,
+            compatibility,
+            dockerWrap(cmd),
+            status,
+            basePorts?.rgbldk,
+          ),
+        );
+      }
+      if (i < litdNodes) {
+        const { latest, compatibility } = repoState.images.litd;
+        const cmd = getImageCommand(managedImages, 'litd', latest);
+        lightning.push(
+          createLitdNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+        );
+      }
+    },
+  );
 
   range(tapdNodes).forEach(() => {
     const { latest, compatibility } = repoState.images.tapd;
@@ -658,6 +721,12 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
           ) as EclairNode;
           eclairNode.name = newName;
           return eclairNode;
+        case 'rgbldk':
+          const rgbldkNode = network.nodes.lightning.find(
+            n => n.id === node.id,
+          ) as RgbLdkNode;
+          rgbldkNode.name = newName;
+          return rgbldkNode;
         case 'litd':
           const litdNode = network.nodes.lightning.find(
             n => n.id === node.id,

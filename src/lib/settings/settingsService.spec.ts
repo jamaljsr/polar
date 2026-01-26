@@ -23,6 +23,7 @@ describe('SettingsService', () => {
         LND: 1,
         'c-lightning': 1,
         eclair: 1,
+        rgbldk: 0,
         bitcoind: 1,
         btcd: 0,
         tapd: 0,
@@ -42,6 +43,9 @@ describe('SettingsService', () => {
         },
         eclair: {
           rest: 8281,
+        },
+        rgbldk: {
+          rest: 8500,
         },
         tapd: {
           rest: 8289,

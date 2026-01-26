@@ -120,6 +120,32 @@ export const eclair = (
   ],
 });
 
+export const rgbldk = (
+  name: string,
+  container: string,
+  image: string,
+  restPort: number,
+  p2pPort: number,
+  command: string,
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  volumes: [
+    `./volumes/${dockerConfigs.rgbldk.volumeDirName}/${name}:/home/rgbldk/.ldk-node`,
+  ],
+  expose: [
+    '8500', // HTTP API
+    '9735', // p2p
+  ],
+  ports: [
+    `${restPort}:8500`, // HTTP API
+    `${p2pPort}:9735`, // p2p
+  ],
+});
+
 export const tapd = (
   name: string,
   container: string,

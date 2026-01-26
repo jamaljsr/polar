@@ -15,6 +15,7 @@ import {
   LightningNode,
   LitdNode,
   LndNode,
+  RgbLdkNode,
   TapdNode,
 } from 'shared/types';
 import stripAnsi from 'strip-ansi';
@@ -151,6 +152,11 @@ class DockerService implements DockerLibrary {
         const eclair = node as EclairNode;
         const backend = bitcoin.find(n => n.name === eclair.backendName) || bitcoin[0];
         file.addEclair(eclair, backend);
+      }
+      if (node.implementation === 'rgbldk') {
+        const rgbldk = node as RgbLdkNode;
+        const backend = bitcoin.find(n => n.name === rgbldk.backendName) || bitcoin[0];
+        file.addRgbLdk(rgbldk, backend);
       }
       if (node.implementation === 'litd') {
         const litd = node as LitdNode;
@@ -475,6 +481,9 @@ class DockerService implements DockerLibrary {
               client_key: `/home/simln/.${getPosixPath(cln.paths.tlsClientKey)}`,
             };
             break;
+
+          case 'rgbldk':
+            throw new Error('Simulation is not supported for rgbldk nodes');
 
           case 'litd':
             const litd = node as LitdNode;

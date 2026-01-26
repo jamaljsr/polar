@@ -27,6 +27,11 @@ export const testManagedImages: ManagedImage[] = [
     command: '',
   },
   {
+    implementation: 'rgbldk',
+    version: defaultRepoState.images.rgbldk.latest,
+    command: '',
+  },
+  {
     implementation: 'bitcoind',
     version: defaultRepoState.images.bitcoind.latest,
     command: '',
@@ -171,6 +176,10 @@ export const testRepoState: DockerRepoState = {
     eclair: {
       latest: '0.10.0',
       versions: ['0.10.0', '0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
+    },
+    rgbldk: {
+      latest: '0.7.0-dev',
+      versions: ['0.7.0-dev'],
     },
     bitcoind: {
       latest: '30.0',

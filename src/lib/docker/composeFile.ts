@@ -5,6 +5,7 @@ import {
   EclairNode,
   LitdNode,
   LndNode,
+  RgbLdkNode,
   TapdNode,
 } from 'shared/types';
 import {
@@ -14,7 +15,16 @@ import {
   litdCredentials,
 } from 'utils/constants';
 import { getContainerName, getDefaultCommand } from 'utils/network';
-import { bitcoind, clightning, eclair, litd, lnd, tapd, simln } from './nodeTemplates';
+import {
+  bitcoind,
+  clightning,
+  eclair,
+  litd,
+  lnd,
+  rgbldk,
+  tapd,
+  simln,
+} from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -146,6 +156,23 @@ class ComposeFile {
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
     const svc = eclair(name, container, image, rest, p2p, command);
+    this.addService(svc);
+  }
+
+  addRgbLdk(node: RgbLdkNode, backend: CommonNode) {
+    const { name, version, ports } = node;
+    const { rest, p2p } = ports;
+    const container = getContainerName(node);
+    const variables = {
+      name: node.name,
+      backendName: getContainerName(backend),
+      rpcUser: bitcoinCredentials.user,
+      rpcPass: bitcoinCredentials.pass,
+    };
+    const image = node.docker.image || `${dockerConfigs.rgbldk.imageName}:${version}`;
+    const nodeCommand = node.docker.command || getDefaultCommand('rgbldk', version);
+    const command = this.mergeCommand(nodeCommand, variables);
+    const svc = rgbldk(name, container, image, rest, p2p, command);
     this.addService(svc);
   }
 

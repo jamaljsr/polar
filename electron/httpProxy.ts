@@ -1,6 +1,11 @@
 import { URLSearchParams } from 'url';
 import { httpRequest } from '../src/shared/utils';
 
+const isJson = (headers: Record<string, string>): boolean => {
+  const ct = headers['Content-Type'] || headers['content-type'] || '';
+  return ct.toLowerCase().includes('application/json');
+};
+
 /**
  * Encodes a JS object into a form-urlencoded string
  * @param body the JS object to encode
@@ -23,15 +28,22 @@ export const httpProxy = async (args: {
 }): Promise<any> => {
   const { url, method, body, headers } = args;
 
-  const formBody = encodeBody(body);
-  if (formBody) {
-    headers['Content-Length'] = formBody.length.toString();
+  let requestBody: string | undefined;
+  if (body !== undefined) {
+    if (isJson(headers)) {
+      requestBody = JSON.stringify(body ?? {});
+    } else {
+      requestBody = encodeBody(body);
+    }
+  }
+  if (requestBody !== undefined) {
+    headers['Content-Length'] = Buffer.byteLength(requestBody).toString();
   }
 
   const response = await httpRequest(url, {
     method,
     headers,
-    body: formBody,
+    body: requestBody,
   });
 
   const json = JSON.parse(response);

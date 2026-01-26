@@ -5,6 +5,7 @@ import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
 import lndLogo from 'resources/lnd.png';
+import rgbldkLogo from 'resources/rgbldk.svg';
 import tapLogo from 'resources/tap.svg';
 import packageJson from '../../package.json';
 
@@ -68,6 +69,10 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
   eclair: {
     rest: 8281,
     p2p: 9935,
+  },
+  rgbldk: {
+    rest: 8500,
+    p2p: 9535,
   },
   btcd: {},
   tapd: {
@@ -200,6 +205,37 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
     variables: ['name', 'eclairPass', 'backendName', 'rpcUser', 'rpcPass'],
   },
+  rgbldk: {
+    name: 'RGB LDK',
+    imageName: 'polarlightning/rgbldk',
+    logo: rgbldkLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'rgbldk',
+    command: [
+      'rgbldkd',
+      'server',
+      '--allow-non-loopback-listen',
+      '--listen',
+      '0.0.0.0:8500',
+      '--data-dir',
+      '/home/rgbldk/.ldk-node',
+      '--network',
+      'regtest',
+      '--ldk-listen',
+      '0.0.0.0:9735',
+      '--node-alias',
+      '{{name}}',
+      '--bitcoind-rpc',
+      '{{backendName}}:18443',
+      '--bitcoind-rpc-user',
+      '{{rpcUser}}',
+      '--bitcoind-rpc-password',
+      '{{rpcPass}}',
+      '--log-to-stdout',
+      '--log-level=info',
+    ].join('\n  '),
+    variables: ['name', 'backendName', 'rpcUser', 'rpcPass'],
+  },
   bitcoind: {
     name: 'Bitcoin Core',
     imageName: 'polarlightning/bitcoind',
@@ -210,6 +246,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       'bitcoind',
       '-server=1',
       '-regtest=1',
+      '-rest=1',
       '-rpcauth={{rpcUser}}:{{rpcAuth}}',
       '-debug=1',
       '-zmqpubrawblock=tcp://0.0.0.0:28334',
@@ -362,7 +399,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 77,
+  version: 78,
   images: {
     LND: {
       latest: '0.20.0-beta',
@@ -406,6 +443,10 @@ export const defaultRepoState: DockerRepoState = {
     eclair: {
       latest: '0.13.1',
       versions: ['0.13.1', '0.12.0', '0.11.0', '0.10.0', '0.9.0'],
+    },
+    rgbldk: {
+      latest: '0.7.0-dev',
+      versions: ['0.7.0-dev'],
     },
     bitcoind: {
       latest: '30.0',

@@ -82,6 +82,7 @@ const NewNetwork: React.FC = () => {
             lndNodes: settings.newNodeCounts.LND,
             clightningNodes: settings.newNodeCounts['c-lightning'],
             eclairNodes: settings.newNodeCounts.eclair,
+            rgbldkNodes: settings.newNodeCounts.rgbldk,
             bitcoindNodes: settings.newNodeCounts.bitcoind,
             tapdNodes: settings.newNodeCounts.tapd,
             litdNodes: settings.newNodeCounts.litd,
@@ -146,6 +147,15 @@ const NewNetwork: React.FC = () => {
               <Form.Item
                 name="eclairNodes"
                 label={dockerConfigs.eclair.name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="rgbldkNodes"
+                label={dockerConfigs.rgbldk.name}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
                 <InputNumber min={0} max={10} />

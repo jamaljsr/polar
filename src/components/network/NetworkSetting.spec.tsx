@@ -16,14 +16,23 @@ describe('NetworkSetting Component', () => {
           basePorts: {
             LND: {
               rest: 8081,
+              grpc: 10001,
             },
             'c-lightning': {
+              rest: 8181,
               grpc: 11001,
             },
             eclair: {
               rest: 8281,
             },
+            rgbldk: {
+              rest: 8500,
+            },
+            bitcoind: {
+              rest: 18443,
+            },
             tapd: {
+              rest: 8289,
               grpc: 12029,
             },
           },

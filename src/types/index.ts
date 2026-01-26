@@ -64,6 +64,7 @@ export interface NodeBasePorts {
   LND: { rest: number; grpc: number };
   'c-lightning': { rest: number; grpc: number };
   eclair: { rest: number };
+  rgbldk: { rest: number };
   bitcoind: { rest: number };
   tapd: { rest: number; grpc: number };
 }

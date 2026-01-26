@@ -51,6 +51,19 @@ class RepoService implements RepoServiceInjection {
     debug('Checking for new versions of docker images');
     debug(` - local state: \n${JSON.stringify(localState)}`);
     const remoteState = await this.fetchRemote();
+    // The remote state may not include implementations supported locally (e.g., experimental nodes).
+    // Preserve local-only implementations so we don't break compose generation.
+    const mergedRemote: DockerRepoState = {
+      ...remoteState,
+      images: {
+        ...remoteState.images,
+        ...Object.fromEntries(
+          Object.entries(localState.images).filter(
+            ([impl]) => !(impl in remoteState.images),
+          ),
+        ),
+      } as DockerRepoState['images'],
+    };
     debug(` - local version: ${localState.version}`);
     debug(` - remote version: ${remoteState.version}`);
     // don't return any updates if the remote state is older
@@ -63,6 +76,7 @@ class RepoService implements RepoServiceInjection {
       LND: [],
       'c-lightning': [],
       eclair: [],
+      rgbldk: [],
       litd: [],
       bitcoind: [],
       btcd: [],
@@ -70,7 +84,7 @@ class RepoService implements RepoServiceInjection {
     };
     // find the different versions between the two states
     let newVersionCount = 0;
-    Object.entries(remoteState.images).forEach(([name, remoteImage]) => {
+    Object.entries(mergedRemote.images).forEach(([name, remoteImage]) => {
       const impl = name as NodeImplementation;
       // skip if the local state doesn't have this implementation
       if (!localState.images[impl]) return;
@@ -87,7 +101,7 @@ class RepoService implements RepoServiceInjection {
       return { state: localState };
     }
     // return the new state and the updates
-    return { state: remoteState, updates };
+    return { state: mergedRemote, updates };
   }
 
   /**
