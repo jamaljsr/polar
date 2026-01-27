@@ -5,6 +5,9 @@ export default {
   http: 'http',
   zip: 'zip',
   unzip: 'unzip',
+  // MCP channels
+  mcpExecuteTool: 'mcp-execute-tool',
+  mcpToolDefinitions: 'mcp-tool-definitions',
   // LND proxy channels
   getInfo: 'get-info',
   walletBalance: 'wallet-balance',

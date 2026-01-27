@@ -104,6 +104,6 @@ export const setupListener = async (node: CLightningNode): Promise<Socket> => {
 
 const listen = (options: ConfigOptions): Socket => {
   const { url, headers } = options;
-  const socket = io(url, { extraHeaders: headers });
+  const socket = io(url, { extraHeaders: headers, reconnectionAttempts: 1 });
   return socket;
 };

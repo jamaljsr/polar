@@ -64,6 +64,14 @@ describe('CLightningService', () => {
     expect(actual).toEqual(expected);
   });
 
+  it('should throw an error if the new address is not returned', async () => {
+    const newAddrResponse = { invalid: 'value' };
+    clightningApiMock.httpPost.mockResolvedValue(newAddrResponse);
+    await expect(clightningService.getNewAddress(node)).rejects.toThrow(
+      'Failed to create new address: {"invalid":"value"}',
+    );
+  });
+
   it('should get list of channels', async () => {
     const chanResponse: Partial<CLN.ListPeerChannelsResponse> = {
       channels: [

@@ -9,29 +9,36 @@
   },
   "mac": {
     "category": "public.app-category.utilities",
-    "target": ["dmg"]
+    "identity": null,
+    "target": "dmg"
   },
   "dmg": {
+    "writeUpdateInfo": false,
+    "background": "assets/dmg-background.png",
+    "window": {
+      "width": 660,
+      "height": 400
+    },
+    "iconSize": 80,
     "contents": [
       {
-        "x": 130,
-        "y": 220
+        "x": 165,
+        "y": 155
       },
       {
-        "x": 410,
-        "y": 220,
+        "x": 495,
+        "y": 155,
         "type": "link",
-        "path": "/Applications"
+        "path": "/Applications",
+        "name": "Applications"
       }
     ]
   },
   "win": {
-    "target": [
-      {
-        "target": "nsis",
-        "arch": ["x64"]
-      }
-    ]
+    "target": "nsis"
+  },
+  "nsis": {
+    "differentialPackage": false
   },
   "linux": {
     "target": [
@@ -45,16 +52,10 @@
       },
       {
         "target": "AppImage",
-        "arch": ["x64"]
+        "arch": ["x64", "arm64"]
       }
     ],
     "category": "Development"
-  },
-  "publish": {
-    "provider": "github",
-    "owner": "jamaljsr",
-    "repo": "polar",
-    "private": false
   },
   "extends": null
 }

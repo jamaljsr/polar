@@ -191,6 +191,7 @@ describe('OpenChannelModal', () => {
       );
       lightningServiceMock.getChannels.mockResolvedValue([]);
       lightningServiceMock.getNewAddress.mockResolvedValue({ address: 'bc1aaaa' });
+      lightningServiceMock.openChannel.mockResolvedValue({ txid: 'abc123', index: 0 });
       lightningServiceMock.getBalances.mockResolvedValue({
         confirmed: '100',
         unconfirmed: '200',

@@ -85,12 +85,14 @@ export interface TapModel {
   setAssetRoots: Action<TapModel, { node: TapNode; roots: PTAP.TapAssetRoot[] }>;
   getAssetRoots: Thunk<TapModel, TapNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<TapModel, TapNode, RootModel>;
-  formatAssetAmount: Thunk<
+  formatAssetAmount: Computed<
     TapModel,
-    { assetId: string; amount: string | number; includeName?: boolean },
-    StoreInjections,
-    RootModel,
-    string
+    (params: {
+      assetId: string;
+      amount: string | number;
+      includeName?: boolean;
+    }) => string,
+    RootModel
   >;
   toAssetUnits: Thunk<
     TapModel,
@@ -214,16 +216,18 @@ const tapModel: TapModel = {
     await actions.getBalances(node);
     await actions.getAssetRoots(node);
   }),
-  formatAssetAmount: thunk(
-    (actions, { assetId, amount, includeName }, { getStoreState }) => {
-      // convert asset units to the amount with decimals
-      const asset = getStoreState().tap.allAssets.get(assetId);
-      if (asset) {
-        const amt = formatDecimals(Number(amount), asset.decimals);
-        return includeName ? `${amt} ${asset.name}` : amt;
-      }
-      return amount.toString();
-    },
+  formatAssetAmount: computed(
+    [state => state.allAssets],
+    allAssets =>
+      ({ assetId, amount, includeName }) => {
+        // convert asset units to the amount with decimals
+        const asset = allAssets.get(assetId);
+        if (asset) {
+          const amt = formatDecimals(Number(amount), asset.decimals);
+          return includeName ? `${amt} ${asset.name}` : amt;
+        }
+        return amount.toString();
+      },
   ),
   toAssetUnits: thunk((actions, { assetId, amount }, { getStoreState }) => {
     // convert amount which may include decimals to integer asset units

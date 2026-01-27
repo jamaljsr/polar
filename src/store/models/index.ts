@@ -7,6 +7,7 @@ import bitcoinModel, { BitcoinModel } from './bitcoin';
 import designerModel, { DesignerModel } from './designer';
 import lightningModel, { LightningModel } from './lightning';
 import litModel, { LitModel } from './lit';
+import mcpModel, { McpModel } from './mcp';
 import modalsModel, { ModalsModel } from './modals';
 import networkModel, { NetworkModel } from './network';
 import tapModel, { TapModel } from './tap';
@@ -21,6 +22,7 @@ export interface RootModel {
   lit: LitModel;
   designer: DesignerModel;
   modals: ModalsModel;
+  mcp: McpModel;
 }
 
 export const createModel = (history: History<any>): RootModel => {
@@ -34,6 +36,7 @@ export const createModel = (history: History<any>): RootModel => {
     lit: litModel,
     designer: designerModel,
     modals: modalsModel,
+    mcp: mcpModel,
   };
   return rootModel;
 };

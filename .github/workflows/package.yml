@@ -1,0 +1,75 @@
+name: Package
+
+on:
+  push:
+    branches:
+      - 'release/*'
+
+jobs:
+  package:
+    name: Package on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: startsWith(github.ref_name, 'release/')
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            # x64 runner builds x64 Linux packages
+            linux_targets: deb rpm AppImage
+          - os: ubuntu-24.04-arm
+            # arm64 runner builds arm64 AppImage (AppImage cannot be cross-compiled)
+            linux_targets: AppImage
+          - os: windows-latest
+            # x64 runner can cross-compile to arm64
+          - os: macos-15
+            # Apple Silicon runner can build both x64 and arm64
+
+    steps:
+      - name: ubuntu file watcher tweak
+        if: startsWith(matrix.os, 'ubuntu')
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - uses: actions/checkout@v6
+
+      - name: setup nodejs
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20.19.6
+          cache: yarn
+
+      - name: install dependencies
+        run: yarn install --frozen-lockfile --network-timeout 1000000
+
+      - name: build app
+        run: yarn build
+
+      - name: package electron
+        shell: bash
+        run: |
+          # "--publish never" is required to disable electron-builder's CI auto-publish
+          if [[ "${{ matrix.os }}" == ubuntu* ]]; then
+            yarn package:electron --publish never --linux ${{ matrix.linux_targets }}
+          elif [[ "${{ matrix.os }}" == windows* ]]; then
+            yarn package:electron --publish never --win --x64
+            yarn package:electron --publish never --win --arm64
+          elif [[ "${{ matrix.os }}" == macos* ]]; then
+            yarn package:electron --publish never --mac --x64
+            # arm64 requires manual ad-hoc signing for Gatekeeper
+            yarn package:electron --publish never --mac --arm64 --dir
+            codesign --sign - --force --deep dist/mac-arm64/Polar.app
+            yarn package:electron --publish never --mac --arm64 --prepackaged dist/mac-arm64/Polar.app
+          fi
+
+      - name: publish assets to github release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          shopt -s nullglob
+          VERSION=$(node -p "require('./package.json').version")
+          FILES=(dist/*.dmg dist/*.exe dist/*.deb dist/*.rpm dist/*.AppImage)
+          if [[ ${#FILES[@]} -gt 0 ]]; then
+            gh release upload "v${VERSION}" "${FILES[@]}" --clobber
+          fi
+

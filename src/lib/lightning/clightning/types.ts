@@ -34,7 +34,8 @@ export interface ListFundsResponse {
 }
 
 export interface NewAddrResponse {
-  bech32: string;
+  bech32?: string;
+  p2tr?: string;
 }
 
 /**
