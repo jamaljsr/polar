@@ -17,6 +17,7 @@ class BitcoindService implements BitcoinService {
       host: `http://127.0.0.1:${node.ports.rpc}`,
       username: bitcoinCredentials.user,
       password: bitcoinCredentials.pass,
+      wallet: '', // default wallet, to resolve multi-wallet conflict
       logger: this.log(),
       // use a long timeout due to the time it takes to mine a lot of blocks
       timeout: 5 * 60 * 1000,

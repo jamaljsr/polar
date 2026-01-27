@@ -24,8 +24,11 @@ export const defaultTapdListBalances = (
 ): ListBalancesResponse => ({
   assetBalances: {},
   assetGroupBalances: {},
+  // Spread the incoming values first
   unconfirmedTransfers: '0',
   ...value,
+  // Force unconfirmedTransfers to be a string at the end
+  unconfirmedTransfers: value.unconfirmedTransfers ?? '',
 });
 
 export const defaultTapdMintAsset = (): MintAssetResponse => ({
