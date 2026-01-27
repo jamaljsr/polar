@@ -140,6 +140,9 @@ export const defaultLndPendingOpenChannel = (
     commitFee: '0',
     commitWeight: '0',
     feePerKw: '0',
+    // Use the nullish coalescing operator (??) to provide 0 if the value is missing
+    confirmationsUntilActive: rest.confirmationsUntilActive ?? 0,
+    confirmationHeight: rest.confirmationHeight ?? 0,
     ...rest,
   };
 };
