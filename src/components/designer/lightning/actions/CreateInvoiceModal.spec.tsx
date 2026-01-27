@@ -144,6 +144,7 @@ describe('CreateInvoiceModal', () => {
         clightningNodes: 0,
         eclairNodes: 0,
         bitcoindNodes: 1,
+        btcdNodes: 0,
         tapdNodes: 0,
         litdNodes: 3,
         status: Status.Started,

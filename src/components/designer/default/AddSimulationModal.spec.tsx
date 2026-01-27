@@ -20,6 +20,7 @@ describe('AddSimulationModal', () => {
       eclairNodes: 0,
       litdNodes: 0,
       bitcoindNodes: 2,
+      btcdNodes: 0,
       tapdNodes: 0,
       repoState: defaultRepoState,
       managedImages: testManagedImages,
