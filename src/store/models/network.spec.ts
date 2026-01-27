@@ -149,9 +149,14 @@ describe('Network model', () => {
     });
 
     it('should add a network with btcd nodes', async () => {
-      await store
-        .getActions()
-        .network.addNetwork({ ...addNetworkArgs, bitcoindNodes: 0, btcdNodes: 2 });
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 0,
+        btcdNodes: 2,
+        // CLN and Eclair don't support btcd backend, so set to 0
+        clightningNodes: 0,
+        eclairNodes: 0,
+      });
       const { networks } = store.getState().network;
       const { bitcoin } = networks[0].nodes;
       expect(bitcoin.length).toBe(2);

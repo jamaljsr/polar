@@ -447,6 +447,44 @@ describe('DockerService', () => {
       return { net, chart };
     };
 
+    const createTestNetworkWithBtcd = () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        description: 'network description',
+        lndNodes: 2,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      const chart = initChartFromNetwork(net);
+      return { net, chart } as any;
+    };
+
+    const create020NetworkWithBtcd = () => {
+      const { net, chart } = createTestNetworkWithBtcd();
+      // added in v0.3.0
+      net.nodes.bitcoin.forEach((n: any) => {
+        delete n.docker;
+        // btcd doesn't have zmq ports, but delete them if they exist
+        delete n.ports.zmqBlock;
+        delete n.ports.zmqTx;
+      });
+      net.nodes.lightning.forEach((n: any) => {
+        delete n.docker;
+        delete n.ports.p2p;
+        chart.nodes[n.name].properties.icon = '/static/media/lnd.935c28bc.png';
+      });
+      return { net, chart };
+    };
+
     const create101Network = () => {
       const { net, chart } = createTestNetwork();
       // added in v1.1.0
@@ -623,6 +661,29 @@ describe('DockerService', () => {
       expect(btcNode.docker).toBeDefined();
       expect(btcNode.ports.zmqBlock).toBeDefined();
       expect(btcNode.ports.zmqTx).toBeDefined();
+      networks[0].nodes.lightning.forEach(n => {
+        expect(n.docker).toBeDefined();
+        expect(n.ports.p2p).toBeDefined();
+      });
+    });
+
+    it('should migrate network data from v0.2.0 with btcd node', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      const { net, chart } = create020NetworkWithBtcd();
+      const fileData: NetworksFile = {
+        version: '0.2.0',
+        networks: [net],
+        charts: { [network.id]: chart },
+      };
+      filesMock.read.mockResolvedValue(JSON.stringify(fileData));
+      const { networks, version } = await dockerService.loadNetworks();
+      const btcNode = networks[0].nodes.bitcoin[0];
+      expect(version).toEqual(APP_VERSION);
+      // added in v0.3.0
+      expect(btcNode.docker).toBeDefined();
+      // btcd nodes should NOT have zmq ports added
+      expect(btcNode.ports.zmqBlock).toBeUndefined();
+      expect(btcNode.ports.zmqTx).toBeUndefined();
       networks[0].nodes.lightning.forEach(n => {
         expect(n.docker).toBeDefined();
         expect(n.ports.p2p).toBeDefined();

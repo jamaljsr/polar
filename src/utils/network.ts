@@ -8,6 +8,7 @@ import { ipcChannels } from 'shared';
 import {
   AnyNode,
   BitcoinNode,
+  BtcdNode,
   CLightningNode,
   CommonNode,
   EclairNode,
@@ -54,6 +55,7 @@ const groupNodes = (network: Network) => {
   const { bitcoin, lightning, tap } = network.nodes;
   return {
     bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
+    btcd: bitcoin.filter(n => n.implementation === 'btcd') as BtcdNode[],
     lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
     clightning: lightning.filter(
       n => n.implementation === 'c-lightning',
@@ -850,6 +852,7 @@ export interface OpenPorts {
     zmqTx?: number;
     p2p?: number;
     web?: number;
+    btcdWallet?: number;
   };
 }
 
@@ -861,52 +864,86 @@ export interface OpenPorts {
 export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefined> => {
   const ports: OpenPorts = {};
 
+  const { bitcoind, btcd, ...lightningNodes } = groupNodes(network);
+  let { lnd, clightning, eclair, litd, tapd } = lightningNodes;
+
   // filter out nodes that are already started since their ports are in use by themselves
-  const bitcoin = network.nodes.bitcoin.filter(n => n.status !== Status.Started);
-  if (bitcoin.length) {
-    let existingPorts = bitcoin.map(n => n.ports.rpc);
+  const bitcoindStopped = bitcoind.filter(n => n.status !== Status.Started);
+  if (bitcoindStopped.length) {
+    let existingPorts = bitcoindStopped.map(n => n.ports.rpc);
     let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = { rpc: port };
+        ports[bitcoindStopped[index].name] = { rpc: port };
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.p2p);
+    existingPorts = bitcoindStopped.map(n => n.ports.p2p);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = {
-          ...(ports[bitcoin[index].name] || {}),
+        ports[bitcoindStopped[index].name] = {
+          ...(ports[bitcoindStopped[index].name] || {}),
           p2p: port,
         };
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.zmqBlock);
+    existingPorts = bitcoindStopped.map(n => n.ports.zmqBlock);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = {
-          ...(ports[bitcoin[index].name] || {}),
+        ports[bitcoindStopped[index].name] = {
+          ...(ports[bitcoindStopped[index].name] || {}),
           zmqBlock: port,
         };
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.zmqTx);
+    existingPorts = bitcoindStopped.map(n => n.ports.zmqTx);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = {
-          ...(ports[bitcoin[index].name] || {}),
+        ports[bitcoindStopped[index].name] = {
+          ...(ports[bitcoindStopped[index].name] || {}),
           zmqTx: port,
         };
       });
     }
   }
 
-  let { lnd, clightning, eclair, litd, tapd } = groupNodes(network);
+  const btcdStopped = btcd.filter(n => n.status !== Status.Started);
+  if (btcdStopped.length) {
+    let existingPorts = btcdStopped.map(n => n.ports.grpc);
+    let openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[btcdStopped[index].name] = { grpc: port };
+      });
+    }
+
+    existingPorts = btcdStopped.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[btcdStopped[index].name] = {
+          ...(ports[btcdStopped[index].name] || {}),
+          p2p: port,
+        };
+      });
+    }
+
+    existingPorts = btcdStopped.map(n => n.ports.btcdWallet);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[btcdStopped[index].name] = {
+          ...(ports[btcdStopped[index].name] || {}),
+          btcdWallet: port,
+        };
+      });
+    }
+  }
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);
