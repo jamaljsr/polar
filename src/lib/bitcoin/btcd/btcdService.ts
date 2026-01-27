@@ -155,11 +155,10 @@ class BtcdService implements BitcoinService {
       params: [],
     };
     const { result } = await httpPost<BTCD.ListTransactionsResponse>(node, listTrxBody);
-    const utxos = result.filter((tx: BTCD.Transaction) => tx.confirmations === 0);
 
     // determine the highest # of confirmations of all utxos. this is
     // the utxo we'd like to spend from
-    const confs = Math.max(0, ...utxos.map((u: BTCD.Transaction) => u.confirmations));
+    const confs = Math.max(0, ...result.map((u: BTCD.Transaction) => u.confirmations));
     const neededConfs = Math.max(0, COINBASE_MATURITY_DELAY - confs);
     if (neededConfs > 0) {
       await this.mine(neededConfs, node);

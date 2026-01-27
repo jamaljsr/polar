@@ -136,4 +136,47 @@ describe('DefaultSidebar Component', () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it('should skip images without a latest version', () => {
+    const network = getNetwork(1, 'test network');
+    const chart = initChartFromNetwork(network);
+    // Create a repo state where eclair has no latest version
+    const repoStateWithMissingLatest = {
+      ...defaultRepoState,
+      images: {
+        ...defaultRepoState.images,
+        eclair: {
+          ...defaultRepoState.images.eclair,
+          latest: '', // empty string is falsy
+        },
+      },
+    };
+    const initialState = {
+      app: {
+        dockerRepoState: repoStateWithMissingLatest,
+        settings: {
+          nodeImages: {
+            custom: [],
+          },
+        },
+      },
+      network: {
+        networks: [network],
+      },
+      designer: {
+        activeId: network.id,
+        allCharts: {
+          [network.id]: chart,
+        },
+      },
+    };
+
+    const { queryByText } = renderWithProviders(<DefaultSidebar network={network} />, {
+      initialState,
+    });
+    // Eclair should not appear since it has no latest version
+    expect(queryByText(/Eclair v/)).not.toBeInTheDocument();
+    // But normal implementations should still appear
+    expect(queryByText(`LND v${defaultRepoState.images.LND.latest}`)).toBeInTheDocument();
+  });
 });

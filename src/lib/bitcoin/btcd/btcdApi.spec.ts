@@ -125,5 +125,16 @@ describe('BtcdApi', () => {
         httpPost(btcdNode, { jsonrpc: '1.0', method: 'test', params: [] }),
       ).rejects.toThrow('Network error');
     });
+
+    it('should handle request without body', async () => {
+      const mockResponse = JSON.stringify({ result: 'success', error: null });
+      mockHttpRequest.mockResolvedValue(mockResponse);
+
+      await httpPost(btcdNode, undefined);
+
+      const [, options] = mockHttpRequest.mock.calls[0];
+      // When body is undefined, bodyStr should be undefined
+      expect(options?.body).toBeUndefined();
+    });
   });
 });

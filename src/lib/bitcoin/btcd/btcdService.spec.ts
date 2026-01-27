@@ -229,14 +229,11 @@ describe('BtcdService', () => {
       mockHttpPost.mockResolvedValueOnce({
         result: { balance: 5 },
       } as unknown as BTCD.GetInfoResponse);
-      // Mock listtransactions for mineUntilMaturity - no immature utxos
-      // (confirmations > 0 means they won't be filtered, but filter is for === 0)
+      // Mock listtransactions - utxos with sufficient confirmations (no mining for maturity needed)
       mockHttpPost.mockResolvedValueOnce({
         result: [{ confirmations: 101 }],
       } as unknown as BTCD.ListTransactionsResponse);
-      // Mock generate for mineUntilMaturity - since no utxos with confirmations === 0,
-      // Math.max(0, ...[]) = 0, neededConfs = 100 - 0 = 100 blocks
-      mockHttpPost.mockResolvedValueOnce({ result: [] });
+      // No mineUntilMaturity mining since confirmations >= 100
       // Mock generate for getBlocksToMine
       mockHttpPost.mockResolvedValueOnce({ result: ['blockhash'] });
       // Mock sendtoaddress
@@ -247,7 +244,9 @@ describe('BtcdService', () => {
       const txid = await btcdService.sendFunds(node, 'destaddr', 50);
 
       expect(txid).toEqual('txid456');
-    }, 10000); // Increase timeout due to delay in mineUntilMaturity
+      // 5 calls: getBlockchainInfo, getWalletInfo, listtransactions, generate, sendtoaddress
+      expect(mockHttpPost).toHaveBeenCalledTimes(5);
+    });
 
     it('should mine to maturity when utxos are immature', async () => {
       // Mock getBlockchainInfo
@@ -274,6 +273,36 @@ describe('BtcdService', () => {
       const txid = await btcdService.sendFunds(node, 'destaddr', 10);
 
       expect(txid).toEqual('txid789');
+    });
+
+    it('should skip mining to maturity when utxos have enough confirmations', async () => {
+      // Mock getBlockchainInfo
+      mockHttpPost.mockResolvedValueOnce({
+        result: { chain: 'regtest', blocks: 200, headers: 200 },
+      } as unknown as BTCD.GetBlockchainInfoResponse);
+      // Mock getWalletInfo (getinfo) - insufficient balance
+      mockHttpPost.mockResolvedValueOnce({
+        result: { balance: 5 },
+      } as unknown as BTCD.GetInfoResponse);
+      // Mock listtransactions - utxos with sufficient confirmations (>= 100)
+      // When max confirmations is 100+, neededConfs = max(0, 100 - 100) = 0
+      mockHttpPost.mockResolvedValueOnce({
+        result: [{ confirmations: 50 }, { confirmations: 100 }],
+      } as unknown as BTCD.ListTransactionsResponse);
+      // No mineUntilMaturity call since neededConfs is 0
+      // Mock generate for getBlocksToMine (need more coins)
+      mockHttpPost.mockResolvedValueOnce({ result: ['blockhash'] });
+      // Mock sendtoaddress
+      mockHttpPost.mockResolvedValueOnce({
+        result: 'txidNoMaturity',
+      } as unknown as BTCD.SendToAddressResponse);
+
+      const txid = await btcdService.sendFunds(node, 'destaddr', 50);
+
+      expect(txid).toEqual('txidNoMaturity');
+      // Verify we didn't call the extra mine for maturity
+      // Calls: getBlockchainInfo, getWalletInfo, listtransactions, generate (for coins), sendtoaddress = 5 calls
+      expect(mockHttpPost).toHaveBeenCalledTimes(5);
     });
   });
 

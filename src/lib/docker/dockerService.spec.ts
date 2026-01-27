@@ -300,6 +300,30 @@ describe('DockerService', () => {
       );
     });
 
+    it('should save with btcd node in the compose file', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'btcd network',
+        description: 'network with btcd',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`container_name: polar-n1-${net.nodes.bitcoin[0].name}`),
+      );
+    });
+
     it('should save the litd node with the named LND node as backend', () => {
       const net = createNetwork({
         id: 1,
