@@ -63,6 +63,10 @@ describe('App model', () => {
         bitcoind: {
           rest: 18443,
         },
+        btcd: {
+          grpc: 18334,
+          btcdWallet: 18332,
+        },
         'c-lightning': {
           rest: 8181,
           grpc: 11001,
@@ -166,6 +170,10 @@ describe('App model', () => {
           },
           bitcoind: {
             rest: 18443,
+          },
+          btcd: {
+            grpc: 18334,
+            btcdWallet: 18332,
           },
           'c-lightning': {
             rest: 8181,

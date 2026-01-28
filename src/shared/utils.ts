@@ -22,6 +22,7 @@ export interface HttpRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, number | string | string[] | undefined>;
   body?: string;
+  rejectUnauthorized?: boolean;
 }
 
 const defaultOptions: HttpRequestOptions = {
@@ -36,9 +37,14 @@ export const httpRequest = (
   url: string,
   options?: HttpRequestOptions,
 ): Promise<string> => {
-  const { method, headers, body } = Object.assign(defaultOptions, options);
+  const {
+    method,
+    headers,
+    body,
+    rejectUnauthorized = true,
+  } = Object.assign(defaultOptions, options);
   return new Promise((resolve, reject) => {
-    const httpOptions = { method, headers };
+    const httpOptions = { method, headers, rejectUnauthorized };
     const protocol = url.startsWith('https') ? https : http;
     const req = protocol.request(url, httpOptions, res => {
       let data = '';

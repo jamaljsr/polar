@@ -1,4 +1,4 @@
-import { CommonNode, Status } from 'shared/types';
+import { BitcoinNode, CommonNode, Status } from 'shared/types';
 import appModel from 'store/models/app';
 import bitcoinModel from 'store/models/bitcoin';
 import designerModel from 'store/models/designer';
@@ -10,7 +10,12 @@ import networkModel from 'store/models/network';
 import tapModel from 'store/models/tap';
 import { CustomImage, DockerRepoState, ManagedImage, Network } from 'types';
 import { defaultRepoState } from 'utils/constants';
-import { createLndNetworkNode, createNetwork, createTapdNetworkNode } from '../network';
+import {
+  createBtcdNetworkNode,
+  createLndNetworkNode,
+  createNetwork,
+  createTapdNetworkNode,
+} from '../network';
 
 export const testNodeDocker: CommonNode['docker'] = { image: '', command: '' };
 
@@ -29,6 +34,11 @@ export const testManagedImages: ManagedImage[] = [
   {
     implementation: 'bitcoind',
     version: defaultRepoState.images.bitcoind.latest,
+    command: '',
+  },
+  {
+    implementation: 'btcd',
+    version: defaultRepoState.images.btcd.latest,
     command: '',
   },
   {
@@ -191,8 +201,8 @@ export const testRepoState: DockerRepoState = {
       ],
     },
     btcd: {
-      latest: '',
-      versions: [],
+      latest: '0.25.0',
+      versions: ['0.25.0', '0.24.2'],
     },
     tapd: {
       latest: '0.6.1-alpha',
@@ -244,6 +254,7 @@ export const getNetwork = (
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 0,
     tapdNodes: 0,
     litdNodes: 0,
     status,
@@ -281,6 +292,57 @@ export const getNetwork = (
   }
 
   return network;
+};
+
+/**
+ * Creates a test network with btcd as the bitcoin backend instead of bitcoind.
+ * Useful for testing btcd-specific functionality.
+ * @param networkId the id of the network
+ * @param name the name of the network
+ * @param status the status of the network nodes
+ * @param btcdNodeCount the number of btcd nodes to create (default 1)
+ */
+export const getBtcdNetwork = (
+  networkId = 1,
+  name?: string,
+  status?: Status,
+  btcdNodeCount = 1,
+): Network => {
+  const config = {
+    id: networkId,
+    name: name || 'my-btcd-test',
+    description: 'btcd test network',
+    lndNodes: 2,
+    clightningNodes: 0, // CLN doesn't support btcd
+    eclairNodes: 0, // Eclair doesn't support btcd
+    bitcoindNodes: 0,
+    btcdNodes: btcdNodeCount,
+    tapdNodes: 0,
+    litdNodes: 0,
+    status,
+    repoState: defaultRepoState,
+    managedImages: testManagedImages,
+    customImages: [],
+    manualMineCount: 6,
+  };
+  return createNetwork(config);
+};
+
+/**
+ * Adds a btcd node to an existing network.
+ * Useful for testing mixed bitcoind/btcd networks.
+ * @param network the network to add the node to
+ * @param status the status of the node
+ */
+export const addBtcdNode = (network: Network, status?: Status): BitcoinNode => {
+  const node = createBtcdNetworkNode(
+    network,
+    testRepoState.images.btcd.latest,
+    testNodeDocker,
+    status,
+  );
+  network.nodes.bitcoin.push(node);
+  return node;
 };
 
 export const mockProperty = <T, K extends keyof T>(

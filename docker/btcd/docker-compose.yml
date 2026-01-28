@@ -1,0 +1,37 @@
+services:
+  backend1:
+    environment:
+      USERID: ${USERID:-1000}
+      GROUPID: ${GROUPID:-1000}
+    stop_grace_period: 5m
+    image: polarlightning/btcd:0.24.2
+    container_name: polar-n1-backend1
+    hostname: backend1
+    command: >-
+      btcd --regtest --rpcuser=polaruser --rpcpass=polarpass --txindex --nodnsseed --notls
+    volumes:
+      - ./volumes/btcd/backend1:/home/btcd/.btcd
+    expose:
+      - '18334'
+      - '18444'
+    ports:
+      - '18334:18334'
+      - '18444:18444'
+  btcwallet1:
+    depends_on:
+      - backend1
+    environment:
+      USERID: ${USERID:-1000}
+      GROUPID: ${GROUPID:-1000}
+    stop_grace_period: 5m
+    image: polarlightning/btcwallet:0.16.13
+    container_name: polar-n1-btcwallet1
+    hostname: btcwallet1
+    command: >-
+      btcwallet --regtest --username=polaruser --password=polarpass --rpclisten=0.0.0.0:18332 --noclienttls --noservertls
+    volumes:
+      - ./volumes/btcwallet/btcwallet1:/home/btcwallet/.btcwallet
+    expose:
+      - '18332'
+    ports:
+      - '18332:18332'

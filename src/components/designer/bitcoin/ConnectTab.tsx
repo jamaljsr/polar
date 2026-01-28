@@ -5,7 +5,7 @@ import { Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
-import { bitcoinCredentials } from 'utils/constants';
+import { bitcoinCredentials, btcdCredentials } from 'utils/constants';
 import { CopyIcon, DetailsList } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 
@@ -35,26 +35,49 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     return <>{l('notStarted')}</>;
   }
 
-  const details: DetailValues = [
-    { label: l('rpcHost'), value: `http://127.0.0.1:${node.ports.rpc}` },
-    { label: l('p2pHost'), value: `tcp://127.0.0.1:${node.ports.p2p}` },
-    { label: l('zmqBlockHost'), value: `tcp://127.0.0.1:${node.ports.zmqBlock}` },
-    { label: l('zmqTxHost'), value: `tcp://127.0.0.1:${node.ports.zmqTx}` },
-    { label: l('rpcUser'), value: bitcoinCredentials.user },
-    { label: l('rpcPass'), value: bitcoinCredentials.pass },
-  ].map(({ label, value }) => ({
-    label,
-    value: <CopyIcon label={label} value={value} text={value} />,
-  }));
+  const isBtcd = node.implementation === 'btcd';
 
-  const restDocsUrl =
-    'https://bitcoin.org/en/developer-reference#remote-procedure-calls-rpcs';
+  let details: DetailValues;
+  let docsUrl: string;
+  let docsLabel: string;
+
+  if (isBtcd) {
+    // btcd-specific connection info
+    details = [
+      { label: l('grpcHost'), value: `127.0.0.1:${node.ports.grpc}` },
+      { label: l('walletRpcHost'), value: `127.0.0.1:${node.ports.btcdWallet}` },
+      { label: l('p2pHost'), value: `tcp://127.0.0.1:${node.ports.p2p}` },
+      { label: l('rpcUser'), value: btcdCredentials.user },
+      { label: l('rpcPass'), value: btcdCredentials.pass },
+    ].map(({ label, value }) => ({
+      label,
+      value: <CopyIcon label={label} value={value} text={value} />,
+    }));
+    docsUrl = 'https://github.com/btcsuite/btcd/blob/master/docs/json_rpc_api.md';
+    docsLabel = 'JSON-RPC';
+  } else {
+    // bitcoind connection info
+    details = [
+      { label: l('rpcHost'), value: `http://127.0.0.1:${node.ports.rpc}` },
+      { label: l('p2pHost'), value: `tcp://127.0.0.1:${node.ports.p2p}` },
+      { label: l('zmqBlockHost'), value: `tcp://127.0.0.1:${node.ports.zmqBlock}` },
+      { label: l('zmqTxHost'), value: `tcp://127.0.0.1:${node.ports.zmqTx}` },
+      { label: l('rpcUser'), value: bitcoinCredentials.user },
+      { label: l('rpcPass'), value: bitcoinCredentials.pass },
+    ].map(({ label, value }) => ({
+      label,
+      value: <CopyIcon label={label} value={value} text={value} />,
+    }));
+    docsUrl = 'https://bitcoin.org/en/developer-reference#remote-procedure-calls-rpcs';
+    docsLabel = 'REST';
+  }
+
   details.push({
     label: l('apiDocs'),
     value: (
       <>
-        <Tooltip title={restDocsUrl}>
-          <Styled.Link onClick={() => openInBrowser(restDocsUrl)}>REST</Styled.Link>
+        <Tooltip title={docsUrl}>
+          <Styled.Link onClick={() => openInBrowser(docsUrl)}>{docsLabel}</Styled.Link>
         </Tooltip>
         <Styled.BookIcon />
       </>
