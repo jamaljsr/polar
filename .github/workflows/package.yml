@@ -35,7 +35,7 @@ jobs:
       - name: setup nodejs
         uses: actions/setup-node@v6
         with:
-          node-version: 20.19.6
+          node-version: 20.20.0
           cache: yarn
 
       - name: install dependencies
