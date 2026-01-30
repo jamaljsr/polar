@@ -14,6 +14,7 @@ import { Network } from 'types';
 import { defaultRepoState } from './constants';
 import {
   createBitcoindNetworkNode,
+  createBtcdNetworkNode,
   createCLightningNetworkNode,
   createLitdNetworkNode,
   createLndNetworkNode,
@@ -490,6 +491,261 @@ describe('Network Utils', () => {
     });
   });
 
+  describe('createBtcdNetworkNode', () => {
+    let network: Network;
+
+    beforeEach(() => {
+      network = createNetwork({
+        id: 1,
+        name: 'btcd-test',
+        description: 'btcd test network',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 0,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+    });
+
+    it('should create a btcd node with correct properties', () => {
+      const btcd = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      expect(btcd.id).toBe(0);
+      expect(btcd.networkId).toBe(1);
+      expect(btcd.name).toBe('backend1');
+      expect(btcd.type).toBe('bitcoin');
+      expect(btcd.implementation).toBe('btcd');
+      expect(btcd.version).toBe('0.26.0');
+      expect(btcd.status).toBe(Status.Stopped);
+      expect(btcd.peers).toEqual([]);
+    });
+
+    it('should allocate correct ports for btcd', () => {
+      const btcd = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      // Base ports: rpc=18334, p2p=18444, btcdWallet=18332
+      expect(btcd.ports.rpc).toBe(18334);
+      expect(btcd.ports.p2p).toBe(18444);
+      expect(btcd.ports.btcdWallet).toBe(18332);
+      // btcd should NOT have zmq ports
+      expect(btcd.ports.zmqBlock).toBeUndefined();
+      expect(btcd.ports.zmqTx).toBeUndefined();
+    });
+
+    it('should auto-increment IDs for multiple btcd nodes', () => {
+      const btcd1 = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(btcd1);
+
+      const btcd2 = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      expect(btcd2.id).toBe(1);
+      expect(btcd2.name).toBe('backend2');
+      // Ports should be base + id (18334+1, 18444+1, 18332+1)
+      expect(btcd2.ports.rpc).toBe(18335);
+      expect(btcd2.ports.p2p).toBe(18445);
+      expect(btcd2.ports.btcdWallet).toBe(18333);
+    });
+
+    it('should link peers between btcd nodes', () => {
+      const btcd1 = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(btcd1);
+
+      const btcd2 = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+
+      // btcd2 should have btcd1 as peer
+      expect(btcd2.peers).toContain('backend1');
+      // btcd1 should have btcd2 as peer (bidirectional)
+      expect(btcd1.peers).toContain('backend2');
+    });
+
+    it('should use custom docker image and command', () => {
+      const btcd = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: 'custom-btcd:latest', command: 'custom-cmd' },
+        Status.Stopped,
+      );
+      expect(btcd.docker.image).toBe('custom-btcd:latest');
+      expect(btcd.docker.command).toBe('custom-cmd');
+    });
+
+    it('should create btcd node after bitcoind with correct ID', () => {
+      // First add a bitcoind node
+      const bitcoind = createBitcoindNetworkNode(
+        network,
+        '27.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(bitcoind);
+
+      // Then add a btcd node
+      const btcd = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+
+      expect(btcd.id).toBe(1);
+      expect(btcd.name).toBe('backend2');
+      // Should be peered with bitcoind
+      expect(btcd.peers).toContain('backend1');
+      expect(bitcoind.peers).toContain('backend2');
+    });
+  });
+
+  describe('createNetwork with btcd', () => {
+    it('should create a network with btcd nodes', () => {
+      const network = createNetwork({
+        id: 1,
+        name: 'btcd-network',
+        description: 'network with btcd',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 2,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+
+      expect(network.nodes.bitcoin.length).toBe(2);
+      expect(network.nodes.bitcoin[0].implementation).toBe('btcd');
+      expect(network.nodes.bitcoin[1].implementation).toBe('btcd');
+      expect(network.nodes.bitcoin[0].name).toBe('backend1');
+      expect(network.nodes.bitcoin[1].name).toBe('backend2');
+    });
+
+    it('should create a network with mixed bitcoind and btcd nodes', () => {
+      const network = createNetwork({
+        id: 1,
+        name: 'mixed-network',
+        description: 'network with both implementations',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 1,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+
+      expect(network.nodes.bitcoin.length).toBe(2);
+      // bitcoind is added first
+      expect(network.nodes.bitcoin[0].implementation).toBe('bitcoind');
+      expect(network.nodes.bitcoin[1].implementation).toBe('btcd');
+      // They should be peered
+      expect(network.nodes.bitcoin[0].peers).toContain('backend2');
+      expect(network.nodes.bitcoin[1].peers).toContain('backend1');
+    });
+
+    it('should use correct btcd image version from repoState', () => {
+      const network = createNetwork({
+        id: 1,
+        name: 'btcd-version-test',
+        description: 'test btcd version',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+
+      expect(network.nodes.bitcoin[0].version).toBe(defaultRepoState.images.btcd.latest);
+    });
+
+    it('should create a network with custom btcd images', () => {
+      const customImages = [
+        {
+          image: {
+            id: 'custom-btcd',
+            name: 'Custom Btcd',
+            implementation: 'btcd' as NodeImplementation,
+            dockerImage: 'custom-btcd:v1.0',
+            command: 'custom-btcd-cmd',
+          },
+          count: 2,
+        },
+      ];
+      const network = createNetwork({
+        id: 1,
+        name: 'custom-btcd-network',
+        description: 'network with custom btcd',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 0,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages,
+        manualMineCount: 6,
+      });
+
+      expect(network.nodes.bitcoin.length).toBe(2);
+      expect(network.nodes.bitcoin[0].implementation).toBe('btcd');
+      expect(network.nodes.bitcoin[0].docker.image).toBe('custom-btcd:v1.0');
+      expect(network.nodes.bitcoin[0].docker.command).toBe('custom-btcd-cmd');
+      expect(network.nodes.bitcoin[1].implementation).toBe('btcd');
+      expect(network.nodes.bitcoin[1].docker.image).toBe('custom-btcd:v1.0');
+    });
+  });
+
   describe('renameNode', () => {
     let network: Network;
 
@@ -569,6 +825,23 @@ describe('Network Utils', () => {
       expect(updatedNode.name).toBe(newName);
     });
 
+    it('should rename a btcd node', async () => {
+      // Add a btcd node to the network
+      const btcd = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(btcd);
+
+      const newName = 'new-btcd-node-name';
+      const updatedNode = await renameNode(network, btcd, newName);
+      expect(updatedNode).toBeDefined();
+      expect(updatedNode.name).toBe(newName);
+      expect(updatedNode.implementation).toBe('btcd');
+    });
+
     it('should rename a tap node', async () => {
       const lnd = createLndNetworkNode(
         network,
@@ -611,6 +884,105 @@ describe('Network Utils', () => {
     it('should throw an error if node is not found', async () => {
       const nonExistentNode: any = { type: 'bitcoin', id: 'non-existent' };
       await expect(renameNode(network, nonExistentNode, 'new-name')).rejects.toThrow();
+    });
+  });
+
+  describe('filterCompatibleBackends', () => {
+    let network: Network;
+    let bitcoindNode: BitcoinNode;
+    let btcdNode: BitcoinNode;
+
+    beforeEach(() => {
+      network = getNetwork();
+      // Clear existing bitcoin nodes so we have full control
+      network.nodes.bitcoin = [];
+      // Create one bitcoind and one btcd node
+      bitcoindNode = createBitcoindNetworkNode(
+        network,
+        '27.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(bitcoindNode);
+      btcdNode = createBtcdNetworkNode(
+        network,
+        '0.26.0',
+        { image: '', command: '' },
+        Status.Stopped,
+      );
+      network.nodes.bitcoin.push(btcdNode);
+    });
+
+    it('should allow btcd backend for LND', () => {
+      const backends = filterCompatibleBackends(
+        'LND',
+        '0.18.0-beta',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should include both bitcoind and btcd
+      expect(backends.length).toBe(2);
+      expect(backends.map(b => b.implementation)).toContain('bitcoind');
+      expect(backends.map(b => b.implementation)).toContain('btcd');
+    });
+
+    it('should allow btcd backend for litd', () => {
+      const backends = filterCompatibleBackends(
+        'litd',
+        '0.14.0-alpha',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should include both bitcoind and btcd
+      expect(backends.length).toBe(2);
+      expect(backends.map(b => b.implementation)).toContain('bitcoind');
+      expect(backends.map(b => b.implementation)).toContain('btcd');
+    });
+
+    it('should NOT allow btcd backend for c-lightning', () => {
+      const backends = filterCompatibleBackends(
+        'c-lightning',
+        '24.05',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should only include bitcoind
+      expect(backends.length).toBe(1);
+      expect(backends[0].implementation).toBe('bitcoind');
+      expect(backends.map(b => b.implementation)).not.toContain('btcd');
+    });
+
+    it('should NOT allow btcd backend for eclair', () => {
+      const backends = filterCompatibleBackends(
+        'eclair',
+        '0.10.0',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      // Should only include bitcoind
+      expect(backends.length).toBe(1);
+      expect(backends[0].implementation).toBe('bitcoind');
+      expect(backends.map(b => b.implementation)).not.toContain('btcd');
+    });
+
+    it('should return only bitcoind for CLN even with compatibility undefined', () => {
+      const backends = filterCompatibleBackends(
+        'c-lightning',
+        '24.05',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      expect(backends.every(b => b.implementation === 'bitcoind')).toBe(true);
+    });
+
+    it('should return only bitcoind for eclair even with compatibility undefined', () => {
+      const backends = filterCompatibleBackends(
+        'eclair',
+        '0.10.0',
+        undefined,
+        network.nodes.bitcoin,
+      );
+      expect(backends.every(b => b.implementation === 'bitcoind')).toBe(true);
     });
   });
 
