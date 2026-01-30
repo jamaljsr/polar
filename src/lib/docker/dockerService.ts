@@ -135,7 +135,14 @@ class DockerService implements DockerLibrary {
     const file = new ComposeFile(network.id);
     const { bitcoin, lightning, tap } = network.nodes;
 
-    bitcoin.forEach(node => file.addBitcoind(node));
+    bitcoin.forEach(node => {
+      if (node.implementation === 'bitcoind') {
+        file.addBitcoind(node);
+      }
+      if (node.implementation === 'btcd') {
+        file.addBtcd(node);
+      }
+    });
     lightning.forEach(node => {
       if (node.implementation === 'LND') {
         const lnd = node as LndNode;
@@ -220,6 +227,18 @@ class DockerService implements DockerLibrary {
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.upOne, node.name, this.getArgs(network));
     info(`Container started:\n ${result.out || result.err}`);
+
+    // btcd nodes have a companion btcwallet service that must also be started
+    if ((node as BitcoinNode).implementation === 'btcd') {
+      const walletName = `btcwallet-${node.name}`;
+      info(`Starting companion btcwallet container for ${node.name}`);
+      const walletResult = await this.execute(
+        compose.upOne,
+        walletName,
+        this.getArgs(network),
+      );
+      info(`btcwallet container started:\n ${walletResult.out || walletResult.err}`);
+    }
   }
 
   /**
@@ -232,6 +251,18 @@ class DockerService implements DockerLibrary {
     info(` - path: ${network.path}`);
     const result = await this.execute(compose.stopOne, node.name, this.getArgs(network));
     info(`Container stopped:\n ${result.out || result.err}`);
+
+    // btcd nodes have a companion btcwallet service that must also be stopped
+    if ((node as BitcoinNode).implementation === 'btcd') {
+      const walletName = `btcwallet-${node.name}`;
+      info(`Stopping companion btcwallet container for ${node.name}`);
+      const walletResult = await this.execute(
+        compose.stopOne,
+        walletName,
+        this.getArgs(network),
+      );
+      info(`btcwallet container stopped:\n ${walletResult.out || walletResult.err}`);
+    }
   }
 
   /**
@@ -250,6 +281,18 @@ class DockerService implements DockerLibrary {
     // IDockerComposeOptions as the first param and a spread for the remaining
     result = await this.execute(compose.rm as any, this.getArgs(network), node.name);
     info(`Removed:\n ${result.out || result.err}`);
+
+    // btcd nodes have a companion btcwallet service that must also be removed
+    if ((node as BitcoinNode).implementation === 'btcd') {
+      const walletName = `btcwallet-${node.name}`;
+      info(`Stopping companion btcwallet container for ${node.name}`);
+      result = await this.execute(compose.stopOne, walletName, this.getArgs(network));
+      info(`btcwallet container stopped:\n ${result.out || result.err}`);
+
+      info(`Removing btcwallet container`);
+      result = await this.execute(compose.rm as any, this.getArgs(network), walletName);
+      info(`btcwallet removed:\n ${result.out || result.err}`);
+    }
   }
 
   /**
@@ -412,8 +455,27 @@ class DockerService implements DockerLibrary {
         await ensureDir(join(nodeDir, 'lit'));
         await ensureDir(join(nodeDir, 'lnd'));
         await ensureDir(join(nodeDir, 'tapd'));
+      } else if (node.implementation === 'btcd') {
+        await ensureDir(join(nodeDir, 'btcd'));
+        // each btcd node has a companion btcwallet container which is not included
+        // in the network's nodes, so its dir must be created here as well
+        await ensureDir(this.btcwalletDir(network, node.name));
       }
     }
+  }
+
+  /**
+   * Returns the path to the data dir of the btcwallet container which accompanies
+   * the given btcd node
+   */
+  private btcwalletDir(network: Network, btcdName: string) {
+    return join(
+      network.path,
+      'volumes',
+      'btcwallet',
+      `btcwallet-${btcdName}`,
+      'btcwallet',
+    );
   }
 
   /**

@@ -15,7 +15,17 @@ import {
 } from 'utils/constants';
 import { getContainerName, getDefaultCommand } from 'utils/network';
 import { isWindows } from 'utils/system';
-import { bitcoind, clightning, eclair, litd, lnd, simln, tapd } from './nodeTemplates';
+import {
+  bitcoind,
+  btcd,
+  btcwallet,
+  clightning,
+  eclair,
+  litd,
+  lnd,
+  simln,
+  tapd,
+} from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -222,6 +232,65 @@ class ComposeFile {
     const { name, imageName, command, env } = dockerConfigs.simln;
     const containerName = `polar-n${networkId}-simln`;
     const svc = simln(name, containerName, imageName, command, { ...env });
+    this.addService(svc);
+  }
+
+  addBtcd(node: BitcoinNode) {
+    const { name, version, ports } = node;
+    const { rpc, p2p } = ports;
+    const container = getContainerName(node);
+
+    // define the variable substitutions
+    const variables = {
+      name,
+      rpcUser: btcdCredentials.user,
+      rpcPass: btcdCredentials.pass,
+    };
+
+    // use the node's custom image or the default for the implementation
+    const image = node.docker.image || `${dockerConfigs.btcd.imageName}:${version}`;
+
+    // use the node's custom command or the default for the implementation
+    const nodeCommand = node.docker.command || getDefaultCommand('btcd', version);
+
+    // replace the variables in the command
+    const command = this.mergeCommand(nodeCommand, variables);
+
+    // add the docker service
+    const svc = btcd(name, container, image, rpc, p2p, command);
+    this.addService(svc);
+    this.addBtcwallet(node);
+  }
+
+  addBtcwallet(backend: BitcoinNode) {
+    const name = `btcwallet-${backend.name}`;
+    const rpcPort = backend.ports.btcdWallet;
+    const container = getContainerName(backend) + '-btcwallet';
+
+    // // define the variable substitutions
+    const variables = {
+      rpcUser: btcdCredentials.user,
+      rpcPass: btcdCredentials.pass,
+      nodeName: backend.name,
+    };
+
+    // the btcwallet image version is tracked in dockerConfigs, not in the repo state,
+    // since it is not a node that users can add to a network
+    const image = dockerConfigs.btcwallet.imageName;
+    // use the node's command
+    const nodeCommand = [
+      'btcwallet',
+      '--regtest',
+      '--username={{rpcUser}}',
+      '--password={{rpcPass}}',
+      '--rpclisten=0.0.0.0:18332',
+      '--rpcconnect={{nodeName}}',
+      '--cafile=/home/btcwallet/.btcd/rpc.cert',
+    ].join('\n ');
+    // replace the variables in the command
+    const command = this.mergeCommand(nodeCommand, variables);
+    // add the docker service
+    const svc = btcwallet(name, container, image, rpcPort, command, backend.name);
     this.addService(svc);
   }
 

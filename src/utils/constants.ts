@@ -107,7 +107,13 @@ export const litdCredentials = {
   pass: 'polarpass',
 };
 
-export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = {
+// btcwallet is not a node implementation that users can add to a network. It is a
+// companion container for btcd, which has no wallet of its own, so it is only included
+// here to keep its image version alongside the rest of the images
+export const dockerConfigs: Record<
+  NodeImplementationWithSimln | 'btcwallet',
+  DockerConfig
+> = {
   LND: {
     name: 'LND',
     imageName: 'polarlightning/lnd',
@@ -353,6 +359,15 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       'rpcPass',
       'proofCourier',
     ],
+  },
+  btcwallet: {
+    name: 'btcwallet',
+    imageName: 'polarlightning/btcwallet:0.16.13',
+    logo: '',
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'btcwallet',
+    command: '',
+    variables: [],
   },
   simln: {
     name: 'simln',
