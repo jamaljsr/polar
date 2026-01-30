@@ -379,6 +379,44 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
+export const createBtcdNetworkNode = (
+  network: Network,
+  version: string,
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts.btcd,
+): BitcoinNode => {
+  const { bitcoin } = network.nodes;
+  const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
+
+  const name = `backend${id + 1}`;
+  const node: BitcoinNode = {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'bitcoin',
+    implementation: 'btcd',
+    version,
+    peers: [],
+    status,
+    ports: {
+      rpc: basePort.rpc + id,
+      p2p: BasePorts.btcd.p2p + id,
+      btcdWallet: basePort.btcdWallet + id,
+    },
+    docker,
+  };
+
+  // peer up with the previous node on both sides
+  if (bitcoin.length > 0) {
+    const prev = bitcoin[bitcoin.length - 1];
+    node.peers.push(prev.name);
+    prev.peers.push(node.name);
+  }
+
+  return node;
+};
+
 const filterLndBackends = (
   implementation: TapNode['implementation'],
   version: string,
