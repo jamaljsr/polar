@@ -488,6 +488,7 @@ export const createNetwork = (config: {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  btcdNodes: number;
   tapdNodes: number;
   litdNodes: number;
   repoState: DockerRepoState;
@@ -506,6 +507,7 @@ export const createNetwork = (config: {
     clightningNodes,
     eclairNodes,
     bitcoindNodes,
+    btcdNodes,
     tapdNodes,
     litdNodes,
     repoState,
@@ -537,7 +539,7 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
   const dockerWrap = (command: string) => ({ image: '', command });
 
-  // add custom bitcoin nodes
+  // add custom bitcoind nodes
   customImages
     .filter(i => i.image.implementation === 'bitcoind')
     .forEach(i => {
@@ -556,7 +558,20 @@ export const createNetwork = (config: {
       });
     });
 
-  // add managed bitcoin nodes
+  // add custom btcd nodes
+  customImages
+    .filter(i => i.image.implementation === 'btcd')
+    .forEach(i => {
+      const version = repoState.images.btcd.latest;
+      const docker = { image: i.image.dockerImage, command: i.image.command };
+      range(i.count).forEach(() => {
+        bitcoin.push(
+          createBtcdNetworkNode(network, version, docker, status, basePorts?.btcd),
+        );
+      });
+    });
+
+  // add managed bitcoind nodes
   range(bitcoindNodes).forEach(() => {
     let version = repoState.images.bitcoind.latest;
     if (lndNodes > 0) {
@@ -574,6 +589,15 @@ export const createNetwork = (config: {
         status,
         basePorts?.bitcoind,
       ),
+    );
+  });
+
+  // add managed btcd nodes
+  range(btcdNodes).forEach(() => {
+    const version = repoState.images.btcd.latest;
+    const cmd = getImageCommand(managedImages, 'btcd', version);
+    bitcoin.push(
+      createBtcdNetworkNode(network, version, dockerWrap(cmd), status, basePorts?.btcd),
     );
   });
 
