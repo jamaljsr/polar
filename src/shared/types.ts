@@ -83,6 +83,15 @@ export interface BitcoindNode extends BitcoinNode {
   };
 }
 
+export interface BtcdNode extends BitcoinNode {
+  implementation: 'btcd';
+  ports: {
+    rpc: number;
+    p2p: number;
+    btcdWallet: number;
+  };
+}
+
 export interface TapNode extends CommonNode {
   type: 'tap';
   implementation: 'tapd' | 'litd';
