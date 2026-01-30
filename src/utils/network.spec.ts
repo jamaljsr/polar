@@ -20,6 +20,7 @@ import {
   createLndNetworkNode,
   createNetwork,
   createTapdNetworkNode,
+  filterCompatibleBackends,
   getCLightningFilePaths,
   getImageCommand,
   getInvoicePayload,
@@ -1172,6 +1173,22 @@ describe('Network Utils', () => {
         network.nodes.bitcoin,
       );
       expect(backends.every(b => b.implementation === 'bitcoind')).toBe(true);
+    });
+
+    it('should throw for CLN when the network only contains btcd backends', () => {
+      expect(() =>
+        filterCompatibleBackends('c-lightning', '24.05', undefined, [btcdNode]),
+      ).toThrow(
+        'This network does not contain a bitcoin node which is supported by c-lightning',
+      );
+    });
+
+    it('should throw for eclair when the network only contains btcd backends', () => {
+      expect(() =>
+        filterCompatibleBackends('eclair', '0.10.0', undefined, [btcdNode]),
+      ).toThrow(
+        'This network does not contain a bitcoin node which is supported by eclair',
+      );
     });
   });
 

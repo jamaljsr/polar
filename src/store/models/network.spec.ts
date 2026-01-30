@@ -532,6 +532,21 @@ describe('Network model', () => {
       );
     });
 
+    it('should throw an error if removing the last bitcoind leaves a CLN node with only a btcd backend', async () => {
+      const { removeBitcoinNode, addNode } = store.getActions().network;
+      const { id } = firstNetwork();
+      // leave a single bitcoind node in the network for the LN nodes to connect to
+      await removeBitcoinNode({ node: firstNetwork().nodes.bitcoin[1] });
+      // add a btcd node, which the c-lightning node cannot use as a backend
+      await addNode({ id, type: 'btcd', version: defaultRepoState.images.btcd.latest });
+      // removing the only bitcoind would leave 'bob', the c-lightning node, without a
+      // compatible backend to fall back to
+      const node = firstNetwork().nodes.bitcoin[0];
+      await expect(removeBitcoinNode({ node })).rejects.toThrow(
+        'There are no other compatible backends for bob to connect to. You must remove the bob node first',
+      );
+    });
+
     it('should throw if the simulation is connected to a node', async () => {
       const { addSimulation, removeLightningNode } = store.getActions().network;
       const network = firstNetwork();

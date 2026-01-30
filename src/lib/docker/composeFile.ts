@@ -9,6 +9,7 @@ import {
 } from 'shared/types';
 import {
   bitcoinCredentials,
+  btcdCredentials,
   dockerConfigs,
   eclairCredentials,
   litdCredentials,
@@ -92,26 +93,47 @@ class ComposeFile {
     this.addService(svc);
   }
 
-  addLnd(node: LndNode, backend: CommonNode) {
+  addLnd(node: LndNode, backend: BitcoinNode) {
     const { name, version, ports } = node;
     const { rest, grpc, p2p } = ports;
     const container = getContainerName(node);
+    const isBtcdBackend = backend.implementation === 'btcd';
+
+    // use appropriate credentials based on backend type
+    const credentials = isBtcdBackend ? btcdCredentials : bitcoinCredentials;
+
     // define the variable substitutions
+    // for btcd, use the service hostname (backend.name) rather than the container name so
+    // that LND's TLS ServerName matches the DNS SAN in btcd's auto-generated certificate
     const variables = {
       name: node.name,
       containerName: container,
-      backendName: getContainerName(backend),
-      rpcUser: bitcoinCredentials.user,
-      rpcPass: bitcoinCredentials.pass,
+      backendName: isBtcdBackend ? backend.name : getContainerName(backend),
+      rpcUser: credentials.user,
+      rpcPass: credentials.pass,
     };
+
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.LND.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('LND', version);
+    const nodeCommand =
+      node.docker.command ||
+      getDefaultCommand('LND', version, isBtcdBackend ? 'btcd' : undefined);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    const svc = lnd(name, container, image, rest, grpc, p2p, command);
+    const btcdBackendName = isBtcdBackend ? backend.name : undefined;
+    const svc = lnd(
+      name,
+      container,
+      image,
+      rest,
+      grpc,
+      p2p,
+      command,
+      isBtcdBackend,
+      btcdBackendName,
+    );
     this.addService(svc);
   }
 
@@ -182,28 +204,50 @@ class ComposeFile {
     this.addService(svc);
   }
 
-  addLitd(node: LitdNode, backend: CommonNode, proofCourier: CommonNode) {
+  addLitd(node: LitdNode, backend: BitcoinNode, proofCourier: CommonNode) {
     const { name, version, ports } = node;
     const { rest, grpc, p2p, web } = ports;
     const container = getContainerName(node);
+    const isBtcdBackend = backend.implementation === 'btcd';
+
+    // use appropriate credentials based on backend type
+    const credentials = isBtcdBackend ? btcdCredentials : bitcoinCredentials;
+
     // define the variable substitutions
+    // for btcd, use the service hostname (backend.name) rather than the container name so
+    // that litd's TLS ServerName matches the DNS SAN in btcd's auto-generated certificate
     const variables = {
       name: node.name,
       containerName: container,
-      backendName: getContainerName(backend),
-      rpcUser: bitcoinCredentials.user,
-      rpcPass: bitcoinCredentials.pass,
+      backendName: isBtcdBackend ? backend.name : getContainerName(backend),
+      rpcUser: credentials.user,
+      rpcPass: credentials.pass,
       litdPass: litdCredentials.pass,
       proofCourier: getContainerName(proofCourier),
     };
+
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.litd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('litd', version);
+    const nodeCommand =
+      node.docker.command ||
+      getDefaultCommand('litd', version, isBtcdBackend ? 'btcd' : undefined);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    const svc = litd(name, container, image, rest, grpc, p2p, web, command);
+    const btcdBackendName = isBtcdBackend ? backend.name : undefined;
+    const svc = litd(
+      name,
+      container,
+      image,
+      rest,
+      grpc,
+      p2p,
+      web,
+      command,
+      isBtcdBackend,
+      btcdBackendName,
+    );
     this.addService(svc);
   }
 

@@ -644,6 +644,7 @@
   "store.models.network.missingNetworkName": "Network must have a name",
   "store.models.network.nodeNotStarted": "The {{nodeName}} node is not started",
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
+  "utils.network.backendImplError": "This network does not contain a bitcoin node which is supported by {{implementation}}",
   "utils.network.lndBackendCompatError": "This network does not contain a LND v{{requiredVersion}} (or higher) node which is required for {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
   "utils.network.unknownImplementation": "Cannot import unknown node implementation '{{implementation}}'"

@@ -1,5 +1,5 @@
 import os from 'os';
-import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import { BtcdNode, CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
 import { bitcoinCredentials, btcdCredentials, defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import { testManagedImages } from 'utils/tests';
@@ -19,6 +19,7 @@ describe('ComposeFile', () => {
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 1,
     tapdNodes: 1,
     litdNodes: 1,
     repoState: defaultRepoState,
@@ -95,6 +96,40 @@ describe('ComposeFile', () => {
     const service = composeFile.content.services['alice'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
+  });
+
+  it('should add lnd with btcd backend', () => {
+    lndNode.docker = { image: '', command: '' };
+    composeFile.addLnd(lndNode, btcdNode);
+    const service = composeFile.content.services['alice'];
+    expect(service).not.toBeUndefined();
+  });
+
+  it('should use btcd-specific command for lnd with btcd backend', () => {
+    lndNode.docker = { image: '', command: '' };
+    composeFile.addLnd(lndNode, btcdNode);
+    const service = composeFile.content.services['alice'];
+    expect(service.command).toContain('--bitcoin.node=btcd');
+    // use the btcd service hostname (not the container name) so TLS ServerName matches the cert SAN
+    expect(service.command).toContain(`--btcd.rpchost=${btcdNode.name}`);
+    expect(service.command).not.toContain(`--btcd.rpchost=polar-n1-${btcdNode.name}`);
+    expect(service.command).toContain('--btcd.rpcuser=');
+    expect(service.command).toContain('--btcd.rpcpass=');
+    // Should NOT have bitcoind-specific flags
+    expect(service.command).not.toContain('--bitcoin.node=bitcoind');
+    expect(service.command).not.toContain('--bitcoind.zmq');
+  });
+
+  it('should mount btcd volume for lnd with btcd backend', () => {
+    lndNode.docker = { image: '', command: '' };
+    composeFile.addLnd(lndNode, btcdNode);
+    const service = composeFile.content.services['alice'];
+    // Should have btcd volume mounted for RPC cert access
+    const btcdVolumeMount = service.volumes.find((v: string) =>
+      v.includes('/home/lnd/.btcd'),
+    );
+    expect(btcdVolumeMount).toBeDefined();
+    expect(btcdVolumeMount).toContain('btcd/backend2/btcd');
   });
 
   it('should add an c-lightning config', () => {
@@ -204,12 +239,46 @@ describe('ComposeFile', () => {
     expect(service.volumes[2]).toContain('/dave/tapd:');
   });
 
-  it('should use the tapd nodes custom docker data', () => {
+  it('should use the litd nodes custom docker data', () => {
     litdNode.docker = { image: 'my-image', command: 'my-command' };
     composeFile.addLitd(litdNode, btcNode, litdNode);
     const service = composeFile.content.services['dave'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
+  });
+
+  it('should add litd with btcd backend', () => {
+    litdNode.docker = { image: '', command: '' };
+    composeFile.addLitd(litdNode, btcdNode, litdNode);
+    const service = composeFile.content.services['dave'];
+    expect(service).not.toBeUndefined();
+  });
+
+  it('should use btcd-specific command for litd with btcd backend', () => {
+    litdNode.docker = { image: '', command: '' };
+    composeFile.addLitd(litdNode, btcdNode, litdNode);
+    const service = composeFile.content.services['dave'];
+    expect(service.command).toContain('--lnd.bitcoin.node=btcd');
+    // use the btcd service hostname (not the container name) so TLS ServerName matches the cert SAN
+    expect(service.command).toContain(`--lnd.btcd.rpchost=${btcdNode.name}`);
+    expect(service.command).not.toContain(`--lnd.btcd.rpchost=polar-n1-${btcdNode.name}`);
+    expect(service.command).toContain('--lnd.btcd.rpcuser=');
+    expect(service.command).toContain('--lnd.btcd.rpcpass=');
+    // Should NOT have bitcoind-specific flags
+    expect(service.command).not.toContain('--lnd.bitcoin.node=bitcoind');
+    expect(service.command).not.toContain('--lnd.bitcoind.zmq');
+  });
+
+  it('should mount btcd volume for litd with btcd backend', () => {
+    litdNode.docker = { image: '', command: '' };
+    composeFile.addLitd(litdNode, btcdNode, litdNode);
+    const service = composeFile.content.services['dave'];
+    // Should have btcd volume mounted for RPC cert access
+    const btcdVolumeMount = service.volumes.find((v: string) =>
+      v.includes('/home/litd/.btcd'),
+    );
+    expect(btcdVolumeMount).toBeDefined();
+    expect(btcdVolumeMount).toContain('btcd/backend2/btcd');
   });
 
   it('should add a simln config', () => {
