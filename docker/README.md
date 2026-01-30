@@ -47,6 +47,24 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg BITCOIN_VER
 
 Replace `<version>` with the desired bitcoind version (ex: `0.18.1`)
 
+## BTCD
+
+> Note: btcd has no wallet of its own. Each btcd node in Polar is paired with a
+> [btcwallet](#btcwallet) container, so both images must be pushed together.
+
+### Tags
+
+- `0.26.0` ([btcd/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/btcd/Dockerfile))
+
+**Building the image**
+
+```sh
+$ cd btcd
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg BTCD_VERSION=<version> -t polarlightning/btcd:<version> --push .
+```
+
+Replace `<version>` with the desired btcd version (ex: `0.26.0`)
+
 ## LND
 
 ### Tags
