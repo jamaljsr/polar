@@ -65,6 +65,27 @@ $ docker buildx build --platform linux/amd64,linux/arm64 --build-arg BTCD_VERSIO
 
 Replace `<version>` with the desired btcd version (ex: `0.26.0`)
 
+## Btcwallet
+
+> Note: btcwallet is not a node that users can add to a network. It is a companion
+> container which provides the wallet RPC for a [BTCD](#btcd) node. It is not listed in
+> `docker/nodes.json` and its version is not managed by the repo state. To bump it,
+> update `imageName` in the `btcwallet` entry of `dockerConfigs` in
+> [`src/utils/constants.ts`](https://github.com/jamaljsr/polar/blob/master/src/utils/constants.ts).
+
+### Tags
+
+- `0.16.13` ([btcd/btcwallet/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/btcd/btcwallet/Dockerfile))
+
+**Building the image**
+
+```sh
+$ cd btcd/btcwallet
+$ docker buildx build --platform linux/amd64,linux/arm64 --build-arg BTCWALLET_VERSION=<version> -t polarlightning/btcwallet:<version> --push .
+```
+
+Replace `<version>` with the desired btcwallet version (ex: `0.16.13`)
+
 ## LND
 
 ### Tags
