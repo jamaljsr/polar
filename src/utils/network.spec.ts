@@ -158,6 +158,7 @@ describe('Network Utils', () => {
         clightningNodes: 1,
         eclairNodes: 1,
         bitcoindNodes: 1,
+        btcdNodes: 1,
         tapdNodes: 0,
         litdNodes: 1,
         status: Status.Stopped,
@@ -237,6 +238,194 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.bitcoin[0].name].rest).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
+    });
+
+    it('should update rpc and zmqBlock ports for bitcoind', async () => {
+      const portsInUse = [18443, 28334]; // rpc and zmqBlock ports
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const rpcPort = network.nodes.bitcoin[0].ports.rpc;
+      const zmqBlockPort = network.nodes.bitcoin[0].ports.zmqBlock;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(rpcPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
+    });
+
+    it('should update rpc and zmqTx ports for bitcoind', async () => {
+      const portsInUse = [18443, 29335]; // rpc and zmqTx ports
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const rpcPort = network.nodes.bitcoin[0].ports.rpc;
+      const zmqTxPort = network.nodes.bitcoin[0].ports.zmqTx;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(rpcPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
+    });
+
+    it('should update the ports for btcd', async () => {
+      const btcdNetwork = createNetwork({
+        id: 1,
+        name: 'btcd-test',
+        description: 'btcd-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+
+      mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
+      const rpcPort = btcdNetwork.nodes.bitcoin[0].ports.rpc;
+      const p2pPort = btcdNetwork.nodes.bitcoin[0].ports.p2p;
+      const walletPort = btcdNetwork.nodes.bitcoin[0].ports.btcdWallet;
+      const ports = (await getOpenPorts(btcdNetwork)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].rpc).toBe(rpcPort + 1);
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].p2p).toBe(p2pPort + 1);
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].btcdWallet).toBe(walletPort + 1);
+    });
+
+    it('should update only p2p port for btcd', async () => {
+      const btcdNetwork = createNetwork({
+        id: 1,
+        name: 'btcd-test',
+        description: 'btcd-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+
+      // Only p2p port (19555) is in use, grpc (18334) is not
+      const portsInUse = [19555];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const p2pPort = btcdNetwork.nodes.bitcoin[0].ports.p2p;
+      const ports = (await getOpenPorts(btcdNetwork)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].p2p).toBe(p2pPort + 1);
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].grpc).toBeUndefined();
+    });
+
+    it('should update only btcdWallet port for btcd', async () => {
+      const btcdNetwork = createNetwork({
+        id: 1,
+        name: 'btcd-test',
+        description: 'btcd-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+
+      // Only btcdWallet port (18355) is in use
+      const portsInUse = [18355];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const walletPort = btcdNetwork.nodes.bitcoin[0].ports.btcdWallet;
+      const ports = (await getOpenPorts(btcdNetwork)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].btcdWallet).toBe(walletPort + 1);
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].grpc).toBeUndefined();
+      expect(ports[btcdNetwork.nodes.bitcoin[0].name].p2p).toBeUndefined();
+    });
+
+    it('should spread existing rpc port when updating zmqBlock for multiple bitcoind', async () => {
+      // Create a network with 2 bitcoind nodes
+      const bitcoindOnlyNetwork = createNetwork({
+        id: 2,
+        name: 'bitcoind-only',
+        description: 'test',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 2,
+        btcdNodes: 0,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      // First node's rpc (18443) and zmqBlock (28334) are in use
+      // getOpenPortRange adjusts subsequent ports to avoid conflicts
+      const portsInUse = [18443, 28334];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const ports = (await getOpenPorts(bitcoindOnlyNetwork)) as OpenPorts;
+      expect(ports).toBeDefined();
+      // Both nodes get rpc and zmqBlock updated due to port conflict resolution
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[0].name].rpc).toBe(18444);
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[0].name].zmqBlock).toBe(28335);
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[1].name].rpc).toBe(18445);
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[1].name].zmqBlock).toBe(28336);
+    });
+
+    it('should spread existing rpc port when updating zmqTx for multiple bitcoind', async () => {
+      // Create a network with 2 bitcoind nodes
+      const bitcoindOnlyNetwork = createNetwork({
+        id: 2,
+        name: 'bitcoind-only',
+        description: 'test',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 2,
+        btcdNodes: 0,
+        tapdNodes: 0,
+        litdNodes: 0,
+        status: Status.Stopped,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      // First node's rpc (18443) and zmqTx (29335) are in use
+      const portsInUse = [18443, 29335];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const ports = (await getOpenPorts(bitcoindOnlyNetwork)) as OpenPorts;
+      expect(ports).toBeDefined();
+      // Both nodes get rpc and zmqTx updated due to port conflict resolution
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[0].name].rpc).toBe(18444);
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[0].name].zmqTx).toBe(29336);
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[1].name].rpc).toBe(18445);
+      expect(ports[bitcoindOnlyNetwork.nodes.bitcoin[1].name].zmqTx).toBe(29337);
     });
 
     it('should update the grpc ports for lightning nodes', async () => {
@@ -538,10 +727,10 @@ describe('Network Utils', () => {
         { image: '', command: '' },
         Status.Stopped,
       );
-      // Base ports: rpc=18334, p2p=18444, btcdWallet=18332
+      // Base ports: rpc=18334, p2p=19555, btcdWallet=18355
       expect(btcd.ports.rpc).toBe(18334);
-      expect(btcd.ports.p2p).toBe(18444);
-      expect(btcd.ports.btcdWallet).toBe(18332);
+      expect(btcd.ports.p2p).toBe(19555);
+      expect(btcd.ports.btcdWallet).toBe(18355);
       // btcd should NOT have zmq ports
       expect(btcd.ports.zmqBlock).toBeUndefined();
       expect(btcd.ports.zmqTx).toBeUndefined();
@@ -564,10 +753,10 @@ describe('Network Utils', () => {
       );
       expect(btcd2.id).toBe(1);
       expect(btcd2.name).toBe('backend2');
-      // Ports should be base + id (18334+1, 18444+1, 18332+1)
+      // Ports should be base + id (18334+1, 19555+1, 18355+1)
       expect(btcd2.ports.rpc).toBe(18335);
-      expect(btcd2.ports.p2p).toBe(18445);
-      expect(btcd2.ports.btcdWallet).toBe(18333);
+      expect(btcd2.ports.p2p).toBe(19556);
+      expect(btcd2.ports.btcdWallet).toBe(18356);
     });
 
     it('should link peers between btcd nodes', () => {

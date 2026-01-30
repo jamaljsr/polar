@@ -72,14 +72,16 @@ const v030 = (file: NetworksFile): NetworksFile => {
         debug(`${pre} set docker details for Bitcoin node ${node.name}`);
         node.docker = { image: '', command: '' };
       }
-      // the zmq ports were added to bitcoin nodes in PR #297
-      if (!node.ports.zmqBlock) {
-        debug(`${pre} set ZMQ Blocks port for Bitcoin node ${node.name}`);
-        node.ports.zmqBlock = BasePorts.bitcoind.zmqBlock;
-      }
-      if (!node.ports.zmqTx) {
-        debug(`${pre} set ZMQ Txns port for Bitcoin node ${node.name}`);
-        node.ports.zmqTx = BasePorts.bitcoind.zmqTx;
+      // the zmq ports were added to bitcoind nodes in PR #297 (btcd doesn't support ZMQ)
+      if (node.implementation === 'bitcoind') {
+        if (!node.ports.zmqBlock) {
+          debug(`${pre} set ZMQ Blocks port for Bitcoin node ${node.name}`);
+          node.ports.zmqBlock = BasePorts.bitcoind.zmqBlock;
+        }
+        if (!node.ports.zmqTx) {
+          debug(`${pre} set ZMQ Txns port for Bitcoin node ${node.name}`);
+          node.ports.zmqTx = BasePorts.bitcoind.zmqTx;
+        }
       }
     });
     network.nodes.lightning.forEach(node => {
