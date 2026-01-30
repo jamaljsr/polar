@@ -14,7 +14,7 @@ import { networksPath } from 'utils/config';
 import { APP_VERSION, defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
 import { createNetwork } from 'utils/network';
-import { getNetwork, mockProperty, testManagedImages } from 'utils/tests';
+import { getBtcdNetwork, getNetwork, mockProperty, testManagedImages } from 'utils/tests';
 import { getDocker } from './dockerService';
 
 jest.mock('dockerode');
@@ -298,6 +298,30 @@ describe('DockerService', () => {
       );
     });
 
+    it('should save with btcd node in the compose file', () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'btcd network',
+        description: 'network with btcd',
+        lndNodes: 1,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      dockerService.saveComposeFile(net);
+      expect(filesMock.write).toHaveBeenCalledWith(
+        expect.stringContaining('docker-compose.yml'),
+        expect.stringContaining(`container_name: polar-n1-${net.nodes.bitcoin[0].name}`),
+      );
+    });
+
     it('should save the litd node with the named LND node as backend', () => {
       const net = createNetwork({
         id: 1,
@@ -436,6 +460,44 @@ describe('DockerService', () => {
         delete n.docker;
         delete n.ports.p2p;
         // the old LND logo url
+        chart.nodes[n.name].properties.icon = '/static/media/lnd.935c28bc.png';
+      });
+      return { net, chart };
+    };
+
+    const createTestNetworkWithBtcd = () => {
+      const net = createNetwork({
+        id: 1,
+        name: 'my network',
+        description: 'network description',
+        lndNodes: 2,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      const chart = initChartFromNetwork(net);
+      return { net, chart } as any;
+    };
+
+    const create020NetworkWithBtcd = () => {
+      const { net, chart } = createTestNetworkWithBtcd();
+      // added in v0.3.0
+      net.nodes.bitcoin.forEach((n: any) => {
+        delete n.docker;
+        // btcd doesn't have zmq ports, but delete them if they exist
+        delete n.ports.zmqBlock;
+        delete n.ports.zmqTx;
+      });
+      net.nodes.lightning.forEach((n: any) => {
+        delete n.docker;
+        delete n.ports.p2p;
         chart.nodes[n.name].properties.icon = '/static/media/lnd.935c28bc.png';
       });
       return { net, chart };
@@ -622,6 +684,29 @@ describe('DockerService', () => {
       });
     });
 
+    it('should migrate network data from v0.2.0 with btcd node', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      const { net, chart } = create020NetworkWithBtcd();
+      const fileData: NetworksFile = {
+        version: '0.2.0',
+        networks: [net],
+        charts: { [network.id]: chart },
+      };
+      filesMock.read.mockResolvedValue(JSON.stringify(fileData));
+      const { networks, version } = await dockerService.loadNetworks();
+      const btcNode = networks[0].nodes.bitcoin[0];
+      expect(version).toEqual(APP_VERSION);
+      // added in v0.3.0
+      expect(btcNode.docker).toBeDefined();
+      // btcd nodes should NOT have zmq ports added
+      expect(btcNode.ports.zmqBlock).toBeUndefined();
+      expect(btcNode.ports.zmqTx).toBeUndefined();
+      networks[0].nodes.lightning.forEach(n => {
+        expect(n.docker).toBeDefined();
+        expect(n.ports.p2p).toBeDefined();
+      });
+    });
+
     it('should migrate network data from v1.0.1', async () => {
       filesMock.exists.mockResolvedValue(true);
       filesMock.read.mockResolvedValue(createLegacyNetworksFile('1.0.1'));
@@ -711,6 +796,21 @@ describe('DockerService', () => {
       expect(fsMock.ensureDir).toHaveBeenCalledTimes(7);
     });
 
+    it('should create the nested btcd and btcwallet dirs when the network is started', async () => {
+      const btcdNetwork = getBtcdNetwork();
+      composeMock.upAll.mockResolvedValue(mockResult);
+      await dockerService.start(btcdNetwork);
+      const btcdNode = btcdNetwork.nodes.bitcoin[0];
+      expect(fsMock.ensureDir).toHaveBeenCalledWith(
+        expect.stringContaining(join('volumes', 'btcd', btcdNode.name, 'btcd')),
+      );
+      expect(fsMock.ensureDir).toHaveBeenCalledWith(
+        expect.stringContaining(
+          join('volumes', 'btcwallet', `btcwallet-${btcdNode.name}`, 'btcwallet'),
+        ),
+      );
+    });
+
     it('should create volume dirs when the network is started', async () => {
       const net = createNetwork({
         id: 1,
@@ -774,6 +874,106 @@ describe('DockerService', () => {
       expect(composeMock.rm).toHaveBeenCalledWith(
         expect.objectContaining({ cwd: network.path }),
         node.name,
+      );
+    });
+
+    it('should also start btcwallet when a btcd node is started', async () => {
+      const btcdNetwork = createNetwork({
+        id: 1,
+        name: 'my-test',
+        description: 'my-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      composeMock.upOne.mockResolvedValue(mockResult);
+      const btcdNode = btcdNetwork.nodes.bitcoin[0];
+      await dockerService.startNode(btcdNetwork, btcdNode);
+      expect(composeMock.upOne).toHaveBeenCalledWith(
+        btcdNode.name,
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+      );
+      expect(composeMock.upOne).toHaveBeenCalledWith(
+        `btcwallet-${btcdNode.name}`,
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+      );
+    });
+
+    it('should also stop btcwallet when a btcd node is stopped', async () => {
+      const btcdNetwork = createNetwork({
+        id: 1,
+        name: 'my-test',
+        description: 'my-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      const btcdNode = btcdNetwork.nodes.bitcoin[0];
+      await dockerService.stopNode(btcdNetwork, btcdNode);
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        btcdNode.name,
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+      );
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        `btcwallet-${btcdNode.name}`,
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+      );
+    });
+
+    it('should also remove btcwallet when a btcd node is removed', async () => {
+      const btcdNetwork = createNetwork({
+        id: 1,
+        name: 'my-test',
+        description: 'my-test-description',
+        lndNodes: 0,
+        clightningNodes: 0,
+        eclairNodes: 0,
+        bitcoindNodes: 0,
+        btcdNodes: 1,
+        tapdNodes: 0,
+        litdNodes: 0,
+        repoState: defaultRepoState,
+        managedImages: testManagedImages,
+        customImages: [],
+        manualMineCount: 6,
+      });
+      composeMock.stopOne.mockResolvedValue(mockResult);
+      composeMock.rm.mockResolvedValue(mockResult);
+      const btcdNode = btcdNetwork.nodes.bitcoin[0];
+      await dockerService.removeNode(btcdNetwork, btcdNode);
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        btcdNode.name,
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+      );
+      expect(composeMock.rm).toHaveBeenCalledWith(
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+        btcdNode.name,
+      );
+      expect(composeMock.stopOne).toHaveBeenCalledWith(
+        `btcwallet-${btcdNode.name}`,
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+      );
+      expect(composeMock.rm).toHaveBeenCalledWith(
+        expect.objectContaining({ cwd: btcdNetwork.path }),
+        `btcwallet-${btcdNode.name}`,
       );
     });
 
