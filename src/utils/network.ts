@@ -699,9 +699,11 @@ const getTorFlags = (implementation: NodeImplementation): string[] => {
     case 'LND':
       return [
         '--tor.active',
+        '--tor.v3',
+        '--tor.streamisolation',
+        '--listen=localhost',
         '--tor.socks=127.0.0.1:9050',
         '--tor.control=127.0.0.1:9051',
-        '--tor.v3',
       ];
     case 'c-lightning':
       return [
@@ -715,14 +717,17 @@ const getTorFlags = (implementation: NodeImplementation): string[] => {
         '--tor.enabled=true',
         '--tor.auth=safecookie',
         '--socks5.enabled=true',
-        '--socks5.proxy=127.0.0.1:9050',
+        '--socks5.use-for-tor=true',
+        '--server.address=127.0.0.1',
       ];
     case 'litd':
       return [
         '--lnd.tor.active',
+        '--lnd.tor.v3',
+        '--lnd.tor.streamisolation',
+        '--lnd.listen=localhost',
         '--lnd.tor.socks=127.0.0.1:9050',
         '--lnd.tor.control=127.0.0.1:9051',
-        '--lnd.tor.v3',
       ];
     case 'bitcoind':
       return [
@@ -781,21 +786,17 @@ export const updateTorFlags = (
       return !(trimmed.startsWith('--addr=') && !trimmed.includes('statictor'));
     });
   }
-  let cleanCommand = lines.join('\n').trim();
 
-  if (implementation === 'bitcoind') {
-    cleanCommand = cleanCommand.replace(
-      '-listenonion=0',
-      `-listenonion=${enableTor ? '1' : '0'}`,
-    );
+  if (implementation === 'bitcoind' && enableTor) {
+    lines = lines.filter(line => line.trim() !== '-listenonion=0');
   }
 
+  let cleanCommand = lines.join('\n').trim();
   // Add Tor flags if enabled
   if (enableTor) {
     const torFlagsStr = torFlags.join('\n  ');
     cleanCommand = `${cleanCommand}\n  ${torFlagsStr}`;
   }
-
   return cleanCommand;
 };
 
