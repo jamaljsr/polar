@@ -1,5 +1,6 @@
 import {
   BitcoinNode,
+  BtcdNode,
   CLightningNode,
   CommonNode,
   EclairNode,
@@ -295,7 +296,15 @@ class ComposeFile {
     const image = node.docker.image || `${dockerConfigs.btcd.imageName}:${version}`;
 
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('btcd', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('btcd', version);
+
+    // btcd requires --miningaddr at startup to be able to mine blocks.
+    // once set (after the first start), append it so subsequent starts work immediately.
+    const { miningAddr } = node as BtcdNode;
+
+    if (miningAddr) {
+      nodeCommand += `\n --miningaddr=${miningAddr}`;
+    }
 
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
