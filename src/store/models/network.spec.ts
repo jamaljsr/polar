@@ -3,7 +3,7 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TapdNode } from 'shared/types';
+import { BtcdNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
@@ -1160,12 +1160,62 @@ describe('Network model', () => {
       });
     });
 
+    it('should monitor network with btcd nodes', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 0,
+        btcdNodes: 2,
+        // CLN and Eclair don't support btcd backend, so set to 0
+        clightningNodes: 0,
+        eclairNodes: 0,
+      });
+      const { networks } = store.getState().network;
+      const { bitcoin } = networks[networks.length - 1].nodes;
+
+      (injections.dockerService.saveComposeFile as jest.Mock).mockClear();
+      (injections.dockerService.startNode as jest.Mock).mockClear();
+      (injections.dockerService.saveNetworks as jest.Mock).mockClear();
+
+      bitcoinServiceMock.createDefaultWallet.mockImplementation(async node => {
+        if (node.implementation === 'btcd') {
+          (node as BtcdNode).miningAddr = 'btc12345';
+        }
+      });
+
+      await monitorStartup(bitcoin);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(2);
+      expect(injections.dockerService.startNode).toHaveBeenCalledTimes(2);
+      // the mining address must be persisted so it isn't regenerated on the next startup
+      expect(injections.dockerService.saveNetworks).toHaveBeenCalled();
+      const { bitcoin: savedNodes } = networks[networks.length - 1].nodes;
+      expect(savedNodes.every(n => (n as BtcdNode).miningAddr === 'btc12345')).toBe(true);
+
+      // restore mock
+      bitcoinServiceMock.createDefaultWallet.mockResolvedValue();
+    });
+
     it('should do nothing for unknown node type', async () => {
       const { monitorStartup } = store.getActions().network;
       const { bitcoin } = firstNetwork().nodes;
       bitcoin[0].type = 'asdf' as any;
       await monitorStartup(bitcoin);
       expect(bitcoinServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+    });
+
+    it('should monitor network whose name is unknown', async () => {
+      const { monitorStartup } = store.getActions().network;
+      const { bitcoin } = firstNetwork().nodes;
+      const externalNode = {
+        ...bitcoin[0],
+        name: 'external-node',
+      };
+
+      await monitorStartup([externalNode]);
+
+      await waitFor(() => {
+        expect(bitcoinServiceMock.waitUntilOnline).toHaveBeenCalledWith(externalNode);
+      });
     });
   });
 

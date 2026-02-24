@@ -84,6 +84,7 @@ export interface BitcoindNode extends BitcoinNode {
 
 export interface BtcdNode extends BitcoinNode {
   implementation: 'btcd';
+  miningAddr?: string;
   ports: {
     rpc: number;
     p2p: number;

@@ -309,12 +309,16 @@ describe('ComposeFile', () => {
   });
 
   it('should create the correct btcd docker compose values', () => {
+    // Set mining address to trigger --miningaddr flag
+    btcdNode.miningAddr = 'bcrt1qtest123';
     composeFile.addBtcd(btcdNode);
     const service = composeFile.content.services['backend2'];
     expect(service.image).toContain('btcd');
     expect(service.container_name).toEqual('polar-n1-backend2');
     expect(service.command).toContain(btcdCredentials.user);
     expect(service.volumes[0]).toContain('/backend2/btcd:');
+    expect(service.command).toContain('--miningaddr=bcrt1qtest123');
+    btcdNode.miningAddr = undefined;
   });
 
   it('should use the btcd nodes docker data', () => {
