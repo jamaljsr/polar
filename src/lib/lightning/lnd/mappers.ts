@@ -4,12 +4,10 @@ import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNodeChannel } from 'lib/lightning/types';
 import { snakeKeysToCamel } from 'utils/objects';
 
-const txid = (channelPoint: string) => channelPoint.split(':')[0];
-
 export const mapOpenChannel = (chan: LND.Channel): LightningNodeChannel => {
   return {
     pending: false,
-    uniqueId: txid(chan.channelPoint).slice(-12),
+    uniqueId: chan.channelPoint.replace(':', '-'),
     channelPoint: chan.channelPoint,
     pubkey: chan.remotePubkey,
     capacity: chan.capacity,
@@ -25,7 +23,7 @@ export const mapPendingChannel =
   (status: LightningNodeChannel['status']) =>
   (chan: PendingChannel): LightningNodeChannel => ({
     pending: true,
-    uniqueId: txid(chan.channelPoint).slice(-12),
+    uniqueId: chan.channelPoint.replace(':', '-'),
     channelPoint: chan.channelPoint,
     pubkey: chan.remoteNodePub,
     capacity: chan.capacity,
