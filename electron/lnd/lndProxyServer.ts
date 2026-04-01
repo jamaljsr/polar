@@ -41,19 +41,33 @@ const getRpc = async (node: LndNode): Promise<LND.LndRpcApis> => {
   // TODO: use node unique id for caching since is an application level global variable
   const id = `n${networkId}-${name}`;
   if (!rpcCache[id]) {
-    const config: LND.LndClientOptions = {
-      socket: `127.0.0.1:${ports.grpc}`,
-      cert: (await readFile(paths.tlsCert)).toString('hex'),
-      macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
-    };
-    rpcCache[id] = LND.LndClient.create(config);
+    try {
+      const config: LND.LndClientOptions = {
+        socket: `127.0.0.1:${ports.grpc}`,
+        cert: (await readFile(paths.tlsCert)).toString('hex'),
+        macaroon: (await readFile(paths.adminMacaroon)).toString('hex'),
+      };
+      rpcCache[id] = LND.LndClient.create(config);
+    } catch (e) {
+      // Don't cache a failed client - delete so the next call retries afresh
+      delete rpcCache[id];
+      throw e;
+    }
   }
   return rpcCache[id];
 };
 
 const getInfo = async (args: { node: LndNode }): Promise<LND.GetInfoResponse> => {
-  const rpc = await getRpc(args.node);
-  return await rpc.lightning.getInfo();
+  const { name, networkId } = args.node;
+  const id = `n${networkId}-${name}`;
+  try {
+    const rpc = await getRpc(args.node);
+    return await rpc.lightning.getInfo();
+  } catch (e) {
+    // Evict broken client so the next waitFor retry gets a fresh connection
+    delete rpcCache[id];
+    throw e;
+  }
 };
 
 const walletBalance = async (args: {

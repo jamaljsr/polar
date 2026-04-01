@@ -28,6 +28,16 @@ export interface ComposeService {
   ports: string[];
   restart?: 'always';
   stop_grace_period?: string;
+  healthcheck?: {
+    test: string[];
+    interval: string;
+    timeout: string;
+    retries: number;
+    start_period: string;
+  };
+  depends_on?: {
+    [service: string]: { condition: 'service_healthy' | 'service_started' };
+  };
 }
 
 export interface ComposeContent {
@@ -88,6 +98,21 @@ class ComposeFile {
       ...svc.environment,
       ENABLE_TOR: node.enableTor ? 'true' : 'false',
     };
+    // healthcheck so dependent lightning nodes wait until bitcoind RPC is ready
+    svc.healthcheck = {
+      test: [
+        'CMD',
+        'bitcoin-cli',
+        '-regtest',
+        `-rpcuser=${bitcoinCredentials.user}`,
+        `-rpcpassword=${bitcoinCredentials.pass}`,
+        'getblockchaininfo',
+      ],
+      interval: '10s',
+      timeout: '5s',
+      retries: 20,
+      start_period: '30s',
+    };
 
     this.addService(svc);
   }
@@ -122,6 +147,7 @@ class ComposeFile {
       ...svc.environment,
       ENABLE_TOR: node.enableTor ? 'true' : 'false',
     };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
@@ -174,6 +200,7 @@ class ComposeFile {
       ...svc.environment,
       ENABLE_TOR: node.enableTor ? 'true' : 'false',
     };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
@@ -204,6 +231,7 @@ class ComposeFile {
       ...svc.environment,
       ENABLE_TOR: node.enableTor ? 'true' : 'false',
     };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
@@ -236,6 +264,7 @@ class ComposeFile {
       ...svc.environment,
       ENABLE_TOR: node.enableTor ? 'true' : 'false',
     };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
