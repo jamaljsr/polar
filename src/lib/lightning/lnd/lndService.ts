@@ -227,12 +227,13 @@ class LndService implements LightningService {
     interval = 3 * 1000, // check every 3 seconds
     timeout = 120 * 1000, // timeout after 120 seconds
   ): Promise<void> {
+    const effectiveTimeout = this.cast(node).enableTor ? 240 * 1000 : timeout;
     return waitFor(
       async () => {
         await this.getInfo(node);
       },
       interval,
-      timeout,
+      effectiveTimeout,
     );
   }
 

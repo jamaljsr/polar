@@ -807,6 +807,8 @@ const networkModel: NetworkModel = {
           await actions.save();
           await injections.dockerService.saveComposeFile(network);
         }
+        // clear cached RPC data
+        getStoreActions().app.clearAppCache();
         // start the docker containers
         await injections.dockerService.start(network);
         // update the list of docker images pulled since new images may be pulled
