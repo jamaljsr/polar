@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/jamaljsr-polar-badge.png)](https://mseep.ai/app/jamaljsr-polar)
+
 # Polar
 
 > One-click Bitcoin Lightning networks for local app development & testing
