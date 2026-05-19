@@ -639,6 +639,19 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         expect(getByText('API Docs')).toBeInTheDocument();
       });
+
+      it('should use Tor rpcUrl for external P2P address when enableTor is true', async () => {
+        node.enableTor = true;
+        lightningServiceMock.getInfo.mockResolvedValue(
+          defaultStateInfo({
+            pubkey: 'abcdef',
+            rpcUrl: 'abcdef@toraddress.onion:9735',
+          }),
+        );
+        const { findAllByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        expect(await findAllByText('abc...ddress.onion:9735')).toHaveLength(2);
+      });
     });
   });
 

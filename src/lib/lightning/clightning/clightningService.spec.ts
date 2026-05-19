@@ -647,7 +647,7 @@ describe('CLightningService', () => {
     });
 
     it('should log when no PEM content is found', async () => {
-     let callCount = 0;
+      let callCount = 0;
       streamMock.mockImplementation((event: string, cb: (arg: any) => void) => {
         cb(Buffer.from(callCount++ === 0 ? dockerExecOutput : 'no pem here'));
       });

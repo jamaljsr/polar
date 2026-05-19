@@ -1567,6 +1567,23 @@ describe('Network model', () => {
       expect(updatedNode.ports).toEqual(originalPorts);
       expect(updatedNode.enableTor).toBe(true);
     });
+
+    it('should skip restart if network is gone after saveComposeFile', async () => {
+      const { addNetwork, toggleTorForNode, setStatus } = store.getActions().network;
+      await addNetwork(addNetworkArgs);
+      const networkId = firstNetwork().id;
+      setStatus({ id: networkId, status: Status.Started });
+      const node = { ...firstNetwork().nodes.lightning[0], networkId };
+
+      // Remove the network during saveComposeFile so updatedNode lookup returns undefined
+      (injections.dockerService.saveComposeFile as jest.Mock).mockImplementationOnce(
+        async () => {
+          await store.getActions().network.remove(networkId);
+        },
+      );
+
+      await expect(toggleTorForNode({ node, enabled: true })).resolves.toBeUndefined();
+    });
   });
 
   describe('Other actions', () => {
