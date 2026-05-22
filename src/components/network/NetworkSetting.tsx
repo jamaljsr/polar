@@ -67,7 +67,7 @@ const NetworkSetting: React.FC = () => {
         },
       };
 
-      await updateSettings({ basePorts: { ...updatedPorts } });
+      await updateSettings({ basePorts: { ...settings.basePorts, ...updatedPorts } });
 
       notify({ message: l('saveSuccess') });
     } catch (error: any) {

@@ -1,0 +1,37 @@
+# syntax=docker/dockerfile:1
+# Build from a local ldk-server checkout (sibling repo):
+#   docker build -f docker/ldk-server/Dockerfile.local \
+#     --build-context ldk-server=../../ldk-server/ldk-server \
+#     -t polarlightning/ldk-server:0.1.0-dev .
+
+FROM rust:1.85-bookworm AS builder
+
+WORKDIR /src
+COPY --from=ldk-server . /src/
+
+RUN cargo build --release -p ldk-server
+
+FROM debian:stable-slim
+
+ENV PATH=/opt/ldk-server:$PATH
+
+RUN apt-get update -y \
+  && apt-get install -y gosu wait-for-it \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN mkdir -p /opt/ldk-server /home/ldk/.ldk-server
+
+COPY --from=builder /src/target/release/ldk-server /opt/ldk-server/ldk-server
+
+COPY docker/ldk-server/docker-entrypoint.sh /entrypoint.sh
+
+RUN chmod a+x /entrypoint.sh
+
+VOLUME ["/home/ldk/.ldk-server"]
+
+EXPOSE 3536 9735
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["ldk-server"]

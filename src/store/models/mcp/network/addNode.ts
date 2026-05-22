@@ -27,7 +27,7 @@ export const addNodeDefinition: McpToolDefinition = {
   name: 'add_node',
   description:
     'Adds a Bitcoin Core or Lightning Network node to an existing Polar network. ' +
-    'Supports Bitcoin Core (bitcoind), LND, c-lightning, eclair, and litd (Lightning Terminal) implementations. ' +
+    'Supports Bitcoin Core (bitcoind), LND, c-lightning, eclair, ldk-server, and litd (Lightning Terminal) implementations. ' +
     'If the network is started, the node will be automatically started as well.',
   inputSchema: {
     type: 'object',

@@ -82,6 +82,7 @@ const NewNetwork: React.FC = () => {
             lndNodes: settings.newNodeCounts.LND,
             clightningNodes: settings.newNodeCounts['c-lightning'],
             eclairNodes: settings.newNodeCounts.eclair,
+            ldkServerNodes: settings.newNodeCounts['ldk-server'],
             bitcoindNodes: settings.newNodeCounts.bitcoind,
             tapdNodes: settings.newNodeCounts.tapd,
             litdNodes: settings.newNodeCounts.litd,
@@ -162,6 +163,15 @@ const NewNetwork: React.FC = () => {
             </Col>
           </Row>
           <Row gutter={16}>
+            <Col span={6}>
+              <Form.Item
+                name="ldkServerNodes"
+                label={dockerConfigs['ldk-server'].name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
             <Col span={6}>
               <Form.Item
                 name="tapdNodes"

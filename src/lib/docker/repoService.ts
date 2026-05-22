@@ -63,6 +63,7 @@ class RepoService implements RepoServiceInjection {
       LND: [],
       'c-lightning': [],
       eclair: [],
+      'ldk-server': [],
       litd: [],
       bitcoind: [],
       btcd: [],
@@ -87,7 +88,13 @@ class RepoService implements RepoServiceInjection {
       return { state: localState };
     }
     // return the new state and the updates
-    return { state: remoteState, updates };
+    return {
+      state: {
+        ...remoteState,
+        images: { ...localState.images, ...remoteState.images },
+      },
+      updates,
+    };
   }
 
   /**

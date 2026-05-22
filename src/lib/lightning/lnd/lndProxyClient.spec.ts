@@ -147,6 +147,7 @@ describe('LndService', () => {
   it('should call the subscribeChannelEvents callback', () => {
     lndProxyClient.streamer.subscribe = jest.fn((channel, args, callback) => {
       callback(undefined as any, { data: 'channel event' });
+      return 'ldk-subscribe-events-stream-123';
     });
     const mockCallback = jest.fn();
     lndProxyClient.subscribeChannelEvents(node, mockCallback);
@@ -159,12 +160,13 @@ describe('LndService', () => {
   });
 
   it('should call the unsubscribeEvents streamer', () => {
+    lndProxyClient.streamer.subscribe = jest.fn(() => 'ldk-subscribe-events-stream-123');
     const mockCallback = jest.fn();
     lndProxyClient.subscribeChannelEvents(node, mockCallback);
 
     lndProxyClient.unsubscribeEvents(node);
     expect(lndProxyClient.streamer.unsubscribe).toHaveBeenCalledWith(
-      `${ipcChannels.subscribeChannelEvents}-${node.ports.rest}`,
+      'ldk-subscribe-events-stream-123',
       expect.any(Function),
     );
   });

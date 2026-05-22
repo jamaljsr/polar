@@ -76,6 +76,7 @@ describe('ImageUpdatesModal', () => {
           'c-lightning': [],
           eclair: [],
           litd: [],
+          'ldk-server': [],
           bitcoind: ['4.5.6'],
           btcd: [],
           tapd: [],

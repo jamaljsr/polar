@@ -11,6 +11,7 @@ import {
   CLightningNode,
   CommonNode,
   EclairNode,
+  LdkServerNode,
   LightningNode,
   LitdNode,
   LndNode,
@@ -33,7 +34,7 @@ import {
   Simulation,
 } from 'types';
 import { dataPath, networksPath, nodePath } from './config';
-import { BasePorts, DOCKER_REPO, dockerConfigs } from './constants';
+import { BasePorts, dockerConfigs } from './constants';
 import { read, rm } from './files';
 import { migrateNetworksFile } from './migrations';
 import { getName } from './names';
@@ -60,6 +61,9 @@ const groupNodes = (network: Network) => {
     ) as CLightningNode[],
     eclair: lightning.filter(n => n.implementation === 'eclair') as EclairNode[],
     litd: lightning.filter(n => n.implementation === 'litd') as LitdNode[],
+    ldkServer: lightning.filter(
+      n => n.implementation === 'ldk-server',
+    ) as LdkServerNode[],
     tapd: tap.filter(n => n.implementation === 'tapd') as TapdNode[],
   };
 };
@@ -152,6 +156,14 @@ export const getCLightningFilePaths = (
     tlsClientKey: withTls
       ? join(path, 'lightningd', 'regtest', 'client-key.pem')
       : undefined,
+  };
+};
+
+export const getLdkServerFilePaths = (name: string, network: Network) => {
+  const basePath = join(nodePath(network, 'ldk-server', name), 'regtest');
+  return {
+    tlsCert: join(basePath, 'tls.crt'),
+    apiKey: join(basePath, 'api_key'),
   };
 };
 
@@ -340,6 +352,42 @@ export const createLitdNetworkNode = (
   };
 };
 
+export const createLdkServerNetworkNode = (
+  network: Network,
+  version: string,
+  compatibility: DockerRepoImage['compatibility'],
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts['ldk-server'],
+): LdkServerNode => {
+  const { bitcoin, lightning } = network.nodes;
+  const implementation: LdkServerNode['implementation'] = 'ldk-server';
+  const backends = filterCompatibleBackends(
+    implementation,
+    version,
+    compatibility,
+    bitcoin,
+  );
+  const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
+  const name = getName(id);
+  return {
+    id,
+    networkId: network.id,
+    name,
+    type: 'lightning',
+    implementation,
+    version,
+    status,
+    backendName: backends[id % backends.length].name,
+    paths: getLdkServerFilePaths(name, network),
+    ports: {
+      grpc: basePort.grpc + id,
+      p2p: BasePorts['ldk-server'].p2p + id,
+    },
+    docker,
+  };
+};
+
 export const createBitcoindNetworkNode = (
   network: Network,
   version: string,
@@ -449,6 +497,7 @@ export const createNetwork = (config: {
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
+  ldkServerNodes?: number;
   bitcoindNodes: number;
   tapdNodes: number;
   litdNodes: number;
@@ -467,6 +516,7 @@ export const createNetwork = (config: {
     lndNodes,
     clightningNodes,
     eclairNodes,
+    ldkServerNodes = 0,
     bitcoindNodes,
     tapdNodes,
     litdNodes,
@@ -541,7 +591,9 @@ export const createNetwork = (config: {
 
   // add custom lightning nodes
   customImages
-    .filter(i => ['LND', 'c-lightning', 'eclair'].includes(i.image.implementation))
+    .filter(i =>
+      ['LND', 'c-lightning', 'eclair', 'ldk-server'].includes(i.image.implementation),
+    )
     .forEach(({ image, count }) => {
       const { latest, compatibility } = repoState.images.LND;
       const docker = { image: image.dockerImage, command: image.command };
@@ -550,12 +602,16 @@ export const createNetwork = (config: {
           ? createLndNetworkNode
           : image.implementation === 'c-lightning'
           ? createCLightningNetworkNode
+          : image.implementation === 'ldk-server'
+          ? createLdkServerNetworkNode
           : createEclairNetworkNode;
       const basePort =
         image.implementation === 'LND'
           ? basePorts?.LND
           : image.implementation === 'c-lightning'
           ? basePorts?.['c-lightning']
+          : image.implementation === 'ldk-server'
+          ? basePorts?.['ldk-server']
           : basePorts?.eclair;
       range(count).forEach(() => {
         lightning.push(
@@ -565,7 +621,9 @@ export const createNetwork = (config: {
     });
 
   // add lightning nodes in an alternating pattern
-  range(Math.max(lndNodes, clightningNodes, eclairNodes, litdNodes)).forEach(i => {
+  range(
+    Math.max(lndNodes, clightningNodes, eclairNodes, ldkServerNodes, litdNodes),
+  ).forEach(i => {
     if (i < lndNodes) {
       const { latest, compatibility } = repoState.images.LND;
       const cmd = getImageCommand(managedImages, 'LND', latest);
@@ -605,6 +663,20 @@ export const createNetwork = (config: {
           dockerWrap(cmd),
           status,
           basePorts?.eclair,
+        ),
+      );
+    }
+    if (i < ldkServerNodes) {
+      const { latest, compatibility } = repoState.images['ldk-server'];
+      const cmd = getImageCommand(managedImages, 'ldk-server', latest);
+      lightning.push(
+        createLdkServerNetworkNode(
+          network,
+          latest,
+          compatibility,
+          dockerWrap(cmd),
+          status,
+          basePorts?.['ldk-server'],
         ),
       );
     }
@@ -665,6 +737,13 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
           litdNode.name = newName;
           litdNode.paths = getLitdFilePaths(newName, network);
           return litdNode;
+        case 'ldk-server':
+          const ldkNode = network.nodes.lightning.find(
+            n => n.id === node.id,
+          ) as LdkServerNode;
+          ldkNode.name = newName;
+          ldkNode.paths = getLdkServerFilePaths(newName, network);
+          return ldkNode;
       }
     case 'bitcoin':
       network.nodes.lightning
@@ -701,9 +780,8 @@ export const getMissingImages = (network: Network, pulled: string[]): string[] =
   const neededImages = [...bitcoin, ...lightning, ...tap].map(n => {
     // use the custom image name if specified
     if (n.docker.image) return n.docker.image;
-    // convert implementation to image name: LND -> lnd, c-lightning -> clightning
-    const impl = n.implementation.toLocaleLowerCase().replace(/-/g, '');
-    return `${DOCKER_REPO}/${impl}:${n.version}`;
+    const config = dockerConfigs[n.implementation as NodeImplementation];
+    return `${config.imageName}:${n.version}`;
   });
   // exclude images already pulled
   const missing = neededImages.filter(i => !pulled.includes(i));

@@ -87,6 +87,7 @@ const appModel: AppModel = {
       btcd: 0,
       tapd: 0,
       litd: 0,
+      'ldk-server': 0,
     },
     basePorts: {
       LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },
@@ -97,6 +98,7 @@ const appModel: AppModel = {
       },
       eclair: { rest: BasePorts.eclair.rest },
       tapd: { grpc: BasePorts.tapd.grpc, rest: BasePorts.tapd.rest },
+      'ldk-server': { grpc: BasePorts['ldk-server'].grpc },
     },
   },
   dockerVersions: { docker: '', compose: '' },
@@ -156,7 +158,21 @@ const appModel: AppModel = {
 
     const settings = await injections.settingsService.load();
     if (settings) {
-      actions.setSettings(settings);
+      actions.setSettings({
+        ...settings,
+        newNodeCounts: {
+          ...getState().settings.newNodeCounts,
+          ...settings.newNodeCounts,
+          'ldk-server': settings.newNodeCounts?.['ldk-server'] ?? 0,
+        },
+        basePorts: {
+          ...getState().settings.basePorts,
+          ...settings.basePorts,
+          'ldk-server': settings.basePorts?.['ldk-server'] ?? {
+            grpc: BasePorts['ldk-server'].grpc,
+          },
+        },
+      });
       await getI18n().changeLanguage(settings.lang);
       changeTheme(settings.theme || 'dark');
     }

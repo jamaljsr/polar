@@ -33,11 +33,16 @@ describe('IpcService', () => {
     ipcRenderer.on = jest.fn().mockImplementation((chan, cb) => cb(null, '456'));
     const callback = jest.fn();
     const streamer = createIpcStreamer('Test Name', 'pre1');
-    streamer.subscribe('chan1', { node: { ports: { rest: 123 } } }, callback);
+    const replyTo = streamer.subscribe(
+      'chan1',
+      { node: { ports: { rest: 123 } } },
+      callback,
+    );
     expect(ipcRenderer.on).toHaveBeenCalledWith(
       expect.stringContaining('pre1-chan1-stream'),
       callback,
     );
+    expect(replyTo).toContain('pre1-chan1-stream');
   });
 
   it('should unsubscribe from the ipc', async () => {
@@ -46,11 +51,12 @@ describe('IpcService', () => {
     ipcRenderer.on = jest.fn().mockImplementation((chan, cb) => cb(null, '456'));
     const callback = jest.fn();
     const streamer = createIpcStreamer('Test Name', 'pre1');
-    streamer.subscribe('chan1', { node: { ports: { rest: 123 } } }, callback);
-    streamer.unsubscribe('chan1', callback);
-    expect(ipcRenderer.off).toHaveBeenCalledWith(
-      expect.stringContaining('pre1-chan1-stream'),
+    const replyTo = streamer.subscribe(
+      'chan1',
+      { node: { ports: { rest: 123 } } },
       callback,
     );
+    streamer.unsubscribe(replyTo, callback);
+    expect(ipcRenderer.off).toHaveBeenCalledWith(replyTo, callback);
   });
 });

@@ -41,6 +41,11 @@ export const testManagedImages: ManagedImage[] = [
     version: defaultRepoState.images.litd.latest,
     command: '',
   },
+  {
+    implementation: 'ldk-server',
+    version: defaultRepoState.images['ldk-server'].latest,
+    command: '',
+  },
 ];
 
 export const testCustomImages: CustomImage[] = [
@@ -226,6 +231,10 @@ export const testRepoState: DockerRepoState = {
         '0.14.0-alpha': '30.0',
       },
     },
+    'ldk-server': {
+      latest: '0.1.0-dev',
+      versions: ['0.1.0-dev'],
+    },
   },
 };
 
@@ -243,6 +252,7 @@ export const getNetwork = (
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,
+    ldkServerNodes: 0,
     bitcoindNodes: 1,
     tapdNodes: 0,
     litdNodes: 0,
