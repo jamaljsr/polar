@@ -640,5 +640,7 @@
   "utils.network.backendCompatError": "Эта сеть не содержит узла Bitcoin Core v{{requiredVersion}} (или ниже), который требуется для {{implementation}} v{{version}}",
   "utils.network.lndBackendCompatError": "Эта сеть не содержит LND v{{requiredVersion}} (или выше) узла, который необходим для {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "Импорт сетей с {{implementation}} узлами не поддерживается на {{platform}}",
-  "utils.network.unknownImplementation": "Невозможно импортировать реализацию неизвестного узла '{{implementation}}'"
+  "utils.network.unknownImplementation": "Невозможно импортировать реализацию неизвестного узла '{{implementation}}'",
+  "cmps.designer.lightning.connect.FilePaths.apiKey": "API Key",
+  "cmps.designer.lightning.connect.EncodedStrings.apiKey": "API Key"
 }

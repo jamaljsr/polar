@@ -6,6 +6,7 @@ import { usePrefixedTranslation } from 'hooks';
 import {
   CLightningNode,
   EclairNode,
+  LdkServerNode,
   LightningNode,
   LitdNode,
   LndNode,
@@ -64,6 +65,8 @@ export interface ConnectionInfo {
     // litd macaroons
     lit?: string;
     tap?: string;
+    // LDK Server
+    apiKey?: string;
   };
   p2pUriExternal: string;
   authTypes: string[];
@@ -151,6 +154,21 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           p2pUriExternal: `${pubkey}@127.0.0.1:${litd.ports.p2p}`,
           authTypes: ['paths', 'hex', 'base64', 'lnc'],
         };
+      } else if (node.implementation === 'ldk-server') {
+        const ldk = node as LdkServerNode;
+        return {
+          restUrl: '',
+          restDocsUrl: '',
+          grpcUrl: `127.0.0.1:${ldk.ports.grpc}`,
+          grpcDocsUrl:
+            'https://github.com/lightningdevkit/ldk-server/blob/main/docs/api-guide.md',
+          credentials: {
+            cert: ldk.paths.tlsCert,
+            apiKey: ldk.paths.apiKey,
+          },
+          p2pUriExternal: `${pubkey}@127.0.0.1:${ldk.ports.p2p}`,
+          authTypes: ['paths', 'hex'],
+        };
       }
     }
 
@@ -230,9 +248,13 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             </Styled.Link>
           </Tooltip>
         )}
-        <Tooltip title={info.restDocsUrl}>
-          <Styled.Link onClick={() => openInBrowser(info.restDocsUrl)}>REST</Styled.Link>
-        </Tooltip>
+        {info.restDocsUrl && info.restUrl && (
+          <Tooltip title={info.restDocsUrl}>
+            <Styled.Link onClick={() => openInBrowser(info.restDocsUrl)}>
+              REST
+            </Styled.Link>
+          </Tooltip>
+        )}
         <Styled.BookIcon />
       </>
     ),
@@ -259,17 +281,16 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         {node.implementation === 'litd' && (
           <Radio.Button value="lnc">{l('lnc')}</Radio.Button>
         )}
-        {(credentials.admin || credentials.rune) && [
-          <Radio.Button key="paths" value="paths">
-            {l('filePaths')}
-          </Radio.Button>,
-          <Radio.Button key="hex" value="hex">
-            {l('hexStrings')}
-          </Radio.Button>,
-          <Radio.Button key="base64" value="base64">
-            {l('base64Strings')}
-          </Radio.Button>,
-        ]}
+        {(credentials.admin || credentials.rune || credentials.apiKey) &&
+          info.authTypes.map(type => (
+            <Radio.Button key={type} value={type}>
+              {type === 'paths'
+                ? l('filePaths')
+                : type === 'hex'
+                ? l('hexStrings')
+                : l('base64Strings')}
+            </Radio.Button>
+          ))}
         {node.implementation === 'LND' && (
           <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
         )}

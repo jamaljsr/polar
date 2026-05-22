@@ -38,6 +38,7 @@ interface NetworkPlan {
     lndNodes: number;
     clightningNodes: number;
     eclairNodes: number;
+    ldkServerNodes: number;
     bitcoindNodes: number;
     tapdNodes: number;
     litdNodes: number;
@@ -56,6 +57,7 @@ const SUPPORTED_IMPLEMENTATIONS: NodeImplementation[] = [
   'LND',
   'c-lightning',
   'eclair',
+  'ldk-server',
   'litd',
   'tapd',
 ];
@@ -65,6 +67,7 @@ const ADDITION_PRIORITY: readonly NodeImplementation[] = [
   'LND',
   'c-lightning',
   'eclair',
+  'ldk-server',
   'litd',
   'tapd',
 ];
@@ -73,6 +76,7 @@ const LIGHTNING_IMPLEMENTATIONS = new Set<NodeImplementation>([
   'LND',
   'c-lightning',
   'eclair',
+  'ldk-server',
   'litd',
 ]);
 
@@ -178,6 +182,7 @@ const buildPlanContext = (
     lndNodes: 0,
     clightningNodes: 0,
     eclairNodes: 0,
+    ldkServerNodes: 0,
     bitcoindNodes: 0,
     tapdNodes: 0,
     litdNodes: 0,
@@ -205,6 +210,9 @@ const buildPlanContext = (
           return;
         case 'eclair':
           baseCounts.eclairNodes += 1;
+          return;
+        case 'ldk-server':
+          baseCounts.ldkServerNodes += 1;
           return;
         case 'litd':
           baseCounts.litdNodes += 1;
@@ -273,6 +281,7 @@ const validateNetworkDependencies = ({
     baseCounts.lndNodes +
     baseCounts.clightningNodes +
     baseCounts.eclairNodes +
+    baseCounts.ldkServerNodes +
     baseCounts.litdNodes +
     additionalLightningCount;
 
@@ -415,7 +424,15 @@ export const createNetworkDefinition: McpToolDefinition = {
           properties: {
             implementation: {
               type: 'string',
-              enum: ['bitcoind', 'LND', 'c-lightning', 'eclair', 'litd', 'tapd'],
+              enum: [
+                'bitcoind',
+                'LND',
+                'c-lightning',
+                'eclair',
+                'ldk-server',
+                'litd',
+                'tapd',
+              ],
               description: 'Node implementation to add to the network',
             },
             version: {
@@ -462,6 +479,7 @@ export const createNetworkTool = thunk<
     lndNodes: baseCounts.lndNodes,
     clightningNodes: baseCounts.clightningNodes,
     eclairNodes: baseCounts.eclairNodes,
+    ldkServerNodes: baseCounts.ldkServerNodes,
     bitcoindNodes: baseCounts.bitcoindNodes,
     tapdNodes: baseCounts.tapdNodes,
     litdNodes: baseCounts.litdNodes,

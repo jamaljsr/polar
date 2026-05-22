@@ -54,6 +54,7 @@ describe('App model', () => {
         btcd: 0,
         tapd: 0,
         litd: 0,
+        'ldk-server': 0,
       },
       basePorts: {
         LND: {
@@ -73,6 +74,9 @@ describe('App model', () => {
         tapd: {
           rest: 8289,
           grpc: 12029,
+        },
+        'ldk-server': {
+          grpc: 14036,
         },
       },
     });
@@ -109,6 +113,7 @@ describe('App model', () => {
       btcd: 0,
       tapd: 0,
       litd: 0,
+      'ldk-server': 0,
     });
   });
 
@@ -158,6 +163,7 @@ describe('App model', () => {
           btcd: 1,
           tapd: 1,
           litd: 0,
+          'ldk-server': 0,
         },
         basePorts: {
           LND: {
@@ -177,6 +183,9 @@ describe('App model', () => {
           tapd: {
             rest: 8289,
             grpc: 12029,
+          },
+          'ldk-server': {
+            grpc: 14036,
           },
         },
       });
@@ -200,6 +209,7 @@ describe('App model', () => {
           'c-lightning': [],
           eclair: [],
           litd: [],
+          'ldk-server': [],
           bitcoind: [],
           btcd: [],
           tapd: [],

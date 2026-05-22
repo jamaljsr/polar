@@ -640,5 +640,7 @@
   "utils.network.backendCompatError": "このネットワークには、{{implementation}} v{{version}} 必要な Bitcoin Core v{{requiredVersion}} (またはそれ以下) ノードが含まれていません",
   "utils.network.lndBackendCompatError": "このネットワークには、{{requiredVersion}} v {{implementation}} に必要な LND v{{version}} (またはそれ以上) ノードは含まれていません",
   "utils.network.incompatibleImplementation": "{{implementation}} ノードのネットワークのインポートは {{platform}} ではサポートされていません",
-  "utils.network.unknownImplementation": "不明なノードの実装 '{{implementation}} ' をインポートできません。"
+  "utils.network.unknownImplementation": "不明なノードの実装 '{{implementation}} ' をインポートできません。",
+  "cmps.designer.lightning.connect.FilePaths.apiKey": "API Key",
+  "cmps.designer.lightning.connect.EncodedStrings.apiKey": "API Key"
 }

@@ -640,5 +640,7 @@
   "utils.network.backendCompatError": "이 네트워크에는 {{implementation}} v{{version}} 필요한 Bitcoin Core v{{requiredVersion}} (또는 그 이하) 노드가 없습니다.",
   "utils.network.lndBackendCompatError": "이 네트워크에는 {{implementation}} v{{version}} 필요한 Bitcoin Core v{{requiredVersion}} (또는 그 이하) 노드가 없습니다.",
   "utils.network.incompatibleImplementation": "노드가 {{implementation}} 네트워크 가져 오기는 {{platform}} 지원되지 않습니다.",
-  "utils.network.unknownImplementation": "알 수없는 Lightning 구현 '{{implementation}}' 을 (를) 가져올 수 없습니다."
+  "utils.network.unknownImplementation": "알 수없는 Lightning 구현 '{{implementation}}' 을 (를) 가져올 수 없습니다.",
+  "cmps.designer.lightning.connect.FilePaths.apiKey": "API Key",
+  "cmps.designer.lightning.connect.EncodedStrings.apiKey": "API Key"
 }

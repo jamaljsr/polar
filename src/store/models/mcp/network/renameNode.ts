@@ -25,7 +25,7 @@ export const renameNodeDefinition: McpToolDefinition = {
   description:
     'Renames a node in an existing Polar network. This will update the node name ' +
     'throughout the system, including Docker containers, configuration files, and UI ' +
-    'references. Supports renaming Lightning nodes (LND, c-lightning, eclair, litd), ' +
+    'references. Supports renaming Lightning nodes (LND, c-lightning, eclair, ldk-server, litd), ' +
     'Bitcoin nodes (bitcoind), and Taproot Asset nodes (tapd). If the network is ' +
     'running, it will be temporarily stopped during the rename operation.',
   inputSchema: {

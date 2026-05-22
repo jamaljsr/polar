@@ -18,11 +18,22 @@ const EncodedStrings: React.FC<Props> = ({ encoding, credentials }) => {
   const { notify } = useStoreActions(s => s.app);
   const [encodedValues, setEncodedValues] = useState<Record<string, string>>({});
   useAsync(async () => {
-    const { cert, clientCert, clientKey, admin, invoice, readOnly, rune, lit, tap } =
-      credentials;
+    const {
+      cert,
+      clientCert,
+      clientKey,
+      admin,
+      invoice,
+      readOnly,
+      rune,
+      lit,
+      tap,
+      apiKey,
+    } = credentials;
     try {
       const values: Record<string, string> = {};
       if (cert) values[l('tlsCert')] = await read(cert, encoding);
+      if (apiKey) values[l('apiKey')] = await read(apiKey, encoding);
       if (clientCert) values[l('tlsClientCert')] = await read(clientCert, encoding);
       if (clientKey) values[l('tlsClientKey')] = await read(clientKey, encoding);
       if (admin) values[l('adminMacaroon')] = await read(admin, encoding);

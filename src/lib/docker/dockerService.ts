@@ -12,6 +12,7 @@ import {
   CLightningNode,
   CommonNode,
   EclairNode,
+  LdkServerNode,
   LightningNode,
   LitdNode,
   LndNode,
@@ -151,6 +152,12 @@ class DockerService implements DockerLibrary {
         const eclair = node as EclairNode;
         const backend = bitcoin.find(n => n.name === eclair.backendName) || bitcoin[0];
         file.addEclair(eclair, backend);
+      }
+      if (node.implementation === 'ldk-server') {
+        const ldkServerNode = node as LdkServerNode;
+        const backend =
+          bitcoin.find(n => n.name === ldkServerNode.backendName) || bitcoin[0];
+        file.addLdkServer(ldkServerNode, backend);
       }
       if (node.implementation === 'litd') {
         const litd = node as LitdNode;
@@ -485,6 +492,11 @@ class DockerService implements DockerLibrary {
               macaroon: `/home/simln/.${getPosixPath(litd.paths.adminMacaroon)}`,
             };
             break;
+
+          default:
+            throw new Error(
+              `Simulation is not supported for ${node.implementation} nodes`,
+            );
         }
 
         // Add the node to the nodes Set.

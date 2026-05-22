@@ -1,0 +1,44 @@
+syntax = "proto3";
+import "types.proto";
+package events;
+
+// EventEnvelope wraps different event types in a single message to be used by EventPublisher.
+message EventEnvelope {
+  oneof event {
+    PaymentReceived payment_received = 2;
+    PaymentSuccessful payment_successful = 3;
+    PaymentFailed payment_failed = 4;
+    PaymentForwarded payment_forwarded = 6;
+    PaymentClaimable payment_claimable = 7;
+  }
+}
+
+// PaymentReceived indicates a payment has been received.
+message PaymentReceived {
+  // The payment details for the payment in event.
+  types.Payment payment = 1;
+}
+
+// PaymentSuccessful indicates a sent payment was successful.
+message PaymentSuccessful {
+  // The payment details for the payment in event.
+  types.Payment payment = 1;
+}
+
+// PaymentFailed indicates a sent payment has failed.
+message PaymentFailed {
+  // The payment details for the payment in event.
+  types.Payment payment = 1;
+}
+
+// PaymentClaimable indicates a payment has arrived and is waiting to be manually claimed or failed.
+// This event is only emitted for payments created via `Bolt11ReceiveForHash`.
+message PaymentClaimable {
+  // The payment details for the claimable payment.
+  types.Payment payment = 1;
+}
+
+// PaymentForwarded indicates a payment was forwarded through the node.
+message PaymentForwarded {
+  types.ForwardedPayment forwarded_payment = 1;
+}

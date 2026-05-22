@@ -1,5 +1,5 @@
 {
-  "version": 77,
+  "version": 78,
   "images": {
     "LND": {
       "latest": "0.20.0-beta",
@@ -87,6 +87,10 @@
         "0.15.0-alpha": "30.0",
         "0.14.1-alpha": "30.0"
       }
+    },
+    "ldk-server": {
+      "latest": "0.1.0-dev",
+      "versions": ["0.1.0-dev"]
     }
   }
 }
