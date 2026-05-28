@@ -19,6 +19,7 @@ const badgeStatuses: BadgeStatus = {
   [Status.Stopping]: 'processing',
   [Status.Stopped]: 'default',
   [Status.Error]: 'error',
+  [Status.Locked]: 'warning',
 };
 
 const Styled = {

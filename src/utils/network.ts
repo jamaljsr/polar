@@ -782,6 +782,14 @@ export interface OpenPorts {
 }
 
 /**
+ * Returns true if the node's container is up and holding its own ports, whether
+ * fully started or waiting on user action (e.g. a locked wallet)
+ * @param status the node's current status
+ */
+export const isNodeRunning = (status: Status): boolean =>
+  status === Status.Started || status === Status.Locked;
+
+/**
  * Checks if the ports specified on the nodes are available on the host OS. If not,
  * return new ports that are confirmed available
  * @param network the network with nodes to verify ports of
@@ -789,8 +797,8 @@ export interface OpenPorts {
 export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefined> => {
   const ports: OpenPorts = {};
 
-  // filter out nodes that are already started since their ports are in use by themselves
-  const bitcoin = network.nodes.bitcoin.filter(n => n.status !== Status.Started);
+  // filter out nodes that are already running since their ports are in use by themselves
+  const bitcoin = network.nodes.bitcoin.filter(n => !isNodeRunning(n.status));
   if (bitcoin.length) {
     let existingPorts = bitcoin.map(n => n.ports.rpc);
     let openPorts = await getOpenPortRange(existingPorts);
@@ -836,8 +844,8 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
 
   let { lnd, clightning, eclair, litd, tapd } = groupNodes(network);
 
-  // filter out nodes that are already started since their ports are in use by themselves
-  lnd = lnd.filter(n => n.status !== Status.Started);
+  // filter out nodes that are already running since their ports are in use by themselves
+  lnd = lnd.filter(n => !isNodeRunning(n.status));
   if (lnd.length) {
     let existingPorts = lnd.map(n => n.ports.grpc);
     let openPorts = await getOpenPortRange(existingPorts);
@@ -870,7 +878,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  clightning = clightning.filter(n => n.status !== Status.Started);
+  clightning = clightning.filter(n => !isNodeRunning(n.status));
   if (clightning.length) {
     let existingPorts = clightning.map(n => n.ports.rest);
     let openPorts = await getOpenPortRange(existingPorts);
@@ -900,7 +908,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  eclair = eclair.filter(n => n.status !== Status.Started);
+  eclair = eclair.filter(n => !isNodeRunning(n.status));
   if (eclair.length) {
     let existingPorts = eclair.map(n => n.ports.rest);
     let openPorts = await getOpenPortRange(existingPorts);
@@ -922,7 +930,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  litd = litd.filter(n => n.status !== Status.Started);
+  litd = litd.filter(n => !isNodeRunning(n.status));
   if (litd.length) {
     let existingPorts = litd.map(n => n.ports.rest);
     let openPorts = await getOpenPortRange(existingPorts);
@@ -963,7 +971,7 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
     }
   }
 
-  tapd = tapd.filter(n => n.status !== Status.Started);
+  tapd = tapd.filter(n => !isNodeRunning(n.status));
   if (tapd.length) {
     let existingPorts = tapd.map(n => n.ports.grpc);
     let openPorts = await getOpenPortRange(existingPorts);
