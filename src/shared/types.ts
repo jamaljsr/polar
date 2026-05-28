@@ -4,6 +4,7 @@ export enum Status {
   Stopping,
   Stopped,
   Error,
+  Locked,
 }
 
 export interface CommonNode {

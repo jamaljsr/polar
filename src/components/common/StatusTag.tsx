@@ -19,6 +19,7 @@ const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
     [Status.Stopping]: 'blue',
     [Status.Stopped]: statusTag.stopped,
     [Status.Error]: 'red',
+    [Status.Locked]: 'orange',
   };
 
   return <Tag color={statusColors[status]}>{t(`enums.status.${Status[status]}`)}</Tag>;
