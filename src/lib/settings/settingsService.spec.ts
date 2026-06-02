@@ -27,6 +27,7 @@ describe('SettingsService', () => {
         btcd: 0,
         tapd: 0,
         litd: 0,
+        'ldk-server': 0,
       },
       basePorts: {
         LND: {
@@ -46,6 +47,9 @@ describe('SettingsService', () => {
         tapd: {
           rest: 8289,
           grpc: 12029,
+        },
+        'ldk-server': {
+          grpc: 14036,
         },
       },
     };

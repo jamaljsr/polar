@@ -24,7 +24,7 @@ export const removeNodeDefinition: McpToolDefinition = {
   description:
     'Removes a node from an existing Polar network. This will permanently delete ' +
     'the node and all its data. Supports removing Lightning nodes (LND, c-lightning, ' +
-    'eclair, litd), Bitcoin nodes (bitcoind), and Taproot Asset nodes (tapd). ' +
+    'eclair, ldk-server, litd), Bitcoin nodes (bitcoind), and Taproot Asset nodes (tapd). ' +
     'If the network is running, the node will be stopped before removal.',
   inputSchema: {
     type: 'object',

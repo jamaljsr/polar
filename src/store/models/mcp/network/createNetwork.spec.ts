@@ -1,4 +1,5 @@
 import { createStore } from 'easy-peasy';
+import { LdkServerNode } from 'shared/types';
 import { DockerRepoState } from 'types';
 import { defaultRepoState } from 'utils/constants';
 import { createMockRootModel, injections } from 'utils/tests';
@@ -198,6 +199,24 @@ describe('MCP model > createNetwork', () => {
         ],
       }),
     ).rejects.toThrow('LND version 0.18.3-beta requires a bitcoind node');
+  });
+
+  it('should create a network with ldk-server nodes', async () => {
+    const result = await store.getActions().mcp.createNetwork({
+      name: 'ldk-network',
+      nodes: [{ implementation: 'bitcoind' }, { implementation: 'ldk-server' }],
+    });
+
+    expect(result.success).toBe(true);
+    const ldkNode = result.network.nodes.lightning.find(
+      n => n.implementation === 'ldk-server',
+    );
+    expect(ldkNode).toBeDefined();
+    expect(ldkNode?.version).toBe(defaultRepoState.images['ldk-server'].latest);
+    if (ldkNode?.implementation === 'ldk-server') {
+      expect((ldkNode as LdkServerNode).paths.apiKey).toContain('ldk-server');
+    }
+    expect(result.network.nodes.bitcoin).toHaveLength(1);
   });
 
   it('should create a network with litd nodes using pinned versions', async () => {

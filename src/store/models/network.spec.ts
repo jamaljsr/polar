@@ -61,6 +61,7 @@ describe('Network model', () => {
     lndNodes: 2,
     clightningNodes: 1,
     eclairNodes: 1,
+    ldkServerNodes: 0,
     bitcoindNodes: 1,
     tapdNodes: 0,
     litdNodes: 1,
@@ -404,6 +405,25 @@ describe('Network model', () => {
       const node = firstNetwork().nodes.lightning[3];
       await store.getActions().network.removeLightningNode({ node });
       expect(firstNetwork().nodes.lightning).toHaveLength(4);
+    });
+
+    it('should remove an ldk-server node from an existing network', async () => {
+      await store.getActions().network.addNode({
+        id: 1,
+        type: 'ldk-server',
+        version: defaultRepoState.images['ldk-server'].latest,
+      });
+      const node = firstNetwork().nodes.lightning.find(
+        n => n.implementation === 'ldk-server',
+      );
+      expect(node).toBeDefined();
+      await store.getActions().network.removeLightningNode({ node: node! });
+      expect(
+        firstNetwork().nodes.lightning.some(n => n.implementation === 'ldk-server'),
+      ).toBe(false);
+      expect(filesMock.rm).toHaveBeenCalledWith(
+        expect.stringContaining('volumes/ldk-server'),
+      );
     });
 
     it('should throw an error if the lightning node network id is invalid', async () => {

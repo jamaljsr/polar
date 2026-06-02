@@ -1,6 +1,5 @@
 import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
-import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
@@ -17,12 +16,14 @@ import {
 import { AutoMineMode, CustomImage, Network, StoreInjections, Simulation } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
+import { nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
+  createLdkServerNetworkNode,
   createLitdNetworkNode,
   createLndNetworkNode,
   createNetwork,
@@ -47,6 +48,7 @@ interface AddNetworkArgs {
   lndNodes: number;
   clightningNodes: number;
   eclairNodes: number;
+  ldkServerNodes?: number;
   bitcoindNodes: number;
   tapdNodes: number;
   litdNodes: number;
@@ -323,6 +325,7 @@ const networkModel: NetworkModel = {
         lndNodes: payload.lndNodes,
         clightningNodes: payload.clightningNodes,
         eclairNodes: payload.eclairNodes,
+        ldkServerNodes: payload.ldkServerNodes ?? 0,
         bitcoindNodes: payload.bitcoindNodes,
         tapdNodes: payload.tapdNodes,
         litdNodes: payload.litdNodes,
@@ -349,6 +352,7 @@ const networkModel: NetworkModel = {
           bitcoind: payload.bitcoindNodes,
           tapd: payload.tapdNodes,
           litd: payload.litdNodes,
+          'ldk-server': payload.ldkServerNodes ?? 0,
           btcd: 0,
         },
       });
@@ -412,6 +416,17 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts.eclair,
+          );
+          network.nodes.lightning.push(node);
+          break;
+        case 'ldk-server':
+          node = createLdkServerNetworkNode(
+            network,
+            version,
+            dockerRepoState.images['ldk-server'].compatibility,
+            docker,
+            undefined,
+            settings.basePorts['ldk-server'],
           );
           network.nodes.lightning.push(node);
           break;
@@ -507,7 +522,9 @@ const networkModel: NetworkModel = {
       }
       await injections.dockerService.saveComposeFile(network);
       // clear cached RPC data
-      if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
+      if (node.implementation === 'LND' || node.implementation === 'ldk-server') {
+        getStoreActions().app.clearAppCache();
+      }
       // remove the node from the chart's redux state
       getStoreActions().designer.removeNode(node.name);
       if (node.implementation === 'litd') {
@@ -518,8 +535,7 @@ const networkModel: NetworkModel = {
       actions.setNetworks([...networks]);
       await actions.save();
       // delete the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      rm(join(network.path, 'volumes', volumeDir, node.name));
+      rm(nodePath(network, node.implementation, node.name));
       // sync the chart
       await getStoreActions().designer.syncChart(network);
     },
@@ -546,8 +562,7 @@ const networkModel: NetworkModel = {
       actions.setNetworks([...networks]);
       await actions.save();
       // delete the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      rm(join(network.path, 'volumes', volumeDir, node.name));
+      rm(nodePath(network, node.implementation, node.name));
       // sync the chart
       await getStoreActions().designer.syncChart(network);
     },
@@ -615,8 +630,7 @@ const networkModel: NetworkModel = {
       actions.setNetworks([...networks]);
       await actions.save();
       // delete the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      rm(join(network.path, 'volumes', volumeDir, node.name));
+      rm(nodePath(network, node.implementation, node.name));
       if (network.status === Status.Started) {
         // wait for the LN nodes to come back online then update the chart
         await Promise.all(
