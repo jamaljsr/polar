@@ -22,7 +22,7 @@ export interface CommonNode {
 
 export interface LightningNode extends CommonNode {
   type: 'lightning';
-  implementation: 'LND' | 'c-lightning' | 'eclair' | 'litd';
+  implementation: 'LND' | 'c-lightning' | 'eclair' | 'litd' | 'ldk-server';
   backendName: string;
   ports: Record<string, number | undefined>;
 }
@@ -124,6 +124,18 @@ export interface LitdNode extends LightningNode {
     grpc: number;
     p2p: number;
     web: number;
+  };
+}
+
+export interface LdkServerNode extends LightningNode {
+  implementation: 'ldk-server';
+  paths: {
+    tlsCert: string;
+    apiKey: string;
+  };
+  ports: {
+    grpc: number;
+    p2p: number;
   };
 }
 

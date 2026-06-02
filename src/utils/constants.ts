@@ -4,6 +4,7 @@ import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
+import ldkServerLogo from 'resources/logo-ldk.png';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
 import packageJson from '../../package.json';
@@ -79,6 +80,10 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     grpc: 13001,
     p2p: 9635,
     web: 8443,
+  },
+  'ldk-server': {
+    grpc: 14036,
+    p2p: 9535,
   },
 };
 
@@ -333,6 +338,26 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       'proofCourier',
     ],
   },
+  'ldk-server': {
+    name: 'LDK Server',
+    imageName: 'polarlightning/ldk-server',
+    logo: ldkServerLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'ldk-server',
+    command: 'ldk-server',
+    env: {
+      LDK_SERVER_NODE_NETWORK: 'regtest',
+      LDK_SERVER_NODE_ALIAS: '{{name}}',
+      LDK_SERVER_NODE_LISTENING_ADDRESSES: '0.0.0.0:9735',
+      LDK_SERVER_NODE_ANNOUNCEMENT_ADDRESSES: '{{name}}:9735',
+      LDK_SERVER_NODE_GRPC_SERVICE_ADDRESS: '0.0.0.0:3536',
+      LDK_SERVER_STORAGE_DIR_PATH: '/home/ldk/.ldk-server',
+      LDK_SERVER_BITCOIND_RPC_ADDRESS: '{{backendName}}:18443',
+      LDK_SERVER_BITCOIND_RPC_USER: '{{rpcUser}}',
+      LDK_SERVER_BITCOIND_RPC_PASSWORD: '{{rpcPass}}',
+    },
+    variables: ['name', 'containerName', 'backendName', 'rpcUser', 'rpcPass'],
+  },
   simln: {
     name: 'simln',
     imageName: 'polarlightning/simln:0.2.5',
@@ -362,7 +387,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 77,
+  version: 78,
   images: {
     LND: {
       latest: '0.20.0-beta',
@@ -456,6 +481,10 @@ export const defaultRepoState: DockerRepoState = {
         '0.15.0-alpha': '30.0',
         '0.14.1-alpha': '30.0',
       },
+    },
+    'ldk-server': {
+      latest: '0.1.0-dev',
+      versions: ['0.1.0-dev'],
     },
   },
 };

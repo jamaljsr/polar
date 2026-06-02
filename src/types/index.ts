@@ -66,6 +66,7 @@ export interface NodeBasePorts {
   eclair: { rest: number };
   bitcoind: { rest: number };
   tapd: { rest: number; grpc: number };
+  'ldk-server': { grpc: number };
 }
 
 export interface AppSettings {
