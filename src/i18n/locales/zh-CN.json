@@ -640,5 +640,7 @@
   "utils.network.backendCompatError": "该网络不包含 {{implementation}} v{{version}} 所需的 Bitcoin Core v{{requiredVersion}} (或更低版本) 节点",
   "utils.network.lndBackendCompatError": "此网络不包含一个 LND v{{requiredVersion}} (或更高)节点，这是 {{implementation}} v{{version}} 所必需的。",
   "utils.network.incompatibleImplementation": "{{platform}} 上不支持导入具有 {{implementation}} 节点的网络",
-  "utils.network.unknownImplementation": "无法导入未知节点实现'{{implementation}}'"
+  "utils.network.unknownImplementation": "无法导入未知节点实现'{{implementation}}'",
+  "cmps.designer.lightning.connect.FilePaths.apiKey": "API Key",
+  "cmps.designer.lightning.connect.EncodedStrings.apiKey": "API Key"
 }

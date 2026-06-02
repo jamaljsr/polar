@@ -83,6 +83,10 @@ const nodeConfig: Record<string, { user: string; commands: string[] }> = {
       'alias tapcli="tapcli --network regtest --rpcserver localhost:8443 --tlscertpath ~/.lit/tls.cert"',
     ],
   },
+  'ldk-server': {
+    user: 'ldk',
+    commands: [],
+  },
 };
 
 /**

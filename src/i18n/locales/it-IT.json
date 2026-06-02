@@ -640,5 +640,7 @@
   "utils.network.backendCompatError": "Questa rete non contiene un nodo Bitcoin Core v{{requiredVersion}} (o inferiore) richiesto per {{implementation}} v{{version}}",
   "utils.network.lndBackendCompatError": "Questa rete non contiene un nodo LND v{{requiredVersion}} (o superiore) che è richiesto per {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "L'importazione di reti con {{implementation}} nodi non è supportata su {{platform}}",
-  "utils.network.unknownImplementation": "Impossibile importare implementazione nodo sconosciuto '{{implementation}}'"
+  "utils.network.unknownImplementation": "Impossibile importare implementazione nodo sconosciuto '{{implementation}}'",
+  "cmps.designer.lightning.connect.FilePaths.apiKey": "API Key",
+  "cmps.designer.lightning.connect.EncodedStrings.apiKey": "API Key"
 }

@@ -640,5 +640,7 @@
   "utils.network.backendCompatError": "Ce réseau ne contient pas de nœud Bitcoin Core v{{requiredVersion}} (ou inférieur) requis pour {{implementation}} v{{version}}",
   "utils.network.lndBackendCompatError": "Ce réseau ne contient pas de noeud LND v{{requiredVersion}} (ou supérieur) requis pour {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "L'importation de réseaux avec {{implementation}} nœuds n'est pas prise en charge sur {{platform}}",
-  "utils.network.unknownImplementation": "Impossible d'importer l'implémentation d'un noeud inconnu '{{implementation}}'"
+  "utils.network.unknownImplementation": "Impossible d'importer l'implémentation d'un noeud inconnu '{{implementation}}'",
+  "cmps.designer.lightning.connect.FilePaths.apiKey": "API Key",
+  "cmps.designer.lightning.connect.EncodedStrings.apiKey": "API Key"
 }
