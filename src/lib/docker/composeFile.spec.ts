@@ -1,4 +1,4 @@
-import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import { CLightningNode, LdkServerNode, LitdNode, LndNode, TapdNode } from 'shared/types';
 import { bitcoinCredentials, defaultRepoState } from 'utils/constants';
 import { createNetwork } from 'utils/network';
 import { testManagedImages } from 'utils/tests';
@@ -16,6 +16,7 @@ describe('ComposeFile', () => {
     bitcoindNodes: 1,
     tapdNodes: 1,
     litdNodes: 1,
+    ldkServerNodes: 1,
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],
@@ -24,7 +25,8 @@ describe('ComposeFile', () => {
   const btcNode = network.nodes.bitcoin[0];
   const lndNode = network.nodes.lightning[0] as LndNode;
   const clnNode = network.nodes.lightning[1] as CLightningNode;
-  const litdNode = network.nodes.lightning[3] as LitdNode;
+  const ldkNode = network.nodes.lightning[3] as LdkServerNode;
+  const litdNode = network.nodes.lightning[4] as LitdNode;
   const tapNode = network.nodes.tap[0] as TapdNode;
 
   beforeEach(() => {
@@ -126,6 +128,21 @@ describe('ComposeFile', () => {
     expect(service.command).toBe('my-command');
   });
 
+  it('should add an ldk-server config', () => {
+    composeFile.addLdkServer(ldkNode, btcNode);
+    expect(composeFile.content.services['dave']).not.toBeUndefined();
+  });
+
+  it('should create the correct ldk-server docker compose values', () => {
+    composeFile.addLdkServer(ldkNode, btcNode);
+    const service = composeFile.content.services['dave'];
+    expect(service.image).toContain('ldk-server');
+    expect(service.container_name).toEqual('polar-n1-dave');
+    expect(service.environment?.LDK_SERVER_BITCOIND_RPC_USER).toEqual('polaruser');
+    expect(service.volumes[0]).toContain('/dave:');
+    expect(service.ports).toContain(`${ldkNode.ports.grpc}:3536`);
+  });
+
   it('should add an tap config', () => {
     composeFile.addTapd(tapNode, lndNode);
     expect(composeFile.content.services['alice-tap']).not.toBeUndefined();
@@ -171,24 +188,24 @@ describe('ComposeFile', () => {
 
   it('should add an litd config', () => {
     composeFile.addLitd(litdNode, btcNode, litdNode);
-    expect(composeFile.content.services['dave']).not.toBeUndefined();
+    expect(composeFile.content.services[litdNode.name]).not.toBeUndefined();
   });
 
   it('should create the correct litd docker compose values', () => {
     composeFile.addLitd(litdNode, btcNode, litdNode);
-    const service = composeFile.content.services['dave'];
+    const service = composeFile.content.services[litdNode.name];
     expect(service.image).toContain('litd');
-    expect(service.container_name).toEqual('polar-n1-dave');
+    expect(service.container_name).toEqual(`polar-n1-${litdNode.name}`);
     expect(service.command).toContain('lnd.bitcoind.rpchost=polar-n1-backend1');
-    expect(service.volumes[0]).toContain('/dave/lit:');
-    expect(service.volumes[1]).toContain('/dave/lnd:');
-    expect(service.volumes[2]).toContain('/dave/tapd:');
+    expect(service.volumes[0]).toContain(`/${litdNode.name}/lit:`);
+    expect(service.volumes[1]).toContain(`/${litdNode.name}/lnd:`);
+    expect(service.volumes[2]).toContain(`/${litdNode.name}/tapd:`);
   });
 
-  it('should use the tapd nodes custom docker data', () => {
+  it('should use the litd nodes custom docker data', () => {
     litdNode.docker = { image: 'my-image', command: 'my-command' };
     composeFile.addLitd(litdNode, btcNode, litdNode);
-    const service = composeFile.content.services['dave'];
+    const service = composeFile.content.services[litdNode.name];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
   });

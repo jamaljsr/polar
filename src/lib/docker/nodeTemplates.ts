@@ -182,6 +182,34 @@ export const litd = (
   ],
 });
 
+export const ldkServer = (
+  name: string,
+  container: string,
+  image: string,
+  grpcPort: number,
+  p2pPort: number,
+  command: string,
+  environment: Record<string, string>,
+): ComposeService => ({
+  image,
+  container_name: container,
+  hostname: name,
+  command: trimInside(command),
+  restart: 'always',
+  environment,
+  volumes: [
+    `./volumes/${dockerConfigs['ldk-server'].volumeDirName}/${name}:/home/ldk/.ldk-server`,
+  ],
+  expose: [
+    '3536', // gRPC
+    '9735', // p2p
+  ],
+  ports: [
+    `${grpcPort}:3536`, // gRPC
+    `${p2pPort}:9735`, // p2p
+  ],
+});
+
 export const simln = (
   name: string,
   container: string,

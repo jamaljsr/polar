@@ -15,6 +15,7 @@ import { defaultRepoState } from './constants';
 import {
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
+  createLdkServerNetworkNode,
   createLitdNetworkNode,
   createLndNetworkNode,
   createNetwork,
@@ -23,6 +24,7 @@ import {
   getImageCommand,
   getInvoicePayload,
   getLndFilePaths,
+  getLdkServerFilePaths,
   getOpenPortRange,
   getOpenPorts,
   getTapdFilePaths,
@@ -647,6 +649,21 @@ describe('Network Utils', () => {
         testNodeDocker,
       );
       expect(() => mapToTapd(lnd)).toThrow(`Node "${lnd.name}" is not a litd node`);
+    });
+  });
+
+  describe('createLdkServerNetworkNode', () => {
+    it('should create an ldk-server node with file paths and ports', () => {
+      const network = getNetwork();
+      const node = createLdkServerNetworkNode(
+        network,
+        defaultRepoState.images['ldk-server'].latest,
+        defaultRepoState.images['ldk-server'].compatibility,
+        testNodeDocker,
+      );
+      expect(node.implementation).toBe('ldk-server');
+      expect(node.ports.grpc).toBeGreaterThan(0);
+      expect(node.paths).toEqual(getLdkServerFilePaths(node.name, network));
     });
   });
 });

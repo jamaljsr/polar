@@ -3,6 +3,7 @@ import {
   CLightningNode,
   CommonNode,
   EclairNode,
+  LdkServerNode,
   LitdNode,
   LndNode,
   TapdNode,
@@ -14,7 +15,16 @@ import {
   litdCredentials,
 } from 'utils/constants';
 import { getContainerName, getDefaultCommand } from 'utils/network';
-import { bitcoind, clightning, eclair, litd, lnd, tapd, simln } from './nodeTemplates';
+import {
+  bitcoind,
+  clightning,
+  eclair,
+  litd,
+  ldkServer,
+  lnd,
+  tapd,
+  simln,
+} from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -149,6 +159,26 @@ class ComposeFile {
     this.addService(svc);
   }
 
+  addLdkServer(node: LdkServerNode, backend: CommonNode) {
+    const { name, version, ports } = node;
+    const { grpc, p2p } = ports;
+    const container = getContainerName(node);
+    const variables = {
+      name: node.name,
+      containerName: container,
+      backendName: getContainerName(backend),
+      rpcUser: bitcoinCredentials.user,
+      rpcPass: bitcoinCredentials.pass,
+    };
+    const image =
+      node.docker.image || `${dockerConfigs['ldk-server'].imageName}:${version}`;
+    const nodeCommand = node.docker.command || getDefaultCommand('ldk-server', version);
+    const command = this.mergeCommand(nodeCommand, variables);
+    const environment = this.mergeEnv(dockerConfigs['ldk-server'].env || {}, variables);
+    const svc = ldkServer(name, container, image, grpc, p2p, command, environment);
+    this.addService(svc);
+  }
+
   addLitd(node: LitdNode, backend: CommonNode, proofCourier: CommonNode) {
     const { name, version, ports } = node;
     const { rest, grpc, p2p, web } = ports;
@@ -208,6 +238,14 @@ class ComposeFile {
       // intentionally not using .replace() because if a string is passed in, then only the first occurrence
       // is replaced. A RegExp could be used but the code would be more confusing because of escape chars
       merged = merged.split(`{{${key}}}`).join(variables[key]);
+    });
+    return merged;
+  }
+
+  private mergeEnv(env: Record<string, string>, variables: Record<string, string>) {
+    const merged: Record<string, string> = {};
+    Object.entries(env).forEach(([key, value]) => {
+      merged[key] = this.mergeCommand(value, variables);
     });
     return merged;
   }
