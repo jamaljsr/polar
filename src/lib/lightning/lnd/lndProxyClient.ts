@@ -114,6 +114,10 @@ class LndProxyClient {
       debug('LndProxyClient: unsubscribeEvents deleted', channel);
     }
   }
+
+  async getState(node: LndNode): Promise<LND.GetStateResponse> {
+    return await this.ipc(ipcChannels.getState, { node });
+  }
 }
 
 export default new LndProxyClient();

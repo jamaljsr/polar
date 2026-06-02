@@ -15,7 +15,7 @@ import {
   TapNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
-import { delay } from 'utils/async';
+import { AbortWaitError, delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -883,9 +883,13 @@ const networkModel: NetworkModel = {
               .then(async () => {
                 actions.setStatus({ id, status: Status.Started, only: ln.name });
               })
-              .catch(error =>
-                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
-              );
+              .catch(error => {
+                if (error instanceof AbortWaitError && ln.implementation === 'LND') {
+                  actions.setStatus({ id, status: Status.Locked, only: ln.name });
+                } else {
+                  actions.setStatus({ id, status: Status.Error, only: ln.name, error });
+                }
+              });
           } else {
             const litd = ln as LitdNode;
             promise = injections.litdService
