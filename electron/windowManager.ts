@@ -10,6 +10,7 @@ import {
   clearLndProxyCache,
   initLndProxy,
   initLndSubscriptions,
+  initLndWalletUnlockerProxy,
 } from './lnd/lndProxyServer';
 import { startMcpBridge } from './mcpBridge';
 import { initTapdProxy } from './tapd/tapdProxyServer';
@@ -27,6 +28,7 @@ class WindowManager {
       initLitdProxy(ipcMain);
       initAppIpcListener(ipcMain);
       initLndSubscriptions(this.sendMessageToRenderer);
+      initLndWalletUnlockerProxy(ipcMain);
       // Start MCP bridge after main window is created
       if (this.mainWindow) {
         startMcpBridge(this.mainWindow);

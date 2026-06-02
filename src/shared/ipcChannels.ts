@@ -25,6 +25,7 @@ export default {
   setupListener: 'setup-listener',
   removeListener: 'remove-listener',
   subscribeChannelEvents: 'subscribe-channel-events',
+  getState: 'get-state',
   // tapd proxy channels
   tapd: {
     listAssets: 'tapd-list-assets',
