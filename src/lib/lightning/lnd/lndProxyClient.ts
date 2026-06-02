@@ -15,7 +15,7 @@ type IpcListener = (event: IpcStreamEvent, data: any) => void;
 class LndProxyClient {
   ipc: IpcSender;
   streamer: IpcStreamer;
-  listeners: Record<string, IpcListener> = {};
+  listeners: Record<string, { listener: IpcListener; replyTo: string }> = {};
 
   constructor() {
     this.ipc = createIpcSender('LndProxyClient', 'lnd');
@@ -100,16 +100,20 @@ class LndProxyClient {
       debug('LndProxyClient: listener', data);
       callback(data);
     };
-    this.listeners[channel] = listener;
-    // subscribe to the stream
-    this.streamer.subscribe(ipcChannels.subscribeChannelEvents, { node }, listener);
+    const replyTo = this.streamer.subscribe(
+      ipcChannels.subscribeChannelEvents,
+      { node },
+      listener,
+    );
+    this.listeners[channel] = { listener, replyTo };
   }
 
   unsubscribeEvents(node: LndNode) {
     const channel = `${ipcChannels.subscribeChannelEvents}-${node.ports.rest}`;
-    if (this.listeners[channel]) {
+    const entry = this.listeners[channel];
+    if (entry) {
       // unsubscribe from the stream
-      this.streamer.unsubscribe(channel, this.listeners[channel]);
+      this.streamer.unsubscribe(entry.replyTo, entry.listener);
       delete this.listeners[channel];
       debug('LndProxyClient: unsubscribeEvents deleted', channel);
     }

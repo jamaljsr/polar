@@ -8,8 +8,8 @@ export type IpcStreamEvent = IpcRendererEvent;
 export type IpcStreamCallback = (event: IpcStreamEvent, res: any) => void;
 
 export type IpcStreamer = {
-  subscribe: (channel: string, payload: any, callback: IpcStreamCallback) => void;
-  unsubscribe: (channel: string, callback: IpcStreamCallback) => void;
+  subscribe: (channel: string, payload: any, callback: IpcStreamCallback) => string;
+  unsubscribe: (replyTo: string, callback: IpcStreamCallback) => void;
 };
 
 /**
@@ -63,7 +63,11 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
 };
 
 export const createIpcStreamer = (serviceName: string, prefix: string): IpcStreamer => {
-  const subscribe = (channel: string, payload: any, callback: IpcStreamCallback) => {
+  const subscribe = (
+    channel: string,
+    payload: any,
+    callback: IpcStreamCallback,
+  ): string => {
     const reqChan = `${prefix}-${channel}-request`;
     const subChan = `${prefix}-${channel}-stream`;
     // set the response channel dynamically to avoid race conditions
@@ -75,18 +79,18 @@ export const createIpcStreamer = (serviceName: string, prefix: string): IpcStrea
     };
 
     // subscribe to the ipc channel and listen for the response
-    debug(`${serviceName}: [subscribe] "${subChan}"`);
+    debug(`${serviceName}: [subscribe] "${uniqPayload.replyTo}"`);
     ipcRenderer.on(uniqPayload.replyTo, callback);
 
     // send the request to the main process
     debug(`${serviceName}: [request] "${reqChan}"`, toJSON(stripNode(uniqPayload)));
     ipcRenderer.send(reqChan, uniqPayload);
+    return uniqPayload.replyTo;
   };
 
-  const unsubscribe = (channel: string, callback: IpcStreamCallback) => {
-    const subChan = `${prefix}-${channel}-stream`;
-    debug(`${serviceName}: [unsubscribe] "${subChan}"`);
-    ipcRenderer.off(subChan, callback);
+  const unsubscribe = (replyTo: string, callback: IpcStreamCallback) => {
+    debug(`${serviceName}: [unsubscribe] "${replyTo}"`);
+    ipcRenderer.off(replyTo, callback);
   };
 
   return { subscribe, unsubscribe };
