@@ -1,6 +1,7 @@
 import { LightningNode } from 'shared/types';
 import { clightningService } from 'lib/lightning/clightning';
 import { eclairService } from 'lib/lightning/eclair';
+import { ldkServerService } from 'lib/lightning/ldk-server';
 import { lndService } from 'lib/lightning/lnd';
 import { LightningService } from 'types';
 
@@ -20,6 +21,7 @@ class LightningFactory {
       'c-lightning': clightningService,
       eclair: eclairService,
       litd: lndService,
+      'ldk-server': ldkServerService,
     };
   }
 
