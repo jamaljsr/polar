@@ -28,7 +28,7 @@
     "package:ci": "yarn package --publish onTagOrDraft",
     "package:electron": "electron-builder build -c.extraMetadata.main=build/main/electron/index.js --config .electronbuildrc",
     "postinstall": "electron-builder install-app-deps && patch-package && husky",
-    "prebuild": "tsc -p electron/tsconfig.json && yarn theme",
+    "prebuild": "tsc -p electron/tsconfig.json && mkdir -p public/main/electron/ldk/proto && cp electron/ldk/proto/*.proto public/main/electron/ldk/proto/ && yarn theme",
     "release": "standard-version --no-verify --skip.commit --skip.tag",
     "start": "rescripts --openssl-legacy-provider start",
     "test": "cross-env DEBUG_PRINT_LIMIT=15000 rescripts test --env=jest-environment-jsdom-sixteen",
@@ -40,9 +40,13 @@
     "theme": "yarn theme:light && yarn theme:dark",
     "theme:light": "lessc --quiet --include-path=node_modules --js ./src/theme/light.less ./public/themes/light.css",
     "theme:dark": "lessc --quiet --include-path=node_modules --js ./src/theme/dark.less ./public/themes/dark.css",
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "docker:ldk-server": "docker build -f docker/ldk-server/Dockerfile -t polarlightning/ldk-server:0.1.0-dev .",
+    "docker:ldk-server:local": "docker build -f docker/ldk-server/Dockerfile.local --build-context ldk-server=../../ldk-server/ldk-server -t polarlightning/ldk-server:0.1.0-dev ."
   },
   "dependencies": {
+    "@grpc/grpc-js": "1.12.6",
+    "@grpc/proto-loader": "0.7.13",
     "@lightningpolar/litd-api": "0.16.0-alpha",
     "@lightningpolar/lnd-api": "0.20.0-beta",
     "@lightningpolar/tapd-api": "0.7.0-alpha",
@@ -196,5 +200,6 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

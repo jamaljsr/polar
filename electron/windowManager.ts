@@ -7,6 +7,11 @@ import { appMenuTemplate } from './appMenu';
 import { APP_ROOT, BASE_URL, IS_DEV } from './constants';
 import { initLitdProxy } from './litd/litdProxyServer';
 import {
+  clearLdkProxyCache,
+  initLdkProxy,
+  initLdkSubscriptions,
+} from './ldk/ldkProxyServer';
+import {
   clearLndProxyCache,
   initLndProxy,
   initLndSubscriptions,
@@ -23,10 +28,12 @@ class WindowManager {
     app.on('ready', async () => {
       await this.createMainWindow();
       initLndProxy(ipcMain);
+      initLdkProxy(ipcMain);
       initTapdProxy(ipcMain);
       initLitdProxy(ipcMain);
       initAppIpcListener(ipcMain);
       initLndSubscriptions(this.sendMessageToRenderer);
+      initLdkSubscriptions(this.sendMessageToRenderer);
       // Start MCP bridge after main window is created
       if (this.mainWindow) {
         startMcpBridge(this.mainWindow);
@@ -82,7 +89,10 @@ class WindowManager {
     this.mainWindow.loadURL(BASE_URL);
 
     // clear the proxy cached data if the window is reloaded
-    this.mainWindow.webContents.on('did-finish-load', clearLndProxyCache);
+    this.mainWindow.webContents.on('did-finish-load', () => {
+      clearLndProxyCache();
+      clearLdkProxyCache();
+    });
 
     mainState.manage(this.mainWindow);
   }
