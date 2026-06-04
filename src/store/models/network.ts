@@ -803,7 +803,10 @@ const networkModel: NetworkModel = {
   }),
   stopAll: thunk(async (actions, _, { getState }) => {
     let networks = getState().networks.filter(
-      n => n.status === Status.Started || n.status === Status.Stopping,
+      n =>
+        n.status === Status.Started ||
+        n.status === Status.Stopping ||
+        n.status === Status.Locked,
     );
     if (networks.length === 0) {
       ipcRenderer.send('docker-shut-down');
@@ -813,7 +816,10 @@ const networkModel: NetworkModel = {
     });
     setInterval(async () => {
       networks = getState().networks.filter(
-        n => n.status === Status.Started || n.status === Status.Stopping,
+        n =>
+          n.status === Status.Started ||
+          n.status === Status.Stopping ||
+          n.status === Status.Locked,
       );
       if (networks.length === 0) {
         await actions.save();
@@ -826,7 +832,7 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     if (network.status === Status.Stopped || network.status === Status.Error) {
       await actions.start(network.id);
-    } else if (network.status === Status.Started) {
+    } else if (network.status === Status.Started || network.status === Status.Locked) {
       await actions.stop(network.id);
     }
     await actions.save();
@@ -851,7 +857,7 @@ const networkModel: NetworkModel = {
       }
       await injections.dockerService.startNode(network, node);
       actions.monitorStartup([node]);
-    } else if (node.status === Status.Started) {
+    } else if (node.status === Status.Started || node.status === Status.Locked) {
       // stop the node container
       actions.setStatus({ id: network.id, status: Status.Stopping, only });
       await injections.dockerService.stopNode(network, node);
@@ -1125,7 +1131,7 @@ const networkModel: NetworkModel = {
   }),
   renameNode: thunk(
     async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
-      const wasStarted = node.status === Status.Started;
+      const wasStarted = node.status === Status.Started || node.status === Status.Locked;
 
       if (wasStarted) {
         await actions.stop(node.networkId);

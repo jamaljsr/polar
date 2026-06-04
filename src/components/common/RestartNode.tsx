@@ -23,7 +23,7 @@ const RestartNode: React.FC<Props> = ({ node, menuType }) => {
   const { toggleNode } = useStoreActions(s => s.network);
 
   const disabled = [Status.Starting, Status.Stopping].includes(node.status);
-  const showStop = node.status === Status.Started;
+  const showStop = node.status === Status.Started || node.status === Status.Locked;
 
   const showConfirmModal = (mode: string) => {
     const { name } = node;

@@ -64,7 +64,7 @@ export const stopNodeTool = thunk<
   const node = findNode(network, args.nodeName);
 
   // Check if node can be stopped
-  if (node.status !== Status.Started) {
+  if (node.status !== Status.Started && node.status !== Status.Locked) {
     throw new Error(
       `Cannot stop node "${args.nodeName}". Node is currently ${Status[node.status]}. ` +
         'Only Started nodes can be stopped.',

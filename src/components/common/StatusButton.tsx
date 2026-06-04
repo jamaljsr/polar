@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
+import { PlayCircleOutlined, StopOutlined, WarningOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { Button } from 'antd';
-import { Status } from 'shared/types';
 import { ButtonType } from 'antd/lib/button';
-import { PlayCircleOutlined, StopOutlined, WarningOutlined } from '@ant-design/icons';
+import { Status } from 'shared/types';
 
 const Styled = {
   Button: styled(Button, {
@@ -54,6 +54,12 @@ const config: {
     type: 'primary',
     danger: true,
     icon: <WarningOutlined />,
+  },
+  [Status.Locked]: {
+    label: 'Stop',
+    type: 'primary',
+    danger: true,
+    icon: <StopOutlined />,
   },
 };
 
