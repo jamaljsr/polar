@@ -1,6 +1,5 @@
 import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
-import { join } from 'path';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
@@ -14,9 +13,10 @@ import {
   TapdNode,
   TapNode,
 } from 'shared/types';
-import { AutoMineMode, CustomImage, Network, StoreInjections, Simulation } from 'types';
+import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
+import { nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
@@ -518,8 +518,7 @@ const networkModel: NetworkModel = {
       actions.setNetworks([...networks]);
       await actions.save();
       // delete the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      rm(join(network.path, 'volumes', volumeDir, node.name));
+      await rm(nodePath(network, node.implementation, node.name));
       // sync the chart
       await getStoreActions().designer.syncChart(network);
     },
@@ -546,8 +545,7 @@ const networkModel: NetworkModel = {
       actions.setNetworks([...networks]);
       await actions.save();
       // delete the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      rm(join(network.path, 'volumes', volumeDir, node.name));
+      await rm(nodePath(network, node.implementation, node.name));
       // sync the chart
       await getStoreActions().designer.syncChart(network);
     },
@@ -615,8 +613,7 @@ const networkModel: NetworkModel = {
       actions.setNetworks([...networks]);
       await actions.save();
       // delete the docker volume data from disk
-      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
-      rm(join(network.path, 'volumes', volumeDir, node.name));
+      await rm(nodePath(network, node.implementation, node.name));
       if (network.status === Status.Started) {
         // wait for the LN nodes to come back online then update the chart
         await Promise.all(
