@@ -70,7 +70,11 @@ export const restartNodeTool = thunk<
     const node = findNode(network, args.nodeName);
 
     // Check if node can be restarted
-    if (node.status !== Status.Started && node.status !== Status.Error) {
+    if (
+      node.status !== Status.Started &&
+      node.status !== Status.Error &&
+      node.status !== Status.Locked
+    ) {
       throw new Error(
         `Cannot restart node "${args.nodeName}". Node is currently ${
           Status[node.status]
