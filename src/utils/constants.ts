@@ -135,7 +135,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     name: 'Core Lightning',
     imageName: 'polarlightning/clightning',
     logo: clightningLogo,
-    platforms: ['mac', 'linux'],
+    platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'c-lightning',
     command: [
       'lightningd',

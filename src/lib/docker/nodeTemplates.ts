@@ -72,6 +72,7 @@ export const clightning = (
   grpcPort: number,
   p2pPort: number,
   command: string,
+  regtestVolumeName?: string,
 ): ComposeService => ({
   image,
   container_name: container,
@@ -81,6 +82,13 @@ export const clightning = (
   volumes: [
     `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/${dockerConfigs['c-lightning'].dataDir}:/home/clightning/.lightning`,
     `./volumes/${dockerConfigs['c-lightning'].volumeDirName}/${name}/${dockerConfigs['c-lightning'].apiDir}:/opt/c-lightning-rest/certs`,
+    // On Windows, mount a named volume over just the `regtest` subdir. CLN's
+    // gossipd cannot write+rename gossip_store on a Windows bind mount, but the
+    // rest of the data dir (debug.log, admin.rune) stays on the host bind so
+    // logs and files remain visible/tailable on the host.
+    ...(regtestVolumeName
+      ? [`${regtestVolumeName}:/home/clightning/.lightning/regtest`]
+      : []),
   ],
   expose: [
     '8080', // REST
@@ -188,6 +196,7 @@ export const simln = (
   image: string,
   command: string,
   environment: Record<string, string>,
+  extraVolumes: string[] = [],
 ): ComposeService => ({
   image,
   container_name: container,
@@ -200,6 +209,10 @@ export const simln = (
     `./volumes/${dockerConfigs.LND.volumeDirName}:/home/simln/.lnd`,
     `./volumes/${dockerConfigs['c-lightning'].volumeDirName}:/home/simln/.c-lightning`,
     `./volumes/${dockerConfigs.litd.volumeDirName}:/home/simln/.litd`,
+    // On Windows, CLN gRPC certs live in named volumes (see `clightning`), so
+    // they aren't visible via the host bind above. Mount each CLN's regtest
+    // volume so SimLN can read the certs at the path it expects.
+    ...extraVolumes,
   ],
   expose: [],
   ports: [],

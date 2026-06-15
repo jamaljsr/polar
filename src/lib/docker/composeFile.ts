@@ -13,7 +13,12 @@ import {
   eclairCredentials,
   litdCredentials,
 } from 'utils/constants';
-import { getContainerName, getDefaultCommand } from 'utils/network';
+import {
+  getContainerName,
+  getDefaultCommand,
+  getCLightningVolumeName,
+} from 'utils/network';
+import { isWindows } from 'utils/system';
 import { bitcoind, clightning, eclair, litd, lnd, tapd, simln } from './nodeTemplates';
 
 export interface ComposeService {
@@ -33,6 +38,12 @@ export interface ComposeContent {
   name: string;
   services: {
     [key: string]: ComposeService;
+  };
+  // top-level named volumes, keyed by volume name. An explicit `name` is set so
+  // docker-compose doesn't prefix it with the project name, keeping a single
+  // canonical volume name that the dockerService can reference directly.
+  volumes?: {
+    [key: string]: { name: string };
   };
 }
 
@@ -121,8 +132,25 @@ class ComposeFile {
     if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
+    // On Windows, register a named volume for CLN's `regtest` data directory so
+    // gossipd can write/rename gossip_store on the docker VM's ext4 filesystem.
+    let regtestVolumeName: string | undefined;
+    if (isWindows()) {
+      regtestVolumeName = getCLightningVolumeName(node);
+      if (!this.content.volumes) this.content.volumes = {};
+      this.content.volumes[regtestVolumeName] = { name: regtestVolumeName };
+    }
     // add the docker service
-    const svc = clightning(name, container, image, rest, grpc, p2p, command);
+    const svc = clightning(
+      name,
+      container,
+      image,
+      rest,
+      grpc,
+      p2p,
+      command,
+      regtestVolumeName,
+    );
     this.addService(svc);
   }
 
@@ -195,10 +223,20 @@ class ComposeFile {
     this.addService(svc);
   }
 
-  addSimln(networkId: number) {
+  addSimln(networkId: number, clightningNodes: CLightningNode[] = []) {
     const { name, imageName, command, env } = dockerConfigs.simln;
     const containerName = `polar-n${networkId}-simln`;
-    const svc = simln(name, containerName, imageName, command, { ...env });
+    // On Windows, CLN gRPC certs live in named volumes. Mount each CLN's regtest
+    // volume into SimLN at the path it reads certs from so it can connect.
+    const extraVolumes = isWindows()
+      ? clightningNodes.map(
+          node =>
+            `${getCLightningVolumeName(node)}:/home/simln/.${
+              dockerConfigs['c-lightning'].volumeDirName
+            }/${node.name}/${dockerConfigs['c-lightning'].dataDir}/regtest:ro`,
+        )
+      : [];
+    const svc = simln(name, containerName, imageName, command, { ...env }, extraVolumes);
     this.addService(svc);
   }
 

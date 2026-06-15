@@ -6,6 +6,7 @@ import { v2 as compose } from 'docker-compose';
 import Dockerode from 'dockerode';
 import yaml from 'js-yaml';
 import os from 'os';
+import * as tarFs from 'tar-fs';
 import {
   AnyNode,
   BitcoinNode,
@@ -30,8 +31,8 @@ import { legacyDataPath, networksPath, nodePath } from 'utils/config';
 import { APP_VERSION, dockerConfigs, eclairCredentials } from 'utils/constants';
 import { exists, read, renameFile, rm, write } from 'utils/files';
 import { migrateNetworksFile } from 'utils/migrations';
-import { getContainerName } from 'utils/network';
-import { isLinux, isMac } from 'utils/system';
+import { getContainerName, getCLightningVolumeName } from 'utils/network';
+import { isLinux, isMac, isWindows } from 'utils/system';
 import ComposeFile from './composeFile';
 
 let dockerInst: Dockerode | undefined;
@@ -171,7 +172,10 @@ class DockerService implements DockerLibrary {
     });
 
     if (network.simulation) {
-      file.addSimln(network.id);
+      const clightningNodes = lightning.filter(
+        n => n.implementation === 'c-lightning',
+      ) as CLightningNode[];
+      file.addSimln(network.id, clightningNodes);
     }
 
     const yml = yaml.dump(file.content);
@@ -271,6 +275,118 @@ class DockerService implements DockerLibrary {
     }
 
     if (await exists(oldPath)) renameFile(oldPath, newPath);
+  }
+
+  /**
+   * Removes the named docker volume backing a Core Lightning node's `regtest`
+   * directory. Only used on Windows, where CLN's regtest data lives in a named
+   * volume instead of a host bind mount. No-op on other platforms or if the
+   * volume doesn't exist.
+   * @param node the Core Lightning node whose volume should be removed
+   */
+  async removeCLightningVolume(node: CLightningNode) {
+    if (!isWindows()) return;
+    const volumeName = getCLightningVolumeName(node);
+    try {
+      const docker = await getDocker();
+      await docker.getVolume(volumeName).remove({ force: true });
+      info(`Removed docker volume '${volumeName}'`);
+    } catch (error: any) {
+      // ignore "no such volume" errors so deletes/exports don't fail
+      info(`Could not remove docker volume '${volumeName}': ${error.message}`);
+    }
+  }
+
+  /**
+   * Copies the contents of a Core Lightning node's `regtest` named volume to the
+   * corresponding host directory. Only used on Windows, where the regtest dir is
+   * backed by a named volume so its contents aren't on the host bind mount. This
+   * is used before exporting a network so the exported zip contains the regtest
+   * state. The `lightning-rpc` UNIX socket is excluded since it can't be copied.
+   * @param network the network containing the node
+   * @param node the Core Lightning node whose volume should be copied
+   */
+  async copyCLightningVolumeToHost(network: Network, node: CLightningNode) {
+    if (!isWindows()) return;
+    const volumeName = getCLightningVolumeName(node);
+    const hostRegtestPath = join(
+      nodePath(network, node.implementation, node.name),
+      dockerConfigs['c-lightning'].dataDir as string,
+      'regtest',
+    );
+    await ensureDir(hostRegtestPath);
+    // use a throwaway busybox container to copy the volume contents to the host
+    // regtest dir, excluding the `lightning-rpc` UNIX socket (which can't be
+    // copied). Docker Desktop accepts forward-slash host paths in binds.
+    const docker = await getDocker();
+    const container = await docker.createContainer({
+      Image: 'busybox',
+      HostConfig: {
+        Binds: [`${volumeName}:/from:ro`, `${hostRegtestPath.replace(/\\/g, '/')}:/to`],
+        AutoRemove: true,
+      },
+      Cmd: ['sh', '-c', 'cp -a /from/. /to/ && rm -f /to/lightning-rpc'],
+    });
+    await container.start();
+    await container.wait();
+    info(`Copied docker volume '${volumeName}' to '${hostRegtestPath}'`);
+  }
+
+  /**
+   * Copies the Core Lightning gRPC TLS certs (`*.pem`) from a running node's
+   * `regtest` named volume to the corresponding host directory. Only used on
+   * Windows, where the regtest dir is backed by a named volume so the certs
+   * aren't visible on the host bind mount. This is needed because Polar displays
+   * the host cert paths so users can connect external gRPC apps to the node.
+   *
+   * The cln-grpc plugin generates the certs shortly after the node starts, which
+   * may be slightly after the REST interface (which `waitUntilOnline` checks) is
+   * ready, so this retries a few times until at least one cert is copied.
+   * @param network the network containing the node
+   * @param node the Core Lightning node whose certs should be copied
+   */
+  async copyCLightningCertsToHost(network: Network, node: CLightningNode) {
+    if (!isWindows()) return;
+    const hostLightningdPath = join(
+      nodePath(network, node.implementation, node.name),
+      dockerConfigs['c-lightning'].dataDir as string,
+    );
+    const hostRegtestPath = join(hostLightningdPath, 'regtest');
+    await ensureDir(hostRegtestPath);
+    const docker = await getDocker();
+    const container = docker.getContainer(getContainerName(node));
+
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      // getArchive returns a tar stream whose entries are prefixed with
+      // `regtest/`, so extracting into the `lightningd` dir lands the certs at
+      // `lightningd/regtest/*.pem` to match the paths displayed in the UI
+      const stream = await container.getArchive({
+        path: '/home/clightning/.lightning/regtest',
+      });
+      const pemFiles: string[] = [];
+      const extractor = tarFs.extract(hostLightningdPath, {
+        ignore: name => {
+          const keep = name.endsWith('.pem');
+          if (keep) pemFiles.push(name);
+          return !keep;
+        },
+      });
+      await new Promise<void>((resolve, reject) => {
+        stream.on('error', reject);
+        extractor.on('error', reject);
+        extractor.on('finish', () => resolve());
+        (stream as NodeJS.ReadableStream).pipe(extractor);
+      });
+      if (pemFiles.length) {
+        info(`Copied ${pemFiles.length} c-lightning cert(s) to '${hostRegtestPath}'`);
+        return;
+      }
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    info(`No c-lightning certs found to copy for '${node.name}'`);
   }
 
   /**

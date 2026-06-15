@@ -5,6 +5,7 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
   BitcoinNode,
+  CLightningNode,
   CommonNode,
   LightningNode,
   LitdNode,
@@ -506,6 +507,10 @@ const networkModel: NetworkModel = {
         await injections.dockerService.removeNode(network, node);
       }
       await injections.dockerService.saveComposeFile(network);
+      // remove the CLN regtest docker volume (Windows only; no-op elsewhere)
+      if (node.implementation === 'c-lightning') {
+        await injections.dockerService.removeCLightningVolume(node as CLightningNode);
+      }
       // clear cached RPC data
       if (node.implementation === 'LND') getStoreActions().app.clearAppCache();
       // remove the node from the chart's redux state
@@ -876,6 +881,14 @@ const networkModel: NetworkModel = {
               .getService(ln)
               .waitUntilOnline(ln)
               .then(async () => {
+                // on Windows, copy the CLN gRPC certs from the named volume to
+                // the host so the cert paths shown in the UI resolve to files
+                if (ln.implementation === 'c-lightning') {
+                  await injections.dockerService.copyCLightningCertsToHost(
+                    network,
+                    ln as CLightningNode,
+                  );
+                }
                 actions.setStatus({ id, status: Status.Started, only: ln.name });
               })
               .catch(error =>
@@ -958,7 +971,7 @@ const networkModel: NetworkModel = {
     actions.setNetworks(networks);
     await actions.save();
   }),
-  remove: thunk(async (actions, networkId, { getState, getStoreActions }) => {
+  remove: thunk(async (actions, networkId, { getState, getStoreActions, injections }) => {
     const { networks } = getState();
     const network = networks.find(n => n.id === networkId);
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
@@ -969,6 +982,12 @@ const networkModel: NetworkModel = {
     ];
     if (statuses.find(n => n !== Status.Stopped)) {
       await actions.stop(networkId);
+    }
+    // remove CLN regtest docker volumes (Windows only; no-op elsewhere)
+    for (const node of network.nodes.lightning) {
+      if (node.implementation === 'c-lightning') {
+        await injections.dockerService.removeCLightningVolume(node as CLightningNode);
+      }
     }
     await rm(network.path);
     const newNetworks = networks.filter(n => n.id !== networkId);
@@ -983,34 +1002,49 @@ const networkModel: NetworkModel = {
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),
-  exportNetwork: thunk(async (actions, { id }, { getState, getStoreState }) => {
-    const { networks } = getState();
-    const network = networks.find(n => n.id === id);
-    if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
-    // only export stopped networks
-    if (![Status.Error, Status.Stopped].includes(network.status)) {
-      throw new Error(l('exportBadStatus'));
-    }
-    const defaultName = network.name.replace(/\s/g, '-').replace(/[^0-9a-zA-Z-._]/g, '');
-    const options: SaveDialogOptions = {
-      title: l('exportTitle', { name: network.name }),
-      defaultPath: `${defaultName}.polar.zip`,
-      properties: ['promptToCreate', 'createDirectory'],
-    } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
-    const { filePath } = await remote.dialog.showSaveDialog(options);
+  exportNetwork: thunk(
+    async (actions, { id }, { getState, getStoreState, injections }) => {
+      const { networks } = getState();
+      const network = networks.find(n => n.id === id);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
+      // only export stopped networks
+      if (![Status.Error, Status.Stopped].includes(network.status)) {
+        throw new Error(l('exportBadStatus'));
+      }
+      const defaultName = network.name
+        .replace(/\s/g, '-')
+        .replace(/[^0-9a-zA-Z-._]/g, '');
+      const options: SaveDialogOptions = {
+        title: l('exportTitle', { name: network.name }),
+        defaultPath: `${defaultName}.polar.zip`,
+        properties: ['promptToCreate', 'createDirectory'],
+      } as any; // types are broken, but 'properties' allow us to customize how the dialog performs
+      const { filePath } = await remote.dialog.showSaveDialog(options);
 
-    // user aborted dialog
-    if (!filePath) {
-      info('User aborted network export');
-      return;
-    }
+      // user aborted dialog
+      if (!filePath) {
+        info('User aborted network export');
+        return;
+      }
 
-    info(`exporting network '${network.name}' to '${filePath}'`);
-    const { activeChart } = getStoreState().designer;
-    await zipNetwork(network, activeChart, filePath);
-    info('exported network successfully');
-    return filePath;
-  }),
+      // on Windows, CLN regtest data lives in named volumes, so copy it back to
+      // the host dir before zipping so the export contains the regtest state
+      for (const node of network.nodes.lightning) {
+        if (node.implementation === 'c-lightning') {
+          await injections.dockerService.copyCLightningVolumeToHost(
+            network,
+            node as CLightningNode,
+          );
+        }
+      }
+
+      info(`exporting network '${network.name}' to '${filePath}'`);
+      const { activeChart } = getStoreState().designer;
+      await zipNetwork(network, activeChart, filePath);
+      info('exported network successfully');
+      return filePath;
+    },
+  ),
   importNetwork: thunk(
     async (actions, path, { getStoreState, getStoreActions, injections }) => {
       const { networks } = getStoreState().network;

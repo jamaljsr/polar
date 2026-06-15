@@ -1,8 +1,13 @@
 import { CLightningNode, LitdNode, LndNode, TapdNode } from 'shared/types';
+import os from 'os';
 import { bitcoinCredentials, defaultRepoState } from 'utils/constants';
-import { createNetwork } from 'utils/network';
+import { createNetwork, getCLightningVolumeName } from 'utils/network';
 import { testManagedImages } from 'utils/tests';
 import ComposeFile from './composeFile';
+
+jest.mock('os');
+
+const mockOS = os as jest.Mocked<typeof os>;
 
 describe('ComposeFile', () => {
   let composeFile = new ComposeFile(1);
@@ -124,6 +129,47 @@ describe('ComposeFile', () => {
     const service = composeFile.content.services['bob'];
     expect(service.image).toBe('my-image');
     expect(service.command).toBe('my-command');
+  });
+
+  describe('on Windows', () => {
+    beforeEach(() => {
+      mockOS.platform.mockReturnValue('win32');
+    });
+
+    afterEach(() => {
+      mockOS.platform.mockReset();
+    });
+
+    it('should mount a named volume over the c-lightning regtest dir', () => {
+      composeFile.addClightning(clnNode, btcNode);
+      const service = composeFile.content.services['bob'];
+      const volumeName = getCLightningVolumeName(clnNode);
+      expect(service.volumes).toContain(
+        `${volumeName}:/home/clightning/.lightning/regtest`,
+      );
+    });
+
+    it('should register the c-lightning regtest volume at the top level', () => {
+      composeFile.addClightning(clnNode, btcNode);
+      const volumeName = getCLightningVolumeName(clnNode);
+      expect(composeFile.content.volumes).toEqual({
+        [volumeName]: { name: volumeName },
+      });
+    });
+
+    it('should mount c-lightning regtest volumes into simln', () => {
+      composeFile.addSimln(network.id, [clnNode]);
+      const service = composeFile.content.services['simln'];
+      const volumeName = getCLightningVolumeName(clnNode);
+      expect(service.volumes.some(v => v.startsWith(`${volumeName}:`))).toBe(true);
+    });
+  });
+
+  it('should not mount a named volume for c-lightning on mac/linux', () => {
+    composeFile.addClightning(clnNode, btcNode);
+    const service = composeFile.content.services['bob'];
+    expect(service.volumes).toHaveLength(2);
+    expect(composeFile.content.volumes).toBeUndefined();
   });
 
   it('should add an tap config', () => {

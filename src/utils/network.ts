@@ -47,6 +47,15 @@ const { l } = prefixTranslation('utils.network');
 export const getContainerName = (node: CommonNode) =>
   `polar-n${node.networkId}-${node.name}`;
 
+/**
+ * Returns the name of the Docker named volume used for a Core Lightning node's
+ * `regtest` data directory on Windows. The name is keyed by the node's
+ * immutable `id` (not its name) so it remains stable when the node is renamed,
+ * which means renames don't need to move the volume.
+ */
+export const getCLightningVolumeName = (node: CommonNode) =>
+  `polar-n${node.networkId}-cln-${node.id}-regtest`;
+
 export const getNetworkBackendId = (node: BitcoinNode) =>
   `${node.networkId}-${node.name}`;
 

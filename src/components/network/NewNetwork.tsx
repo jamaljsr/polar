@@ -18,7 +18,6 @@ import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
 import { dockerConfigs } from 'utils/constants';
-import { isWindows } from 'utils/system';
 import { HOME } from 'components/routing';
 
 const Styled = {
@@ -136,10 +135,9 @@ const NewNetwork: React.FC = () => {
               <Form.Item
                 name="clightningNodes"
                 label={dockerConfigs['c-lightning'].name}
-                extra={isWindows() ? l('clightningWindows') : ''}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
-                <InputNumber min={0} max={10} disabled={isWindows()} />
+                <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
             <Col span={6}>

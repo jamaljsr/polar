@@ -4,6 +4,7 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import {
   AnyNode,
   BitcoinNode,
+  CLightningNode,
   CommonNode,
   LightningNode,
   LitdNode,
@@ -139,6 +140,9 @@ export interface DockerLibrary {
   saveNetworks: (networks: NetworksFile) => Promise<void>;
   loadNetworks: () => Promise<NetworksFile>;
   renameNodeDir: (network: Network, node: AnyNode, newName: string) => Promise<void>;
+  removeCLightningVolume: (node: CLightningNode) => Promise<void>;
+  copyCLightningVolumeToHost: (network: Network, node: CLightningNode) => Promise<void>;
+  copyCLightningCertsToHost: (network: Network, node: CLightningNode) => Promise<void>;
   startSimulation: (network: Network) => Promise<void>;
   stopSimulation: (network: Network) => Promise<void>;
   removeSimulation: (network: Network) => Promise<void>;

@@ -5,6 +5,8 @@ import { IChart } from '@mrblenny/react-flow-chart';
 import { v2 as compose } from 'docker-compose';
 import Dockerode from 'dockerode';
 import os from 'os';
+import { EventEmitter } from 'events';
+import * as tarFs from 'tar-fs';
 import { CLightningNode, LitdNode, LndNode, Status, TapdNode } from 'shared/types';
 import { dockerService } from 'lib/docker';
 import { Network, NetworksFile } from 'types';
@@ -12,12 +14,13 @@ import { initChartFromNetwork } from 'utils/chart';
 import { networksPath } from 'utils/config';
 import { APP_VERSION, defaultRepoState, DOCKER_REPO } from 'utils/constants';
 import * as files from 'utils/files';
-import { createNetwork } from 'utils/network';
+import { createNetwork, getCLightningVolumeName } from 'utils/network';
 import { getNetwork, mockProperty, testManagedImages } from 'utils/tests';
 import { getDocker } from './dockerService';
 
 jest.mock('dockerode');
 jest.mock('os');
+jest.mock('tar-fs');
 jest.mock('utils/files', () => ({
   write: jest.fn(),
   read: jest.fn(),
@@ -32,6 +35,7 @@ const filesMock = files as jest.Mocked<typeof files>;
 const composeMock = compose as jest.Mocked<typeof compose>;
 const electronMock = electron as jest.Mocked<typeof electron>;
 const mockDockerode = Dockerode as unknown as jest.Mock<Dockerode>;
+const tarFsMock = tarFs as jest.Mocked<typeof tarFs>;
 
 describe('DockerService', () => {
   let network: Network;
@@ -828,6 +832,121 @@ describe('DockerService', () => {
         undefined,
       );
       Object.defineProperty(electronMock.remote, 'process', { get: () => ({ env: {} }) });
+    });
+  });
+
+  describe('c-lightning volumes', () => {
+    const getClnNode = () =>
+      network.nodes.lightning.find(
+        n => n.implementation === 'c-lightning',
+      ) as CLightningNode;
+
+    describe('removeCLightningVolume', () => {
+      it('should remove the named volume on Windows', async () => {
+        mockOS.platform.mockReturnValue('win32');
+        const remove = jest.fn().mockResolvedValue(undefined);
+        mockDockerode.prototype.getVolume.mockReturnValue({ remove } as any);
+        const node = getClnNode();
+        await dockerService.removeCLightningVolume(node);
+        expect(mockDockerode.prototype.getVolume).toHaveBeenCalledWith(
+          getCLightningVolumeName(node),
+        );
+        expect(remove).toHaveBeenCalledWith({ force: true });
+      });
+
+      it('should not remove the volume on mac/linux', async () => {
+        mockOS.platform.mockReturnValue('darwin');
+        await dockerService.removeCLightningVolume(getClnNode());
+        expect(mockDockerode.prototype.getVolume).not.toHaveBeenCalled();
+      });
+
+      it('should swallow errors when the volume does not exist', async () => {
+        mockOS.platform.mockReturnValue('win32');
+        const remove = jest.fn().mockRejectedValue(new Error('no such volume'));
+        mockDockerode.prototype.getVolume.mockReturnValue({ remove } as any);
+        await expect(
+          dockerService.removeCLightningVolume(getClnNode()),
+        ).resolves.not.toThrow();
+      });
+    });
+
+    describe('copyCLightningVolumeToHost', () => {
+      it('should copy the volume contents to the host on Windows', async () => {
+        mockOS.platform.mockReturnValue('win32');
+        const start = jest.fn().mockResolvedValue(undefined);
+        const wait = jest.fn().mockResolvedValue(undefined);
+        mockDockerode.prototype.createContainer.mockResolvedValue({
+          start,
+          wait,
+        } as any);
+        const node = getClnNode();
+        await dockerService.copyCLightningVolumeToHost(network, node);
+        expect(fsMock.ensureDir).toHaveBeenCalled();
+        expect(mockDockerode.prototype.createContainer).toHaveBeenCalled();
+        const config = mockDockerode.prototype.createContainer.mock.calls[0][0] as any;
+        expect(config.HostConfig.Binds[0]).toContain(getCLightningVolumeName(node));
+        expect(start).toHaveBeenCalled();
+        expect(wait).toHaveBeenCalled();
+      });
+
+      it('should not copy anything on mac/linux', async () => {
+        mockOS.platform.mockReturnValue('darwin');
+        await dockerService.copyCLightningVolumeToHost(network, getClnNode());
+        expect(mockDockerode.prototype.createContainer).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('copyCLightningCertsToHost', () => {
+      const mockExtractWithPem = (pemName = 'regtest/ca.pem') => {
+        tarFsMock.extract.mockImplementation((_dir: any, opts: any) => {
+          // simulate the tar stream containing a single pem file
+          if (opts && opts.ignore) opts.ignore(pemName);
+          const extractor: any = new EventEmitter();
+          process.nextTick(() => extractor.emit('finish'));
+          return extractor;
+        });
+      };
+
+      it('should copy the certs from the running container on Windows', async () => {
+        mockOS.platform.mockReturnValue('win32');
+        const getArchive = jest
+          .fn()
+          .mockResolvedValue({ on: jest.fn(), pipe: jest.fn() });
+        mockDockerode.prototype.getContainer.mockReturnValue({ getArchive } as any);
+        mockExtractWithPem();
+        const node = getClnNode();
+        await dockerService.copyCLightningCertsToHost(network, node);
+        expect(fsMock.ensureDir).toHaveBeenCalled();
+        expect(getArchive).toHaveBeenCalledWith({
+          path: '/home/clightning/.lightning/regtest',
+        });
+        expect(tarFsMock.extract).toHaveBeenCalled();
+      });
+
+      it('should retry until certs are available', async () => {
+        mockOS.platform.mockReturnValue('win32');
+        const getArchive = jest
+          .fn()
+          .mockResolvedValue({ on: jest.fn(), pipe: jest.fn() });
+        mockDockerode.prototype.getContainer.mockReturnValue({ getArchive } as any);
+        // first two attempts find no pem files, third succeeds
+        let attempt = 0;
+        tarFsMock.extract.mockImplementation((_dir: any, opts: any) => {
+          attempt += 1;
+          if (attempt >= 3 && opts && opts.ignore) opts.ignore('regtest/ca.pem');
+          const extractor: any = new EventEmitter();
+          process.nextTick(() => extractor.emit('finish'));
+          return extractor;
+        });
+        await dockerService.copyCLightningCertsToHost(network, getClnNode());
+        expect(getArchive).toHaveBeenCalledTimes(3);
+      });
+
+      it('should not copy anything on mac/linux', async () => {
+        mockOS.platform.mockReturnValue('darwin');
+        await dockerService.copyCLightningCertsToHost(network, getClnNode());
+        expect(mockDockerode.prototype.getContainer).not.toHaveBeenCalled();
+      });
     });
   });
 
