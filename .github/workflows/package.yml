@@ -30,10 +30,10 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.3
 
       - name: setup nodejs
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: 20.19.6
           cache: yarn

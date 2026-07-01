@@ -24,10 +24,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.3
 
       - name: setup nodejs
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: ${{ matrix.node_version }}
           cache: yarn
@@ -49,6 +49,6 @@ jobs:
         run: yarn build
 
       - name: coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v5.5.5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
