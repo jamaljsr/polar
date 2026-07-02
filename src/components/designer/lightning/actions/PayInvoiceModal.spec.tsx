@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
+
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -8,6 +9,7 @@ import { defaultRepoState } from 'utils/constants';
 import { createNetwork, mapToTapd } from 'utils/network';
 import {
   defaultStateChannel,
+  defaultStateInfo,
   getNetwork,
   lightningServiceMock,
   renderWithProviders,
@@ -23,6 +25,18 @@ describe('PayInvoiceModal', () => {
 
   beforeEach(() => {
     network = getNetwork(1, 'test network');
+    lightningServiceMock.getBalances.mockResolvedValue({
+      confirmed: '1000',
+      total: '1000',
+      unconfirmed: '0',
+    });
+    lightningServiceMock.getChannels.mockResolvedValue([
+      defaultStateChannel({
+        uniqueId: 'channel-1',
+        localBalance: '1000',
+        remoteBalance: '0',
+      }),
+    ]);
   });
 
   const renderComponent = async (nodeName = 'alice') => {
@@ -46,6 +60,9 @@ describe('PayInvoiceModal', () => {
     const cmp = <PayInvoiceModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
     unmount = result.unmount;
+    if (nodeName !== 'invalid') {
+      await result.findByLabelText('BOLT 11 Invoice');
+    }
     return result;
   };
 
@@ -130,6 +147,92 @@ describe('PayInvoiceModal', () => {
       fireEvent.click(getByText('Pay Invoice'));
       expect(await findByText('Unable to pay the Invoice')).toBeInTheDocument();
       expect(await findByText('error-msg')).toBeInTheDocument();
+    });
+
+    it('should disable the pay button and display a warning when the node has no funds available to pay the invoice', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '0',
+        total: '0',
+        unconfirmed: '0',
+      });
+      lightningServiceMock.getChannels.mockResolvedValue([
+        defaultStateChannel({
+          uniqueId: 'channel-1',
+          localBalance: '0',
+          remoteBalance: '1000',
+        }),
+      ]);
+      const { findByText, getByText } = await renderComponent();
+      expect(getByText('Pay Invoice').closest('button')).toBeDisabled();
+      expect(
+        await findByText(
+          'Node has no funds available to pay invoices. Fund the node or open a channel with outbound liquidity and try again.',
+        ),
+      ).toBeInTheDocument();
+      expect(lightningServiceMock.payInvoice).not.toHaveBeenCalled();
+    });
+
+    it('should enable the pay button when the only funded channel was opened by a peer', async () => {
+      // Regression test: a channel opened by a peer only appears in that peer's
+      // channel list (as remoteBalance), so the selected node's own getChannels
+      // is empty. Its outbound liquidity must still be recognized.
+      lightningServiceMock.getInfo.mockImplementation(async n =>
+        defaultStateInfo({ pubkey: `${n.name}-pubkey` }),
+      );
+      lightningServiceMock.getChannels.mockImplementation(async n =>
+        n.name === 'bob'
+          ? [
+              defaultStateChannel({
+                uniqueId: 'channel-1',
+                pubkey: 'alice-pubkey', // bob opened this channel to alice
+                localBalance: '1000',
+                remoteBalance: '500',
+              }),
+            ]
+          : [],
+      );
+      const { getByText, queryByText } = await renderComponent('alice');
+      expect(getByText('Pay Invoice').closest('button')).not.toBeDisabled();
+      expect(
+        queryByText(
+          'Node has no funds available to pay invoices. Fund the node or open a channel with outbound liquidity and try again.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should disable the pay button if the only channels with funds are pending, closed, or have invalid balance', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '0',
+        total: '0',
+        unconfirmed: '0',
+      });
+      lightningServiceMock.getChannels.mockResolvedValue([
+        defaultStateChannel({
+          uniqueId: 'channel-1',
+          localBalance: '1000',
+          remoteBalance: '0',
+          pending: true,
+        }),
+        defaultStateChannel({
+          uniqueId: 'channel-2',
+          localBalance: '1000',
+          remoteBalance: '0',
+          status: 'Closed',
+        }),
+        defaultStateChannel({
+          uniqueId: 'channel-3',
+          localBalance: 'not-a-number',
+          remoteBalance: '0',
+        }),
+      ]);
+      const { findByText, getByText } = await renderComponent();
+      expect(getByText('Pay Invoice').closest('button')).toBeDisabled();
+      expect(
+        await findByText(
+          'Node has no funds available to pay invoices. Fund the node or open a channel with outbound liquidity and try again.',
+        ),
+      ).toBeInTheDocument();
+      expect(lightningServiceMock.payInvoice).not.toHaveBeenCalled();
     });
   });
 

@@ -1,18 +1,19 @@
+import styled from '@emotion/styled';
+import { Alert, Form, Input, Modal, Select } from 'antd';
+import { Loader } from 'components/common';
+import AssetAmount from 'components/common/AssetAmount';
+import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
+import { usePrefixedTranslation } from 'hooks';
+import { LightningNodeChannelAsset } from 'lib/lightning/types';
+
 import React, { useMemo } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
-import styled from '@emotion/styled';
-import { Form, Input, Modal, Select } from 'antd';
-import { usePrefixedTranslation } from 'hooks';
 import { LitdNode } from 'shared/types';
-import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
 import { format } from 'utils/units';
-import { Loader } from 'components/common';
-import AssetAmount from 'components/common/AssetAmount';
-import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 const Styled = {
   AssetOption: styled.div`
@@ -38,6 +39,7 @@ interface Props {
 const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   const { l } = usePrefixedTranslation('cmps.designer.lightning.actions.PayInvoiceModal');
   const { visible, nodeName } = useStoreState(s => s.modals.payInvoice);
+  const { nodes } = useStoreState(s => s.lightning);
   const { getAssetsInChannels } = useStoreState(s => s.lit);
   const { formatAssetAmount } = useStoreState(s => s.tap);
   const { hidePayInvoice } = useStoreActions(s => s.modals);
@@ -48,14 +50,29 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
 
   const [form] = Form.useForm();
   const assetId = Form.useWatch<string>('assetId', form) || 'sats';
-  const selectedName = Form.useWatch<string>('node', form) || '';
+  const selectedName = Form.useWatch<string>('node', form) || nodeName || '';
+
+  const selectedNode = useMemo(
+    () => network.nodes.lightning.find(n => n.name === selectedName),
+    [network.nodes.lightning, selectedName],
+  );
 
   const getAssetsAsync = useAsync(async () => {
     if (!visible) return;
+
+    if (selectedNode) {
+      await getInfo(selectedNode).catch(() => undefined);
+      // Fetch every node's channels so the selected node's full
+      // outbound liquidity, including peer-opened channels, can be totaled.
+      await Promise.all(
+        network.nodes.lightning.map(node => getChannels(node).catch(() => undefined)),
+      );
+    }
+
+    // Fetch litd-specific asset data
     const litNodes = network.nodes.lightning.filter(n => n.implementation === 'litd');
     for (const node of litNodes) {
-      await getInfo(node);
-      await getChannels(node);
+      if (node.name !== selectedNode?.name) await getInfo(node).catch(() => undefined);
       await getAssetRoots(mapToTapd(node));
     }
   }, [network.nodes, visible]);
@@ -63,6 +80,31 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
   const assets = useMemo(() => {
     return getAssetsInChannels({ nodeName: selectedName }).map(a => a.asset);
   }, [getAssetsInChannels, selectedName]);
+  const outboundLiquidity = useMemo(() => {
+    // The selected node's spendable balance in a channel is `localBalance` when
+    // it opened the channel, or `remoteBalance` when a peer opened it (in which
+    // case the channel only appears in the peer's channel list).
+    const selfPubkey = nodes[selectedName]?.info?.pubkey;
+    return network.nodes.lightning.reduce((total, node) => {
+      const channels = nodes[node.name]?.channels || [];
+      return channels.reduce((sum, channel) => {
+        if (channel.pending || channel.status !== 'Open') return sum;
+        let balance = 0;
+        if (node.name === selectedName) {
+          balance = parseInt(channel.localBalance || '0', 10);
+        } else if (selfPubkey && channel.pubkey === selfPubkey) {
+          balance = parseInt(channel.remoteBalance || '0', 10);
+        }
+        return sum + (Number.isFinite(balance) ? balance : 0);
+      }, total);
+    }, 0);
+  }, [nodes, network.nodes.lightning, selectedName]);
+  const hasNoPaymentFunds =
+    assetId === 'sats' &&
+    !!selectedNode &&
+    !getAssetsAsync.loading &&
+    nodes[selectedName]?.channels !== undefined &&
+    outboundLiquidity <= 0;
 
   const payAsync = useAsyncCallback(async (values: FormValues) => {
     try {
@@ -104,6 +146,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
       okText={l('okBtn')}
       okButtonProps={{
         loading: payAsync.loading,
+        disabled: payAsync.loading || hasNoPaymentFunds,
       }}
       onOk={form.submit}
     >
@@ -119,6 +162,7 @@ const PayInvoiceModal: React.FC<Props> = ({ network }) => {
           onFinish={payAsync.execute}
           disabled={payAsync.loading}
         >
+          {hasNoPaymentFunds && <Alert type="warning" message={l('noFundsError')} />}
           <LightningNodeSelect
             network={network}
             name="node"

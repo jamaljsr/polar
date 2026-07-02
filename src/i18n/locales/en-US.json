@@ -281,6 +281,7 @@
   "cmps.designer.lightning.actions.PayInvoiceModal.submitError": "Unable to pay the Invoice",
   "cmps.designer.lightning.actions.PayInvoiceModal.successTitle": "Successfully paid the Invoice",
   "cmps.designer.lightning.actions.PayInvoiceModal.successDesc": "Sent {{amount}} {{assetName}} from {{nodeName}}",
+  "cmps.designer.lightning.actions.PayInvoiceModal.noFundsError": "Node has no funds available to pay invoices. Fund the node or open a channel with outbound liquidity and try again.",
   "cmps.designer.lightning.actions.PaymentButtons.paymentsTitle": "Payments",
   "cmps.designer.lightning.actions.PaymentButtons.payInvoice": "Pay Invoice",
   "cmps.designer.lightning.actions.PaymentButtons.createInvoice": "Create Invoice",
