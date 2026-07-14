@@ -54,6 +54,7 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     p2p: 19444,
     zmqBlock: 28334,
     zmqTx: 29335,
+    zmqHashBlock: 28534,
   },
   LND: {
     rest: 8081,

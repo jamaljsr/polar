@@ -187,10 +187,27 @@ const v200 = (file: NetworksFile): NetworksFile => {
   return file;
 };
 
+const v400 = (file: NetworksFile): NetworksFile => {
+  debug('Applying v4.0.0 migrations');
+
+  file.networks.forEach(network => {
+    const pre = `[${network.id}] ${network.name}:`;
+    network.nodes.bitcoin.forEach(node => {
+      // the zmqHashBlock port was added in PR #1020 to expose the hashblock stream to the host
+      if (!node.ports.zmqHashBlock) {
+        debug(`${pre} set ZMQ Hash Block port for Bitcoin node ${node.name}`);
+        node.ports.zmqHashBlock = BasePorts.bitcoind.zmqHashBlock;
+      }
+    });
+  });
+
+  return file;
+};
+
 /**
  * The list of migration functions to execute
  */
-const migrations = [v020, v030, v110, v140, v200];
+const migrations = [v020, v030, v110, v140, v200, v400];
 
 /**
  * Migrates network and chart data from a previous app version

@@ -60,7 +60,7 @@ class ComposeFile {
 
   addBitcoind(node: BitcoinNode) {
     const { name, version, ports } = node;
-    const { rpc, p2p, zmqBlock, zmqTx } = ports;
+    const { rpc, p2p, zmqBlock, zmqTx, zmqHashBlock } = ports;
     const container = getContainerName(node);
     // define the variable substitutions
     const variables = {
@@ -74,7 +74,17 @@ class ComposeFile {
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    const svc = bitcoind(name, container, image, rpc, p2p, zmqBlock, zmqTx, command);
+    const svc = bitcoind(
+      name,
+      container,
+      image,
+      rpc,
+      p2p,
+      zmqBlock,
+      zmqTx,
+      zmqHashBlock,
+      command,
+    );
     this.addService(svc);
   }
 

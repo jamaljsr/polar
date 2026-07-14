@@ -365,6 +365,7 @@ export const createBitcoindNetworkNode = (
       p2p: BasePorts.bitcoind.p2p + id,
       zmqBlock: BasePorts.bitcoind.zmqBlock + id,
       zmqTx: BasePorts.bitcoind.zmqTx + id,
+      zmqHashBlock: BasePorts.bitcoind.zmqHashBlock + id,
     },
     docker,
   };
@@ -776,6 +777,7 @@ export interface OpenPorts {
     rest?: number;
     zmqBlock?: number;
     zmqTx?: number;
+    zmqHashBlock?: number;
     p2p?: number;
     web?: number;
   };
@@ -829,6 +831,17 @@ export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefi
         ports[bitcoin[index].name] = {
           ...(ports[bitcoin[index].name] || {}),
           zmqTx: port,
+        };
+      });
+    }
+
+    existingPorts = bitcoin.map(n => n.ports.zmqHashBlock);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[bitcoin[index].name] = {
+          ...(ports[bitcoin[index].name] || {}),
+          zmqHashBlock: port,
         };
       });
     }
