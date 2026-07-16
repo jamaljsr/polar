@@ -200,6 +200,46 @@ describe('PayInvoiceModal', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('should treat a peer-opened channel with no remote balance as no liquidity', async () => {
+      lightningServiceMock.getInfo.mockImplementation(async n =>
+        defaultStateInfo({ pubkey: `${n.name}-pubkey` }),
+      );
+      lightningServiceMock.getChannels.mockImplementation(async n =>
+        n.name === 'bob'
+          ? [
+              defaultStateChannel({
+                uniqueId: 'channel-1',
+                pubkey: 'alice-pubkey', // bob opened this channel to alice
+                localBalance: '1000',
+                remoteBalance: '', // but alice holds nothing in it
+              }),
+            ]
+          : [],
+      );
+      const { findByText, getByText } = await renderComponent('alice');
+      expect(getByText('Pay Invoice').closest('button')).toBeDisabled();
+      expect(
+        await findByText(
+          'Node has no funds available to pay invoices. Fund the node or open a channel with outbound liquidity and try again.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should still open when a node fails to return its info or channels', async () => {
+      // a stopped or unreachable node must not prevent the modal from opening
+      lightningServiceMock.getInfo.mockRejectedValue(new Error('info-failed'));
+      lightningServiceMock.getChannels.mockRejectedValue(new Error('channels-failed'));
+      const { getByText, queryByText } = await renderComponent('alice');
+      expect(getByText('From Node')).toBeInTheDocument();
+      // no channels were fetched, so no claim is made about the node's funds
+      expect(getByText('Pay Invoice').closest('button')).not.toBeDisabled();
+      expect(
+        queryByText(
+          'Node has no funds available to pay invoices. Fund the node or open a channel with outbound liquidity and try again.',
+        ),
+      ).not.toBeInTheDocument();
+    });
+
     it('should disable the pay button if the only channels with funds are pending, closed, or have invalid balance', async () => {
       lightningServiceMock.getBalances.mockResolvedValue({
         confirmed: '0',
@@ -278,6 +318,15 @@ describe('PayInvoiceModal', () => {
         amount: 1000,
         destination: 'asdf',
       });
+    });
+
+    it('should still load asset data when another litd node fails to return its info', async () => {
+      // info is fetched for every litd node, so an unreachable peer must not
+      // prevent the selected node's assets from loading
+      lightningServiceMock.getInfo.mockRejectedValue(new Error('info-failed'));
+      const { getByText } = await renderComponent('bob');
+      expect(getByText('From Node')).toBeInTheDocument();
+      expect(getByText('Asset to Send')).toBeInTheDocument();
     });
 
     it('should display the asset dropdown', async () => {
