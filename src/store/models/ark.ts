@@ -87,8 +87,8 @@ const arkModel: ArkModel = {
         debug(`Initializing wallet for ${node.name}`);
 
         let [walletStatus, info] = await Promise.all([
-          await api.getWalletStatus(),
-          await api.getInfo().catch(() => currentNodeState.info),
+          await api.getWalletStatus(node),
+          await api.getInfo(node).catch(() => currentNodeState.info),
         ]);
         if (walletStatus.initialized && info?.pubkey) {
           actions.setNodeInfo({ node, nodeInfo: { walletStatus, info } });
@@ -101,8 +101,8 @@ const arkModel: ArkModel = {
         // HACK: Mine a block after creating the wallet to help sync
         delay(500).then(() => bitcoin.mine({ blocks: 1, node: bitcoinNodes[0] }));
 
-        walletStatus = await api.initWallet();
-        info = await api.getInfo();
+        walletStatus = await api.initWallet(node);
+        info = await api.getInfo(node);
         actions.setNodeInfo({ node, nodeInfo: { walletStatus, info } });
       } catch (err: any) {
         notify({
@@ -123,12 +123,12 @@ const arkModel: ArkModel = {
         await actions.initializeWallet(node);
       }
       const [info, walletStatus, walletBalance] = await Promise.all([
-        api.getInfo().catch(() => currentNode.info),
-        api.getWalletStatus().catch(() => currentNode.walletStatus),
-        api.getWalletBalance().catch(() => currentNode.walletBalance),
+        api.getInfo(node).catch(() => currentNode.info),
+        api.getWalletStatus(node).catch(() => currentNode.walletStatus),
+        api.getWalletBalance(node).catch(() => currentNode.walletBalance),
       ]);
       const boardingAddress = info
-        ? await api.getBoardingAddress(info.pubkey)
+        ? await api.getBoardingAddress(node, info.pubkey)
         : currentNode.boardingAddress;
       actions.setNodeInfo({
         node,
@@ -168,7 +168,7 @@ const arkModel: ArkModel = {
     await Promise.all(
       nodes.map(async node => {
         const api = injections.arkFactory.getService(node);
-        await api.waitUntilOnline();
+        await api.waitUntilOnline(node);
 
         // ensure we have the object set
         actions.setNodeInfo({ node, nodeInfo: {} });

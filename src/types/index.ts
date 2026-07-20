@@ -258,12 +258,12 @@ export interface TapService {
 }
 
 export interface ArkService {
-  getBoardingAddress(pubkey: string): Promise<string>;
-  getInfo: () => Promise<PLA.ArkGetInfo>;
-  getWalletBalance(): Promise<PLA.ArkGetBalance>;
-  getWalletStatus(): Promise<PLA.ArkGetWalletStatus>;
-  initWallet(): Promise<PLA.ArkGetWalletStatus>;
-  waitUntilOnline: () => Promise<void>;
+  getBoardingAddress(node: ArkNode, pubkey: string): Promise<string>;
+  getInfo: (node: ArkNode) => Promise<PLA.ArkGetInfo>;
+  getWalletBalance(node: ArkNode): Promise<PLA.ArkGetBalance>;
+  getWalletStatus(node: ArkNode): Promise<PLA.ArkGetWalletStatus>;
+  initWallet(node: ArkNode): Promise<PLA.ArkGetWalletStatus>;
+  waitUntilOnline: (node: ArkNode) => Promise<void>;
 }
 
 export interface TapFactoryInjection {
