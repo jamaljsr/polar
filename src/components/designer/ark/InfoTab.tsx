@@ -42,6 +42,39 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   }
 
   const nodeState = nodes[node.name];
+  if (node.status === Status.Started) {
+    // TODO: Use translatable labels
+    details.push(
+      {
+        label: 'Wallet initialized',
+        value: nodeState?.walletStatus?.initialized ? 'Yes' : 'No',
+      },
+      {
+        label: 'Wallet synced',
+        value: nodeState?.walletStatus?.synced ? 'Yes' : 'No',
+      },
+      {
+        label: 'Wallet unlocked',
+        value: nodeState?.walletStatus?.unlocked ? 'Yes' : 'No',
+      },
+      {
+        label: 'Wallet available balance',
+        value: `${nodeState.walletBalance?.mainAccount?.available || 0} BTC`,
+      },
+      {
+        label: 'Wallet locked balance',
+        value: `${nodeState.walletBalance?.mainAccount?.locked || 0} BTC`,
+      },
+      {
+        label: 'Connector wallet available balance',
+        value: `${nodeState.walletBalance?.connectorsAccount?.available || 0} BTC`,
+      },
+      {
+        label: 'Connector wallet locked balance',
+        value: `${nodeState.walletBalance?.connectorsAccount?.locked || 0} BTC`,
+      },
+    );
+  }
   if (node.status === Status.Started && nodeState && nodeState.info) {
     const { info } = nodeState;
     details.push(

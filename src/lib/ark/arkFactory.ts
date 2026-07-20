@@ -1,6 +1,6 @@
 import { ArkNode } from 'shared/types';
-import { ArkService } from 'types';
-import { arkService } from './arkService';
+import { ArkService as IArkService } from 'types';
+import { ArkdService } from './arkdService';
 
 /**
  * A factory class used to obtain a Ark service based on
@@ -10,11 +10,11 @@ export class ArkFactory {
   /**
    * The mapping of implementation types to services
    */
-  private _services: Record<ArkNode['implementation'], ArkService>;
+  private _services: Record<ArkNode['implementation'], (node: ArkNode) => IArkService>;
 
   constructor() {
     this._services = {
-      arkd: arkService,
+      arkd: node => new ArkdService(node),
     };
   }
 
@@ -22,7 +22,7 @@ export class ArkFactory {
    * Returns a ark service for the given node
    * @param node the Ark node object
    */
-  getService(node: ArkNode): ArkService {
-    return this._services[node.implementation];
+  getService(node: ArkNode): IArkService {
+    return this._services[node.implementation](node);
   }
 }
