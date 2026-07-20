@@ -3,7 +3,7 @@ import * as PLA from 'lib/ark/types';
 import { ArkNode } from 'shared/types';
 import { ArkService as IArkService } from 'types';
 import { waitFor } from 'utils/async';
-import { dockerConfigs } from 'utils/constants';
+import { arkCredentials, dockerConfigs } from 'utils/constants';
 import { arkProxyClient as proxy } from './arkProxyClient';
 
 export class ArkdService implements IArkService {
@@ -41,7 +41,8 @@ export class ArkdService implements IArkService {
     const seed = await proxy.genSeed(this.node);
     const password =
       this.node.docker.envVars?.ARK_UNLOCKER_PASSWORD ||
-      dockerConfigs.arkd.envVars!.ARK_UNLOCKER_PASSWORD;
+      dockerConfigs.arkd.envVars?.ARK_UNLOCKER_PASSWORD ||
+      arkCredentials.pass;
 
     await proxy.createWallet(this.node, {
       seed,
@@ -49,7 +50,18 @@ export class ArkdService implements IArkService {
     });
     await this.unlockWallet(password);
 
-    const status = await this.getWalletStatus();
+    const status = await waitFor(
+      async () => {
+        const status = await proxy.getWalletStatus(this.node);
+        if (!status.initialized || !status.unlocked || !status.synced) {
+          debug('Ark wallet not ready');
+          throw new Error('Ark wallet not ready');
+        }
+        return status;
+      },
+      1_000,
+      30_000,
+    );
     debug(`Status after generating arkd wallet`, JSON.stringify(status));
 
     return status;

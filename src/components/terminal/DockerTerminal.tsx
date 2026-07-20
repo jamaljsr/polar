@@ -55,7 +55,10 @@ U |  _"\\ u  \\/"_ \\/  |"|   U  /"\\  uU |  _"\\ u
   .join('');
 
 // differing configs based on the type of node
-const nodeConfig: Record<NodeImplementation, { user: string; commands: string[] }> = {
+const nodeConfig: Record<
+  NodeImplementation,
+  { user: string; commands: string[]; terminalEmulator?: string[] }
+> = {
   LND: {
     user: 'lnd',
     commands: ['alias lncli="lncli --network regtest"'],
@@ -88,9 +91,10 @@ const nodeConfig: Record<NodeImplementation, { user: string; commands: string[] 
   arkd: {
     user: 'root',
     commands: [
-      'alias arkd="arkd --network regtest --password ${ARK_UNLOCKER_PASSWORD}"',
-      'alias ark="ark --network regtest --password ${ARK_UNLOCKER_PASSWORD} --server-url 127.0.0.1"',
+      'alias arkd="arkd --network regtest --password \\${ARK_UNLOCKER_PASSWORD}"',
+      'alias ark="ark --network regtest"',
     ],
+    terminalEmulator: ['/bin/ash'],
   },
 };
 
@@ -119,7 +123,11 @@ const connectStreams = async (
   if (!container) throw new Error(l('containerErr', { name }));
 
   // create an exec instance
-  const exec = await container.exec({ ...execCommand, User: config.user });
+  const exec = await container.exec({
+    ...execCommand,
+    Cmd: config.terminalEmulator || execCommand.Cmd,
+    User: config.user,
+  });
   // initialize the size of the docker session based on the xterm size
   exec.resize({ w: term.cols, h: term.rows });
   // run exec to connect to the container
