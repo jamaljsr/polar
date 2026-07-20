@@ -1,4 +1,5 @@
 import {
+  ArkNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
@@ -14,7 +15,16 @@ import {
   litdCredentials,
 } from 'utils/constants';
 import { getContainerName, getDefaultCommand } from 'utils/network';
-import { bitcoind, clightning, eclair, litd, lnd, tapd, simln } from './nodeTemplates';
+import {
+  arkd,
+  bitcoind,
+  clightning,
+  eclair,
+  litd,
+  lnd,
+  tapd,
+  simln,
+} from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -199,6 +209,23 @@ class ComposeFile {
     const { name, imageName, command, env } = dockerConfigs.simln;
     const containerName = `polar-n${networkId}-simln`;
     const svc = simln(name, containerName, imageName, command, { ...env });
+    this.addService(svc);
+  }
+
+  addArkd(node: ArkNode, bitcoinNode: BitcoinNode) {
+    const { name, version, ports } = node;
+    const { api } = ports;
+    const container = getContainerName(node);
+    const variables = {
+      name: node.name,
+      containerName: container,
+      bitcoinNode: getContainerName(bitcoinNode),
+      bitcoinRpcPort: bitcoinNode.ports.rpc.toString(),
+    };
+    const image = node.docker.image || `${dockerConfigs.arkd.imageName}:${version}`;
+    const nodeCommand = node.docker.command || getDefaultCommand('arkd', version);
+    const command = this.mergeCommand(nodeCommand, variables);
+    const svc = arkd(name, container, image, api, command);
     this.addService(svc);
   }
 

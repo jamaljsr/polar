@@ -24,6 +24,7 @@ describe('MCP model > setLightningBackend', () => {
       bitcoindNodes: 2,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -96,6 +97,7 @@ describe('MCP model > setLightningBackend', () => {
       bitcoindNodes: 2,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -120,6 +122,7 @@ describe('MCP model > setLightningBackend', () => {
       bitcoindNodes: 2,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -144,6 +147,7 @@ describe('MCP model > setLightningBackend', () => {
       bitcoindNodes: 2,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });

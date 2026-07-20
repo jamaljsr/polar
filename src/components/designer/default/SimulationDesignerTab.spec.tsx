@@ -27,6 +27,7 @@ describe('SimulationDesignerTab', () => {
       clightningNodes: 0,
       eclairNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       bitcoindNodes: 2,
       tapdNodes: 0,
       repoState: defaultRepoState,

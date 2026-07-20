@@ -16,6 +16,7 @@ describe('ComposeFile', () => {
     bitcoindNodes: 1,
     tapdNodes: 1,
     litdNodes: 1,
+    arkdNodes: 0,
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],

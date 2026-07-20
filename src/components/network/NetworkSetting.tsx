@@ -1,6 +1,3 @@
-import React, { useEffect } from 'react';
-import { useAsyncCallback } from 'react-async-hook';
-import { info } from 'electron-log';
 import styled from '@emotion/styled';
 import {
   Button,
@@ -13,12 +10,16 @@ import {
   Row,
   Typography,
 } from 'antd';
+import { HOME } from 'components/routing';
+import { info } from 'electron-log';
 import { usePrefixedTranslation } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
+import React, { useEffect } from 'react';
+import { useAsyncCallback } from 'react-async-hook';
 import { useStoreActions, useStoreState } from 'store';
 import { ThemeColors } from 'theme/colors';
+import { NodeBasePorts } from 'types';
 import { dockerConfigs } from 'utils/constants';
-import { HOME } from 'components/routing';
 
 const Styled = {
   PageHeader: styled(PageHeader)<{ colors: ThemeColors['pageHeader'] }>`
@@ -46,24 +47,34 @@ const NetworkSetting: React.FC = () => {
 
   const saveSettingsAsync = useAsyncCallback(async (values: any) => {
     try {
-      const updatedPorts = {
+      const updatedPorts: NodeBasePorts = {
+        ...settings.basePorts,
         LND: {
+          ...settings.basePorts.LND,
           rest: values.LND,
           grpc: values.grpcLND,
         },
         'c-lightning': {
+          ...settings.basePorts['c-lightning'],
           rest: values['c-lightning'],
           grpc: values['grpcC-lightning'],
         },
         eclair: {
+          ...settings.basePorts.eclair,
           rest: values.eclair,
         },
         bitcoind: {
+          ...settings.basePorts.bitcoind,
           rest: values.bitcoind,
         },
         tapd: {
+          ...settings.basePorts.tapd,
           rest: values.tapd,
           grpc: values.grpcTapd,
+        },
+        arkd: {
+          ...settings.basePorts.arkd,
+          api: values.apiArkd,
         },
       };
 

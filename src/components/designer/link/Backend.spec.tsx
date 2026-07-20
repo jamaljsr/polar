@@ -10,7 +10,7 @@ describe('Backend component', () => {
     const bitcoind = network.nodes.bitcoin[0];
     const lightning = network.nodes.lightning[0];
     const result = renderWithProviders(
-      <Backend bitcoinNode={bitcoind} lightningNode={lightning} />,
+      <Backend bitcoinNode={bitcoind} connectedNode={lightning} />,
     );
     return {
       ...result,

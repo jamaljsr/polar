@@ -44,6 +44,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -105,6 +106,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -143,6 +145,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -215,6 +218,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -277,6 +281,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -330,6 +335,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -377,6 +383,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -404,6 +411,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -432,6 +440,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -471,6 +480,7 @@ describe('MCP model > addLitdSession', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 1,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
