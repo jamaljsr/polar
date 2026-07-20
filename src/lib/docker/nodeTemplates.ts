@@ -162,7 +162,10 @@ export const arkd = (
   hostname: name,
   command: trimInside(command),
   restart: 'always',
-  volumes: [`./volumes/${dockerConfigs.arkd.volumeDirName}/${name}:/root/.arkd`],
+  entrypoint: ['/bin/ash', '-c'],
+  init: true,
+  extra_hosts: ['host.docker.internal:host-gateway'],
+  volumes: [`./volumes/${dockerConfigs.arkd.volumeDirName}/${name}:/app/data`],
   environment: envVars,
   expose: [
     '7070', // REST & gRPC

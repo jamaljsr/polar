@@ -366,33 +366,58 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     volumeDirName: 'arkd',
     command: ['arkd'].join('\n '),
     envVars: {
-      ARK_NETWORK: 'regtest',
+      ARKD_NETWORK: 'regtest',
 
-      ARK_TX_BUILDER_TYPE: 'covenantless',
-      ARK_ROUND_INTERVAL: '10',
-      ARK_MIN_RELAY_FEE: '200',
+      ARKD_TX_BUILDER_TYPE: 'covenantless',
+      ARKD_SCHEDULER_TYPE: 'block',
+      ARKD_ROUND_INTERVAL: '30', // in seconds
 
-      ARK_LOG_LEVEL: '10',
+      // debug level
+      ARKD_LOG_LEVEL: '5',
 
-      ARK_ESPLORA_URL: '',
-      ARK_NEUTRINO_PEER: '',
+      ARKD_ESPLORA_URL: '',
+      ARKD_DB_TYPE: 'badger',
+      ARKD_EVENT_DB_TYPE: 'badger',
+      ARKD_LIVE_STORE_TYPE: 'inmemory',
+      ARKD_ALLOW_CSV_BLOCK_TYPE: 'true',
 
-      ARK_BITCOIND_RPC_USER: bitcoinCredentials.user,
-      ARK_BITCOIND_RPC_PASS: bitcoinCredentials.pass,
+      ARKD_WALLET_BITCOIND_RPC_USER: bitcoinCredentials.user,
+      ARKD_WALLET_BITCOIND_RPC_PASS: bitcoinCredentials.pass,
+      ARKD_WALLET_BITCOIND_RPC_HOST: '{{backendName}}',
+      ARKD_WALLET_BITCOIND_ZMQ_BLOCK: 'tcp://{{backendName}}:28334',
+      ARKD_WALLET_BITCOIND_ZMQ_TX: 'tcp://{{backendName}}:28335',
+      ARKD_WALLET_LOG_LEVEL: '5',
+      ARKD_WALLET_NETWORK: 'regtest',
+      // ARKD_WALLET_SIGNER_KEY:
+      // 'afcd3fa10f82a05fddc9574fdb13b3991b568e89cc39a72ba4401df8abef35f0',
+      ARKD_WALLET_DATADIR: '/app/data/wallet',
 
       // sane defaults
-      ARK_DATADIR: '/root/.arkd/data',
-      ARK_WALLET_DATADIR: '/root/.arkd/wallet',
-      ARK_PORT: BasePorts.arkd.api.toString(),
+      ARKD_DATADIR: '/app/data/arkd',
+      ARKD_PORT: BasePorts.arkd.api.toString(),
 
-      ARK_NO_MACAROONS: 'true',
-      ARK_NO_TLS: 'true',
+      ARKD_WALLET_ADDR: 'host.docker.internal:6060',
 
-      ARK_UNLOCKER_TYPE: 'env',
-      ARK_UNLOCKER_PASSWORD: arkCredentials.pass,
+      ARKD_NO_MACAROONS: 'true',
+      ARKD_NO_TLS: 'true',
 
-      ARK_NOTE_URI_PREFIX: 'Ark on Polar: ',
-      ARK_NOSTR_DEFAULT_RELAYS: 'wss://relay.johnnyasantos.com',
+      ARKD_UNLOCKER_TYPE: 'env',
+      ARKD_UNLOCKER_PASSWORD: arkCredentials.pass,
+
+      ARKD_NOTE_URI_PREFIX: 'Ark on Polar: ',
+      ARKD_NOSTR_DEFAULT_RELAYS: 'wss://relay.johnnyasantos.com',
+
+      // ARKD_VTXO_TREE_EXPIRY: '512',
+      ARKD_UNILATERAL_EXIT_DELAY: '512',
+      ARKD_BOARDING_EXIT_DELAY: '1024',
+
+      ARKD_ROUND_MAX_PARTICIPANTS_COUNT: '18',
+      ARKD_ROUND_MIN_PARTICIPANTS_COUNT: '1',
+
+      ARKD_UTXO_MX_AMOUNT: '-1', // unset
+      ARKD_UTXO_MIN_AMOUNT: '-1', // dust
+      ARKD_VTXO_MAX_AMOUNT: '-1', // unset
+      ARKD_VTXO_MIN_AMOUNT: '-1', // dust
     },
   },
 };

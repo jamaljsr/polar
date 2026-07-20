@@ -32,6 +32,9 @@ export interface ComposeService {
   environment?: Record<string, string>;
   hostname: string;
   command: string;
+  entrypoint?: string[];
+  extra_hosts?: string[];
+  init?: boolean;
   volumes: string[];
   expose: string[];
   ports: string[];
@@ -228,7 +231,7 @@ class ComposeFile {
     const nodeCommand = node.docker.command || getDefaultCommand('arkd', version);
     const command = this.mergeCommand(nodeCommand, variables);
     const envVars = this.mergeEnvVars(dockerConfigs.arkd.envVars, node.docker.envVars, {
-      ARK_BITCOIND_RPC_HOST: `${variables.bitcoinNode}:${variables.bitcoinRpcPort}`,
+      ARKD_BITCOIND_RPC_HOST: `${variables.bitcoinNode}:${variables.bitcoinRpcPort}`,
       // ARK_BITCOIND_ZMQ_BLOCK: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqBlock}`,
       // ARK_BITCOIND_ZMQ_TX: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqTx}`,
     });
