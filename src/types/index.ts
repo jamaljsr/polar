@@ -106,6 +106,7 @@ export interface DockerConfig {
   dataDir?: string;
   apiDir?: string;
   env?: Record<string, string>;
+  envVars?: Record<string, string>;
 }
 
 export interface DockerRepoImage {
@@ -258,7 +259,7 @@ export interface TapService {
 
 export interface ArkService {
   waitUntilOnline: (node: ArkNode) => Promise<void>;
-  getInfo: (node: ArkNode) => Promise<PLA.ArkNodeInfo>;
+  getInfo: (node: ArkNode) => Promise<PLA.ArkGetInfo>;
 }
 
 export interface TapFactoryInjection {

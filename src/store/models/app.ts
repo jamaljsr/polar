@@ -99,6 +99,7 @@ const appModel: AppModel = {
         rpc: BasePorts.bitcoind.rpc,
         zmqBlock: BasePorts.bitcoind.zmqBlock,
         zmqTx: BasePorts.bitcoind.zmqTx,
+        zmqHashBlock: BasePorts.bitcoind.zmqHashBlock,
       },
       'c-lightning': {
         grpc: BasePorts['c-lightning'].grpc,

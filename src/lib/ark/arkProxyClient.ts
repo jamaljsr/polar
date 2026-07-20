@@ -1,4 +1,4 @@
-// import * as ARK from '@lightningpolar/ark-api';
+import * as ARK from '@lightningpolar/arkd-api';
 import { createIpcSender, IpcSender } from 'lib/ipc/ipcService';
 import { ipcChannels } from 'shared';
 import { ArkNode } from 'shared/types';
@@ -7,11 +7,15 @@ class ArkProxyClient {
   private ipc: IpcSender;
 
   constructor() {
-    this.ipc = createIpcSender('ArkProxyClient', 'ark');
+    this.ipc = createIpcSender('ArkProxyClient', 'arkd');
   }
 
-  async getInfo(node: ArkNode): Promise<any> {
+  async getInfo(node: ArkNode): Promise<ARK.GetInfoResponse> {
     return await this.ipc(ipcChannels.ark.getInfo, { node });
+  }
+
+  async waitForReady(node: ArkNode): Promise<void> {
+    return this.ipc(ipcChannels.ark.waitForReady, { node });
   }
 }
 
