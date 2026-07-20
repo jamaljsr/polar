@@ -258,6 +258,7 @@ export interface TapService {
 }
 
 export interface ArkService {
+  getBoardingAddress(pubkey: string): Promise<string>;
   getInfo: () => Promise<PLA.ArkGetInfo>;
   getWalletBalance(): Promise<PLA.ArkGetBalance>;
   getWalletStatus(): Promise<PLA.ArkGetWalletStatus>;

@@ -52,6 +52,7 @@ export default {
   ark: {
     getInfo: 'ark-getinfo',
     waitForReady: 'ark-waitForReady',
+    getBoardingAddress: 'ark-getBoardingAddress',
 
     // wallet related
     getWalletBalance: 'ark-getWalletBalance',

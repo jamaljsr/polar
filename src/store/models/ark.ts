@@ -11,6 +11,7 @@ export interface ArkNodeMapping {
 }
 
 export interface ArkNodeModel {
+  boardingAddress?: string;
   info?: PLA.ArkGetInfo;
   walletBalance?: PLA.ArkGetBalance;
   walletStatus?: PLA.ArkGetWalletStatus;
@@ -71,19 +72,24 @@ const arkModel: ArkModel = {
     const api = injections.arkFactory.getService(node),
       currentState = getState();
     try {
+      const currentNode = currentState.nodes[node.name];
       const [info, walletStatus, walletBalance] = await Promise.all([
-        api.getInfo().catch(() => currentState.nodes[node.name].info),
-        api.getWalletStatus().catch(() => currentState.nodes[node.name].walletStatus),
-        api.getWalletBalance().catch(() => currentState.nodes[node.name].walletBalance),
+        api.getInfo().catch(() => currentNode.info),
+        api.getWalletStatus().catch(() => currentNode.walletStatus),
+        api.getWalletBalance().catch(() => currentNode.walletBalance),
       ]);
-      actions.setNodeInfo({ node, nodeInfo: { info, walletStatus, walletBalance } });
+      const boardingAddress = info
+        ? await api.getBoardingAddress(info.pubkey)
+        : currentNode.boardingAddress;
+      actions.setNodeInfo({
+        node,
+        nodeInfo: { info, walletStatus, walletBalance, boardingAddress },
+      });
     } catch (err) {
       error('Failed to get ark info', err);
     }
   }),
-  getAllInfo: thunk(async (actions, node, { getStoreActions }) => {
-    const { notify } = getStoreActions().app;
-    notify({ message: `getAllInfo` });
+  getAllInfo: thunk(async (actions, node) => {
     await actions.getInfo(node);
   }),
   mineListener: thunkOn(
@@ -92,7 +98,6 @@ const arkModel: ArkModel = {
       const { notify } = getStoreActions().app;
       // update all ark nodes info when a block in mined
       const network = getStoreState().network.networkById(payload.node.networkId);
-      notify({ message: `mine listener` });
 
       await actions.waitForNodes(network.nodes.ark);
       await Promise.all(
@@ -108,41 +113,32 @@ const arkModel: ArkModel = {
       );
     },
   ),
-  waitForNodes: thunk(
-    async (actions, nodes, { injections, getStoreActions, getState }) => {
-      if (process.env.NODE_ENV === 'test') return;
-      const { notify } = getStoreActions().app;
-      notify({ message: `wait for nodes` });
+  waitForNodes: thunk(async (actions, nodes, { injections, getState }) => {
+    if (process.env.NODE_ENV === 'test') return;
 
-      await Promise.all(
-        nodes.map(async node => {
-          const api = injections.arkFactory.getService(node);
-          await api.waitUntilOnline();
+    await Promise.all(
+      nodes.map(async node => {
+        const api = injections.arkFactory.getService(node);
+        await api.waitUntilOnline();
 
-          // ensure we have the object set
-          actions.setNodeInfo({ node, nodeInfo: {} });
-          const state = getState(),
-            nodeState = state.nodes[node.name];
+        // ensure we have the object set
+        actions.setNodeInfo({ node, nodeInfo: {} });
+        const state = getState(),
+          nodeState = state.nodes[node.name];
 
-          if (nodeState.walletStatus && nodeState.walletStatus.initialized) return;
+        if (nodeState.walletStatus && nodeState.walletStatus.initialized) return;
 
-          let walletStatus = await api.getWalletStatus();
-          if (walletStatus.initialized) {
-            actions.setNodeInfo({ node, nodeInfo: { walletStatus } });
-            return;
-          }
+        let walletStatus = await api.getWalletStatus();
+        if (walletStatus.initialized) {
+          actions.setNodeInfo({ node, nodeInfo: { walletStatus } });
+          return;
+        }
 
-          walletStatus = await api.initWallet();
-
-          notify({
-            message: `Wallet status for node ${node.name}: ${JSON.stringify(
-              walletStatus,
-            )}`,
-          });
-        }),
-      );
-    },
-  ),
+        walletStatus = await api.initWallet();
+        actions.setNodeInfo({ node, nodeInfo: { walletStatus } });
+      }),
+    );
+  }),
 };
 
 export default arkModel;

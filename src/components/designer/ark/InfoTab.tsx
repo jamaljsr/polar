@@ -42,7 +42,7 @@ const InfoTab: React.FC<Props> = ({ node }) => {
   }
 
   const nodeState = nodes[node.name];
-  if (node.status === Status.Started) {
+  if (node.status === Status.Started && nodeState) {
     // TODO: Use translatable labels
     details.push(
       {
@@ -76,11 +76,32 @@ const InfoTab: React.FC<Props> = ({ node }) => {
     );
   }
   if (node.status === Status.Started && nodeState && nodeState.info) {
-    const { info } = nodeState;
+    const { info, boardingAddress } = nodeState;
     details.push(
-      { label: l('forfeitAddress'), value: info.forfeitAddress },
       {
-        label: l('pubkey'),
+        label: 'Boarding Address',
+        value: boardingAddress ? (
+          <CopyIcon
+            label={l('boardingAddress')}
+            value={boardingAddress}
+            text={ellipseInner(boardingAddress)}
+          />
+        ) : (
+          ''
+        ),
+      },
+      {
+        label: 'forfeitAddress',
+        value: (
+          <CopyIcon
+            label={l('forfeitAddress')}
+            value={info.forfeitAddress}
+            text={ellipseInner(info.forfeitAddress)}
+          />
+        ),
+      },
+      {
+        label: 'pubkey',
         value: (
           <CopyIcon
             label={l('pubkey')}
