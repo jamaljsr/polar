@@ -1,9 +1,12 @@
-import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
-import { info } from 'electron-log';
+import { NETWORK_VIEW } from 'components/routing';
 import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
+import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
+import { info } from 'electron-log';
+import { join } from 'path';
 import {
   AnyNode,
+  ArkNode,
   BitcoinNode,
   CommonNode,
   LightningNode,
@@ -20,6 +23,7 @@ import { nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
+  createArkdChartNode,
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
@@ -36,7 +40,6 @@ import {
   zipNetwork,
 } from 'utils/network';
 import { prefixTranslation } from 'utils/translate';
-import { NETWORK_VIEW } from 'components/routing';
 import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.network');
@@ -50,6 +53,7 @@ interface AddNetworkArgs {
   bitcoindNodes: number;
   tapdNodes: number;
   litdNodes: number;
+  arkdNodes?: number;
   customNodes: Record<string, number>;
   manualMineCount: number;
 }
@@ -97,7 +101,7 @@ export interface NetworkModel {
   >;
   getBackendNode: Thunk<
     NetworkModel,
-    LightningNode,
+    CommonNode,
     StoreInjections,
     RootModel,
     BitcoinNode | undefined
@@ -109,6 +113,7 @@ export interface NetworkModel {
     RootModel
   >;
   removeTapNode: Thunk<NetworkModel, { node: TapNode }, StoreInjections, RootModel>;
+  removeArkNode: Thunk<NetworkModel, { node: ArkNode }, StoreInjections, RootModel>;
   removeBitcoinNode: Thunk<
     NetworkModel,
     { node: BitcoinNode },
@@ -257,8 +262,8 @@ const networkModel: NetworkModel = {
   }),
   updateNodeCommand: action((state, { id, name, command }) => {
     const network = state.networks.find(n => n.id === id) as Network;
-    const { lightning, bitcoin, tap } = network.nodes;
-    const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap];
+    const { lightning, bitcoin, tap, ark } = network.nodes;
+    const nodes: CommonNode[] = [...lightning, ...bitcoin, ...tap, ...ark];
     nodes.filter(n => n.name === name).forEach(n => (n.docker.command = command));
   }),
   updateNodePorts: action((state, { id, ports }) => {
@@ -270,6 +275,9 @@ const networkModel: NetworkModel = {
       .filter(n => !!ports[n.name])
       .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
     network.nodes.tap
+      .filter(n => !!ports[n.name])
+      .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
+    network.nodes.ark
       .filter(n => !!ports[n.name])
       .forEach(n => (n.ports = { ...n.ports, ...ports[n.name] }));
   }),
@@ -326,6 +334,7 @@ const networkModel: NetworkModel = {
         bitcoindNodes: payload.bitcoindNodes,
         tapdNodes: payload.tapdNodes,
         litdNodes: payload.litdNodes,
+        arkdNodes: payload.arkdNodes,
         repoState: dockerRepoState,
         managedImages: computedManagedImages,
         customImages,
@@ -349,6 +358,7 @@ const networkModel: NetworkModel = {
           bitcoind: payload.bitcoindNodes,
           tapd: payload.tapdNodes,
           litd: payload.litdNodes,
+          arkd: payload.arkdNodes || 0,
           btcd: 0,
         },
       });
@@ -445,6 +455,17 @@ const networkModel: NetworkModel = {
           );
           network.nodes.tap.push(node);
           break;
+        case 'arkd':
+          node = createArkdChartNode(
+            network,
+            version,
+            dockerRepoState.images.arkd.compatibility,
+            docker,
+            undefined,
+            settings.basePorts.arkd,
+          );
+          network.nodes.ark.push(node);
+          break;
         default:
           throw new Error(`Cannot add unknown node type '${type}' to the network`);
       }
@@ -465,11 +486,13 @@ const networkModel: NetworkModel = {
       await injections.dockerService.saveComposeFile(network);
     },
   ),
-  getBackendNode: thunk((actions, lnNode, { getState }) => {
+  getBackendNode: thunk((actions, node, { getState }) => {
     const networks = getState().networks;
-    const network = networks.find(n => n.id === lnNode.networkId);
-    if (!network) throw new Error(l('networkByIdErr', { networkId: lnNode.networkId }));
-    return network.nodes.bitcoin.find(n => n.name === lnNode.backendName);
+    const network = networks.find(n => n.id === node.networkId);
+    if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+    return network.nodes.bitcoin.find(
+      n => 'backendName' in node && n.name === node.backendName,
+    );
   }),
   removeLightningNode: thunk(
     async (actions, { node }, { getState, injections, getStoreActions }) => {
@@ -546,6 +569,34 @@ const networkModel: NetworkModel = {
       await actions.save();
       // delete the docker volume data from disk
       await rm(nodePath(network, node.implementation, node.name));
+      // sync the chart
+      await getStoreActions().designer.syncChart(network);
+    },
+  ),
+  removeArkNode: thunk(
+    async (actions, { node }, { getState, injections, getStoreActions }) => {
+      const networks = getState().networks;
+      const network = networks.find(n => n.id === node.networkId);
+      if (!network) throw new Error(l('networkByIdErr', { networkId: node.networkId }));
+      // remove the node from the network
+      network.nodes.ark = network.nodes.ark.filter(n => n !== node);
+      // remove the node's data from the lightning redux state
+      getStoreActions().ark.removeNode(node.name);
+      // remove the node rom the running docker network
+      if (network.status === Status.Started) {
+        await injections.dockerService.removeNode(network, node);
+      }
+      await injections.dockerService.saveComposeFile(network);
+      // clear cached RPC data
+      getStoreActions().app.clearAppCache();
+      // remove the node from the chart's redux state
+      getStoreActions().designer.removeNode(node.name);
+      // update the network in the redux state and save to disk
+      actions.setNetworks([...networks]);
+      await actions.save();
+      // delete the docker volume data from disk
+      const volumeDir = node.implementation.toLocaleLowerCase().replace('-', '');
+      rm(join(network.path, 'volumes', volumeDir, node.name));
       // sync the chart
       await getStoreActions().designer.syncChart(network);
     },
@@ -716,12 +767,14 @@ const networkModel: NetworkModel = {
       network.nodes.lightning.filter(n => n.name === only).forEach(setNodeStatus);
       network.nodes.bitcoin.filter(n => n.name === only).forEach(setNodeStatus);
       network.nodes.tap.filter(n => n.name === only).forEach(setNodeStatus);
+      network.nodes.ark.filter(n => n.name === only).forEach(setNodeStatus);
     } else if (all) {
       // update all node statuses
       network.status = status;
       network.nodes.bitcoin.forEach(setNodeStatus);
       network.nodes.lightning.forEach(setNodeStatus);
       network.nodes.tap.forEach(setNodeStatus);
+      network.nodes.ark.forEach(setNodeStatus);
     } else {
       // if no specific node name provided, just update the network status
       network.status = status;
@@ -767,6 +820,7 @@ const networkModel: NetworkModel = {
           ...network.nodes.lightning,
           ...network.nodes.bitcoin,
           ...network.nodes.tap,
+          ...network.nodes.ark,
         ]);
       } catch (e: any) {
         actions.setStatus({ id, status: Status.Error });
@@ -923,6 +977,20 @@ const networkModel: NetworkModel = {
             .catch(error =>
               actions.setStatus({ id, status: Status.Error, only: tap.name, error }),
             );
+        } else if (node.type === 'ark') {
+          const ark = node as ArkNode;
+          const { notify } = getStoreActions().app;
+
+          injections.arkFactory
+            .getService(ark)
+            .waitUntilOnline(ark)
+            .then(() => {
+              actions.setStatus({ id, status: Status.Started, only: ark.name });
+            })
+            .catch(error => {
+              notify({ message: `Ark node (${ark.name}) failed to come online`, error });
+              actions.setStatus({ id, status: Status.Error, only: ark.name, error });
+            });
         }
       }
       // after all bitcoin nodes are online, mine one block so that Eclair nodes will start
@@ -946,6 +1014,8 @@ const networkModel: NetworkModel = {
           })
           .catch(e => info('Failed to connect all LN peers', e));
       }
+
+      // TODO: Unlock ark wallet
     },
   ),
   rename: thunk(async (actions, { id, name, description }, { getState }) => {
@@ -966,6 +1036,7 @@ const networkModel: NetworkModel = {
       network.status,
       ...network.nodes.lightning.map(n => n.status),
       ...network.nodes.bitcoin.map(n => n.status),
+      ...network.nodes.ark.map(n => n.status),
     ];
     if (statuses.find(n => n !== Status.Stopped)) {
       await actions.stop(networkId);
@@ -980,6 +1051,7 @@ const networkModel: NetworkModel = {
       .forEach(n => getStoreActions().lit.removeNode(n.name));
     network.nodes.bitcoin.forEach(n => getStoreActions().bitcoin.removeNode(n));
     network.nodes.tap.forEach(n => getStoreActions().tap.removeNode(n.name));
+    network.nodes.ark.forEach(n => getStoreActions().ark.removeNode(n.name));
     await actions.save();
     await getStoreActions().app.clearAppCache();
   }),
@@ -1123,6 +1195,8 @@ const networkModel: NetworkModel = {
         case 'tap':
           getStoreActions().tap.removeNode(oldNodeName);
           break;
+        case 'ark':
+          getStoreActions().ark.removeNode(oldNodeName);
       }
 
       // update the network in the store and save the changes to disk

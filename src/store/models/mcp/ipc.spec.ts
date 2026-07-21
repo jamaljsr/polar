@@ -169,6 +169,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -221,6 +222,7 @@ describe('MCP model > IPC', () => {
               bitcoin: [],
               lightning: [],
               tap: [],
+              ark: [],
             },
             manualMineCount: 6,
           },
@@ -278,6 +280,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -313,6 +316,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -348,6 +352,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -383,6 +388,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -418,6 +424,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -450,6 +457,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -503,6 +511,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -538,6 +547,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -600,6 +610,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -640,6 +651,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 2, // Need 2 bitcoin nodes to remove one
           tapdNodes: 1,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -673,6 +685,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -710,6 +723,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -743,6 +757,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -776,6 +791,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -811,6 +827,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -853,6 +870,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -897,6 +915,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -938,6 +957,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -977,6 +997,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1020,6 +1041,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1060,6 +1082,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1106,6 +1129,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1400,6 +1424,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 2,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1451,6 +1476,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1492,6 +1518,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1542,6 +1569,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1596,6 +1624,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1800,6 +1829,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1835,6 +1865,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1875,6 +1906,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 1,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1913,6 +1945,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1957,6 +1990,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -1996,6 +2030,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -2032,6 +2067,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 2,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });
@@ -2101,6 +2137,7 @@ describe('MCP model > IPC', () => {
           bitcoindNodes: 1,
           tapdNodes: 0,
           litdNodes: 0,
+          arkdNodes: 0,
           customNodes: {},
           manualMineCount: 6,
         });

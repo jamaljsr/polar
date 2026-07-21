@@ -285,6 +285,7 @@ describe('OpenChannelModal', () => {
         bitcoindNodes: 1,
         tapdNodes: 0,
         litdNodes: 3,
+        arkdNodes: 0,
         status: Status.Started,
         repoState: defaultRepoState,
         managedImages: testManagedImages,

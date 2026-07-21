@@ -27,6 +27,7 @@ describe('SendOnChainModal', () => {
       bitcoindNodes: 3,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       status: Status.Started,
       repoState: defaultRepoState,
       managedImages: testManagedImages,

@@ -11,9 +11,10 @@ import {
   ThunkOn,
   thunkOn,
 } from 'easy-peasy';
-import { AnyNode, LndNode, Status, TapdNode } from 'shared/types';
+import { AnyNode, LndNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { Network, StoreInjections } from 'types';
 import {
+  createArkChartNode,
   createBitcoinChartNode,
   createLightningChartNode,
   createTapdChartNode,
@@ -237,7 +238,13 @@ const designerModel: DesignerModel = {
         ? createLightningChartNode(newNode)
         : newNode.type === 'bitcoin'
         ? createBitcoinChartNode(newNode)
-        : createTapdChartNode(newNode);
+        : newNode.type === 'tap'
+        ? createTapdChartNode(newNode)
+        : newNode.type === 'ark'
+        ? createArkChartNode(newNode)
+        : (() => {
+            throw new Error('Invalid Node Type');
+          })();
     node.position = position;
     chart.nodes[node.id] = node;
     if (link) chart.links[link.id] = link;
@@ -370,6 +377,15 @@ const designerModel: DesignerModel = {
       const { data } = payload;
       const { activeId, activeChart } = getStoreState().designer;
       const network = getStoreState().network.networkById(activeId);
+      const nodeTypes: NodeImplementation[] = [
+        'LND',
+        'c-lightning',
+        'eclair',
+        'litd',
+        'bitcoind',
+        'tapd',
+        'arkd',
+      ];
       if (![Status.Started, Status.Stopped].includes(network.status)) {
         getStoreActions().app.notify({
           message: l('dropErrTitle'),
@@ -377,9 +393,7 @@ const designerModel: DesignerModel = {
         });
         // remove the loading node added in onCanvasDrop
         actions.removeNode(LOADING_NODE_ID);
-      } else if (
-        ['LND', 'c-lightning', 'eclair', 'litd', 'bitcoind', 'tapd'].includes(data.type)
-      ) {
+      } else if (nodeTypes.includes(data.type)) {
         const { addNode, toggleNode } = getStoreActions().network;
         try {
           const newNode = await addNode({

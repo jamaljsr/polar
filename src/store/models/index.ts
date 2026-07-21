@@ -3,6 +3,7 @@ import { reducer, Reducer } from 'easy-peasy';
 import { History } from 'history';
 import { AnyAction } from 'redux';
 import appModel, { AppModel } from './app';
+import arkModel, { ArkModel } from './ark';
 import bitcoinModel, { BitcoinModel } from './bitcoin';
 import designerModel, { DesignerModel } from './designer';
 import lightningModel, { LightningModel } from './lightning';
@@ -16,6 +17,7 @@ export interface RootModel {
   router: Reducer<RouterState, AnyAction>;
   app: AppModel;
   network: NetworkModel;
+  ark: ArkModel;
   bitcoin: BitcoinModel;
   lightning: LightningModel;
   tap: TapModel;
@@ -30,6 +32,7 @@ export const createModel = (history: History<any>): RootModel => {
     router: reducer(connectRouter(history) as any),
     app: appModel,
     network: networkModel,
+    ark: arkModel,
     bitcoin: bitcoinModel,
     lightning: lightningModel,
     tap: tapModel,

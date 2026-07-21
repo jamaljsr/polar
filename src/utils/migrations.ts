@@ -187,10 +187,26 @@ const v200 = (file: NetworksFile): NetworksFile => {
   return file;
 };
 
+const v210 = (file: NetworksFile): NetworksFile => {
+  debug('Applying v2.1.0 migrations');
+
+  file.networks.forEach(network => {
+    const pre = `[${network.id}] ${network.name}:`;
+
+    // arkd nodes was added to networks in PR #TODO
+    if (network.nodes.ark === undefined) {
+      debug(`${pre} add ark node list to network`);
+      network.nodes.ark = [];
+    }
+  });
+
+  return file;
+};
+
 /**
  * The list of migration functions to execute
  */
-const migrations = [v020, v030, v110, v140, v200];
+const migrations = [v020, v030, v110, v140, v200, v210];
 
 /**
  * Migrates network and chart data from a previous app version

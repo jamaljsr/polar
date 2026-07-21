@@ -79,6 +79,7 @@ describe('ImageUpdatesModal', () => {
           bitcoind: ['4.5.6'],
           btcd: [],
           tapd: [],
+          arkd: [],
         },
       });
     });

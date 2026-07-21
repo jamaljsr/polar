@@ -21,6 +21,7 @@ describe('LitdService', () => {
     bitcoindNodes: 1,
     tapdNodes: 0,
     litdNodes: 1,
+    arkdNodes: 0,
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],

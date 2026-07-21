@@ -41,6 +41,7 @@ describe('LIT Model', () => {
     bitcoindNodes: 1,
     tapdNodes: 0,
     litdNodes: 3,
+    arkdNodes: 0,
     repoState: defaultRepoState,
     managedImages: testManagedImages,
     customImages: [],

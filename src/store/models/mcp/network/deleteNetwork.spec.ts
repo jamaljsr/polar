@@ -24,6 +24,7 @@ describe('MCP model > deleteNetwork', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });

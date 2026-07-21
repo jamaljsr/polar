@@ -1,0 +1,78 @@
+version: '3'
+
+services:
+  nbxplorer:
+    restart: always
+    ports:
+      - 32838:32838
+    image: nicolasdorier/nbxplorer:2.5.30-1
+    environment:
+      NBXPLORER_NETWORK: ${NBITCOIN_NETWORK:-regtest}
+      NBXPLORER_BIND: 0.0.0.0:32838
+      NBXPLORER_NOAUTH: 1
+      NBXPLORER_CHAINS: 'btc'
+      NBXPLORER_BTCRPCURL: http://backend1:18443/
+      NBXPLORER_BTCRPCUSER: polaruser
+      NBXPLORER_BTCRPCPASSWORD: polarpass
+      NBXPLORER_BTCNODEENDPOINT: backend1:19444
+      NBXPLORER_RMQHOST: rabbitmq
+      NBXPLORER_RMQVIRTUAL: /
+      NBXPLORER_RMQUSER: guest
+      NBXPLORER_RMQPASS: guest
+      NBXPLORER_RMQTRANEX: NewTransaction
+      NBXPLORER_RMQBLOCKEX: NewBlock
+      NBXPLORER_POSTGRES: 'Host=db;Port=5432;Database=nbxplorer;Username=nbxplorer;Password=nbxplorer'
+    volumes:
+      - 'nbxplorer_datadir:/datadir'
+      - 'bitcoin_datadir:/root/.bitcoin'
+    networks:
+      - nbxplorer
+      - polar_network_2
+    depends_on:
+      - rabbitmq
+      - db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    networks:
+      - nbxplorer
+    ports:
+      - 4369:4369
+      - 5671:5671
+      - 5672:5672
+      - 15672:15672
+
+  db:
+    image: postgres:alpine
+    hostname: nbxplorer_db
+    networks:
+      - nbxplorer
+    environment:
+      POSTGRES_DB: nbxplorer
+      POSTGRES_USER: nbxplorer
+      POSTGRES_PASSWORD: nbxplorer
+    volumes:
+      - 'nbxplorer_db:/var/lib/postgresql/data'
+
+  arkd-wallet:
+    image: ghcr.io/arkade-os/arkd-wallet:v0.7.1
+    hostname: arkd-wallet
+    volumes:
+      - arkd_wallet_datadir:/app/data
+    networks:
+      - nbxplorer
+      - polar_network_2
+    env_file: ./wallet.env
+
+volumes:
+  nbxplorer_datadir:
+  arkd_wallet_datadir:
+  nbxplorer_db:
+  bitcoin_datadir:
+
+networks:
+  nbxplorer:
+  polar_network_2:
+    name: polar-network-2_default
+    external: true

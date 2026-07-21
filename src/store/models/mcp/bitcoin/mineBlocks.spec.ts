@@ -24,6 +24,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -52,6 +53,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 2,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -79,6 +81,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -105,6 +108,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -135,6 +139,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -155,6 +160,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -181,6 +187,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 0, // No bitcoin nodes
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -201,6 +208,7 @@ describe('MCP model > mineBlocks', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });

@@ -1,4 +1,5 @@
 import {
+  ArkNode,
   BitcoinNode,
   CLightningNode,
   CommonNode,
@@ -14,7 +15,16 @@ import {
   litdCredentials,
 } from 'utils/constants';
 import { getContainerName, getDefaultCommand } from 'utils/network';
-import { bitcoind, clightning, eclair, litd, lnd, tapd, simln } from './nodeTemplates';
+import {
+  arkd,
+  bitcoind,
+  clightning,
+  eclair,
+  litd,
+  lnd,
+  tapd,
+  simln,
+} from './nodeTemplates';
 
 export interface ComposeService {
   image: string;
@@ -22,6 +32,9 @@ export interface ComposeService {
   environment?: Record<string, string>;
   hostname: string;
   command: string;
+  entrypoint?: string[];
+  extra_hosts?: string[];
+  init?: boolean;
   volumes: string[];
   expose: string[];
   ports: string[];
@@ -200,6 +213,34 @@ class ComposeFile {
     const containerName = `polar-n${networkId}-simln`;
     const svc = simln(name, containerName, imageName, command, { ...env });
     this.addService(svc);
+  }
+
+  addArkd(node: ArkNode, bitcoinNode: BitcoinNode) {
+    const { name, version, ports } = node;
+    const { api } = ports;
+    const container = getContainerName(node);
+    const variables = {
+      name: node.name,
+      containerName: container,
+      bitcoinNode: getContainerName(bitcoinNode),
+      bitcoinRpcPort: bitcoinNode.ports.rpc.toString(),
+      bitcoinZmqBlockPort: bitcoinNode.ports.zmqBlock.toString(),
+      bitcoinZmqTxPort: bitcoinNode.ports.zmqTx.toString(),
+    };
+    const image = node.docker.image || `${dockerConfigs.arkd.imageName}:${version}`;
+    const nodeCommand = node.docker.command || getDefaultCommand('arkd', version);
+    const command = this.mergeCommand(nodeCommand, variables);
+    const envVars = this.mergeEnvVars(dockerConfigs.arkd.envVars, node.docker.envVars, {
+      ARKD_BITCOIND_RPC_HOST: `${variables.bitcoinNode}:${variables.bitcoinRpcPort}`,
+      // ARK_BITCOIND_ZMQ_BLOCK: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqBlock}`,
+      // ARK_BITCOIND_ZMQ_TX: `${variables.bitcoinNode}:${BasePorts.bitcoind.zmqTx}`,
+    });
+    const svc = arkd(name, container, image, api, command, envVars);
+    this.addService(svc);
+  }
+
+  private mergeEnvVars(...envVars: (Record<string, string> | undefined)[]) {
+    return envVars.reduce((acc, envVar) => ({ ...acc, ...(envVar || {}) }), {});
   }
 
   private mergeCommand(command: string, variables: Record<string, string>) {

@@ -1,7 +1,7 @@
 import { routerMiddleware } from 'connected-react-router';
 import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
-import { createLogger } from 'redux-logger';
+import { ArkFactory } from 'lib/ark';
 import { BitcoinFactory } from 'lib/bitcoin';
 import { dockerService, repoService } from 'lib/docker';
 import { createIpcSender } from 'lib/ipc/ipcService';
@@ -9,6 +9,7 @@ import { LightningFactory } from 'lib/lightning';
 import { litdService } from 'lib/litd';
 import { settingsService } from 'lib/settings';
 import { TapFactory } from 'lib/tap';
+import { createLogger } from 'redux-logger';
 import { createModel, RootModel } from 'store/models';
 import { StoreInjections } from 'types';
 
@@ -64,6 +65,7 @@ const injections: StoreInjections = {
   bitcoinFactory: new BitcoinFactory(),
   lightningFactory: new LightningFactory(),
   tapFactory: new TapFactory(),
+  arkFactory: new ArkFactory(),
   litdService,
 };
 

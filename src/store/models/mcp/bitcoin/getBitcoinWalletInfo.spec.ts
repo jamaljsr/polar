@@ -40,6 +40,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 2,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -68,6 +69,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -102,6 +104,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -134,6 +137,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -173,6 +177,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -197,6 +202,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 0, // No bitcoin nodes
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -223,6 +229,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });
@@ -254,6 +261,7 @@ describe('MCP model > getBitcoinWalletInfo', () => {
       bitcoindNodes: 1,
       tapdNodes: 0,
       litdNodes: 0,
+      arkdNodes: 0,
       customNodes: {},
       manualMineCount: 6,
     });

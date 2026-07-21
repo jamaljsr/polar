@@ -27,27 +27,15 @@ describe('SettingsService', () => {
         btcd: 0,
         tapd: 0,
         litd: 0,
+        arkd: 0,
       },
       basePorts: {
-        LND: {
-          rest: 8080,
-          grpc: 10001,
-        },
-        bitcoind: {
-          rest: 18443,
-        },
-        'c-lightning': {
-          rest: 8181,
-          grpc: 11001,
-        },
-        eclair: {
-          rest: 8281,
-        },
-        tapd: {
-          rest: 8289,
-          grpc: 12029,
-        },
-      },
+        LND: { rest: 8080, grpc: 10001, p2p: 9735 },
+        bitcoind: { rest: 18443 },
+        'c-lightning': { rest: 8181, grpc: 11001, p2p: 9835 },
+        eclair: { rest: 8281, p2p: 9935 },
+        tapd: { rest: 8289, grpc: 12029 },
+      } as any,
     };
   });
 

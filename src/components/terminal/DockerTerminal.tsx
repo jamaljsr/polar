@@ -1,19 +1,20 @@
 /* exclude this function from test coverage because it pretty difficult to mock dependencies */
 /* istanbul ignore file */
-import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router';
+import styled from '@emotion/styled';
+import { message } from 'antd';
 import { clipboard, remote } from 'electron';
 import { debug, info } from 'electron-log';
-import styled from '@emotion/styled';
-import 'xterm/css/xterm.css';
-import { message } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { ITerminalOptions, Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 import { getDocker } from 'lib/docker/dockerService';
+import React, { useEffect, useRef } from 'react';
+import { useParams } from 'react-router';
+import { NodeImplementation } from 'shared/types';
 import { useStoreActions } from 'store';
 import { delay } from 'utils/async';
 import { eclairCredentials } from 'utils/constants';
+import { ITerminalOptions, Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import 'xterm/css/xterm.css';
 import { nord } from './themes';
 
 // exec command and options configuration
@@ -54,7 +55,10 @@ U |  _"\\ u  \\/"_ \\/  |"|   U  /"\\  uU |  _"\\ u
   .join('');
 
 // differing configs based on the type of node
-const nodeConfig: Record<string, { user: string; commands: string[] }> = {
+const nodeConfig: Record<
+  NodeImplementation,
+  { user: string; commands: string[]; terminalEmulator?: string[] }
+> = {
   LND: {
     user: 'lnd',
     commands: ['alias lncli="lncli --network regtest"'],
@@ -83,6 +87,15 @@ const nodeConfig: Record<string, { user: string; commands: string[] }> = {
       'alias tapcli="tapcli --network regtest --rpcserver localhost:8443 --tlscertpath ~/.lit/tls.cert"',
     ],
   },
+  btcd: { user: '1000', commands: [] },
+  arkd: {
+    user: 'root',
+    commands: [
+      'alias arkd="arkd --network regtest --password \\${ARK_UNLOCKER_PASSWORD}"',
+      'alias ark="ark --network regtest"',
+    ],
+    terminalEmulator: ['/bin/ash'],
+  },
 };
 
 /**
@@ -91,7 +104,12 @@ const nodeConfig: Record<string, { user: string; commands: string[] }> = {
  * @param name the name of the docker container
  * @param type the type of node
  */
-const connectStreams = async (term: Terminal, name: string, type: string, l: any) => {
+const connectStreams = async (
+  term: Terminal,
+  name: string,
+  type: NodeImplementation,
+  l: any,
+) => {
   const config = nodeConfig[type];
   if (!config) throw new Error(l('nodeTypeErr', { type }));
 
@@ -105,7 +123,11 @@ const connectStreams = async (term: Terminal, name: string, type: string, l: any
   if (!container) throw new Error(l('containerErr', { name }));
 
   // create an exec instance
-  const exec = await container.exec({ ...execCommand, User: config.user });
+  const exec = await container.exec({
+    ...execCommand,
+    Cmd: config.terminalEmulator || execCommand.Cmd,
+    User: config.user,
+  });
   // initialize the size of the docker session based on the xterm size
   exec.resize({ w: term.cols, h: term.rows });
   // run exec to connect to the container
@@ -286,7 +308,7 @@ const DockerTerminal: React.FC = () => {
     // to run async code in useEffect, you must wrap it in a function
     const connect = async () => {
       try {
-        await connectStreams(term, name, type, l);
+        await connectStreams(term, name, type as NodeImplementation, l);
         term.focus();
       } catch (error: any) {
         notify({ message: l('connectErr'), error });

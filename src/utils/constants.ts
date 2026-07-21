@@ -1,11 +1,12 @@
-import { NodeImplementation, NodeImplementationWithSimln } from 'shared/types';
-import { DockerConfig, DockerRepoState } from 'types';
+import { NodeImplementationWithSimln } from 'shared/types';
+import { DockerConfig, DockerRepoState, NodeBasePorts } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
+import arkLogo from 'resources/ark.png';
 import packageJson from '../../package.json';
 
 // App
@@ -48,12 +49,14 @@ export const denominationNames: { [key in Denomination]: string } = {
  * be sufficiently spaced apart to allow a dozen or so numbers higher and
  * not cause conflicts
  */
-export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
+export const BasePorts: Readonly<Required<NodeBasePorts>> = {
   bitcoind: {
+    rpc: 18832,
     rest: 18443,
     p2p: 19444,
     zmqBlock: 28334,
-    zmqTx: 29335,
+    zmqTx: 28335,
+    zmqHashBlock: 28336,
   },
   LND: {
     rest: 8081,
@@ -80,6 +83,9 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     p2p: 9635,
     web: 8443,
   },
+  arkd: {
+    api: 7070,
+  },
 };
 
 export const bitcoinCredentials = {
@@ -95,6 +101,10 @@ export const eclairCredentials = {
 
 export const litdCredentials = {
   pass: 'polarpass',
+};
+
+export const arkCredentials = {
+  pass: 'arkpass',
 };
 
 export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = {
@@ -347,6 +357,69 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     command: '',
     variables: [],
   },
+  arkd: {
+    name: 'Arkd Server',
+    imageName: 'ghcr.io/arkade-os/arkd',
+    logo: arkLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    variables: ['name'],
+    volumeDirName: 'arkd',
+    command: ['arkd'].join('\n '),
+    envVars: {
+      ARKD_NETWORK: 'regtest',
+
+      ARKD_TX_BUILDER_TYPE: 'covenantless',
+      ARKD_SCHEDULER_TYPE: 'block',
+      ARKD_ROUND_INTERVAL: '30', // in seconds
+
+      // debug level
+      ARKD_LOG_LEVEL: '5',
+
+      ARKD_ESPLORA_URL: '',
+      ARKD_DB_TYPE: 'badger',
+      ARKD_EVENT_DB_TYPE: 'badger',
+      ARKD_LIVE_STORE_TYPE: 'inmemory',
+      ARKD_ALLOW_CSV_BLOCK_TYPE: 'true',
+
+      ARKD_WALLET_BITCOIND_RPC_USER: bitcoinCredentials.user,
+      ARKD_WALLET_BITCOIND_RPC_PASS: bitcoinCredentials.pass,
+      ARKD_WALLET_BITCOIND_RPC_HOST: '{{backendName}}',
+      ARKD_WALLET_BITCOIND_ZMQ_BLOCK: 'tcp://{{backendName}}:28334',
+      ARKD_WALLET_BITCOIND_ZMQ_TX: 'tcp://{{backendName}}:28335',
+      ARKD_WALLET_LOG_LEVEL: '5',
+      ARKD_WALLET_NETWORK: 'regtest',
+      // ARKD_WALLET_SIGNER_KEY:
+      // 'afcd3fa10f82a05fddc9574fdb13b3991b568e89cc39a72ba4401df8abef35f0',
+      ARKD_WALLET_DATADIR: '/app/data/wallet',
+
+      // sane defaults
+      ARKD_DATADIR: '/app/data/arkd',
+      ARKD_PORT: BasePorts.arkd.api.toString(),
+
+      ARKD_WALLET_ADDR: 'host.docker.internal:6060',
+
+      ARKD_NO_MACAROONS: 'true',
+      ARKD_NO_TLS: 'true',
+
+      ARKD_UNLOCKER_TYPE: 'env',
+      ARKD_UNLOCKER_PASSWORD: arkCredentials.pass,
+
+      ARKD_NOTE_URI_PREFIX: 'Ark on Polar: ',
+      ARKD_NOSTR_DEFAULT_RELAYS: 'wss://relay.johnnyasantos.com',
+
+      // ARKD_VTXO_TREE_EXPIRY: '512',
+      ARKD_UNILATERAL_EXIT_DELAY: '512',
+      ARKD_BOARDING_EXIT_DELAY: '1024',
+
+      ARKD_ROUND_MAX_PARTICIPANTS_COUNT: '18',
+      ARKD_ROUND_MIN_PARTICIPANTS_COUNT: '1',
+
+      ARKD_UTXO_MX_AMOUNT: '-1', // unset
+      ARKD_UTXO_MIN_AMOUNT: '-1', // dust
+      ARKD_VTXO_MAX_AMOUNT: '-1', // unset
+      ARKD_VTXO_MIN_AMOUNT: '-1', // dust
+    },
+  },
 };
 
 /**
@@ -455,6 +528,15 @@ export const defaultRepoState: DockerRepoState = {
         '0.15.1-alpha': '30.0',
         '0.15.0-alpha': '30.0',
         '0.14.1-alpha': '30.0',
+      },
+    },
+    arkd: {
+      latest: 'v0.7.1',
+      versions: ['v0.7.1', 'v0.7.0', 'v0.6.3'],
+      compatibility: {
+        'v0.7.1': '28.0',
+        'v0.7.0': '28.0',
+        'v0.6.3': '28.0',
       },
     },
   },
