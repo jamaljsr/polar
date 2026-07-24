@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "Описание моей сети",
   "cmps.network.NewNetwork.customLabel": "Сколько пользовательских узлов?",
   "cmps.network.NewNetwork.managedLabel": "Сколько управляемых узлов?",
-  "cmps.network.NewNetwork.clightningWindows": "Пока не поддерживается в Windows.",
   "cmps.network.NewNetwork.btnCreate": "Создать сеть",
   "cmps.network.NewNetwork.createError": "Не удалось создать новую сеть",
   "cmps.network.NetworkSetting.title": "Сетевые настройки",
