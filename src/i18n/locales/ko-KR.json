@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "My Network Description",
   "cmps.network.NewNetwork.customLabel": "커스텀 노드는 몇 개입니까?",
   "cmps.network.NewNetwork.managedLabel": "관리 노드는 몇 개입니까?",
-  "cmps.network.NewNetwork.clightningWindows": "Windows에서는 아직 지원되지 않습니다.",
   "cmps.network.NewNetwork.btnCreate": "네트워크 만들기",
   "cmps.network.NewNetwork.createError": "디렉토리를 생성할 수 없습니다.",
   "cmps.network.NetworkSetting.title": "Network Setting",
