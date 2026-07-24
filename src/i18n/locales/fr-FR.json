@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "Description de mon réseau",
   "cmps.network.NewNetwork.customLabel": "Combien de nœuds personnalisés?",
   "cmps.network.NewNetwork.managedLabel": "Combien de nœuds gérés?",
-  "cmps.network.NewNetwork.clightningWindows": "Pas encore pris en charge sous Windows.",
   "cmps.network.NewNetwork.btnCreate": "Créer un réseau",
   "cmps.network.NewNetwork.createError": "Impossible de créer le nouveau réseau",
   "cmps.network.NetworkSetting.title": "Paramètres du réseau",
