@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "私のネットワークの説明",
   "cmps.network.NewNetwork.customLabel": "カスタムノードはいくつありますか？",
   "cmps.network.NewNetwork.managedLabel": "管理対象ノードはいくつですか？",
-  "cmps.network.NewNetwork.clightningWindows": "Windowsではまだサポートされていません。",
   "cmps.network.NewNetwork.btnCreate": "ネットワークを作成",
   "cmps.network.NewNetwork.createError": "新しいネットワークを作成できません",
   "cmps.network.NetworkSetting.title": "ネットワーク設定",
