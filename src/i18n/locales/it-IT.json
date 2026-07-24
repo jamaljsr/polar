@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "Descrizione Della Mia Rete",
   "cmps.network.NewNetwork.customLabel": "Quanti nodi personalizzati?",
   "cmps.network.NewNetwork.managedLabel": "Quanti nodi gestiti?",
-  "cmps.network.NewNetwork.clightningWindows": "Non supportato ancora su Windows.",
   "cmps.network.NewNetwork.btnCreate": "Crea rete",
   "cmps.network.NewNetwork.createError": "Impossibile creare la nuova rete",
   "cmps.network.NetworkSetting.title": "Impostazioni Di Rete",
