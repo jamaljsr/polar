@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "Mi descripción de red",
   "cmps.network.NewNetwork.customLabel": "¿Cuántos nodos personalizados?",
   "cmps.network.NewNetwork.managedLabel": "¿Cuántos nodos gestionados?",
-  "cmps.network.NewNetwork.clightningWindows": "Todavía no es compatible con Windows.",
   "cmps.network.NewNetwork.btnCreate": "Crear red",
   "cmps.network.NewNetwork.createError": "No se puede crear la nueva red",
   "cmps.network.NetworkSetting.title": "Configuración de red",
