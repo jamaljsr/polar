@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "我的网络的描述",
   "cmps.network.NewNetwork.customLabel": "有多少个自定义节点？",
   "cmps.network.NewNetwork.managedLabel": "多少个受管节点？",
-  "cmps.network.NewNetwork.clightningWindows": "Windows尚不支持。",
   "cmps.network.NewNetwork.btnCreate": "建立网络",
   "cmps.network.NewNetwork.createError": "无法创建新网络",
   "cmps.network.NetworkSetting.title": "网络设置",
