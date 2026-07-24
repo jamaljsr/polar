@@ -545,7 +545,6 @@
   "cmps.network.NewNetwork.namePhlDescription": "Meine Netzwerk-Beschreibung",
   "cmps.network.NewNetwork.customLabel": "Wie viele benutzerdefinierte Knoten?",
   "cmps.network.NewNetwork.managedLabel": "Wie viele verwaltete Knoten?",
-  "cmps.network.NewNetwork.clightningWindows": "Wird unter Windows noch nicht unterstützt.",
   "cmps.network.NewNetwork.btnCreate": "Netzwerk erstellen",
   "cmps.network.NewNetwork.createError": "Das neue Netzwerk konnte nicht erstellt werden",
   "cmps.network.NetworkSetting.title": "Netzwerkeinstellungen",
