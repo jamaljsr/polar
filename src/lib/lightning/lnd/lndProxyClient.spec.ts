@@ -173,4 +173,9 @@ describe('LndService', () => {
     lndProxyClient.unsubscribeEvents(node);
     expect(lndProxyClient.streamer.unsubscribe).not.toHaveBeenCalled();
   });
+
+  it('should call the getState ipc', () => {
+    lndProxyClient.getState(node);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.getState, { node });
+  });
 });
