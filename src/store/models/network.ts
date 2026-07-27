@@ -852,6 +852,13 @@ const networkModel: NetworkModel = {
         actions.updateNodePorts({ id: node.networkId, ports });
         // re-fetch the network with the updated ports
         network = getState().networks.find(n => n.id === networkId) as Network;
+        // re-fetch the node so monitorStartup uses the updated ports, not the stale ones
+        const updatedNode = [
+          ...network.nodes.lightning,
+          ...network.nodes.bitcoin,
+          ...network.nodes.tap,
+        ].find(n => n.name === node.name);
+        if (updatedNode) node = updatedNode;
         await actions.save();
         await injections.dockerService.saveComposeFile(network);
       }
