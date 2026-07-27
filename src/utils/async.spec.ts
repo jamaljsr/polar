@@ -1,4 +1,4 @@
-import { delay, waitFor } from './async';
+import { AbortWaitError, delay, waitFor } from './async';
 import { mockProperty } from './tests';
 
 describe('Async Util', () => {
@@ -49,6 +49,14 @@ describe('Async Util', () => {
       await expect(promise).resolves.toBe(true);
       // confirm the spy was called
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('should abort on AbortWaitError thrown inside the interval', async () => {
+      const condition = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('not-yet'))
+        .mockRejectedValue(new AbortWaitError('abort-reason'));
+      await expect(waitFor(condition, 10, 100)).rejects.toThrow('abort-reason');
     });
   });
 });

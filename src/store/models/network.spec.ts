@@ -3,7 +3,7 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TapdNode } from 'shared/types';
+import { CLightningNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
@@ -952,6 +952,56 @@ describe('Network model', () => {
       node = firstNetwork().nodes.lightning[4];
       expect(node.ports.rest).toBe(8085);
     });
+
+    it('should start the node with its updated ports, not the stale ones', async () => {
+      const staleNode = firstNetwork().nodes.lightning[1] as CLightningNode;
+      const staleRestPort = staleNode.ports.rest;
+      const portsInUse = [staleRestPort];
+      detectPortMock.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const { toggleNode } = store.getActions().network;
+      await toggleNode(staleNode);
+      expect(injections.dockerService.startNode).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          ports: expect.objectContaining({ rest: staleRestPort + 1 }),
+        }),
+      );
+    });
+
+    it('should fall back to the passed-in node if it is renamed elsewhere while ports are being checked', async () => {
+      const targetNode = firstNetwork().nodes.lightning[1] as CLightningNode;
+      const originalName = targetNode.name;
+      const conflictPort = targetNode.ports.rest;
+
+      detectPortMock.mockImplementation(async (port: number) => {
+        if (port === conflictPort) {
+          const { setNetworks } = store.getActions().network;
+          const network = firstNetwork();
+          setNetworks([
+            {
+              ...network,
+              nodes: {
+                ...network.nodes,
+                lightning: network.nodes.lightning.map(n =>
+                  n.name === originalName ? { ...n, name: 'renamed-elsewhere' } : n,
+                ),
+              },
+            },
+          ]);
+          return port + 1;
+        }
+        return port;
+      });
+
+      const { toggleNode } = store.getActions().network;
+      await toggleNode(targetNode);
+      expect(injections.dockerService.startNode).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ name: originalName }),
+      );
+    });
   });
 
   describe('TAP network', () => {
@@ -1080,6 +1130,20 @@ describe('Network model', () => {
       bitcoin[0].type = 'asdf' as any;
       await monitorStartup(bitcoin);
       expect(bitcoinServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+    });
+
+    it('should set lightning node status to Locked when waitUntilOnline aborts', async () => {
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => n.implementation === 'LND')
+          .forEach(n => expect(n.status).toBe(Status.Locked));
+      });
     });
   });
 
