@@ -253,6 +253,19 @@ export const initLndProxy = (ipc: IpcMain) => {
 };
 
 /**
+ * Builds the TLS-only (no macaroon) client config shared by the unauthenticated
+ * State and WalletUnlocker RPC clients, which are available before wallet init.
+ */
+const getNoAuthConfig = async (node: LndNode): Promise<LND.LndClientOptions> => {
+  const { ports, paths } = node;
+  return {
+    socket: `127.0.0.1:${ports.grpc}`,
+    cert: (await readFile(paths.tlsCert)).toString('hex'),
+    macaroon: '',
+  };
+};
+
+/**
  * Separate cache for unauthenticated State RPC clients (TLS only, no macaroon).
  * Used to query wallet state before the wallet is unlocked/created.
  */
@@ -261,27 +274,42 @@ let noAuthRpcCache: {
 } = {};
 
 const getNoAuthRpc = async (node: LndNode): Promise<LND.StateApi> => {
-  const { name, ports, paths, networkId } = node;
+  const { name, networkId } = node;
   const id = `n${networkId}-${name}`;
   if (!noAuthRpcCache[id]) {
-    const config: LND.LndClientOptions = {
-      socket: `127.0.0.1:${ports.grpc}`,
-      cert: (await readFile(paths.tlsCert)).toString('hex'),
-      macaroon: '',
-    };
-    noAuthRpcCache[id] = LND.StateApi.create(config);
+    noAuthRpcCache[id] = LND.StateApi.create(await getNoAuthConfig(node));
   }
   return noAuthRpcCache[id];
 };
 
 /**
- * Evict both caches for a node. Called when a WalletUnlocker RPC errors,
- * since a stale cached connection is a likely cause.
+ * Separate cache for unauthenticated WalletUnlocker RPC clients (TLS only, no
+ * macaroon). Used for the genSeed/initWallet/unlockWallet RPCs.
+ */
+let walletUnlockerRpcCache: {
+  [key: string]: LND.WalletUnlockerApi;
+} = {};
+
+const getWalletUnlockerRpc = async (node: LndNode): Promise<LND.WalletUnlockerApi> => {
+  const { name, networkId } = node;
+  const id = `n${networkId}-${name}`;
+  if (!walletUnlockerRpcCache[id]) {
+    walletUnlockerRpcCache[id] = LND.WalletUnlockerApi.create(
+      await getNoAuthConfig(node),
+    );
+  }
+  return walletUnlockerRpcCache[id];
+};
+
+/**
+ * Evict all caches for a node. Called after initWallet/unlockWallet because
+ * LND restarts its gRPC server after these calls, invalidating cached connections.
  */
 const evictRpcCache = (node: LndNode) => {
   const { name, networkId } = node;
   const id = `n${networkId}-${name}`;
   delete noAuthRpcCache[id];
+  delete walletUnlockerRpcCache[id];
   delete rpcCache[id];
 };
 
@@ -290,11 +318,43 @@ const getState = async (args: { node: LndNode }): Promise<LND.GetStateResponse> 
   return await rpc.getState();
 };
 
+const genSeed = async (args: { node: LndNode }): Promise<LND.GenSeedResponse> => {
+  const rpc = await getWalletUnlockerRpc(args.node);
+  return await rpc.genSeed();
+};
+
+const initWallet = async (args: {
+  node: LndNode;
+  req: LND.InitWalletRequestPartial;
+}): Promise<LND.InitWalletResponse> => {
+  const rpc = await getWalletUnlockerRpc(args.node);
+  const res = await rpc.initWallet(args.req);
+  evictRpcCache(args.node);
+  return res;
+};
+
+const unlockWallet = async (args: {
+  node: LndNode;
+  req: LND.UnlockWalletRequestPartial;
+}): Promise<LND.UnlockWalletResponse> => {
+  const rpc = await getWalletUnlockerRpc(args.node);
+  const res = await rpc.unlockWallet(args.req);
+  evictRpcCache(args.node);
+  return res;
+};
+
 const walletUnlockerListeners: {
   [key: string]: (...args: any) => Promise<any>;
 } = {
   [ipcChannels.getState]: getState,
+  [ipcChannels.genSeed]: genSeed,
+  [ipcChannels.initWallet]: initWallet,
+  [ipcChannels.unlockWallet]: unlockWallet,
 };
+
+// responses that carry secrets (seed mnemonic, admin macaroon) which must
+// never be written to main.log
+const REDACTED_RESPONSE_CHANNELS = new Set([ipcChannels.genSeed, ipcChannels.initWallet]);
 
 /**
  * Register IPC handlers for WalletUnlocker RPCs under the
@@ -314,7 +374,11 @@ export const initLndWalletUnlockerProxy = (ipc: IpcMain) => {
       }
       try {
         const result = await func(...args);
-        debug(`LndWalletUnlockerProxy: send response "${uniqueChan}"`, toJSON(result));
+        if (REDACTED_RESPONSE_CHANNELS.has(channel)) {
+          debug(`LndWalletUnlockerProxy: send response "${uniqueChan}" [redacted]`);
+        } else {
+          debug(`LndWalletUnlockerProxy: send response "${uniqueChan}"`, toJSON(result));
+        }
         event.reply(uniqueChan, result);
       } catch (err: any) {
         debug(`LndWalletUnlockerProxy: send error "${uniqueChan}"`, err);
@@ -333,4 +397,5 @@ export const initLndWalletUnlockerProxy = (ipc: IpcMain) => {
 export const clearLndProxyCache = () => {
   rpcCache = {};
   noAuthRpcCache = {};
+  walletUnlockerRpcCache = {};
 };

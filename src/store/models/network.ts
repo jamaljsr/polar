@@ -9,6 +9,7 @@ import {
   CommonNode,
   LightningNode,
   LitdNode,
+  LndNode,
   NodeImplementation,
   Status,
   TapdNode,
@@ -165,6 +166,13 @@ export interface NetworkModel {
     StoreInjections,
     RootModel,
     Promise<void>
+  >;
+  initNode: Thunk<
+    NetworkModel,
+    { node: LightningNode; password: string },
+    StoreInjections,
+    RootModel,
+    Promise<string[]>
   >;
 
   /**
@@ -1186,6 +1194,14 @@ const networkModel: NetworkModel = {
       }
     },
   ),
+  initNode: thunk(async (actions, { node, password }, { injections }) => {
+    const mnemonic = await injections.lndService.genSeed(node as LndNode);
+    await injections.lndService.initWallet(node as LndNode, password, mnemonic);
+    // resume the same startup monitoring used when a network is started, so
+    // the node transitions from Locked to Started once it comes online
+    await actions.monitorStartup([node]);
+    return mnemonic;
+  }),
   setManualMineCount: action((state, { id, count }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
