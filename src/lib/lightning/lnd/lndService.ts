@@ -223,6 +223,29 @@ class LndService implements LightningService {
     return res.state;
   }
 
+  async genSeed(node: LightningNode): Promise<string[]> {
+    const res = await proxy.genSeed(this.cast(node));
+    return res.cipherSeedMnemonic;
+  }
+
+  async initWallet(
+    node: LightningNode,
+    password: string,
+    mnemonic: string[],
+  ): Promise<Buffer> {
+    const res = await proxy.initWallet(this.cast(node), {
+      walletPassword: Buffer.from(password, 'utf-8'),
+      cipherSeedMnemonic: mnemonic,
+    });
+    return res.adminMacaroon;
+  }
+
+  async unlockWallet(node: LightningNode, password: string): Promise<void> {
+    await proxy.unlockWallet(this.cast(node), {
+      walletPassword: Buffer.from(password, 'utf-8'),
+    });
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out
