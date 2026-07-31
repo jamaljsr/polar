@@ -275,6 +275,7 @@ export interface LitdLibrary {
 
 export interface LndWalletLibrary {
   getWalletState: (node: LndNode) => Promise<LND.WalletState>;
+  unlockWallet: (node: LndNode, password: string) => Promise<void>;
   genSeed: (node: LndNode) => Promise<string[]>;
   initWallet: (node: LndNode, password: string, mnemonic: string[]) => Promise<Buffer>;
 }

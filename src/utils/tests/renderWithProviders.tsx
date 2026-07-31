@@ -99,6 +99,7 @@ export const injections: StoreInjections = {
   },
   lndService: {
     getWalletState: jest.fn(),
+    unlockWallet: jest.fn(),
     genSeed: jest.fn(),
     initWallet: jest.fn(),
   },

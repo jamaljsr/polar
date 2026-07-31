@@ -1,7 +1,9 @@
 import React, { ReactNode, useMemo, useState } from 'react';
+import { useAsync } from 'react-async-hook';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
-import { Radio, Tooltip } from 'antd';
+import * as LND from '@lightningpolar/lnd-api';
+import { Alert, Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import {
   CLightningNode,
@@ -14,6 +16,7 @@ import {
 import { useStoreActions, useStoreState } from 'store';
 import { eclairCredentials, litdCredentials } from 'utils/constants';
 import { ellipseInner } from 'utils/strings';
+import { Loader } from 'components/common';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { BasicAuth, EncodedStrings, FilePaths, LndConnect } from './connect';
@@ -41,6 +44,18 @@ const Styled = {
     margin-left: 5px;
     color: #aaa;
   `,
+  Alert: styled(Alert)`
+    margin-bottom: 16px;
+  `,
+};
+
+const authTypeLabelKeys: Record<string, string> = {
+  lnc: 'lnc',
+  paths: 'filePaths',
+  hex: 'hexStrings',
+  base64: 'base64Strings',
+  lndc: 'lndConnect',
+  basic: 'basicAuth',
 };
 
 export interface ConnectionInfo {
@@ -83,12 +98,24 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       : 'paths',
   );
   const { openInBrowser } = useStoreActions(s => s.app);
+  const { getWalletState } = useStoreActions(s => s.lightning);
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
   const pubkey = nodeState && nodeState.info ? nodeState.info.pubkey : '';
   const p2pLnUrlInternal = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
 
+  // a Locked LND node could be waiting to be unlocked (macaroons on disk from a
+  // previous init) or waiting to be initialized (no macaroons yet)
+  // Status.Locked alone doesn't tell us which, so query the wallet state directly
+  const isLockedLnd = node.status === Status.Locked && node.implementation === 'LND';
+  const walletStateAsync = useAsync(async (): Promise<LND.WalletState | undefined> => {
+    if (!isLockedLnd) return undefined;
+    return await getWalletState(node as LndNode);
+  }, [node.name, isLockedLnd]);
+  const walletState = walletStateAsync.result;
+  const walletNotInitialized = isLockedLnd && walletState === 'NON_EXISTING';
+
   const info = useMemo((): ConnectionInfo => {
-    if (node.status === Status.Started) {
+    if (node.status === Status.Started || isLockedLnd) {
       if (node.implementation === 'LND') {
         const lnd = node as LndNode;
         return {
@@ -96,14 +123,18 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           restDocsUrl: 'https://lightning.engineering/api-docs/api/lnd/',
           grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
           grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lnd/',
-          credentials: {
-            admin: lnd.paths.adminMacaroon,
-            readOnly: lnd.paths.readonlyMacaroon,
-            invoice: lnd.paths.invoiceMacaroon,
-            cert: lnd.paths.tlsCert,
-          },
-          p2pUriExternal: `${pubkey}@127.0.0.1:${lnd.ports.p2p}`,
-          authTypes: ['paths', 'hex', 'base64', 'lndc'],
+          credentials: walletNotInitialized
+            ? { cert: lnd.paths.tlsCert }
+            : {
+                admin: lnd.paths.adminMacaroon,
+                readOnly: lnd.paths.readonlyMacaroon,
+                invoice: lnd.paths.invoiceMacaroon,
+                cert: lnd.paths.tlsCert,
+              },
+          p2pUriExternal: pubkey ? `${pubkey}@127.0.0.1:${lnd.ports.p2p}` : '',
+          authTypes: walletNotInitialized
+            ? ['paths']
+            : ['paths', 'hex', 'base64', 'lndc'],
         };
       } else if (node.implementation === 'c-lightning') {
         const cln = node as CLightningNode;
@@ -149,7 +180,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             tap: litd.paths.tapMacaroon,
           },
           p2pUriExternal: `${pubkey}@127.0.0.1:${litd.ports.p2p}`,
-          authTypes: ['paths', 'hex', 'base64', 'lnc'],
+          authTypes: ['lnc', 'paths', 'hex', 'base64'],
         };
       }
     }
@@ -161,7 +192,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
       p2pUriExternal: '',
       authTypes: [],
     } as ConnectionInfo;
-  }, [node, pubkey]);
+  }, [node, pubkey, isLockedLnd, walletNotInitialized]);
 
   // ensure an appropriate auth type is used when switching nodes
   const nodeAuthType = useMemo(() => {
@@ -171,7 +202,12 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     return authType;
   }, [authType, info.authTypes]);
 
-  if (node.status !== Status.Started) {
+  if (isLockedLnd && !walletState) {
+    // still querying GetState to tell LOCKED apart from NON_EXISTING
+    return <Loader />;
+  }
+
+  if (node.status !== Status.Started && !isLockedLnd) {
     return <>{l('notStarted')}</>;
   }
 
@@ -249,6 +285,14 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   return (
     <>
+      {isLockedLnd && (
+        <Styled.Alert
+          type={walletNotInitialized ? 'warning' : 'info'}
+          showIcon
+          closable={false}
+          message={walletNotInitialized ? l('walletNotInitialized') : l('walletLocked')}
+        />
+      )}
       <DetailsList details={hosts} />
       <Styled.RadioGroup
         name="authType"
@@ -256,26 +300,11 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         size="small"
         onChange={e => setAuthType(e.target.value)}
       >
-        {node.implementation === 'litd' && (
-          <Radio.Button value="lnc">{l('lnc')}</Radio.Button>
-        )}
-        {(credentials.admin || credentials.rune) && [
-          <Radio.Button key="paths" value="paths">
-            {l('filePaths')}
-          </Radio.Button>,
-          <Radio.Button key="hex" value="hex">
-            {l('hexStrings')}
-          </Radio.Button>,
-          <Radio.Button key="base64" value="base64">
-            {l('base64Strings')}
-          </Radio.Button>,
-        ]}
-        {node.implementation === 'LND' && (
-          <Radio.Button value="lndc">{l('lndConnect')}</Radio.Button>
-        )}
-        {credentials.basicAuth && (
-          <Radio.Button value="basic">{l('basicAuth')}</Radio.Button>
-        )}
+        {info.authTypes.map(type => (
+          <Radio.Button key={type} value={type}>
+            {l(authTypeLabelKeys[type])}
+          </Radio.Button>
+        ))}
       </Styled.RadioGroup>
       {authCmps[nodeAuthType]}
     </>

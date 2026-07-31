@@ -35,7 +35,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
   const [mnemonic, setMnemonic] = useState<string[]>();
   const { visible, nodeName } = useStoreState(s => s.modals.unlockNode);
   const { hideUnlockNode } = useStoreActions(s => s.modals);
-  const { initNode } = useStoreActions(s => s.network);
+  const { initNode, unlockNode } = useStoreActions(s => s.network);
   const { getWalletState } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
 
@@ -54,16 +54,22 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
 
   const submitAsync = useAsyncCallback(async (node: LndNode, password: string) => {
     try {
-      const words = await initNode({ node, password });
-      setMnemonic(words);
-      notify({ message: l('initSuccess', { name: node.name }) });
+      if (notInitialized) {
+        const words = await initNode({ node, password });
+        setMnemonic(words);
+        notify({ message: l('initSuccess', { name: node.name }) });
+      } else {
+        await unlockNode({ node, password });
+        hideUnlockNode();
+        notify({ message: l('success', { name: node.name }) });
+      }
     } catch (error: any) {
-      notify({ message: l('initError'), error });
+      notify({ message: l(notInitialized ? 'initError' : 'error'), error });
     }
   });
 
   const handleSubmit = (values: any) => {
-    if (!node || !notInitialized) return;
+    if (!node) return;
     submitAsync.execute(node, values.password);
   };
 
@@ -93,7 +99,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
       okText={l(notInitialized ? 'initOkBtn' : 'okBtn')}
       okButtonProps={{
         loading: submitAsync.loading,
-        disabled: walletStateAsync.loading || !notInitialized,
+        disabled: walletStateAsync.loading,
       }}
       onOk={form.submit}
     >
@@ -117,7 +123,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
             />
           </Styled.CopyAll>
         </>
-      ) : notInitialized ? (
+      ) : (
         <Form
           form={form}
           layout="vertical"
@@ -131,7 +137,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
             label={l('label')}
             rules={[
               { required: true, message: l('cmps.forms.required') },
-              { min: 8, message: l('passwordTooShort') },
+              ...(notInitialized ? [{ min: 8, message: l('passwordTooShort') }] : []),
             ]}
           >
             <Input.Password
@@ -140,8 +146,6 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
             />
           </Form.Item>
         </Form>
-      ) : (
-        <Alert type="info" showIcon message={l('unlockNotAvailable')} />
       )}
     </Modal>
   );
