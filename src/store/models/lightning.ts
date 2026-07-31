@@ -1,6 +1,8 @@
+import { info } from 'electron-log';
+import * as LND from '@lightningpolar/lnd-api';
 import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { throttle } from 'lodash';
-import { LightningNode, Status } from 'shared/types';
+import { LightningNode, LndNode, Status } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { ChannelInfo, Network, PreInvoice, StoreInjections } from 'types';
 import { delay } from 'utils/async';
@@ -63,6 +65,13 @@ export interface LightningModel {
   >;
   getChannels: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
   getAllInfo: Thunk<LightningModel, LightningNode, StoreInjections, RootModel>;
+  getWalletState: Thunk<
+    LightningModel,
+    LndNode,
+    StoreInjections,
+    RootModel,
+    Promise<LND.WalletState>
+  >;
   connectAllPeers: Thunk<LightningModel, Network, StoreInjections, RootModel>;
   depositFunds: Thunk<LightningModel, DepositFundsPayload, StoreInjections, RootModel>;
   openChannel: Thunk<
@@ -157,6 +166,9 @@ const lightningModel: LightningModel = {
     await actions.getWalletBalance(node);
     await actions.getChannels(node);
   }),
+  getWalletState: thunk(async (actions, node, { injections }) => {
+    return injections.lndService.getWalletState(node);
+  }),
   connectAllPeers: thunk(async (actions, network, { injections, getState }) => {
     // fetch info for each ln node
     for (const node of network.nodes.lightning) {
@@ -180,7 +192,11 @@ const lightningModel: LightningModel = {
       const pubkey = pubKeys[node.name];
       // filter out the node's own rpcUrl
       const urls = pubkey ? rpcUrls.filter(u => !u.startsWith(pubkey)) : rpcUrls;
-      await injections.lightningFactory.getService(node).connectPeers(node, urls);
+      try {
+        await injections.lightningFactory.getService(node).connectPeers(node, urls);
+      } catch (err: any) {
+        info(`Failed to connect peers for '${node.name}': ${err.message}`);
+      }
     }
   }),
   depositFunds: thunk(

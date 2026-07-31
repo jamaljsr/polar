@@ -9,3 +9,5 @@ export { default as StatusTag } from './StatusTag';
 export { default as RemoveNode } from './RemoveNode';
 export { default as RenameNodeModal } from './RenameNodeModal';
 export { default as RenameNodeButton } from './RenameNodeButton';
+export { default as UnlockNodeModal } from './UnlockNodeModal';
+export { default as UnlockNodeButton } from './UnlockNodeButton';

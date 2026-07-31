@@ -7,7 +7,7 @@ import { useDebounce } from 'hooks';
 import { useTheme } from 'hooks/useTheme';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { Loader, RenameNodeModal } from 'components/common';
+import { Loader, RenameNodeModal, UnlockNodeModal } from 'components/common';
 import AdvancedOptionsModal from 'components/common/AdvancedOptionsModal';
 import BalanceChannelsModal from 'components/common/BalanceChannelsModal';
 import SendOnChainModal from './bitcoin/actions/SendOnChainModal';
@@ -67,6 +67,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
     balanceChannels,
     changeTapBackend,
     renameNode,
+    unlockNode,
     addLncSession,
     addSimulation,
   } = useStoreState(s => s.modals);
@@ -118,6 +119,7 @@ const NetworkDesigner: React.FC<Props> = ({ network, updateStateDelay = 3000 }) 
       {changeTapBackend.visible && <ChangeTapBackendModal network={network} />}
       {sendAsset.visible && <SendAssetModal network={network} />}
       {renameNode.visible && <RenameNodeModal network={network} />}
+      {unlockNode.visible && <UnlockNodeModal network={network} />}
       {addLncSession.visible && <LncAddSessionModal network={network} />}
       {addSimulation.visible && <AddSimulationModal network={network} />}
     </Styled.Designer>
