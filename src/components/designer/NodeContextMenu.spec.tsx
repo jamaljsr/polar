@@ -68,6 +68,15 @@ describe('NodeContextMenu', () => {
     expect(getByText('Remove')).toBeInTheDocument();
   });
 
+  it('should display the correct options for a locked lightning node', async () => {
+    const { getByText, queryByText } = renderComponent('alice', Status.Locked);
+    expect(getByText('Unlock')).toBeInTheDocument();
+    expect(getByText('Stop')).toBeInTheDocument();
+    expect(getByText('View Logs')).toBeInTheDocument();
+    expect(queryByText('Create Invoice')).not.toBeInTheDocument();
+    expect(queryByText('Start')).not.toBeInTheDocument();
+  });
+
   it('should display the correct options for a started bitcoin node', async () => {
     const { getByText } = renderComponent('backend1', Status.Started);
     expect(getByText('Send to Address')).toBeInTheDocument();
@@ -213,6 +222,14 @@ describe('NodeContextMenu', () => {
     expect(
       await findByText('Are you sure you want to stop the alice node?'),
     ).toBeInTheDocument();
+  });
+
+  it('should show the unlock modal', async () => {
+    const { getByText, store } = renderComponent('alice', Status.Locked);
+    expect(store.getState().modals.unlockNode.visible).toBe(false);
+    fireEvent.click(getByText('Unlock'));
+    expect(store.getState().modals.unlockNode.visible).toBe(true);
+    expect(store.getState().modals.unlockNode.nodeName).toBe('alice');
   });
 
   it('should open log viewer', async () => {
