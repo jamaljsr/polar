@@ -8,6 +8,7 @@ import {
   RemoveNode,
   RenameNodeButton,
   RestartNode,
+  UnlockNodeButton,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
@@ -96,6 +97,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       [Status.Started, Status.Locked].includes(node.status),
     ),
     isStarted ? [{ type: 'divider' }] : [],
+    addItemIf(
+      'unlock',
+      <UnlockNodeButton type="menu" node={node as LightningNode} />,
+      node.status === Status.Locked,
+    ),
     addItemIf(
       'start',
       <RestartNode menuType="start" node={node} />,
