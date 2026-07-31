@@ -43,6 +43,8 @@ import { RootModel } from './';
 
 const { l } = prefixTranslation('store.models.network');
 
+const unlockPollers: { [key: string]: NodeJS.Timeout } = {};
+
 interface AddNetworkArgs {
   name: string;
   description: string;
@@ -896,6 +898,33 @@ const networkModel: NetworkModel = {
       const network = getStoreState().network.networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
 
+      // once a node is found to be Locked, keep polling its wallet state in the
+      // background so the UI notices if it gets unlocked outside of Polar
+      const pollForExternalUnlock = (ln: LndNode) => {
+        const key = `n${ln.networkId}-${ln.name}`;
+        clearInterval(unlockPollers[key]);
+        const timer = setInterval(async () => {
+          const net = getStoreState().network.networks.find(n => n.id === id);
+          const current = net?.nodes.lightning.find(n => n.name === ln.name);
+          if (!current || current.status !== Status.Locked) {
+            clearInterval(timer);
+            delete unlockPollers[key];
+            return;
+          }
+          try {
+            const state = await injections.lndService.getWalletState(current as LndNode);
+            if (state === 'RPC_ACTIVE' || state === 'SERVER_ACTIVE') {
+              clearInterval(timer);
+              if (unlockPollers[key] === timer) delete unlockPollers[key];
+              actions.monitorStartup([current]);
+            }
+          } catch {
+            // node isn't reachable yet, keep polling until the timer above bails out
+          }
+        }, 3 * 1000);
+        unlockPollers[key] = timer;
+      };
+
       const lnNodesOnline: Promise<void>[] = [];
       const btcNodesOnline: Promise<void>[] = [];
       for (const node of nodes) {
@@ -914,6 +943,7 @@ const networkModel: NetworkModel = {
               .catch(error => {
                 if (error instanceof AbortWaitError && ln.implementation === 'LND') {
                   actions.setStatus({ id, status: Status.Locked, only: ln.name });
+                  pollForExternalUnlock(ln as LndNode);
                 } else {
                   actions.setStatus({ id, status: Status.Error, only: ln.name, error });
                 }
