@@ -356,6 +356,42 @@ describe('LndService', () => {
     });
   });
 
+  describe('wallet RPCs', () => {
+    it('should return seed mnemonic', async () => {
+      const mnemonic = ['word1', 'word2', 'word3'];
+      lndProxyClient.genSeed = jest
+        .fn()
+        .mockResolvedValue({ cipherSeedMnemonic: mnemonic });
+      const result = await lndService.genSeed(node);
+      expect(result).toEqual(mnemonic);
+    });
+
+    it('should return admin macaroon from initWallet', async () => {
+      const macaroon = Buffer.from('deadbeef', 'hex');
+      lndProxyClient.initWallet = jest
+        .fn()
+        .mockResolvedValue({ adminMacaroon: macaroon });
+      const result = await lndService.initWallet(node, 'password', ['word1', 'word2']);
+      expect(result).toEqual(macaroon);
+      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          walletPassword: Buffer.from('password', 'utf-8'),
+          cipherSeedMnemonic: ['word1', 'word2'],
+        }),
+      );
+    });
+
+    it('should call unlockWallet with password', async () => {
+      lndProxyClient.unlockWallet = jest.fn().mockResolvedValue({});
+      await expect(lndService.unlockWallet(node, 'password')).resolves.not.toThrow();
+      expect(lndProxyClient.unlockWallet).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ walletPassword: Buffer.from('password', 'utf-8') }),
+      );
+    });
+  });
+
   it('should subscribe Channel Events', async () => {
     const mockCallback = jest.fn();
     const pendingChannelEvent = { pendingOpenChannel: { txid: 'txid' } };

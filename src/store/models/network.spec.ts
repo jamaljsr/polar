@@ -686,19 +686,26 @@ describe('Network model', () => {
       expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(1);
     });
 
-    it('should catch exception if it cannot connect all peers', async () => {
+    it('should not let one node failing to connect peers block the rest', async () => {
       const err = new Error('test-error');
       // raise an error for the 3rd call to connect peers
       lightningServiceMock.connectPeers.mockResolvedValueOnce();
       lightningServiceMock.connectPeers.mockResolvedValueOnce();
       lightningServiceMock.connectPeers.mockRejectedValueOnce(err);
+      lightningServiceMock.connectPeers.mockResolvedValueOnce();
+      lightningServiceMock.connectPeers.mockResolvedValueOnce();
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
       await waitFor(() => {
-        expect(lightningServiceMock.connectPeers).toHaveBeenCalledTimes(3);
+        // all 5 nodes are still attempted, even though the 3rd one rejected
+        expect(lightningServiceMock.connectPeers).toHaveBeenCalledTimes(5);
       });
-      expect(logMock.info).toHaveBeenCalledWith('Failed to connect all LN peers', err);
+      // the error is swallowed per-node rather than aborting the whole sweep
+      expect(logMock.info).not.toHaveBeenCalledWith(
+        'Failed to connect all LN peers',
+        err,
+      );
     });
 
     it('should throw an error if a custom node image is missing', async () => {
