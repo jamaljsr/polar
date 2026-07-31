@@ -1153,6 +1153,69 @@ describe('Network model', () => {
           .forEach(n => expect(n.status).toBe(Status.Locked));
       });
     });
+
+    it('should detect a wallet unlocked outside of Polar and update the status', async () => {
+      jest.useFakeTimers();
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      const lndNodeNames = firstNetwork()
+        .nodes.lightning.filter(n => n.implementation === 'LND')
+        .map(n => n.name);
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => lndNodeNames.includes(n.name))
+          .forEach(n => expect(n.status).toBe(Status.Locked));
+      });
+
+      // still locked on this poll tick - the node should remain Locked
+      jest.advanceTimersByTime(3000);
+      await waitFor(() => {
+        expect(lndServiceMock.getWalletState).toHaveBeenCalled();
+      });
+      firstNetwork()
+        .nodes.lightning.filter(n => lndNodeNames.includes(n.name))
+        .forEach(n => expect(n.status).toBe(Status.Locked));
+
+      // simulate the wallet being unlocked outside of Polar
+      lndServiceMock.getWalletState.mockResolvedValue('RPC_ACTIVE');
+      lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      jest.advanceTimersByTime(3000);
+
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => lndNodeNames.includes(n.name))
+          .forEach(n => expect(n.status).toBe(Status.Started));
+      });
+      jest.useRealTimers();
+    });
+
+    it('should stop polling for an unlock once the node is no longer Locked', async () => {
+      jest.useFakeTimers();
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { monitorStartup, setStatus } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => n.implementation === 'LND')
+          .forEach(n => expect(n.status).toBe(Status.Locked));
+      });
+
+      setStatus({ id: firstNetwork().id, status: Status.Stopped });
+      lndServiceMock.getWalletState.mockClear();
+      jest.advanceTimersByTime(3000);
+      expect(lndServiceMock.getWalletState).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
   });
 
   describe('Unlocking and Initializing', () => {
