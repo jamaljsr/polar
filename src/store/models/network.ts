@@ -174,6 +174,13 @@ export interface NetworkModel {
     RootModel,
     Promise<string[]>
   >;
+  unlockNode: Thunk<
+    NetworkModel,
+    { node: LightningNode; password: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
 
   /**
    * If user didn't cancel the process, returns the destination of the generated Zip
@@ -1201,6 +1208,12 @@ const networkModel: NetworkModel = {
     // the node transitions from Locked to Started once it comes online
     await actions.monitorStartup([node]);
     return mnemonic;
+  }),
+  unlockNode: thunk(async (actions, { node, password }, { injections }) => {
+    await injections.lndService.unlockWallet(node as LndNode, password);
+    // resume the same startup monitoring used when a network is started, so
+    // the node transitions from Locked to Started once it comes online
+    await actions.monitorStartup([node]);
   }),
   setManualMineCount: action((state, { id, count }) => {
     const network = state.networks.find(n => n.id === id);
