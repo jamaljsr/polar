@@ -15,6 +15,7 @@ import {
   injections,
   lightningServiceMock,
   litdServiceMock,
+  lndServiceMock,
   tapServiceMock,
   testCustomImages,
   testRepoState,
@@ -1151,6 +1152,58 @@ describe('Network model', () => {
           .filter(n => n.implementation === 'LND')
           .forEach(n => expect(n.status).toBe(Status.Locked));
       });
+    });
+  });
+
+  describe('Unlocking and Initializing', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
+    const lndNode = () =>
+      firstNetwork().nodes.lightning.find(n => n.implementation === 'LND')!;
+
+    it('should unlock a node and wait for it to come online', async () => {
+      lndServiceMock.unlockWallet.mockResolvedValue();
+      lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      const { unlockNode } = store.getActions().network;
+      const node = lndNode();
+      await unlockNode({ node, password: 'polarpass' });
+      expect(lndServiceMock.unlockWallet).toHaveBeenCalledWith(node, 'polarpass');
+      expect(lndNode().status).toBe(Status.Started);
+    });
+
+    it('should propagate an error when unlocking with the wrong password', async () => {
+      lndServiceMock.unlockWallet.mockRejectedValue(new Error('invalid passphrase'));
+      const { unlockNode } = store.getActions().network;
+      const node = lndNode();
+      await expect(unlockNode({ node, password: 'wrong' })).rejects.toThrow(
+        'invalid passphrase',
+      );
+    });
+
+    it('should initialize a node, wait for it to come online, and return the seed', async () => {
+      const mnemonic = ['abandon', 'ability'];
+      lndServiceMock.genSeed.mockResolvedValue(mnemonic);
+      lndServiceMock.initWallet.mockResolvedValue(Buffer.from('admin-macaroon'));
+      lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      const { initNode } = store.getActions().network;
+      const node = lndNode();
+      const result = await initNode({ node, password: 'polarpass' });
+      expect(result).toEqual(mnemonic);
+      expect(lndServiceMock.genSeed).toHaveBeenCalledWith(node);
+      expect(lndServiceMock.initWallet).toHaveBeenCalledWith(node, 'polarpass', mnemonic);
+      expect(lndNode().status).toBe(Status.Started);
+    });
+
+    it('should propagate an error when initialization fails', async () => {
+      lndServiceMock.genSeed.mockRejectedValue(new Error('test-error'));
+      const { initNode } = store.getActions().network;
+      const node = lndNode();
+      await expect(initNode({ node, password: 'polarpass' })).rejects.toThrow(
+        'test-error',
+      );
     });
   });
 

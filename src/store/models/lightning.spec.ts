@@ -157,6 +157,18 @@ describe('Lightning Model', () => {
     await expect(connectAllPeers(network)).resolves.not.toThrow();
   });
 
+  it('should still attempt to connect peers for every node if one rejects', async () => {
+    const { connectAllPeers } = store.getActions().lightning;
+    lightningServiceMock.getInfo.mockResolvedValue(
+      defaultStateInfo({ alias: 'alice', pubkey: 'xyz', rpcUrl: 'asdf' }),
+    );
+    lightningServiceMock.connectPeers.mockRejectedValueOnce(new Error('connect-error'));
+    await connectAllPeers(network);
+    expect(lightningServiceMock.connectPeers).toHaveBeenCalledTimes(
+      network.nodes.lightning.length,
+    );
+  });
+
   it('should open a channel successfully', async () => {
     lightningServiceMock.getInfo.mockResolvedValueOnce(
       defaultStateInfo({
