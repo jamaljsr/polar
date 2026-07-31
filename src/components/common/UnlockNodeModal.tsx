@@ -22,6 +22,10 @@ const Styled = {
   CopyAll: styled.div`
     text-align: right;
   `,
+  Retry: styled.div`
+    text-align: center;
+    margin-top: 16px;
+  `,
 };
 
 interface Props {
@@ -35,7 +39,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
   const [mnemonic, setMnemonic] = useState<string[]>();
   const { visible, nodeName } = useStoreState(s => s.modals.unlockNode);
   const { hideUnlockNode } = useStoreActions(s => s.modals);
-  const { initNode } = useStoreActions(s => s.network);
+  const { initNode, unlockNode } = useStoreActions(s => s.network);
   const { getWalletState } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
 
@@ -43,28 +47,36 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
     | LndNode
     | undefined;
 
-  // Status.Locked covers both a wallet that exists and needs a password (LOCKED)
-  // and a fresh node whose wallet was never created (NON_EXISTING) - the two
-  // need entirely different RPCs (UnlockWallet vs GenSeed+InitWallet)
   const walletStateAsync = useAsync(async () => {
-    if (!visible || !node) return undefined;
+    if (!visible || !node || mnemonic) return undefined;
     return await getWalletState(node);
-  }, [visible, node]);
+  }, [visible, node, mnemonic]);
   const notInitialized = walletStateAsync.result === 'NON_EXISTING';
+  // a rejected GetState leaves result undefined, which is indistinguishable from
+  // a LOCKED wallet
+  const walletStateError = walletStateAsync.error;
 
-  const submitAsync = useAsyncCallback(async (node: LndNode, password: string) => {
-    try {
-      const words = await initNode({ node, password });
-      setMnemonic(words);
-      notify({ message: l('initSuccess', { name: node.name }) });
-    } catch (error: any) {
-      notify({ message: l('initError'), error });
-    }
-  });
+  const submitAsync = useAsyncCallback(
+    async (node: LndNode, password: string, initializing: boolean) => {
+      try {
+        if (initializing) {
+          const words = await initNode({ node, password });
+          setMnemonic(words);
+          notify({ message: l('initSuccess', { name: node.name }) });
+        } else {
+          await unlockNode({ node, password });
+          hideUnlockNode();
+          notify({ message: l('success', { name: node.name }) });
+        }
+      } catch (error: any) {
+        notify({ message: l(initializing ? 'initError' : 'error'), error });
+      }
+    },
+  );
 
   const handleSubmit = (values: any) => {
-    if (!node || !notInitialized) return;
-    submitAsync.execute(node, values.password);
+    if (!node) return;
+    submitAsync.execute(node, values.password, notInitialized);
   };
 
   const handleClose = () => {
@@ -93,13 +105,11 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
       okText={l(notInitialized ? 'initOkBtn' : 'okBtn')}
       okButtonProps={{
         loading: submitAsync.loading,
-        disabled: walletStateAsync.loading || !notInitialized,
+        disabled: walletStateAsync.loading || !!walletStateError,
       }}
       onOk={form.submit}
     >
-      {walletStateAsync.loading ? (
-        <Loader inline />
-      ) : mnemonic ? (
+      {mnemonic ? (
         <>
           <Alert type="warning" showIcon message={l('seedWarning')} />
           <Styled.SeedGrid>
@@ -117,7 +127,21 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
             />
           </Styled.CopyAll>
         </>
-      ) : notInitialized ? (
+      ) : walletStateAsync.loading ? (
+        <Loader inline />
+      ) : walletStateError ? (
+        <>
+          <Alert
+            type="error"
+            showIcon
+            message={l('stateError')}
+            description={walletStateError.message}
+          />
+          <Styled.Retry>
+            <Button onClick={() => walletStateAsync.execute()}>{l('retryBtn')}</Button>
+          </Styled.Retry>
+        </>
+      ) : (
         <Form
           form={form}
           layout="vertical"
@@ -131,7 +155,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
             label={l('label')}
             rules={[
               { required: true, message: l('cmps.forms.required') },
-              { min: 8, message: l('passwordTooShort') },
+              ...(notInitialized ? [{ min: 8, message: l('passwordTooShort') }] : []),
             ]}
           >
             <Input.Password
@@ -140,8 +164,6 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
             />
           </Form.Item>
         </Form>
-      ) : (
-        <Alert type="info" showIcon message={l('unlockNotAvailable')} />
       )}
     </Modal>
   );

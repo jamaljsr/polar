@@ -169,10 +169,17 @@ export interface NetworkModel {
   >;
   initNode: Thunk<
     NetworkModel,
-    { node: LightningNode; password: string },
+    { node: LndNode; password: string },
     StoreInjections,
     RootModel,
     Promise<string[]>
+  >;
+  unlockNode: Thunk<
+    NetworkModel,
+    { node: LndNode; password: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
   >;
 
   /**
@@ -1195,10 +1202,14 @@ const networkModel: NetworkModel = {
     },
   ),
   initNode: thunk(async (actions, { node, password }, { injections }) => {
-    const mnemonic = await injections.lndService.genSeed(node as LndNode);
-    await injections.lndService.initWallet(node as LndNode, password, mnemonic);
+    const mnemonic = await injections.lndService.genSeed(node);
+    await injections.lndService.initWallet(node, password, mnemonic);
     await actions.monitorStartup([node]);
     return mnemonic;
+  }),
+  unlockNode: thunk(async (actions, { node, password }, { injections }) => {
+    await injections.lndService.unlockWallet(node, password);
+    await actions.monitorStartup([node]);
   }),
   setManualMineCount: action((state, { id, count }) => {
     const network = state.networks.find(n => n.id === id);
