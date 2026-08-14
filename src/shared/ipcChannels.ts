@@ -22,6 +22,7 @@ export default {
   createInvoice: 'create-invoice',
   payInvoice: 'pay-invoice',
   decodeInvoice: 'decode-invoice',
+  exportAllChannelBackups: 'export-all-channel-backups',
   setupListener: 'setup-listener',
   removeListener: 'remove-listener',
   subscribeChannelEvents: 'subscribe-channel-events',

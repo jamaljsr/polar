@@ -134,6 +134,13 @@ describe('LndService', () => {
     });
   });
 
+  it('should call the exportAllChannelBackups ipc', () => {
+    lndProxyClient.exportAllChannelBackups(node);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.exportAllChannelBackups, {
+      node,
+    });
+  });
+
   it('should call the subscribeChannelEvents streamer', () => {
     const mockCallback = jest.fn();
     lndProxyClient.subscribeChannelEvents(node, mockCallback);

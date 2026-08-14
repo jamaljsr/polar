@@ -176,6 +176,13 @@ const decodeInvoice = async (args: {
   return await rpc.lightning.decodePayReq(args.req);
 };
 
+const exportAllChannelBackups = async (args: {
+  node: LndNode;
+}): Promise<LND.ChanBackupSnapshot> => {
+  const rpc = await getRpc(args.node);
+  return await rpc.lightning.exportAllChannelBackups();
+};
+
 const subscribeChannelEvents = async (args: {
   node: LndNode;
   replyTo: string;
@@ -212,6 +219,7 @@ const listeners: {
   [ipcChannels.createInvoice]: createInvoice,
   [ipcChannels.payInvoice]: payInvoice,
   [ipcChannels.decodeInvoice]: decodeInvoice,
+  [ipcChannels.exportAllChannelBackups]: exportAllChannelBackups,
   [ipcChannels.subscribeChannelEvents]: subscribeChannelEvents,
 };
 
