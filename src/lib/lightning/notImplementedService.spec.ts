@@ -20,6 +20,7 @@ describe('NotImplementedService', () => {
     expect(() => service.createInvoice(node, 0, '', 3600)).toThrow(msg('createInvoice'));
     expect(() => service.payInvoice(node, '')).toThrow(msg('payInvoice'));
     expect(() => service.decodeInvoice(node, '')).toThrow(msg('decodeInvoice'));
+    expect(() => service.exportChannelBackup(node)).toThrow(msg('exportChannelBackup'));
     expect(() => service.addListenerToNode(node)).toThrow(msg('addListenerToNode'));
     expect(() => service.removeListener(node)).toThrow(msg('removeListener'));
     expect(() => service.subscribeChannelEvents(node, () => Promise<void>)).toThrow(

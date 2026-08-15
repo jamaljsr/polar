@@ -30,6 +30,7 @@ export const lightningServiceMock: jest.Mocked<LightningService> = {
   createInvoice: jest.fn(),
   payInvoice: jest.fn(),
   decodeInvoice: jest.fn(),
+  exportChannelBackup: jest.fn(),
   waitUntilOnline: jest.fn(),
   addListenerToNode: jest.fn(),
   removeListener: jest.fn(),

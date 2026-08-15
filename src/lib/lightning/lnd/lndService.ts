@@ -218,6 +218,16 @@ class LndService implements LightningService {
     };
   }
 
+  async exportChannelBackup(node: LightningNode): Promise<Buffer> {
+    const res = await proxy.exportAllChannelBackups(this.cast(node));
+
+    const backup = res.multiChanBackup?.multiChanBackup;
+    if (!backup) {
+      throw new Error('No channel backup is available to export');
+    }
+    return Buffer.from(backup as unknown as Uint8Array);
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out
