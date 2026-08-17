@@ -1,3 +1,5 @@
+import { remote, SaveDialogOptions } from 'electron';
+import { info } from 'electron-log';
 import { Action, action, Thunk, thunk, ThunkOn, thunkOn } from 'easy-peasy';
 import { throttle } from 'lodash';
 import { LightningNode, Status } from 'shared/types';
@@ -5,9 +7,13 @@ import * as PLN from 'lib/lightning/types';
 import { ChannelInfo, Network, PreInvoice, StoreInjections } from 'types';
 import { delay } from 'utils/async';
 import { BLOCKS_TIL_CONFIRMED } from 'utils/constants';
+import { write } from 'utils/files';
 import { getInvoicePayload } from 'utils/network';
+import { prefixTranslation } from 'utils/translate';
 import { fromSatsNumeric } from 'utils/units';
 import { RootModel } from './';
+
+const { l } = prefixTranslation('store.models.lightning');
 
 export interface LightningNodeMapping {
   [key: string]: LightningNodeModel;
@@ -91,6 +97,13 @@ export interface LightningModel {
     StoreInjections,
     RootModel,
     Promise<PLN.LightningNodePayReceipt>
+  >;
+  exportChannelBackup: Thunk<
+    LightningModel,
+    LightningNode,
+    StoreInjections,
+    RootModel,
+    Promise<string | undefined>
   >;
   waitForNodes: Thunk<LightningModel, LightningNode[], StoreInjections, RootModel>;
   mineListener: ThunkOn<LightningModel, StoreInjections, RootModel>;
@@ -296,6 +309,27 @@ const lightningModel: LightningModel = {
       return receipt;
     },
   ),
+  exportChannelBackup: thunk(async (actions, node, { injections }) => {
+    const defaultName = node.name.replace(/\s/g, '-').replace(/[^0-9a-zA-Z-._]/g, '');
+    const options: SaveDialogOptions = {
+      title: l('exportChannelBackupTitle', { name: node.name }),
+      defaultPath: `${defaultName}-channel.backup`,
+      properties: ['promptToCreate', 'createDirectory'],
+    } as any;
+    const { filePath } = await remote.dialog.showSaveDialog(options);
+
+    // user aborted dialog
+    if (!filePath) {
+      info('User aborted channel backup export');
+      return;
+    }
+
+    const api = injections.lightningFactory.getService(node);
+    const backup = await api.exportChannelBackup(node);
+    await write(filePath, backup);
+    info(`exported channel backup for '${node.name}' to '${filePath}'`);
+    return filePath;
+  }),
   waitForNodes: thunk(async (actions, nodes) => {
     // TODO: move this check into the delay() func
     if (process.env.NODE_ENV === 'test') return;

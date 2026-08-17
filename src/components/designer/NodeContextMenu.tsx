@@ -6,13 +6,17 @@ import { useStoreState } from 'store';
 import {
   AdvancedOptionsButton,
   RemoveNode,
-  RestartNode,
   RenameNodeButton,
+  RestartNode,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
 import SendOnChainButton from './bitcoin/actions/SendOnChainButton';
-import { OpenChannelButtons, PaymentButtons } from './lightning/actions';
+import {
+  ExportChannelBackupButton,
+  OpenChannelButtons,
+  PaymentButtons,
+} from './lightning/actions';
 import { MintAssetButton, NewAddressButton, SendAssetButton } from './tap/actions';
 
 const addItemIf = (
@@ -89,6 +93,12 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       'sendonchain',
       <SendOnChainButton type="menu" node={node as BitcoinNode} />,
       isStarted && isBackend,
+    ),
+    addItemIf(
+      'exportChannelBackup',
+      <ExportChannelBackupButton type="menu" node={node as LightningNode} />,
+      (isStarted && node.implementation === 'LND') ||
+        (isStarted && node.implementation === 'litd'),
     ),
     addItemIf('terminal', <OpenTerminalButton type="menu" node={node} />, isStarted),
     isStarted ? [{ type: 'divider' }] : [],

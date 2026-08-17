@@ -320,6 +320,12 @@ describe('LightningDetails', () => {
       expect(nodeName).toEqual(node.name);
     });
 
+    it('should display the export channel backup button for LND nodes', async () => {
+      const { findByText } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      expect(await findByText('Export Channel Backup')).toBeInTheDocument();
+    });
+
     describe('c-lightning', () => {
       beforeEach(() => {
         node = network.nodes.lightning[1];
@@ -370,6 +376,13 @@ describe('LightningDetails', () => {
           );
         });
       });
+
+      it('should not display the export channel backup button', async () => {
+        const { queryByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Actions'));
+        await waitFor(() => expect(queryByText('Restart Node')).toBeInTheDocument());
+        expect(queryByText('Export Channel Backup')).not.toBeInTheDocument();
+      });
     });
 
     describe('eclair', () => {
@@ -392,6 +405,13 @@ describe('LightningDetails', () => {
         await waitFor(() => {
           expect(shell.openExternal).toBeCalledWith('https://acinq.github.io/eclair');
         });
+      });
+
+      it('should not display the export channel backup button', async () => {
+        const { queryByText, findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Actions'));
+        await waitFor(() => expect(queryByText('Restart Node')).toBeInTheDocument());
+        expect(queryByText('Export Channel Backup')).not.toBeInTheDocument();
       });
     });
 
@@ -551,6 +571,12 @@ describe('LightningDetails', () => {
         const { visible, nodeName } = store.getState().modals.advancedOptions;
         expect(visible).toEqual(true);
         expect(nodeName).toEqual(node.name);
+      });
+
+      it('should display the export channel backup button for litd nodes', async () => {
+        const { findByText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Actions'));
+        expect(await findByText('Export Channel Backup')).toBeInTheDocument();
       });
     });
 
