@@ -87,6 +87,7 @@ export const bitcoinCredentials = {
   pass: 'polarpass',
   rpcauth:
     '5e5e98c21f5c814568f8b55d83b23c1c$$066b03f92df30b11de8e4b1b1cd5b1b4281aa25205bd57df9be82caf97a05526',
+  defaultWalletName: 'wallet',
 };
 
 export const eclairCredentials = {
@@ -362,7 +363,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 77,
+  version: 78,
   images: {
     LND: {
       latest: '0.20.0-beta',
@@ -384,13 +385,13 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.20.0-beta': '30.0',
-        '0.19.3-beta': '30.0',
-        '0.19.2-beta': '30.0',
-        '0.19.1-beta': '30.0',
-        '0.19.0-beta': '30.0',
-        '0.18.5-beta': '30.0',
-        '0.18.4-beta': '30.0',
+        '0.20.0-beta': '31.0',
+        '0.19.3-beta': '31.0',
+        '0.19.2-beta': '31.0',
+        '0.19.1-beta': '31.0',
+        '0.19.0-beta': '31.0',
+        '0.18.5-beta': '31.0',
+        '0.18.4-beta': '31.0',
         '0.18.3-beta': '27.0',
         '0.18.2-beta': '27.0',
         '0.18.1-beta': '27.0',
@@ -408,8 +409,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['0.13.1', '0.12.0', '0.11.0', '0.10.0', '0.9.0'],
     },
     bitcoind: {
-      latest: '30.0',
-      versions: ['30.0', '29.0', '28.0', '27.0', '26.0'],
+      latest: '31.0',
+      versions: ['31.0', '30.0', '29.0', '28.0', '27.0', '26.0'],
     },
     btcd: {
       latest: '',
@@ -450,11 +451,11 @@ export const defaultRepoState: DockerRepoState = {
       // not all litd versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each litd version
       compatibility: {
-        '0.16.0-alpha': '30.0',
-        '0.15.3-alpha': '30.0',
-        '0.15.1-alpha': '30.0',
-        '0.15.0-alpha': '30.0',
-        '0.14.1-alpha': '30.0',
+        '0.16.0-alpha': '31.0',
+        '0.15.3-alpha': '31.0',
+        '0.15.1-alpha': '31.0',
+        '0.15.0-alpha': '31.0',
+        '0.14.1-alpha': '31.0',
       },
     },
   },
