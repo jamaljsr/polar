@@ -295,7 +295,7 @@ describe('MCP model > createNetwork', () => {
     const repoState = JSON.parse(JSON.stringify(defaultRepoState)) as DockerRepoState;
     repoState.images.LND.compatibility = {
       ...(repoState.images.LND.compatibility || {}),
-      '0.18.3-beta': '30.0',
+      '0.18.3-beta': '31.0',
     };
     store.getActions().app.setRepoState(repoState);
 
