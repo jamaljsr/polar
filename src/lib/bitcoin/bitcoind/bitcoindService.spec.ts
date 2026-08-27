@@ -30,6 +30,8 @@ describe('BitcoindService', () => {
     mockProto.getNewAddress = jest.fn().mockResolvedValue('abcdef');
     mockProto.sendToAddress = jest.fn().mockResolvedValue('txid');
     mockProto.generateToAddress = jest.fn().mockResolvedValue(['blockhash1']);
+    mockProto.listWalletDir = jest.fn().mockResolvedValue({ wallets: [] });
+    mockProto.loadWallet = jest.fn().mockResolvedValue({ name: 'wallet' });
   });
 
   it('should create a default wallet', async () => {
@@ -37,11 +39,24 @@ describe('BitcoindService', () => {
     await bitcoindService.createDefaultWallet(node);
     expect(getInst().listWallets).toBeCalledTimes(1);
     expect(getInst().createWallet).toBeCalledTimes(1);
+    expect(getInst().createWallet).toBeCalledWith('wallet');
+    expect(getInst().loadWallet).toBeCalledTimes(0);
   });
 
   it('should not create a default wallet', async () => {
     await bitcoindService.createDefaultWallet(node);
     expect(getInst().listWallets).toBeCalledTimes(1);
+    expect(getInst().createWallet).toBeCalledTimes(0);
+    expect(getInst().listWalletDir).toBeCalledTimes(0);
+  });
+
+  it('should load an existing wallet', async () => {
+    mockProto.listWallets = jest.fn().mockResolvedValue([]);
+    mockProto.listWalletDir = jest
+      .fn()
+      .mockResolvedValue({ wallets: [{ name: 'wallet' }] });
+    await bitcoindService.createDefaultWallet(node);
+    expect(getInst().loadWallet).toBeCalledWith('wallet');
     expect(getInst().createWallet).toBeCalledTimes(0);
   });
 
