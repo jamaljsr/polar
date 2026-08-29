@@ -66,6 +66,7 @@ export interface NodeBasePorts {
   'c-lightning': { rest: number; grpc: number };
   eclair: { rest: number };
   bitcoind: { rest: number };
+  btcd: { rpc: number; btcdWallet: number };
   tapd: { rest: number; grpc: number };
 }
 

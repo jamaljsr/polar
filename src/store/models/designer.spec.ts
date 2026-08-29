@@ -7,7 +7,11 @@ import { DockerLibrary } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState, LOADING_NODE_ID } from 'utils/constants';
 import * as files from 'utils/files';
-import { createBitcoindNetworkNode, createCLightningNetworkNode } from 'utils/network';
+import {
+  createBitcoindNetworkNode,
+  createBtcdNetworkNode,
+  createCLightningNetworkNode,
+} from 'utils/network';
 import {
   bitcoinServiceMock,
   getNetwork,
@@ -130,6 +134,7 @@ describe('Designer model', () => {
         clightningNodes: 0,
         eclairNodes: 0,
         bitcoindNodes: 1,
+        btcdNodes: 0,
         tapdNodes: 0,
         litdNodes: 0,
         customNodes: {},
@@ -579,6 +584,7 @@ describe('Designer model', () => {
           clightningNodes: 0,
           eclairNodes: 0,
           bitcoindNodes: 1,
+          btcdNodes: 0,
           tapdNodes: 0,
           litdNodes: 0,
           customNodes: {},
@@ -609,6 +615,7 @@ describe('Designer model', () => {
           clightningNodes: 0,
           eclairNodes: 0,
           bitcoindNodes: 1,
+          btcdNodes: 0,
           tapdNodes: 0,
           litdNodes: 0,
           customNodes: {},
@@ -647,6 +654,7 @@ describe('Designer model', () => {
           clightningNodes: 0,
           eclairNodes: 0,
           bitcoindNodes: 0,
+          btcdNodes: 0,
           tapdNodes: 0,
           litdNodes: 0,
           customNodes: {},
@@ -688,6 +696,36 @@ describe('Designer model', () => {
               message: 'Failed to add node',
               error: new Error(
                 'This network does not contain a Bitcoin Core v0.18.1 (or lower) node which is required for LND v0.7.1-beta',
+              ),
+            }),
+          );
+        });
+      });
+
+      it('should throw an error when dropping a CLN node on a btcd only network', async () => {
+        // replace the bitcoind backend with a btcd node, which CLN cannot connect to
+        const network = firstNetwork();
+        network.nodes.bitcoin = [];
+        network.nodes.bitcoin.push(
+          createBtcdNetworkNode(
+            network,
+            defaultRepoState.images.btcd.latest,
+            testNodeDocker,
+          ),
+        );
+        const { onCanvasDrop } = store.getActions().designer;
+        const spy = jest.spyOn(store.getActions().app, 'notify');
+        const clnData = {
+          type: 'c-lightning',
+          version: defaultRepoState.images['c-lightning'].latest,
+        };
+        onCanvasDrop({ id, data: clnData, position });
+        await waitFor(() => {
+          expect(spy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              message: 'Failed to add node',
+              error: new Error(
+                'This network does not contain a bitcoin node which is supported by c-lightning',
               ),
             }),
           );

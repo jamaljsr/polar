@@ -3,7 +3,7 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TapdNode } from 'shared/types';
+import { BtcdNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
@@ -70,6 +70,7 @@ describe('Network model', () => {
     clightningNodes: 1,
     eclairNodes: 1,
     bitcoindNodes: 1,
+    btcdNodes: 0,
     tapdNodes: 0,
     litdNodes: 1,
     customNodes: {},
@@ -153,6 +154,39 @@ describe('Network model', () => {
       bitcoin.forEach(node => {
         expect(node.type).toBe('bitcoin');
       });
+    });
+
+    it('should add a network with btcd nodes', async () => {
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 0,
+        btcdNodes: 2,
+        // CLN and Eclair don't support btcd backend, so set to 0
+        clightningNodes: 0,
+        eclairNodes: 0,
+      });
+      const { networks } = store.getState().network;
+      const { bitcoin } = networks[0].nodes;
+      expect(bitcoin.length).toBe(2);
+      bitcoin.forEach(node => {
+        expect(node.type).toBe('bitcoin');
+        expect(node.implementation).toBe('btcd');
+      });
+    });
+
+    it('should add a network with mixed bitcoind and btcd nodes', async () => {
+      await store
+        .getActions()
+        .network.addNetwork({ ...addNetworkArgs, bitcoindNodes: 1, btcdNodes: 1 });
+      const { networks } = store.getState().network;
+      const { bitcoin } = networks[0].nodes;
+      expect(bitcoin.length).toBe(2);
+      // bitcoind is added first
+      expect(bitcoin[0].implementation).toBe('bitcoind');
+      expect(bitcoin[1].implementation).toBe('btcd');
+      // They should be peered
+      expect(bitcoin[0].peers).toContain('backend2');
+      expect(bitcoin[1].peers).toContain('backend1');
     });
 
     it('should set all nodes to Stopped by default', async () => {
@@ -343,6 +377,43 @@ describe('Network model', () => {
       expect(bitcoin[1].docker.command).toBe(customBitcoind.command);
     });
 
+    it('should add a btcd node to an existing network', async () => {
+      const btcdLatest = defaultRepoState.images.btcd.latest;
+      const payload = { id: firstNetwork().id, type: 'btcd', version: btcdLatest };
+      store.getActions().network.addNode(payload);
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin).toHaveLength(2);
+      expect(bitcoin[1].implementation).toBe('btcd');
+      expect(bitcoin[1].version).toBe(btcdLatest);
+    });
+
+    it('should add a btcd custom node', async () => {
+      const customBtcd = {
+        id: 'btcd-custom',
+        name: 'Custom BTCD',
+        implementation: 'btcd',
+        dockerImage: 'my-btcd:latest',
+        command: 'btcd-custom-cmd',
+      };
+      const settings = {
+        nodeImages: {
+          managed: [],
+          custom: [customBtcd] as CustomImage[],
+        },
+      };
+      store.getActions().app.setSettings(settings);
+      const payload = {
+        id: firstNetwork().id,
+        type: 'btcd',
+        version: defaultRepoState.images.btcd.latest,
+        customId: 'btcd-custom',
+      };
+      store.getActions().network.addNode(payload);
+      const { bitcoin } = firstNetwork().nodes;
+      expect(bitcoin[1].docker.image).toBe(customBtcd.dockerImage);
+      expect(bitcoin[1].docker.command).toBe(customBtcd.command);
+    });
+
     it('should ignore an invalid custom node', async () => {
       const invalidId = '999';
       const settings = {
@@ -458,6 +529,21 @@ describe('Network model', () => {
       const node = firstNetwork().nodes.bitcoin[2];
       await expect(removeBitcoinNode({ node })).rejects.toThrow(
         'There are no other compatible backends for frank to connect to. You must remove the frank node first',
+      );
+    });
+
+    it('should throw an error if removing the last bitcoind leaves a CLN node with only a btcd backend', async () => {
+      const { removeBitcoinNode, addNode } = store.getActions().network;
+      const { id } = firstNetwork();
+      // leave a single bitcoind node in the network for the LN nodes to connect to
+      await removeBitcoinNode({ node: firstNetwork().nodes.bitcoin[1] });
+      // add a btcd node, which the c-lightning node cannot use as a backend
+      await addNode({ id, type: 'btcd', version: defaultRepoState.images.btcd.latest });
+      // removing the only bitcoind would leave 'bob', the c-lightning node, without a
+      // compatible backend to fall back to
+      const node = firstNetwork().nodes.bitcoin[0];
+      await expect(removeBitcoinNode({ node })).rejects.toThrow(
+        'There are no other compatible backends for bob to connect to. You must remove the bob node first',
       );
     });
 
@@ -1074,12 +1160,62 @@ describe('Network model', () => {
       });
     });
 
+    it('should monitor network with btcd nodes', async () => {
+      const { monitorStartup } = store.getActions().network;
+      await store.getActions().network.addNetwork({
+        ...addNetworkArgs,
+        bitcoindNodes: 0,
+        btcdNodes: 2,
+        // CLN and Eclair don't support btcd backend, so set to 0
+        clightningNodes: 0,
+        eclairNodes: 0,
+      });
+      const { networks } = store.getState().network;
+      const { bitcoin } = networks[networks.length - 1].nodes;
+
+      (injections.dockerService.saveComposeFile as jest.Mock).mockClear();
+      (injections.dockerService.startNode as jest.Mock).mockClear();
+      (injections.dockerService.saveNetworks as jest.Mock).mockClear();
+
+      bitcoinServiceMock.createDefaultWallet.mockImplementation(async node => {
+        if (node.implementation === 'btcd') {
+          (node as BtcdNode).miningAddr = 'btc12345';
+        }
+      });
+
+      await monitorStartup(bitcoin);
+      expect(injections.dockerService.saveComposeFile).toHaveBeenCalledTimes(2);
+      expect(injections.dockerService.startNode).toHaveBeenCalledTimes(2);
+      // the mining address must be persisted so it isn't regenerated on the next startup
+      expect(injections.dockerService.saveNetworks).toHaveBeenCalled();
+      const { bitcoin: savedNodes } = networks[networks.length - 1].nodes;
+      expect(savedNodes.every(n => (n as BtcdNode).miningAddr === 'btc12345')).toBe(true);
+
+      // restore mock
+      bitcoinServiceMock.createDefaultWallet.mockResolvedValue();
+    });
+
     it('should do nothing for unknown node type', async () => {
       const { monitorStartup } = store.getActions().network;
       const { bitcoin } = firstNetwork().nodes;
       bitcoin[0].type = 'asdf' as any;
       await monitorStartup(bitcoin);
       expect(bitcoinServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+    });
+
+    it('should monitor network whose name is unknown', async () => {
+      const { monitorStartup } = store.getActions().network;
+      const { bitcoin } = firstNetwork().nodes;
+      const externalNode = {
+        ...bitcoin[0],
+        name: 'external-node',
+      };
+
+      await monitorStartup([externalNode]);
+
+      await waitFor(() => {
+        expect(bitcoinServiceMock.waitUntilOnline).toHaveBeenCalledWith(externalNode);
+      });
     });
   });
 

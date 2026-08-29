@@ -91,6 +91,7 @@ const appModel: AppModel = {
     basePorts: {
       LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },
       bitcoind: { rest: BasePorts.bitcoind.rest },
+      btcd: { rpc: BasePorts.btcd.rpc, btcdWallet: BasePorts.btcd.btcdWallet },
       'c-lightning': {
         grpc: BasePorts['c-lightning'].grpc,
         rest: BasePorts['c-lightning'].rest,

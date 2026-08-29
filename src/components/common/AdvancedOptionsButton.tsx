@@ -2,7 +2,7 @@ import React from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Button, Form } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
-import { AnyNode } from 'shared/types';
+import { AnyNode, LightningNode } from 'shared/types';
 import { useStoreActions } from 'store';
 import { getDefaultCommand } from 'utils/network';
 
@@ -14,11 +14,18 @@ interface Props {
 const AdvancedOptionsButton: React.FC<Props> = ({ node, type }) => {
   const { l } = usePrefixedTranslation('cmps.common.AdvancedOptionsButton');
   const { showAdvancedOptions } = useStoreActions(s => s.modals);
-  const handleClick = () => {
+  const { getBackendNode } = useStoreActions(s => s.network);
+  const handleClick = async () => {
+    // the default command of a lightning node depends on the implementation of the
+    // bitcoin backend it is connected to, so it must be looked up on the network
+    const backend =
+      node.type === 'lightning'
+        ? (await getBackendNode(node as LightningNode))?.implementation
+        : undefined;
     showAdvancedOptions({
       nodeName: node.name,
       command: node.docker.command,
-      defaultCommand: getDefaultCommand(node.implementation, node.version),
+      defaultCommand: getDefaultCommand(node.implementation, node.version, backend),
     });
   };
 

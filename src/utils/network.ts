@@ -8,6 +8,7 @@ import { ipcChannels } from 'shared';
 import {
   AnyNode,
   BitcoinNode,
+  BtcdNode,
   CLightningNode,
   CommonNode,
   EclairNode,
@@ -54,6 +55,7 @@ const groupNodes = (network: Network) => {
   const { bitcoin, lightning, tap } = network.nodes;
   return {
     bitcoind: bitcoin.filter(n => n.implementation === 'bitcoind') as BitcoinNode[],
+    btcd: bitcoin.filter(n => n.implementation === 'btcd') as BtcdNode[],
     lnd: lightning.filter(n => n.implementation === 'LND') as LndNode[],
     clightning: lightning.filter(
       n => n.implementation === 'c-lightning',
@@ -173,11 +175,29 @@ export const filterCompatibleBackends = (
   compatibility: DockerRepoImage['compatibility'],
   backends: BitcoinNode[],
 ): BitcoinNode[] => {
+  // Only LND and litd supports btcd backend - filter out btcd for other implementations
+  const supportsBtcd = implementation === 'LND' || implementation === 'litd';
+  const filteredBackends = supportsBtcd
+    ? backends
+    : backends.filter(n => n.implementation !== 'btcd');
+
+  // the caller always uses the first backend returned, so an empty list must throw
+  // instead of returning. ex: a CLN node in a network containing only btcd backends
+  if (filteredBackends.length === 0) {
+    throw new Error(l('backendImplError', { implementation }));
+  }
+
   // if compatibility is not defined, then allow all backend versions
-  if (!compatibility || !compatibility[version]) return backends;
+  if (!compatibility || !compatibility[version]) return filteredBackends;
   const requiredVersion = compatibility[version];
-  const compatibleBackends = backends.filter(n =>
-    isVersionCompatible(n.version, requiredVersion),
+  const compatibleBackends = filteredBackends.filter(
+    n =>
+      isVersionCompatible(n.version, requiredVersion) ||
+      // btcd versions are not tracked in the compatibility table yet, so every btcd
+      // node is considered compatible.
+      // TODO: add a btcd entry to the compatibility table once more than one btcd
+      // version is supported, then remove this bypass
+      n.implementation === 'btcd',
   );
   if (compatibleBackends.length === 0) {
     throw new Error(
@@ -379,6 +399,44 @@ export const createBitcoindNetworkNode = (
   return node;
 };
 
+export const createBtcdNetworkNode = (
+  network: Network,
+  version: string,
+  docker: CommonNode['docker'],
+  status = Status.Stopped,
+  basePort = BasePorts.btcd,
+): BitcoinNode => {
+  const { bitcoin } = network.nodes;
+  const id = bitcoin.length ? Math.max(...bitcoin.map(n => n.id)) + 1 : 0;
+
+  const name = `backend${id + 1}`;
+  const node: BitcoinNode = {
+    id,
+    networkId: network.id,
+    name: name,
+    type: 'bitcoin',
+    implementation: 'btcd',
+    version,
+    peers: [],
+    status,
+    ports: {
+      rpc: basePort.rpc + id,
+      p2p: BasePorts.btcd.p2p + id,
+      btcdWallet: basePort.btcdWallet + id,
+    },
+    docker,
+  };
+
+  // peer up with the previous node on both sides
+  if (bitcoin.length > 0) {
+    const prev = bitcoin[bitcoin.length - 1];
+    node.peers.push(prev.name);
+    prev.peers.push(node.name);
+  }
+
+  return node;
+};
+
 const filterLndBackends = (
   implementation: TapNode['implementation'],
   version: string,
@@ -450,6 +508,7 @@ export const createNetwork = (config: {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  btcdNodes: number;
   tapdNodes: number;
   litdNodes: number;
   repoState: DockerRepoState;
@@ -468,6 +527,7 @@ export const createNetwork = (config: {
     clightningNodes,
     eclairNodes,
     bitcoindNodes,
+    btcdNodes,
     tapdNodes,
     litdNodes,
     repoState,
@@ -499,7 +559,7 @@ export const createNetwork = (config: {
   const { bitcoin, lightning } = network.nodes;
   const dockerWrap = (command: string) => ({ image: '', command });
 
-  // add custom bitcoin nodes
+  // add custom bitcoind nodes
   customImages
     .filter(i => i.image.implementation === 'bitcoind')
     .forEach(i => {
@@ -518,7 +578,20 @@ export const createNetwork = (config: {
       });
     });
 
-  // add managed bitcoin nodes
+  // add custom btcd nodes
+  customImages
+    .filter(i => i.image.implementation === 'btcd')
+    .forEach(i => {
+      const version = repoState.images.btcd.latest;
+      const docker = { image: i.image.dockerImage, command: i.image.command };
+      range(i.count).forEach(() => {
+        bitcoin.push(
+          createBtcdNetworkNode(network, version, docker, status, basePorts?.btcd),
+        );
+      });
+    });
+
+  // add managed bitcoind nodes
   range(bitcoindNodes).forEach(() => {
     let version = repoState.images.bitcoind.latest;
     if (lndNodes > 0) {
@@ -536,6 +609,15 @@ export const createNetwork = (config: {
         status,
         basePorts?.bitcoind,
       ),
+    );
+  });
+
+  // add managed btcd nodes
+  range(btcdNodes).forEach(() => {
+    const version = repoState.images.btcd.latest;
+    const cmd = getImageCommand(managedImages, 'btcd', version);
+    bitcoin.push(
+      createBtcdNetworkNode(network, version, dockerWrap(cmd), status, basePorts?.btcd),
     );
   });
 
@@ -721,6 +803,7 @@ export const getMissingImages = (network: Network, pulled: string[]): string[] =
 export const getDefaultCommand = (
   implementation: NodeImplementation,
   version: string,
+  backend?: NodeImplementation,
 ) => {
   let command = dockerConfigs[implementation].command;
 
@@ -734,6 +817,36 @@ export const getDefaultCommand = (
   // Remove the `grpc-host` flag that is not supported in older CLN versions.
   if (implementation === 'c-lightning' && isVersionBelow(version, '24.11')) {
     command = command.replace('--grpc-host=0.0.0.0', '');
+  }
+
+  // If backend is btcd for lnd, remove bitcoind specific flags and add btcd flags
+  if (implementation === 'LND' && backend === 'btcd') {
+    command = command
+      .replace('--bitcoin.node=bitcoind', '--bitcoin.node=btcd')
+      .replace('--bitcoind.rpchost={{backendName}}', '')
+      .replace('--bitcoind.rpcuser={{rpcUser}}', '')
+      .replace('--bitcoind.rpcpass={{rpcPass}}', '')
+      .replace('--bitcoind.zmqpubrawblock=tcp://{{backendName}}:28334', '')
+      .replace('--bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335', '');
+
+    // Add btcd specific flags
+    command +=
+      ' --btcd.rpcuser={{rpcUser}} --btcd.rpcpass={{rpcPass}} --btcd.rpchost={{backendName}} --btcd.dir=/home/lnd/.btcd';
+  }
+
+  // If backend is btcd for litd, remove bitcoind specific flags and add btcd flags
+  if (implementation === 'litd' && backend === 'btcd') {
+    command = command
+      .replace('--lnd.bitcoin.node=bitcoind', '--lnd.bitcoin.node=btcd')
+      .replace('--lnd.bitcoind.rpchost={{backendName}}', '')
+      .replace('--lnd.bitcoind.rpcuser={{rpcUser}}', '')
+      .replace('--lnd.bitcoind.rpcpass={{rpcPass}}', '')
+      .replace('--lnd.bitcoind.zmqpubrawblock=tcp://{{backendName}}:28334', '')
+      .replace('--lnd.bitcoind.zmqpubrawtx=tcp://{{backendName}}:28335', '');
+
+    // Add btcd specific flags
+    command +=
+      ' --lnd.btcd.rpcuser={{rpcUser}} --lnd.btcd.rpcpass={{rpcPass}} --lnd.btcd.rpchost={{backendName}} --lnd.btcd.dir=/home/litd/.btcd';
   }
 
   return command;
@@ -778,6 +891,7 @@ export interface OpenPorts {
     zmqTx?: number;
     p2p?: number;
     web?: number;
+    btcdWallet?: number;
   };
 }
 
@@ -789,52 +903,86 @@ export interface OpenPorts {
 export const getOpenPorts = async (network: Network): Promise<OpenPorts | undefined> => {
   const ports: OpenPorts = {};
 
+  const { bitcoind, btcd, ...lightningNodes } = groupNodes(network);
+  let { lnd, clightning, eclair, litd, tapd } = lightningNodes;
+
   // filter out nodes that are already started since their ports are in use by themselves
-  const bitcoin = network.nodes.bitcoin.filter(n => n.status !== Status.Started);
-  if (bitcoin.length) {
-    let existingPorts = bitcoin.map(n => n.ports.rpc);
+  const bitcoindStopped = bitcoind.filter(n => n.status !== Status.Started);
+  if (bitcoindStopped.length) {
+    let existingPorts = bitcoindStopped.map(n => n.ports.rpc);
     let openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = { rpc: port };
+        ports[bitcoindStopped[index].name] = { rpc: port };
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.p2p);
+    existingPorts = bitcoindStopped.map(n => n.ports.p2p);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = {
-          ...(ports[bitcoin[index].name] || {}),
+        ports[bitcoindStopped[index].name] = {
+          ...(ports[bitcoindStopped[index].name] || {}),
           p2p: port,
         };
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.zmqBlock);
+    existingPorts = bitcoindStopped.map(n => n.ports.zmqBlock);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = {
-          ...(ports[bitcoin[index].name] || {}),
+        ports[bitcoindStopped[index].name] = {
+          ...(ports[bitcoindStopped[index].name] || {}),
           zmqBlock: port,
         };
       });
     }
 
-    existingPorts = bitcoin.map(n => n.ports.zmqTx);
+    existingPorts = bitcoindStopped.map(n => n.ports.zmqTx);
     openPorts = await getOpenPortRange(existingPorts);
     if (openPorts.join() !== existingPorts.join()) {
       openPorts.forEach((port, index) => {
-        ports[bitcoin[index].name] = {
-          ...(ports[bitcoin[index].name] || {}),
+        ports[bitcoindStopped[index].name] = {
+          ...(ports[bitcoindStopped[index].name] || {}),
           zmqTx: port,
         };
       });
     }
   }
 
-  let { lnd, clightning, eclair, litd, tapd } = groupNodes(network);
+  const btcdStopped = btcd.filter(n => n.status !== Status.Started);
+  if (btcdStopped.length) {
+    let existingPorts = btcdStopped.map(n => n.ports.rpc);
+    let openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[btcdStopped[index].name] = { rpc: port };
+      });
+    }
+
+    existingPorts = btcdStopped.map(n => n.ports.p2p);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[btcdStopped[index].name] = {
+          ...(ports[btcdStopped[index].name] || {}),
+          p2p: port,
+        };
+      });
+    }
+
+    existingPorts = btcdStopped.map(n => n.ports.btcdWallet);
+    openPorts = await getOpenPortRange(existingPorts);
+    if (openPorts.join() !== existingPorts.join()) {
+      openPorts.forEach((port, index) => {
+        ports[btcdStopped[index].name] = {
+          ...(ports[btcdStopped[index].name] || {}),
+          btcdWallet: port,
+        };
+      });
+    }
+  }
 
   // filter out nodes that are already started since their ports are in use by themselves
   lnd = lnd.filter(n => n.status !== Status.Started);

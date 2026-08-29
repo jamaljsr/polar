@@ -6,6 +6,7 @@ import { Network } from 'types';
 import * as files from 'utils/files';
 import { createCLightningNetworkNode, createLitdNetworkNode } from 'utils/network';
 import {
+  addBtcdNode,
   defaultLitSession,
   defaultStateBalances,
   defaultStateInfo,
@@ -315,9 +316,24 @@ describe('LightningDetails', () => {
       const { findByText, node, store } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Actions'));
       fireEvent.click(await findByText('Edit Options'));
-      const { visible, nodeName } = store.getState().modals.advancedOptions;
-      expect(visible).toEqual(true);
-      expect(nodeName).toEqual(node.name);
+      await waitFor(() => {
+        const { visible, nodeName } = store.getState().modals.advancedOptions;
+        expect(visible).toEqual(true);
+        expect(nodeName).toEqual(node.name);
+      });
+    });
+
+    it('should use the btcd default command for a btcd backed node', async () => {
+      const btcdNode = addBtcdNode(network);
+      network.nodes.lightning[0].backendName = btcdNode.name;
+      const { findByText, store } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Edit Options'));
+      await waitFor(() => {
+        const { defaultCommand } = store.getState().modals.advancedOptions;
+        expect(defaultCommand).toContain('--bitcoin.node=btcd');
+        expect(defaultCommand).not.toContain('--bitcoin.node=bitcoind');
+      });
     });
 
     describe('c-lightning', () => {
@@ -548,9 +564,11 @@ describe('LightningDetails', () => {
         const { findByText, node, store } = renderComponent(Status.Started);
         fireEvent.click(await findByText('Actions'));
         fireEvent.click(await findByText('Edit Options'));
-        const { visible, nodeName } = store.getState().modals.advancedOptions;
-        expect(visible).toEqual(true);
-        expect(nodeName).toEqual(node.name);
+        await waitFor(() => {
+          const { visible, nodeName } = store.getState().modals.advancedOptions;
+          expect(visible).toEqual(true);
+          expect(nodeName).toEqual(node.name);
+        });
       });
     });
 

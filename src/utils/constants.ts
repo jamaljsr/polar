@@ -6,6 +6,7 @@ import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
 import lndLogo from 'resources/lnd.png';
 import tapLogo from 'resources/tap.svg';
+import btcdLogo from 'resources/btcd.svg';
 import packageJson from '../../package.json';
 
 // App
@@ -69,7 +70,11 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     rest: 8281,
     p2p: 9935,
   },
-  btcd: {},
+  btcd: {
+    rpc: 18334,
+    p2p: 19555,
+    btcdWallet: 18355,
+  },
   tapd: {
     grpc: 12029,
     rest: 8289,
@@ -89,6 +94,11 @@ export const bitcoinCredentials = {
     '5e5e98c21f5c814568f8b55d83b23c1c$$066b03f92df30b11de8e4b1b1cd5b1b4281aa25205bd57df9be82caf97a05526',
 };
 
+export const btcdCredentials = {
+  user: 'polaruser',
+  pass: 'polarpass',
+};
+
 export const eclairCredentials = {
   pass: 'eclairpw',
 };
@@ -97,7 +107,13 @@ export const litdCredentials = {
   pass: 'polarpass',
 };
 
-export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = {
+// btcwallet is not a node implementation that users can add to a network. It is a
+// companion container for btcd, which has no wallet of its own, so it is only included
+// here to keep its image version alongside the rest of the images
+export const dockerConfigs: Record<
+  NodeImplementationWithSimln | 'btcwallet',
+  DockerConfig
+> = {
   LND: {
     name: 'LND',
     imageName: 'polarlightning/lnd',
@@ -231,13 +247,24 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     variables: ['rpcUser', 'rpcAuth'],
   },
   btcd: {
-    name: 'btcd',
-    imageName: '',
-    logo: '',
+    name: 'BTCD',
+    imageName: 'polarlightning/btcd',
+    logo: btcdLogo,
     platforms: ['mac', 'linux', 'windows'],
     volumeDirName: 'btcd',
-    command: '',
-    variables: [],
+    command: [
+      'btcd',
+      '--regtest',
+      '--rpcuser={{rpcUser}}',
+      '--rpcpass={{rpcPass}}',
+      '--txindex',
+      '--nodnsseed',
+      '--rpclisten=0.0.0.0:18334',
+      '--listen=0.0.0.0:18444',
+      '--externalip={{name}}',
+      '--debuglevel=info',
+    ].join('\n '),
+    variables: ['rpcUser', 'rpcPass', 'name'],
   },
   tapd: {
     name: 'Taproot Assets',
@@ -333,6 +360,15 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       'proofCourier',
     ],
   },
+  btcwallet: {
+    name: 'btcwallet',
+    imageName: 'polarlightning/btcwallet:0.16.13',
+    logo: '',
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'btcwallet',
+    command: '',
+    variables: [],
+  },
   simln: {
     name: 'simln',
     imageName: 'polarlightning/simln:0.2.5',
@@ -412,8 +448,8 @@ export const defaultRepoState: DockerRepoState = {
       versions: ['30.0', '29.0', '28.0', '27.0', '26.0'],
     },
     btcd: {
-      latest: '',
-      versions: [],
+      latest: '0.26.0',
+      versions: ['0.26.0'],
     },
     tapd: {
       latest: '0.7.0-alpha',

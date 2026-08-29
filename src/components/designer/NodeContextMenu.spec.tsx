@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
-import { act } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { ipcChannels } from 'shared';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -231,8 +231,10 @@ describe('NodeContextMenu', () => {
     const { getByText, store } = renderComponent('alice', Status.Started);
     expect(store.getState().modals.advancedOptions.visible).toBe(false);
     fireEvent.click(getByText('Advanced Options'));
-    expect(store.getState().modals.advancedOptions.visible).toBe(true);
-    expect(store.getState().modals.advancedOptions.nodeName).toBe('alice');
+    await waitFor(() => {
+      expect(store.getState().modals.advancedOptions.visible).toBe(true);
+      expect(store.getState().modals.advancedOptions.nodeName).toBe('alice');
+    });
   });
 
   it('should show the remove node confirmation modal', async () => {

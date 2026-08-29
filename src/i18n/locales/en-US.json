@@ -77,6 +77,7 @@
   "cmps.designer.bitcoind.BitcoinDetails.waitingNotice": "Waiting for bitcoind to come online",
   "cmps.designer.bitcoind.BitcoinDetails.getInfoErr": "Unable to connect to node",
   "cmps.designer.bitcoind.ConnectTab.rpcHost": "RPC Host",
+  "cmps.designer.bitcoind.ConnectTab.walletRpcHost": "Wallet RPC Host",
   "cmps.designer.bitcoind.ConnectTab.p2pHost": "P2P Host",
   "cmps.designer.bitcoind.ConnectTab.zmqBlockHost": "ZMQ Block Host",
   "cmps.designer.bitcoind.ConnectTab.zmqTxHost": "ZMQ Transaction Host",
@@ -644,6 +645,7 @@
   "store.models.network.missingNetworkName": "Network must have a name",
   "store.models.network.nodeNotStarted": "The {{nodeName}} node is not started",
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
+  "utils.network.backendImplError": "This network does not contain a bitcoin node which is supported by {{implementation}}",
   "utils.network.lndBackendCompatError": "This network does not contain a LND v{{requiredVersion}} (or higher) node which is required for {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
   "utils.network.unknownImplementation": "Cannot import unknown node implementation '{{implementation}}'"

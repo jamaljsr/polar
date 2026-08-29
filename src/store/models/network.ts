@@ -5,6 +5,7 @@ import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
   BitcoinNode,
+  BtcdNode,
   CLightningNode,
   CommonNode,
   LightningNode,
@@ -22,6 +23,7 @@ import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
 import { rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
+  createBtcdNetworkNode,
   createCLightningNetworkNode,
   createEclairNetworkNode,
   createLitdNetworkNode,
@@ -49,6 +51,7 @@ interface AddNetworkArgs {
   clightningNodes: number;
   eclairNodes: number;
   bitcoindNodes: number;
+  btcdNodes: number;
   tapdNodes: number;
   litdNodes: number;
   customNodes: Record<string, number>;
@@ -325,6 +328,7 @@ const networkModel: NetworkModel = {
         clightningNodes: payload.clightningNodes,
         eclairNodes: payload.eclairNodes,
         bitcoindNodes: payload.bitcoindNodes,
+        btcdNodes: payload.btcdNodes,
         tapdNodes: payload.tapdNodes,
         litdNodes: payload.litdNodes,
         repoState: dockerRepoState,
@@ -348,9 +352,9 @@ const networkModel: NetworkModel = {
           'c-lightning': payload.clightningNodes,
           eclair: payload.eclairNodes,
           bitcoind: payload.bitcoindNodes,
+          btcd: payload.btcdNodes,
           tapd: payload.tapdNodes,
           litd: payload.litdNodes,
-          btcd: 0,
         },
       });
 
@@ -432,6 +436,16 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts.bitcoind,
+          );
+          network.nodes.bitcoin.push(node);
+          break;
+        case 'btcd':
+          node = createBtcdNetworkNode(
+            network,
+            version,
+            docker,
+            undefined,
+            settings.basePorts.btcd,
           );
           network.nodes.bitcoin.push(node);
           break;
@@ -900,21 +914,44 @@ const networkModel: NetworkModel = {
           lnNodesOnline.push(promise);
         } else if (node.type === 'bitcoin') {
           const btc = node as BitcoinNode;
-          // wait for bitcoind nodes to come online before updating their status
+          // get the freshest node from the network, fallback to the node passed in case it's not found.
+          const netBtc = network.nodes.bitcoin.find(b => b.name === btc.name) || btc;
+          // capture whether btcd already has a mining address before initialization.
+          const alreadyHasMiningAddr =
+            btc.implementation !== 'btcd' || !!(btc as BtcdNode).miningAddr;
+          // wait for bitcoin nodes to come online before updating their status
           // use .then() to continue execution while the promises are waiting to complete
           const promise = injections.bitcoinFactory
-            .getService(btc)
-            .waitUntilOnline(btc)
+            .getService(netBtc)
+            .waitUntilOnline(netBtc)
             .then(async () => {
-              actions.setStatus({ id, status: Status.Started, only: btc.name });
               // connect each bitcoin node to it's peers so tx & block propagation is fast
-              await injections.bitcoinFactory.getService(btc).connectPeers(btc);
+              await injections.bitcoinFactory.getService(netBtc).connectPeers(netBtc);
               // create a default wallet since it's not automatic on v0.21.0 and up
-              await injections.bitcoinFactory.getService(btc).createDefaultWallet(btc);
-              await getStoreActions().bitcoin.getInfo(btc);
+              // for btcd this also sets miningAddr on the node object if not yet set
+              await injections.bitcoinFactory
+                .getService(netBtc)
+                .createDefaultWallet(netBtc);
+              // btcd requires --miningaddr at startup to mine blocks. on the very first
+              // start, miningAddr is set above so we must restart btcd with the updated
+              // compose file. btcwallet will reconnect automatically.
+              if (!alreadyHasMiningAddr && (netBtc as BtcdNode).miningAddr) {
+                // persist the mining address so that it is reused on the next startup
+                // instead of a new one being generated
+                await actions.save();
+                await injections.dockerService.saveComposeFile(network);
+                await injections.dockerService.startNode(network, netBtc);
+                await injections.bitcoinFactory
+                  .getService(netBtc)
+                  .waitUntilOnline(netBtc);
+                // re-connect btcd node to its peers so tx & block propagation is fast.
+                await injections.bitcoinFactory.getService(netBtc).connectPeers(netBtc);
+              }
+              actions.setStatus({ id, status: Status.Started, only: netBtc.name });
+              await getStoreActions().bitcoin.getInfo(netBtc);
             })
             .catch(error =>
-              actions.setStatus({ id, status: Status.Error, only: btc.name, error }),
+              actions.setStatus({ id, status: Status.Error, only: netBtc.name, error }),
             );
           btcNodesOnline.push(promise);
         } else if (node.type === 'tap') {
