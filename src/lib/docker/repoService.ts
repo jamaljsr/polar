@@ -65,6 +65,7 @@ class RepoService implements RepoServiceInjection {
       eclair: [],
       litd: [],
       bitcoind: [],
+      'bitcoind-knots': [],
       btcd: [],
       tapd: [],
     };

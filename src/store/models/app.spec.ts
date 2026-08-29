@@ -51,6 +51,7 @@ describe('App model', () => {
         'c-lightning': 1,
         eclair: 1,
         bitcoind: 1,
+        'bitcoind-knots': 0,
         btcd: 0,
         tapd: 0,
         litd: 0,
@@ -62,6 +63,9 @@ describe('App model', () => {
         },
         bitcoind: {
           rest: 18443,
+        },
+        'bitcoind-knots': {
+          rest: 18543,
         },
         'c-lightning': {
           rest: 8181,
@@ -106,6 +110,7 @@ describe('App model', () => {
       'c-lightning': 0,
       eclair: 1,
       bitcoind: 1,
+      'bitcoind-knots': 0,
       btcd: 0,
       tapd: 0,
       litd: 0,
@@ -155,6 +160,7 @@ describe('App model', () => {
           'c-lightning': 1,
           eclair: 1,
           bitcoind: 1,
+          'bitcoind-knots': 0,
           btcd: 1,
           tapd: 1,
           litd: 0,
@@ -166,6 +172,9 @@ describe('App model', () => {
           },
           bitcoind: {
             rest: 18443,
+          },
+          'bitcoind-knots': {
+            rest: 18543,
           },
           'c-lightning': {
             rest: 8181,
@@ -201,6 +210,7 @@ describe('App model', () => {
           eclair: [],
           litd: [],
           bitcoind: [],
+          'bitcoind-knots': [],
           btcd: [],
           tapd: [],
         },

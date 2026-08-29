@@ -67,7 +67,7 @@ export interface EclairNode extends LightningNode {
 
 export interface BitcoinNode extends CommonNode {
   type: 'bitcoin';
-  implementation: 'bitcoind' | 'btcd';
+  implementation: 'bitcoind' | 'btcd' | 'bitcoind-knots';
   peers: string[];
   ports: Record<string, number>;
 }
