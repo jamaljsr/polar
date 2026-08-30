@@ -42,7 +42,7 @@ Supported Network Node Versions:
 - [Core Lightning](https://github.com/ElementsProject/lightning) - v26.06.7, v26.06.6, v26.06.2, v26.06.1, v26.06, v26.04.2, v26.04.1, v25.12.1, v25.12, v25.09.3, v25.05, v25.02, v24.11.1, v24.08.1
 - [Eclair](https://github.com/ACINQ/eclair/) - v0.14.2, v0.14.1, v0.14.0, v0.13.1, v0.12.0, v0.11.0, v0.10.0, v0.9.0
 - [Bitcoin Core](https://github.com/bitcoin/bitcoin) - v31.0, v30.0, v29.0, v28.0, v27.0, v26.0
-- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.7.0, v0.6.1, v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
+- [Taproot Assets](https://github.com/lightninglabs/taproot-assets) - v0.7.1, v0.7.0, v0.6.1, v0.6.0, v0.5.1, v0.5.0, v0.4.1, v0.3.3
 - [Terminal](https://github.com/lightninglabs/lightning-terminal) - v0.16.0, v0.15.3, v0.15.1, v0.15.0, v0.14.1,
 
 ### MCP (Model Context Protocol)
