@@ -89,6 +89,10 @@ class LndProxyClient {
     return await this.ipc(ipcChannels.decodeInvoice, { node, req });
   }
 
+  async exportAllChannelBackups(node: LndNode): Promise<LND.ChanBackupSnapshot> {
+    return await this.ipc(ipcChannels.exportAllChannelBackups, { node });
+  }
+
   async subscribeChannelEvents(
     node: LndNode,
     callback: (data: LND.ChannelEventUpdate) => void,

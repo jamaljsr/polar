@@ -327,6 +327,12 @@ describe('EclairService', () => {
     );
   });
 
+  it('should throw if exportChannelBackup when called', async () => {
+    await expect(eclairService.exportChannelBackup(node)).rejects.toThrow(
+      'exportChannelBackup is not implemented for eclair nodes',
+    );
+  });
+
   describe('pay invoice', () => {
     const mockResponses = (v8: boolean) => {
       const payReq = {

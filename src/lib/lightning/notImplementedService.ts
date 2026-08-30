@@ -62,6 +62,12 @@ class NotImplementedService implements LightningService {
     throw new Error(`decodeInvoice is not implemented for ${node.implementation} nodes`);
   }
 
+  exportChannelBackup(node: LightningNode): Promise<Buffer> {
+    throw new Error(
+      `exportChannelBackup is not implemented for ${node.implementation} nodes`,
+    );
+  }
+
   addListenerToNode(node: LightningNode): Promise<void> {
     throw new Error(
       `addListenerToNode is not implemented for ${node.implementation} nodes`,

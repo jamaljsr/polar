@@ -216,6 +216,34 @@ describe('LndService', () => {
     );
   });
 
+  describe('exportChannelBackup', () => {
+    it('should export the multi-channel backup bytes', async () => {
+      const multiChanBackup = Buffer.from('multi-chan-backup-bytes', 'utf-8');
+      lndProxyClient.exportAllChannelBackups = jest.fn().mockResolvedValue({
+        multiChanBackup: { multiChanBackup, chanPoints: [] },
+      });
+      const actual = await lndService.exportChannelBackup(node);
+      expect(actual).toEqual(multiChanBackup);
+      expect(lndProxyClient.exportAllChannelBackups).toHaveBeenCalledWith(node);
+    });
+
+    it('should throw an error when there are no channels', async () => {
+      lndProxyClient.exportAllChannelBackups = jest.fn().mockResolvedValue({
+        multiChanBackup: undefined,
+      });
+      await expect(lndService.exportChannelBackup(node)).rejects.toThrow(
+        'No channel backup is available to export',
+      );
+    });
+
+    it('should throw an error if the RPC call fails', async () => {
+      lndProxyClient.exportAllChannelBackups = jest
+        .fn()
+        .mockRejectedValue(new Error('export-error'));
+      await expect(lndService.exportChannelBackup(node)).rejects.toThrow('export-error');
+    });
+  });
+
   describe('openChannel', () => {
     it('should open the channel successfully', async () => {
       lndProxyClient.getInfo = jest

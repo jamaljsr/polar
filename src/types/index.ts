@@ -195,6 +195,7 @@ export interface LightningService {
     node: LightningNode,
     invoice: string,
   ) => Promise<PLN.LightningNodePaymentRequest>;
+  exportChannelBackup: (node: LightningNode) => Promise<Buffer>;
   addListenerToNode: (node: LightningNode) => Promise<void>;
   removeListener: (node: LightningNode) => Promise<void>;
   subscribeChannelEvents: (

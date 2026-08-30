@@ -209,6 +209,12 @@ describe('CLightningService', () => {
     );
   });
 
+  it('should throw if exportChannelBackup when called', async () => {
+    await expect(clightningService.exportChannelBackup(node)).rejects.toThrow(
+      'exportChannelBackup is not implemented for c-lightning nodes',
+    );
+  });
+
   describe('openChannel', () => {
     let listPeersResponse = {
       peers: [{ id: 'fdsa', connected: true, netaddr: ['1.1.1.1:9735'] }],

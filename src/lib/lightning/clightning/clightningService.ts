@@ -219,6 +219,12 @@ export class CLightningService implements LightningService {
     throw new Error(`decodeInvoice is not implemented for ${node.implementation} nodes`);
   }
 
+  async exportChannelBackup(node: LightningNode): Promise<Buffer> {
+    throw new Error(
+      `exportChannelBackup is not implemented for ${node.implementation} nodes`,
+    );
+  }
+
   /**
    * Helper function to continually query the node until a successful
    * response is received or it times out

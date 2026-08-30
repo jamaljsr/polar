@@ -1,3 +1,4 @@
+import * as electron from 'electron';
 import { waitFor } from '@testing-library/react';
 import { createStore } from 'easy-peasy';
 import { LndNode, Status } from 'shared/types';
@@ -8,6 +9,7 @@ import {
 } from 'lib/lightning/types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
+import * as files from 'utils/files';
 import * as networkUtils from 'utils/network';
 import {
   bitcoinServiceMock,
@@ -25,7 +27,12 @@ import modalsModel from './modals';
 import networkModel from './network';
 
 jest.mock('utils/async');
+jest.mock('utils/files', () => ({
+  write: jest.fn(),
+}));
 const asyncUtilMock = asyncUtil as jest.Mocked<typeof asyncUtil>;
+const filesMock = files as jest.Mocked<typeof files>;
+const dialogMock = electron.remote.dialog as jest.Mocked<typeof electron.remote.dialog>;
 
 describe('Lightning Model', () => {
   const rootModel = {
@@ -492,6 +499,47 @@ describe('Lightning Model', () => {
 
       expect(store.getActions().lightning.createInvoice).not.toHaveBeenCalled();
       expect(store.getActions().lightning.payInvoice).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('exportChannelBackup', () => {
+    it('should export the backup to the chosen file', async () => {
+      dialogMock.showSaveDialog.mockResolvedValue({
+        filePath: '/tmp/alice-channel.backup',
+      } as any);
+      const backup = Buffer.from('backup-bytes', 'utf-8');
+      lightningServiceMock.exportChannelBackup.mockResolvedValue(backup);
+
+      const { exportChannelBackup } = store.getActions().lightning;
+      const result = await exportChannelBackup(node);
+
+      expect(result).toEqual('/tmp/alice-channel.backup');
+      expect(lightningServiceMock.exportChannelBackup).toHaveBeenCalledWith(node);
+      expect(filesMock.write).toHaveBeenCalledWith('/tmp/alice-channel.backup', backup);
+    });
+
+    it('should not export the backup if the user aborts the dialog', async () => {
+      dialogMock.showSaveDialog.mockResolvedValue({} as any);
+
+      const { exportChannelBackup } = store.getActions().lightning;
+      const result = await exportChannelBackup(node);
+
+      expect(result).toBeUndefined();
+      expect(lightningServiceMock.exportChannelBackup).not.toHaveBeenCalled();
+      expect(filesMock.write).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if exporting the backup fails', async () => {
+      dialogMock.showSaveDialog.mockResolvedValue({
+        filePath: '/tmp/alice-channel.backup',
+      } as any);
+      lightningServiceMock.exportChannelBackup.mockRejectedValue(
+        new Error('export-error'),
+      );
+
+      const { exportChannelBackup } = store.getActions().lightning;
+      await expect(exportChannelBackup(node)).rejects.toThrow('export-error');
+      expect(filesMock.write).not.toHaveBeenCalled();
     });
   });
 });
