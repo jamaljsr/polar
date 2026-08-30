@@ -22,21 +22,35 @@ import LncSessionsList from './connect/LncSessionsList';
 const Styled = {
   RadioGroup: styled(Radio.Group)`
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 8px;
     font-size: 12px;
     margin-bottom: 20px;
+
+    .ant-radio-button-wrapper {
+      white-space: normal;
+      height: auto;
+      padding: 4px 10px;
+      text-align: center;
+      line-height: 1.2;
+    }
   `,
+
   Link: styled.a`
     margin-left: 10px;
     color: inherit;
+
     &:hover {
       opacity: 1;
     }
   `,
+
   BookIcon: styled(BookOutlined)`
     margin-left: 5px;
     color: #aaa;
   `,
+
   LinkIcon: styled(LinkOutlined)`
     margin-left: 5px;
     color: #aaa;
