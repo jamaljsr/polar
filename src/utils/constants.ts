@@ -442,8 +442,9 @@ export const defaultRepoState: DockerRepoState = {
       versions: [],
     },
     tapd: {
-      latest: '0.7.0-alpha',
+      latest: '0.7.1-alpha',
       versions: [
+        '0.7.1-alpha',
         '0.7.0-alpha',
         '0.6.1-alpha',
         '0.6.0-alpha',
@@ -455,6 +456,7 @@ export const defaultRepoState: DockerRepoState = {
       // Not all tapd versions are compatible with all LND versions.
       // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
+        '0.7.1-alpha': '0.19.0-beta',
         '0.7.0-alpha': '0.19.0-beta',
         '0.6.1-alpha': '0.19.0-beta',
         '0.6.0-alpha': '0.19.0-beta',
