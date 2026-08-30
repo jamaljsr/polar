@@ -26,6 +26,7 @@ import {
   getOpenPortRange,
   getOpenPorts,
   getTapdFilePaths,
+  isNodeRunning,
   mapToTapd,
   OpenPorts,
   renameNode,
@@ -375,6 +376,33 @@ describe('Network Utils', () => {
       const lnd2 = network.nodes.lightning[4] as LndNode;
       expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
       expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
+    });
+
+    it('should not update ports for locked nodes', async () => {
+      mockDetectPort.mockImplementation(port => Promise.resolve(port + 1));
+      network.nodes.lightning[0].status = Status.Locked;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      // a locked node is still holding its ports, so they should not be changed
+      expect(ports[network.nodes.lightning[0].name]).toBeUndefined();
+      // bob ports should change
+      const lnd2 = network.nodes.lightning[4] as LndNode;
+      expect(ports[lnd2.name].grpc).toBe(lnd2.ports.grpc + 1);
+      expect(ports[lnd2.name].rest).toBe(lnd2.ports.rest + 1);
+    });
+  });
+
+  describe('isNodeRunning', () => {
+    it('should return true for Started and Locked', () => {
+      expect(isNodeRunning(Status.Started)).toBe(true);
+      expect(isNodeRunning(Status.Locked)).toBe(true);
+    });
+
+    it('should return false for all other statuses', () => {
+      expect(isNodeRunning(Status.Stopped)).toBe(false);
+      expect(isNodeRunning(Status.Starting)).toBe(false);
+      expect(isNodeRunning(Status.Stopping)).toBe(false);
+      expect(isNodeRunning(Status.Error)).toBe(false);
     });
   });
 

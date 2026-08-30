@@ -9,13 +9,14 @@ import {
   CommonNode,
   LightningNode,
   LitdNode,
+  LndNode,
   NodeImplementation,
   Status,
   TapdNode,
   TapNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
-import { delay } from 'utils/async';
+import { AbortWaitError, delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -162,6 +163,20 @@ export interface NetworkModel {
   renameNode: Thunk<
     NetworkModel,
     { node: AnyNode; newName: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  initNode: Thunk<
+    NetworkModel,
+    { node: LightningNode; password: string },
+    StoreInjections,
+    RootModel,
+    Promise<string[]>
+  >;
+  unlockNode: Thunk<
+    NetworkModel,
+    { node: LightningNode; password: string },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -803,7 +818,10 @@ const networkModel: NetworkModel = {
   }),
   stopAll: thunk(async (actions, _, { getState }) => {
     let networks = getState().networks.filter(
-      n => n.status === Status.Started || n.status === Status.Stopping,
+      n =>
+        n.status === Status.Started ||
+        n.status === Status.Stopping ||
+        n.status === Status.Locked,
     );
     if (networks.length === 0) {
       ipcRenderer.send('docker-shut-down');
@@ -813,7 +831,10 @@ const networkModel: NetworkModel = {
     });
     setInterval(async () => {
       networks = getState().networks.filter(
-        n => n.status === Status.Started || n.status === Status.Stopping,
+        n =>
+          n.status === Status.Started ||
+          n.status === Status.Stopping ||
+          n.status === Status.Locked,
       );
       if (networks.length === 0) {
         await actions.save();
@@ -826,7 +847,7 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     if (network.status === Status.Stopped || network.status === Status.Error) {
       await actions.start(network.id);
-    } else if (network.status === Status.Started) {
+    } else if (network.status === Status.Started || network.status === Status.Locked) {
       await actions.stop(network.id);
     }
     await actions.save();
@@ -846,12 +867,19 @@ const networkModel: NetworkModel = {
         actions.updateNodePorts({ id: node.networkId, ports });
         // re-fetch the network with the updated ports
         network = getState().networks.find(n => n.id === networkId) as Network;
+        // re-fetch the node so monitorStartup uses the updated ports, not the stale ones
+        const updatedNode = [
+          ...network.nodes.lightning,
+          ...network.nodes.bitcoin,
+          ...network.nodes.tap,
+        ].find(n => n.name === node.name);
+        if (updatedNode) node = updatedNode;
         await actions.save();
         await injections.dockerService.saveComposeFile(network);
       }
       await injections.dockerService.startNode(network, node);
       actions.monitorStartup([node]);
-    } else if (node.status === Status.Started) {
+    } else if (node.status === Status.Started || node.status === Status.Locked) {
       // stop the node container
       actions.setStatus({ id: network.id, status: Status.Stopping, only });
       await injections.dockerService.stopNode(network, node);
@@ -868,6 +896,28 @@ const networkModel: NetworkModel = {
       const network = getStoreState().network.networks.find(n => n.id === id);
       if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
 
+      // once a node is found to be Locked, keep polling its wallet state in the
+      // background so the UI notices if it gets unlocked outside of Polar
+      const pollForExternalUnlock = (ln: LndNode) => {
+        const timer = setInterval(async () => {
+          const net = getStoreState().network.networks.find(n => n.id === id);
+          const current = net?.nodes.lightning.find(n => n.name === ln.name);
+          if (!current || current.status !== Status.Locked) {
+            clearInterval(timer);
+            return;
+          }
+          try {
+            const state = await injections.lndService.getWalletState(current as LndNode);
+            if (state === 'RPC_ACTIVE' || state === 'SERVER_ACTIVE') {
+              clearInterval(timer);
+              actions.monitorStartup([current]);
+            }
+          } catch {
+            // node isn't reachable yet, keep polling until the timer above bails out
+          }
+        }, 3 * 1000);
+      };
+
       const lnNodesOnline: Promise<void>[] = [];
       const btcNodesOnline: Promise<void>[] = [];
       for (const node of nodes) {
@@ -883,9 +933,14 @@ const networkModel: NetworkModel = {
               .then(async () => {
                 actions.setStatus({ id, status: Status.Started, only: ln.name });
               })
-              .catch(error =>
-                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
-              );
+              .catch(error => {
+                if (error instanceof AbortWaitError && ln.implementation === 'LND') {
+                  actions.setStatus({ id, status: Status.Locked, only: ln.name });
+                  pollForExternalUnlock(ln as LndNode);
+                } else {
+                  actions.setStatus({ id, status: Status.Error, only: ln.name, error });
+                }
+              });
           } else {
             const litd = ln as LitdNode;
             promise = injections.litdService
@@ -1121,7 +1176,7 @@ const networkModel: NetworkModel = {
   }),
   renameNode: thunk(
     async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
-      const wasStarted = node.status === Status.Started;
+      const wasStarted = node.status === Status.Started || node.status === Status.Locked;
 
       if (wasStarted) {
         await actions.stop(node.networkId);
@@ -1169,6 +1224,20 @@ const networkModel: NetworkModel = {
       }
     },
   ),
+  initNode: thunk(async (actions, { node, password }, { injections }) => {
+    const mnemonic = await injections.lndService.genSeed(node as LndNode);
+    await injections.lndService.initWallet(node as LndNode, password, mnemonic);
+    // resume the same startup monitoring used when a network is started, so
+    // the node transitions from Locked to Started once it comes online
+    await actions.monitorStartup([node]);
+    return mnemonic;
+  }),
+  unlockNode: thunk(async (actions, { node, password }, { injections }) => {
+    await injections.lndService.unlockWallet(node as LndNode, password);
+    // resume the same startup monitoring used when a network is started, so
+    // the node transitions from Locked to Started once it comes online
+    await actions.monitorStartup([node]);
+  }),
   setManualMineCount: action((state, { id, count }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));

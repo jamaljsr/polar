@@ -114,6 +114,28 @@ class LndProxyClient {
       debug('LndProxyClient: unsubscribeEvents deleted', channel);
     }
   }
+
+  async getState(node: LndNode): Promise<LND.GetStateResponse> {
+    return await this.ipc(ipcChannels.getState, { node });
+  }
+
+  async genSeed(node: LndNode): Promise<LND.GenSeedResponse> {
+    return await this.ipc(ipcChannels.genSeed, { node });
+  }
+
+  async initWallet(
+    node: LndNode,
+    req: LND.InitWalletRequestPartial,
+  ): Promise<LND.InitWalletResponse> {
+    return await this.ipc(ipcChannels.initWallet, { node, req });
+  }
+
+  async unlockWallet(
+    node: LndNode,
+    req: LND.UnlockWalletRequestPartial,
+  ): Promise<LND.UnlockWalletResponse> {
+    return await this.ipc(ipcChannels.unlockWallet, { node, req });
+  }
 }
 
 export default new LndProxyClient();

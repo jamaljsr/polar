@@ -14,6 +14,7 @@ import {
   getNetwork,
   injections,
   lightningServiceMock,
+  lndServiceMock,
   renderWithProviders,
   tapServiceMock,
   testNodeDocker,
@@ -639,6 +640,35 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         expect(getByText('API Docs')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('with node Locked', () => {
+    it('should display Unlock button in Actions tab', async () => {
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { findByText } = renderComponent(Status.Locked);
+      fireEvent.click(await findByText('Actions'));
+      expect(await findByText('Unlock', { selector: 'span' })).toBeInTheDocument();
+    });
+
+    it('should show the unlock modal when the button is clicked', async () => {
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { findByText, store } = renderComponent(Status.Locked);
+      fireEvent.click(await findByText('Actions'));
+      fireEvent.click(await findByText('Unlock', { selector: 'span' }));
+      const { visible, nodeName } = store.getState().modals.unlockNode;
+      expect(visible).toEqual(true);
+      expect(nodeName).toEqual(node.name);
+    });
+
+    it('should display connection details in Connect tab instead of the not-started message', async () => {
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { findByText, queryByText } = renderComponent(Status.Locked);
+      fireEvent.click(await findByText('Connect'));
+      expect(await findByText('GRPC Host')).toBeInTheDocument();
+      expect(
+        queryByText('Node needs to be started to view connection info'),
+      ).not.toBeInTheDocument();
     });
   });
 
