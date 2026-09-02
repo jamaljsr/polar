@@ -608,7 +608,10 @@ type ListDescriptorsResult = {
 };
 
 type ListWalletDirResult = {
-  name: string;
+  wallets: {
+    name: string;
+    warnings?: string[];
+  }[];
 };
 
 type LoadTxOutSetResult = {
@@ -1527,7 +1530,7 @@ export default class Client {
     include_watchonly?: boolean,
   ): Promise<ReceivedByAccount[]>;
 
-  listWalletDir(): Promise<ListWalletDirResult[]>;
+  listWalletDir(): Promise<ListWalletDirResult>;
 
   loadTxOutSet(filename: string): Promise<LoadTxOutSetResult>;
 
