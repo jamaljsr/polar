@@ -3,7 +3,7 @@ import * as LND from '@lightningpolar/lnd-api';
 import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNode, LndNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
-import { LightningService } from 'types';
+import { InitWalletOptions, LightningService } from 'types';
 import { AbortWaitError, waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
@@ -232,11 +232,23 @@ class LndService implements LightningService {
     node: LightningNode,
     password: string,
     mnemonic: string[],
+    options?: InitWalletOptions,
   ): Promise<Buffer> {
-    const res = await proxy.initWallet(this.cast(node), {
+    const req: LND.InitWalletRequestPartial = {
       walletPassword: Buffer.from(password, 'utf-8'),
       cipherSeedMnemonic: mnemonic,
-    });
+    };
+    if (options?.channelBackup) {
+      // a static channel backup is submitted alongside the seed so LND can
+      // trigger data-loss-protection with each peer once the node is online
+      req.channelBackups = {
+        multiChanBackup: { multiChanBackup: options.channelBackup },
+      };
+    }
+    if (options?.recoveryWindow !== undefined) {
+      req.recoveryWindow = options.recoveryWindow;
+    }
+    const res = await proxy.initWallet(this.cast(node), req);
     return res.adminMacaroon;
   }
 

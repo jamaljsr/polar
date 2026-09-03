@@ -22,6 +22,11 @@ class NotImplementedService implements BitcoinService {
       `getBlockchainInfo is not implemented for ${node.implementation} nodes`,
     );
   }
+  getMempoolTxCount(node: BitcoinNode): Promise<number> {
+    throw new Error(
+      `getMempoolTxCount is not implemented for ${node.implementation} nodes`,
+    );
+  }
   getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
     throw new Error(`getWalletInfo is not implemented for ${node.implementation} nodes`);
   }
