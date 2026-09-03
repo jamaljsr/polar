@@ -22,6 +22,9 @@ class NotImplementedService implements BitcoinService {
       `getBlockchainInfo is not implemented for ${node.implementation} nodes`,
     );
   }
+  isOutputSpent(node: BitcoinNode, txid: string, index: number): Promise<boolean> {
+    throw new Error(`isOutputSpent is not implemented for ${node.implementation} nodes`);
+  }
   getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
     throw new Error(`getWalletInfo is not implemented for ${node.implementation} nodes`);
   }
