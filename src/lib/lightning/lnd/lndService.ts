@@ -4,7 +4,7 @@ import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNode, LndNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
 import { LightningService } from 'types';
-import { waitFor } from 'utils/async';
+import { AbortWaitError, waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
@@ -218,6 +218,11 @@ class LndService implements LightningService {
     };
   }
 
+  async getWalletState(node: LightningNode): Promise<LND.WalletState> {
+    const res = await proxy.getState(this.cast(node));
+    return res.state;
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out
@@ -227,8 +232,30 @@ class LndService implements LightningService {
     interval = 3 * 1000, // check every 3 seconds
     timeout = 120 * 1000, // timeout after 120 seconds
   ): Promise<void> {
+    // a node started with --noseedbackup auto-creates its wallet shortly after
+    // the State service comes up, so it can briefly report NON_EXISTING before
+    // that happens. Only treat NON_EXISTING as needing user action once it's
+    // been observed twice in a row, to avoid mistaking that window for a
+    // wallet that was never initialized.
+    let nonExistingCount = 0;
     return waitFor(
       async () => {
+        const state = await this.getWalletState(node);
+        if (state === 'LOCKED') {
+          // node is running but needs user action
+          throw new AbortWaitError('wallet-locked');
+        }
+        if (state === 'NON_EXISTING') {
+          nonExistingCount += 1;
+          if (nonExistingCount < 2) {
+            throw new Error('waiting for wallet state to stabilize');
+          }
+          throw new AbortWaitError('wallet-not-initialized');
+        }
+        nonExistingCount = 0;
+        if (state !== 'RPC_ACTIVE' && state !== 'SERVER_ACTIVE') {
+          throw new Error(`waiting for RPC_ACTIVE, current state: ${state}`);
+        }
         await this.getInfo(node);
       },
       interval,

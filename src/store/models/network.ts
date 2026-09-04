@@ -15,7 +15,7 @@ import {
   TapNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
-import { delay } from 'utils/async';
+import { AbortWaitError, delay } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { nodePath } from 'utils/config';
 import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
@@ -803,7 +803,10 @@ const networkModel: NetworkModel = {
   }),
   stopAll: thunk(async (actions, _, { getState }) => {
     let networks = getState().networks.filter(
-      n => n.status === Status.Started || n.status === Status.Stopping,
+      n =>
+        n.status === Status.Started ||
+        n.status === Status.Stopping ||
+        n.status === Status.Locked,
     );
     if (networks.length === 0) {
       ipcRenderer.send('docker-shut-down');
@@ -813,7 +816,10 @@ const networkModel: NetworkModel = {
     });
     setInterval(async () => {
       networks = getState().networks.filter(
-        n => n.status === Status.Started || n.status === Status.Stopping,
+        n =>
+          n.status === Status.Started ||
+          n.status === Status.Stopping ||
+          n.status === Status.Locked,
       );
       if (networks.length === 0) {
         await actions.save();
@@ -826,7 +832,7 @@ const networkModel: NetworkModel = {
     if (!network) throw new Error(l('networkByIdErr', { networkId }));
     if (network.status === Status.Stopped || network.status === Status.Error) {
       await actions.start(network.id);
-    } else if (network.status === Status.Started) {
+    } else if (network.status === Status.Started || network.status === Status.Locked) {
       await actions.stop(network.id);
     }
     await actions.save();
@@ -846,12 +852,19 @@ const networkModel: NetworkModel = {
         actions.updateNodePorts({ id: node.networkId, ports });
         // re-fetch the network with the updated ports
         network = getState().networks.find(n => n.id === networkId) as Network;
+        // re-fetch the node so monitorStartup uses the updated ports, not the stale ones
+        const updatedNode = [
+          ...network.nodes.lightning,
+          ...network.nodes.bitcoin,
+          ...network.nodes.tap,
+        ].find(n => n.name === node.name);
+        if (updatedNode) node = updatedNode;
         await actions.save();
         await injections.dockerService.saveComposeFile(network);
       }
       await injections.dockerService.startNode(network, node);
       actions.monitorStartup([node]);
-    } else if (node.status === Status.Started) {
+    } else if (node.status === Status.Started || node.status === Status.Locked) {
       // stop the node container
       actions.setStatus({ id: network.id, status: Status.Stopping, only });
       await injections.dockerService.stopNode(network, node);
@@ -883,9 +896,13 @@ const networkModel: NetworkModel = {
               .then(async () => {
                 actions.setStatus({ id, status: Status.Started, only: ln.name });
               })
-              .catch(error =>
-                actions.setStatus({ id, status: Status.Error, only: ln.name, error }),
-              );
+              .catch(error => {
+                if (error instanceof AbortWaitError && ln.implementation === 'LND') {
+                  actions.setStatus({ id, status: Status.Locked, only: ln.name });
+                } else {
+                  actions.setStatus({ id, status: Status.Error, only: ln.name, error });
+                }
+              });
           } else {
             const litd = ln as LitdNode;
             promise = injections.litdService
@@ -1121,7 +1138,7 @@ const networkModel: NetworkModel = {
   }),
   renameNode: thunk(
     async (actions, { node, newName }, { getState, injections, getStoreActions }) => {
-      const wasStarted = node.status === Status.Started;
+      const wasStarted = node.status === Status.Started || node.status === Status.Locked;
 
       if (wasStarted) {
         await actions.stop(node.networkId);

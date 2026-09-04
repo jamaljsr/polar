@@ -6,8 +6,8 @@ import { useStoreState } from 'store';
 import {
   AdvancedOptionsButton,
   RemoveNode,
-  RestartNode,
   RenameNodeButton,
+  RestartNode,
 } from 'components/common';
 import { ViewLogsButton } from 'components/dockerLogs';
 import { OpenTerminalButton } from 'components/terminal';
@@ -90,7 +90,11 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
       <SendOnChainButton type="menu" node={node as BitcoinNode} />,
       isStarted && isBackend,
     ),
-    addItemIf('terminal', <OpenTerminalButton type="menu" node={node} />, isStarted),
+    addItemIf(
+      'terminal',
+      <OpenTerminalButton type="menu" node={node} />,
+      [Status.Started, Status.Locked].includes(node.status),
+    ),
     isStarted ? [{ type: 'divider' }] : [],
     addItemIf(
       'start',
@@ -100,12 +104,14 @@ const NodeContextMenu: React.FC<Props> = ({ node: { id }, children }) => {
     addItemIf(
       'stop',
       <RestartNode menuType="stop" node={node} />,
-      [Status.Started].includes(node.status),
+      [Status.Started, Status.Locked].includes(node.status),
     ),
     addItemIf(
       'logs',
       <ViewLogsButton type="menu" node={node} />,
-      [Status.Starting, Status.Started, Status.Error].includes(node.status),
+      [Status.Starting, Status.Started, Status.Error, Status.Locked].includes(
+        node.status,
+      ),
     ),
     addItemIf('rename', <RenameNodeButton type="menu" node={node} />),
     addItemIf('options', <AdvancedOptionsButton type="menu" node={node} />),
