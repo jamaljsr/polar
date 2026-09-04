@@ -21,6 +21,12 @@ export const COINBASE_MATURITY_DELAY = 100;
 // https://github.com/bitcoin/bitcoin/blob/v0.19.0.1/src/chainparams.cpp#L258
 export const HALVING_INTERVAL = 150;
 
+// lnd
+// number of addresses LND scans forward to find on-chain funds for a restored seed
+export const SEED_RESTORE_RECOVERY_WINDOW = 2500;
+// how long to wait for peers to broadcast force-close txns after a wallet restore
+export const FORCE_CLOSE_WAIT_TIMEOUT = 30 * 1000;
+
 // litd
 export const LNC_MAILBOX_SERVER = 'mailbox.terminal.lightning.today:443';
 
