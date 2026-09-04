@@ -16,11 +16,16 @@ import {
   TapNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
-import { AbortWaitError, delay } from 'utils/async';
+import { AbortWaitError, delay, waitFor } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { nodePath } from 'utils/config';
-import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
-import { rm } from 'utils/files';
+import {
+  APP_VERSION,
+  DOCKER_REPO,
+  FORCE_CLOSE_WAIT_TIMEOUT,
+  SEED_RESTORE_RECOVERY_WINDOW,
+} from 'utils/constants';
+import { readBuffer, rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
@@ -177,6 +182,18 @@ export interface NetworkModel {
   unlockNode: Thunk<
     NetworkModel,
     { node: LightningNode; password: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  restoreNode: Thunk<
+    NetworkModel,
+    {
+      node: LightningNode;
+      password: string;
+      mnemonic: string[];
+      backupFilePath?: string;
+    },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -1238,6 +1255,46 @@ const networkModel: NetworkModel = {
     // the node transitions from Locked to Started once it comes online
     await actions.monitorStartup([node]);
   }),
+  restoreNode: thunk(
+    async (
+      actions,
+      { node, password, mnemonic, backupFilePath },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      const channelBackup = backupFilePath ? await readBuffer(backupFilePath) : undefined;
+      await injections.lndService.initWallet(node as LndNode, password, mnemonic, {
+        channelBackup,
+        recoveryWindow: SEED_RESTORE_RECOVERY_WINDOW,
+      });
+
+      // resume the same startup monitoring used when a network is started, so
+      // the node transitions from Locked to Started once it comes online
+      await actions.monitorStartup([node]);
+      if (!channelBackup) return;
+
+      // The peers force-close once the restored node reports its lost state.
+      // Mine one block to confirm those closes; further blocks are the user's.
+      // A fixed delay won't do: the recovery window rescan runs after the RPC
+      // is up, so peers may not broadcast until ~25s after monitorStartup.
+      const network = getStoreState().network.networkById(node.networkId);
+      const backend = network.nodes.bitcoin.find(n => n.name === node.backendName);
+      if (!backend || backend.status !== Status.Started) return;
+      const btcApi = injections.bitcoinFactory.getService(backend);
+      try {
+        await waitFor(
+          async () => {
+            const count = await btcApi.getMempoolTxCount(backend);
+            if (count === 0) throw new Error('waiting for force-close transactions');
+          },
+          1000,
+          FORCE_CLOSE_WAIT_TIMEOUT,
+        );
+        await getStoreActions().bitcoin.mine({ blocks: 1, node: backend });
+      } catch {
+        info(`Force-close txns not confirmed for '${node.name}', skipping auto-mine`);
+      }
+    },
+  ),
   setManualMineCount: action((state, { id, count }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));
