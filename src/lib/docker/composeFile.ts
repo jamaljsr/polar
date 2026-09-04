@@ -13,7 +13,7 @@ import {
   eclairCredentials,
   litdCredentials,
 } from 'utils/constants';
-import { getContainerName, getDefaultCommand } from 'utils/network';
+import { getContainerName, getDefaultCommand, updateTorFlags } from 'utils/network';
 import { isWindows } from 'utils/system';
 import { bitcoind, clightning, eclair, litd, lnd, simln, tapd } from './nodeTemplates';
 
@@ -28,6 +28,16 @@ export interface ComposeService {
   ports: string[];
   restart?: 'always';
   stop_grace_period?: string;
+  healthcheck?: {
+    test: string[];
+    interval: string;
+    timeout: string;
+    retries: number;
+    start_period: string;
+  };
+  depends_on?: {
+    [service: string]: { condition: 'service_healthy' | 'service_started' };
+  };
 }
 
 export interface ComposeContent {
@@ -74,11 +84,36 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.bitcoind.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('bitcoind', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('bitcoind', version);
+
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = updateTorFlags(nodeCommand, !!node.enableTor, 'bitcoind');
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
+
     // add the docker service
     const svc = bitcoind(name, container, image, rpc, p2p, zmqBlock, zmqTx, command);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
+    // healthcheck so dependent lightning nodes wait until bitcoind RPC is ready
+    svc.healthcheck = {
+      test: [
+        'CMD',
+        'bitcoin-cli',
+        '-regtest',
+        `-rpcuser=${bitcoinCredentials.user}`,
+        `-rpcpassword=${bitcoinCredentials.pass}`,
+        'getblockchaininfo',
+      ],
+      interval: '10s',
+      timeout: '5s',
+      retries: 20,
+      start_period: '30s',
+    };
+
     this.addService(svc);
   }
 
@@ -97,11 +132,22 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.LND.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('LND', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('LND', version);
+
+    // Add Tor flags if Tor is enabled
+    nodeCommand = updateTorFlags(nodeCommand, !!node.enableTor, 'LND');
+
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
+
     // add the docker service
     const svc = lnd(name, container, image, rest, grpc, p2p, command);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
@@ -124,7 +170,7 @@ class ComposeFile {
     // do not include the GRPC port arg in the command for unsupported versions
     if (grpc === 0) nodeCommand = nodeCommand.replace('--grpc-port=11001', '');
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
     // On Windows, use a named Docker volume for CLN's data directory instead of a bind mount.
     let namedVolumeName: string | undefined;
     if (isWindows()) {
@@ -135,6 +181,9 @@ class ComposeFile {
       }
       this.content.volumes[namedVolumeName] = null;
     }
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = updateTorFlags(nodeCommand, !!node.enableTor, 'c-lightning');
+
     // add the docker service
     const svc = clightning(
       name,
@@ -143,9 +192,15 @@ class ComposeFile {
       rest,
       grpc,
       p2p,
-      command,
+      nodeCommand,
       namedVolumeName,
     );
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
@@ -164,11 +219,19 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.eclair.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('eclair', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('eclair', version);
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = updateTorFlags(nodeCommand, !!node.enableTor, 'eclair');
     // add the docker service
-    const svc = eclair(name, container, image, rest, p2p, command);
+    const svc = eclair(name, container, image, rest, p2p, nodeCommand);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 
@@ -189,11 +252,19 @@ class ComposeFile {
     // use the node's custom image or the default for the implementation
     const image = node.docker.image || `${dockerConfigs.litd.imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('litd', version);
+    let nodeCommand = node.docker.command || getDefaultCommand('litd', version);
     // replace the variables in the command
-    const command = this.mergeCommand(nodeCommand, variables);
+    nodeCommand = this.mergeCommand(nodeCommand, variables);
+    // Apply Tor flags if Tor is enabled
+    nodeCommand = updateTorFlags(nodeCommand, !!node.enableTor, 'litd');
     // add the docker service
-    const svc = litd(name, container, image, rest, grpc, p2p, web, command);
+    const svc = litd(name, container, image, rest, grpc, p2p, web, nodeCommand);
+    // add ENABLE_TOR variable
+    svc.environment = {
+      ...svc.environment,
+      ENABLE_TOR: node.enableTor ? 'true' : 'false',
+    };
+    svc.depends_on = { [backend.name]: { condition: 'service_healthy' } };
     this.addService(svc);
   }
 

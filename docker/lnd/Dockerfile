@@ -4,7 +4,7 @@ ARG LND_VERSION
 ENV PATH=/opt/lnd:$PATH
 
 RUN apt-get update -y \
-  && apt-get install -y curl gosu wait-for-it \
+  && apt-get install -y curl gosu wait-for-it tor \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -28,7 +28,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/home/lnd/.lnd"]
 
-EXPOSE 9735 8080 10000
+EXPOSE 9735 8080 10000 9050 9051
 
 ENTRYPOINT ["/entrypoint.sh"]
 

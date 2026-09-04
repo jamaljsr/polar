@@ -691,6 +691,147 @@ export const renameNode = async (network: Network, node: AnyNode, newName: strin
 };
 
 /**
+ * Get Tor flags for a specific implementation
+ */
+
+const getTorFlags = (implementation: NodeImplementation): string[] => {
+  switch (implementation) {
+    case 'LND':
+      return [
+        '--tor.active',
+        '--tor.v3',
+        '--tor.streamisolation',
+        '--listen=localhost',
+        '--tor.socks=127.0.0.1:9050',
+        '--tor.control=127.0.0.1:9051',
+      ];
+    case 'c-lightning':
+      return [
+        '--bind-addr=127.0.0.1:9735',
+        '--announce-addr=statictor:127.0.0.1:9051',
+        '--proxy=127.0.0.1:9050',
+        '--always-use-proxy=true',
+      ];
+    case 'eclair':
+      return [
+        '--tor.enabled=true',
+        '--tor.auth=safecookie',
+        '--socks5.enabled=true',
+        '--socks5.use-for-tor=true',
+        '--server.address=127.0.0.1',
+      ];
+    case 'litd':
+      return [
+        '--lnd.tor.active',
+        '--lnd.tor.v3',
+        '--lnd.tor.streamisolation',
+        '--lnd.listen=localhost',
+        '--lnd.tor.socks=127.0.0.1:9050',
+        '--lnd.tor.control=127.0.0.1:9051',
+      ];
+    case 'bitcoind':
+      return [
+        '-proxy=127.0.0.1:9050',
+        '-torcontrol=127.0.0.1:9051',
+        '-bind=127.0.0.1:8334=onion',
+      ];
+    default:
+      return [];
+  }
+};
+
+/**
+ * Adds or removes Tor flags from a node command
+ */
+export const updateTorFlags = (
+  command: string,
+  enableTor: boolean,
+  implementation: NodeImplementation,
+): string => {
+  const torFlags = getTorFlags(implementation);
+
+  if (torFlags.length === 0) {
+    return command;
+  }
+
+  // Remove existing Tor flags to avoid duplicates
+  let lines = command
+    .split('\n')
+    .filter(line => !torFlags.some(flag => line.trim().startsWith(flag)));
+
+  if (implementation === 'LND' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      // Remove clearnet listen and externalip when Tor is active
+      return !(
+        trimmed.startsWith('--listen=0.0.0.0') || trimmed.startsWith('--externalip=')
+      );
+    });
+  }
+
+  if (implementation === 'litd' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      return !(
+        trimmed.startsWith('--lnd.listen=0.0.0.0') ||
+        trimmed.startsWith('--lnd.externalip=')
+      );
+    });
+  }
+
+  if (implementation === 'c-lightning' && enableTor) {
+    lines = lines.filter(line => {
+      const trimmed = line.trim();
+      // Remove clearnet addr bindings, but keep internal Docker addr
+      return !(trimmed.startsWith('--addr=') && !trimmed.includes('statictor'));
+    });
+  }
+
+  if (implementation === 'bitcoind' && enableTor) {
+    lines = lines.filter(line => line.trim() !== '-listenonion=0');
+  }
+
+  let cleanCommand = lines.join('\n').trim();
+  // Add Tor flags if enabled
+  if (enableTor) {
+    const torFlagsStr = torFlags.join('\n  ');
+    cleanCommand = `${cleanCommand}\n  ${torFlagsStr}`;
+  }
+  return cleanCommand;
+};
+
+export const getEffectiveCommand = (node: CommonNode): string => {
+  let implementation: NodeImplementation;
+  if (node.type === 'lightning') {
+    implementation = (node as LightningNode).implementation;
+  } else if (node.type === 'bitcoin') {
+    implementation = (node as BitcoinNode).implementation;
+  } else if (node.type === 'tap') {
+    implementation = (node as TapNode).implementation;
+  } else {
+    return node.docker.command;
+  }
+
+  let command = node.docker.command || getDefaultCommand(implementation, node.version);
+
+  if (supportsTor(node)) {
+    const enableTor = node.enableTor;
+    if (enableTor) {
+      command = updateTorFlags(command, true, implementation);
+    }
+  }
+
+  return command;
+};
+
+/**
+ * Check if a node implementation supports Tor
+ */
+export const supportsTor = (node: CommonNode): boolean => {
+  return node.type !== 'tap';
+};
+
+/**
  * Returns the images needed to start a network that are not included in the list
  * of images already pulled
  * @param network the network to check

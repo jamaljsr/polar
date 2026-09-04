@@ -86,6 +86,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const nodeState = useStoreState(s => s.lightning.nodes[node.name]);
   const pubkey = nodeState && nodeState.info ? nodeState.info.pubkey : '';
   const p2pLnUrlInternal = nodeState && nodeState.info ? nodeState.info.rpcUrl : '';
+  const p2pUriExternal = (port: number) =>
+    node.enableTor ? p2pLnUrlInternal : `${pubkey}@127.0.0.1:${port}`;
 
   const info = useMemo((): ConnectionInfo => {
     if (node.status === Status.Started) {
@@ -102,7 +104,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             invoice: lnd.paths.invoiceMacaroon,
             cert: lnd.paths.tlsCert,
           },
-          p2pUriExternal: `${pubkey}@127.0.0.1:${lnd.ports.p2p}`,
+          p2pUriExternal: p2pUriExternal(lnd.ports.p2p),
           authTypes: ['paths', 'hex', 'base64', 'lndc'],
         };
       } else if (node.implementation === 'c-lightning') {
@@ -118,7 +120,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             clientCert: cln.paths.tlsClientCert,
             clientKey: cln.paths.tlsClientKey,
           },
-          p2pUriExternal: `${pubkey}@127.0.0.1:${cln.ports.p2p}`,
+          p2pUriExternal: p2pUriExternal(cln.ports.p2p),
           authTypes: ['paths', 'hex', 'base64'],
         };
       } else if (node.implementation === 'eclair') {
@@ -129,7 +131,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           credentials: {
             basicAuth: eclairCredentials.pass,
           },
-          p2pUriExternal: `${pubkey}@127.0.0.1:${eln.ports.p2p}`,
+          p2pUriExternal: p2pUriExternal(eln.ports.p2p),
           authTypes: ['basic'],
         };
       } else if (node.implementation === 'litd') {
@@ -148,7 +150,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
             lit: litd.paths.litMacaroon,
             tap: litd.paths.tapMacaroon,
           },
-          p2pUriExternal: `${pubkey}@127.0.0.1:${litd.ports.p2p}`,
+          p2pUriExternal: p2pUriExternal(litd.ports.p2p),
           authTypes: ['paths', 'hex', 'base64', 'lnc'],
         };
       }

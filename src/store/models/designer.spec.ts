@@ -983,5 +983,90 @@ describe('Designer model', () => {
         expect(firstChart().scale).toEqual(2);
       });
     });
+
+    describe('Enable Tor', () => {
+      const getChart = () => store.getState().designer.allCharts[firstNetwork().id];
+      const getLightningNodes = () =>
+        Object.values(getChart().nodes).filter(n => n.type === 'lightning');
+      const getBitcoinNodes = () =>
+        Object.values(getChart().nodes).filter(n => n.type === 'bitcoin');
+
+      it('should set tor=true on all lightning and bitcoin nodes when enabled', async () => {
+        const { toggleTorForNetwork } = store.getActions().network;
+        await toggleTorForNetwork({
+          networkId: firstNetwork().id,
+          enabled: true,
+        });
+        getLightningNodes().forEach(node => expect(node.properties.tor).toBe(true));
+        getBitcoinNodes().forEach(node => expect(node.properties.tor).toBe(true));
+      });
+
+      it('should do nothing if the chart does not exist', async () => {
+        const { toggleTorForNetwork, toggleTorForNode } = store.getActions().network;
+        store.getActions().designer.setAllCharts({});
+        const node = firstNetwork().nodes.lightning[0];
+
+        await expect(
+          toggleTorForNetwork({
+            networkId: firstNetwork().id,
+            enabled: true,
+          }),
+        ).resolves.not.toThrow();
+        await expect(
+          toggleTorForNode({
+            node,
+            enabled: true,
+          }),
+        ).resolves.not.toThrow();
+      });
+
+      it('should set tor=true on a lightning node when enabled', async () => {
+        const { toggleTorForNode } = store.getActions().network;
+        const node = firstNetwork().nodes.lightning[0];
+        await toggleTorForNode({
+          node,
+          enabled: true,
+        });
+
+        const chartNode = getChart().nodes[node.name];
+        expect(chartNode.properties.tor).toBe(true);
+      });
+
+      it('should set tor=true on a bitcoin node when enabled', async () => {
+        const { toggleTorForNode } = store.getActions().network;
+        const node = firstNetwork().nodes.bitcoin[0];
+
+        await toggleTorForNode({ node, enabled: true });
+
+        const chartNode = getChart().nodes[node.name];
+        expect(chartNode.properties.tor).toBe(true);
+      });
+
+      it('should not set tor property if the node type is not lightning or bitcoin', async () => {
+        const { toggleTorForNode } = store.getActions().network;
+        const network = firstNetwork();
+        const chart = getChart();
+
+        const node = {
+          ...network.nodes.lightning[0],
+          type: 'tap',
+        };
+
+        chart.nodes[node.name] = {
+          ...chart.nodes[network.nodes.lightning[0].name],
+          id: node.name,
+          type: 'tap',
+          properties: { tor: false },
+        };
+
+        await toggleTorForNode({
+          node: node as any,
+          enabled: true,
+        });
+
+        const chartNode = getChart().nodes[node.name];
+        expect(chartNode.properties.tor).toBe(false);
+      });
+    });
   });
 });
