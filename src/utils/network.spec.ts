@@ -174,12 +174,16 @@ describe('Network Utils', () => {
       const p2pPort = network.nodes.bitcoin[0].ports.p2p;
       const zmqBlockPort = network.nodes.bitcoin[0].ports.zmqBlock;
       const zmqTxPort = network.nodes.bitcoin[0].ports.zmqTx;
+      const zmqHashBlockPort = network.nodes.bitcoin[0].ports.zmqHashBlock;
       const ports = (await getOpenPorts(network)) as OpenPorts;
       expect(ports).toBeDefined();
       expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].p2p).toBe(p2pPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqHashBlock).toBe(
+        zmqHashBlockPort + 1,
+      );
     });
 
     it('should update the rest port for bitcoind', async () => {
@@ -194,6 +198,7 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.bitcoin[0].name].rpc).toBe(restPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqHashBlock).toBeUndefined();
     });
 
     it('should update the p2p port for bitcoind', async () => {
@@ -208,6 +213,7 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.bitcoin[0].name].p2p).toBe(p2pPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqHashBlock).toBeUndefined();
     });
 
     it('should update the zmq block port for bitcoind', async () => {
@@ -222,6 +228,7 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.bitcoin[0].name].rest).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBe(zmqBlockPort + 1);
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqHashBlock).toBeUndefined();
     });
 
     it('should update the zmq tx port for bitcoind', async () => {
@@ -236,6 +243,24 @@ describe('Network Utils', () => {
       expect(ports[network.nodes.bitcoin[0].name].rest).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
       expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBe(zmqTxPort + 1);
+      expect(ports[network.nodes.bitcoin[0].name].zmqHashBlock).toBeUndefined();
+    });
+
+    it('should update the zmq hash block port for bitcoind', async () => {
+      const portsInUse = [28534];
+      mockDetectPort.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      network.nodes.lightning = [];
+      const zmqHashBlockPort = network.nodes.bitcoin[0].ports.zmqHashBlock;
+      const ports = (await getOpenPorts(network)) as OpenPorts;
+      expect(ports).toBeDefined();
+      expect(ports[network.nodes.bitcoin[0].name].rest).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqBlock).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqTx).toBeUndefined();
+      expect(ports[network.nodes.bitcoin[0].name].zmqHashBlock).toBe(
+        zmqHashBlockPort + 1,
+      );
     });
 
     it('should update the grpc ports for lightning nodes', async () => {
