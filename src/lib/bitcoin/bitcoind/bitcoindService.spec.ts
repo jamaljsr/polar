@@ -74,6 +74,18 @@ describe('BitcoindService', () => {
     await expect(bitcoindService.connectPeers(node)).resolves.not.toThrow();
   });
 
+  it('should report an output as spent once it is gone', async () => {
+    mockProto.getTxOut = jest.fn().mockResolvedValue(null);
+    await expect(bitcoindService.isOutputSpent(node, 'txid1', 1)).resolves.toBe(true);
+    // the mempool is included so a broadcast close counts before it confirms
+    expect(getInst().getTxOut).toBeCalledWith('txid1', 1, true);
+  });
+
+  it('should report an output as unspent while it still exists', async () => {
+    mockProto.getTxOut = jest.fn().mockResolvedValue({ value: 1 });
+    await expect(bitcoindService.isOutputSpent(node, 'txid1', 1)).resolves.toBe(false);
+  });
+
   it('should mine new blocks', async () => {
     const result = await bitcoindService.mine(2, node);
     expect(getInst().getNewAddress).toBeCalledTimes(1);

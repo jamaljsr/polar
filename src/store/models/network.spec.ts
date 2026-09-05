@@ -720,6 +720,16 @@ describe('Network model', () => {
       );
     });
 
+    it('should log an error if adding LN listeners fails', async () => {
+      const err = new Error('test-error');
+      lightningServiceMock.addListenerToNode.mockRejectedValue(err);
+      const { start } = store.getActions().network;
+      await start(firstNetwork().id);
+      await waitFor(() => {
+        expect(logMock.info).toHaveBeenCalledWith('Failed to connect all LN peers', err);
+      });
+    });
+
     it('should throw an error if a custom node image is missing', async () => {
       const { networks } = store.getState().network;
       networks[0].nodes.lightning[0].docker.image = 'custom-image:latest';
@@ -1612,6 +1622,11 @@ describe('Network model', () => {
           await flush();
           expect(bitcoinServiceMock.isOutputSpent).not.toHaveBeenCalled();
           expect(bitcoinServiceMock.mine).not.toHaveBeenCalled();
+          expect(logMock.info).toHaveBeenCalledWith(
+            `No recovered channels found for '${
+              lndNode().name
+            }', skipping force-close confirmation`,
+          );
         });
 
         it('should not keep the caller waiting on the force-close check', async () => {
@@ -1681,6 +1696,18 @@ describe('Network model', () => {
         // startup monitoring must not begin for a wallet that was never created
         expect(lightningServiceMock.waitUntilOnline).not.toHaveBeenCalled();
         expect(lndNode().status).not.toBe(Status.Started);
+      });
+
+      it('should throw when the node fails to come online after restoring', async () => {
+        filesMock.readBuffer.mockResolvedValue(Buffer.from('backup'));
+        lightningServiceMock.waitUntilOnline.mockRejectedValue(new Error('timed out'));
+        const { restoreNode } = store.getActions().network;
+        const node = lndNode();
+        await expect(
+          restoreNode({ node, password: 'polarpass', mnemonic, backupFilePath }),
+        ).rejects.toThrow(`The ${node.name} node is not started`);
+        expect(lndNode().status).toBe(Status.Error);
+        expect(lndServiceMock.getRecoveredChannelPoints).not.toHaveBeenCalled();
       });
     });
   });
