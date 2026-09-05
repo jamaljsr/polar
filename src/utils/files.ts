@@ -25,6 +25,14 @@ export const read = async (
 ): Promise<string> => (await readFile(abs(filePath))).toString(encoding);
 
 /**
+ * Reads the raw bytes of a file without any string conversion. Use this for
+ * binary files, such as LND channel backups, where `read()` would mangle the data
+ * @param filePath the path to the file. either absolute or relative to the app's data dir
+ */
+export const readBuffer = async (filePath: string): Promise<Buffer> =>
+  await readFile(abs(filePath));
+
+/**
  * Checks to see if a file exists
  * @param filePath the path to the file. either absolute or relative to the app's data dir
  */

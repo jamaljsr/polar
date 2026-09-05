@@ -3,8 +3,8 @@ import * as LND from '@lightningpolar/lnd-api';
 import { PendingChannel } from 'shared/lndDefaults';
 import { LightningNode, LndNode, OpenChannelOptions } from 'shared/types';
 import * as PLN from 'lib/lightning/types';
-import { LightningService } from 'types';
-import { waitFor } from 'utils/async';
+import { InitWalletOptions, LightningService } from 'types';
+import { AbortWaitError, waitFor } from 'utils/async';
 import { lndProxyClient as proxy } from './';
 import { mapOpenChannel, mapPendingChannel } from './mappers';
 
@@ -218,6 +218,46 @@ class LndService implements LightningService {
     };
   }
 
+  async getWalletState(node: LightningNode): Promise<LND.WalletState> {
+    const res = await proxy.getState(this.cast(node));
+    return res.state;
+  }
+
+  async genSeed(node: LightningNode): Promise<string[]> {
+    const res = await proxy.genSeed(this.cast(node));
+    return res.cipherSeedMnemonic;
+  }
+
+  async initWallet(
+    node: LightningNode,
+    password: string,
+    mnemonic: string[],
+    options?: InitWalletOptions,
+  ): Promise<Buffer> {
+    const req: LND.InitWalletRequestPartial = {
+      walletPassword: Buffer.from(password, 'utf-8'),
+      cipherSeedMnemonic: mnemonic,
+    };
+    if (options?.channelBackup) {
+      // a static channel backup is submitted alongside the seed so LND can
+      // trigger data-loss-protection with each peer once the node is online
+      req.channelBackups = {
+        multiChanBackup: { multiChanBackup: options.channelBackup },
+      };
+    }
+    if (options?.recoveryWindow !== undefined) {
+      req.recoveryWindow = options.recoveryWindow;
+    }
+    const res = await proxy.initWallet(this.cast(node), req);
+    return res.adminMacaroon;
+  }
+
+  async unlockWallet(node: LightningNode, password: string): Promise<void> {
+    await proxy.unlockWallet(this.cast(node), {
+      walletPassword: Buffer.from(password, 'utf-8'),
+    });
+  }
+
   /**
    * Helper function to continually query the LND node until a successful
    * response is received or it times out
@@ -227,8 +267,30 @@ class LndService implements LightningService {
     interval = 3 * 1000, // check every 3 seconds
     timeout = 120 * 1000, // timeout after 120 seconds
   ): Promise<void> {
+    // a node started with --noseedbackup auto-creates its wallet shortly after
+    // the State service comes up, so it can briefly report NON_EXISTING before
+    // that happens. Only treat NON_EXISTING as needing user action once it's
+    // been observed twice in a row, to avoid mistaking that window for a
+    // wallet that was never initialized.
+    let nonExistingCount = 0;
     return waitFor(
       async () => {
+        const state = await this.getWalletState(node);
+        if (state === 'LOCKED') {
+          // node is running but needs user action
+          throw new AbortWaitError('wallet-locked');
+        }
+        if (state === 'NON_EXISTING') {
+          nonExistingCount += 1;
+          if (nonExistingCount < 2) {
+            throw new Error('waiting for wallet state to stabilize');
+          }
+          throw new AbortWaitError('wallet-not-initialized');
+        }
+        nonExistingCount = 0;
+        if (state !== 'RPC_ACTIVE' && state !== 'SERVER_ACTIVE') {
+          throw new Error(`waiting for RPC_ACTIVE, current state: ${state}`);
+        }
         await this.getInfo(node);
       },
       interval,

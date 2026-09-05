@@ -173,4 +173,32 @@ describe('LndService', () => {
     lndProxyClient.unsubscribeEvents(node);
     expect(lndProxyClient.streamer.unsubscribe).not.toHaveBeenCalled();
   });
+
+  it('should call the getState ipc', () => {
+    lndProxyClient.getState(node);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.getState, { node });
+  });
+
+  it('should call the genSeed ipc', () => {
+    lndProxyClient.genSeed(node);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.genSeed, { node });
+  });
+
+  it('should call the initWallet ipc', () => {
+    const req = { walletPassword: Buffer.from('password'), cipherSeedMnemonic: ['word'] };
+    lndProxyClient.initWallet(node, req);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.initWallet, {
+      node,
+      req,
+    });
+  });
+
+  it('should call the unlockWallet ipc', () => {
+    const req = { walletPassword: Buffer.from('password') };
+    lndProxyClient.unlockWallet(node, req);
+    expect(lndProxyClient.ipc).toHaveBeenCalledWith(ipcChannels.unlockWallet, {
+      node,
+      req,
+    });
+  });
 });

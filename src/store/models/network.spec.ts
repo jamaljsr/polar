@@ -3,11 +3,15 @@ import * as log from 'electron-log';
 import { waitFor } from '@testing-library/react';
 import detectPort from 'detect-port';
 import { createStore } from 'easy-peasy';
-import { NodeImplementation, Status, TapdNode } from 'shared/types';
+import { CLightningNode, NodeImplementation, Status, TapdNode } from 'shared/types';
 import { AutoMineMode, CustomImage, Network } from 'types';
 import * as asyncUtil from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
-import { defaultRepoState } from 'utils/constants';
+import {
+  defaultRepoState,
+  FORCE_CLOSE_WAIT_TIMEOUT,
+  SEED_RESTORE_RECOVERY_WINDOW,
+} from 'utils/constants';
 import * as files from 'utils/files';
 import {
   bitcoinServiceMock,
@@ -15,6 +19,7 @@ import {
   injections,
   lightningServiceMock,
   litdServiceMock,
+  lndServiceMock,
   tapServiceMock,
   testCustomImages,
   testRepoState,
@@ -30,6 +35,7 @@ import tapModel from './tap';
 jest.mock('utils/files', () => ({
   waitForFile: jest.fn(),
   rm: jest.fn(),
+  readBuffer: jest.fn(),
 }));
 jest.mock('utils/async');
 jest.mock('utils/network', () => ({
@@ -686,19 +692,26 @@ describe('Network model', () => {
       expect(injections.dockerService.saveNetworks).toHaveBeenCalledTimes(1);
     });
 
-    it('should catch exception if it cannot connect all peers', async () => {
+    it('should not let one node failing to connect peers block the rest', async () => {
       const err = new Error('test-error');
       // raise an error for the 3rd call to connect peers
       lightningServiceMock.connectPeers.mockResolvedValueOnce();
       lightningServiceMock.connectPeers.mockResolvedValueOnce();
       lightningServiceMock.connectPeers.mockRejectedValueOnce(err);
+      lightningServiceMock.connectPeers.mockResolvedValueOnce();
+      lightningServiceMock.connectPeers.mockResolvedValueOnce();
       const { start } = store.getActions().network;
       const network = firstNetwork();
       await start(network.id);
       await waitFor(() => {
-        expect(lightningServiceMock.connectPeers).toHaveBeenCalledTimes(3);
+        // all 5 nodes are still attempted, even though the 3rd one rejected
+        expect(lightningServiceMock.connectPeers).toHaveBeenCalledTimes(5);
       });
-      expect(logMock.info).toHaveBeenCalledWith('Failed to connect all LN peers', err);
+      // the error is swallowed per-node rather than aborting the whole sweep
+      expect(logMock.info).not.toHaveBeenCalledWith(
+        'Failed to connect all LN peers',
+        err,
+      );
     });
 
     it('should throw an error if a custom node image is missing', async () => {
@@ -952,6 +965,56 @@ describe('Network model', () => {
       node = firstNetwork().nodes.lightning[4];
       expect(node.ports.rest).toBe(8085);
     });
+
+    it('should start the node with its updated ports, not the stale ones', async () => {
+      const staleNode = firstNetwork().nodes.lightning[1] as CLightningNode;
+      const staleRestPort = staleNode.ports.rest;
+      const portsInUse = [staleRestPort];
+      detectPortMock.mockImplementation(port =>
+        Promise.resolve(portsInUse.includes(port) ? port + 1 : port),
+      );
+      const { toggleNode } = store.getActions().network;
+      await toggleNode(staleNode);
+      expect(injections.dockerService.startNode).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          ports: expect.objectContaining({ rest: staleRestPort + 1 }),
+        }),
+      );
+    });
+
+    it('should fall back to the passed-in node if it is renamed elsewhere while ports are being checked', async () => {
+      const targetNode = firstNetwork().nodes.lightning[1] as CLightningNode;
+      const originalName = targetNode.name;
+      const conflictPort = targetNode.ports.rest;
+
+      detectPortMock.mockImplementation(async (port: number) => {
+        if (port === conflictPort) {
+          const { setNetworks } = store.getActions().network;
+          const network = firstNetwork();
+          setNetworks([
+            {
+              ...network,
+              nodes: {
+                ...network.nodes,
+                lightning: network.nodes.lightning.map(n =>
+                  n.name === originalName ? { ...n, name: 'renamed-elsewhere' } : n,
+                ),
+              },
+            },
+          ]);
+          return port + 1;
+        }
+        return port;
+      });
+
+      const { toggleNode } = store.getActions().network;
+      await toggleNode(targetNode);
+      expect(injections.dockerService.startNode).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ name: originalName }),
+      );
+    });
   });
 
   describe('TAP network', () => {
@@ -1080,6 +1143,290 @@ describe('Network model', () => {
       bitcoin[0].type = 'asdf' as any;
       await monitorStartup(bitcoin);
       expect(bitcoinServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+    });
+
+    it('should set lightning node status to Locked when waitUntilOnline aborts', async () => {
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => n.implementation === 'LND')
+          .forEach(n => expect(n.status).toBe(Status.Locked));
+      });
+    });
+
+    it('should detect a wallet unlocked outside of Polar and update the status', async () => {
+      jest.useFakeTimers();
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { monitorStartup } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      const lndNodeNames = firstNetwork()
+        .nodes.lightning.filter(n => n.implementation === 'LND')
+        .map(n => n.name);
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => lndNodeNames.includes(n.name))
+          .forEach(n => expect(n.status).toBe(Status.Locked));
+      });
+
+      // still locked on this poll tick - the node should remain Locked
+      jest.advanceTimersByTime(3000);
+      await waitFor(() => {
+        expect(lndServiceMock.getWalletState).toHaveBeenCalled();
+      });
+      firstNetwork()
+        .nodes.lightning.filter(n => lndNodeNames.includes(n.name))
+        .forEach(n => expect(n.status).toBe(Status.Locked));
+
+      // simulate the wallet being unlocked outside of Polar
+      lndServiceMock.getWalletState.mockResolvedValue('RPC_ACTIVE');
+      lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      jest.advanceTimersByTime(3000);
+
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => lndNodeNames.includes(n.name))
+          .forEach(n => expect(n.status).toBe(Status.Started));
+      });
+      jest.useRealTimers();
+    });
+
+    it('should stop polling for an unlock once the node is no longer Locked', async () => {
+      jest.useFakeTimers();
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+      const { monitorStartup, setStatus } = store.getActions().network;
+      await monitorStartup(firstNetwork().nodes.lightning);
+      await waitFor(() => {
+        const { lightning } = firstNetwork().nodes;
+        lightning
+          .filter(n => n.implementation === 'LND')
+          .forEach(n => expect(n.status).toBe(Status.Locked));
+      });
+
+      setStatus({ id: firstNetwork().id, status: Status.Stopped });
+      lndServiceMock.getWalletState.mockClear();
+      jest.advanceTimersByTime(3000);
+      expect(lndServiceMock.getWalletState).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+  });
+
+  describe('Unlocking and Initializing', () => {
+    beforeEach(() => {
+      const { addNetwork } = store.getActions().network;
+      addNetwork(addNetworkArgs);
+    });
+
+    const lndNode = () =>
+      firstNetwork().nodes.lightning.find(n => n.implementation === 'LND')!;
+
+    it('should unlock a node and wait for it to come online', async () => {
+      lndServiceMock.unlockWallet.mockResolvedValue();
+      lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      const { unlockNode } = store.getActions().network;
+      const node = lndNode();
+      await unlockNode({ node, password: 'polarpass' });
+      expect(lndServiceMock.unlockWallet).toHaveBeenCalledWith(node, 'polarpass');
+      expect(lndNode().status).toBe(Status.Started);
+    });
+
+    it('should propagate an error when unlocking with the wrong password', async () => {
+      lndServiceMock.unlockWallet.mockRejectedValue(new Error('invalid passphrase'));
+      const { unlockNode } = store.getActions().network;
+      const node = lndNode();
+      await expect(unlockNode({ node, password: 'wrong' })).rejects.toThrow(
+        'invalid passphrase',
+      );
+    });
+
+    it('should initialize a node, wait for it to come online, and return the seed', async () => {
+      const mnemonic = ['abandon', 'ability'];
+      lndServiceMock.genSeed.mockResolvedValue(mnemonic);
+      lndServiceMock.initWallet.mockResolvedValue(Buffer.from('admin-macaroon'));
+      lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      const { initNode } = store.getActions().network;
+      const node = lndNode();
+      const result = await initNode({ node, password: 'polarpass' });
+      expect(result).toEqual(mnemonic);
+      expect(lndServiceMock.genSeed).toHaveBeenCalledWith(node);
+      expect(lndServiceMock.initWallet).toHaveBeenCalledWith(node, 'polarpass', mnemonic);
+      expect(lndNode().status).toBe(Status.Started);
+    });
+
+    it('should propagate an error when initialization fails', async () => {
+      lndServiceMock.genSeed.mockRejectedValue(new Error('test-error'));
+      const { initNode } = store.getActions().network;
+      const node = lndNode();
+      await expect(initNode({ node, password: 'polarpass' })).rejects.toThrow(
+        'test-error',
+      );
+    });
+
+    describe('restoring from a seed', () => {
+      const mnemonic = Array.from({ length: 24 }, (_, i) => `word${i + 1}`);
+      const backupFilePath = '/tmp/alice/channel.backup';
+
+      beforeEach(() => {
+        lndServiceMock.initWallet.mockResolvedValue(Buffer.from('admin-macaroon'));
+        lightningServiceMock.waitUntilOnline.mockResolvedValue();
+      });
+
+      it('should restore the seed and channel backup in a single request', async () => {
+        const backup = Buffer.from([0x00, 0xff, 0x80]);
+        filesMock.readBuffer.mockResolvedValue(backup);
+        const { restoreNode } = store.getActions().network;
+        const node = lndNode();
+        await restoreNode({ node, password: 'polarpass', mnemonic, backupFilePath });
+        expect(filesMock.readBuffer).toHaveBeenCalledWith(backupFilePath);
+        // the user's own words must be used, never a generated seed
+        expect(lndServiceMock.genSeed).not.toHaveBeenCalled();
+        expect(lndServiceMock.initWallet).toHaveBeenCalledWith(
+          node,
+          'polarpass',
+          mnemonic,
+          {
+            channelBackup: backup,
+            recoveryWindow: SEED_RESTORE_RECOVERY_WINDOW,
+          },
+        );
+        expect(lndNode().status).toBe(Status.Started);
+      });
+
+      it('should restore the seed without a channel backup', async () => {
+        const { restoreNode } = store.getActions().network;
+        const node = lndNode();
+        await restoreNode({ node, password: 'polarpass', mnemonic });
+        expect(filesMock.readBuffer).not.toHaveBeenCalled();
+        expect(lndServiceMock.genSeed).not.toHaveBeenCalled();
+        expect(lndServiceMock.initWallet).toHaveBeenCalledWith(
+          node,
+          'polarpass',
+          mnemonic,
+          {
+            channelBackup: undefined,
+            recoveryWindow: SEED_RESTORE_RECOVERY_WINDOW,
+          },
+        );
+        expect(lndNode().status).toBe(Status.Started);
+        // there are no channels to close, so nothing should be mined
+        expect(bitcoinServiceMock.getMempoolTxCount).not.toHaveBeenCalled();
+        expect(bitcoinServiceMock.mine).not.toHaveBeenCalled();
+      });
+
+      describe('confirming the force-closes', () => {
+        const backend = () => firstNetwork().nodes.bitcoin[0];
+
+        beforeEach(() => {
+          filesMock.readBuffer.mockResolvedValue(Buffer.from('backup'));
+          // run the poll condition once so its branches are exercised
+          asyncUtilMock.waitFor.mockImplementation(async condition => condition());
+          // mining refreshes every started node's info afterwards
+          bitcoinServiceMock.getBlockchainInfo.mockResolvedValue({ blocks: 10 } as any);
+          bitcoinServiceMock.getWalletInfo.mockResolvedValue({ balance: 1 } as any);
+          lightningServiceMock.getInfo.mockResolvedValue({ pubkey: 'abc' } as any);
+          lightningServiceMock.getBalances.mockResolvedValue({} as any);
+          lightningServiceMock.getChannels.mockResolvedValue([]);
+          const { setStatus } = store.getActions().network;
+          setStatus({ id: firstNetwork().id, status: Status.Started });
+        });
+
+        it('should mine one block once the force-close txns are in the mempool', async () => {
+          bitcoinServiceMock.getMempoolTxCount.mockResolvedValue(2);
+          const { restoreNode } = store.getActions().network;
+          await restoreNode({
+            node: lndNode(),
+            password: 'polarpass',
+            mnemonic,
+            backupFilePath,
+          });
+          expect(asyncUtilMock.waitFor).toHaveBeenCalledWith(
+            expect.any(Function),
+            1000,
+            FORCE_CLOSE_WAIT_TIMEOUT,
+          );
+          expect(bitcoinServiceMock.getMempoolTxCount).toHaveBeenCalledWith(backend());
+          expect(bitcoinServiceMock.mine).toHaveBeenCalledWith(1, backend());
+        });
+
+        it('should keep waiting while the mempool is empty', async () => {
+          bitcoinServiceMock.getMempoolTxCount.mockResolvedValue(0);
+          const { restoreNode } = store.getActions().network;
+          await restoreNode({
+            node: lndNode(),
+            password: 'polarpass',
+            mnemonic,
+            backupFilePath,
+          });
+          expect(bitcoinServiceMock.getMempoolTxCount).toHaveBeenCalledWith(backend());
+          expect(bitcoinServiceMock.mine).not.toHaveBeenCalled();
+          // the restore itself still succeeded
+          expect(lndNode().status).toBe(Status.Started);
+        });
+
+        it('should not fail the restore if mining fails', async () => {
+          bitcoinServiceMock.getMempoolTxCount.mockResolvedValue(2);
+          bitcoinServiceMock.mine.mockRejectedValue(new Error('mine-error'));
+          const { restoreNode } = store.getActions().network;
+          await expect(
+            restoreNode({
+              node: lndNode(),
+              password: 'polarpass',
+              mnemonic,
+              backupFilePath,
+            }),
+          ).resolves.toBeUndefined();
+          expect(lndNode().status).toBe(Status.Started);
+        });
+
+        it('should not mine when the backend node is not running', async () => {
+          const { restoreNode, setStatus } = store.getActions().network;
+          setStatus({
+            id: firstNetwork().id,
+            status: Status.Stopped,
+            only: backend().name,
+          });
+          await restoreNode({
+            node: lndNode(),
+            password: 'polarpass',
+            mnemonic,
+            backupFilePath,
+          });
+          expect(bitcoinServiceMock.getMempoolTxCount).not.toHaveBeenCalled();
+          expect(bitcoinServiceMock.mine).not.toHaveBeenCalled();
+        });
+
+        it('should not mine when the backend node cannot be found', async () => {
+          const { restoreNode } = store.getActions().network;
+          const node = { ...lndNode(), backendName: 'does-not-exist' };
+          await restoreNode({ node, password: 'polarpass', mnemonic, backupFilePath });
+          expect(bitcoinServiceMock.getMempoolTxCount).not.toHaveBeenCalled();
+          expect(bitcoinServiceMock.mine).not.toHaveBeenCalled();
+        });
+      });
+
+      it('should propagate an error when the restore RPC fails', async () => {
+        lndServiceMock.initWallet.mockRejectedValue(new Error('invalid seed'));
+        const { restoreNode } = store.getActions().network;
+        const node = lndNode();
+        await expect(
+          restoreNode({ node, password: 'polarpass', mnemonic }),
+        ).rejects.toThrow('invalid seed');
+        // startup monitoring must not begin for a wallet that was never created
+        expect(lightningServiceMock.waitUntilOnline).not.toHaveBeenCalled();
+        expect(lndNode().status).not.toBe(Status.Started);
+      });
     });
   });
 

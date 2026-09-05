@@ -35,6 +35,11 @@ class BitcoindService implements BitcoinService {
     return await this.createClient(node).getBlockchainInfo();
   }
 
+  async getMempoolTxCount(node: BitcoinNode): Promise<number> {
+    const info = await this.createClient(node).getMempoolInfo();
+    return info.size;
+  }
+
   async getWalletInfo(node: BitcoinNode): Promise<WalletInfoCompat> {
     const client = this.createClient(node);
     const walletInfo = await client.getWalletInfo();

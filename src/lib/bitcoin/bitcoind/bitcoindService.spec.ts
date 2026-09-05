@@ -23,6 +23,7 @@ describe('BitcoindService', () => {
     mockProto.listWallets = jest.fn().mockResolvedValue(['']);
     mockProto.createWallet = jest.fn().mockResolvedValue({ name: '' });
     mockProto.getBlockchainInfo = jest.fn().mockResolvedValue({ blocks: 10 });
+    mockProto.getMempoolInfo = jest.fn().mockResolvedValue({ size: 3 });
     mockProto.getWalletInfo = jest.fn().mockResolvedValue({ balance: 5 });
     mockProto.getBalances = jest
       .fn()
@@ -72,6 +73,12 @@ describe('BitcoindService', () => {
     mockProto.addNode = jest.fn().mockRejectedValue('add-error');
     await bitcoindService.connectPeers(node);
     await expect(bitcoindService.connectPeers(node)).resolves.not.toThrow();
+  });
+
+  it('should return the number of transactions in the mempool', async () => {
+    const result = await bitcoindService.getMempoolTxCount(node);
+    expect(getInst().getMempoolInfo).toBeCalledTimes(1);
+    expect(result).toEqual(3);
   });
 
   it('should mine new blocks', async () => {

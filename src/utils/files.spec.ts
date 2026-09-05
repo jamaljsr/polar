@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { join } from 'path';
 import { dataPath } from './config';
-import { abs, exists, read, renameFile, waitForFile, write } from './files';
+import { abs, exists, read, readBuffer, renameFile, waitForFile, write } from './files';
 import { debug, info } from 'electron-log';
 
 jest.mock('fs-extra', () => ({
@@ -58,6 +58,17 @@ describe('Files util', () => {
       mockFs.readFile.mockResolvedValue(Buffer.from('test data'));
       const path = join('networks', 'test.txt');
       expect(await read(path, 'base64')).toEqual('dGVzdCBkYXRh');
+    });
+
+    it('should read raw bytes without any string conversion', async () => {
+      // bytes that would not survive a utf-8 round trip
+      const bytes = Buffer.from([0x00, 0xff, 0xfe, 0x80, 0xc3]);
+      mockFs.readFile.mockResolvedValue(bytes);
+      const path = join('networks', 'channel.backup');
+      const result = await readBuffer(path);
+      expect(mockFs.readFile).toBeCalledWith(join(dataPath, path));
+      expect(Buffer.isBuffer(result)).toBe(true);
+      expect(result.equals(bytes)).toBe(true);
     });
   });
 

@@ -25,6 +25,10 @@ export default {
   setupListener: 'setup-listener',
   removeListener: 'remove-listener',
   subscribeChannelEvents: 'subscribe-channel-events',
+  getState: 'get-state',
+  genSeed: 'gen-seed',
+  initWallet: 'init-wallet',
+  unlockWallet: 'unlock-wallet',
   // tapd proxy channels
   tapd: {
     listAssets: 'tapd-list-assets',

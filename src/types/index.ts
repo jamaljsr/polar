@@ -1,4 +1,5 @@
 import * as LITD from '@lightningpolar/litd-api';
+import * as LND from '@lightningpolar/lnd-api';
 import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
 import {
@@ -8,6 +9,7 @@ import {
   CommonNode,
   LightningNode,
   LitdNode,
+  LndNode,
   NodeImplementation,
   OpenChannelOptions,
   Status,
@@ -158,6 +160,7 @@ export interface BitcoinService {
   waitUntilOnline: (node: BitcoinNode) => Promise<void>;
   createDefaultWallet: (node: BitcoinNode) => Promise<void>;
   getBlockchainInfo: (node: BitcoinNode) => Promise<ChainInfo>;
+  getMempoolTxCount: (node: BitcoinNode) => Promise<number>;
   getWalletInfo: (node: BitcoinNode) => Promise<WalletInfoCompat>;
   getNewAddress: (node: BitcoinNode) => Promise<string>;
   connectPeers: (node: BitcoinNode) => Promise<void>;
@@ -271,6 +274,23 @@ export interface LitdLibrary {
   revokeSession: (node: LitdNode, localPublicKey: string) => Promise<void>;
 }
 
+export interface InitWalletOptions {
+  channelBackup?: Buffer;
+  recoveryWindow?: number;
+}
+
+export interface LndWalletLibrary {
+  getWalletState: (node: LndNode) => Promise<LND.WalletState>;
+  unlockWallet: (node: LndNode, password: string) => Promise<void>;
+  genSeed: (node: LndNode) => Promise<string[]>;
+  initWallet: (
+    node: LndNode,
+    password: string,
+    mnemonic: string[],
+    options?: InitWalletOptions,
+  ) => Promise<Buffer>;
+}
+
 export interface StoreInjections {
   ipc: IpcSender;
   settingsService: SettingsInjection;
@@ -280,6 +300,7 @@ export interface StoreInjections {
   lightningFactory: LightningFactoryInjection;
   tapFactory: TapFactoryInjection;
   litdService: LitdLibrary;
+  lndService: LndWalletLibrary;
 }
 
 export interface NetworksFile {

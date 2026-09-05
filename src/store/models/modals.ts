@@ -92,6 +92,11 @@ interface RenameNodeModel {
   oldNodeName?: string;
 }
 
+interface UnlockNodeModel {
+  visible: boolean;
+  nodeName?: string;
+}
+
 interface LncSessionInfoModel {
   visible: boolean;
   sessionId?: string;
@@ -133,6 +138,7 @@ export interface ModalsModel {
   newAddress: NewAddressModel;
   sendAsset: SendAssetModel;
   renameNode: RenameNodeModel;
+  unlockNode: UnlockNodeModel;
   lncSessionInfo: LncSessionInfoModel;
   addLncSession: AddLncSessionModel;
   changeTapBackend: ChangeTapBackendModel;
@@ -188,6 +194,9 @@ export interface ModalsModel {
   setRenameNode: Action<ModalsModel, RenameNodeModel>;
   showRenameNode: Thunk<ModalsModel, Partial<RenameNodeModel>, StoreInjections>;
   hideRenameNode: Thunk<ModalsModel, void, StoreInjections, RootModel>;
+  setUnlockNode: Action<ModalsModel, UnlockNodeModel>;
+  showUnlockNode: Thunk<ModalsModel, Partial<UnlockNodeModel>, StoreInjections>;
+  hideUnlockNode: Thunk<ModalsModel, void, StoreInjections, RootModel>;
   setLncSessionInfo: Action<ModalsModel, LncSessionInfoModel>;
   showLncSessionInfo: Thunk<ModalsModel, Partial<LncSessionInfoModel>, StoreInjections>;
   hideLncSessionInfo: Thunk<ModalsModel, void, StoreInjections, RootModel>;
@@ -215,6 +224,7 @@ const modalsModel: ModalsModel = {
   assetInfo: { visible: false },
   changeTapBackend: { visible: false },
   renameNode: { visible: false },
+  unlockNode: { visible: false },
   lncSessionInfo: { visible: false },
   addLncSession: { visible: false },
   addSimulation: { visible: false },
@@ -473,6 +483,21 @@ const modalsModel: ModalsModel = {
     actions.setRenameNode({
       visible: false,
       oldNodeName: undefined,
+    });
+  }),
+  setUnlockNode: action((state, payload) => {
+    state.unlockNode = {
+      ...state.unlockNode,
+      ...payload,
+    };
+  }),
+  showUnlockNode: thunk((actions, { nodeName }) => {
+    actions.setUnlockNode({ visible: true, nodeName });
+  }),
+  hideUnlockNode: thunk(actions => {
+    actions.setUnlockNode({
+      visible: false,
+      nodeName: undefined,
     });
   }),
   setLncSessionInfo: action((state, payload) => {
