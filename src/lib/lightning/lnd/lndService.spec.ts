@@ -373,13 +373,34 @@ describe('LndService', () => {
         .mockResolvedValue({ adminMacaroon: macaroon });
       const result = await lndService.initWallet(node, 'password', ['word1', 'word2']);
       expect(result).toEqual(macaroon);
-      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          walletPassword: Buffer.from('password', 'utf-8'),
-          cipherSeedMnemonic: ['word1', 'word2'],
-        }),
-      );
+      // an exact match proves no backup or recovery window is sent for a new wallet
+      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(expect.anything(), {
+        walletPassword: Buffer.from('password', 'utf-8'),
+        cipherSeedMnemonic: ['word1', 'word2'],
+      });
+    });
+
+    it('should submit the channel backup and recovery window with the seed', async () => {
+      const backup = Buffer.from([0x00, 0xff, 0x80]);
+      lndProxyClient.initWallet = jest.fn().mockResolvedValue({ adminMacaroon: '' });
+      await lndService.initWallet(node, 'password', ['word1'], {
+        channelBackup: backup,
+        recoveryWindow: 2500,
+      });
+      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(expect.anything(), {
+        walletPassword: Buffer.from('password', 'utf-8'),
+        cipherSeedMnemonic: ['word1'],
+        recoveryWindow: 2500,
+        channelBackups: { multiChanBackup: { multiChanBackup: backup } },
+      });
+    });
+
+    it('should keep an explicit zero recovery window and omit an absent backup', async () => {
+      lndProxyClient.initWallet = jest.fn().mockResolvedValue({ adminMacaroon: '' });
+      await lndService.initWallet(node, 'password', ['word1'], { recoveryWindow: 0 });
+      const req = (lndProxyClient.initWallet as jest.Mock).mock.calls[0][1];
+      expect(req.recoveryWindow).toBe(0);
+      expect(req.channelBackups).toBeUndefined();
     });
 
     it('should call unlockWallet with password', async () => {
