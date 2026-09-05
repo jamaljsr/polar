@@ -6,6 +6,7 @@ import {
   defaultLndPendingChannel,
   defaultLndPendingChannels,
   defaultLndPendingOpenChannel,
+  defaultLndWaitingCloseChannel,
   defaultLndWalletBalance,
 } from 'shared';
 import { defaultStateBalances, defaultStateInfo, getNetwork } from 'utils/tests';
@@ -383,13 +384,84 @@ describe('LndService', () => {
         .mockResolvedValue({ adminMacaroon: macaroon });
       const result = await lndService.initWallet(node, 'password', ['word1', 'word2']);
       expect(result).toEqual(macaroon);
-      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          walletPassword: Buffer.from('password', 'utf-8'),
-          cipherSeedMnemonic: ['word1', 'word2'],
-        }),
-      );
+      // an exact match proves no backup or recovery window is sent for a new wallet
+      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(expect.anything(), {
+        walletPassword: Buffer.from('password', 'utf-8'),
+        cipherSeedMnemonic: ['word1', 'word2'],
+      });
+    });
+
+    it('should submit the channel backup and recovery window with the seed', async () => {
+      const backup = Buffer.from([0x00, 0xff, 0x80]);
+      lndProxyClient.initWallet = jest.fn().mockResolvedValue({ adminMacaroon: '' });
+      await lndService.initWallet(node, 'password', ['word1'], {
+        channelBackup: backup,
+        recoveryWindow: 2500,
+      });
+      expect(lndProxyClient.initWallet).toHaveBeenCalledWith(expect.anything(), {
+        walletPassword: Buffer.from('password', 'utf-8'),
+        cipherSeedMnemonic: ['word1'],
+        recoveryWindow: 2500,
+        channelBackups: { multiChanBackup: { multiChanBackup: backup } },
+      });
+    });
+
+    it('should keep an explicit zero recovery window and omit an absent backup', async () => {
+      lndProxyClient.initWallet = jest.fn().mockResolvedValue({ adminMacaroon: '' });
+      await lndService.initWallet(node, 'password', ['word1'], { recoveryWindow: 0 });
+      const req = (lndProxyClient.initWallet as jest.Mock).mock.calls[0][1];
+      expect(req.recoveryWindow).toBe(0);
+      expect(req.channelBackups).toBeUndefined();
+    });
+
+    describe('getRecoveredChannelPoints', () => {
+      const mockPending = (value: any) => {
+        lndProxyClient.pendingChannels = jest
+          .fn()
+          .mockResolvedValue(defaultLndPendingChannels(value));
+      };
+
+      it('should return the outpoints of the channels waiting to close', async () => {
+        mockPending({
+          waitingCloseChannels: [
+            defaultLndWaitingCloseChannel({
+              channel: defaultLndPendingChannel({ channelPoint: 'txid1:0' }),
+            }),
+            defaultLndWaitingCloseChannel({
+              channel: defaultLndPendingChannel({ channelPoint: 'txid2:1' }),
+            }),
+          ],
+        });
+        await expect(lndService.getRecoveredChannelPoints(node)).resolves.toEqual([
+          'txid1:0',
+          'txid2:1',
+        ]);
+      });
+
+      it('should not require a closing txid to report a channel', async () => {
+        // the closing txid is unknown until it confirms
+        mockPending({
+          waitingCloseChannels: [
+            defaultLndWaitingCloseChannel({
+              channel: defaultLndPendingChannel({ channelPoint: 'txid1:0' }),
+              closingTxid: '',
+            }),
+          ],
+        });
+        await expect(lndService.getRecoveredChannelPoints(node)).resolves.toEqual([
+          'txid1:0',
+        ]);
+      });
+
+      it('should skip an entry with no channel details', async () => {
+        mockPending({ waitingCloseChannels: [defaultLndWaitingCloseChannel({})] });
+        await expect(lndService.getRecoveredChannelPoints(node)).resolves.toEqual([]);
+      });
+
+      it('should return an empty list when no channels are closing', async () => {
+        mockPending({});
+        await expect(lndService.getRecoveredChannelPoints(node)).resolves.toEqual([]);
+      });
     });
 
     it('should call unlockWallet with password', async () => {
