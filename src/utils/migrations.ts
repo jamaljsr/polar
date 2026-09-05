@@ -196,7 +196,7 @@ const v400 = (file: NetworksFile): NetworksFile => {
       // the zmqHashBlock port was added in PR #1020 to expose the hashblock stream to the host
       if (!node.ports.zmqHashBlock) {
         debug(`${pre} set ZMQ Hash Block port for Bitcoin node ${node.name}`);
-        node.ports.zmqHashBlock = BasePorts.bitcoind.zmqHashBlock;
+        node.ports.zmqHashBlock = BasePorts.bitcoind.zmqHashBlock + node.id;
       }
     });
   });
