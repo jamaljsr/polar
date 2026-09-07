@@ -4,6 +4,7 @@
   "enums.status.Stopping": "停止中",
   "enums.status.Stopped": "停止",
   "enums.status.Error": "エラー",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "必須",
   "cmps.common.form.DockerCommandInput.label": "Docker起動コマンド",
   "cmps.common.form.DockerCommandInput.help": "このノードを起動するときに実行するdockerコマンド。空白のままにすると、デフォルトのコマンドが使用されます。",
