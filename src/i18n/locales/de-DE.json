@@ -4,6 +4,7 @@
   "enums.status.Stopping": "Wird gestoppt",
   "enums.status.Stopped": "Gestoppt",
   "enums.status.Error": "Fehler",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "erfordert",
   "cmps.common.form.DockerCommandInput.label": "Docker Startbefehl",
   "cmps.common.form.DockerCommandInput.help": "Der Docker Befehl, der beim Starten dieses Knotens ausgeführt werden soll. Wenn Sie dieses Feld leer lassen, wird der Standardbefehl verwendet.",
