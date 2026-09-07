@@ -4,6 +4,7 @@
   "enums.status.Stopping": "Parando",
   "enums.status.Stopped": "Parado",
   "enums.status.Error": "Erro",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "requeridos",
   "cmps.common.form.DockerCommandInput.label": "Comando de inicialização do Docker",
   "cmps.common.form.DockerCommandInput.help": "O comando do docker a ser executado ao iniciar este nó. Se deixado em branco, o comando padrão será usado.",
