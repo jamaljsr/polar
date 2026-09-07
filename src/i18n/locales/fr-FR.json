@@ -4,6 +4,7 @@
   "enums.status.Stopping": "Arrêt",
   "enums.status.Stopped": "Arrêté",
   "enums.status.Error": "Erreur",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "obligatoire",
   "cmps.common.form.DockerCommandInput.label": "Commande de démarrage Docker",
   "cmps.common.form.DockerCommandInput.help": "La commande docker à exécuter lors du démarrage de ce noeud. Si laissé vide, la commande par défaut sera utilisée.",
