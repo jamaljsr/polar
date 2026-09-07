@@ -96,6 +96,13 @@ describe('RenameNodeModal', () => {
     ).toBeInTheDocument();
   });
 
+  it('should render a alert for locked nodes', async () => {
+    const { getByText } = await renderComponent(Status.Locked);
+    expect(
+      getByText('The network will be restarted to perform this operation'),
+    ).toBeInTheDocument();
+  });
+
   it('should hide modal when cancel is clicked', async () => {
     const { getByText, queryByText } = await renderComponent();
     const btn = getByText('Cancel');
