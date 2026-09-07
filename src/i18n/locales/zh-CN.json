@@ -4,6 +4,7 @@
   "enums.status.Stopping": "正在停止",
   "enums.status.Stopped": "已停止",
   "enums.status.Error": "错误",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "需要",
   "cmps.common.form.DockerCommandInput.label": "Docker启动命令",
   "cmps.common.form.DockerCommandInput.help": "启动此节点时要执行的docker命令。如果保留为空白，将使用默认命令。",
