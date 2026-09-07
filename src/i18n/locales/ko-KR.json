@@ -4,6 +4,7 @@
   "enums.status.Stopping": "멎는",
   "enums.status.Stopped": "중지",
   "enums.status.Error": "오류",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "필수",
   "cmps.common.form.DockerCommandInput.label": "도커 시작 명령",
   "cmps.common.form.DockerCommandInput.help": "이 노드를 시작할 때 실행할 docker 명령입니다. 비워두면 기본 명령이 사용됩니다.",
