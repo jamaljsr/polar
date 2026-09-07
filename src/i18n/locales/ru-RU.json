@@ -4,6 +4,7 @@
   "enums.status.Stopping": "остановка",
   "enums.status.Stopped": "Остановился",
   "enums.status.Error": "ошибка",
+  "enums.status.Locked": "Locked",
   "cmps.forms.required": "требуется",
   "cmps.common.form.DockerCommandInput.label": "Команда запуска Docker",
   "cmps.common.form.DockerCommandInput.help": "Команда docker для выполнения при запуске этого узла. Если оставить пустым, будет использоваться команда по умолчанию.",
