@@ -276,8 +276,9 @@ class LndService implements LightningService {
           throw new AbortWaitError('wallet-not-initialized');
         }
         nonExistingCount = 0;
-        if (state !== 'RPC_ACTIVE' && state !== 'SERVER_ACTIVE') {
-          throw new Error(`waiting for RPC_ACTIVE, current state: ${state}`);
+        // RPC_ACTIVE precedes the p2p server starting, so wait for SERVER_ACTIVE
+        if (state !== 'SERVER_ACTIVE') {
+          throw new Error(`waiting for SERVER_ACTIVE, current state: ${state}`);
         }
         await this.getInfo(node);
       },

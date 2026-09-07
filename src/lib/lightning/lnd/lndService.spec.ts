@@ -301,14 +301,14 @@ describe('LndService', () => {
 
   describe('waitUntilOnline', () => {
     it('should wait successfully', async () => {
-      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'RPC_ACTIVE' });
+      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'SERVER_ACTIVE' });
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
       await expect(lndService.waitUntilOnline(node)).resolves.not.toThrow();
       expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
-      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'RPC_ACTIVE' });
+      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'SERVER_ACTIVE' });
       lndProxyClient.getInfo = jest.fn().mockRejectedValue(new Error('test-error'));
       await expect(lndService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
@@ -331,9 +331,19 @@ describe('LndService', () => {
       lndProxyClient.getState = jest
         .fn()
         .mockResolvedValueOnce({ state: 'NON_EXISTING' })
-        .mockResolvedValue({ state: 'RPC_ACTIVE' });
+        .mockResolvedValue({ state: 'SERVER_ACTIVE' });
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
       await expect(lndService.waitUntilOnline(node, 0.5, 10)).resolves.not.toThrow();
+    });
+
+    it('should keep waiting while the node is only RPC_ACTIVE', async () => {
+      // peers can't connect until the main server has started
+      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'RPC_ACTIVE' });
+      lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
+      await expect(lndService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
+        'waiting for SERVER_ACTIVE, current state: RPC_ACTIVE',
+      );
+      expect(lndProxyClient.getInfo).not.toHaveBeenCalled();
     });
 
     it('should abort once NON_EXISTING is read twice in a row', async () => {
@@ -344,12 +354,12 @@ describe('LndService', () => {
       expect(lndProxyClient.getInfo).not.toHaveBeenCalled();
     });
 
-    it('should keep retrying while state is not yet RPC_ACTIVE', async () => {
+    it('should keep retrying while state is not yet SERVER_ACTIVE', async () => {
       lndProxyClient.getState = jest
         .fn()
         .mockResolvedValueOnce({ state: 'WAITING_TO_START' })
-        .mockResolvedValueOnce({ state: 'WAITING_TO_START' })
-        .mockResolvedValue({ state: 'RPC_ACTIVE' });
+        .mockResolvedValueOnce({ state: 'RPC_ACTIVE' })
+        .mockResolvedValue({ state: 'SERVER_ACTIVE' });
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
       await expect(lndService.waitUntilOnline(node, 0.5, 10)).resolves.not.toThrow();
       expect(lndProxyClient.getState).toHaveBeenCalledTimes(3);
