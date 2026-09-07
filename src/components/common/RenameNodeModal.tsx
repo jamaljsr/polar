@@ -59,7 +59,7 @@ const RenameNodeModal: React.FC<Props> = ({ network }) => {
         initialValues={{ newNodeName: oldNodeName }}
         onFinish={handleSubmit}
       >
-        {node?.status === Status.Started ? (
+        {node?.status === Status.Started || node?.status === Status.Locked ? (
           <Alert type="warning" message={l('alert')} />
         ) : null}
         <Form.Item
