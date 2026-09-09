@@ -370,7 +370,11 @@ export const initLndWalletUnlockerProxy = (ipc: IpcMain) => {
       }
       try {
         const result = await func(...args);
-        debug(`LndWalletUnlockerProxy: send response "${uniqueChan}"`, toJSON(result));
+        if (ipcChannels.redacted.includes(channel)) {
+          debug(`LndWalletUnlockerProxy: send response "${uniqueChan}" [redacted]`);
+        } else {
+          debug(`LndWalletUnlockerProxy: send response "${uniqueChan}"`, toJSON(result));
+        }
         event.reply(uniqueChan, result);
       } catch (err: any) {
         debug(`LndWalletUnlockerProxy: send error "${uniqueChan}"`, err);

@@ -1,5 +1,6 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { debug } from 'electron-log';
+import { ipcChannels } from 'shared';
 import { toJSON } from 'shared/utils';
 
 export type IpcSender = <T>(channel: string, payload?: any) => Promise<T>;
@@ -28,6 +29,14 @@ const stripNode = (payload: any) => {
 };
 
 /**
+ * channels whose payloads carry secrets and must be redacted before logging.
+ */
+const logPayload = (channel: string, payload: any): string => {
+  if (ipcChannels.redacted.includes(channel)) return '[redacted]';
+  return toJSON(payload);
+};
+
+/**
  * A wrapper function to create an async function which sends messages over IPC and
  * returns the response via a promise
  * @param serviceName the name of of the channel that will be displayed in logs
@@ -47,14 +56,20 @@ export const createIpcSender = (serviceName: string, prefix: string) => {
 
     return new Promise((resolve, reject) => {
       ipcRenderer.once(uniqPayload.replyTo, (event: IpcRendererEvent, res: any) => {
-        debug(`${serviceName}: [response] "${uniqPayload.replyTo}"`, toJSON(res));
+        debug(
+          `${serviceName}: [response] "${uniqPayload.replyTo}"`,
+          logPayload(channel, res),
+        );
         if (res && res.err) {
           reject(new Error(res.err));
         } else {
           resolve(res);
         }
       });
-      debug(`${serviceName}: [request] "${reqChan}"`, toJSON(stripNode(uniqPayload)));
+      debug(
+        `${serviceName}: [request] "${reqChan}"`,
+        logPayload(channel, stripNode(uniqPayload)),
+      );
       ipcRenderer.send(reqChan, uniqPayload);
     });
   };
@@ -79,7 +94,10 @@ export const createIpcStreamer = (serviceName: string, prefix: string): IpcStrea
     ipcRenderer.on(uniqPayload.replyTo, callback);
 
     // send the request to the main process
-    debug(`${serviceName}: [request] "${reqChan}"`, toJSON(stripNode(uniqPayload)));
+    debug(
+      `${serviceName}: [request] "${reqChan}"`,
+      logPayload(channel, stripNode(uniqPayload)),
+    );
     ipcRenderer.send(reqChan, uniqPayload);
   };
 
