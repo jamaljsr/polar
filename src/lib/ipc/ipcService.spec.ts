@@ -1,5 +1,11 @@
 import { ipcRenderer } from 'electron';
+import { debug } from 'electron-log';
+import { ipcChannels } from 'shared';
 import { createIpcSender, createIpcStreamer } from './ipcService';
+
+jest.mock('electron-log', () => ({
+  debug: jest.fn(),
+}));
 
 describe('IpcService', () => {
   it('should use the correct channel request name', async () => {
@@ -51,6 +57,23 @@ describe('IpcService', () => {
     expect(ipcRenderer.off).toHaveBeenCalledWith(
       expect.stringContaining('pre1-chan1-stream'),
       callback,
+    );
+  });
+
+  it('should redact the payload for secret channels', async () => {
+    ipcRenderer.once = jest
+      .fn()
+      .mockImplementation((chan, cb) => cb(null, { cipherSeedMnemonic: ['secret'] }));
+    ipcRenderer.send = jest.fn();
+    const ipc = createIpcSender('Test Name', 'lnd');
+    await ipc(ipcChannels.genSeed, { node: 123 });
+    expect(debug).toHaveBeenCalledWith(
+      expect.stringContaining('[request]'),
+      '[redacted]',
+    );
+    expect(debug).toHaveBeenCalledWith(
+      expect.stringContaining('[response]'),
+      '[redacted]',
     );
   });
 });

@@ -1,4 +1,4 @@
-export default {
+const channels = {
   // general app channels
   openWindow: 'open-window',
   clearCache: 'clear-cache',
@@ -52,4 +52,9 @@ export default {
     addSession: 'litd-add-session',
     revokeSession: 'litd-revoke-session',
   },
+};
+
+export default {
+  ...channels,
+  redacted: [channels.genSeed, channels.initWallet, channels.unlockWallet],
 };
