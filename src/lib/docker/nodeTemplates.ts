@@ -13,6 +13,7 @@ export const bitcoind = (
   p2pPort: number,
   zmqBlockPort: number,
   zmqTxPort: number,
+  zmqHashBlockPort: number,
   command: string,
 ): ComposeService => ({
   image,
@@ -26,14 +27,16 @@ export const bitcoind = (
   expose: [
     '18443', // RPC
     '18444', // p2p
-    '28334', // ZMQ blocks
-    '28335', // ZMQ txns
+    '28334', // ZMQ raw blocks
+    '28335', // ZMQ raw txns
+    '28336', // ZMQ hash blocks
   ],
   ports: [
     `${rpcPort}:18443`, // RPC
     `${p2pPort}:18444`, // P2P
-    `${zmqBlockPort}:28334`, // ZMQ blocks
-    `${zmqTxPort}:28335`, // ZMQ txns
+    `${zmqBlockPort}:28334`, // ZMQ raw blocks
+    `${zmqTxPort}:28335`, // ZMQ raw txns
+    `${zmqHashBlockPort}:28336`, // ZMQ hash blocks
   ],
 });
 
