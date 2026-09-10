@@ -8,7 +8,11 @@ import { useStoreActions } from 'store';
 
 const Styled = {
   Button: styled(Button)`
-    width: 50%;
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+    height: auto;
+    text-align: center;
   `,
 };
 
