@@ -87,6 +87,7 @@ export const bitcoinCredentials = {
   pass: 'polarpass',
   rpcauth:
     '5e5e98c21f5c814568f8b55d83b23c1c$$066b03f92df30b11de8e4b1b1cd5b1b4281aa25205bd57df9be82caf97a05526',
+  defaultWalletName: 'wallet',
 };
 
 export const eclairCredentials = {
@@ -362,7 +363,7 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 77,
+  version: 78,
   images: {
     LND: {
       latest: '0.20.0-beta',
@@ -384,13 +385,13 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
-        '0.20.0-beta': '30.0',
-        '0.19.3-beta': '30.0',
-        '0.19.2-beta': '30.0',
-        '0.19.1-beta': '30.0',
-        '0.19.0-beta': '30.0',
-        '0.18.5-beta': '30.0',
-        '0.18.4-beta': '30.0',
+        '0.20.0-beta': '31.0',
+        '0.19.3-beta': '31.0',
+        '0.19.2-beta': '31.0',
+        '0.19.1-beta': '31.0',
+        '0.19.0-beta': '31.0',
+        '0.18.5-beta': '31.0',
+        '0.18.4-beta': '31.0',
         '0.18.3-beta': '27.0',
         '0.18.2-beta': '27.0',
         '0.18.1-beta': '27.0',
@@ -400,24 +401,50 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     'c-lightning': {
-      latest: '25.12',
-      versions: ['25.12', '25.09.3', '25.05', '25.02.2', '25.02', '24.11.1', '24.08.1'],
+      latest: '26.06.7',
+      versions: [
+        '26.06.7',
+        '26.06.6',
+        '26.06.2',
+        '26.06.1',
+        '26.06',
+        '26.04.2',
+        '26.04.1',
+        '25.12.1',
+        '25.12',
+        '25.09.3',
+        '25.05',
+        '25.02.2',
+        '25.02',
+        '24.11.1',
+        '24.08.1',
+      ],
     },
     eclair: {
-      latest: '0.13.1',
-      versions: ['0.13.1', '0.12.0', '0.11.0', '0.10.0', '0.9.0'],
+      latest: '0.14.2',
+      versions: [
+        '0.14.2',
+        '0.14.1',
+        '0.14.0',
+        '0.13.1',
+        '0.12.0',
+        '0.11.0',
+        '0.10.0',
+        '0.9.0',
+      ],
     },
     bitcoind: {
-      latest: '30.0',
-      versions: ['30.0', '29.0', '28.0', '27.0', '26.0'],
+      latest: '31.0',
+      versions: ['31.0', '30.0', '29.0', '28.0', '27.0', '26.0'],
     },
     btcd: {
       latest: '',
       versions: [],
     },
     tapd: {
-      latest: '0.7.0-alpha',
+      latest: '0.7.1-alpha',
       versions: [
+        '0.7.1-alpha',
         '0.7.0-alpha',
         '0.6.1-alpha',
         '0.6.0-alpha',
@@ -429,6 +456,7 @@ export const defaultRepoState: DockerRepoState = {
       // Not all tapd versions are compatible with all LND versions.
       // This mapping specifies the minimum compatible LND for each tapd version
       compatibility: {
+        '0.7.1-alpha': '0.19.0-beta',
         '0.7.0-alpha': '0.19.0-beta',
         '0.6.1-alpha': '0.19.0-beta',
         '0.6.0-alpha': '0.19.0-beta',
@@ -450,11 +478,11 @@ export const defaultRepoState: DockerRepoState = {
       // not all litd versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each litd version
       compatibility: {
-        '0.16.0-alpha': '30.0',
-        '0.15.3-alpha': '30.0',
-        '0.15.1-alpha': '30.0',
-        '0.15.0-alpha': '30.0',
-        '0.14.1-alpha': '30.0',
+        '0.16.0-alpha': '31.0',
+        '0.15.3-alpha': '31.0',
+        '0.15.1-alpha': '31.0',
+        '0.15.0-alpha': '31.0',
+        '0.14.1-alpha': '31.0',
       },
     },
   },
