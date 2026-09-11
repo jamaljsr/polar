@@ -429,6 +429,29 @@ describe('Network model', () => {
       expect(firstNetwork().nodes.bitcoin).toHaveLength(1);
     });
 
+    it('should remove a bitcoin node from the chart when a LN node is locked', async () => {
+      const { removeBitcoinNode, setStatus } = store.getActions().network;
+      const { id } = firstNetwork();
+      setStatus({ id, status: Status.Started });
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(
+        new asyncUtil.AbortWaitError('wallet-locked'),
+      );
+      const node = firstNetwork().nodes.bitcoin[0];
+      await expect(removeBitcoinNode({ node })).resolves.not.toThrow();
+      expect(firstNetwork().nodes.bitcoin).toHaveLength(1);
+      const chart = store.getState().designer.allCharts[id];
+      expect(chart.nodes[node.name]).toBeUndefined();
+    });
+
+    it('should throw if a LN node fails to restart for any other reason', async () => {
+      const { removeBitcoinNode, setStatus } = store.getActions().network;
+      const { id } = firstNetwork();
+      setStatus({ id, status: Status.Started });
+      lightningServiceMock.waitUntilOnline.mockRejectedValue(new Error('test-error'));
+      const node = firstNetwork().nodes.bitcoin[0];
+      await expect(removeBitcoinNode({ node })).rejects.toThrow('test-error');
+    });
+
     it('should throw an error if the bitcoin node network id is invalid', async () => {
       const node = firstNetwork().nodes.bitcoin[0];
       node.networkId = 999;

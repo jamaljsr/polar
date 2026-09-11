@@ -324,23 +324,30 @@ describe('LndService', () => {
       expect(lndProxyClient.getInfo).not.toHaveBeenCalled();
     });
 
-    it('should not abort on a single transient NON_EXISTING read', async () => {
-      // a --noseedbackup node briefly reports NON_EXISTING before it
-      // auto-creates its wallet; a lone read shouldn't be mistaken for a
-      // wallet that needs to be initialized
+    it('should keep waiting on NON_EXISTING when the node uses --noseedbackup', async () => {
+      // the default command contains --noseedbackup, so the node creates its own
+      // wallet and NON_EXISTING is just a phase of startup
       lndProxyClient.getState = jest
         .fn()
+        .mockResolvedValueOnce({ state: 'NON_EXISTING' })
         .mockResolvedValueOnce({ state: 'NON_EXISTING' })
         .mockResolvedValue({ state: 'RPC_ACTIVE' });
       lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
       await expect(lndService.waitUntilOnline(node, 0.5, 10)).resolves.not.toThrow();
+      expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(1);
     });
 
-    it('should abort once NON_EXISTING is read twice in a row', async () => {
+    it('should abort on NON_EXISTING when the node does not use --noseedbackup', async () => {
+      const lockedNode = {
+        ...node,
+        docker: { ...node.docker, command: 'lnd --alias={{name}}' },
+      };
       lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'NON_EXISTING' });
-      await expect(lndService.waitUntilOnline(node, 0.5, 10)).rejects.toThrow(
+      lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
+      await expect(lndService.waitUntilOnline(lockedNode, 0.5, 10)).rejects.toThrow(
         'wallet-not-initialized',
       );
+      expect(lndProxyClient.getState).toHaveBeenCalledTimes(1);
       expect(lndProxyClient.getInfo).not.toHaveBeenCalled();
     });
 

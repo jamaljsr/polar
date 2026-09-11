@@ -622,7 +622,17 @@ const networkModel: NetworkModel = {
       if (network.status === Status.Started) {
         // wait for the LN nodes to come back online then update the chart
         await Promise.all(
-          lightning.map(n => lightningFactory.getService(n).waitUntilOnline(n)),
+          lightning.map(n =>
+            lightningFactory
+              .getService(n)
+              .waitUntilOnline(n)
+              .catch(error => {
+                // a locked node will never come online on its own, but that
+                // shouldn't stop the removed node from leaving the chart
+                if (!(error instanceof AbortWaitError)) throw error;
+                info(`Skipped waiting for '${n.name}'`, error.message);
+              }),
+          ),
         );
       }
       // remove the node from the chart's redux state
