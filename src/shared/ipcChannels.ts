@@ -1,4 +1,4 @@
-export default {
+const channels = {
   // general app channels
   openWindow: 'open-window',
   clearCache: 'clear-cache',
@@ -26,6 +26,9 @@ export default {
   removeListener: 'remove-listener',
   subscribeChannelEvents: 'subscribe-channel-events',
   getState: 'get-state',
+  genSeed: 'gen-seed',
+  initWallet: 'init-wallet',
+  unlockWallet: 'unlock-wallet',
   // tapd proxy channels
   tapd: {
     listAssets: 'tapd-list-assets',
@@ -49,4 +52,9 @@ export default {
     addSession: 'litd-add-session',
     revokeSession: 'litd-revoke-session',
   },
+};
+
+export default {
+  ...channels,
+  redacted: [channels.genSeed, channels.initWallet, channels.unlockWallet],
 };

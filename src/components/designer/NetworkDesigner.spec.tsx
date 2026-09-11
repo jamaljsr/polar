@@ -7,6 +7,7 @@ import { themeColors } from 'theme/colors';
 import { initChartFromNetwork } from 'utils/chart';
 import {
   getNetwork,
+  lndServiceMock,
   renderWithProviders,
   suppressConsoleErrors,
   testRepoState,
@@ -231,6 +232,17 @@ describe('NetworkDesigner Component', () => {
       store.getActions().modals.showRenameNode({ oldNodeName: 'alice' });
     });
     expect(await findByText('Rename Node alice')).toBeInTheDocument();
+    fireEvent.click(getByText('Cancel'));
+  });
+
+  it('should display the Unlock Node modal', async () => {
+    lndServiceMock.getWalletState.mockResolvedValue('LOCKED');
+    const { getByText, findByText, store } = renderComponent();
+    expect(await findByText('backend1')).toBeInTheDocument();
+    act(() => {
+      store.getActions().modals.showUnlockNode({ nodeName: 'alice' });
+    });
+    expect(await findByText('Unlock Node alice')).toBeInTheDocument();
     fireEvent.click(getByText('Cancel'));
   });
 

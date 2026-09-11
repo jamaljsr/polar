@@ -97,9 +97,18 @@ export const injections: StoreInjections = {
     revokeSession: jest.fn(),
     waitUntilOnline: jest.fn(),
   },
+  lndService: {
+    getWalletState: jest.fn(),
+    unlockWallet: jest.fn(),
+    genSeed: jest.fn(),
+    initWallet: jest.fn(),
+  },
 };
 export const litdServiceMock = injections.litdService as jest.Mocked<
   typeof injections.litdService
+>;
+export const lndServiceMock = injections.lndService as jest.Mocked<
+  typeof injections.lndService
 >;
 
 /**
