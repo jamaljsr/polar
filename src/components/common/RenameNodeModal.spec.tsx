@@ -36,6 +36,7 @@ describe('RenameNodeModal', () => {
       eclairNodes: 1,
       litdNodes: 1,
       bitcoindNodes: 3,
+      bitcoindKnotsNodes: 0,
       tapdNodes: 1,
       status,
       repoState: defaultRepoState,

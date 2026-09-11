@@ -47,6 +47,23 @@ export const isVersionBelow = (version: string, maxVersion: string): boolean => 
 };
 
 /**
+ * Checks if the major version of `version` is equal or lower than the major
+ * version of `maxVersion`. This allows point releases within the same major
+ * series to be considered compatible (e.g. 27.1 is compatible with a required
+ * version of 27.0).
+ */
+export const isMajorVersionCompatible = (
+  version: string,
+  maxVersion: string,
+): boolean => {
+  const majorOf = (ver: string) => {
+    const match = ver.match(/\d+/);
+    return match ? parseInt(match[0]) : 0;
+  };
+  return majorOf(version) <= majorOf(maxVersion);
+};
+
+/**
  * Compares two versions and returns a number indicating if the first version is higher,
  * lower, or equal to the second version.
  * @returns 0 if the versions are equal, 1 if the first version is higher, and -1 if the
