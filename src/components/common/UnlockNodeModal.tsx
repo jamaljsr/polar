@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useAsync, useAsyncCallback } from 'react-async-hook';
 import styled from '@emotion/styled';
-import { Alert, Button, Form, Input, Modal } from 'antd';
+import { Alert, Button, Form, Input, Modal, Radio } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { LndNode } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import CopyIcon from './CopyIcon';
 import Loader from './Loader';
+import RestoreWalletForm, { splitSeedWords } from './RestoreWalletForm';
 
 const Styled = {
   SeedGrid: styled.div`
@@ -26,7 +27,12 @@ const Styled = {
     text-align: center;
     margin-top: 16px;
   `,
+  ModeSwitch: styled.div`
+    margin-bottom: 16px;
+  `,
 };
+
+type InitMode = 'create' | 'restore';
 
 interface Props {
   network: Network;
@@ -37,9 +43,11 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
 
   const [form] = Form.useForm();
   const [mnemonic, setMnemonic] = useState<string[]>();
+  const [mode, setMode] = useState<InitMode>('create');
+  const [backupFilePath, setBackupFilePath] = useState<string>();
   const { visible, nodeName } = useStoreState(s => s.modals.unlockNode);
   const { hideUnlockNode } = useStoreActions(s => s.modals);
-  const { initNode, unlockNode } = useStoreActions(s => s.network);
+  const { initNode, unlockNode, restoreNode } = useStoreActions(s => s.network);
   const { getWalletState } = useStoreActions(s => s.lightning);
   const { notify } = useStoreActions(s => s.app);
 
@@ -55,11 +63,29 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
   // a rejected GetState leaves result undefined, which is indistinguishable from
   // a LOCKED wallet
   const walletStateError = walletStateAsync.error;
+  const restoring = notInitialized && mode === 'restore';
 
   const submitAsync = useAsyncCallback(
-    async (node: LndNode, password: string, initializing: boolean) => {
+    async (
+      node: LndNode,
+      password: string,
+      initializing: boolean,
+      seedWords?: string[],
+    ) => {
       try {
-        if (initializing) {
+        if (restoring) {
+          await restoreNode({
+            node,
+            password,
+            mnemonic: seedWords || [],
+            backupFilePath,
+          });
+          hideUnlockNode();
+          const successKey = backupFilePath
+            ? 'restoreSuccessWithBackup'
+            : 'restoreSuccess';
+          notify({ message: l(successKey, { name: node.name }) });
+        } else if (initializing) {
           const words = await initNode({ node, password });
           setMnemonic(words);
           notify({ message: l('initSuccess', { name: node.name }) });
@@ -69,26 +95,45 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
           notify({ message: l('success', { name: node.name }) });
         }
       } catch (error: any) {
-        notify({ message: l(initializing ? 'initError' : 'error'), error });
+        const errorKey = restoring
+          ? 'restoreError'
+          : initializing
+          ? 'initError'
+          : 'error';
+        notify({ message: l(errorKey), error });
       }
     },
   );
 
   const handleSubmit = (values: any) => {
     if (!node) return;
-    submitAsync.execute(node, values.password, notInitialized);
+    submitAsync.execute(
+      node,
+      values.password,
+      notInitialized,
+      values.mnemonic ? splitSeedWords(values.mnemonic) : undefined,
+    );
   };
 
   const handleClose = () => {
     setMnemonic(undefined);
+    setMode('create');
+    setBackupFilePath(undefined);
     hideUnlockNode();
   };
 
+  let titleKey = 'title';
+  if (mnemonic) titleKey = 'seedTitle';
+  else if (restoring) titleKey = 'restoreTitle';
+  else if (notInitialized) titleKey = 'initTitle';
+
+  let okKey = 'okBtn';
+  if (restoring) okKey = 'restoreOkBtn';
+  else if (notInitialized) okKey = 'initOkBtn';
+
   return (
     <Modal
-      title={l(mnemonic ? 'seedTitle' : notInitialized ? 'initTitle' : 'title', {
-        name: nodeName,
-      })}
+      title={l(titleKey, { name: nodeName })}
       open={visible}
       onCancel={handleClose}
       destroyOnClose
@@ -102,7 +147,7 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
           : undefined
       }
       cancelText={l('cancelBtn')}
-      okText={l(notInitialized ? 'initOkBtn' : 'okBtn')}
+      okText={l(okKey)}
       okButtonProps={{
         loading: submitAsync.loading,
         disabled: walletStateAsync.loading || !!walletStateError,
@@ -150,6 +195,18 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
           initialValues={{ password: 'polarpass' }}
           onFinish={handleSubmit}
         >
+          {notInitialized && (
+            <Styled.ModeSwitch>
+              <Radio.Group
+                value={mode}
+                onChange={e => setMode(e.target.value)}
+                disabled={submitAsync.loading}
+              >
+                <Radio.Button value="create">{l('modeCreate')}</Radio.Button>
+                <Radio.Button value="restore">{l('modeRestore')}</Radio.Button>
+              </Radio.Group>
+            </Styled.ModeSwitch>
+          )}
           <Form.Item
             name="password"
             label={l('label')}
@@ -163,6 +220,13 @@ const UnlockNodeModal: React.FC<Props> = ({ network }) => {
               disabled={submitAsync.loading}
             />
           </Form.Item>
+          {restoring && (
+            <RestoreWalletForm
+              disabled={submitAsync.loading}
+              backupFilePath={backupFilePath}
+              onBackupChange={setBackupFilePath}
+            />
+          )}
         </Form>
       )}
     </Modal>

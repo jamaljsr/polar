@@ -16,11 +16,16 @@ import {
   TapNode,
 } from 'shared/types';
 import { AutoMineMode, CustomImage, Network, Simulation, StoreInjections } from 'types';
-import { AbortWaitError, delay } from 'utils/async';
+import { AbortWaitError, delay, waitFor } from 'utils/async';
 import { initChartFromNetwork } from 'utils/chart';
 import { nodePath } from 'utils/config';
-import { APP_VERSION, DOCKER_REPO } from 'utils/constants';
-import { rm } from 'utils/files';
+import {
+  APP_VERSION,
+  DOCKER_REPO,
+  FORCE_CLOSE_WAIT_TIMEOUT,
+  SEED_RESTORE_RECOVERY_WINDOW,
+} from 'utils/constants';
+import { readBuffer, rm } from 'utils/files';
 import {
   createBitcoindNetworkNode,
   createCLightningNetworkNode,
@@ -182,6 +187,18 @@ export interface NetworkModel {
   unlockNode: Thunk<
     NetworkModel,
     { node: LndNode; password: string },
+    StoreInjections,
+    RootModel,
+    Promise<void>
+  >;
+  restoreNode: Thunk<
+    NetworkModel,
+    {
+      node: LndNode;
+      password: string;
+      mnemonic: string[];
+      backupFilePath?: string;
+    },
     StoreInjections,
     RootModel,
     Promise<void>
@@ -1268,6 +1285,72 @@ const networkModel: NetworkModel = {
       resumingNodes.delete(key);
     }
   }),
+  restoreNode: thunk(
+    async (
+      actions,
+      { node, password, mnemonic, backupFilePath },
+      { injections, getStoreState, getStoreActions },
+    ) => {
+      const key = pollerKey(node);
+      resumingNodes.add(key);
+      try {
+        const channelBackup = backupFilePath
+          ? await readBuffer(backupFilePath)
+          : undefined;
+        await injections.lndService.initWallet(node, password, mnemonic, {
+          channelBackup,
+          recoveryWindow: SEED_RESTORE_RECOVERY_WINDOW,
+        });
+        await actions.monitorStartup([node]);
+        await actions.save();
+        if (!channelBackup) return;
+
+        const network = getStoreState().network.networkById(node.networkId);
+        const backend = network.nodes.bitcoin.find(n => n.name === node.backendName);
+        if (!backend || backend.status !== Status.Started) return;
+
+        // peers force-close after data-loss-protection, so confirm in the background
+        const confirmForceCloses = async () => {
+          const btcApi = injections.bitcoinFactory.getService(backend);
+          // closing txids are unknown until confirmed, so watch the funding outputs
+          const points = await injections.lndService.getRecoveredChannelPoints(node);
+          if (!points.length) return;
+          const countSpent = async () => {
+            const spent = await Promise.all(
+              points.map(cp => {
+                const [txid, index] = cp.split(':');
+                return btcApi.isOutputSpent(backend, txid, Number(index));
+              }),
+            );
+            return spent.filter(Boolean).length;
+          };
+          try {
+            // wait for every close so a single block confirms them all
+            await waitFor(
+              async () => {
+                if ((await countSpent()) < points.length) {
+                  throw new Error('waiting for force-close transactions');
+                }
+              },
+              1000,
+              FORCE_CLOSE_WAIT_TIMEOUT,
+            );
+          } catch {
+            info(`Not all channels were force-closed for '${node.name}'`);
+          }
+          // mine even if some peers never closed, so the ones that did confirm
+          if ((await countSpent()) > 0) {
+            await getStoreActions().bitcoin.mine({ blocks: 1, node: backend });
+          }
+        };
+        confirmForceCloses().catch(e =>
+          info(`Failed to confirm force-closes for '${node.name}'`, e),
+        );
+      } finally {
+        resumingNodes.delete(key);
+      }
+    },
+  ),
   setManualMineCount: action((state, { id, count }) => {
     const network = state.networks.find(n => n.id === id);
     if (!network) throw new Error(l('networkByIdErr', { networkId: id }));

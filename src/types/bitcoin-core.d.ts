@@ -1213,7 +1213,11 @@ export default class Client {
 
   getTransactionByHash(hash: string, extension?: RestExtension): Promise<string>;
 
-  getTxOut(txid: string, index: number, include_mempool?: boolean): Promise<TxOutInBlock>;
+  getTxOut(
+    txid: string,
+    index: number,
+    include_mempool?: boolean,
+  ): Promise<TxOutInBlock | null>;
 
   getTxOutProof(txids: string[], blockchash?: string): Promise<string>;
 
