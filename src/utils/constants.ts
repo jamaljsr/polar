@@ -362,11 +362,17 @@ export const REPO_STATE_URL =
  * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
  */
 export const defaultRepoState: DockerRepoState = {
-  version: 77,
+  version: 78,
   images: {
     LND: {
-      latest: '0.20.0-beta',
+      latest: '0.21.2-beta',
       versions: [
+        '0.21.2-beta',
+        '0.21.1-beta',
+        '0.21.0-beta',
+        '0.20.3-beta',
+        '0.20.2-beta',
+        '0.20.1-beta',
         '0.20.0-beta',
         '0.19.3-beta',
         '0.19.2-beta',
@@ -384,6 +390,12 @@ export const defaultRepoState: DockerRepoState = {
       // not all LND versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each LND version
       compatibility: {
+        '0.21.2-beta': '30.0',
+        '0.21.1-beta': '30.0',
+        '0.21.0-beta': '30.0',
+        '0.20.3-beta': '30.0',
+        '0.20.2-beta': '30.0',
+        '0.20.1-beta': '30.0',
         '0.20.0-beta': '30.0',
         '0.19.3-beta': '30.0',
         '0.19.2-beta': '30.0',
@@ -439,8 +451,12 @@ export const defaultRepoState: DockerRepoState = {
       },
     },
     litd: {
-      latest: '0.16.0-alpha',
+      latest: '0.17.2-alpha',
       versions: [
+        '0.17.2-alpha',
+        '0.17.1-alpha',
+        '0.17.0-alpha',
+        '0.16.1-alpha',
         '0.16.0-alpha',
         '0.15.3-alpha',
         '0.15.1-alpha',
@@ -450,6 +466,10 @@ export const defaultRepoState: DockerRepoState = {
       // not all litd versions are compatible with all bitcoind versions.
       // this mapping specifies the highest compatible bitcoind for each litd version
       compatibility: {
+        '0.17.2-alpha': '30.0',
+        '0.17.1-alpha': '30.0',
+        '0.17.0-alpha': '30.0',
+        '0.16.1-alpha': '30.0',
         '0.16.0-alpha': '30.0',
         '0.15.3-alpha': '30.0',
         '0.15.1-alpha': '30.0',
