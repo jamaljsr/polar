@@ -80,6 +80,7 @@ export interface BitcoindNode extends BitcoinNode {
     p2p: number;
     zmqBlock: number;
     zmqTx: number;
+    zmqHashBlock: number;
   };
 }
 
