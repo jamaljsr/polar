@@ -77,6 +77,7 @@ describe('ImageUpdatesModal', () => {
           eclair: [],
           litd: [],
           bitcoind: ['4.5.6'],
+          'bitcoind-knots': [],
           btcd: [],
           tapd: [],
         },

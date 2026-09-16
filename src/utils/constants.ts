@@ -1,6 +1,7 @@
 import { NodeImplementation, NodeImplementationWithSimln } from 'shared/types';
 import { DockerConfig, DockerRepoState } from 'types';
 import bitcoindLogo from 'resources/bitcoin.svg';
+import bitcoindKnotsLogo from 'resources/bitcoin-knots.svg';
 import clightningLogo from 'resources/clightning.png';
 import eclairLogo from 'resources/eclair.png';
 import litdLogo from 'resources/litd.svg';
@@ -54,6 +55,12 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
     p2p: 19444,
     zmqBlock: 28334,
     zmqTx: 29335,
+  },
+  'bitcoind-knots': {
+    rest: 18543,
+    p2p: 19544,
+    zmqBlock: 28434,
+    zmqTx: 29435,
   },
   LND: {
     rest: 8081,
@@ -217,6 +224,37 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
       '-zmqpubhashblock=tcp://0.0.0.0:28336',
       '-txindex=1',
       '-dnsseed=0',
+      '-rpcbind=0.0.0.0',
+      '-rpcallowip=0.0.0.0/0',
+      '-rpcport=18443',
+      '-rest',
+      '-listen=1',
+      '-listenonion=0',
+      '-fallbackfee=0.0002',
+      '-blockfilterindex=1',
+      '-peerblockfilters=1',
+    ].join('\n  '),
+    // if vars are modified, also update composeFile.ts & the i18n strings for cmps.nodes.CommandVariables
+    variables: ['rpcUser', 'rpcAuth'],
+  },
+  'bitcoind-knots': {
+    name: 'Bitcoin Knots',
+    imageName: 'polarlightning/bitcoindknots',
+    logo: bitcoindKnotsLogo,
+    platforms: ['mac', 'linux', 'windows'],
+    volumeDirName: 'bitcoind-knots',
+    command: [
+      'bitcoind',
+      '-server=1',
+      '-regtest=1',
+      '-rpcauth={{rpcUser}}:{{rpcAuth}}',
+      '-debug=1',
+      '-zmqpubrawblock=tcp://0.0.0.0:28334',
+      '-zmqpubrawtx=tcp://0.0.0.0:28335',
+      '-zmqpubhashblock=tcp://0.0.0.0:28336',
+      '-txindex=1',
+      '-dnsseed=0',
+      '-upnp=0',
       '-rpcbind=0.0.0.0',
       '-rpcallowip=0.0.0.0/0',
       '-rpcport=18443',
@@ -410,6 +448,10 @@ export const defaultRepoState: DockerRepoState = {
     bitcoind: {
       latest: '30.0',
       versions: ['30.0', '29.0', '28.0', '27.0', '26.0'],
+    },
+    'bitcoind-knots': {
+      latest: '29.3',
+      versions: ['29.3', '29.2', '28.1', '27.1', '26.1'],
     },
     btcd: {
       latest: '',

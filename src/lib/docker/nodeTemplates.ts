@@ -14,15 +14,14 @@ export const bitcoind = (
   zmqBlockPort: number,
   zmqTxPort: number,
   command: string,
+  volumeDirName: string = dockerConfigs.bitcoind.volumeDirName,
 ): ComposeService => ({
   image,
   container_name: container,
   hostname: name,
   stop_grace_period: '5m',
   command: trimInside(command),
-  volumes: [
-    `./volumes/${dockerConfigs.bitcoind.volumeDirName}/${name}:/home/bitcoin/.bitcoin`,
-  ],
+  volumes: [`./volumes/${volumeDirName}/${name}:/home/bitcoin/.bitcoin`],
   expose: [
     '18443', // RPC
     '18444', // p2p
