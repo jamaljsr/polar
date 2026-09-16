@@ -32,6 +32,18 @@ describe('BitcoindService', () => {
     mockProto.generateToAddress = jest.fn().mockResolvedValue(['blockhash1']);
   });
 
+  // Adding Test case for selecting default wallet and not create a new one
+  it('should initialize the client with an explicit empty wallet path', () => {
+    bitcoindService.createClient(node);
+    // getInst() retrieves the first instance of BitcoinCore created
+    // We check if it was initialized with the 'wallet' property set to ''
+    expect(mockBitcoin).toHaveBeenCalledWith(
+      expect.objectContaining({
+        wallet: '',
+      }),
+    );
+  });
+
   it('should create a default wallet', async () => {
     mockProto.listWallets = jest.fn().mockResolvedValue([]);
     await bitcoindService.createDefaultWallet(node);
