@@ -43,7 +43,7 @@ const AutoMineButton: React.FC<Props> = ({ network }) => {
   const { autoMine } = useStoreActions(s => s.network);
   const autoMiner = useStoreState(s => s.network.autoMiners[network.id]);
   const [remainingPercentage, setRemainingPercentage] = useState(0);
-  const [tickTimer, setTickTimer] = useState<NodeJS.Timer | undefined>(undefined);
+  const [tickTimer, setTickTimer] = useState<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     return () => {
