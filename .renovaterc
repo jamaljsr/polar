@@ -33,6 +33,7 @@
     "docker-compose",
     "react-error-overlay",
     "@ant-design/icons",
-    "easy-peasy"
+    "easy-peasy",
+    "antd"
   ]
 }
