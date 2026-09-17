@@ -32,6 +32,7 @@
     "electron-is-dev",
     "docker-compose",
     "react-error-overlay",
-    "@ant-design/icons"
+    "@ant-design/icons",
+    "easy-peasy"
   ]
 }
