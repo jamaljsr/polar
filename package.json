@@ -176,6 +176,9 @@
       "!<rootDir>/src/components/designer/custom/*.tsx",
       "!<rootDir>/src/utils/tests/**/*.{ts,tsx}"
     ],
+    "moduleNameMapper": {
+      "^node:crypto$": "<rootDir>/src/utils/tests/nodeCrypto.js"
+    },
     "resetMocks": true
   },
   "eslintConfig": {
