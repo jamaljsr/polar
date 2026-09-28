@@ -12,6 +12,7 @@ export const bitcoinServiceMock: jest.Mocked<BitcoinService> = {
   waitUntilOnline: jest.fn(),
   createDefaultWallet: jest.fn(),
   getBlockchainInfo: jest.fn(),
+  isOutputSpent: jest.fn(),
   getWalletInfo: jest.fn(),
   getNewAddress: jest.fn(),
   connectPeers: jest.fn(),
@@ -102,6 +103,7 @@ export const injections: StoreInjections = {
     unlockWallet: jest.fn(),
     genSeed: jest.fn(),
     initWallet: jest.fn(),
+    getRecoveredChannelPoints: jest.fn(),
   },
 };
 export const litdServiceMock = injections.litdService as jest.Mocked<
