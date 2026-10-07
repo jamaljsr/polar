@@ -68,7 +68,7 @@ interface AddNetworkArgs {
 
 export interface AutoMinerModel {
   startTime: number;
-  timer?: NodeJS.Timer;
+  timer?: NodeJS.Timeout;
   mining: boolean;
 }
 
