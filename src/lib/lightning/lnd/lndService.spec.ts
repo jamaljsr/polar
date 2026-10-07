@@ -362,6 +362,32 @@ describe('LndService', () => {
       expect(lndProxyClient.getInfo).not.toHaveBeenCalled();
     });
 
+    it('should not mistake an argument value for the --noseedbackup flag', async () => {
+      const aliasNode = {
+        ...node,
+        docker: { ...node.docker, command: 'lnd --alias=noseedbackup-test' },
+      };
+      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'NON_EXISTING' });
+      lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
+      await expect(lndService.waitUntilOnline(aliasNode, 0.5, 10)).rejects.toThrow(
+        'wallet-not-initialized',
+      );
+      expect(lndProxyClient.getState).toHaveBeenCalledTimes(1);
+    });
+
+    it('should recognize the litd form of the --noseedbackup flag', async () => {
+      const litdNode = {
+        ...node,
+        docker: { ...node.docker, command: 'litd --lnd.noseedbackup --alias=x' },
+      };
+      lndProxyClient.getState = jest
+        .fn()
+        .mockResolvedValueOnce({ state: 'NON_EXISTING' })
+        .mockResolvedValue({ state: 'SERVER_ACTIVE' });
+      lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
+      await expect(lndService.waitUntilOnline(litdNode, 0.5, 10)).resolves.not.toThrow();
+    });
+
     it('should keep retrying while state is not yet SERVER_ACTIVE', async () => {
       lndProxyClient.getState = jest
         .fn()

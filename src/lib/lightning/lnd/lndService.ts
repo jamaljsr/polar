@@ -278,8 +278,11 @@ class LndService implements LightningService {
     // a node started with --noseedbackup creates its own wallet moments after the
     // State service comes up, so NON_EXISTING is just a phase of its startup.
     // Without the flag, the wallet only exists once the user creates it.
-    const command = node.docker.command || getDefaultCommand('LND', node.version);
-    const autoCreatesWallet = command.includes('noseedbackup');
+    const command =
+      node.docker.command || getDefaultCommand(node.implementation, node.version);
+    // match the flag itself (litd prefixes it with `lnd.`), not a substring that
+    // could appear inside another argument's value such as an alias
+    const autoCreatesWallet = /(^|\s)--(lnd\.)?noseedbackup(?=\s|$)/.test(command);
     return waitFor(
       async () => {
         const state = await this.getWalletState(node);
