@@ -297,3 +297,5 @@ If you would like to fix a bug or implement a new feature, here are the recommen
    $ git push
    ```
 1. Open a pull request on GitHub ([docs](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork))
+
+If you use AI tools while contributing, please read and follow the [AI policy](docs/ai-policy.md)
