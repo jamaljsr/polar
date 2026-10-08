@@ -77,6 +77,10 @@ const nodeConfig: Record<string, { user: string; commands: string[] }> = {
       'alias bitcoin-cli="bitcoin-cli -regtest -datadir=/home/bitcoin/.bitcoin"',
     ],
   },
+  'bitcoind-knots': {
+    user: 'bitcoin',
+    commands: ['alias bitcoin-cli="bitcoin-cli -regtest"'],
+  },
   tapd: {
     user: 'tap',
     commands: ['alias tapcli="tapcli --network regtest --tapddir=/home/tap/.tapd"'],
