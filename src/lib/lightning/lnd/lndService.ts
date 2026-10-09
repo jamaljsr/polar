@@ -274,6 +274,7 @@ class LndService implements LightningService {
     interval = 3 * 1000, // check every 3 seconds
     timeout = 120 * 1000, // timeout after 120 seconds
   ): Promise<void> {
+    const effectiveTimeout = this.cast(node).enableTor ? 240 * 1000 : timeout;
     // a node started with --noseedbackup auto-creates its wallet shortly after
     // the State service comes up, so it can briefly report NON_EXISTING before
     // that happens. Only treat NON_EXISTING as needing user action once it's
@@ -302,7 +303,7 @@ class LndService implements LightningService {
         await this.getInfo(node);
       },
       interval,
-      timeout,
+      effectiveTimeout,
     );
   }
 

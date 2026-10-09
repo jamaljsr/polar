@@ -11,3 +11,4 @@ export { default as RenameNodeModal } from './RenameNodeModal';
 export { default as RenameNodeButton } from './RenameNodeButton';
 export { default as UnlockNodeModal } from './UnlockNodeModal';
 export { default as UnlockNodeButton } from './UnlockNodeButton';
+export { default as TorButton } from './TorButton';

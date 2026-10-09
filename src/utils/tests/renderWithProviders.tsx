@@ -13,6 +13,7 @@ export const bitcoinServiceMock: jest.Mocked<BitcoinService> = {
   createDefaultWallet: jest.fn(),
   getBlockchainInfo: jest.fn(),
   isOutputSpent: jest.fn(),
+  getNetworkInfo: jest.fn(),
   getWalletInfo: jest.fn(),
   getNewAddress: jest.fn(),
   connectPeers: jest.fn(),

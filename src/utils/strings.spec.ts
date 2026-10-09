@@ -1,4 +1,9 @@
-import { compareVersions, ellipseInner, isVersionCompatible } from './strings';
+import {
+  compareVersions,
+  ellipseInner,
+  formatP2PHost,
+  isVersionCompatible,
+} from './strings';
 
 describe('strings util', () => {
   describe('ellipseInner', () => {
@@ -94,6 +99,29 @@ describe('strings util', () => {
       expect(compareVersions('0.18.1-beta', '0.18.1-beta.rc1')).toBe(-1);
       expect(compareVersions('0.18.1-beta.rc2', '0.18.1-beta.rc1')).toBe(1);
       expect(compareVersions('0.18.2-beta', '0.18.1-beta.rc1')).toBe(1);
+    });
+  });
+
+  describe('formatP2PHost', () => {
+    it('should return clearnet hosts unchanged', () => {
+      expect(formatP2PHost('tcp://127.0.0.1:8333')).toEqual('tcp://127.0.0.1:8333');
+      expect(formatP2PHost('192.168.1.10:18444')).toEqual('192.168.1.10:18444');
+    });
+
+    it('should ellipse tor (.onion) hosts', () => {
+      const onion = 'abcdef1234567890abcdef1234567890abcdef1234567890.onion:8333';
+      expect(formatP2PHost(onion)).toEqual(ellipseInner(onion, 3, 17));
+    });
+
+    it('should do nothing with short tor hosts', () => {
+      const shortOnion = 'abcd.onion:8333';
+      expect(formatP2PHost(shortOnion)).toEqual(shortOnion);
+    });
+
+    it('should handle empty or invalid input', () => {
+      expect(formatP2PHost(undefined)).toBeUndefined();
+      expect(formatP2PHost(null as unknown as string)).toBeNull();
+      expect(formatP2PHost('')).toEqual('');
     });
   });
 });

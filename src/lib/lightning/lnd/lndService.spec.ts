@@ -365,6 +365,24 @@ describe('LndService', () => {
       await expect(lndService.waitUntilOnline(node, 0.5, 10)).resolves.not.toThrow();
       expect(lndProxyClient.getState).toHaveBeenCalledTimes(3);
     });
+
+    it('should wait successfully for a Tor-enabled node', async () => {
+      const torNode = { ...node, enableTor: true };
+      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'SERVER_ACTIVE' });
+      lndProxyClient.getInfo = jest.fn().mockResolvedValue({});
+      await expect(lndService.waitUntilOnline(torNode)).resolves.not.toThrow();
+      expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw error if waiting fails for a non-Tor node using default 120s timeout', async () => {
+      const nonTorNode = { ...node, enableTor: false };
+      lndProxyClient.getState = jest.fn().mockResolvedValue({ state: 'SERVER_ACTIVE' });
+      lndProxyClient.getInfo = jest.fn().mockRejectedValue(new Error('test-error'));
+      await expect(lndService.waitUntilOnline(nonTorNode, 0.5, 1)).rejects.toThrow(
+        'test-error',
+      );
+      expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(4);
+    });
   });
 
   describe('wallet RPCs', () => {

@@ -19,6 +19,7 @@ export interface CommonNode {
     image: string;
     command: string;
   };
+  enableTor?: boolean;
 }
 
 export interface LightningNode extends CommonNode {
