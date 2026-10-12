@@ -1,6 +1,7 @@
 import { routerMiddleware } from 'connected-react-router';
 import { createStore, createTypedHooks } from 'easy-peasy';
 import { createHashHistory, History } from 'history';
+import { Middleware } from 'redux';
 import { createLogger } from 'redux-logger';
 import { BitcoinFactory } from 'lib/bitcoin';
 import { dockerService, repoService } from 'lib/docker';
@@ -23,7 +24,7 @@ export const createReduxStore = (options?: {
   const config = Object.assign({ history: hashHistory }, options);
   const { initialState, injections, history } = config;
   // Redux store Configuration
-  const middleware = [];
+  const middleware: Middleware[] = [];
 
   // Skip redux logs in console during the tests
   if (process.env.NODE_ENV !== 'test') {
@@ -38,7 +39,7 @@ export const createReduxStore = (options?: {
       },
     });
 
-    middleware.push(logger);
+    middleware.push(logger as Middleware);
   }
 
   // Router Middleware
