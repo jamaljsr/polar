@@ -304,6 +304,7 @@
   "cmps.designer.lightning.actions.OpenChannelModal.deposit": "Deposit enough sats to {{selectedFrom}} to fund the channel",
   "cmps.designer.lightning.actions.OpenChannelModal.private": "Make the channel private",
   "cmps.designer.lightning.actions.OpenChannelModal.sameNodesWarnMsg": "Cannot open a channel from a node to itself",
+  "cmps.designer.lightning.actions.OpenChannelModal.lowBalanceWarnMsg": "{{selectedFrom}} does not have enough funds to open this channel. Available: {{balance}} sats, needed: {{capacity}} sats. Lower the capacity or tick the box above to deposit funds first.",
   "cmps.designer.lightning.actions.OpenChannelModal.cancelBtn": "Cancel",
   "cmps.designer.lightning.actions.OpenChannelModal.okBtn": "Open Channel",
   "cmps.designer.lightning.actions.OpenChannelModal.balancesError": "Unable to fetch node balances",

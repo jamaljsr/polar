@@ -201,9 +201,13 @@ describe('OpenChannelModal', () => {
     });
 
     it('should open a channel successfully', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '1000000',
+        unconfirmed: '0',
+        total: '1000000',
+      });
       const { getByText, getByLabelText, store } = await renderComponent('bob', 'alice');
       fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
-      fireEvent.click(getByLabelText('Deposit enough sats to bob to fund the channel'));
       fireEvent.click(getByText('Open Channel'));
       await waitFor(() => {
         expect(store.getState().modals.openChannel.visible).toBe(false);
@@ -219,9 +223,13 @@ describe('OpenChannelModal', () => {
     });
 
     it('should open a private channel successfully', async () => {
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '1000000',
+        unconfirmed: '0',
+        total: '1000000',
+      });
       const { getByText, getByLabelText, store } = await renderComponent('bob', 'alice');
       fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
-      fireEvent.click(getByLabelText('Deposit enough sats to bob to fund the channel'));
       fireEvent.click(getByText('Make the channel private'));
       fireEvent.click(getByText('Open Channel'));
       await waitFor(() => {
@@ -258,18 +266,48 @@ describe('OpenChannelModal', () => {
 
     it('should display an error when opening a channel fails', async () => {
       lightningServiceMock.openChannel.mockRejectedValue(new Error('error-msg'));
-      const { getByText, getByLabelText, findByLabelText, changeSelect } =
-        await renderComponent('bob');
+      lightningServiceMock.getBalances.mockResolvedValue({
+        confirmed: '1000000',
+        unconfirmed: '0',
+        total: '1000000',
+      });
+      const { getByText, getByLabelText, changeSelect } = await renderComponent('bob');
       fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
       changeSelect('Destination', 'alice');
-      fireEvent.click(
-        await findByLabelText('Deposit enough sats to bob to fund the channel'),
-      );
       fireEvent.click(getByText('Open Channel'));
       await waitFor(() => {
         expect(getByText('Unable to open the channel')).toBeInTheDocument();
       });
       expect(getByText('error-msg')).toBeInTheDocument();
+    });
+
+    it('should block opening a channel larger than the balance without a deposit', async () => {
+      const lowBalanceMsg =
+        'bob does not have enough funds to open this channel. Available: 100 sats, ' +
+        'needed: 1,000 sats. Lower the capacity or tick the box above to deposit funds first.';
+      const { getByText, getByLabelText, findByText, queryByText } =
+        await renderComponent('bob', 'alice');
+      fireEvent.change(getByLabelText('Capacity'), { target: { value: '1000' } });
+      // the warning only appears once the deposit box is unticked
+      expect(queryByText(lowBalanceMsg)).not.toBeInTheDocument();
+      fireEvent.click(getByLabelText('Deposit enough sats to bob to fund the channel'));
+      expect(await findByText(lowBalanceMsg)).toBeInTheDocument();
+      const btn = getByText('Open Channel').closest('button') as HTMLButtonElement;
+      expect(btn).toBeDisabled();
+      fireEvent.click(btn);
+      // submitting the form directly (e.g. pressing Enter) must not reach LND either.
+      // act() waits for the form's async validation and submit handler to finish
+      await act(async () => {
+        fireEvent.submit(getByLabelText('Capacity').closest('form') as HTMLFormElement);
+      });
+      expect(lightningServiceMock.openChannel).not.toHaveBeenCalled();
+      // ticking the deposit box again removes the warning and re-enables the button
+      fireEvent.click(getByLabelText('Deposit enough sats to bob to fund the channel'));
+      await waitFor(() => {
+        expect(queryByText(lowBalanceMsg)).not.toBeInTheDocument();
+      });
+      expect(btn).not.toBeDisabled();
+      expect(lightningServiceMock.openChannel).not.toHaveBeenCalled();
     });
   });
 
