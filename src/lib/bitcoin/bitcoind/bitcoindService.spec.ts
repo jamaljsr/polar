@@ -39,7 +39,15 @@ describe('BitcoindService', () => {
     await bitcoindService.createDefaultWallet(node);
     expect(getInst().listWallets).toBeCalledTimes(1);
     expect(getInst().createWallet).toBeCalledTimes(1);
-    expect(getInst().createWallet).toBeCalledWith('wallet');
+    expect(getInst().createWallet).toBeCalledWith(
+      'wallet',
+      false,
+      false,
+      '',
+      false,
+      true,
+      true,
+    );
     expect(getInst().loadWallet).toBeCalledTimes(0);
   });
 
@@ -58,6 +66,24 @@ describe('BitcoindService', () => {
     await bitcoindService.createDefaultWallet(node);
     expect(getInst().loadWallet).toBeCalledWith('wallet');
     expect(getInst().createWallet).toBeCalledTimes(0);
+  });
+
+  it('should prefer the default wallet when several exist', async () => {
+    mockProto.listWallets = jest.fn().mockResolvedValue([]);
+    mockProto.listWalletDir = jest
+      .fn()
+      .mockResolvedValue({ wallets: [{ name: 'alice' }, { name: 'wallet' }] });
+    await bitcoindService.createDefaultWallet(node);
+    expect(getInst().loadWallet).toBeCalledWith('wallet');
+  });
+
+  it('should fall back to the first wallet when the default is missing', async () => {
+    mockProto.listWallets = jest.fn().mockResolvedValue([]);
+    mockProto.listWalletDir = jest
+      .fn()
+      .mockResolvedValue({ wallets: [{ name: 'alice' }, { name: 'bob' }] });
+    await bitcoindService.createDefaultWallet(node);
+    expect(getInst().loadWallet).toBeCalledWith('alice');
   });
 
   it('should get blockchain info', async () => {
