@@ -12,6 +12,7 @@ If you are new to Docker, the [Docker networking overview](https://docs.docker.c
 - [Container Ports](#container-ports)
 - [Why the Host Port Changes](#why-the-host-port-changes)
 - [Default Credentials](#default-credentials)
+- [Running CLI Commands with docker exec](#running-cli-commands-with-docker-exec)
 
 ## Which Address to Use
 
@@ -73,3 +74,65 @@ Because of this, don't hardcode host ports in configs that are shared between ma
 | Core Lightning         | rune and TLS certs (shown on the Connect tab)                |
 | Eclair REST            | password `eclairpw` (HTTP basic auth, empty username)        |
 | Terminal (litd) Web UI | password `polarpass`                                         |
+
+## Running CLI Commands with docker exec
+
+The **Terminal** button in Polar opens a shell in the node's container as the node's user, with aliases that add the required flags. When you run the same CLI from your own terminal or scripts, you need to add the container user (`-u`) and those flags yourself.
+
+The examples below use network `1`. Replace the container names with your own (see [Container Names](#container-names)).
+
+### Bitcoin Core
+
+```sh
+docker exec -u bitcoin polar-n1-backend1 bitcoin-cli -regtest getblockchaininfo
+```
+
+- `-regtest` is required. Without it, `bitcoin-cli` looks for a mainnet node.
+- `-u bitcoin` is required. `bitcoin-cli` authenticates with the cookie file in the `bitcoin` user's data directory, so running as another user fails with a cookie/auth error. Alternatively, pass the credentials: `bitcoin-cli -regtest -rpcuser=polaruser -rpcpassword=polarpass getblockchaininfo`.
+
+### LND
+
+```sh
+docker exec -u lnd polar-n1-alice lncli --network regtest getinfo
+```
+
+### Core Lightning
+
+```sh
+docker exec -u clightning polar-n1-bob lightning-cli --network regtest getinfo
+```
+
+### Eclair
+
+```sh
+docker exec -u eclair polar-n1-carol eclair-cli -p eclairpw getinfo
+```
+
+### Taproot Assets
+
+```sh
+docker exec -u tap polar-n1-alice-tap tapcli --network regtest assets list
+```
+
+### Terminal (litd)
+
+In litd, LND and Taproot Assets run inside the litd process, so `lncli` and `tapcli` connect through port `8443` with litd's TLS cert:
+
+```sh
+docker exec -u litd polar-n1-dave litcli --network regtest status
+docker exec -u litd polar-n1-dave lncli --network regtest --rpcserver localhost:8443 --tlscertpath /home/litd/.lit/tls.cert getinfo
+docker exec -u litd polar-n1-dave tapcli --network regtest --rpcserver localhost:8443 --tlscertpath /home/litd/.lit/tls.cert assets list
+```
+
+### From Your Machine Without docker exec
+
+Code on your machine connects through the host port shown on the Connect tab. For example, calling bitcoind's RPC with `curl`:
+
+```sh
+curl --user polaruser:polarpass \
+  --data-binary '{"jsonrpc":"1.0","id":"polar","method":"getblockchaininfo","params":[]}' \
+  -H 'content-type: text/plain;' \
+  http://127.0.0.1:18443/
+```
+
+Replace `18443` with the RPC port shown on the node's Connect tab.
