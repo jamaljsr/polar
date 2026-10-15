@@ -88,6 +88,45 @@ export const BasePorts: Record<NodeImplementation, Record<string, number>> = {
   },
 };
 
+/**
+ * The ports each node listens on inside its docker container. Unlike the host
+ * ports, these do not change between nodes or machines. Keep these in sync
+ * with the port mappings in `lib/docker/nodeTemplates.ts`
+ */
+export const ContainerPorts: Record<NodeImplementation, Record<string, number>> = {
+  bitcoind: {
+    rpc: 18443,
+    p2p: 18444,
+    zmqBlock: 28334,
+    zmqTx: 28335,
+  },
+  LND: {
+    rest: 8080,
+    grpc: 10009,
+    p2p: 9735,
+  },
+  'c-lightning': {
+    rest: 8080,
+    grpc: 11001,
+    p2p: 9735,
+  },
+  eclair: {
+    rest: 8080,
+    p2p: 9735,
+  },
+  btcd: {},
+  tapd: {
+    rest: 8089,
+    grpc: 10029,
+  },
+  litd: {
+    rest: 8080,
+    grpc: 10009,
+    p2p: 9735,
+    web: 8443,
+  },
+};
+
 export const bitcoinCredentials = {
   user: 'polaruser',
   pass: 'polarpass',

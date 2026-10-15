@@ -35,6 +35,7 @@ With Polar you can:
 - Create & Pay Taproot Asset invoices
 - Export and import networks, for sharing with other Lightning developers
 - Create you own docker images to use as [custom nodes](https://github.com/jamaljsr/polar/blob/master/docs/custom-nodes.md) (ex: master branch, local fork)
+- Connect your own apps and scripts to the nodes (see [connecting to your nodes](https://github.com/jamaljsr/polar/blob/master/docs/connecting-to-nodes.md))
 
 Supported Network Node Versions:
 
