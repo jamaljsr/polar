@@ -171,7 +171,7 @@ describe('ConnectTab', () => {
       );
       network.nodes.lightning.push(node);
       const result = renderComponent();
-      await expectHint(result, 'GRPC Host', `polar-n1-${node.name}:8443`);
+      await expectHint(result, 'GRPC Host', `${node.name}:8443`);
       await expectHint(result, 'REST Host', `https://polar-n1-${node.name}:8080`);
     });
 

@@ -55,6 +55,8 @@ These ports are fixed inside each container. They only change if you use a [cust
 | Taproot Assets  | gRPC `10029`, REST `8089`                                         |
 | Terminal (litd) | Web UI and gRPC `8443`, REST `8080`, LND gRPC `10009`, P2P `9735` |
 
+> Note: litd's TLS certificate for port `8443` includes the node name (e.g. `dave`) but not the container name. To connect to port `8443` from another container with TLS verification, use the node name instead, e.g. `dave:8443`. Node names resolve between containers in the same Polar network.
+
 ## Why the Host Port Changes
 
 The port on the Connect tab is not always the default, for several reasons:

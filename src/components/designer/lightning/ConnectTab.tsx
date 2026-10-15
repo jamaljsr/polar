@@ -181,7 +181,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
           restContainerUrl: `https://${containerName}:${containerPorts.rest}`,
           grpcUrl: `127.0.0.1:${litd.ports.web}`, // external grpc is on web port
           grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
-          grpcContainerUrl: `${containerName}:${containerPorts.web}`,
+          // litd's TLS cert includes the node name but not the container name
+          grpcContainerUrl: `${litd.name}:${containerPorts.web}`,
           webUrl: `https://127.0.0.1:${litd.ports.web}`,
           credentials: {
             admin: litd.paths.adminMacaroon,
