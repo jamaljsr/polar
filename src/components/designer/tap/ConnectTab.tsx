@@ -92,10 +92,11 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   ]
     .filter(h => !!h[1]) // exclude empty values
     .map(([label, value, text, containerAddress]) => ({
-      label: containerAddress ? (
-        <HostLabel label={label as string} containerAddress={containerAddress} />
-      ) : (
-        label
+      label: (
+        <HostLabel
+          label={label as string}
+          containerAddress={containerAddress as string}
+        />
       ),
       value: <CopyIcon label={label} value={value as string} text={text} />,
     }));
