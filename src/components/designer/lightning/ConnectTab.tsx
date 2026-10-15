@@ -14,9 +14,10 @@ import {
   Status,
 } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
-import { eclairCredentials, litdCredentials } from 'utils/constants';
+import { ContainerPorts, eclairCredentials, litdCredentials } from 'utils/constants';
+import { getContainerName } from 'utils/network';
 import { ellipseInner } from 'utils/strings';
-import { Loader } from 'components/common';
+import { HostLabel, Loader } from 'components/common';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { BasicAuth, EncodedStrings, FilePaths, LndConnect } from './connect';
@@ -61,8 +62,10 @@ const authTypeLabelKeys: Record<string, string> = {
 export interface ConnectionInfo {
   restUrl: string;
   restDocsUrl: string;
+  restContainerUrl?: string;
   grpcUrl?: string;
   grpcDocsUrl?: string;
+  grpcContainerUrl?: string;
   webUrl?: string;
   credentials: {
     // LND
@@ -115,14 +118,18 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
   const walletNotInitialized = isLockedLnd && walletState === 'NON_EXISTING';
 
   const info = useMemo((): ConnectionInfo => {
+    const containerName = getContainerName(node);
+    const containerPorts = ContainerPorts[node.implementation];
     if (node.status === Status.Started || isLockedLnd) {
       if (node.implementation === 'LND') {
         const lnd = node as LndNode;
         return {
           restUrl: `https://127.0.0.1:${lnd.ports.rest}`,
           restDocsUrl: 'https://lightning.engineering/api-docs/api/lnd/',
+          restContainerUrl: `https://${containerName}:${containerPorts.rest}`,
           grpcUrl: `127.0.0.1:${lnd.ports.grpc}`,
           grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lnd/',
+          grpcContainerUrl: `${containerName}:${containerPorts.grpc}`,
           credentials: walletNotInitialized
             ? { cert: lnd.paths.tlsCert }
             : {
@@ -141,8 +148,10 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         return {
           restUrl: `http://127.0.0.1:${cln.ports.rest}`,
           restDocsUrl: 'https://docs.corelightning.org/docs/rest',
+          restContainerUrl: `http://${containerName}:${containerPorts.rest}`,
           grpcUrl: cln.ports.grpc ? `127.0.0.1:${cln.ports.grpc}` : undefined,
           grpcDocsUrl: 'https://docs.corelightning.org/docs/grpc',
+          grpcContainerUrl: `${containerName}:${containerPorts.grpc}`,
           credentials: {
             rune: cln.paths.rune,
             cert: cln.paths.tlsCert,
@@ -157,6 +166,7 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         return {
           restUrl: `http://127.0.0.1:${eln.ports.rest}`,
           restDocsUrl: 'https://acinq.github.io/eclair',
+          restContainerUrl: `http://${containerName}:${containerPorts.rest}`,
           credentials: {
             basicAuth: eclairCredentials.pass,
           },
@@ -168,8 +178,10 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
         return {
           restUrl: `https://127.0.0.1:${litd.ports.rest}`,
           restDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
+          restContainerUrl: `https://${containerName}:${containerPorts.rest}`,
           grpcUrl: `127.0.0.1:${litd.ports.web}`, // external grpc is on web port
           grpcDocsUrl: 'https://lightning.engineering/api-docs/api/lit/',
+          grpcContainerUrl: `${containerName}:${containerPorts.web}`,
           webUrl: `https://127.0.0.1:${litd.ports.web}`,
           credentials: {
             admin: litd.paths.adminMacaroon,
@@ -229,8 +241,8 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   const { webUrl, restUrl, grpcUrl, credentials } = info;
   const hosts: DetailValues = [
-    [l('grpcHost'), grpcUrl, grpcUrl],
-    [l('restHost'), restUrl, restUrl],
+    [l('grpcHost'), grpcUrl, grpcUrl, info.grpcContainerUrl],
+    [l('restHost'), restUrl, restUrl, info.restContainerUrl],
     [l('p2pLnUrlInternal'), p2pLnUrlInternal, ellipseInner(p2pLnUrlInternal, 3, 17)],
     [
       l('p2pLnUrlExternal'),
@@ -239,8 +251,12 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     ],
   ]
     .filter(h => !!h[1]) // exclude empty values
-    .map(([label, value, text]) => ({
-      label,
+    .map(([label, value, text, containerAddress]) => ({
+      label: containerAddress ? (
+        <HostLabel label={label as string} containerAddress={containerAddress} />
+      ) : (
+        label
+      ),
       value: <CopyIcon label={label} value={value as string} text={text} />,
     }));
 
