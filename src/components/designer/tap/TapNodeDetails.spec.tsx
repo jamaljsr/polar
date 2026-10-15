@@ -397,6 +397,19 @@ describe('TapDetails', () => {
         expect(await findByText('base64-error')).toBeInTheDocument();
       });
 
+      it('should display the container address hints', async () => {
+        const { findByText, getByLabelText } = renderComponent(Status.Started);
+        fireEvent.click(await findByText('Connect'));
+        fireEvent.mouseOver(getByLabelText('GRPC Host help'));
+        expect(
+          await findByText(new RegExp(`use polar-n1-${node.name}:10029$`)),
+        ).toBeInTheDocument();
+        fireEvent.mouseOver(getByLabelText('REST Host help'));
+        expect(
+          await findByText(new RegExp(`use https://polar-n1-${node.name}:8089$`)),
+        ).toBeInTheDocument();
+      });
+
       it('should properly handle an unknown implementation', async () => {
         node.implementation = '' as any;
         const { getByText, findByText } = renderComponent(Status.Started);

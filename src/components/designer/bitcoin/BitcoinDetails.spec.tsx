@@ -149,6 +149,28 @@ describe('BitcoindDetails', () => {
       expect(await findByText(`http://127.0.0.1:${node.ports.rpc}`)).toBeInTheDocument();
     });
 
+    it('should display the container address hints', async () => {
+      const { findByText, getByLabelText, node } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Connect'));
+      const hints = [
+        ['RPC Host', `http://polar-n1-${node.name}:18443`],
+        ['P2P Host', `tcp://polar-n1-${node.name}:18444`],
+        ['ZMQ Block Host', `tcp://polar-n1-${node.name}:28334`],
+        ['ZMQ Transaction Host', `tcp://polar-n1-${node.name}:28335`],
+      ];
+      for (const [label, address] of hints) {
+        fireEvent.mouseOver(getByLabelText(`${label} help`));
+        expect(await findByText(new RegExp(`use ${address}$`))).toBeInTheDocument();
+      }
+    });
+
+    it('should not display container address hints for credentials', async () => {
+      const { findByText, queryByLabelText } = renderComponent(Status.Started);
+      fireEvent.click(await findByText('Connect'));
+      expect(queryByLabelText('Username help')).not.toBeInTheDocument();
+      expect(queryByLabelText('Password help')).not.toBeInTheDocument();
+    });
+
     it('should display RPC User', async () => {
       const { findByText } = renderComponent(Status.Started);
       fireEvent.click(await findByText('Connect'));
