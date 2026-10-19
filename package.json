@@ -49,7 +49,7 @@
     "@types/lodash": "4.17.21",
     "archiver": "7.0.1",
     "docker-compose": "0.24.0",
-    "dockerode": "4.0.2",
+    "dockerode": "4.0.12",
     "electron-debug": "3.2.0",
     "electron-is-dev": "2.0.0",
     "electron-log": "4.4.8",
@@ -83,14 +83,14 @@
     "@types/fs-extra": "9.0.13",
     "@types/jest": "30.0.0",
     "@types/js-yaml": "4.0.9",
-    "@types/node": "18.17.19",
+    "@types/node": "18.19.130",
     "@types/react": "18.3.27",
     "@types/react-copy-to-clipboard": "5.0.7",
     "@types/react-dom": "18.3.7",
     "@types/react-redux": "7.1.34",
     "@types/react-router": "5.1.20",
     "@types/react-router-dom": "5.3.3",
-    "@types/redux-logger": "3.0.12",
+    "@types/redux-logger": "3.0.13",
     "@types/unzipper": "0.10.11",
     "@types/ws": "8.18.1",
     "@typescript-eslint/eslint-plugin": "6.21.0",
@@ -105,7 +105,7 @@
     "cross-env": "10.1.0",
     "detect-port": "1.6.1",
     "docker-compose": "0.24.0",
-    "dockerode": "4.0.2",
+    "dockerode": "4.0.12",
     "easy-peasy": "6.0.5",
     "electron": "13.6.3",
     "electron-builder": "24.13.3",
@@ -161,6 +161,7 @@
     "ws": "8.21.0"
   },
   "resolutions": {
+    "protobufjs": "7.6.6",
     "react-error-overlay": "6.0.9"
   },
   "jest": {
@@ -175,6 +176,9 @@
       "!<rootDir>/src/components/designer/custom/*.tsx",
       "!<rootDir>/src/utils/tests/**/*.{ts,tsx}"
     ],
+    "moduleNameMapper": {
+      "^node:crypto$": "<rootDir>/src/utils/tests/nodeCrypto.js"
+    },
     "resetMocks": true
   },
   "eslintConfig": {
@@ -187,9 +191,9 @@
       "not op_mini all"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
     ]
   },
   "config": {
