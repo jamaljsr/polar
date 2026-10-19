@@ -150,68 +150,45 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
 1. Overwrite `Dockerfile` with the following:
 
    ```
-   FROM adoptopenjdk/openjdk11:jdk-11.0.3_7-alpine as BUILD
-
-   # Setup maven, we don't use https://hub.docker.com/_/maven/ as it declare .m2 as volume, we loose all mvn cache
-   # We can alternatively do as proposed by https://github.com/carlossg/docker-maven#packaging-a-local-repository-with-the-image
-   # this was meant to make the image smaller, but we use multi-stage build so we don't care
-   RUN apk add --no-cache curl tar bash
-
-   ARG MAVEN_VERSION=3.6.3
-   ARG USER_HOME_DIR="/root"
-   ARG SHA=c35a1803a6e70a126e80b2b3ae33eed961f83ed74d18fcd16909b2d44d7dada3203f1ffe726c17ef8dcca2dcaa9fca676987befeadc9b9f759967a8cb77181c0
-   ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
-
-   RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
-     && curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-     && echo "${SHA}  /tmp/apache-maven.tar.gz" | sha512sum -c - \
-     && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
-     && rm -f /tmp/apache-maven.tar.gz \
-     && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
-
-   ENV MAVEN_HOME /usr/share/maven
-   ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
-
+   FROM eclipse-temurin:21.0.7_6-jdk-alpine as BUILD
+  
    # Let's fetch eclair dependencies, so that Docker can cache them
    # This way we won't have to fetch dependencies again if only the source code changes
    # The easiest way to reliably get dependencies is to build the project with no sources
    WORKDIR /usr/src
+   COPY mvnw mvnw
+   COPY .mvn .mvn
    COPY pom.xml pom.xml
    COPY eclair-core/pom.xml eclair-core/pom.xml
+   COPY eclair-front/pom.xml eclair-front/pom.xml
    COPY eclair-node/pom.xml eclair-node/pom.xml
-   COPY eclair-node-gui/pom.xml eclair-node-gui/pom.xml
    COPY eclair-node/modules/assembly.xml eclair-node/modules/assembly.xml
-   COPY eclair-node-gui/modules/assembly.xml eclair-node-gui/modules/assembly.xml
    RUN mkdir -p eclair-core/src/main/scala && touch eclair-core/src/main/scala/empty.scala
    # Blank build. We only care about eclair-node, and we use install because eclair-node depends on eclair-core
-   #################### Polar Modification
-   ENV MAVEN_OPTS=-Xmx256m -XX:MaxPermSize=512m
-   ####################
-   RUN mvn install -pl eclair-node -am
-   RUN mvn clean
-
+   RUN ./mvnw install -pl eclair-node -am
+   RUN ./mvnw clean
+  
    # Only then do we copy the sources
    COPY . .
-
+  
    # And this time we can build in offline mode, specifying 'notag' instead of git commit
-   RUN mvn package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.commit.id.abbrev=notag -o
+   RUN ./mvnw package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.commit.id.abbrev=notag -o
    # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
-
-   # We currently use a debian image for runtime because of some jni-related issue with sqlite
-   FROM openjdk:11.0.4-jre-slim
+  
+   FROM eclipse-temurin:21.0.7_6-jre-alpine
    WORKDIR /app
-
+  
    # install jq for eclair-cli
-   RUN apt-get update && apt-get install -y bash jq curl unzip gosu
-
+   RUN apk add bash jq curl unzip su-exec
+  
    # copy and install eclair-cli executable
    COPY --from=BUILD /usr/src/eclair-core/eclair-cli .
    RUN chmod +x eclair-cli && mv eclair-cli /sbin/eclair-cli
-
+  
    # we only need the eclair-node.zip to run
    COPY --from=BUILD /usr/src/eclair-node/target/eclair-node-*.zip ./eclair-node.zip
    RUN unzip eclair-node.zip && mv eclair-node-* eclair-node && chmod +x eclair-node/bin/eclair-node.sh
-
+  
    #################### Polar Modification
    # Original lines:
    # ENV ECLAIR_DATADIR=/data
@@ -222,20 +199,26 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
    ENV ECLAIR_DATADIR=/home/eclair/
    RUN chmod -R a+x eclair-node/*
    RUN ls -al eclair-node/bin
-
+  
+   RUN curl -SLO https://raw.githubusercontent.com/ACINQ/eclair/master/contrib/eclair-cli.bash-completion \
+   && mkdir /etc/bash_completion.d \
+   && mv eclair-cli.bash-completion /etc/bash_completion.d/ \
+   && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
+   && mkdir /usr/share/bash-completion/ \
+   && mv bash_completion /usr/share/bash-completion/
+  
    COPY docker-entrypoint.sh /entrypoint.sh
-
+  
    RUN chmod a+x /entrypoint.sh
-
+  
    VOLUME ["/home/eclair"]
-
+  
    EXPOSE 9735 8080
-
+  
    ENTRYPOINT ["/entrypoint.sh"]
-
-   CMD $JAVA_OPTS bash eclair-node/bin/eclair-node.sh -Declair.datadir=$ECLAIR_DATADIR
+  
+   CMD JAVA_OPTS="${JAVA_OPTS}" eclair-node/bin/eclair-node.sh "-Declair.datadir=${ECLAIR_DATADIR}"
    ####################
-
    ```
 
 1. Create a new file named `docker-entrypoint.sh` with the following contents
@@ -243,42 +226,47 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
    ```
    #!/usr/bin/env bash
    set -e
-
+   
    # give bitcoind a second to bootup
    sleep 1
-
+   
    # containers on linux share file permissions with hosts.
    # assigning the same uid/gid from the host user
    # ensures that the files can be read/write from both sides
    if ! id eclair > /dev/null 2>&1; then
-     USERID=${USERID:-1000}
-     GROUPID=${GROUPID:-1000}
-
-     echo "adding user eclair ($USERID:$GROUPID)"
-     groupadd -f -g $GROUPID eclair
-     useradd -r -u $USERID -g $GROUPID eclair
-     # ensure correct ownership of user home dir
-     mkdir -p /home/eclair
-     chown eclair:eclair /home/eclair
+   USERID=${USERID:-1000}
+   GROUPID=${GROUPID:-1000}
+   
+   echo "adding user eclair ($USERID:$GROUPID)"
+   addgroup -g $GROUPID eclair
+   adduser -D -u $USERID -G eclair eclair
+   # ensure correct ownership of user home dir
+   mkdir -p /home/eclair
+   chown -R $USERID:$GROUPID /home/eclair
    fi
-
+   
    if [ "$1" = "polar-eclair" ]; then
-     # convert command line args to JAVA_OPTS
-     JAVA_OPTS=""
-     for arg in "$@"
-     do
-       if [ "${arg:0:2}" = "--" ]; then
-         JAVA_OPTS="$JAVA_OPTS -Declair.${arg:2}"
-       fi
-     done
-     # trim leading/trailing whitespace
-     JAVA_OPTS="$(sed -e 's/[[:space:]]*$//' <<<${JAVA_OPTS})"
-
-     echo "Running as eclair user:"
-     echo "bash eclair-node/bin/eclair-node.sh $JAVA_OPTS"
-     exec gosu eclair bash eclair-node/bin/eclair-node.sh $JAVA_OPTS
+   # convert command line args to JAVA_OPTS
+   JAVA_OPTS=""
+   for arg in "$@"
+   do
+   if [ "${arg:0:21}" = "--server.public-ips.0" ]; then
+   # replace the hostname provided in this arg with the IP address of the containing
+   # because Eclair v8+ began including the DNS hostname in the NodeAnnouncements and
+   # LND throws an error when parsing these messages
+   JAVA_OPTS="$JAVA_OPTS -Declair.server.public-ips.0=$(hostname -i)"
+   elif [ "${arg:0:2}" = "--" ]; then
+   JAVA_OPTS="$JAVA_OPTS -Declair.${arg:2}"
    fi
-
+   done
+   # trim leading/trailing whitespace
+   JAVA_OPTS="$(sed -e 's/[[:space:]]*$//' <<<${JAVA_OPTS})"
+   
+   echo "Running as eclair user:"
+   echo "bash eclair-node/bin/eclair-node.sh $JAVA_OPTS"
+   exec su-exec eclair bash eclair-node/bin/eclair-node.sh $JAVA_OPTS
+   fi
+   
    echo "Running: $@"
    exec "$@"
    ```
