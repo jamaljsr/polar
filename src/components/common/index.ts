@@ -1,6 +1,7 @@
 export { default as AdvancedOptionsButton } from './AdvancedOptionsButton';
 export { default as CopyIcon } from './CopyIcon';
 export { default as DetailsList } from './DetailsList';
+export { default as HostLabel } from './HostLabel';
 export { default as Loader } from './Loader';
 export { default as NavMenu } from './NavMenu';
 export { default as RestartNode } from './RestartNode';

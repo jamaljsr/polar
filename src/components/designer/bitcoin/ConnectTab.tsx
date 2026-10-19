@@ -5,8 +5,9 @@ import { Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { BitcoinNode, Status } from 'shared/types';
 import { useStoreActions } from 'store';
-import { bitcoinCredentials } from 'utils/constants';
-import { CopyIcon, DetailsList } from 'components/common';
+import { bitcoinCredentials, ContainerPorts } from 'utils/constants';
+import { getContainerName } from 'utils/network';
+import { CopyIcon, DetailsList, HostLabel } from 'components/common';
 import { DetailValues } from 'components/common/DetailsList';
 
 const Styled = {
@@ -35,15 +36,37 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     return <>{l('notStarted')}</>;
   }
 
+  const containerName = getContainerName(node);
+  const containerPorts = ContainerPorts[node.implementation];
   const details: DetailValues = [
-    { label: l('rpcHost'), value: `http://127.0.0.1:${node.ports.rpc}` },
-    { label: l('p2pHost'), value: `tcp://127.0.0.1:${node.ports.p2p}` },
-    { label: l('zmqBlockHost'), value: `tcp://127.0.0.1:${node.ports.zmqBlock}` },
-    { label: l('zmqTxHost'), value: `tcp://127.0.0.1:${node.ports.zmqTx}` },
+    {
+      label: l('rpcHost'),
+      value: `http://127.0.0.1:${node.ports.rpc}`,
+      containerAddress: `http://${containerName}:${containerPorts.rpc}`,
+    },
+    {
+      label: l('p2pHost'),
+      value: `tcp://127.0.0.1:${node.ports.p2p}`,
+      containerAddress: `tcp://${containerName}:${containerPorts.p2p}`,
+    },
+    {
+      label: l('zmqBlockHost'),
+      value: `tcp://127.0.0.1:${node.ports.zmqBlock}`,
+      containerAddress: `tcp://${containerName}:${containerPorts.zmqBlock}`,
+    },
+    {
+      label: l('zmqTxHost'),
+      value: `tcp://127.0.0.1:${node.ports.zmqTx}`,
+      containerAddress: `tcp://${containerName}:${containerPorts.zmqTx}`,
+    },
     { label: l('rpcUser'), value: bitcoinCredentials.user },
     { label: l('rpcPass'), value: bitcoinCredentials.pass },
-  ].map(({ label, value }) => ({
-    label,
+  ].map(({ label, value, containerAddress }) => ({
+    label: containerAddress ? (
+      <HostLabel label={label} containerAddress={containerAddress} />
+    ) : (
+      label
+    ),
     value: <CopyIcon label={label} value={value} text={value} />,
   }));
 

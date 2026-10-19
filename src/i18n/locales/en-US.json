@@ -29,6 +29,8 @@
   "cmps.common.BalanceChannelsModal.reset": "Reset",
   "cmps.common.BalanceChannelsModal.close": "Close",
   "cmps.common.CopyIcon.message": "Copied {{label}} to clipboard",
+  "cmps.common.HostLabel.hint": "Use this address from your machine. From inside the node's container (docker exec) or from other containers, use {{containerAddress}}",
+  "cmps.common.HostLabel.ariaLabel": "{{label}} help",
   "cmps.common.NavMenu.createNetwork": "Create Network",
   "cmps.common.NavMenu.manageNodes": "Manage Images",
   "cmps.common.NavMenu.importNetwork": "Import Network",
