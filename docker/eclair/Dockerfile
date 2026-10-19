@@ -1,7 +1,7 @@
 #########################
 # Original Source: https://github.com/ACINQ/eclair/blob/v0.12.0/Dockerfile
 #########################
-FROM eclipse-temurin:25.0.1_8-jdk-alpine as BUILD
+FROM eclipse-temurin:25.0.2_10-jdk-noble as BUILD
 
 # Let's fetch eclair dependencies, so that Docker can cache them
 # This way we won't have to fetch dependencies again if only the source code changes
@@ -28,7 +28,7 @@ FROM eclipse-temurin:25.0.1_8-jdk-alpine as BUILD
 
 #################### Polar Modification
 # Pull source code from github instead of a local repo
-RUN apk add git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/repo
 ARG ECLAIR_VERSION
@@ -55,11 +55,11 @@ RUN cp -R -f /usr/repo/* .
 RUN ./mvnw package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.commit.id.abbrev=notag -o
 # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
 
-FROM eclipse-temurin:25.0.1_8-jre-alpine
+FROM eclipse-temurin:25.0.2_10-jre-noble
 WORKDIR /app
 
 # install jq for eclair-cli
-RUN apk add bash jq curl unzip su-exec
+RUN apt-get update && apt-get install -y bash jq curl unzip gosu && rm -rf /var/lib/apt/lists/*
 
 # copy and install eclair-cli executable
 COPY --from=BUILD /usr/src/eclair-core/eclair-cli .
@@ -81,10 +81,10 @@ RUN chmod -R a+x eclair-node/*
 RUN ls -al eclair-node/bin
 
 RUN curl -SLO https://raw.githubusercontent.com/ACINQ/eclair/master/contrib/eclair-cli.bash-completion \
-  && mkdir /etc/bash_completion.d \
+  && mkdir -p /etc/bash_completion.d \
   && mv eclair-cli.bash-completion /etc/bash_completion.d/ \
   && curl -SLO https://raw.githubusercontent.com/scop/bash-completion/master/bash_completion \
-  && mkdir /usr/share/bash-completion/ \
+  && mkdir -p /usr/share/bash-completion/ \
   && mv bash_completion /usr/share/bash-completion/
 
 COPY docker-entrypoint.sh /entrypoint.sh
