@@ -54,6 +54,14 @@ const NewNetwork: React.FC = () => {
         throw new Error(l('tapdCountError'));
       }
 
+      const hasLightningNodes =
+        values.lndNodes + values.clightningNodes + values.eclairNodes + values.litdNodes >
+        0;
+      const hasBitcoinBackend = values.bitcoindNodes + values.bitcoindKnotsNodes > 0;
+      if (hasLightningNodes && !hasBitcoinBackend) {
+        throw new Error(l('bitcoinBackendError'));
+      }
+
       await addNetwork(values);
     } catch (error: any) {
       notify({ message: l('createError'), error });
@@ -82,6 +90,7 @@ const NewNetwork: React.FC = () => {
             clightningNodes: settings.newNodeCounts['c-lightning'],
             eclairNodes: settings.newNodeCounts.eclair,
             bitcoindNodes: settings.newNodeCounts.bitcoind,
+            bitcoindKnotsNodes: settings.newNodeCounts['bitcoind-knots'],
             tapdNodes: settings.newNodeCounts.tapd,
             litdNodes: settings.newNodeCounts.litd,
             customNodes: initialCustomValues,
@@ -122,7 +131,7 @@ const NewNetwork: React.FC = () => {
           )}
           <Styled.Divider orientation="left">{l('managedLabel')}</Styled.Divider>
           <Row gutter={16}>
-            <Col span={6}>
+            <Col span={4}>
               <Form.Item
                 name="lndNodes"
                 label={dockerConfigs.LND.name}
@@ -131,7 +140,7 @@ const NewNetwork: React.FC = () => {
                 <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={4}>
               <Form.Item
                 name="clightningNodes"
                 label={dockerConfigs['c-lightning'].name}
@@ -140,7 +149,7 @@ const NewNetwork: React.FC = () => {
                 <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={4}>
               <Form.Item
                 name="eclairNodes"
                 label={dockerConfigs.eclair.name}
@@ -149,13 +158,22 @@ const NewNetwork: React.FC = () => {
                 <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={4}>
               <Form.Item
                 name="bitcoindNodes"
                 label={dockerConfigs.bitcoind.name}
                 rules={[{ required: true, message: l('cmps.forms.required') }]}
               >
-                <InputNumber min={1} max={10} />
+                <InputNumber min={0} max={10} />
+              </Form.Item>
+            </Col>
+            <Col span={4}>
+              <Form.Item
+                name="bitcoindKnotsNodes"
+                label={dockerConfigs['bitcoind-knots'].name}
+                rules={[{ required: true, message: l('cmps.forms.required') }]}
+              >
+                <InputNumber min={0} max={10} />
               </Form.Item>
             </Col>
           </Row>

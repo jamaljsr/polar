@@ -117,6 +117,22 @@ describe('NewNetwork component', () => {
       expect(await findByText('asdf')).toBeInTheDocument();
     });
 
+    it('should show an error when lightning nodes exist without a bitcoin backend', async () => {
+      const { nameInput, descriptionInput, createBtn, getByLabelText, findByText } =
+        renderComponent();
+      fireEvent.change(nameInput, { target: { value: 'test' } });
+      fireEvent.change(descriptionInput, { target: { value: 'description' } });
+      fireEvent.change(getByLabelText('Bitcoin Core'), { target: { value: 0 } });
+      fireEvent.change(getByLabelText('Bitcoin Knots'), { target: { value: 0 } });
+      fireEvent.click(createBtn);
+      expect(await findByText('Unable to create the new network')).toBeInTheDocument();
+      expect(
+        await findByText(
+          'Lightning nodes require at least one Bitcoin backend (Bitcoin Core or Bitcoin Knots)',
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('should show an error when there are move tapd than LND node chosen', async () => {
       const { nameInput, descriptionInput, createBtn, getByLabelText, findByText } =
         renderComponent();
