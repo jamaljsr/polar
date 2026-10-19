@@ -10,6 +10,7 @@ describe('nodeTemplates', () => {
       19444,
       28334,
       29335,
+      28534,
       '',
     );
     expect(node.image).toContain('bitcoind');
