@@ -313,6 +313,19 @@ class DockerService implements DockerLibrary {
       if (await exists(keyPath)) await rm(keyPath);
     }
 
+    if (node.implementation === 'btcd') {
+      // need to delete the rpc cert so that it is recreated with the new hostname, which
+      // the btcwallet and LND/litd containers verify when connecting to btcd
+      for (const file of ['rpc.cert', 'rpc.key']) {
+        const filePath = join(oldPath, 'btcd', file);
+        if (await exists(filePath)) await rm(filePath);
+      }
+      // move the companion btcwallet's data dir so the existing wallet is kept
+      const oldWalletPath = dirname(this.btcwalletDir(network, node.name));
+      const newWalletPath = dirname(this.btcwalletDir(network, newName));
+      if (await exists(oldWalletPath)) await renameFile(oldWalletPath, newWalletPath);
+    }
+
     // handle CLN named volume on Windows
     if (node.implementation === 'c-lightning' && isWindows()) {
       // delete stale certs so they're re-fetched from container after restart

@@ -1018,6 +1018,36 @@ describe('DockerService', () => {
       expect(filesMock.rm).not.toHaveBeenCalled();
     });
 
+    it('should delete the rpc cert and move the btcwallet dir when renaming a btcd node', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      const btcdNetwork = getBtcdNetwork();
+      const node = btcdNetwork.nodes.bitcoin[0];
+      const volumes = join(btcdNetwork.path, 'volumes');
+      await dockerService.renameNodeDir(btcdNetwork, node, 'new-name');
+      expect(filesMock.rm).toHaveBeenCalledWith(
+        join(volumes, 'btcd', node.name, 'btcd', 'rpc.cert'),
+      );
+      expect(filesMock.rm).toHaveBeenCalledWith(
+        join(volumes, 'btcd', node.name, 'btcd', 'rpc.key'),
+      );
+      expect(filesMock.renameFile).toHaveBeenCalledWith(
+        join(volumes, 'btcwallet', `btcwallet-${node.name}`),
+        join(volumes, 'btcwallet', 'btcwallet-new-name'),
+      );
+      expect(filesMock.renameFile).toHaveBeenCalledWith(
+        join(volumes, 'btcd', node.name),
+        join(volumes, 'btcd', 'new-name'),
+      );
+    });
+
+    it('should not touch missing btcd files when renaming a btcd node', async () => {
+      filesMock.exists.mockResolvedValue(false);
+      const btcdNetwork = getBtcdNetwork();
+      await dockerService.renameNodeDir(btcdNetwork, btcdNetwork.nodes.bitcoin[0], 'new');
+      expect(filesMock.rm).not.toHaveBeenCalled();
+      expect(filesMock.renameFile).not.toHaveBeenCalled();
+    });
+
     it('should reformat thrown exceptions', async () => {
       const err = 'oops, didnt work';
       composeMock.upAll.mockRejectedValueOnce({ err });
