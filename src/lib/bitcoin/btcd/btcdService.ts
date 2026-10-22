@@ -123,10 +123,13 @@ class BtcdService implements BitcoinService {
   }
 
   async getNewAddress(node: BitcoinNode) {
+    // btcwallet's send RPCs only select coins from the legacy (BIP44) key scope, so
+    // coins sent to a bech32 address, including mined coinbase outputs, show in the
+    // balance but can never be spent. Use legacy addresses so every coin is spendable
     const body = {
       jsonrpc: '1.0',
       method: 'getnewaddress',
-      params: ['default', 'bech32'],
+      params: ['default', 'legacy'],
     };
     const { result } = await httpPost<BTCD.GetNewAddressResponse>(node, body);
     return result;

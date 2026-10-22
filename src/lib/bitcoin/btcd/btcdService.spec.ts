@@ -39,7 +39,7 @@ describe('BtcdService', () => {
       const testNode = { ...node, miningAddr: undefined };
       mockHttpPost
         .mockResolvedValueOnce({ result: null }) // walletpassphrase
-        .mockResolvedValueOnce({ result: 'bcrt1qtest123' }); // getnewaddress
+        .mockResolvedValueOnce({ result: 'mtestaddr123' }); // getnewaddress
       await btcdService.createDefaultWallet(testNode);
       expect(mockHttpPost).toHaveBeenCalledTimes(2);
       expect(mockHttpPost).toHaveBeenNthCalledWith(1, testNode, {
@@ -50,9 +50,9 @@ describe('BtcdService', () => {
       expect(mockHttpPost).toHaveBeenNthCalledWith(2, testNode, {
         jsonrpc: '1.0',
         method: 'getnewaddress',
-        params: ['default', 'bech32'],
+        params: ['default', 'legacy'],
       });
-      expect(testNode.miningAddr).toEqual('bcrt1qtest123');
+      expect(testNode.miningAddr).toEqual('mtestaddr123');
     });
 
     it('should not fetch a new address if miningAddr is already set', async () => {
@@ -201,7 +201,7 @@ describe('BtcdService', () => {
     it('should get new address', async () => {
       const mockResponse: BTCD.GetNewAddressResponse = {
         jsonrpc: '1.0',
-        result: 'bcrt1qabcdef123456',
+        result: 'mabcdef123456',
         error: null,
         id: '1',
       };
@@ -213,9 +213,9 @@ describe('BtcdService', () => {
       expect(mockHttpPost).toHaveBeenCalledWith(node, {
         jsonrpc: '1.0',
         method: 'getnewaddress',
-        params: ['default', 'bech32'],
+        params: ['default', 'legacy'],
       });
-      expect(address).toEqual('bcrt1qabcdef123456');
+      expect(address).toEqual('mabcdef123456');
     });
   });
 
