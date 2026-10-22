@@ -202,7 +202,9 @@ const lightningModel: LightningModel = {
   depositFunds: thunk(
     async (actions, { node, sats }, { injections, getStoreState, getStoreActions }) => {
       const { nodes } = getStoreState().network.networkById(node.networkId);
-      const btcNode = nodes.bitcoin[0];
+      // send from the node's own backend so the funds are sent on the chain it watches
+      const btcNode =
+        nodes.bitcoin.find(n => n.name === node.backendName) || nodes.bitcoin[0];
       const api = injections.lightningFactory.getService(node);
       const { address } = await api.getNewAddress(node);
       const coins = fromSatsNumeric(sats);
@@ -276,7 +278,9 @@ const lightningModel: LightningModel = {
       await actions.waitForNodes([node]);
       // mine some blocks to confirm the txn
       const network = getStoreState().network.networkById(node.networkId);
-      const btcNode = network.nodes.bitcoin[0];
+      const btcNode =
+        network.nodes.bitcoin.find(n => n.name === node.backendName) ||
+        network.nodes.bitcoin[0];
       await getStoreActions().bitcoin.mine({
         blocks: BLOCKS_TIL_CONFIRMED,
         node: btcNode,
