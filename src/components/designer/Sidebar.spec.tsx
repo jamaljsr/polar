@@ -2,7 +2,7 @@ import React from 'react';
 import { ISelectedOrHovered } from '@mrblenny/react-flow-chart';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
-import { getNetwork, renderWithProviders } from 'utils/tests';
+import { addBtcdNode, getNetwork, renderWithProviders } from 'utils/tests';
 import Sidebar from './Sidebar';
 
 describe('Sidebar Component', () => {
@@ -58,6 +58,31 @@ describe('Sidebar Component', () => {
     const { findByText } = renderComponent('node', 'alice-tap');
     expect(await findByText('tap')).toBeInTheDocument();
     expect(await findByText('Taproot Assets')).toBeInTheDocument();
+  });
+
+  it('should display btcd details', async () => {
+    const network = getNetwork(1, 'test network', undefined, 2);
+    const btcdNode = addBtcdNode(network);
+    const chart = initChartFromNetwork(network);
+    chart.selected = { type: 'node', id: btcdNode.name };
+    const initialState = {
+      network: {
+        networks: [network],
+      },
+      designer: {
+        activeId: network.id,
+        allCharts: {
+          [network.id]: chart,
+        },
+      },
+    };
+
+    const { findByText } = renderWithProviders(
+      <Sidebar network={network} chart={chart} />,
+      { initialState },
+    );
+    expect(await findByText('bitcoin')).toBeInTheDocument();
+    expect(await findByText('BTCD')).toBeInTheDocument();
   });
 
   it('should not display details of a selected invalid node', () => {

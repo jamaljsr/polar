@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { IChart } from '@mrblenny/react-flow-chart';
-import { BitcoindNode, LightningNode, TapNode } from 'shared/types';
+import { BitcoindNode, BtcdNode, LightningNode, TapNode } from 'shared/types';
 import { Network } from 'types';
 import BitcoindDetails from './bitcoin/BitcoinDetails';
 import DefaultSidebar from './default/DefaultSidebar';
@@ -22,6 +22,8 @@ const Sidebar: React.FC<Props> = ({ network, chart }) => {
       const node = [...bitcoin, ...lightning, ...tap].find(n => n.name === id);
       if (node && node.implementation === 'bitcoind') {
         return <BitcoindDetails node={node as BitcoindNode} />;
+      } else if (node && node.implementation === 'btcd') {
+        return <BitcoindDetails node={node as BtcdNode} />;
       } else if (node && node.type === 'lightning') {
         return <LightningDetails node={node as LightningNode} />;
       } else if (node && node.type === 'tap') {

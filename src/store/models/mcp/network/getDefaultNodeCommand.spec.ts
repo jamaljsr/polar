@@ -175,4 +175,17 @@ describe('MCP model > getDefaultNodeCommand', () => {
     const expectedCommand = getDefaultCommand(impl, result.version);
     expect(result.command).toBe(expectedCommand);
   });
+
+  it.each(['LND' as NodeImplementation, 'litd' as NodeImplementation])(
+    'should return the btcd flavored command for %s when the backend is btcd',
+    async impl => {
+      const result = await store.getActions().mcp.getDefaultNodeCommand({
+        implementation: impl,
+        backend: 'btcd',
+      });
+
+      expect(result.command).toContain('btcd.rpchost={{backendName}}');
+      expect(result.command).not.toContain('bitcoind.rpchost={{backendName}}');
+    },
+  );
 });

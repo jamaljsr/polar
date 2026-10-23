@@ -148,6 +148,53 @@ describe('Lightning Model', () => {
     expect(balances.total).toEqual('300');
   });
 
+  it("should deposit funds from the node's own bitcoin backend", async () => {
+    const { bitcoin } = store.getState().network.networks[0].nodes;
+    const backend2 = { ...bitcoin[0], name: 'backend2' };
+    bitcoin.push(backend2);
+    const { depositFunds } = store.getActions().lightning;
+    await depositFunds({ node: { ...node, backendName: 'backend2' }, sats: '50000' });
+    expect(bitcoinServiceMock.sendFunds).toHaveBeenCalledWith(
+      backend2,
+      'bc1aaaa',
+      0.0005,
+    );
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledWith(6, backend2);
+  });
+
+  it('should deposit funds when another bitcoin node fails to update', async () => {
+    const { bitcoin } = store.getState().network.networks[0].nodes;
+    bitcoin.push({ ...bitcoin[0], name: 'backend2' });
+    bitcoin.forEach(n => (n.status = Status.Started));
+    bitcoinServiceMock.getBlockchainInfo.mockRejectedValueOnce(new Error('offline'));
+    const { depositFunds } = store.getActions().lightning;
+    await expect(depositFunds({ node, sats: '50000' })).resolves.toBeUndefined();
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledTimes(1);
+  });
+
+  it("should close a channel and mine on the node's own bitcoin backend", async () => {
+    const { bitcoin } = store.getState().network.networks[0].nodes;
+    const backend2 = { ...bitcoin[0], name: 'backend2' };
+    bitcoin.push(backend2);
+    const { closeChannel } = store.getActions().lightning;
+    await closeChannel({
+      node: { ...node, backendName: 'backend2' },
+      channelPoint: 'xyz',
+    });
+    expect(lightningServiceMock.closeChannel).toHaveBeenCalled();
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledWith(6, backend2);
+  });
+
+  it('should close a channel and mine on the first bitcoin node', async () => {
+    const { closeChannel } = store.getActions().lightning;
+    await closeChannel({
+      node: { ...node, backendName: 'invalid' },
+      channelPoint: 'xyz',
+    });
+    const btcNode = store.getState().network.networks[0].nodes.bitcoin[0];
+    expect(bitcoinServiceMock.mine).toHaveBeenCalledWith(6, btcNode);
+  });
+
   it('should not throw an error when connecting peers', async () => {
     const { connectAllPeers } = store.getActions().lightning;
     lightningServiceMock.getInfo.mockResolvedValue(

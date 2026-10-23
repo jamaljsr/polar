@@ -12,6 +12,7 @@ import { getDefaultCommand } from 'utils/network';
 export interface GetDefaultNodeCommandArgs {
   implementation: NodeImplementation;
   version?: string;
+  backend?: NodeImplementation;
 }
 
 /** The result of the get_default_node_command tool */
@@ -44,6 +45,13 @@ export const getDefaultNodeCommandDefinition: McpToolDefinition = {
         description:
           'Optional version of the implementation. Uses latest if not specified.',
       },
+      backend: {
+        type: 'string',
+        enum: ['bitcoind', 'btcd'],
+        description:
+          'Optional bitcoin backend the node will connect to. LND and litd use ' +
+          'different flags for btcd than they do for bitcoind. Defaults to bitcoind.',
+      },
     },
     required: ['implementation'],
   },
@@ -66,7 +74,7 @@ export const getDefaultNodeCommandTool = thunk<
   info('MCP: Getting default node command:', args.implementation, version);
 
   // Get the default command
-  const command = getDefaultCommand(args.implementation, version);
+  const command = getDefaultCommand(args.implementation, version, args.backend);
 
   return {
     success: true,
