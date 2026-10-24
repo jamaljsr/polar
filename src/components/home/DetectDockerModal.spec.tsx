@@ -1,6 +1,6 @@
 import React from 'react';
 import { shell } from 'electron';
-import { fireEvent } from '@testing-library/dom';
+import { fireEvent, waitFor } from '@testing-library/dom';
 import os from 'os';
 import { injections, renderWithProviders } from 'utils/tests';
 import DetectDockerModal, { dockerLinks } from './DetectDockerModal';
@@ -127,6 +127,16 @@ describe('DetectDockerModal component', () => {
     fireEvent.click(getByText('Check Again'));
     expect(await findByText('1.2.3')).toBeInTheDocument();
   });
+  it('should fetch docker images when Check Again succeeds', async () => {
+    mockDockerService.getVersions.mockResolvedValue({
+      docker: '1.2.3',
+      compose: '4.5.6',
+    });
+    mockDockerService.getImages.mockResolvedValue(['polarlightning/lnd:0.20.0-beta']);
+    const { getByText } = renderComponent();
+    fireEvent.click(getByText('Check Again'));
+    await waitFor(() => expect(mockDockerService.getImages).toHaveBeenCalledTimes(1));
+  });
 
   it('should display a notification if Check Again fails', async () => {
     mockDockerService.getVersions.mockRejectedValue(new Error('test-error'));
@@ -134,5 +144,6 @@ describe('DetectDockerModal component', () => {
     fireEvent.click(getByText('Check Again'));
     expect(await findByText('Docker Error')).toBeInTheDocument();
     expect(await findByText('test-error')).toBeInTheDocument();
+    expect(mockDockerService.getImages).not.toHaveBeenCalled();
   });
 });
