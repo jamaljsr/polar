@@ -289,6 +289,39 @@ describe('MCP model > createNetwork', () => {
     );
   });
 
+  it('should throw when eclair version requires a higher bitcoind version than provided', async () => {
+    await expect(
+      store.getActions().mcp.createNetwork({
+        name: 'eclair-min-compat-fail',
+        nodes: [
+          { implementation: 'bitcoind', version: '30.0' },
+          { implementation: 'eclair', version: '0.14.2' },
+        ],
+      }),
+    ).rejects.toThrow(
+      'eclair version 0.14.2 requires a bitcoind node at version 31.0 or higher',
+    );
+  });
+
+  it('should create a network when eclair has a bitcoind at its minimum version', async () => {
+    const result = await store.getActions().mcp.createNetwork({
+      name: 'eclair-min-compat',
+      nodes: [
+        { implementation: 'bitcoind', version: '30.0' },
+        { implementation: 'bitcoind', version: '31.0' },
+        { implementation: 'eclair', version: '0.14.1' },
+        { implementation: 'eclair', version: '0.13.1' },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    const eclair = result.network.nodes.lightning.find(n => n.version === '0.14.1');
+    const backend = result.network.nodes.bitcoin.find(
+      n => n.name === eclair!.backendName,
+    );
+    expect(backend!.version).toBe('31.0');
+  });
+
   it('should throw when the network cannot be found after creation', async () => {
     const actions = store.getActions();
     const originalAddNode = actions.network.addNode;
