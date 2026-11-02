@@ -172,17 +172,36 @@ export const filterCompatibleBackends = (
   version: string,
   compatibility: DockerRepoImage['compatibility'],
   backends: BitcoinNode[],
+  minCompatibility?: DockerRepoImage['minCompatibility'],
 ): BitcoinNode[] => {
+  let compatibleBackends = backends;
   // if compatibility is not defined, then allow all backend versions
-  if (!compatibility || !compatibility[version]) return backends;
-  const requiredVersion = compatibility[version];
-  const compatibleBackends = backends.filter(n =>
-    isVersionCompatible(n.version, requiredVersion),
-  );
-  if (compatibleBackends.length === 0) {
-    throw new Error(
-      l('backendCompatError', { requiredVersion, implementation, version }),
+  const requiredVersion = compatibility && compatibility[version];
+  if (requiredVersion) {
+    compatibleBackends = compatibleBackends.filter(n =>
+      isVersionCompatible(n.version, requiredVersion),
     );
+    if (compatibleBackends.length === 0) {
+      throw new Error(
+        l('backendCompatError', { requiredVersion, implementation, version }),
+      );
+    }
+  }
+  // some versions also require a minimum backend version
+  const minVersion = minCompatibility && minCompatibility[version];
+  if (minVersion) {
+    compatibleBackends = compatibleBackends.filter(
+      n => !isVersionBelow(n.version, minVersion),
+    );
+    if (compatibleBackends.length === 0) {
+      throw new Error(
+        l('backendMinCompatError', {
+          requiredVersion: minVersion,
+          implementation,
+          version,
+        }),
+      );
+    }
   }
   return compatibleBackends;
 };
@@ -194,6 +213,7 @@ export const createLndNetworkNode = (
   docker: CommonNode['docker'],
   status = Status.Stopped,
   basePort = BasePorts.LND,
+  minCompatibility?: DockerRepoImage['minCompatibility'],
 ): LndNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LndNode['implementation'] = 'LND';
@@ -202,6 +222,7 @@ export const createLndNetworkNode = (
     version,
     compatibility,
     bitcoin,
+    minCompatibility,
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
@@ -232,6 +253,7 @@ export const createCLightningNetworkNode = (
   docker: CommonNode['docker'],
   status = Status.Stopped,
   basePort = BasePorts['c-lightning'],
+  minCompatibility?: DockerRepoImage['minCompatibility'],
 ): CLightningNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LightningNode['implementation'] = 'c-lightning';
@@ -240,6 +262,7 @@ export const createCLightningNetworkNode = (
     version,
     compatibility,
     bitcoin,
+    minCompatibility,
   );
   // determines if GRPC is supported in a version of Core Lightning provided
   const supportsGrpc = !isVersionCompatible(version, '0.10.2');
@@ -272,6 +295,7 @@ export const createEclairNetworkNode = (
   docker: CommonNode['docker'],
   status = Status.Stopped,
   basePort = BasePorts.eclair,
+  minCompatibility?: DockerRepoImage['minCompatibility'],
 ): EclairNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: EclairNode['implementation'] = 'eclair';
@@ -280,6 +304,7 @@ export const createEclairNetworkNode = (
     version,
     compatibility,
     bitcoin,
+    minCompatibility,
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
@@ -307,6 +332,7 @@ export const createLitdNetworkNode = (
   compatibility: DockerRepoImage['compatibility'],
   docker: CommonNode['docker'],
   status = Status.Stopped,
+  minCompatibility?: DockerRepoImage['minCompatibility'],
 ): LitdNode => {
   const { bitcoin, lightning } = network.nodes;
   const implementation: LitdNode['implementation'] = 'litd';
@@ -315,6 +341,7 @@ export const createLitdNetworkNode = (
     version,
     compatibility,
     bitcoin,
+    minCompatibility,
   );
   const id = lightning.length ? Math.max(...lightning.map(n => n.id)) + 1 : 0;
   const name = getName(id);
@@ -567,7 +594,7 @@ export const createNetwork = (config: {
   // add lightning nodes in an alternating pattern
   range(Math.max(lndNodes, clightningNodes, eclairNodes, litdNodes)).forEach(i => {
     if (i < lndNodes) {
-      const { latest, compatibility } = repoState.images.LND;
+      const { latest, compatibility, minCompatibility } = repoState.images.LND;
       const cmd = getImageCommand(managedImages, 'LND', latest);
       lightning.push(
         createLndNetworkNode(
@@ -577,11 +604,12 @@ export const createNetwork = (config: {
           dockerWrap(cmd),
           status,
           basePorts?.LND,
+          minCompatibility,
         ),
       );
     }
     if (i < clightningNodes) {
-      const { latest, compatibility } = repoState.images['c-lightning'];
+      const { latest, compatibility, minCompatibility } = repoState.images['c-lightning'];
       const cmd = getImageCommand(managedImages, 'c-lightning', latest);
       lightning.push(
         createCLightningNetworkNode(
@@ -591,11 +619,12 @@ export const createNetwork = (config: {
           dockerWrap(cmd),
           status,
           basePorts?.['c-lightning'],
+          minCompatibility,
         ),
       );
     }
     if (i < eclairNodes) {
-      const { latest, compatibility } = repoState.images.eclair;
+      const { latest, compatibility, minCompatibility } = repoState.images.eclair;
       const cmd = getImageCommand(managedImages, 'eclair', latest);
       lightning.push(
         createEclairNetworkNode(
@@ -605,14 +634,22 @@ export const createNetwork = (config: {
           dockerWrap(cmd),
           status,
           basePorts?.eclair,
+          minCompatibility,
         ),
       );
     }
     if (i < litdNodes) {
-      const { latest, compatibility } = repoState.images.litd;
+      const { latest, compatibility, minCompatibility } = repoState.images.litd;
       const cmd = getImageCommand(managedImages, 'litd', latest);
       lightning.push(
-        createLitdNetworkNode(network, latest, compatibility, dockerWrap(cmd), status),
+        createLitdNetworkNode(
+          network,
+          latest,
+          compatibility,
+          dockerWrap(cmd),
+          status,
+          minCompatibility,
+        ),
       );
     }
   });

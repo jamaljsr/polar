@@ -26,6 +26,8 @@ describe('MCP model > listNodeVersions', () => {
     expect(result.compatibility).toBeDefined();
     expect(result.compatibility.LND).toBeDefined();
     expect(result.compatibility.LND?.['0.19.2-beta']).toBe('31.0');
+    expect(result.minCompatibility.eclair?.['0.14.2']).toBe('31.0');
+    expect(result.minCompatibility.LND).toBeUndefined();
     expect(result.message).toContain('All supported node versions');
   });
 

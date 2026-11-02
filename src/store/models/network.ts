@@ -428,6 +428,7 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts.LND,
+            dockerRepoState.images.LND.minCompatibility,
           );
           network.nodes.lightning.push(node);
           break;
@@ -439,6 +440,7 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts['c-lightning'],
+            dockerRepoState.images['c-lightning'].minCompatibility,
           );
           network.nodes.lightning.push(node);
           break;
@@ -450,6 +452,7 @@ const networkModel: NetworkModel = {
             docker,
             undefined,
             settings.basePorts.eclair,
+            dockerRepoState.images.eclair.minCompatibility,
           );
           network.nodes.lightning.push(node);
           break;
@@ -459,6 +462,8 @@ const networkModel: NetworkModel = {
             version,
             dockerRepoState.images.litd.compatibility,
             docker,
+            undefined,
+            dockerRepoState.images.litd.minCompatibility,
           );
           network.nodes.lightning.push(node);
           break;
@@ -620,6 +625,7 @@ const networkModel: NetworkModel = {
               n.version,
               dockerRepoState.images[n.implementation].compatibility,
               remaining,
+              dockerRepoState.images[n.implementation].minCompatibility,
             );
             n.backendName = backends[0].name;
           } catch (error: any) {
@@ -681,7 +687,7 @@ const networkModel: NetworkModel = {
     async (
       actions,
       { id, lnName, backendName },
-      { injections, getState, getStoreActions },
+      { injections, getState, getStoreState, getStoreActions },
     ) => {
       const networks = getState().networks;
       const network = networks.find(n => n.id === id);
@@ -692,6 +698,16 @@ const networkModel: NetworkModel = {
       if (!btcNode) throw new Error(l('nodeByNameErr', { name: backendName }));
       if (lnNode.backendName === backendName)
         throw new Error(l('connectedErr', { lnName, backendName }));
+      // throws if the backend version is not compatible with the LN node
+      const { compatibility, minCompatibility } =
+        getStoreState().app.dockerRepoState.images[lnNode.implementation];
+      filterCompatibleBackends(
+        lnNode.implementation,
+        lnNode.version,
+        compatibility,
+        [btcNode],
+        minCompatibility,
+      );
 
       if (network.status === Status.Started) {
         // stop the LN node container

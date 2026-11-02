@@ -7,7 +7,7 @@ import { usePrefixedTranslation } from 'hooks';
 import { Status } from 'shared/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
-import { isVersionCompatible } from 'utils/strings';
+import { isVersionBelow, isVersionCompatible } from 'utils/strings';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 
 const Styled = {
@@ -62,14 +62,18 @@ const ChangeBackendModal: React.FC<Props> = ({ network }) => {
     const ln = lightning.find(n => n.name === selectedLn);
     const backend = bitcoin.find(n => n.name === selectedBackend);
     if (ln && backend) {
-      const { compatibility } = dockerRepoState.images[ln.implementation];
-      if (compatibility) {
-        const requiredVersion = compatibility[ln.version];
-        if (!isVersionCompatible(backend.version, requiredVersion)) {
-          setCompatWarning(l('compatWarning', { ln, backend, requiredVersion }));
-        } else {
-          setCompatWarning(undefined);
-        }
+      const { compatibility, minCompatibility } =
+        dockerRepoState.images[ln.implementation];
+      const requiredVersion = compatibility && compatibility[ln.version];
+      const minVersion = minCompatibility && minCompatibility[ln.version];
+      if (requiredVersion && !isVersionCompatible(backend.version, requiredVersion)) {
+        setCompatWarning(l('compatWarning', { ln, backend, requiredVersion }));
+      } else if (minVersion && isVersionBelow(backend.version, minVersion)) {
+        setCompatWarning(
+          l('minCompatWarning', { ln, backend, requiredVersion: minVersion }),
+        );
+      } else {
+        setCompatWarning(undefined);
       }
     }
   }, [dockerRepoState, l, network.nodes, selectedLn, selectedBackend]);

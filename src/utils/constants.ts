@@ -444,6 +444,16 @@ export const defaultRepoState: DockerRepoState = {
         '0.10.0',
         '0.9.0',
       ],
+      // some eclair versions require a newer bitcoind.
+      // this mapping specifies the lowest compatible bitcoind for each eclair version
+      minCompatibility: {
+        '0.14.6': '31.0',
+        '0.14.5': '31.0',
+        '0.14.4': '31.0',
+        '0.14.3': '31.0',
+        '0.14.2': '31.0',
+        '0.14.1': '31.0',
+      },
     },
     bitcoind: {
       latest: '31.0',

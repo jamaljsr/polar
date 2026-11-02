@@ -171,6 +171,10 @@ export const testRepoState: DockerRepoState = {
     eclair: {
       latest: '0.10.0',
       versions: ['0.10.0', '0.9.0', '0.8.0', '0.7.0', '0.6.2', '0.5.0'],
+      // this mapping specifies the lowest compatible bitcoind for each eclair version
+      minCompatibility: {
+        '0.9.0': '30.0',
+      },
     },
     bitcoind: {
       latest: '31.0',
