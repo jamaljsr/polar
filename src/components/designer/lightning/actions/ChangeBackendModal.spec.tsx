@@ -5,6 +5,7 @@ import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
 import { createBitcoindNetworkNode, createLndNetworkNode } from 'utils/network';
 import {
+  clone,
   getNetwork,
   injections,
   renderWithProviders,
@@ -138,6 +139,24 @@ describe('ChangeBackendModal', () => {
     changeSelect('Lightning Node', 'erin');
     expect(getByText(warning)).toBeInTheDocument();
     changeSelect('Lightning Node', 'alice');
+    expect(queryByText(warning)).not.toBeInTheDocument();
+  });
+
+  it('should display the compatibility warning for a bitcoin node below the minimum', async () => {
+    const { getByText, queryByText, changeSelect, store, network } =
+      await renderComponent();
+    const eclair = network.nodes.lightning.find(n => n.implementation === 'eclair')!;
+    const repoState = clone(testRepoState);
+    repoState.images.eclair.minCompatibility = { [eclair.version]: '22.0' };
+    store.getActions().app.setRepoState(repoState);
+    const warning =
+      `${eclair.name} is running eclair v${eclair.version} which is compatible with Bitcoin Core v22.0 and newer.` +
+      ' backend2 is running v0.18.1 so it cannot be used.';
+    changeSelect('Lightning Node', eclair.name);
+    expect(queryByText(warning)).not.toBeInTheDocument();
+    changeSelect('Bitcoin Node', 'backend2');
+    expect(getByText(warning)).toBeInTheDocument();
+    changeSelect('Bitcoin Node', 'backend1');
     expect(queryByText(warning)).not.toBeInTheDocument();
   });
 

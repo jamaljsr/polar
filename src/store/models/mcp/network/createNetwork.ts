@@ -104,7 +104,7 @@ const hasBitcoindUpTo = (requiredVersion: string | undefined, versions: Set<stri
   return false;
 };
 
-const hasLndAtLeast = (minVersion: string | undefined, versions: Set<string>) => {
+const hasVersionAtLeast = (minVersion: string | undefined, versions: Set<string>) => {
   if (!minVersion) return true;
   for (const version of versions) {
     if (compareVersions(version, minVersion) >= 0) {
@@ -349,6 +349,35 @@ const validateCompatibility = (context: PlanContext, repoState: DockerRepoState)
     }
   }
 
+  // Some lightning versions also require a minimum bitcoind version
+  const lightningBaseCounts: [NodeImplementation, number][] = [
+    ['LND', baseCounts.lndNodes],
+    ['c-lightning', baseCounts.clightningNodes],
+    ['eclair', baseCounts.eclairNodes],
+    ['litd', baseCounts.litdNodes],
+  ];
+  for (const [implementation, baseCount] of lightningBaseCounts) {
+    const { latest, minCompatibility } = repoState.images[implementation];
+    if (!minCompatibility) continue;
+    const versions = new Set<string>();
+    if (baseCount > 0) {
+      versions.add(latest);
+    }
+    additionalNodes
+      .filter(node => node.implementation === implementation)
+      .forEach(node => versions.add(node.version));
+
+    for (const version of versions) {
+      const minBitcoind = minCompatibility[version];
+      if (!hasVersionAtLeast(minBitcoind, bitcoindVersions)) {
+        throw new Error(
+          `${implementation} version ${version} requires a bitcoind node at version ` +
+            `${minBitcoind} or higher. Add a compatible bitcoind node.`,
+        );
+      }
+    }
+  }
+
   // Tapd depends on an LND backend with a minimum supported version; validate the aggregated set
   const tapdVersions = new Set<string>();
   if (baseCounts.tapdNodes > 0) {
@@ -361,7 +390,7 @@ const validateCompatibility = (context: PlanContext, repoState: DockerRepoState)
   const tapdCompatibility = repoState.images.tapd.compatibility || {};
   for (const version of tapdVersions) {
     const minLndVersion = tapdCompatibility[version];
-    const isCompatible = hasLndAtLeast(minLndVersion, lndVersions);
+    const isCompatible = hasVersionAtLeast(minLndVersion, lndVersions);
     if (!isCompatible) {
       throw new Error(
         `tapd version ${version} requires an LND node at version ${minLndVersion} or higher. Add a compatible LND node.`,
