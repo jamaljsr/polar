@@ -14,8 +14,12 @@ This document describes the steps to follow to create a new release of Polar and
    ```
    yarn release
    ```
-1. Manually modify with `CHANGELOG.md` file to make it more presentable. Add a brief summary at the top and remove any unnecessary commits.
-   Search for [merged PRs](https://github.com/jamaljsr/polar/pulls?q=is%3Apr+merged%3A%3E2023-04-19+-author%3Aapp%2Frenovate+) since the last release date to find the recent changes.
+1. Fold the release notes into `CHANGELOG.md`. This replaces the commit list from `yarn release` with the entries in `docs/release-notes/unreleased/`, generates the list of contributors, and deletes the folded files
+   ```
+   yarn release:notes
+   ```
+1. Manually modify the `CHANGELOG.md` file to make it more presentable. Add a brief summary at the top, tidy any `Docs` lines left over from `yarn release`, and edit the contributors if needed, for example to replace a co-author's name with their handle.
+   As a check for missing notes, search for [merged PRs](https://github.com/jamaljsr/polar/pulls?q=is%3Apr+merged%3A%3E2023-04-19+-author%3Aapp%2Frenovate+) since the last release date.
 1. Modify the `README.md` file
    - add any updates to features and/or newly supported node versions
    - update the download links to point to the new urls
@@ -38,6 +42,7 @@ This document describes the steps to follow to create a new release of Polar and
      git checkout release/v1.0.0
      git pull --rebase origin master
      ```
+   - Run `yarn release:notes` again and commit the result, so the fix is announced in this release. Your earlier edits are kept
    - Force-push the updated branch to Github
      ```
      git push -f
