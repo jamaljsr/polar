@@ -1,6 +1,6 @@
-FROM debian
+FROM debian:bookworm
 
-ARG NODE_VERSION=20.1
+ARG NODE_VERSION=24.22.2
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USER_NAME=dev
 
@@ -25,8 +25,8 @@ USER ${USER_NAME}
 # install nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
-# install node 16.20.2
+# install node
 RUN bash -c '. ~/.nvm/nvm.sh && nvm install ${NODE_VERSION}'
 
 # add node to PATH
-ENV PATH=/home/${USER_NAME}/.nvm/versions/node/${NODE_VERSION}/bin:$PATH
+ENV PATH=/home/${USER_NAME}/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH
