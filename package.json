@@ -10,7 +10,7 @@
   },
   "main": "public/main/electron/index.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "build": "cross-env CI=false PUBLIC_URL=./ rescripts --openssl-legacy-provider build",

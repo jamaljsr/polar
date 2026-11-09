@@ -308,7 +308,7 @@ Users can add custom Docker images. See `docs/custom-nodes.md` for details.
 
 ## Tech Stack Summary
 
-- **Node.js**: v20+ required
+- **Node.js**: v24+ required
 - **Electron**: v13 (cross-platform desktop shell)
 - **React**: v17 with TypeScript
 - **State**: Easy-Peasy (Redux wrapper with less boilerplate)
