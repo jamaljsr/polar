@@ -1,5 +1,6 @@
 import { createStore } from 'easy-peasy';
 import { createMockRootModel, injections } from 'utils/tests';
+import { HOME, NETWORK_VIEW } from 'components/routing';
 
 describe('MCP model > renameNetwork', () => {
   const rootModel = createMockRootModel();
@@ -31,6 +32,7 @@ describe('MCP model > renameNetwork', () => {
     const network = store.getState().network.networks[0];
     expect(network.name).toBe('old-name');
     expect(network.description).toBe('Old Description');
+    injections.history.push(HOME);
 
     const result = await store.getActions().mcp.renameNetwork({
       networkId: network.id,
@@ -43,6 +45,7 @@ describe('MCP model > renameNetwork', () => {
     expect(result.message).toContain('successfully');
     expect(result.network.name).toBe('new-name');
     expect(result.network.description).toBe('New Description');
+    expect(injections.history.location.pathname).toEqual(NETWORK_VIEW(network.id));
 
     // Verify network was updated in store
     const updatedNetwork = store.getState().network.networks[0];

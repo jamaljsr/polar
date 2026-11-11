@@ -2,6 +2,7 @@ import * as LITD from '@lightningpolar/litd-api';
 import * as LND from '@lightningpolar/lnd-api';
 import * as TAP from '@lightningpolar/tapd-api';
 import { IChart } from '@mrblenny/react-flow-chart';
+import { History } from 'history';
 import {
   AnyNode,
   BitcoinNode,
@@ -302,6 +303,7 @@ export interface StoreInjections {
   tapFactory: TapFactoryInjection;
   litdService: LitdLibrary;
   lndService: LndWalletLibrary;
+  history: History;
 }
 
 export interface NetworksFile {

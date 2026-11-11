@@ -1,5 +1,4 @@
 import { info } from 'electron-log';
-import { push } from 'connected-react-router';
 import { thunk } from 'easy-peasy';
 import { RootModel } from 'store/models';
 import { McpToolDefinition } from 'store/models/mcp/types';
@@ -54,7 +53,7 @@ export const renameNetworkTool = thunk<
   StoreInjections,
   RootModel,
   Promise<RenameNetworkResult>
->(async (actions, args, { getStoreState, getStoreActions, dispatch }) => {
+>(async (actions, args, { getStoreState, getStoreActions, injections }) => {
   // Validate required parameters
   validateNetworkId(args.networkId);
 
@@ -76,7 +75,7 @@ export const renameNetworkTool = thunk<
   const updatedNetwork = getStoreState().network.networkById(args.networkId);
 
   // Navigate to the updated network to display the new name
-  dispatch(push(NETWORK_VIEW(updatedNetwork.id)));
+  injections.history.push(NETWORK_VIEW(updatedNetwork.id));
 
   return {
     success: true,

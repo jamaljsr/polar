@@ -218,21 +218,8 @@ describe('App model', () => {
     });
   });
 
-  describe('with mocked actions', () => {
-    beforeEach(() => {
-      // reset the store before each test run
-      store = createStore(rootModel, { injections, mockActions: true });
-    });
-
-    it('should dispatch a push action in navigateTo', () => {
-      store.getActions().app.navigateTo('/test');
-      expect(store.getMockedActions()).toContainEqual({
-        payload: {
-          args: ['/test'],
-          method: 'push',
-        },
-        type: '@@router/CALL_HISTORY_METHOD',
-      });
-    });
+  it('should change the route in navigateTo', () => {
+    store.getActions().app.navigateTo('/test');
+    expect(injections.history.location.pathname).toEqual('/test');
   });
 });
