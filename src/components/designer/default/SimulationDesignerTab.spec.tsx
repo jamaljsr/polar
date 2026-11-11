@@ -258,7 +258,7 @@ describe('SimulationDesignerTab', () => {
       fireEvent.click(getByText('View Logs'));
       const url = '/logs/simln/polar-n1-simln';
       await waitFor(() => {
-        expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+        expect(ipcMock).toHaveBeenCalledWith(ipcChannels.openWindow, { url });
       });
     });
   });

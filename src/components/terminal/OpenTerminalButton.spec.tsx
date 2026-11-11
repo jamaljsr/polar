@@ -49,7 +49,7 @@ describe('OpenTerminalButton', () => {
     fireEvent.click(getByText('Launch'));
     const url = '/terminal/bitcoind/polar-n1-backend1';
     await waitFor(() => {
-      expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+      expect(ipcMock).toHaveBeenCalledWith(ipcChannels.openWindow, { url });
     });
   });
 });

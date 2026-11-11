@@ -23,7 +23,7 @@ describe('LightningFactory', () => {
     const node = network.nodes.lightning[0];
     const service = factory.getService(node);
     await service.getInfo(node);
-    expect(lndProxyClient.getInfo).toBeCalledTimes(1);
+    expect(lndProxyClient.getInfo).toHaveBeenCalledTimes(1);
   });
 
   it('should return a working c-lightning service', async () => {
@@ -34,7 +34,7 @@ describe('LightningFactory', () => {
     const node = network.nodes.lightning[1];
     const service = factory.getService(node);
     await service.getInfo(node);
-    expect(clightningApiMock.httpPost).toBeCalledTimes(1);
+    expect(clightningApiMock.httpPost).toHaveBeenCalledTimes(1);
   });
 
   it('should return an unimplemented eclair service', async () => {
@@ -45,6 +45,6 @@ describe('LightningFactory', () => {
     };
     const service = factory.getService(node);
     await service.getInfo(node);
-    expect(eclairApiMock.httpPost).toBeCalledTimes(1);
+    expect(eclairApiMock.httpPost).toHaveBeenCalledTimes(1);
   });
 });

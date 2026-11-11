@@ -118,7 +118,7 @@ describe('DefaultSidebar Component', () => {
     const dragEvent = createEvent.dragStart(lnd);
     Object.defineProperty(dragEvent, 'dataTransfer', { value: { setData } });
     fireEvent(lnd, dragEvent);
-    expect(setData).toBeCalledWith(
+    expect(setData).toHaveBeenCalledWith(
       REACT_FLOW_CHART,
       JSON.stringify({ type: 'LND', version: lndLatest }),
     );

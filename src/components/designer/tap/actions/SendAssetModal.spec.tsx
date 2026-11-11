@@ -140,7 +140,7 @@ describe('SendAssetModal', () => {
     it('should disable the alert when auto deposit is enabled', async () => {
       const { queryByText, getByText } = await renderComponent();
       await waitFor(() => {
-        expect(lightningServiceMock.getBalances).toBeCalled();
+        expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
       fireEvent.click(getByText('Deposit enough sats to alice to pay on-chain fees'));
       expect(
@@ -154,13 +154,13 @@ describe('SendAssetModal', () => {
       );
       const { getByLabelText, getByText } = await renderComponent();
       await waitFor(() => {
-        expect(lightningServiceMock.getBalances).toBeCalled();
+        expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
       await waitFor(() => {
-        expect(tapServiceMock.decodeAddress).toBeCalled();
+        expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
       fireEvent.click(getByText('Deposit enough sats to alice to pay on-chain fees'));
 
@@ -190,13 +190,13 @@ describe('SendAssetModal', () => {
         .getActions()
         .modals.showSendAsset({ nodeName: litdNode.name, networkId: network.id });
       await waitFor(() => {
-        expect(lightningServiceMock.getBalances).toBeCalled();
+        expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       });
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
       await waitFor(() => {
-        expect(tapServiceMock.decodeAddress).toBeCalled();
+        expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
       fireEvent.click(getByText('Deposit enough sats to carol to pay on-chain fees'));
 

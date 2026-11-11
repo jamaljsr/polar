@@ -134,7 +134,7 @@ describe('App model', () => {
     const spy = jest.spyOn(notification, 'error');
     const error = new Error(new Array(100).join('this is a very long error message. '));
     store.getActions().app.notify({ message: 'test', error });
-    expect(spy).toBeCalledWith({
+    expect(spy).toHaveBeenCalledWith({
       message: 'test',
       placement: 'bottomRight',
       bottom: 50,

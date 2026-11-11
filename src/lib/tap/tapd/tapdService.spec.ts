@@ -294,7 +294,7 @@ describe('TapdService', () => {
       const apiResponse = defaultTapdListAssets({ assets: [sampleAsset] });
       tapdProxyClient.listAssets = jest.fn().mockResolvedValue(apiResponse);
       await expect(tapdService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(tapdProxyClient.listAssets).toBeCalledTimes(1);
+      expect(tapdProxyClient.listAssets).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
@@ -302,7 +302,7 @@ describe('TapdService', () => {
       await expect(tapdService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(tapdProxyClient.listAssets).toBeCalledTimes(4);
+      expect(tapdProxyClient.listAssets).toHaveBeenCalledTimes(4);
     });
   });
 });

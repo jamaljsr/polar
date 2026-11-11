@@ -196,8 +196,8 @@ describe('ChangeBackendModal', () => {
       changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
-        expect(injections.dockerService.stopNode).toBeCalledTimes(1);
-        expect(injections.dockerService.startNode).toBeCalledTimes(1);
+        expect(injections.dockerService.stopNode).toHaveBeenCalledTimes(1);
+        expect(injections.dockerService.startNode).toHaveBeenCalledTimes(1);
       });
     });
   });

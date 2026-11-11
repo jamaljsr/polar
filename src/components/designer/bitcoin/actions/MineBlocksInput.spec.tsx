@@ -58,7 +58,7 @@ describe('MineBlocksInput', () => {
     fireEvent.click(btn);
     const node = store.getState().network.networks[0].nodes.bitcoin[0];
     await waitFor(() => {
-      expect(mineMock).toBeCalledWith(numBlocks, node);
+      expect(mineMock).toHaveBeenCalledWith(numBlocks, node);
     });
   });
 
@@ -70,7 +70,7 @@ describe('MineBlocksInput', () => {
     fireEvent.click(btn);
     const node = store.getState().network.networks[0].nodes.bitcoin[0];
     await waitFor(() => {
-      expect(mineMock).toBeCalledWith(6, node);
+      expect(mineMock).toHaveBeenCalledWith(6, node);
     });
   });
 

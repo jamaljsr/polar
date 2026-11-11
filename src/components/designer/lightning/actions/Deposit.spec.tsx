@@ -72,8 +72,8 @@ describe('Deposit', () => {
     fireEvent.change(input, { target: { value: amount } });
     fireEvent.click(btn);
     await waitFor(() => getByText('Deposited 250,000 sats to alice'));
-    expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
-    expect(bitcoinServiceMock.sendFunds).toBeCalledWith(
+    expect(lightningServiceMock.getNewAddress).toHaveBeenCalledTimes(1);
+    expect(bitcoinServiceMock.sendFunds).toHaveBeenCalledWith(
       expect.anything(),
       'bc1aaaa',
       0.0025,
@@ -86,8 +86,8 @@ describe('Deposit', () => {
     fireEvent.blur(input);
     fireEvent.click(btn);
     await waitFor(() => getByText('Deposited 1,000,000 sats to alice'));
-    expect(lightningServiceMock.getNewAddress).toBeCalledTimes(1);
-    expect(bitcoinServiceMock.sendFunds).toBeCalledWith(
+    expect(lightningServiceMock.getNewAddress).toHaveBeenCalledTimes(1);
+    expect(bitcoinServiceMock.sendFunds).toHaveBeenCalledWith(
       expect.anything(),
       'bc1aaaa',
       0.01,

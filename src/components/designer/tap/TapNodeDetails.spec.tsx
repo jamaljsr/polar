@@ -229,7 +229,7 @@ describe('TapDetails', () => {
       fireEvent.click(await findByText('Connect'));
       fireEvent.click(getByText('GRPC & REST'));
       await waitFor(() => {
-        expect(shell.openExternal).toBeCalledWith(
+        expect(shell.openExternal).toHaveBeenCalledWith(
           'https://lightning.engineering/api-docs/api/tap/',
         );
       });
@@ -362,7 +362,7 @@ describe('TapDetails', () => {
         await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'hex');
         await waitFor(() => {
-          expect(files.read).toBeCalledTimes(2);
+          expect(files.read).toHaveBeenCalledTimes(2);
           expect(getAllByText('test-hex')).toHaveLength(2);
         });
       });
@@ -383,7 +383,7 @@ describe('TapDetails', () => {
         await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'base64');
         await waitFor(() => {
-          expect(files.read).toBeCalledTimes(2);
+          expect(files.read).toHaveBeenCalledTimes(2);
           expect(getAllByText('test-base64')).toHaveLength(2);
         });
       });
