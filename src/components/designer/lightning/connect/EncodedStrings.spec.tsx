@@ -119,6 +119,6 @@ describe('EncodedStrings', () => {
     expect(queryByText('TLS Cert')).not.toBeInTheDocument();
     expect(queryByText('Admin Macaroon')).not.toBeInTheDocument();
     expect(queryByText('Read-only Macaroon')).not.toBeInTheDocument();
-    expect(filesMock.read).not.toBeCalled();
+    expect(filesMock.read).not.toHaveBeenCalled();
   });
 });

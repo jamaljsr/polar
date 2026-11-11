@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/dom';
+import { act, fireEvent } from '@testing-library/react';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import AutoMineButton from './AutoMineButton';
 import { AutoMineMode } from 'types';
@@ -69,7 +69,9 @@ describe('AutoMineButton', () => {
     const { findByText } = renderComponent(AutoMineMode.Auto30s);
 
     // advance by one interval
-    jest.advanceTimersByTime(1500);
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
 
     const progressBar = (await findByText('Auto Mine: 30s'))
       .nextElementSibling as HTMLElement;

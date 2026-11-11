@@ -35,37 +35,37 @@ describe('BitcoindService', () => {
   it('should create a default wallet', async () => {
     mockProto.listWallets = jest.fn().mockResolvedValue([]);
     await bitcoindService.createDefaultWallet(node);
-    expect(getInst().listWallets).toBeCalledTimes(1);
-    expect(getInst().createWallet).toBeCalledTimes(1);
+    expect(getInst().listWallets).toHaveBeenCalledTimes(1);
+    expect(getInst().createWallet).toHaveBeenCalledTimes(1);
   });
 
   it('should not create a default wallet', async () => {
     await bitcoindService.createDefaultWallet(node);
-    expect(getInst().listWallets).toBeCalledTimes(1);
-    expect(getInst().createWallet).toBeCalledTimes(0);
+    expect(getInst().listWallets).toHaveBeenCalledTimes(1);
+    expect(getInst().createWallet).toHaveBeenCalledTimes(0);
   });
 
   it('should get blockchain info', async () => {
     const info = await bitcoindService.getBlockchainInfo(node);
-    expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
+    expect(getInst().getBlockchainInfo).toHaveBeenCalledTimes(1);
     expect(info.blocks).toEqual(10);
   });
 
   it('should get wallet info', async () => {
     const info = await bitcoindService.getWalletInfo(node);
-    expect(mockBitcoin.mock.instances[0].getWalletInfo).toBeCalledTimes(1);
+    expect(mockBitcoin.mock.instances[0].getWalletInfo).toHaveBeenCalledTimes(1);
     expect(info.balance).toEqual(5);
   });
 
   it('should get new address', async () => {
     const addr = await bitcoindService.getNewAddress(node);
-    expect(mockBitcoin.mock.instances[0].getNewAddress).toBeCalledTimes(1);
+    expect(mockBitcoin.mock.instances[0].getNewAddress).toHaveBeenCalledTimes(1);
     expect(addr).toEqual('abcdef');
   });
 
   it('should connect peers', async () => {
     await bitcoindService.connectPeers(node);
-    expect(mockBitcoin.mock.instances[0].addNode).toBeCalledTimes(1);
+    expect(mockBitcoin.mock.instances[0].addNode).toHaveBeenCalledTimes(1);
   });
 
   it('should not throw error if connect peers fails', async () => {
@@ -78,7 +78,7 @@ describe('BitcoindService', () => {
     mockProto.getTxOut = jest.fn().mockResolvedValue(null);
     await expect(bitcoindService.isOutputSpent(node, 'txid1', 1)).resolves.toBe(true);
     // the mempool is included so a broadcast close counts before it confirms
-    expect(getInst().getTxOut).toBeCalledWith('txid1', 1, true);
+    expect(getInst().getTxOut).toHaveBeenCalledWith('txid1', 1, true);
   });
 
   it('should report an output as unspent while it still exists', async () => {
@@ -88,9 +88,9 @@ describe('BitcoindService', () => {
 
   it('should mine new blocks', async () => {
     const result = await bitcoindService.mine(2, node);
-    expect(getInst().getNewAddress).toBeCalledTimes(1);
-    expect(getInst().generateToAddress).toBeCalledTimes(1);
-    expect(getInst().generateToAddress).toBeCalledWith(2, 'abcdef');
+    expect(getInst().getNewAddress).toHaveBeenCalledTimes(1);
+    expect(getInst().generateToAddress).toHaveBeenCalledTimes(1);
+    expect(getInst().generateToAddress).toHaveBeenCalledWith(2, 'abcdef');
     expect(result[0]).toEqual('blockhash1');
   });
 
@@ -101,7 +101,7 @@ describe('BitcoindService', () => {
       return mockProto;
     });
     await bitcoindService.getBlockchainInfo(node);
-    expect(spy).toBeCalledWith('BitcoindService: [request]', '{}');
+    expect(spy).toHaveBeenCalledWith('BitcoindService: [request]', '{}');
   });
 
   it('should reformat logs for rpc responses', async () => {
@@ -111,7 +111,7 @@ describe('BitcoindService', () => {
       return mockProto;
     });
     await bitcoindService.getBlockchainInfo(node);
-    expect(spy).toBeCalledWith('BitcoindService: [response]', '{}');
+    expect(spy).toHaveBeenCalledWith('BitcoindService: [response]', '{}');
   });
 
   it('should log correctly for rpc response error', async () => {
@@ -124,7 +124,7 @@ describe('BitcoindService', () => {
       return mockProto;
     });
     await bitcoindService.getBlockchainInfo(node);
-    expect(spy).toBeCalledWith('BitcoindService: [response]', Error('error'));
+    expect(spy).toHaveBeenCalledWith('BitcoindService: [response]', Error('error'));
   });
 
   it('should log correctly for unknown rpc response', async () => {
@@ -137,7 +137,7 @@ describe('BitcoindService', () => {
       return mockProto;
     });
     await bitcoindService.getBlockchainInfo(node);
-    expect(spy).toBeCalledWith('BitcoindService: [response]', {
+    expect(spy).toHaveBeenCalledWith('BitcoindService: [response]', {
       request: { unknownProp: 'some value' },
     });
   });
@@ -145,8 +145,8 @@ describe('BitcoindService', () => {
   describe('sendFunds', () => {
     it('should send funds with sufficient balance', async () => {
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 1);
-      expect(getInst().getBalances).toBeCalledTimes(1);
-      expect(getInst().sendToAddress).toBeCalledWith('destaddr', 1);
+      expect(getInst().getBalances).toHaveBeenCalledTimes(1);
+      expect(getInst().sendToAddress).toHaveBeenCalledWith('destaddr', 1);
       expect(txid).toEqual('txid');
     });
 
@@ -156,8 +156,8 @@ describe('BitcoindService', () => {
         .mockResolvedValue({ mine: { trusted: 0, untrusted_pending: 0, immature: 0 } });
       mockProto.listTransactions = jest.fn().mockResolvedValue([]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
-      expect(getInst().getBalances).toBeCalledTimes(1);
-      expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);
+      expect(getInst().getBalances).toHaveBeenCalledTimes(1);
+      expect(getInst().sendToAddress).toHaveBeenCalledWith('destaddr', 10);
       expect(txid).toEqual('txid');
     });
 
@@ -168,8 +168,8 @@ describe('BitcoindService', () => {
         .mockResolvedValue({ mine: { trusted: 0, untrusted_pending: 0, immature: 0 } });
       mockProto.listTransactions = jest.fn().mockResolvedValue([{ confirmations: 101 }]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 100);
-      expect(getInst().getBalances).toBeCalledTimes(1);
-      expect(getInst().sendToAddress).toBeCalledWith('destaddr', 100);
+      expect(getInst().getBalances).toHaveBeenCalledTimes(1);
+      expect(getInst().sendToAddress).toHaveBeenCalledWith('destaddr', 100);
       expect(txid).toEqual('txid');
     });
 
@@ -180,8 +180,8 @@ describe('BitcoindService', () => {
         .mockResolvedValue({ mine: { trusted: 0, untrusted_pending: 0, immature: 0 } });
       mockProto.listTransactions = jest.fn().mockResolvedValue([{ confirmations: 10 }]);
       const txid = await bitcoindService.sendFunds(node, 'destaddr', 10);
-      expect(getInst().getBalances).toBeCalledTimes(1);
-      expect(getInst().sendToAddress).toBeCalledWith('destaddr', 10);
+      expect(getInst().getBalances).toHaveBeenCalledTimes(1);
+      expect(getInst().sendToAddress).toHaveBeenCalledWith('destaddr', 10);
       expect(txid).toEqual('txid');
     });
   });
@@ -189,7 +189,7 @@ describe('BitcoindService', () => {
   describe('waitUntilOnline', () => {
     it('should wait successfully', async () => {
       await expect(bitcoindService.waitUntilOnline(node)).resolves.not.toThrow();
-      expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
+      expect(getInst().getBlockchainInfo).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error if waiting fails', async () => {
@@ -197,7 +197,7 @@ describe('BitcoindService', () => {
       await expect(bitcoindService.waitUntilOnline(node, 0.5, 1)).rejects.toThrow(
         'test-error',
       );
-      expect(getInst().getBlockchainInfo).toBeCalledTimes(1);
+      expect(getInst().getBlockchainInfo).toHaveBeenCalledTimes(1);
     });
   });
 });

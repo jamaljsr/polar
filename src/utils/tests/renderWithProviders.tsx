@@ -1,10 +1,9 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import { fireEvent, render } from '@testing-library/react';
 import { Form } from 'antd';
-import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import { createMemoryHistory } from 'history';
+import { Router } from 'react-router';
 import { createReduxStore } from 'store';
 import { BitcoinService, LightningService, StoreInjections, TapService } from 'types';
 
@@ -105,6 +104,7 @@ export const injections: StoreInjections = {
     initWallet: jest.fn(),
     getRecoveredChannelPoints: jest.fn(),
   },
+  history: createMemoryHistory(),
 };
 export const litdServiceMock = injections.litdService as jest.Mocked<
   typeof injections.litdService
@@ -135,12 +135,13 @@ export const renderWithProviders = (
   }
   // provide initial state if any
   const initialState = options.initialState || {};
-  const store = createReduxStore({ initialState, injections, history });
+  const store = createReduxStore({
+    initialState,
+    injections: { ...injections, history },
+  });
   const result = render(
     <StoreProvider store={store}>
-      <Provider store={store as any}>
-        <ConnectedRouter history={history}>{component}</ConnectedRouter>
-      </Provider>
+      <Router history={history}>{component}</Router>
     </StoreProvider>,
   );
 

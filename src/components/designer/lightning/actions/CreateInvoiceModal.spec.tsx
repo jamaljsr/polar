@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Status } from 'shared/types';
 import { LightningNodeChannelAsset } from 'lib/lightning/types';
 import { Network } from 'types';
@@ -45,6 +45,8 @@ describe('CreateInvoiceModal', () => {
     };
     const cmp = <CreateInvoiceModal network={network} />;
     const result = renderWithProviders(cmp, { initialState, wrapForm: true });
+    // let the async effect that loads asset data finish
+    await act(async () => undefined);
     unmount = result.unmount;
     return result;
   };

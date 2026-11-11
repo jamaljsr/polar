@@ -2,7 +2,7 @@ import React from 'react';
 import { Status } from 'shared/types';
 import { getNetwork, renderWithProviders } from 'utils/tests';
 import BalanceChannelsButton from './BalanceChannelsButton';
-import { fireEvent } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 import { initChartFromNetwork } from 'utils/chart';
 
 describe('BalanceChannelsButton', () => {
@@ -48,7 +48,7 @@ describe('BalanceChannelsButton', () => {
       isPrivate: false,
     };
     const { getByRole, store } = renderComponent();
-    store.getActions().lightning.setChannelsInfo([mockChannelInfo]);
+    act(() => store.getActions().lightning.setChannelsInfo([mockChannelInfo]));
     const btn = getByRole('balance-channels');
     expect(btn).toBeInTheDocument();
 

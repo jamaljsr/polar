@@ -143,30 +143,32 @@ describe('ChangeTapBackendModal', () => {
     delete repoState.images.tapd.compatibility;
     changeSelect('TAP Node', 'alice-tap');
     changeSelect('LND Node', 'alice');
-    store.getActions().app.setRepoState(repoState);
+    act(() => {
+      store.getActions().app.setRepoState(repoState);
+    });
     expect(warning).not.toBeInTheDocument();
   });
 
   describe('with form submitted', () => {
     it('should update the backend successfully', async () => {
-      const { getByText, changeSelect, store } = await renderComponent();
+      const { getByText, changeSelect, store, findByText } = await renderComponent();
       changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
         expect(store.getState().modals.changeTapBackend.visible).toBe(false);
       });
-      expect(getByText('The alice-tap node will use bob')).toBeInTheDocument();
+      expect(await findByText('The alice-tap node will use bob')).toBeInTheDocument();
     });
 
     it('should succeed if a previous link does not exist', async () => {
-      const { getByText, changeSelect, store } = await renderComponent();
+      const { getByText, changeSelect, store, findByText } = await renderComponent();
       store.getActions().designer.removeLink('alice-tap-alice');
       changeSelect('LND Node', 'bob');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
         expect(store.getState().modals.changeTapBackend.visible).toBe(false);
       });
-      expect(getByText('The alice-tap node will use bob')).toBeInTheDocument();
+      expect(await findByText('The alice-tap node will use bob')).toBeInTheDocument();
     });
 
     it('should error if the backend is not changed', async () => {

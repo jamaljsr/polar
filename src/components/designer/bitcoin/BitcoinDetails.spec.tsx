@@ -169,7 +169,7 @@ describe('BitcoindDetails', () => {
       fireEvent.click(await findByText('Connect'));
       fireEvent.click(getByText('REST'));
       await waitFor(() => {
-        expect(shell.openExternal).toBeCalledWith(
+        expect(shell.openExternal).toHaveBeenCalledWith(
           'https://bitcoin.org/en/developer-reference#remote-procedure-calls-rpcs',
         );
       });

@@ -89,7 +89,7 @@ describe('RestartNode', () => {
     // wait for the error notification to be displayed
     await waitFor(() => getByLabelText('check-circle'));
     expect(getByText('The node alice has been started')).toBeInTheDocument();
-    expect(dockerServiceMock.startNode).toBeCalledTimes(1);
+    expect(dockerServiceMock.startNode).toHaveBeenCalledTimes(1);
   });
 
   it('should stop the node when started', async () => {
@@ -100,7 +100,7 @@ describe('RestartNode', () => {
     // wait for the error notification to be displayed
     await waitFor(() => getByLabelText('check-circle'));
     expect(getByText('The node alice has been stopped')).toBeInTheDocument();
-    expect(dockerServiceMock.stopNode).toBeCalledTimes(1);
+    expect(dockerServiceMock.stopNode).toHaveBeenCalledTimes(1);
   });
 
   it('should display an error if starting the node fails', async () => {

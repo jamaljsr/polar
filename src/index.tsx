@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { info } from 'electron-log';
 import { css, Global } from '@emotion/react';
 import './i18n';
@@ -56,4 +56,4 @@ const Root: React.FC = () => (
   </>
 );
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+createRoot(document.getElementById('root') as HTMLElement).render(<Root />);

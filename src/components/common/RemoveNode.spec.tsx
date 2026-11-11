@@ -93,7 +93,7 @@ describe('RemoveNode', () => {
       expect(
         getByText('The node carol has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.removeNode).toBeCalledTimes(0);
+      expect(dockerServiceMock.removeNode).toHaveBeenCalledTimes(0);
     });
 
     it('should remove the node with the network started', async () => {
@@ -109,7 +109,7 @@ describe('RemoveNode', () => {
       expect(
         getByText('The node carol has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
+      expect(dockerServiceMock.removeNode).toHaveBeenCalledTimes(1);
     });
 
     it('should display an error if removing the node fails', async () => {
@@ -164,7 +164,7 @@ describe('RemoveNode', () => {
       expect(
         await findByText('The node backend1 has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.saveComposeFile).toBeCalledTimes(1);
+      expect(dockerServiceMock.saveComposeFile).toHaveBeenCalledTimes(1);
     });
 
     it('should remove the node with the network started', async () => {
@@ -180,7 +180,7 @@ describe('RemoveNode', () => {
       expect(
         getByText('The node backend1 has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.saveComposeFile).toBeCalledTimes(2);
+      expect(dockerServiceMock.saveComposeFile).toHaveBeenCalledTimes(2);
     });
 
     it('should display an error if removing the node fails', async () => {
@@ -228,7 +228,7 @@ describe('RemoveNode', () => {
       expect(
         getByText('The node bob-tap has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.removeNode).toBeCalledTimes(0);
+      expect(dockerServiceMock.removeNode).toHaveBeenCalledTimes(0);
     });
 
     it('should remove the node with the network started', async () => {
@@ -244,7 +244,7 @@ describe('RemoveNode', () => {
       expect(
         getByText('The node alice-tap has been removed from the network'),
       ).toBeInTheDocument();
-      expect(dockerServiceMock.removeNode).toBeCalledTimes(1);
+      expect(dockerServiceMock.removeNode).toHaveBeenCalledTimes(1);
     });
 
     it('should display an error if removing the node fails', async () => {

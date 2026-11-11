@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
-import { hot } from 'react-hot-loader/root';
-import { Provider } from 'react-redux';
+import { Router } from 'react-router';
 import { info } from 'electron-log';
-import { ConnectedRouter } from 'connected-react-router';
 import { StoreProvider } from 'easy-peasy';
 import store, { hashHistory } from 'store';
 import { Routes } from 'components/routing';
@@ -13,16 +11,12 @@ const App: React.FC = () => {
   return (
     // store provider for easy-peasy hooks
     <StoreProvider store={store}>
-      {/* react-redux provider for router state */}
-      <Provider store={store as any}>
-        {/* connected-react-router  */}
-        <ConnectedRouter history={hashHistory}>
-          <Routes />
-        </ConnectedRouter>
-        <DockerContainerShutdown />
-      </Provider>
+      <Router history={hashHistory}>
+        <Routes />
+      </Router>
+      <DockerContainerShutdown />
     </StoreProvider>
   );
 };
 
-export default hot(App);
+export default App;

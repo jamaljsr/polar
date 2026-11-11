@@ -1,6 +1,5 @@
 import { ipcRenderer, remote, SaveDialogOptions } from 'electron';
 import { info } from 'electron-log';
-import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import {
   AnyNode,
@@ -341,7 +340,7 @@ const networkModel: NetworkModel = {
     async (
       actions,
       payload,
-      { dispatch, getState, injections, getStoreState, getStoreActions },
+      { getState, injections, getStoreState, getStoreActions },
     ) => {
       const { dockerRepoState, computedManagedImages, settings } = getStoreState().app;
       // convert the customNodes object into an array of custom images with counts
@@ -391,7 +390,7 @@ const networkModel: NetworkModel = {
         },
       });
 
-      dispatch(push(NETWORK_VIEW(newNetwork.id)));
+      injections.history.push(NETWORK_VIEW(newNetwork.id));
     },
   ),
   addNode: thunk(

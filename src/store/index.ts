@@ -1,6 +1,5 @@
-import { routerMiddleware } from 'connected-react-router';
 import { createStore, createTypedHooks } from 'easy-peasy';
-import { createHashHistory, History } from 'history';
+import { createHashHistory } from 'history';
 import { createLogger } from 'redux-logger';
 import { BitcoinFactory } from 'lib/bitcoin';
 import { dockerService, repoService } from 'lib/docker';
@@ -15,13 +14,11 @@ import { StoreInjections } from 'types';
 
 export const hashHistory = createHashHistory();
 
-export const createReduxStore = (options?: {
+export const createReduxStore = (options: {
   initialState?: any;
-  injections?: StoreInjections;
-  history?: History | undefined;
+  injections: StoreInjections;
 }) => {
-  const config = Object.assign({ history: hashHistory }, options);
-  const { initialState, injections, history } = config;
+  const { initialState, injections } = options;
   // Redux store Configuration
   const middleware = [];
 
@@ -41,11 +38,7 @@ export const createReduxStore = (options?: {
     middleware.push(logger);
   }
 
-  // Router Middleware
-  const router = routerMiddleware(history);
-  middleware.push(router);
-
-  const models = createModel(history);
+  const models = createModel();
 
   // create easy-peasy store
   return createStore(models, {
@@ -67,6 +60,7 @@ const injections: StoreInjections = {
   tapFactory: new TapFactory(),
   litdService,
   lndService,
+  history: hashHistory,
 };
 
 const store = createReduxStore({ injections });
@@ -84,7 +78,7 @@ export const { useStoreActions, useStoreDispatch, useStoreState } = typedHooks;
 if (process.env.NODE_ENV !== 'production') {
   if ((module as any).hot) {
     (module as any).hot.accept('./models', () => {
-      const models = createModel(hashHistory);
+      const models = createModel();
       store.reconfigure(models);
     });
   }

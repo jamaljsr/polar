@@ -205,7 +205,7 @@ describe('NodeContextMenu', () => {
       fireEvent.click(getByText('Launch Terminal'));
     });
     const url = '/terminal/LND/polar-n1-alice';
-    expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+    expect(ipcMock).toHaveBeenCalledWith(ipcChannels.openWindow, { url });
   });
 
   it('should show the start node confirmation modal', async () => {
@@ -241,7 +241,7 @@ describe('NodeContextMenu', () => {
       fireEvent.click(getByText('View Logs'));
     });
     const url = '/logs/LND/polar-n1-alice';
-    expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+    expect(ipcMock).toHaveBeenCalledWith(ipcChannels.openWindow, { url });
   });
 
   it('should show the advanced options modal', async () => {
