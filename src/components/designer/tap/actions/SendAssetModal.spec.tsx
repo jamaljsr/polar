@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
-import { waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { Status, TapdNode } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
@@ -51,9 +51,11 @@ describe('SendAssetModal', () => {
 
     const result = renderWithProviders(cmp, { initialState, wrapForm: true });
     if (showModal) {
-      await result.store
-        .getActions()
-        .modals.showSendAsset({ nodeName, networkId: network.id });
+      await act(async () => {
+        await result.store
+          .getActions()
+          .modals.showSendAsset({ nodeName, networkId: network.id });
+      });
     }
     unmount = result.unmount;
     return {
@@ -95,14 +97,14 @@ describe('SendAssetModal', () => {
     });
 
     it('should not set lndName for invalid backend', async () => {
-      const { getByLabelText, store, network } = await renderComponent('bob-tap', false);
+      const { findByLabelText, store, network } = await renderComponent('bob-tap', false);
       expect(store.getState().modals.sendAsset.visible).toBe(false);
       expect(store.getState().modals.sendAsset.lndName).toBeUndefined();
       (network.nodes.tap[1] as TapdNode).lndName = 'invalid';
       await store
         .getActions()
         .modals.showSendAsset({ nodeName: 'bob-tap', networkId: network.id });
-      expect(getByLabelText('Send Asset from bob-tap')).toBeInTheDocument();
+      expect(await findByLabelText('Send Asset from bob-tap')).toBeInTheDocument();
       expect(store.getState().modals.sendAsset.visible).toBe(true);
       expect(store.getState().modals.sendAsset.lndName).toBeUndefined();
     });
@@ -240,7 +242,8 @@ describe('SendAssetModal', () => {
       tapServiceMock.listBalances.mockResolvedValue([
         defaultTapBalance({ id: 'test1234', name: 'testAsset', balance: '1000' }),
       ]);
-      const { getByLabelText, getByText, queryByText } = await renderComponent();
+      const { getByLabelText, getByText, queryByText, findByText } =
+        await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
@@ -248,7 +251,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('Address Info')).toBeInTheDocument();
+      expect(await findByText('Address Info')).toBeInTheDocument();
       expect(getByText('Name')).toBeInTheDocument();
       expect(getByText('testAsset')).toBeInTheDocument();
       expect(getByText('Type')).toBeInTheDocument();
@@ -281,14 +284,14 @@ describe('SendAssetModal', () => {
       tapServiceMock.decodeAddress.mockResolvedValue(
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
-      const { getByText, getByLabelText } = await renderComponent();
+      const { getByText, getByLabelText, findByText } = await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'asdfghdfsddasdf' } });
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('Address Info')).toBeInTheDocument();
+      expect(await findByText('Address Info')).toBeInTheDocument();
       expect(getByText('Name')).toBeInTheDocument();
       expect(getByText('testAsset')).toBeInTheDocument();
       expect(getByText('Type')).toBeInTheDocument();
@@ -305,14 +308,14 @@ describe('SendAssetModal', () => {
 
     it('should warn when asset is missing', async () => {
       tapServiceMock.decodeAddress.mockResolvedValue(defaultTapAddress({ id: 'badid' }));
-      const { getByText, getByLabelText } = await renderComponent();
+      const { getByText, getByLabelText, findByText } = await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1address' } });
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('alice-tap is missing this asset')).toBeInTheDocument();
+      expect(await findByText('alice-tap is missing this asset')).toBeInTheDocument();
       expect(getByText('Asset Id:')).toBeInTheDocument();
       expect(getByText('badid')).toBeInTheDocument();
     });
@@ -323,17 +326,17 @@ describe('SendAssetModal', () => {
       tapServiceMock.decodeAddress.mockRejectedValue(new Error('Error message'));
     });
     it('should display error', async () => {
-      const { getByText, getByLabelText } = await renderComponent();
+      const { findByText, getByLabelText } = await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1...' } });
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('Error message')).toBeInTheDocument();
+      expect(await findByText('Error message')).toBeInTheDocument();
     });
     it('should clear the error when tap address field is reset', async () => {
-      const { getByText, getByLabelText, queryByText } = await renderComponent();
+      const { findByText, getByLabelText, queryByText } = await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1...' } });
@@ -341,7 +344,7 @@ describe('SendAssetModal', () => {
       await waitFor(() => {
         expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
       });
-      expect(getByText('Error message')).toBeInTheDocument();
+      expect(await findByText('Error message')).toBeInTheDocument();
       fireEvent.change(input, { target: { value: '' } });
       expect(queryByText('Error message')).toBeNull();
     });
@@ -353,18 +356,18 @@ describe('SendAssetModal', () => {
         defaultTapAddress({ id: 'test1234', type: 'NORMAL', amount: '100' }),
       );
       tapServiceMock.sendAsset.mockRejectedValue(new Error('Error message'));
-      const { getByText, getByLabelText } = await renderComponent();
+      const { getByText, getByLabelText, findByText } = await renderComponent();
       const input = getByLabelText('TAP Address');
       expect(input).toBeInTheDocument();
       fireEvent.change(input, { target: { value: 'tap1aaa...' } });
       await waitFor(() => {
-        expect(tapServiceMock.decodeAddress).toHaveBeenCalled();
+        expect(getByText('Send').parentElement).toBeEnabled();
       });
       fireEvent.click(getByText('Send'));
       await waitFor(() => {
         expect(tapServiceMock.sendAsset).toHaveBeenCalled();
       });
-      expect(getByText('Error message')).toBeInTheDocument();
+      expect(await findByText('Error message')).toBeInTheDocument();
     });
   });
 });

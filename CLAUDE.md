@@ -310,7 +310,7 @@ Users can add custom Docker images. See `docs/custom-nodes.md` for details.
 
 - **Node.js**: v24+ required
 - **Electron**: v13 (cross-platform desktop shell)
-- **React**: v17 with TypeScript
+- **React**: v18 with TypeScript
 - **State**: Easy-Peasy (Redux wrapper with less boilerplate)
 - **Styling**: Emotion (CSS-in-JS) + Ant Design components
 - **Testing**: Jest + React Testing Library + TestCafe (e2e)

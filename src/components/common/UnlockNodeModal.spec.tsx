@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
 import * as files from 'utils/files';
@@ -51,10 +51,15 @@ describe('UnlockNodeModal', () => {
   });
 
   it('should do nothing when submitted with an unknown node name', async () => {
-    const { findByText, getByText } = renderComponent('doesnotexist');
-    await findByText('Unlock Node doesnotexist');
+    const { findByLabelText, getByText, queryByText } = renderComponent('doesnotexist');
+    await findByLabelText('Wallet Password');
     fireEvent.click(getByText('Unlock'));
+    // the form validates asynchronously before it calls the submit handler
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve));
+    });
     expect(lndServiceMock.unlockWallet).not.toHaveBeenCalled();
+    expect(queryByText('Unable to unlock the wallet')).not.toBeInTheDocument();
   });
 
   describe('when the wallet state request fails', () => {
@@ -113,8 +118,8 @@ describe('UnlockNodeModal', () => {
     it('should unlock the node and close the modal on success', async () => {
       lndServiceMock.unlockWallet.mockResolvedValue();
       lightningServiceMock.waitUntilOnline.mockResolvedValue();
-      const { findByText, getByText, store } = renderComponent();
-      await findByText('Unlock Node alice');
+      const { findByLabelText, getByText, store } = renderComponent();
+      await findByLabelText('Wallet Password');
       fireEvent.click(getByText('Unlock'));
       await waitFor(() => {
         expect(lndServiceMock.unlockWallet).toHaveBeenCalledWith(
@@ -127,8 +132,8 @@ describe('UnlockNodeModal', () => {
 
     it('should display a friendly error for a wrong password', async () => {
       lndServiceMock.unlockWallet.mockRejectedValue(new Error('invalid passphrase'));
-      const { findByText, getByText } = renderComponent();
-      await findByText('Unlock Node alice');
+      const { findByLabelText, findByText, getByText } = renderComponent();
+      await findByLabelText('Wallet Password');
       fireEvent.click(getByText('Unlock'));
       expect(await findByText('Unable to unlock the wallet')).toBeInTheDocument();
       expect(await findByText('invalid passphrase')).toBeInTheDocument();

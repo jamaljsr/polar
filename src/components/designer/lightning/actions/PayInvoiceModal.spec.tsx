@@ -63,6 +63,8 @@ describe('PayInvoiceModal', () => {
     if (nodeName !== 'invalid') {
       await result.findByLabelText('BOLT 11 Invoice');
     }
+    // let the async effect that loads asset data finish
+    await act(async () => undefined);
     return result;
   };
 

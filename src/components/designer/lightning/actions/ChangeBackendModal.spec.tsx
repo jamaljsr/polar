@@ -167,19 +167,19 @@ describe('ChangeBackendModal', () => {
 
   describe('with form submitted', () => {
     it('should update the backend successfully', async () => {
-      const { getByText, changeSelect, store } = await renderComponent();
+      const { getByText, changeSelect, store, findByText } = await renderComponent();
       changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
       await waitFor(() => {
         expect(store.getState().modals.changeBackend.visible).toBe(false);
       });
       expect(
-        getByText('The alice node will pull chain data from backend2'),
+        await findByText('The alice node will pull chain data from backend2'),
       ).toBeInTheDocument();
     });
 
     it('should succeed if a previous link does not exist', async () => {
-      const { getByText, changeSelect, store } = await renderComponent();
+      const { getByText, changeSelect, store, findByText } = await renderComponent();
       store.getActions().designer.removeLink('alice-backend1');
       changeSelect('Bitcoin Node', 'backend2');
       fireEvent.click(getByText('Change Backend'));
@@ -187,7 +187,7 @@ describe('ChangeBackendModal', () => {
         expect(store.getState().modals.changeBackend.visible).toBe(false);
       });
       expect(
-        getByText('The alice node will pull chain data from backend2'),
+        await findByText('The alice node will pull chain data from backend2'),
       ).toBeInTheDocument();
     });
 

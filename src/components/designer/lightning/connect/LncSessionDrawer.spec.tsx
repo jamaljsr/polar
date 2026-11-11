@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 import { LitdNode } from 'shared/types';
 import { Session } from 'lib/litd/types';
 import { Network } from 'types';
@@ -33,10 +33,14 @@ describe('LncSessionDrawer', () => {
     const cmp = <LncSessionDrawer node={node} />;
     const result = renderWithProviders(cmp, { initialState });
 
-    await result.store.getActions().lit.getSessions(node);
-    await result.store.getActions().modals.showLncSessionInfo({
-      nodeName: node.name,
-      sessionId: 'test-id',
+    await act(async () => {
+      await result.store.getActions().lit.getSessions(node);
+    });
+    await act(async () => {
+      await result.store.getActions().modals.showLncSessionInfo({
+        nodeName: node.name,
+        sessionId: 'test-id',
+      });
     });
 
     return result;

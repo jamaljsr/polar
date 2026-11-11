@@ -1,6 +1,6 @@
 import React from 'react';
 import { shell } from 'electron';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { Status, TapNode } from 'shared/types';
 import { Network } from 'types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -318,8 +318,13 @@ describe('TapDetails', () => {
         const buttons = await findAllByLabelText('unordered-list');
         expect(buttons.length).toEqual(2);
         fireEvent.click(buttons[0]);
-        store.getActions().tap.setAssets({ node, assets: [] });
-        store.getActions().tap.setBalances({ node, balances: [] });
+        // separate acts render the in-between state (a balance with no assets)
+        act(() => {
+          store.getActions().tap.setAssets({ node, assets: [] });
+        });
+        act(() => {
+          store.getActions().tap.setBalances({ node, balances: [] });
+        });
         expect(
           await findByText(
             'Asset b4b9058fa9621541ed67d470c9f250e5671e484ebc45ad4ba85d5d2fcf7b2001 not found',
