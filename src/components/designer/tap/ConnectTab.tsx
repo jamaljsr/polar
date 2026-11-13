@@ -5,9 +5,6 @@ import { Radio, Tooltip } from 'antd';
 import { usePrefixedTranslation } from 'hooks';
 import { Status, TapdNode, TapNode } from 'shared/types';
 import { useStoreActions } from 'store';
-import { ContainerPorts } from 'utils/constants';
-import { getContainerName } from 'utils/network';
-import HostLabel from 'components/common/HostLabel';
 import CopyIcon from 'components/common/CopyIcon';
 import DetailsList, { DetailValues } from 'components/common/DetailsList';
 import { EncodedStrings, FilePaths } from 'components/designer/lightning/connect';
@@ -34,9 +31,7 @@ const Styled = {
 
 export interface ConnectionInfo {
   restUrl: string;
-  restContainerUrl?: string;
   grpcUrl: string;
-  grpcContainerUrl?: string;
   apiDocsUrl: string;
   credentials: {
     admin?: string;
@@ -57,13 +52,9 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
     if (node.status === Status.Started) {
       if (node.implementation === 'tapd') {
         const tapd = node as TapdNode;
-        const containerName = getContainerName(tapd);
-        const containerPorts = ContainerPorts[tapd.implementation];
         return {
           restUrl: `https://127.0.0.1:${tapd.ports.rest}`,
-          restContainerUrl: `https://${containerName}:${containerPorts.rest}`,
           grpcUrl: `127.0.0.1:${tapd.ports.grpc}`,
-          grpcContainerUrl: `${containerName}:${containerPorts.grpc}`,
           apiDocsUrl: 'https://lightning.engineering/api-docs/api/tap/',
           credentials: {
             admin: tapd.paths.adminMacaroon,
@@ -87,17 +78,12 @@ const ConnectTab: React.FC<Props> = ({ node }) => {
 
   const { restUrl, grpcUrl, credentials } = info;
   const hosts: DetailValues = [
-    [l('grpcHost'), grpcUrl, grpcUrl, info.grpcContainerUrl],
-    [l('restHost'), restUrl, restUrl, info.restContainerUrl],
+    [l('grpcHost'), grpcUrl, grpcUrl],
+    [l('restHost'), restUrl, restUrl],
   ]
     .filter(h => !!h[1]) // exclude empty values
-    .map(([label, value, text, containerAddress]) => ({
-      label: (
-        <HostLabel
-          label={label as string}
-          containerAddress={containerAddress as string}
-        />
-      ),
+    .map(([label, value, text]) => ({
+      label,
       value: <CopyIcon label={label} value={value as string} text={text} />,
     }));
   hosts.push({
