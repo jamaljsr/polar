@@ -1,5 +1,5 @@
 # Start with a NodeJS base image that also contains yarn.
-FROM node:22.21.1-alpine@sha256:0340fa682d72068edf603c305bfbc10e23219fb0e40df58d9ea4d6f33a9798bf as nodejsbuilder
+FROM node:22.23.5-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a as nodejsbuilder
 
 ARG LITD_VERSION
 
@@ -17,7 +17,7 @@ RUN cd /go/src/github.com/lightninglabs/lightning-terminal/app \
 # If you change this value, please also update:
 # /Dockerfile
 # /.github/workflows/main.yml
-FROM golang:1.24-bookworm as golangbuilder
+FROM golang:1.27-bookworm as golangbuilder
 
 # Instead of checking out from git again, we just copy the whole working
 # directory of the previous stage that includes the generated static assets.
