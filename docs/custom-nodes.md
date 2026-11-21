@@ -40,9 +40,6 @@ Polar v1.0.0 supports using custom docker images for nodes in your networks. The
    # Start a new, final image.
    FROM alpine as final
 
-   # Define a root volume for data persistence.
-   VOLUME /root/.lnd
-
    # Add bash and ca-certs, for quality of life and SSL-related reasons.
    RUN apk --no-cache add \
        bash \

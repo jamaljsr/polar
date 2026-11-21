@@ -112,6 +112,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     volumeDirName: 'lnd',
     command: [
       'lnd',
+      '--lnddir=/home/lnd/.lnd',
       '--noseedbackup',
       '--debuglevel=debug',
       '--trickledelay=5000',
@@ -145,6 +146,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     volumeDirName: 'c-lightning',
     command: [
       'lightningd',
+      '--lightning-dir=/home/clightning/.lightning',
       '--alias={{name}}',
       '--addr={{name}}',
       '--addr=0.0.0.0:9735',
@@ -214,6 +216,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     volumeDirName: 'bitcoind',
     command: [
       'bitcoind',
+      '-datadir=/home/bitcoin/.bitcoin',
       '-server=1',
       '-regtest=1',
       '-rpcauth={{rpcUser}}:{{rpcAuth}}',
@@ -253,6 +256,7 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     volumeDirName: 'tapd',
     command: [
       'tapd',
+      '--tapddir=/home/tap/.tapd',
       '--network=regtest',
       '--debuglevel=debug',
       '--tlsextradomain={{name}}',
@@ -278,6 +282,9 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     volumeDirName: 'litd',
     command: [
       'litd',
+      '--lit-dir=/home/litd/.lit',
+      '--lnd.lnddir=/home/litd/.lnd',
+      '--taproot-assets.tapddir=/home/litd/.tapd',
       '--httpslisten=0.0.0.0:8443',
       '--enablerest',
       '--uipassword={{litdPass}}',
