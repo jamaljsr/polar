@@ -1,0 +1,32 @@
+name: Release Notes
+
+on:
+  pull_request:
+    # fragments are named after PRs into master, so PRs into other branches are not checked
+    branches:
+      - 'master'
+    # `edited` re-runs the check when the "No release note needed" box is ticked
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  release-notes:
+    name: Check release note
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: test the release note scripts
+        run: node --test scripts/*.test.js
+
+      - name: check release note
+        run: node scripts/check-release-notes.js
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}

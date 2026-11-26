@@ -76,6 +76,8 @@ Download Polar v4.0.0 for your OS
 
 Alternative and older version binaries can be found in the [GitHub releases](https://github.com/jamaljsr/polar/releases)
 
+Changes merged since the last release are listed in [unreleased changes](https://github.com/jamaljsr/polar/tree/master/docs/release-notes/unreleased). To use them before the next release, you can [build Polar from source](https://github.com/jamaljsr/polar/blob/master/CONTRIBUTING.md).
+
 ## Help Translate
 
 Polar's translations are managed on [Crowdin](https://crowdin.com/project/polar). The initial translations of 10 languages were done by machine (Google Translate) and are likely to not be 100% accurate. If you speak multiple languages and wish to help with translations, please feel free to head over to the [project page](https://crowdin.com/project/polar) on Crowdin and submit updated strings. This assistance would be greatly appreciated.

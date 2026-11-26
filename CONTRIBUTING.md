@@ -297,3 +297,4 @@ If you would like to fix a bug or implement a new feature, here are the recommen
    $ git push
    ```
 1. Open a pull request on GitHub ([docs](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork))
+1. If users will notice your change, add a release note. Now that you have a PR number, create `docs/release-notes/unreleased/<PR number>.md` and push it. See [docs/release-notes/README.md](docs/release-notes/README.md) for the format. The `Release Notes` check on your PR tells you if it is missing.

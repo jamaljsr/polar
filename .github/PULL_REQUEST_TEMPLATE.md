@@ -10,6 +10,14 @@ Closes #(issue number goes here)
 2. To
 3. Test
 
+### Release Note
+
+Every `feat`, `fix` and `perf` change needs a release note. Add
+`docs/release-notes/unreleased/<PR number>.md` once you know your PR number. See
+[docs/release-notes/README.md](https://github.com/jamaljsr/polar/blob/master/docs/release-notes/README.md).
+
+- [ ] No release note needed
+
 ### Screenshots
 
 [Only if applicable]
