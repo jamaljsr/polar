@@ -482,6 +482,15 @@ describe('DockerService', () => {
       return { net, chart };
     };
 
+    const create390Network = () => {
+      const { net, chart } = createTestNetwork();
+      // zmqHashBlock was added in v4.0.0
+      net.nodes.bitcoin.forEach((n: any) => {
+        delete n.ports.zmqHashBlock;
+      });
+      return { net, chart };
+    };
+
     const createLegacyNetworksFile = (version = '0.1.0') => {
       let res: { net: Network; chart: IChart };
 
@@ -500,6 +509,9 @@ describe('DockerService', () => {
           break;
         case '1.4.1':
           res = create141Network();
+          break;
+        case '3.9.0':
+          res = create390Network();
           break;
         default:
           res = createTestNetwork();
@@ -661,6 +673,16 @@ describe('DockerService', () => {
       // added in v2.0.0
       expect(networks[0].autoMineMode).toBeDefined();
       expect(networks[0].nodes.tap).toBeDefined();
+    });
+
+    it('should migrate network data from v3.x to add zmqHashBlock port', async () => {
+      filesMock.exists.mockResolvedValue(true);
+      filesMock.read.mockResolvedValue(createLegacyNetworksFile('3.9.0'));
+      const { networks, version } = await dockerService.loadNetworks();
+      const btcNode = networks[0].nodes.bitcoin[0];
+      expect(version).toEqual(APP_VERSION);
+      // added in v4.0.0
+      expect(btcNode.ports.zmqHashBlock).toBeDefined();
     });
 
     it('should not run migrations in production with up to date version', async () => {
