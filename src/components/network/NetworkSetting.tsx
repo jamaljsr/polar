@@ -65,6 +65,10 @@ const NetworkSetting: React.FC = () => {
           rest: values.tapd,
           grpc: values.grpcTapd,
         },
+        btcd: {
+          rpc: values.btcd,
+          btcdWallet: values.btcdWallet,
+        },
       };
 
       await updateSettings({ basePorts: { ...updatedPorts } });
@@ -95,6 +99,8 @@ const NetworkSetting: React.FC = () => {
             grpcLND: settings.basePorts.LND.grpc,
             'grpcC-lightning': settings.basePorts['c-lightning'].grpc,
             grpcTapd: settings.basePorts.tapd.grpc,
+            btcd: settings.basePorts.btcd.rpc,
+            btcdWallet: settings.basePorts.btcd.btcdWallet,
           }}
           onFinish={saveSettingsAsync.execute}
         >
@@ -123,6 +129,16 @@ const NetworkSetting: React.FC = () => {
             </Col>
             <Col span={6}>
               <Form.Item name="tapd" label={dockerConfigs.tapd.name}>
+                <InputNumber />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="btcd" label={dockerConfigs.btcd.name}>
+                <InputNumber />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="btcdWallet" label={dockerConfigs.btcd.name + ' Wallet'}>
                 <InputNumber />
               </Form.Item>
             </Col>

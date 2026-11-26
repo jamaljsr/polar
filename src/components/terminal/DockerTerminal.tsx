@@ -15,7 +15,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { getDocker } from 'lib/docker/dockerService';
 import { useStoreActions } from 'store';
 import { delay } from 'utils/async';
-import { eclairCredentials } from 'utils/constants';
+import { btcdCredentials, eclairCredentials } from 'utils/constants';
 import { nord } from './themes';
 
 // exec command and options configuration
@@ -75,6 +75,12 @@ const nodeConfig: Record<string, { user: string; commands: string[] }> = {
     user: 'bitcoin',
     commands: [
       'alias bitcoin-cli="bitcoin-cli -regtest -datadir=/home/bitcoin/.bitcoin"',
+    ],
+  },
+  btcd: {
+    user: 'btcd',
+    commands: [
+      `alias btcctl="btcctl --regtest --rpcuser=${btcdCredentials.user} --rpcpass=${btcdCredentials.pass}"`,
     ],
   },
   tapd: {

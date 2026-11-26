@@ -1,3 +1,4 @@
+import { info } from 'electron-log';
 import { Action, action, Thunk, thunk } from 'easy-peasy';
 import { BitcoinNode, Status } from 'shared/types';
 import { StoreInjections } from 'types';
@@ -73,10 +74,19 @@ const bitcoinModel: BitcoinModel = {
     await injections.bitcoinFactory.getService(node).mine(blocks, node);
     // add a small delay to allow the block to propagate to all nodes
     await delay(500);
-    // update info for all bitcoin nodes
+    // update info for all bitcoin nodes. an unreachable node shouldn't fail the mining
+    // of blocks which already succeeded above
     const network = getStoreState().network.networkById(node.networkId);
     await Promise.all(
-      network.nodes.bitcoin.filter(n => n.status === Status.Started).map(actions.getInfo),
+      network.nodes.bitcoin
+        .filter(n => n.status === Status.Started)
+        .map(n =>
+          actions
+            .getInfo(n)
+            .catch((e: Error) =>
+              info(`Failed to update info for bitcoin node ${n.name}`, e),
+            ),
+        ),
     );
   }),
   sendFunds: thunk(

@@ -3,7 +3,7 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { ipcChannels } from 'shared';
 import { BitcoinNode, LightningNode } from 'shared/types';
 import { Network } from 'types';
-import { getNetwork, injections, renderWithProviders } from 'utils/tests';
+import { addBtcdNode, getNetwork, injections, renderWithProviders } from 'utils/tests';
 import OpenTerminalButton from './OpenTerminalButton';
 
 describe('OpenTerminalButton', () => {
@@ -39,6 +39,26 @@ describe('OpenTerminalButton', () => {
   it('should render c-lightning help text', () => {
     const { getByText } = renderComponent(n => n.nodes.lightning[1]);
     const help = getByText("Run 'lightning-cli' commands directly on the node");
+    expect(help).toBeInTheDocument();
+  });
+
+  it('should render btcd help text', () => {
+    const network = getNetwork(1, 'test network');
+    const btcdNode = addBtcdNode(network);
+    const { getByText } = renderWithProviders(<OpenTerminalButton node={btcdNode} />, {
+      wrapForm: true,
+    });
+    const help = getByText("Run 'btcctl' commands directly on the node");
+    expect(help).toBeInTheDocument();
+  });
+
+  it('should render tapd help text', () => {
+    const network = getNetwork(1, 'test network', undefined, 1);
+    const { getByText } = renderWithProviders(
+      <OpenTerminalButton node={network.nodes.tap[0]} />,
+      { wrapForm: true },
+    );
+    const help = getByText("Run 'tapcli' commands directly on the node");
     expect(help).toBeInTheDocument();
   });
 
