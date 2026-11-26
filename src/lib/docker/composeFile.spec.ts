@@ -63,6 +63,7 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('bitcoind');
     expect(service.container_name).toEqual('polar-n1-backend1');
     expect(service.command).toContain(bitcoinCredentials.user);
+    expect(service.command).toContain('-datadir=/home/bitcoin/.bitcoin');
     expect(service.volumes[0]).toContain('/backend1:');
   });
 
@@ -85,6 +86,7 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('lnd');
     expect(service.container_name).toEqual('polar-n1-alice');
     expect(service.command).toContain('backend');
+    expect(service.command).toContain('--lnddir=/home/lnd/.lnd');
     expect(service.volumes[0]).toContain('/alice:');
   });
 
@@ -108,6 +110,7 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('clightning');
     expect(service.container_name).toEqual('polar-n1-bob');
     expect(service.command).toContain('backend');
+    expect(service.command).toContain('--lightning-dir=/home/clightning/.lightning');
     expect(service.volumes[0]).toContain('/bob/lightningd:');
   });
 
@@ -155,6 +158,7 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('tapd');
     expect(service.container_name).toEqual('polar-n1-alice-tap');
     expect(service.command).toContain('lnd.host=polar-n1-alice');
+    expect(service.command).toContain('--tapddir=/home/tap/.tapd');
     expect(service.volumes[0]).toContain('/alice:');
     expect(service.volumes[1]).toContain('/alice-tap:');
   });
@@ -198,6 +202,9 @@ describe('ComposeFile', () => {
     expect(service.image).toContain('litd');
     expect(service.container_name).toEqual('polar-n1-dave');
     expect(service.command).toContain('lnd.bitcoind.rpchost=polar-n1-backend1');
+    expect(service.command).toContain('--lit-dir=/home/litd/.lit');
+    expect(service.command).toContain('--lnd.lnddir=/home/litd/.lnd');
+    expect(service.command).toContain('--taproot-assets.tapddir=/home/litd/.tapd');
     expect(service.volumes[0]).toContain('/dave/lit:');
     expect(service.volumes[1]).toContain('/dave/lnd:');
     expect(service.volumes[2]).toContain('/dave/tapd:');
