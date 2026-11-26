@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { ipcChannels } from 'shared';
 import { Status } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
@@ -224,7 +224,7 @@ describe('SimulationDesignerTab', () => {
       };
 
       network.simulation = sim;
-      store.getActions().network.setNetworks([network]);
+      act(() => store.getActions().network.setNetworks([network]));
 
       fireEvent.click(getByText('Start'));
       await waitFor(() => {
@@ -258,7 +258,7 @@ describe('SimulationDesignerTab', () => {
       fireEvent.click(getByText('View Logs'));
       const url = '/logs/simln/polar-n1-simln';
       await waitFor(() => {
-        expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+        expect(ipcMock).toHaveBeenCalledWith(ipcChannels.openWindow, { url });
       });
     });
   });

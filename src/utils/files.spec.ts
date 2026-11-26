@@ -30,22 +30,22 @@ describe('Files util', () => {
 
     it('should read files from disk in the app data dir', async () => {
       await read('networks/test.txt');
-      expect(mockFs.readFile).toBeCalledTimes(1);
+      expect(mockFs.readFile).toHaveBeenCalledTimes(1);
     });
 
     it('should handle relative paths', async () => {
       const relPath = join('networks', 'test.txt');
       const absPath = join(dataPath, relPath);
       await read(relPath);
-      expect(mockFs.readFile).toBeCalledTimes(1);
-      expect(mockFs.readFile).toBeCalledWith(absPath);
+      expect(mockFs.readFile).toHaveBeenCalledTimes(1);
+      expect(mockFs.readFile).toHaveBeenCalledWith(absPath);
     });
 
     it('should handle absolute paths', async () => {
       const absPath = join(__dirname, 'networks', 'test.txt');
       await read(absPath);
-      expect(mockFs.readFile).toBeCalledTimes(1);
-      expect(mockFs.readFile).toBeCalledWith(absPath);
+      expect(mockFs.readFile).toHaveBeenCalledTimes(1);
+      expect(mockFs.readFile).toHaveBeenCalledWith(absPath);
     });
 
     it('should convert data from disk to hex format', async () => {
@@ -66,7 +66,7 @@ describe('Files util', () => {
       mockFs.readFile.mockResolvedValue(bytes);
       const path = join('networks', 'channel.backup');
       const result = await readBuffer(path);
-      expect(mockFs.readFile).toBeCalledWith(join(dataPath, path));
+      expect(mockFs.readFile).toHaveBeenCalledWith(join(dataPath, path));
       expect(Buffer.isBuffer(result)).toBe(true);
       expect(result.equals(bytes)).toBe(true);
     });
@@ -75,7 +75,7 @@ describe('Files util', () => {
   describe('write files', () => {
     it('should write files to disk in the app data dir', async () => {
       await write('networks/test.txt', 'test data');
-      expect(mockFs.outputFile).toBeCalledTimes(1);
+      expect(mockFs.outputFile).toHaveBeenCalledTimes(1);
     });
 
     it('should handle relative paths', async () => {
@@ -83,16 +83,16 @@ describe('Files util', () => {
       const absPath = join(dataPath, relPath);
       const data = 'test data';
       await write(relPath, data);
-      expect(mockFs.outputFile).toBeCalledTimes(1);
-      expect(mockFs.outputFile).toBeCalledWith(absPath, data);
+      expect(mockFs.outputFile).toHaveBeenCalledTimes(1);
+      expect(mockFs.outputFile).toHaveBeenCalledWith(absPath, data);
     });
 
     it('should handle absolute paths', async () => {
       const absPath = join(__dirname, 'networks', 'test.txt');
       const data = 'test data';
       await write(absPath, data);
-      expect(mockFs.outputFile).toBeCalledTimes(1);
-      expect(mockFs.outputFile).toBeCalledWith(absPath, data);
+      expect(mockFs.outputFile).toHaveBeenCalledTimes(1);
+      expect(mockFs.outputFile).toHaveBeenCalledWith(absPath, data);
     });
   });
 
@@ -115,7 +115,7 @@ describe('Files util', () => {
       const absPath = join(dataPath, relPath);
       const fileExists = await exists(relPath);
       expect(fileExists).toBe(true);
-      expect(mockFs.pathExists).toBeCalledWith(absPath);
+      expect(mockFs.pathExists).toHaveBeenCalledWith(absPath);
     });
 
     it('should handle absolute paths', async () => {
@@ -123,7 +123,7 @@ describe('Files util', () => {
       const absPath = join(__dirname, 'networks', 'test.txt');
       const fileExists = await exists(absPath);
       expect(fileExists).toBe(true);
-      expect(mockFs.pathExists).toBeCalledWith(absPath);
+      expect(mockFs.pathExists).toHaveBeenCalledWith(absPath);
     });
   });
 
@@ -145,13 +145,13 @@ describe('Files util', () => {
       const spy = jest.fn(x => x);
       const promise = waitForFile('test.txt', 10, 100).then(spy);
       // confirm it isn't called immediately
-      expect(spy).not.toBeCalled();
+      expect(spy).not.toHaveBeenCalled();
       // make pathExists return true
       mockFs.pathExists.mockResolvedValue(true as never);
       // wait for the promise to be resolved
       await expect(promise).resolves.not.toThrow();
       // confirm the spy was called
-      expect(spy).toBeCalled();
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -168,11 +168,11 @@ describe('Files util', () => {
 
       await renameFile(oldPath, newPath);
 
-      expect(mockFs.rename).toBeCalledWith(abs(oldPath), abs(newPath));
-      expect(mockInfo).toBeCalledWith(
+      expect(mockFs.rename).toHaveBeenCalledWith(abs(oldPath), abs(newPath));
+      expect(mockInfo).toHaveBeenCalledWith(
         `File renamed successfully from ${oldPath} to ${newPath}`,
       );
-      expect(mockDebug).not.toBeCalled();
+      expect(mockDebug).not.toHaveBeenCalled();
     });
 
     it('should log an error if renaming fails', async () => {
@@ -184,9 +184,12 @@ describe('Files util', () => {
 
       await renameFile(oldPath, newPath);
 
-      expect(mockFs.rename).toBeCalledWith(abs(oldPath), abs(newPath));
-      expect(mockInfo).not.toBeCalled();
-      expect(mockDebug).toBeCalledWith('Error occurred while renaming file:', error);
+      expect(mockFs.rename).toHaveBeenCalledWith(abs(oldPath), abs(newPath));
+      expect(mockInfo).not.toHaveBeenCalled();
+      expect(mockDebug).toHaveBeenCalledWith(
+        'Error occurred while renaming file:',
+        error,
+      );
     });
   });
 });

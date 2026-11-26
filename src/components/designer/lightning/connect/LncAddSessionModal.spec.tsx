@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import { LitdNode } from 'shared/types';
 import { Network } from 'types';
 import { createLitdNetworkNode } from 'utils/network';
@@ -29,8 +29,10 @@ describe('LncAddSessionModal', () => {
     };
     const cmp = <LncAddSessionModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
-    await result.store.getActions().modals.showAddLncSession({
-      nodeName: node.name,
+    await act(async () => {
+      await result.store.getActions().modals.showAddLncSession({
+        nodeName: node.name,
+      });
     });
     return result;
   };

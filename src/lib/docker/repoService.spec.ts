@@ -18,7 +18,7 @@ const utilsMock = utils as jest.Mocked<typeof utils>;
 describe('RepoService', () => {
   it('should save state to disk', async () => {
     await repoService.save(defaultRepoState);
-    expect(filesMock.write).toBeCalledWith(
+    expect(filesMock.write).toHaveBeenCalledWith(
       expect.stringContaining('nodes.json'),
       expect.stringContaining(`"version": ${defaultRepoState.version}`),
     );

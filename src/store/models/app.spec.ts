@@ -134,7 +134,7 @@ describe('App model', () => {
     const spy = jest.spyOn(notification, 'error');
     const error = new Error(new Array(100).join('this is a very long error message. '));
     store.getActions().app.notify({ message: 'test', error });
-    expect(spy).toBeCalledWith({
+    expect(spy).toHaveBeenCalledWith({
       message: 'test',
       placement: 'bottomRight',
       bottom: 50,
@@ -218,21 +218,8 @@ describe('App model', () => {
     });
   });
 
-  describe('with mocked actions', () => {
-    beforeEach(() => {
-      // reset the store before each test run
-      store = createStore(rootModel, { injections, mockActions: true });
-    });
-
-    it('should dispatch a push action in navigateTo', () => {
-      store.getActions().app.navigateTo('/test');
-      expect(store.getMockedActions()).toContainEqual({
-        payload: {
-          args: ['/test'],
-          method: 'push',
-        },
-        type: '@@router/CALL_HISTORY_METHOD',
-      });
-    });
+  it('should change the route in navigateTo', () => {
+    store.getActions().app.navigateTo('/test');
+    expect(injections.history.location.pathname).toEqual('/test');
   });
 });

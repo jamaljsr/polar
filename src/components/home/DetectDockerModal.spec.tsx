@@ -80,8 +80,8 @@ describe('DetectDockerModal component', () => {
     mockOS.platform.mockReturnValue('darwin');
     const { getByText } = renderComponent();
     fireEvent.click(getByText('Download Docker Desktop'));
-    expect(shell.openExternal).toBeCalledTimes(1);
-    expect(shell.openExternal).toBeCalledWith(dockerLinks.mac['Docker Desktop']);
+    expect(shell.openExternal).toHaveBeenCalledTimes(1);
+    expect(shell.openExternal).toHaveBeenCalledWith(dockerLinks.mac['Docker Desktop']);
   });
 
   it('should display download button for windows', () => {
@@ -96,8 +96,10 @@ describe('DetectDockerModal component', () => {
     mockOS.platform.mockReturnValue('win32');
     const { getByText } = renderComponent();
     fireEvent.click(getByText('Download Docker Desktop'));
-    expect(shell.openExternal).toBeCalledTimes(1);
-    expect(shell.openExternal).toBeCalledWith(dockerLinks.windows['Docker Desktop']);
+    expect(shell.openExternal).toHaveBeenCalledTimes(1);
+    expect(shell.openExternal).toHaveBeenCalledWith(
+      dockerLinks.windows['Docker Desktop'],
+    );
   });
 
   it('should display download button for linux', () => {
@@ -113,11 +115,11 @@ describe('DetectDockerModal component', () => {
     mockOS.platform.mockReturnValue('linux');
     const { getByText } = renderComponent();
     fireEvent.click(getByText('Download Docker'));
-    expect(shell.openExternal).toBeCalledTimes(1);
-    expect(shell.openExternal).toBeCalledWith(dockerLinks.linux['Docker']);
+    expect(shell.openExternal).toHaveBeenCalledTimes(1);
+    expect(shell.openExternal).toHaveBeenCalledWith(dockerLinks.linux['Docker']);
     fireEvent.click(getByText('Download Docker Compose'));
-    expect(shell.openExternal).toBeCalledTimes(2);
-    expect(shell.openExternal).toBeCalledWith(dockerLinks.linux['Docker Compose']);
+    expect(shell.openExternal).toHaveBeenCalledTimes(2);
+    expect(shell.openExternal).toHaveBeenCalledWith(dockerLinks.linux['Docker Compose']);
   });
 
   it('should fetch docker versions when Check Again button clicked', async () => {

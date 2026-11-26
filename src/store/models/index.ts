@@ -1,7 +1,3 @@
-import { connectRouter, RouterState } from 'connected-react-router';
-import { reducer, Reducer } from 'easy-peasy';
-import { History } from 'history';
-import { AnyAction } from 'redux';
 import appModel, { AppModel } from './app';
 import bitcoinModel, { BitcoinModel } from './bitcoin';
 import designerModel, { DesignerModel } from './designer';
@@ -13,7 +9,6 @@ import networkModel, { NetworkModel } from './network';
 import tapModel, { TapModel } from './tap';
 
 export interface RootModel {
-  router: Reducer<RouterState, AnyAction>;
   app: AppModel;
   network: NetworkModel;
   bitcoin: BitcoinModel;
@@ -25,9 +20,8 @@ export interface RootModel {
   mcp: McpModel;
 }
 
-export const createModel = (history: History<any>): RootModel => {
+export const createModel = (): RootModel => {
   const rootModel: RootModel = {
-    router: reducer(connectRouter(history) as any),
     app: appModel,
     network: networkModel,
     bitcoin: bitcoinModel,

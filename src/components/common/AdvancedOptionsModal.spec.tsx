@@ -85,7 +85,7 @@ describe('AdvancedOptionsModal', () => {
 
   describe('with form submitted', () => {
     it('should update the node command', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
+      const { getByText, getByLabelText, store, findByText } = await renderComponent();
       fireEvent.click(getByLabelText('align-left'));
       fireEvent.click(getByText('Save'));
       await waitFor(() => {
@@ -94,7 +94,7 @@ describe('AdvancedOptionsModal', () => {
           store.getState().network.networks[0].nodes.lightning[0].docker.command,
         ).toBe('test command');
       });
-      expect(getByText('Updated advanced options for alice')).toBeInTheDocument();
+      expect(await findByText('Updated advanced options for alice')).toBeInTheDocument();
     });
 
     it('should display an error if it fails', async () => {

@@ -53,7 +53,7 @@ describe('SettingsService', () => {
 
   it('should save the settings to disk', () => {
     settingsService.save(settings);
-    expect(filesMock.write).toBeCalledWith(
+    expect(filesMock.write).toHaveBeenCalledWith(
       expect.stringContaining('settings.json'),
       expect.stringContaining(`"lang": "en-US"`),
     );
@@ -65,7 +65,7 @@ describe('SettingsService', () => {
     const settings = await settingsService.load();
     expect(settings).toBeDefined();
     expect(settings && settings.lang).toBe('en-US');
-    expect(filesMock.read).toBeCalledWith(expect.stringContaining('settings.json'));
+    expect(filesMock.read).toHaveBeenCalledWith(expect.stringContaining('settings.json'));
   });
 
   it('should return undefined if no settings are saved', async () => {

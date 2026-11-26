@@ -360,13 +360,13 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         fireEvent.click(getByText('GRPC'));
         await waitFor(() => {
-          expect(shell.openExternal).toBeCalledWith(
+          expect(shell.openExternal).toHaveBeenCalledWith(
             'https://docs.corelightning.org/docs/grpc',
           );
         });
         fireEvent.click(getByText('REST'));
         await waitFor(() => {
-          expect(shell.openExternal).toBeCalledWith(
+          expect(shell.openExternal).toHaveBeenCalledWith(
             'https://docs.corelightning.org/docs/rest',
           );
         });
@@ -391,7 +391,9 @@ describe('LightningDetails', () => {
         fireEvent.click(await findByText('Connect'));
         fireEvent.click(getByText('REST'));
         await waitFor(() => {
-          expect(shell.openExternal).toBeCalledWith('https://acinq.github.io/eclair');
+          expect(shell.openExternal).toHaveBeenCalledWith(
+            'https://acinq.github.io/eclair',
+          );
         });
       });
     });
@@ -570,7 +572,7 @@ describe('LightningDetails', () => {
         await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'hex');
         await waitFor(() => {
-          expect(files.read).toBeCalledTimes(4);
+          expect(files.read).toHaveBeenCalledTimes(4);
           expect(getAllByText('test-hex')).toHaveLength(4);
         });
       });
@@ -591,7 +593,7 @@ describe('LightningDetails', () => {
         await waitFor(() => getAllByText('TLS Cert'));
         toggle(container, 'base64');
         await waitFor(() => {
-          expect(files.read).toBeCalledTimes(4);
+          expect(files.read).toHaveBeenCalledTimes(4);
           expect(getAllByText('test-base64')).toHaveLength(4);
         });
       });
@@ -616,7 +618,7 @@ describe('LightningDetails', () => {
         await waitFor(() => getByText('TLS Cert'));
         toggle(container, 'lndc');
         await waitFor(() => getByText('GRPC Admin Macaroon Url'));
-        expect(files.read).toBeCalledTimes(4);
+        expect(files.read).toHaveBeenCalledTimes(4);
         expect(getAllByText(/lndconnect/)).toHaveLength(6);
       });
 

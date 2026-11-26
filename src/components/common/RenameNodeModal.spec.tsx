@@ -122,18 +122,20 @@ describe('RenameNodeModal', () => {
 
   describe('with form submitted', () => {
     it('should update the Lightning node name', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent();
+      const { getByText, getByLabelText, store, findByText } = await renderComponent();
       fireEvent.change(getByLabelText('New Node Name'), { target: { value: 'test' } });
       fireEvent.click(getByText('Save'));
       await waitFor(() => {
         expect(store.getState().modals.advancedOptions.visible).toBe(false);
         expect(store.getState().network.networks[0].nodes.lightning[0].name).toBe('test');
       });
-      expect(getByText('The node alice has been renamed to test')).toBeInTheDocument();
+      expect(
+        await findByText('The node alice has been renamed to test'),
+      ).toBeInTheDocument();
     });
 
     it('should update the TAP node name', async () => {
-      const { getByText, getByLabelText, store } = await renderComponent(
+      const { getByText, getByLabelText, store, findByText } = await renderComponent(
         Status.Stopped,
         'alice-tap',
       );
@@ -144,7 +146,7 @@ describe('RenameNodeModal', () => {
         expect(store.getState().network.networks[0].nodes.tap[0].name).toBe('test');
       });
       expect(
-        getByText('The node alice-tap has been renamed to test'),
+        await findByText('The node alice-tap has been renamed to test'),
       ).toBeInTheDocument();
     });
 
@@ -154,7 +156,7 @@ describe('RenameNodeModal', () => {
       bitcoinServiceMock.waitUntilOnline.mockResolvedValue();
       tapServiceMock.waitUntilOnline.mockResolvedValue();
       litdServiceMock.waitUntilOnline.mockResolvedValue();
-      const { getByText, getByLabelText, store } = await renderComponent(
+      const { getByText, getByLabelText, findByText, store } = await renderComponent(
         Status.Started,
         'backend1',
       );
@@ -164,7 +166,9 @@ describe('RenameNodeModal', () => {
         expect(store.getState().modals.advancedOptions.visible).toBe(false);
         expect(store.getState().network.networks[0].nodes.bitcoin[0].name).toBe('test');
       });
-      expect(getByText('The node backend1 has been renamed to test')).toBeInTheDocument();
+      expect(
+        await findByText('The node backend1 has been renamed to test'),
+      ).toBeInTheDocument();
     });
 
     it('should display an error if it fails', async () => {

@@ -2,7 +2,7 @@ import { message, Modal, notification } from 'antd';
 import { waitForElementToBeRemoved } from '@testing-library/dom';
 import './i18n';
 // this adds jest-dom's custom assertions
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 // this is needed for antd v4 components
 import 'regenerator-runtime/runtime';
 // this is needed for antd v4 components
@@ -44,6 +44,9 @@ console.error = (...args) => {
   return originalConsoleError(...args);
 };
 
+// keep the real setImmediate because some specs install fake timers before afterEach runs
+const realSetImmediate = global.setImmediate;
+
 // suppress antd `console.time` calls in `useForm()`
 console.time = () => undefined;
 
@@ -82,4 +85,7 @@ afterEach(async () => {
   if (getModal()) {
     await waitForElementToBeRemoved(getModal);
   }
+  // React 18 renders on a later tick, so let any work scheduled by antd finish before
+  // jsdom is torn down
+  await new Promise(resolve => realSetImmediate(resolve));
 });

@@ -31,7 +31,7 @@ describe('ViewLogsButton', () => {
     fireEvent.click(getByText('View Logs'));
     const url = '/logs/LND/polar-n1-alice';
     await waitFor(() => {
-      expect(ipcMock).toBeCalledWith(ipcChannels.openWindow, { url });
+      expect(ipcMock).toHaveBeenCalledWith(ipcChannels.openWindow, { url });
     });
   });
 });

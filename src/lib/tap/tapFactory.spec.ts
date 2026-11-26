@@ -15,6 +15,6 @@ describe('TapFactory', () => {
     const node = network.nodes.tap[0];
     const service = factory.getService(node);
     await service.listAssets(node);
-    expect(tapdProxyClient.listAssets).toBeCalledTimes(1);
+    expect(tapdProxyClient.listAssets).toHaveBeenCalledTimes(1);
   });
 });

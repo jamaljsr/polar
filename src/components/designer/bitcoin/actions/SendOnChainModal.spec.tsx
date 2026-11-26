@@ -178,7 +178,8 @@ describe('SendOnChainModal', () => {
     });
 
     it('should display an error when amount is above balance', async () => {
-      const { getByText, getByLabelText, store, network } = await renderComponent();
+      const { getByText, getByLabelText, store, network, findByText } =
+        await renderComponent();
       store.getActions().bitcoin.getInfo(network.nodes.bitcoin[0]);
       fireEvent.change(getByLabelText('Amount (BTC)'), { target: { value: '125' } });
       fireEvent.change(getByLabelText('Destination Onchain Address'), {
@@ -189,13 +190,14 @@ describe('SendOnChainModal', () => {
         expect(getByText('Unable to send coins')).toBeInTheDocument();
       });
       expect(
-        getByText('Amount must be less than the backend1 balance of 123 BTC'),
+        await findByText('Amount must be less than the backend1 balance of 123 BTC'),
       ).toBeInTheDocument();
     });
 
     it('should display an error when sending funds fails', async () => {
       bitcoinServiceMock.sendFunds.mockRejectedValue(new Error('error-msg'));
-      const { getByText, getByLabelText, store, network } = await renderComponent();
+      const { getByText, getByLabelText, store, network, findByText } =
+        await renderComponent();
       store.getActions().bitcoin.getInfo(network.nodes.bitcoin[0]);
       fireEvent.change(getByLabelText('Amount (BTC)'), { target: { value: '0.001' } });
       fireEvent.change(getByLabelText('Destination Onchain Address'), {
@@ -205,7 +207,7 @@ describe('SendOnChainModal', () => {
       await waitFor(() => {
         expect(getByText('Unable to send coins')).toBeInTheDocument();
       });
-      expect(getByText('error-msg')).toBeInTheDocument();
+      expect(await findByText('error-msg')).toBeInTheDocument();
     });
   });
 });

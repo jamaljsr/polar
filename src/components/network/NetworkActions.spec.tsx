@@ -93,28 +93,28 @@ describe('NetworkActions Component', () => {
     const { getByText } = renderComponent(Status.Stopped);
     const primaryBtn = getByText('Start');
     fireEvent.click(primaryBtn);
-    expect(handleClick).toBeCalled();
+    expect(handleClick).toHaveBeenCalled();
   });
 
   it('should call onRenameClick when rename menu item clicked', async () => {
     const { findByText, getByLabelText } = renderComponent(Status.Stopped);
     fireEvent.mouseOver(getByLabelText('more'));
     fireEvent.click(await findByText('Rename'));
-    expect(handleRenameClick).toBeCalled();
+    expect(handleRenameClick).toHaveBeenCalled();
   });
 
   it('should call onDeleteClick when rename menu item clicked', async () => {
     const { findByText, getByLabelText } = renderComponent(Status.Stopped);
     fireEvent.mouseOver(getByLabelText('more'));
     fireEvent.click(await findByText('Delete'));
-    expect(handleDeleteClick).toBeCalled();
+    expect(handleDeleteClick).toHaveBeenCalled();
   });
 
   it('should call onExportClick when export menu item clicked', async () => {
     const { findByText, getByLabelText } = renderComponent(Status.Stopped);
     fireEvent.mouseOver(getByLabelText('more'));
     fireEvent.click(await findByText('Export'));
-    expect(handleExportClick).toBeCalled();
+    expect(handleExportClick).toHaveBeenCalled();
   });
 
   it('should display the current block height', () => {
@@ -129,7 +129,7 @@ describe('NetworkActions Component', () => {
     fireEvent.click(getByText('Quick Mine'));
     await waitFor(() => {
       const node = store.getState().network.networks[0].nodes.bitcoin[0];
-      expect(mineMock).toBeCalledWith(1, node);
+      expect(mineMock).toHaveBeenCalledWith(1, node);
     });
   });
 
@@ -147,7 +147,7 @@ describe('NetworkActions Component', () => {
       const { getByLabelText, findByText } = renderComponent(Status.Started);
       fireEvent.click(getByLabelText('reload'));
       expect(await findByText('failed to get info')).toBeInTheDocument();
-      expect(lightningServiceMock.getInfo).toBeCalledTimes(4);
+      expect(lightningServiceMock.getInfo).toHaveBeenCalledTimes(4);
     });
 
     it('should sync the chart from LND nodes', async () => {
@@ -159,9 +159,9 @@ describe('NetworkActions Component', () => {
       expect(
         await findByText('The designer has been synced with the Lightning nodes'),
       ).toBeInTheDocument();
-      expect(lightningServiceMock.getInfo).toBeCalledTimes(4);
-      expect(lightningServiceMock.getBalances).toBeCalledTimes(4);
-      expect(lightningServiceMock.getChannels).toBeCalledTimes(4);
+      expect(lightningServiceMock.getInfo).toHaveBeenCalledTimes(4);
+      expect(lightningServiceMock.getBalances).toHaveBeenCalledTimes(4);
+      expect(lightningServiceMock.getChannels).toHaveBeenCalledTimes(4);
     });
   });
 });

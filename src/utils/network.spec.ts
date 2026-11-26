@@ -483,7 +483,7 @@ describe('Network Utils', () => {
           Status.Stopped,
         );
       const compatibleLnd = compatibility![latest];
-      expect(() => createNode()).toThrowError(
+      expect(() => createNode()).toThrow(
         new Error(
           `This network does not contain a LND v${compatibleLnd} (or higher) node which is required for tapd v${latest}`,
         ),
@@ -510,7 +510,7 @@ describe('Network Utils', () => {
           Status.Stopped,
         );
       const compatibleLnd = compatibility![latest];
-      expect(() => createNode()).toThrowError(
+      expect(() => createNode()).toThrow(
         new Error(
           `This network does not contain a LND v${compatibleLnd} (or higher) node which is required for tapd v${latest}`,
         ),

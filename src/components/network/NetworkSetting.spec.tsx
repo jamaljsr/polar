@@ -58,7 +58,7 @@ describe('NetworkSetting Component', () => {
   it('should save settings when save button is clicked', async () => {
     const { saveBtn, injections } = renderComponent();
     fireEvent.click(saveBtn);
-    await waitFor(() => expect(injections.settingsService.save).toBeCalled());
+    await waitFor(() => expect(injections.settingsService.save).toHaveBeenCalled());
   });
 
   it('should have the correct default ports', async () => {

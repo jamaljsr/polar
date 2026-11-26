@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/dom';
-import { waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { Status, TapNode } from 'shared/types';
 import { initChartFromNetwork } from 'utils/chart';
 import { defaultRepoState } from 'utils/constants';
@@ -38,9 +38,11 @@ describe('MintAssetModal', () => {
     const cmp = <MintAssetModal network={network} />;
     const result = renderWithProviders(cmp, { initialState });
     if (showModal) {
-      await result.store
-        .getActions()
-        .modals.showMintAsset({ nodeName, networkId: network.id });
+      await act(async () => {
+        await result.store
+          .getActions()
+          .modals.showMintAsset({ nodeName, networkId: network.id });
+      });
     }
     unmount = result.unmount;
     return {
@@ -186,7 +188,7 @@ describe('MintAssetModal', () => {
       expect(getByText('Mint')).toBeInTheDocument();
       expect(lightningServiceMock.getBalances).toHaveBeenCalled();
       // clear the store to re-render the component without node data
-      store.getActions().lightning.clearNodes();
+      act(() => store.getActions().lightning.clearNodes());
       expect(
         queryByText('Insufficient balance on lnd node alice'),
       ).not.toBeInTheDocument();

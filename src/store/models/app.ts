@@ -3,7 +3,6 @@ import { shell } from 'electron';
 import { warn } from 'electron-log';
 import { notification } from 'antd';
 import { ArgsProps } from 'antd/lib/notification';
-import { push } from 'connected-react-router';
 import { Action, action, Computed, computed, Thunk, thunk } from 'easy-peasy';
 import { ipcChannels } from 'shared';
 import { NodeImplementation } from 'shared/types';
@@ -273,10 +272,10 @@ const appModel: AppModel = {
       warn(message, error);
     }
   }),
-  navigateTo: thunk((actions, route, { dispatch }) => {
-    dispatch(push(route));
+  navigateTo: thunk((actions, route, { injections }) => {
+    injections.history.push(route);
   }),
-  navigateToNetwork: thunk((actions, id, { dispatch, getStoreActions }) => {
+  navigateToNetwork: thunk((actions, id, { injections, getStoreActions }) => {
     // Navigating to a network requires a bit more work than just changing the route.
     // This may be able to be refactored into a useAsync func in NetworkView
     // set the active chart Id
@@ -288,7 +287,7 @@ const appModel: AppModel = {
     // reset the tap nodes state
     getStoreActions().tap.clearNodes();
     // change the route
-    dispatch(push(NETWORK_VIEW(id)));
+    injections.history.push(NETWORK_VIEW(id));
   }),
   openInBrowser: action((state, url) => {
     shell.openExternal(url);
