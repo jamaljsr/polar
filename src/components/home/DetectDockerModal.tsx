@@ -48,10 +48,13 @@ const DetectDockerModal: React.FC = () => {
   const {
     dockerVersions: { docker, compose },
   } = useStoreState(s => s.app);
-  const { openInBrowser, getDockerVersions, notify } = useStoreActions(s => s.app);
+  const { openInBrowser, getDockerVersions, getDockerImages, notify } = useStoreActions(
+    s => s.app,
+  );
   const checkAsync = useAsyncCallback(async () => {
     try {
       await getDockerVersions({ throwErr: true });
+      await getDockerImages();
     } catch (error: any) {
       notify({ message: l('dockerError'), error });
     }
