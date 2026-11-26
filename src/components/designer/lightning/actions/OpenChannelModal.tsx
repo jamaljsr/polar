@@ -7,6 +7,7 @@ import { TapBalance } from 'lib/tap/types';
 import { useStoreActions, useStoreState } from 'store';
 import { Network } from 'types';
 import { mapToTapd } from 'utils/network';
+import { format } from 'utils/units';
 import { Loader } from 'components/common';
 import LightningNodeSelect from 'components/common/form/LightningNodeSelect';
 import TapAssetSelect from 'components/common/form/TapAssetSelect';
@@ -43,6 +44,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   const selectedFrom = Form.useWatch<string>('from', form) || '';
   const selectedTo = Form.useWatch<string>('to', form) || '';
   const capacity = Form.useWatch<number>('capacity', form) || 0;
+  const autoFund = Form.useWatch<boolean>('autoFund', form);
 
   const getBalancesAsync = useAsync(async () => {
     if (!visible) return;
@@ -59,6 +61,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
 
   const openChanAsync = useAsyncCallback(async (values: FormValues) => {
     try {
+      if (insufficientFunds) return;
       const { lightning } = network.nodes;
       const fromNode = lightning.find(n => n.name === values.from);
       const toNode = lightning.find(n => n.name === values.to);
@@ -98,12 +101,18 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
   });
 
   const sameNode = selectedFrom === selectedTo;
-  const showDeposit = useMemo(() => {
+  const fromBalance = useMemo(() => {
     const confirmed = nodes?.[selectedFrom]?.walletBalance?.confirmed || '0';
-    const balance = parseInt(confirmed);
-    const hasLowBalance = assetId === 'sats' ? balance < capacity : balance < 5000;
+    return parseInt(confirmed);
+  }, [selectedFrom, nodes]);
+  const showDeposit = useMemo(() => {
+    const hasLowBalance =
+      assetId === 'sats' ? fromBalance < capacity : fromBalance < 5000;
     return !sameNode && hasLowBalance;
-  }, [selectedFrom, capacity, nodes, sameNode, assetId]);
+  }, [fromBalance, capacity, sameNode, assetId]);
+  // without the automatic deposit, the source node cannot fund a channel larger than
+  // its confirmed balance and LND would reject the request with a raw gRPC error
+  const insufficientFunds = assetId === 'sats' && showDeposit && autoFund === false;
 
   const showAssets = useMemo(() => {
     const fromNode = network.nodes.lightning.find(n => n.name === selectedFrom);
@@ -200,6 +209,19 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
           <Checkbox>{l('deposit', { selectedFrom })}</Checkbox>
         </Form.Item>
       )}
+      {insufficientFunds && (
+        <Form.Item>
+          <Alert
+            type="warning"
+            showIcon
+            message={l('lowBalanceWarnMsg', {
+              selectedFrom,
+              balance: format(fromBalance),
+              capacity: format(capacity),
+            })}
+          />
+        </Form.Item>
+      )}
       {assetId === 'sats' && (
         <Form.Item name="isPrivate" valuePropName="checked">
           <Checkbox>{l('private')}</Checkbox>
@@ -231,7 +253,7 @@ const OpenChannelModal: React.FC<Props> = ({ network }) => {
         okText={l('okBtn')}
         okButtonProps={{
           loading: openChanAsync.loading,
-          disabled: sameNode,
+          disabled: sameNode || insufficientFunds,
         }}
         onOk={form.submit}
       >
