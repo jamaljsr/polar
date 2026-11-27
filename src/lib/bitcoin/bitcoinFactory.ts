@@ -16,6 +16,7 @@ class BitcoinFactory {
   constructor() {
     this._services = {
       bitcoind: bitcoindService,
+      'bitcoind-knots': bitcoindService,
       btcd: notImplementedService, // TODO: To be replaced with btcd service
     };
   }

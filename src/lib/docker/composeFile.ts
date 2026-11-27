@@ -63,7 +63,7 @@ class ComposeFile {
   }
 
   addBitcoind(node: BitcoinNode) {
-    const { name, version, ports } = node;
+    const { name, version, ports, implementation } = node;
     const { rpc, p2p, zmqBlock, zmqTx } = ports;
     const container = getContainerName(node);
     // define the variable substitutions
@@ -72,13 +72,25 @@ class ComposeFile {
       rpcAuth: bitcoinCredentials.rpcauth,
     };
     // use the node's custom image or the default for the implementation
-    const image = node.docker.image || `${dockerConfigs.bitcoind.imageName}:${version}`;
+    const image =
+      node.docker.image || `${dockerConfigs[implementation].imageName}:${version}`;
     // use the node's custom command or the default for the implementation
-    const nodeCommand = node.docker.command || getDefaultCommand('bitcoind', version);
+    const nodeCommand = node.docker.command || getDefaultCommand(implementation, version);
     // replace the variables in the command
     const command = this.mergeCommand(nodeCommand, variables);
     // add the docker service
-    const svc = bitcoind(name, container, image, rpc, p2p, zmqBlock, zmqTx, command);
+    const volumeDirName = dockerConfigs[implementation].volumeDirName;
+    const svc = bitcoind(
+      name,
+      container,
+      image,
+      rpc,
+      p2p,
+      zmqBlock,
+      zmqTx,
+      command,
+      volumeDirName,
+    );
     this.addService(svc);
   }
 

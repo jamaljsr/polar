@@ -84,6 +84,7 @@ const appModel: AppModel = {
       'c-lightning': 1,
       eclair: 1,
       bitcoind: 1,
+      'bitcoind-knots': 0,
       btcd: 0,
       tapd: 0,
       litd: 0,
@@ -91,6 +92,7 @@ const appModel: AppModel = {
     basePorts: {
       LND: { grpc: BasePorts.LND.grpc, rest: BasePorts.LND.rest },
       bitcoind: { rest: BasePorts.bitcoind.rest },
+      'bitcoind-knots': { rest: BasePorts['bitcoind-knots'].rest },
       'c-lightning': {
         grpc: BasePorts['c-lightning'].grpc,
         rest: BasePorts['c-lightning'].rest,

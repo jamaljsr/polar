@@ -1,4 +1,9 @@
-import { compareVersions, ellipseInner, isVersionCompatible } from './strings';
+import {
+  compareVersions,
+  ellipseInner,
+  isMajorVersionCompatible,
+  isVersionCompatible,
+} from './strings';
 
 describe('strings util', () => {
   describe('ellipseInner', () => {
@@ -53,6 +58,29 @@ describe('strings util', () => {
       expect(isVersionCompatible('asdf', 'xyz')).toBe(true);
       expect(isVersionCompatible('', '0.18.1')).toBe(true);
       expect(isVersionCompatible(undefined as any, '0.18.1')).toBe(true);
+    });
+  });
+
+  describe('isMajorVersionCompatible', () => {
+    it('should treat point releases in the same major as compatible', () => {
+      expect(isMajorVersionCompatible('27.1', '27.0')).toBe(true);
+      expect(isMajorVersionCompatible('29.3', '29.0')).toBe(true);
+      expect(isMajorVersionCompatible('29.0', '29.0')).toBe(true);
+    });
+
+    it('should allow lower major versions', () => {
+      expect(isMajorVersionCompatible('26.1', '27.0')).toBe(true);
+      expect(isMajorVersionCompatible('27.0', '30.0')).toBe(true);
+    });
+
+    it('should reject higher major versions', () => {
+      expect(isMajorVersionCompatible('28.0', '27.0')).toBe(false);
+      expect(isMajorVersionCompatible('30.0', '29.3')).toBe(false);
+    });
+
+    it('should handle empty or invalid input', () => {
+      expect(isMajorVersionCompatible('', '27.0')).toBe(true);
+      expect(isMajorVersionCompatible('27.0', '')).toBe(false);
     });
   });
 
