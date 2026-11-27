@@ -279,6 +279,9 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
     command: [
       'litd',
       '--httpslisten=0.0.0.0:8443',
+      '--tlsextradomain={{name}}',
+      '--tlsextradomain={{containerName}}',
+      '--tlsextradomain=host.docker.internal',
       '--enablerest',
       '--uipassword={{litdPass}}',
       '--network=regtest',
