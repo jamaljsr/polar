@@ -78,7 +78,7 @@ export const setAutoMineModeTool = thunk<
   const network = getStoreState().network.networkById(args.networkId);
 
   // Set the auto-mine mode using the network store action
-  await getStoreActions().network.setAutoMineMode({
+  await getStoreActions().network.autoMine({
     id: args.networkId,
     mode: args.mode,
   });
