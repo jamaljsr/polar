@@ -11,7 +11,7 @@ class RepoService implements RepoServiceInjection {
   /**
    * The path to the state file
    */
-  filePath = join(dataPath, 'nodes.json');
+  filePath = join(dataPath, 'nodes-v2.json');
 
   /**
    * Saves the given state to the file system
@@ -91,7 +91,7 @@ class RepoService implements RepoServiceInjection {
   }
 
   /**
-   * Fetch the nodes.json file from a remote URL
+   * Fetch the nodes-v2.json file from a remote URL
    */
   async fetchRemote(): Promise<DockerRepoState> {
     debug(`Fetching remote repo state:`);

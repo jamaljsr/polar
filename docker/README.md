@@ -245,15 +245,17 @@ These docker images can be updated in-between Polar releases. This allows develo
 
 To make new docker image versions available:
 
+> Note: [`docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) is frozen. Polar v4.0.0 and earlier fetch that file, and they can't run some newer images (for example, bitcoind v31 rejects the way they create the default wallet). Add new versions to `docker/nodes-v2.json` only.
+
 1. Build the new docker image using the commands above
 1. Push the image to Docker Hub
-1. Update the [`docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) file
+1. Update the [`docker/nodes-v2.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes-v2.json) file
    - add the new version to the `versions` array of the associated implementation
    - update the `latest` property of the implementation if necessary
    - increment the root-level `version` number by `1`
 1. Update the [`src/utils/constants.ts`](https://github.com/jamaljsr/polar/blob/master/src/utils/constants.ts) file
 
-Once the updated `nodes.json` file is committed to master, the new images can be used in Polar by following these steps:
+Once the updated `nodes-v2.json` file is committed to master, the new images can be used in Polar by following these steps:
 
 1. Create a Network or view an existing Network
 1. In the Network Designer sidebar, click on the **Show All Versions** toggle

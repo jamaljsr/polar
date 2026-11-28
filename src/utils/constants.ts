@@ -361,11 +361,11 @@ export const dockerConfigs: Record<NodeImplementationWithSimln, DockerConfig> = 
  * images and use new versions without needing to update the Polar app
  */
 export const REPO_STATE_URL =
-  'https://raw.githubusercontent.com/jamaljsr/polar/master/docker/nodes.json';
+  'https://raw.githubusercontent.com/jamaljsr/polar/master/docker/nodes-v2.json';
 
 /**
  * this defines the hard-coded list of docker images available in the Polar app. When new images
- * are pushed to Docker Hub, this list should be updated along with the /docker/nodes.json file.
+ * are pushed to Docker Hub, this list should be updated along with the /docker/nodes-v2.json file.
  */
 export const defaultRepoState: DockerRepoState = {
   version: 77,
