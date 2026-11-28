@@ -15,6 +15,7 @@ export interface ListNodeVersionsResult {
   versions: Record<NodeImplementation, string[]>;
   latest: Record<NodeImplementation, string>;
   compatibility: Record<NodeImplementation, Record<string, string> | undefined>;
+  minCompatibility: Record<NodeImplementation, Record<string, string> | undefined>;
   message: string;
 }
 
@@ -24,7 +25,9 @@ export const listNodeVersionsDefinition: McpToolDefinition = {
   description:
     'Lists all supported versions for node implementations included in Polar ' +
     'and the compatibility requirements for each version. The compatibility requirements ' +
-    'are a map of version to the minimum version that is compatible with it.',
+    'are a map of version to the highest bitcoind version that is compatible with it ' +
+    '(for tapd, the lowest LND version). The minCompatibility requirements are a map of ' +
+    'version to the lowest bitcoind version that is compatible with it.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -72,18 +75,22 @@ export const listNodeVersionsTool: Thunk<
   >;
   const compatibility: Record<NodeImplementation, Record<string, string> | undefined> =
     {} as Record<NodeImplementation, Record<string, string> | undefined>;
+  const minCompatibility: Record<NodeImplementation, Record<string, string> | undefined> =
+    {} as Record<NodeImplementation, Record<string, string> | undefined>;
 
   implementations.forEach(impl => {
     const image = images[impl];
     versions[impl] = image.versions;
     latest[impl] = image.latest;
     compatibility[impl] = image.compatibility;
+    minCompatibility[impl] = image.minCompatibility;
   });
 
   const result: ListNodeVersionsResult = {
     versions,
     latest,
     compatibility,
+    minCompatibility,
     message: args.implementation
       ? `Available versions for ${args.implementation}`
       : 'All supported node versions in Polar',

@@ -275,6 +275,7 @@
   "cmps.designer.lightning.actions.ChangeBackendModal.okBtn": "Change Backend",
   "cmps.designer.lightning.actions.ChangeBackendModal.submitError": "Unable to change the backend node",
   "cmps.designer.lightning.actions.ChangeBackendModal.compatWarning": "{{ln.name}} is running {{ln.implementation}} v{{ln.version}} which is compatible with Bitcoin Core v{{requiredVersion}} and older. {{backend.name}} is running v{{backend.version}} so it cannot be used.",
+  "cmps.designer.lightning.actions.ChangeBackendModal.minCompatWarning": "{{ln.name}} is running {{ln.implementation}} v{{ln.version}} which is compatible with Bitcoin Core v{{requiredVersion}} and newer. {{backend.name}} is running v{{backend.version}} so it cannot be used.",
   "cmps.designer.lightning.actions.ChangeBackendModal.successTitle": "Successfully updated the backend node",
   "cmps.designer.lightning.actions.ChangeBackendModal.successDesc": "The {{ln}} node will pull chain data from {{backend}}",
   "cmps.designer.lightning.actions.ChangeTapBackendModal.title": "Change TAP Node Backend",
@@ -687,6 +688,7 @@
   "store.models.network.missingNetworkName": "Network must have a name",
   "store.models.network.nodeNotStarted": "The {{nodeName}} node is not started",
   "utils.network.backendCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or lower) node which is required for {{implementation}} v{{version}}",
+  "utils.network.backendMinCompatError": "This network does not contain a Bitcoin Core v{{requiredVersion}} (or higher) node which is required for {{implementation}} v{{version}}",
   "utils.network.lndBackendCompatError": "This network does not contain a LND v{{requiredVersion}} (or higher) node which is required for {{implementation}} v{{version}}",
   "utils.network.incompatibleImplementation": "Importing networks with {{implementation}} nodes is not supported on {{platform}}",
   "utils.network.unknownImplementation": "Cannot import unknown node implementation '{{implementation}}'"

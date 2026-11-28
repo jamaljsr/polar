@@ -112,9 +112,14 @@ export interface DockerRepoImage {
   latest: string;
   versions: string[];
   /**
-   * a mapping of the image version to the highest compatible bitcoind version
+   * a mapping of the image version to the highest compatible backend version. For
+   * tapd, it is the lowest compatible LND version instead
    */
   compatibility?: Record<string, string>;
+  /**
+   * a mapping of the image version to the lowest compatible bitcoind version
+   */
+  minCompatibility?: Record<string, string>;
 }
 
 export interface DockerRepoState {

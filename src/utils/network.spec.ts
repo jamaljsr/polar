@@ -19,6 +19,7 @@ import {
   createLndNetworkNode,
   createNetwork,
   createTapdNetworkNode,
+  filterCompatibleBackends,
   getCLightningFilePaths,
   getImageCommand,
   getInvoicePayload,
@@ -514,6 +515,69 @@ describe('Network Utils', () => {
         new Error(
           `This network does not contain a LND v${compatibleLnd} (or higher) node which is required for tapd v${latest}`,
         ),
+      );
+    });
+  });
+
+  describe('filterCompatibleBackends', () => {
+    const minCompatibility = { '0.14.2': '31.0' };
+    let backends: BitcoinNode[];
+
+    beforeEach(() => {
+      const network = getNetwork(1, 'compat network');
+      network.nodes.bitcoin = [];
+      ['29.0', '30.0', '31.0'].forEach(version => {
+        const docker = { image: '', command: '' };
+        network.nodes.bitcoin.push(createBitcoindNetworkNode(network, version, docker));
+      });
+      backends = network.nodes.bitcoin;
+    });
+
+    it('should return the backends at or above the minimum version', () => {
+      const result = filterCompatibleBackends(
+        'eclair',
+        '0.14.2',
+        undefined,
+        backends,
+        minCompatibility,
+      );
+      expect(result.map(n => n.version)).toEqual(['31.0']);
+    });
+
+    it('should return the backends between the minimum and maximum versions', () => {
+      const result = filterCompatibleBackends(
+        'eclair',
+        '0.14.2',
+        { '0.14.2': '30.0' },
+        backends,
+        { '0.14.2': '29.0' },
+      );
+      expect(result.map(n => n.version)).toEqual(['29.0', '30.0']);
+    });
+
+    it('should return all backends when the version has no minimum', () => {
+      const result = filterCompatibleBackends(
+        'eclair',
+        '0.13.1',
+        undefined,
+        backends,
+        minCompatibility,
+      );
+      expect(result).toEqual(backends);
+    });
+
+    it('should throw if no backend meets the minimum version', () => {
+      const oldBackends = backends.filter(n => n.version !== '31.0');
+      expect(() =>
+        filterCompatibleBackends(
+          'eclair',
+          '0.14.2',
+          undefined,
+          oldBackends,
+          minCompatibility,
+        ),
+      ).toThrow(
+        'This network does not contain a Bitcoin Core v31.0 (or higher) node which is required for eclair v0.14.2',
       );
     });
   });

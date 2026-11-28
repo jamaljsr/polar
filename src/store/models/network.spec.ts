@@ -496,6 +496,28 @@ describe('Network model', () => {
       );
     });
 
+    it('should throw an error if a LN node needs a newer backend than the ones left', async () => {
+      store.getActions().app.setRepoState(testRepoState);
+      const { removeBitcoinNode, addNode } = store.getActions().network;
+      const { id } = firstNetwork();
+      // add an old bitcoind and an eclair node that requires bitcoind v30.0 or higher
+      await addNode({ id, type: 'bitcoind', version: '29.0' });
+      await addNode({ id, type: 'eclair', version: '0.9.0' });
+      const eclair = firstNetwork().nodes.lightning.find(n => n.version === '0.9.0');
+      // remove the other bitcoind that meets the minimum version
+      const other = firstNetwork().nodes.bitcoin.find(
+        n => n.version !== '29.0' && n.name !== eclair!.backendName,
+      );
+      await removeBitcoinNode({ node: other! });
+      // try to remove the last bitcoind that meets the minimum version
+      const node = firstNetwork().nodes.bitcoin.find(n => n.name === eclair!.backendName);
+      await expect(removeBitcoinNode({ node: node! })).rejects.toThrow(
+        `There are no other compatible backends for ${
+          eclair!.name
+        } to connect to. You must remove the ${eclair!.name} node first`,
+      );
+    });
+
     it('should throw if the simulation is connected to a node', async () => {
       const { addSimulation, removeLightningNode } = store.getActions().network;
       const network = firstNetwork();
@@ -588,6 +610,19 @@ describe('Network model', () => {
       const args = { id: firstNetwork().id, lnName: 'alice', backendName: 'backend1' };
       await expect(updateBackendNode(args)).rejects.toThrow(
         "The node 'alice' is already connected to 'backend1'",
+      );
+    });
+
+    it('should throw an error if the backend is older than the minimum version', async () => {
+      store.getActions().app.setRepoState(testRepoState);
+      const { updateBackendNode, addNode } = store.getActions().network;
+      const { id } = firstNetwork();
+      await addNode({ id, type: 'bitcoind', version: '29.0' });
+      await addNode({ id, type: 'eclair', version: '0.9.0' });
+      const eclair = firstNetwork().nodes.lightning.find(n => n.version === '0.9.0');
+      const args = { id, lnName: eclair!.name, backendName: 'backend3' };
+      await expect(updateBackendNode(args)).rejects.toThrow(
+        'This network does not contain a Bitcoin Core v30.0 (or higher) node which is required for eclair v0.9.0',
       );
     });
   });

@@ -21,6 +21,7 @@ $ docker buildx inspect --bootstrap
 
 ### Tags
 
+- `31.0` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
 - `30.0` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
 - `29.0` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
 - `28.0` ([bitcoind/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/bitcoind/Dockerfile))
@@ -110,6 +111,16 @@ Replace `<version>` with the desired LND version (ex: `0.7.1-beta`)
 
 ### Tags
 
+- `26.06.9` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.06.8` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.06.7` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.06.6` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.06.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.06.1` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.06` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.04.2` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `26.04.1` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
+- `25.12.1` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `25.12` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `25.09.3` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
 - `25.05` ([clightning/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/clightning/Dockerfile))
@@ -151,6 +162,13 @@ Replace `<version>` with the desired c-lightning version (ex: `0.8.0`).
 
 ### Tags
 
+- `0.14.6` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+- `0.14.5` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+- `0.14.4` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+- `0.14.3` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+- `0.14.2` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+- `0.14.1` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
+- `0.14.0` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
 - `0.13.1` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
 - `0.12.0` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
 - `0.11.0` ([eclair/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/eclair/Dockerfile))
@@ -178,6 +196,8 @@ Replace `<version>` with the desired Eclair version (ex: `0.3.3`).
 
 ### Tags
 
+- `0.7.2-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
+- `0.7.1-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.7.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.6.1-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
 - `0.6.0-alpha` ([tap/Dockerfile](https://github.com/jamaljsr/polar/blob/master/docker/tapd/Dockerfile))
@@ -245,15 +265,17 @@ These docker images can be updated in-between Polar releases. This allows develo
 
 To make new docker image versions available:
 
+> Note: [`docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) is frozen. Polar v4.0.0 and earlier fetch that file, and they can't run some newer images (for example, bitcoind v31 rejects the way they create the default wallet). Add new versions to `docker/nodes-v2.json` only.
+
 1. Build the new docker image using the commands above
 1. Push the image to Docker Hub
-1. Update the [`docker/nodes.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes.json) file
+1. Update the [`docker/nodes-v2.json`](https://github.com/jamaljsr/polar/blob/master/docker/nodes-v2.json) file
    - add the new version to the `versions` array of the associated implementation
    - update the `latest` property of the implementation if necessary
    - increment the root-level `version` number by `1`
 1. Update the [`src/utils/constants.ts`](https://github.com/jamaljsr/polar/blob/master/src/utils/constants.ts) file
 
-Once the updated `nodes.json` file is committed to master, the new images can be used in Polar by following these steps:
+Once the updated `nodes-v2.json` file is committed to master, the new images can be used in Polar by following these steps:
 
 1. Create a Network or view an existing Network
 1. In the Network Designer sidebar, click on the **Show All Versions** toggle

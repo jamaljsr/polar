@@ -25,9 +25,25 @@ class BitcoindService implements BitcoinService {
 
   async createDefaultWallet(node: BitcoinNode) {
     const client = this.createClient(node);
-    const wallets = await client.listWallets();
-    if (wallets.length === 0) {
-      await client.createWallet('');
+    // listWallets only returns wallets that are currently loaded
+    if ((await client.listWallets()).length > 0) return;
+    // a wallet may exist on disk but not be loaded after a node restart
+    const { wallets } = await client.listWalletDir();
+    if (wallets.length > 0) {
+      const wallet =
+        wallets.find(w => w.name === bitcoinCredentials.defaultWalletName) || wallets[0];
+      await client.loadWallet(wallet.name);
+    } else {
+      // load_on_startup makes bitcoind reload the wallet itself after a restart
+      await client.createWallet(
+        bitcoinCredentials.defaultWalletName,
+        false, // disable_private_keys
+        false, // blank
+        '', // passphrase
+        false, // avoid_reuse
+        true, // descriptors
+        true, // load_on_startup
+      );
     }
   }
 

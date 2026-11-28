@@ -19,7 +19,7 @@ describe('RepoService', () => {
   it('should save state to disk', async () => {
     await repoService.save(defaultRepoState);
     expect(filesMock.write).toBeCalledWith(
-      expect.stringContaining('nodes.json'),
+      expect.stringContaining('nodes-v2.json'),
       expect.stringContaining(`"version": ${defaultRepoState.version}`),
     );
   });
